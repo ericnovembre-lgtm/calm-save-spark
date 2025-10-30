@@ -113,10 +113,10 @@ export default function IconDemo() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex gap-6 flex-wrap">
-                <SaveplusAnimIcon name="piggy-bank" size={48} />
-                <SaveplusAnimIcon name="rocket" size={48} />
-                <SaveplusAnimIcon name="sparkles" size={48} />
-                <SaveplusAnimIcon name="target" size={48} />
+                <SaveplusAnimIcon name="logo" size={48} />
+                <SaveplusAnimIcon name="dashboard" size={48} />
+                <SaveplusAnimIcon name="goals" size={48} />
+                <SaveplusAnimIcon name="rewards" size={48} />
               </CardContent>
             </Card>
 
@@ -128,10 +128,10 @@ export default function IconDemo() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex gap-6 flex-wrap">
-                <SaveplusAnimIcon name="sparkles" size={48} decorative />
-                <SaveplusAnimIcon name="shield" size={48} decorative />
-                <SaveplusAnimIcon name="lightbulb" size={48} decorative />
-                <SaveplusAnimIcon name="chart-up" size={48} decorative />
+                <SaveplusAnimIcon name="home" size={48} decorative />
+                <SaveplusAnimIcon name="pots" size={48} decorative />
+                <SaveplusAnimIcon name="automations" size={48} decorative />
+                <SaveplusAnimIcon name="dashboard" size={48} decorative />
               </CardContent>
             </Card>
 
@@ -144,14 +144,14 @@ export default function IconDemo() {
               </CardHeader>
               <CardContent className="flex gap-6 flex-wrap">
                 <SaveplusAnimIcon 
-                  name="target" 
+                  name="goals" 
                   size={48} 
                   label="Complete your savings goal"
                 />
                 <SaveplusAnimIcon 
-                  name="rocket" 
+                  name="rewards" 
                   size={48} 
-                  label="Launch your financial journey"
+                  label="Earn amazing rewards"
                 />
               </CardContent>
             </Card>
@@ -168,7 +168,7 @@ export default function IconDemo() {
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm">Basic Usage</h3>
                 <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
-{`<SaveplusAnimIcon name="piggy-bank" size={32} />`}
+{`<SaveplusAnimIcon name="goals" size={32} />`}
                 </pre>
               </div>
 
@@ -176,9 +176,9 @@ export default function IconDemo() {
                 <h3 className="font-semibold text-sm">With Custom Label</h3>
                 <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
 {`<SaveplusAnimIcon 
-  name="rocket" 
+  name="rewards" 
   size={48} 
-  label="Launch your savings goals" 
+  label="Earn amazing rewards" 
 />`}
                 </pre>
               </div>
@@ -186,7 +186,7 @@ export default function IconDemo() {
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm">Decorative (Hidden from Screen Readers)</h3>
                 <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
-{`<SaveplusAnimIcon name="sparkles" decorative />`}
+{`<SaveplusAnimIcon name="dashboard" decorative />`}
                 </pre>
               </div>
 
@@ -204,15 +204,15 @@ export default function IconDemo() {
               <CardTitle>Feature List Example</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {[
-                  { icon: 'target', title: 'Set Savings Goals', desc: 'Create custom pots for each goal' },
-                  { icon: 'rocket', title: 'Track Progress', desc: 'Watch your money grow in real-time' },
-                  { icon: 'shield', title: 'Bank-Level Security', desc: 'Your funds are always protected' },
-                  { icon: 'lightbulb', title: 'Smart Insights', desc: 'AI-powered financial guidance' }
-                ].map((feature) => (
-                  <div key={feature.icon} className="flex items-start gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors">
-                    <SaveplusAnimIcon name={feature.icon} size={40} decorative />
+            <div className="space-y-4">
+              {[
+                { icon: 'goals', title: 'Set Savings Goals', desc: 'Create custom pots for each goal' },
+                { icon: 'dashboard', title: 'Track Progress', desc: 'Watch your money grow in real-time' },
+                { icon: 'automations', title: 'Smart Automations', desc: 'Let the system work for you' },
+                { icon: 'rewards', title: 'Earn Rewards', desc: 'Get rewarded for good habits' }
+              ].map((feature) => (
+                <div key={feature.icon} className="flex items-start gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors">
+                  <SaveplusAnimIcon name={feature.icon} size={40} decorative />
                     <div>
                       <h4 className="font-semibold text-foreground">{feature.title}</h4>
                       <p className="text-sm text-muted-foreground">{feature.desc}</p>
@@ -229,7 +229,7 @@ export default function IconDemo() {
       <Card className="bg-accent/20 border-accent">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
-            <SaveplusAnimIcon name="lightbulb" size={32} decorative />
+            <SaveplusAnimIcon name="logo" size={32} decorative />
             <div className="space-y-2">
               <h3 className="font-semibold text-foreground">About This System</h3>
               <ul className="text-sm text-muted-foreground space-y-1">

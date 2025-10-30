@@ -49,14 +49,9 @@ export function SaveplusAnimIcon({
   // Load icon definition
   useEffect(() => {
     const def = getAnimIconData(name);
-    if (def) {
-      setIconDef(def);
-      setFallbackIndex(0);
-      setHasError(false);
-    } else {
-      console.warn(`Icon "${name}" not found in saveplus_anim_map`);
-      setIconDef(null);
-    }
+    setIconDef(def);
+    setFallbackIndex(0);
+    setHasError(false);
   }, [name]);
 
   // Determine which asset to use based on animation preference
@@ -98,11 +93,11 @@ export function SaveplusAnimIcon({
     return (
       <span
         role={decorative ? 'presentation' : 'img'}
-        aria-label={decorative ? undefined : (label || 'Icon')}
+        aria-label={decorative ? undefined : (label || name)}
         className={cn('inline-block', className)}
         style={{ fontSize: size }}
       >
-        ❓
+        ✨
       </span>
     );
   }

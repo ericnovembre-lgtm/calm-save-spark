@@ -21,110 +21,45 @@ export type SaveplusIconRecord = {
  * $ave+ Animated Icon Registry
  * 
  * To add new icons:
- * 1. Add assets to public/icons/saveplus/
+ * 1. Add assets to public/icons/
  * 2. Register the icon here with all available formats
- * 3. Use the icon via <SaveplusAnimIcon icon="your-icon-key" />
+ * 3. Use the icon via <SaveplusAnimIcon name="your-icon-key" />
  */
-export const saveplusAnimMap: Record<string, SaveplusIconRecord> = {
-  'piggy-bank': {
-    key: 'piggy-bank',
-    label: 'Savings piggy bank',
-    emoji_static: '🐷',
-    apng: '/icons/saveplus/piggy-bank.apng',
-    gif: '/icons/saveplus/piggy-bank.gif',
-    static: '/icons/saveplus/piggy-bank-static.png'
-  },
-  'money-growth': {
-    key: 'money-growth',
-    label: 'Money growing',
-    emoji_static: '📈',
-    apng: '/icons/saveplus/money-growth.apng',
-    gif: '/icons/saveplus/money-growth.gif',
-    static: '/icons/saveplus/money-growth-static.png'
-  },
-  'coin-stack': {
-    key: 'coin-stack',
-    label: 'Stacking coins',
-    emoji_static: '💰',
-    apng: '/icons/saveplus/coin-stack.apng',
-    gif: '/icons/saveplus/coin-stack.gif',
-    static: '/icons/saveplus/coin-stack-static.png'
-  },
-  'wallet': {
-    key: 'wallet',
-    label: 'Wallet',
-    emoji_static: '👛',
-    gif: '/icons/saveplus/wallet.gif',
-    static: '/icons/saveplus/wallet-static.png'
-  },
-  'target': {
-    key: 'target',
-    label: 'Goal target',
-    emoji_static: '🎯',
-    gif: '/icons/saveplus/target.gif',
-    static: '/icons/saveplus/target-static.png'
-  },
-  'rocket': {
-    key: 'rocket',
-    label: 'Growth rocket',
-    emoji_static: '🚀',
-    gif: '/icons/saveplus/rocket.gif',
-    static: '/icons/saveplus/rocket-static.png'
-  },
-  'sparkles': {
-    key: 'sparkles',
-    label: 'Sparkles',
-    emoji_static: '✨',
-    gif: '/icons/saveplus/sparkles.gif',
-    static: '/icons/saveplus/sparkles-static.png'
-  },
-  'shield': {
-    key: 'shield',
-    label: 'Security shield',
-    emoji_static: '🛡️',
-    gif: '/icons/saveplus/shield.gif',
-    static: '/icons/saveplus/shield-static.png'
-  },
-  'chart-up': {
-    key: 'chart-up',
-    label: 'Chart trending up',
-    emoji_static: '📊',
-    gif: '/icons/saveplus/chart-up.gif',
-    static: '/icons/saveplus/chart-up-static.png'
-  },
-  'lightbulb': {
-    key: 'lightbulb',
-    label: 'Idea lightbulb',
-    emoji_static: '💡',
-    gif: '/icons/saveplus/lightbulb.gif',
-    static: '/icons/saveplus/lightbulb-static.png'
-  }
+const REGISTRY: Record<string, SaveplusIconRecord> = {
+  logo: { key:'logo', label:'$ave+ logo', emoji_static:'💠', static:'/icons/logo.svg', apng:'/icons/logo.apng' },
+  home: { key:'home', label:'Home', emoji_static:'🏠', static:'/icons/home.svg' },
+  dashboard: { key:'dashboard', label:'Dashboard', emoji_static:'📊', static:'/icons/dashboard.svg', gif:'/icons/dashboard.gif' },
+  goals: { key:'goals', label:'Goals', emoji_static:'🎯', static:'/icons/goals.svg' },
+  pots: { key:'pots', label:'Pots', emoji_static:'🏺', static:'/icons/pots.svg' },
+  automations: { key:'automations', label:'Automations', emoji_static:'⚙️', static:'/icons/automations.svg' },
+  rewards: { key:'rewards', label:'Rewards', emoji_static:'🏆', static:'/icons/rewards.svg' },
 };
 
 /**
- * Get icon data by key
+ * Get icon data by name
+ * Returns a default fallback if icon not found
  */
-export function getAnimIconData(name: string): SaveplusIconRecord | undefined {
-  return saveplusAnimMap[name];
+export function getAnimIconData(name: string): SaveplusIconRecord {
+  return REGISTRY[name] ?? { key:name, label:name, emoji_static:'✨' };
 }
 
 /**
  * @deprecated Use getAnimIconData instead
  */
-export function getIconDefinition(name: string): SaveplusIconRecord | undefined {
+export function getIconDefinition(name: string): SaveplusIconRecord {
   return getAnimIconData(name);
 }
 
 /**
- * Get all available icon IDs
+ * Get all available icon names
  */
 export function getAvailableIcons(): string[] {
-  return Object.keys(saveplusAnimMap);
+  return Object.keys(REGISTRY);
 }
 
 /**
- * Check if an icon ID exists
+ * Check if an icon name exists
  */
-export function hasIcon(iconId: string): boolean {
-  return iconId in saveplusAnimMap;
+export function hasIcon(name: string): boolean {
+  return name in REGISTRY;
 }

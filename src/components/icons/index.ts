@@ -10,7 +10,6 @@ export {
 } from './SaveplusAnimIcon';
 
 export {
-  saveplusAnimMap,
   getAnimIconData,
   getIconDefinition,
   getAvailableIcons,
