@@ -9,13 +9,21 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* $ave+ Color Palette - Neutral Premium */
-    --background: 40 25% 96%; /* Off-White #F8F6F0 */
-    --foreground: 0 0% 0%; /* Pure Black #000000 */
+    --color-bg: #F8F6F0;
+    --color-text: #000000;
+    --color-accent: #E9DFCE;
+    --color-muted: #6F6F6F;
+    --color-border: #E6E0D5;
+    --color-surface: #FFFFFF;
 
-    --card: 40 35% 85%; /* Light Beige #E9DFCE */
+    /* HSL versions for Tailwind */
+    --background: 40 25% 96%; /* #F8F6F0 */
+    --foreground: 0 0% 0%; /* #000000 */
+
+    --card: 0 0% 100%; /* #FFFFFF surface */
     --card-foreground: 0 0% 0%;
 
-    --popover: 40 25% 96%;
+    --popover: 0 0% 100%;
     --popover-foreground: 0 0% 0%;
 
     --primary: 0 0% 0%; /* Black for primary actions */
@@ -25,22 +33,22 @@ All colors MUST be HSL.
     --secondary-foreground: 0 0% 0%;
 
     --muted: 40 20% 90%;
-    --muted-foreground: 0 0% 40%;
+    --muted-foreground: 0 0% 44%; /* #6F6F6F */
 
-    --accent: 40 35% 85%;
+    --accent: 40 35% 85%; /* #E9DFCE */
     --accent-foreground: 0 0% 0%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 40 25% 96%;
 
-    --border: 40 20% 88%;
-    --input: 40 20% 88%;
+    --border: 42 20% 91%; /* #E6E0D5 */
+    --input: 42 20% 91%;
     --ring: 0 0% 0%;
 
     --radius: 0.5rem;
 
     /* Gradients and effects */
-    --gradient-subtle: linear-gradient(135deg, hsl(40, 25%, 96%), hsl(40, 35%, 85%));
+    --gradient-subtle: linear-gradient(135deg, #F8F6F0, #E9DFCE);
     --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.08);
     --shadow-card: 0 4px 16px -4px hsl(0 0% 0% / 0.1);
     
@@ -48,8 +56,8 @@ All colors MUST be HSL.
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Glass effects */
-    --glass-bg: hsl(40 25% 96% / 0.7);
-    --glass-border: hsl(0 0% 0% / 0.1);
+    --glass-bg: rgba(248, 246, 240, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.1);
   }
 
   @keyframes float {
@@ -64,33 +72,49 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 40 25% 96%;
+    /* $ave+ Dark Mode Palette */
+    --color-bg: #000000;
+    --color-text: #F8F6F0;
+    --color-accent: #BBAE96;
+    --color-muted: #B5B5B5;
+    --color-border: #2A2A2A;
+    --color-surface: #0F0F0F;
 
-    --card: 0 0% 10%;
+    /* HSL versions for Tailwind */
+    --background: 0 0% 0%; /* #000000 */
+    --foreground: 40 25% 96%; /* #F8F6F0 */
+
+    --card: 0 0% 6%; /* #0F0F0F surface */
     --card-foreground: 40 25% 96%;
 
-    --popover: 0 0% 10%;
+    --popover: 0 0% 6%;
     --popover-foreground: 40 25% 96%;
 
-    --primary: 40 25% 96%;
+    --primary: 40 25% 96%; /* Off-white for primary in dark */
     --primary-foreground: 0 0% 0%;
 
-    --secondary: 40 20% 25%;
-    --secondary-foreground: 40 25% 96%;
+    --secondary: 40 20% 55%; /* #BBAE96 */
+    --secondary-foreground: 0 0% 0%;
 
     --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted-foreground: 0 0% 71%; /* #B5B5B5 */
 
-    --accent: 40 20% 25%;
-    --accent-foreground: 40 25% 96%;
+    --accent: 40 20% 55%; /* #BBAE96 */
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 40 25% 96%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
+    --border: 0 0% 16%; /* #2A2A2A */
+    --input: 0 0% 16%;
     --ring: 40 25% 96%;
+
+    /* Dark mode effects */
+    --gradient-subtle: linear-gradient(135deg, #000000, #0F0F0F);
+    --shadow-soft: 0 2px 8px -2px hsl(0 0% 100% / 0.05);
+    --shadow-card: 0 4px 16px -4px hsl(0 0% 100% / 0.08);
+    --glass-bg: rgba(15, 15, 15, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
   }
 }
 
