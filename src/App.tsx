@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AppLayout } from "./components/layout/AppLayout";
 import Index from "./pages/Index";
 import Welcome from "./pages/Welcome";
+import IconDemo from "./pages/IconDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,9 @@ const App = () => (
             <Route path="/settings" element={<AppLayout><div className="container mx-auto p-8">Settings - Coming Soon</div></AppLayout>} />
             <Route path="/admin-agents" element={<AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout>} />
             <Route path="/admin-functions" element={<AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout>} />
+            
+            {/* Icon System Demo */}
+            <Route path="/icon-demo" element={<IconDemo />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
