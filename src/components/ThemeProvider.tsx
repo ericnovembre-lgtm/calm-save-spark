@@ -1,26 +1,25 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import {
-  Theme,
-  getInitialTheme,
-  resolveTheme,
+  ThemeMode,
+  getTheme,
+  setTheme as setThemeUtil,
   applyTheme,
-  setPersistedTheme,
   listenOSChange
 } from '@/lib/theme';
 
 interface ThemeProviderProps {
   children: ReactNode;
-  defaultTheme?: Theme;
+  defaultTheme?: ThemeMode;
   storageKey?: string;
 }
 
 interface ThemeProviderState {
   /** Current theme setting: 'light', 'dark', or 'system' */
-  theme: Theme;
+  theme: ThemeMode;
   /** Resolved theme (actual applied theme): 'light' or 'dark' */
   resolvedTheme: 'light' | 'dark';
   /** Set the theme */
-  setTheme: (theme: Theme) => void;
+  setTheme: (theme: ThemeMode) => void;
 }
 
 const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
@@ -47,19 +46,24 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "saveplus_theme",
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(defaultTheme);
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setThemeState] = useState<ThemeMode>(defaultTheme);
   const [isMounted, setIsMounted] = useState(false);
+
+  // Get resolved theme
+  const getResolvedTheme = (): 'light' | 'dark' => {
+    if (typeof window === 'undefined') return 'light';
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+    return theme === 'dark' || (theme === 'system' && prefersDark) ? 'dark' : 'light';
+  };
+
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
 
   // Initialize theme on mount (client-side only)
   useEffect(() => {
-    const initialTheme = getInitialTheme();
+    const initialTheme = getTheme();
     setThemeState(initialTheme);
-    
-    const resolved = resolveTheme(initialTheme);
-    setResolvedTheme(resolved);
-    applyTheme(resolved);
-    
+    applyTheme(initialTheme);
+    setResolvedTheme(getResolvedTheme());
     setIsMounted(true);
   }, []);
 
@@ -67,23 +71,19 @@ export function ThemeProvider({
   useEffect(() => {
     if (theme !== 'system') return;
 
-    const cleanup = listenOSChange((isDark) => {
-      const newResolved = isDark ? 'dark' : 'light';
-      setResolvedTheme(newResolved);
-      applyTheme(newResolved);
+    const cleanup = listenOSChange(() => {
+      applyTheme(theme);
+      setResolvedTheme(getResolvedTheme());
     });
 
     return cleanup;
   }, [theme]);
 
   // Handle theme changes
-  const handleSetTheme = (newTheme: Theme) => {
+  const handleSetTheme = (newTheme: ThemeMode) => {
     setThemeState(newTheme);
-    setPersistedTheme(newTheme);
-    
-    const resolved = resolveTheme(newTheme);
-    setResolvedTheme(resolved);
-    applyTheme(resolved);
+    setThemeUtil(newTheme);
+    setResolvedTheme(getResolvedTheme());
   };
 
   const value: ThemeProviderState = {
