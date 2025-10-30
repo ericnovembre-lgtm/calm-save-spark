@@ -19,6 +19,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Theme script to prevent flash of unstyled content -->
+    <script>
+      (function() {
+        try {
+          const stored = localStorage.getItem('saveplus_theme');
+          const theme = stored === 'light' || stored === 'dark' || stored === 'system' 
+            ? stored 
+            : 'system';
+          
+          let resolved = theme;
+          if (theme === 'system') {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            resolved = isDark ? 'dark' : 'light';
+          }
+          
+          if (resolved === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
 
   <body>
