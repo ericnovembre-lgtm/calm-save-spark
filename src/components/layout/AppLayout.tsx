@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { LiveRegion, useLiveRegion } from "./LiveRegion";
 import { NavItem } from "./NavItem";
 import { BottomNavItem } from "./BottomNavItem";
@@ -131,6 +132,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
             {/* Right: Search, Theme, User */}
             <div className="flex items-center gap-2">
               {FEATURE_FLAGS.SEARCH_ENABLED && <SearchToggle />}
+              <ThemeToggle />
               
               {user ? (
                 <UserChip user={user} />
