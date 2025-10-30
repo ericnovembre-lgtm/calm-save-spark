@@ -6,8 +6,6 @@
 
 export {
   SaveplusAnimIcon,
-  SaveplusAnimIconDecorative,
-  SaveplusAnimIconStatic,
   type SaveplusAnimIconProps
 } from './SaveplusAnimIcon';
 

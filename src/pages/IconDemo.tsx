@@ -55,7 +55,7 @@ export default function IconDemo() {
               <Card key={iconId} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-6 flex flex-col items-center justify-center space-y-3">
                   <SaveplusAnimIcon 
-                    icon={iconId} 
+                    name={iconId} 
                     size={64}
                     className="transition-transform hover:scale-110"
                   />
@@ -93,7 +93,7 @@ export default function IconDemo() {
                 className="flex flex-col items-center justify-center p-8 rounded-xl border border-border bg-card space-y-3"
               >
                 <SaveplusAnimIcon 
-                  icon={iconId} 
+                  name={iconId} 
                   size={selectedSize}
                 />
                 <p className="text-sm text-muted-foreground">{iconId}</p>
@@ -113,25 +113,10 @@ export default function IconDemo() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex gap-6 flex-wrap">
-                <SaveplusAnimIcon icon="piggy-bank" size={48} />
-                <SaveplusAnimIcon icon="rocket" size={48} />
-                <SaveplusAnimIcon icon="sparkles" size={48} />
-                <SaveplusAnimIcon icon="target" size={48} />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Force Static</CardTitle>
-                <CardDescription>
-                  Always uses static assets (never animated)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex gap-6 flex-wrap">
-                <SaveplusAnimIcon icon="piggy-bank" size={48} forceStatic />
-                <SaveplusAnimIcon icon="rocket" size={48} forceStatic />
-                <SaveplusAnimIcon icon="sparkles" size={48} forceStatic />
-                <SaveplusAnimIcon icon="target" size={48} forceStatic />
+                <SaveplusAnimIcon name="piggy-bank" size={48} />
+                <SaveplusAnimIcon name="rocket" size={48} />
+                <SaveplusAnimIcon name="sparkles" size={48} />
+                <SaveplusAnimIcon name="target" size={48} />
               </CardContent>
             </Card>
 
@@ -143,10 +128,10 @@ export default function IconDemo() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex gap-6 flex-wrap">
-                <SaveplusAnimIcon icon="sparkles" size={48} decorative />
-                <SaveplusAnimIcon icon="shield" size={48} decorative />
-                <SaveplusAnimIcon icon="lightbulb" size={48} decorative />
-                <SaveplusAnimIcon icon="chart-up" size={48} decorative />
+                <SaveplusAnimIcon name="sparkles" size={48} decorative />
+                <SaveplusAnimIcon name="shield" size={48} decorative />
+                <SaveplusAnimIcon name="lightbulb" size={48} decorative />
+                <SaveplusAnimIcon name="chart-up" size={48} decorative />
               </CardContent>
             </Card>
 
@@ -159,12 +144,12 @@ export default function IconDemo() {
               </CardHeader>
               <CardContent className="flex gap-6 flex-wrap">
                 <SaveplusAnimIcon 
-                  icon="target" 
+                  name="target" 
                   size={48} 
                   label="Complete your savings goal"
                 />
                 <SaveplusAnimIcon 
-                  icon="rocket" 
+                  name="rocket" 
                   size={48} 
                   label="Launch your financial journey"
                 />
@@ -183,7 +168,7 @@ export default function IconDemo() {
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm">Basic Usage</h3>
                 <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
-{`<SaveplusAnimIcon icon="piggy-bank" size={32} />`}
+{`<SaveplusAnimIcon name="piggy-bank" size={32} />`}
                 </pre>
               </div>
 
@@ -191,7 +176,7 @@ export default function IconDemo() {
                 <h3 className="font-semibold text-sm">With Custom Label</h3>
                 <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
 {`<SaveplusAnimIcon 
-  icon="rocket" 
+  name="rocket" 
   size={48} 
   label="Launch your savings goals" 
 />`}
@@ -201,14 +186,7 @@ export default function IconDemo() {
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm">Decorative (Hidden from Screen Readers)</h3>
                 <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
-{`<SaveplusAnimIcon icon="sparkles" decorative />`}
-                </pre>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm">Force Static (Never Animated)</h3>
-                <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
-{`<SaveplusAnimIcon icon="target" forceStatic />`}
+{`<SaveplusAnimIcon name="sparkles" decorative />`}
                 </pre>
               </div>
 
@@ -234,7 +212,7 @@ export default function IconDemo() {
                   { icon: 'lightbulb', title: 'Smart Insights', desc: 'AI-powered financial guidance' }
                 ].map((feature) => (
                   <div key={feature.icon} className="flex items-start gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors">
-                    <SaveplusAnimIcon icon={feature.icon} size={40} decorative />
+                    <SaveplusAnimIcon name={feature.icon} size={40} decorative />
                     <div>
                       <h4 className="font-semibold text-foreground">{feature.title}</h4>
                       <p className="text-sm text-muted-foreground">{feature.desc}</p>
@@ -251,7 +229,7 @@ export default function IconDemo() {
       <Card className="bg-accent/20 border-accent">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
-            <SaveplusAnimIcon icon="lightbulb" size={32} decorative />
+            <SaveplusAnimIcon name="lightbulb" size={32} decorative />
             <div className="space-y-2">
               <h3 className="font-semibold text-foreground">About This System</h3>
               <ul className="text-sm text-muted-foreground space-y-1">

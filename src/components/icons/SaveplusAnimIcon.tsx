@@ -3,20 +3,18 @@ import { useAnimationPreference } from '@/hooks/useAnimationPreference';
 import { getAnimIconData, SaveplusIconRecord } from './saveplus_anim_map';
 import { cn } from '@/lib/utils';
 
-export interface SaveplusAnimIconProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'> {
-  /** Icon key from saveplus_anim_map */
-  icon: string;
+export type SaveplusAnimIconProps = {
+  /** Icon name/key from saveplus_anim_map */
+  name: string;
   /** Size in pixels (default: 24) */
   size?: number;
-  /** Whether the icon is decorative (hides from screen readers) */
+  /** Whether the icon is decorative (true => aria-hidden) */
   decorative?: boolean;
-  /** Custom accessible label (overrides default from icon definition) */
+  /** Explicit aria-label if not decorative */
   label?: string;
-  /** Force static version even if animations are enabled */
-  forceStatic?: boolean;
-  /** Callback when image fails to load */
-  onError?: () => void;
-}
+  /** Additional CSS classes */
+  className?: string;
+};
 
 /**
  * $ave+ Animated Icon Component
@@ -24,26 +22,23 @@ export interface SaveplusAnimIconProps extends Omit<ImgHTMLAttributes<HTMLImageE
  * Features:
  * - Respects system prefers-reduced-motion
  * - Respects user localStorage preference
- * - Smart asset fallback: APNG → GIF → PNG → SVG → Emoji
+ * - Smart asset fallback: APNG → GIF → Static → Emoji
  * - SSR-safe (no window access during render)
  * - Accessible (proper ARIA labels)
  * 
  * @example
  * ```tsx
- * <SaveplusAnimIcon icon="piggy-bank" size={32} />
- * <SaveplusAnimIcon icon="rocket" decorative />
- * <SaveplusAnimIcon icon="target" label="Custom label" />
+ * <SaveplusAnimIcon name="piggy-bank" size={32} />
+ * <SaveplusAnimIcon name="rocket" decorative />
+ * <SaveplusAnimIcon name="target" label="Custom label" />
  * ```
  */
 export function SaveplusAnimIcon({
-  icon,
+  name,
   size = 24,
   decorative = false,
   label,
-  forceStatic = false,
-  onError,
-  className,
-  ...imgProps
+  className
 }: SaveplusAnimIconProps) {
   const shouldAnimate = useAnimationPreference();
   const [iconDef, setIconDef] = useState<SaveplusIconRecord | null>(null);
@@ -53,22 +48,22 @@ export function SaveplusAnimIcon({
 
   // Load icon definition
   useEffect(() => {
-    const def = getAnimIconData(icon);
+    const def = getAnimIconData(name);
     if (def) {
       setIconDef(def);
       setFallbackIndex(0);
       setHasError(false);
     } else {
-      console.warn(`Icon "${icon}" not found in saveplus_anim_map`);
+      console.warn(`Icon "${name}" not found in saveplus_anim_map`);
       setIconDef(null);
     }
-  }, [icon]);
+  }, [name]);
 
   // Determine which asset to use based on animation preference
   useEffect(() => {
     if (!iconDef) return;
 
-    const useAnimation = shouldAnimate && !forceStatic;
+    const useAnimation = shouldAnimate;
 
     // Build fallback chain
     const fallbackChain: string[] = [];
@@ -90,13 +85,12 @@ export function SaveplusAnimIcon({
       setCurrentSrc('');
       setHasError(true);
     }
-  }, [iconDef, shouldAnimate, forceStatic, fallbackIndex]);
+  }, [iconDef, shouldAnimate, fallbackIndex]);
 
   // Handle image load errors
   const handleImageError = () => {
-    console.warn(`Failed to load asset #${fallbackIndex} for icon "${icon}"`);
+    console.warn(`Failed to load asset #${fallbackIndex} for icon "${name}"`);
     setFallbackIndex(prev => prev + 1);
-    onError?.();
   };
 
   // If no icon definition found, show emoji fallback
@@ -133,31 +127,17 @@ export function SaveplusAnimIcon({
       src={currentSrc}
       alt={decorative ? '' : (label || iconDef.label)}
       aria-hidden={decorative ? true : undefined}
+      aria-label={!decorative && label ? label : undefined}
       role={decorative ? 'presentation' : undefined}
       width={size}
       height={size}
       onError={handleImageError}
       className={cn(
         'inline-block select-none',
-        shouldAnimate && !forceStatic && 'motion-safe:animate-in',
+        shouldAnimate && 'motion-safe:animate-in',
         className
       )}
       draggable={false}
-      {...imgProps}
     />
   );
-}
-
-/**
- * Decorative variant (hidden from screen readers)
- */
-export function SaveplusAnimIconDecorative(props: Omit<SaveplusAnimIconProps, 'decorative'>) {
-  return <SaveplusAnimIcon {...props} decorative />;
-}
-
-/**
- * Static variant (never animated)
- */
-export function SaveplusAnimIconStatic(props: Omit<SaveplusAnimIconProps, 'forceStatic'>) {
-  return <SaveplusAnimIcon {...props} forceStatic />;
 }
