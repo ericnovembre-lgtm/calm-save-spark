@@ -1,6 +1,6 @@
 import { Moon, Sun, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/components/ThemeProvider";
+import { setTheme, useTheme } from "@/lib/theme";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
  * Shows current theme and allows switching between light, dark, and system
  */
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const theme = useTheme();
 
   return (
     <DropdownMenu>
@@ -69,10 +69,14 @@ export function ThemeToggle() {
  * Simple theme toggle button (light/dark only, no system option)
  */
 export function SimpleThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const theme = useTheme();
 
   const toggleTheme = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+    if (theme === 'dark') {
+      setTheme('light');
+    } else {
+      setTheme('dark');
+    }
   };
 
   return (
@@ -80,14 +84,14 @@ export function SimpleThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={toggleTheme}
-      aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       className="relative"
     >
       <motion.div
         initial={false}
         animate={{
-          scale: resolvedTheme === "dark" ? 0 : 1,
-          rotate: resolvedTheme === "dark" ? 90 : 0,
+          scale: theme === "dark" ? 0 : 1,
+          rotate: theme === "dark" ? 90 : 0,
         }}
         transition={{ duration: 0.2 }}
         className="absolute"
@@ -97,8 +101,8 @@ export function SimpleThemeToggle() {
       <motion.div
         initial={false}
         animate={{
-          scale: resolvedTheme === "dark" ? 1 : 0,
-          rotate: resolvedTheme === "dark" ? 0 : -90,
+          scale: theme === "dark" ? 1 : 0,
+          rotate: theme === "dark" ? 0 : -90,
         }}
         transition={{ duration: 0.2 }}
         className="absolute"
