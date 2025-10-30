@@ -117,10 +117,10 @@ const Welcome = () => {
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
-      {/* Animated background gradient orbs */}
+      {/* Animated background gradient orbs - stronger contrast */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div 
-          className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/20 rounded-full blur-[120px]"
+          className="absolute top-0 right-0 w-[500px] h-[500px] bg-black/8 dark:bg-white/5 rounded-full blur-[120px]"
           animate={{
             x: [0, 50, 0],
             y: [0, 30, 0],
@@ -129,13 +129,21 @@ const Welcome = () => {
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
-          className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secondary/20 rounded-full blur-[100px]"
+          className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#E9DFCE]/25 dark:bg-[#BBAE96]/15 rounded-full blur-[100px]"
           animate={{
             x: [0, -30, 0],
             y: [0, -50, 0],
             scale: [1, 1.2, 1],
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-black/5 dark:bg-white/3 rounded-full blur-[150px]"
+          animate={{
+            scale: [1, 1.15, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 
@@ -147,7 +155,7 @@ const Welcome = () => {
       >
         {/* Glass header with backdrop blur */}
         <motion.header 
-          className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50"
+          className="sticky top-0 z-50 backdrop-blur-xl bg-[var(--color-surface)]/95 border-b border-[var(--color-border)]"
           initial={{ y: -100 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -178,10 +186,10 @@ const Welcome = () => {
         </motion.header>
 
         <main className="container mx-auto px-4 py-12 md:py-20 space-y-32">
-          {/* Hero Section with parallax */}
+          {/* Hero Section with parallax - Off-white foundation */}
           <motion.section 
             ref={heroRef}
-            className="space-y-8 relative"
+            className="space-y-8 relative bg-[var(--color-bg)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl"
             style={{ y: parallaxY, opacity }}
           >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -226,10 +234,11 @@ const Welcome = () => {
             </motion.div>
           </motion.section>
 
-          {/* Mission Control Features with scroll animations */}
+          {/* Mission Control Features with scroll animations - Pure white section */}
           <motion.section 
             ref={featuresRef}
             aria-label="Features"
+            className="bg-[var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
             initial={{ opacity: 0 }}
             animate={featuresInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.5 }}
@@ -248,11 +257,11 @@ const Welcome = () => {
             <FeatureCarousel features={features} onFeatureClick={handleFeatureClick} />
           </motion.section>
 
-          {/* Stats Section with stagger animation */}
+          {/* Stats Section with stagger animation - Beige accent zone */}
           <motion.section 
             ref={statsRef}
             aria-label="Statistics"
-            className="relative"
+            className="relative bg-[var(--color-accent)]/40 dark:bg-[var(--color-accent)]/15 -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-3xl"
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent rounded-3xl blur-3xl"
@@ -293,9 +302,10 @@ const Welcome = () => {
             </div>
           </motion.section>
 
-          {/* Secure Onboarding CTA */}
+          {/* Secure Onboarding CTA - White surface */}
           <motion.section 
             aria-label="Get started"
+            className="bg-[var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: false, amount: 0.5 }}
