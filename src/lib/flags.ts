@@ -1,0 +1,6 @@
+export const FEATURE_FLAGS = {
+  ADMIN_FEATURES_ENABLED: true,
+  COACH_WIDGET_ENABLED: true,
+  UI_ASSISTANT_ENABLED: true,
+  SEARCH_ENABLED: true,
+} as const;
