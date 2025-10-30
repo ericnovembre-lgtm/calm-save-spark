@@ -1,10 +1,10 @@
 import { useState, useEffect, ImgHTMLAttributes } from 'react';
 import { useAnimationPreference } from '@/hooks/useAnimationPreference';
-import { getIconDefinition, IconDefinition } from './saveplus_anim_map';
+import { getAnimIconData, SaveplusIconRecord } from './saveplus_anim_map';
 import { cn } from '@/lib/utils';
 
 export interface SaveplusAnimIconProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'> {
-  /** Icon ID from saveplus_anim_map */
+  /** Icon key from saveplus_anim_map */
   icon: string;
   /** Size in pixels (default: 24) */
   size?: number;
@@ -46,14 +46,14 @@ export function SaveplusAnimIcon({
   ...imgProps
 }: SaveplusAnimIconProps) {
   const shouldAnimate = useAnimationPreference();
-  const [iconDef, setIconDef] = useState<IconDefinition | null>(null);
+  const [iconDef, setIconDef] = useState<SaveplusIconRecord | null>(null);
   const [currentSrc, setCurrentSrc] = useState<string>('');
   const [fallbackIndex, setFallbackIndex] = useState(0);
   const [hasError, setHasError] = useState(false);
 
   // Load icon definition
   useEffect(() => {
-    const def = getIconDefinition(icon);
+    const def = getAnimIconData(icon);
     if (def) {
       setIconDef(def);
       setFallbackIndex(0);
@@ -68,21 +68,19 @@ export function SaveplusAnimIcon({
   useEffect(() => {
     if (!iconDef) return;
 
-    const assets = iconDef.assets;
     const useAnimation = shouldAnimate && !forceStatic;
 
     // Build fallback chain
     const fallbackChain: string[] = [];
     
     if (useAnimation) {
-      // Animated chain: APNG → GIF → PNG → SVG
-      if (assets.apng) fallbackChain.push(assets.apng);
-      if (assets.gif) fallbackChain.push(assets.gif);
+      // Animated chain: APNG → GIF
+      if (iconDef.apng) fallbackChain.push(iconDef.apng);
+      if (iconDef.gif) fallbackChain.push(iconDef.gif);
     }
     
-    // Static fallbacks
-    if (assets.png) fallbackChain.push(assets.png);
-    if (assets.svg) fallbackChain.push(assets.svg);
+    // Static fallback
+    if (iconDef.static) fallbackChain.push(iconDef.static);
 
     // Set source based on fallback index
     if (fallbackIndex < fallbackChain.length) {
@@ -124,7 +122,7 @@ export function SaveplusAnimIcon({
         className={cn('inline-block', className)}
         style={{ fontSize: size }}
       >
-        {iconDef.assets.emoji}
+        {iconDef.emoji_static}
       </span>
     );
   }

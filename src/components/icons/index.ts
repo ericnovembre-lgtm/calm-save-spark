@@ -13,11 +13,11 @@ export {
 
 export {
   saveplusAnimMap,
+  getAnimIconData,
   getIconDefinition,
   getAvailableIcons,
   hasIcon,
-  type IconAsset,
-  type IconDefinition
+  type SaveplusIconRecord
 } from './saveplus_anim_map';
 
 export {
