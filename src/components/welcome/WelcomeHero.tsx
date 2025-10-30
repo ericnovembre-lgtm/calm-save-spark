@@ -10,25 +10,28 @@ export const WelcomeHero = () => {
       >
         Save Smarter
       </h1>
+      <h2 className="font-display font-semibold text-2xl md:text-3xl text-foreground">
+        Navigate Your Financial Universe
+      </h2>
       <p className="text-lg md:text-xl text-muted-foreground max-w-md">
-        Automate savings. Reach goals faster.
+        Orbit through your savings goals with AI-powered insights and automated wealth building.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-        <Link to="/auth">
+        <Link to="/onboarding">
           <Button 
             data-testid="welcome-cta"
             role="button"
-            aria-label="Get started"
+            aria-label="Begin your journey"
             size="lg"
             className="w-full sm:w-auto"
           >
-            Get started
+            Begin Your Journey
           </Button>
         </Link>
         <div className="flex gap-4">
           <Link to="/pricing">
             <Button variant="ghost" size="lg">
-              Pricing
+              Explore Plans
             </Button>
           </Link>
           <Link to="/docs">
