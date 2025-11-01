@@ -11,13 +11,8 @@
 /**
  * SSR-safe environment helpers
  */
-export function isProduction(): boolean {
-  return import.meta.env.PROD;
-}
-
-export function isDevelopment(): boolean {
-  return import.meta.env.DEV;
-}
+export const isProduction = () => import.meta.env.PROD;
+export const isDevelopment = () => !isProduction();
 
 /**
  * Environment configuration with getters for SSR safety
@@ -30,11 +25,11 @@ export const ENV_CONFIG = {
 /**
  * Application configuration
  */
-export const APP_CONFIG = {
-  NAME: '$ave+',
-  VERSION: '1.0.0',
-  API_BASE_URL: '', // Empty as per spec
-} as const;
+export const APP_NAME = '$ave+';
+export const APP_TAGLINE = 'Save while you spend';
+export const API_BASE_URL = ''; // Empty as per spec
+export const DEFAULT_CURRENCY = 'USD';
+export const DEFAULT_LOCALE = 'en-US';
 
 // =============================================================================
 // COLORS & DESIGN TOKENS
@@ -73,19 +68,7 @@ export const COLORS = {
 // FEATURE FLAGS
 // =============================================================================
 
-export interface FeatureFlags {
-  readonly ENABLE_ANALYTICS: boolean;
-  readonly ENABLE_COACH: boolean;
-  readonly ENABLE_ANIMATIONS: boolean;
-  readonly ENABLE_ADVANCED_SEARCH: boolean;
-  readonly ENABLE_REWARDS: boolean;
-  readonly ENABLE_CARD: boolean;
-  readonly ENABLE_INSIGHTS: boolean;
-  readonly ENABLE_AUTOMATIONS: boolean;
-  readonly ENABLE_ADMIN_TOOLS: boolean;
-}
-
-export const FEATURE_FLAGS: FeatureFlags = {
+export const FEATURE_FLAGS = {
   ENABLE_ANALYTICS: true,
   ENABLE_COACH: true,
   ENABLE_ANIMATIONS: true,
@@ -102,69 +85,51 @@ export const FEATURE_FLAGS: FeatureFlags = {
 // =============================================================================
 
 export interface FreemiumFeature {
-  readonly id: string;
-  readonly name: string;
-  readonly description: string;
-  readonly icon: string;
-  readonly requiresPro: boolean;
+  key: string;
+  name: string;
+  description: string;
 }
 
 export const FREEMIUM_FEATURE_ORDER: readonly FreemiumFeature[] = [
   {
-    id: 'basic_savings',
+    key: 'basic_savings',
     name: 'Basic Savings',
     description: 'Create up to 3 savings goals',
-    icon: '💰',
-    requiresPro: false,
   },
   {
-    id: 'smart_pots',
+    key: 'smart_pots',
     name: 'Smart Pots',
     description: 'Organize savings into goal-based accounts',
-    icon: '🎯',
-    requiresPro: false,
   },
   {
-    id: 'automated_savings',
+    key: 'automated_savings',
     name: 'Automated Savings',
     description: 'Basic automation with round-ups',
-    icon: '⚡',
-    requiresPro: false,
   },
   {
-    id: 'unlimited_goals',
+    key: 'unlimited_goals',
     name: 'Unlimited Goals',
     description: 'Create unlimited savings goals',
-    icon: '🚀',
-    requiresPro: true,
   },
   {
-    id: 'advanced_automation',
+    key: 'advanced_automation',
     name: 'Advanced Automation',
     description: 'Smart rules and scheduled transfers',
-    icon: '🤖',
-    requiresPro: true,
   },
   {
-    id: 'financial_insights',
+    key: 'financial_insights',
     name: 'Financial Insights',
     description: 'AI-powered analytics and recommendations',
-    icon: '📊',
-    requiresPro: true,
   },
   {
-    id: 'premium_support',
+    key: 'premium_support',
     name: 'Premium Support',
     description: '24/7 priority customer support',
-    icon: '💬',
-    requiresPro: true,
   },
   {
-    id: 'saveplus_card',
+    key: 'saveplus_card',
     name: '$ave+ Card',
     description: 'Premium debit card with cashback',
-    icon: '💳',
-    requiresPro: true,
   },
 ] as const;
 
@@ -172,22 +137,7 @@ export const FREEMIUM_FEATURE_ORDER: readonly FreemiumFeature[] = [
 // LIMITS & QUOTAS
 // =============================================================================
 
-export interface Limits {
-  readonly FREE_GOALS_LIMIT: number;
-  readonly PRO_GOALS_LIMIT: number;
-  readonly FREE_POTS_LIMIT: number;
-  readonly PRO_POTS_LIMIT: number;
-  readonly MAX_GOAL_NAME_LENGTH: number;
-  readonly MAX_POT_NAME_LENGTH: number;
-  readonly MIN_GOAL_AMOUNT: number;
-  readonly MAX_GOAL_AMOUNT: number;
-  readonly MAX_AUTOMATION_RULES: number;
-  readonly MAX_FILE_UPLOAD_SIZE: number; // bytes
-  readonly SESSION_TIMEOUT: number; // milliseconds
-  readonly API_RATE_LIMIT: number; // requests per minute
-}
-
-export const LIMITS: Limits = {
+export const LIMITS = {
   FREE_GOALS_LIMIT: 3,
   PRO_GOALS_LIMIT: 999,
   FREE_POTS_LIMIT: 5,
@@ -206,14 +156,7 @@ export const LIMITS: Limits = {
 // ONBOARDING
 // =============================================================================
 
-export interface OnboardingStep {
-  readonly id: string;
-  readonly title: string;
-  readonly description: string;
-  readonly order: number;
-}
-
-export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
+export const ONBOARDING_STEPS = [
   {
     id: 'welcome',
     title: 'Welcome to $ave+',
@@ -250,15 +193,7 @@ export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
 // SAVINGS TIERS
 // =============================================================================
 
-export interface SavingsTier {
-  readonly name: string;
-  readonly minAmount: number;
-  readonly maxAmount: number | null;
-  readonly apy: number;
-  readonly color: string;
-}
-
-export const SAVINGS_TIERS: readonly SavingsTier[] = [
+export const SAVINGS_TIERS = [
   {
     name: 'Starter',
     minAmount: 0,
@@ -293,16 +228,7 @@ export const SAVINGS_TIERS: readonly SavingsTier[] = [
 // RESPONSIVE BREAKPOINTS
 // =============================================================================
 
-export interface Breakpoints {
-  readonly xs: number;
-  readonly sm: number;
-  readonly md: number;
-  readonly lg: number;
-  readonly xl: number;
-  readonly '2xl': number;
-}
-
-export const BREAKPOINTS: Breakpoints = {
+export const BREAKPOINTS = {
   xs: 320,
   sm: 640,
   md: 768,
@@ -315,15 +241,7 @@ export const BREAKPOINTS: Breakpoints = {
 // ANIMATION DURATIONS
 // =============================================================================
 
-export interface AnimationDurations {
-  readonly INSTANT: number;
-  readonly FAST: number;
-  readonly NORMAL: number;
-  readonly SLOW: number;
-  readonly SLOWER: number;
-}
-
-export const ANIMATION_DURATIONS: AnimationDurations = {
+export const ANIMATION_DURATION = {
   INSTANT: 100,
   FAST: 200,
   NORMAL: 300,
@@ -335,14 +253,7 @@ export const ANIMATION_DURATIONS: AnimationDurations = {
 // TOAST DURATIONS
 // =============================================================================
 
-export interface ToastDurations {
-  readonly SUCCESS: number;
-  readonly ERROR: number;
-  readonly WARNING: number;
-  readonly INFO: number;
-}
-
-export const TOAST_DURATIONS: ToastDurations = {
+export const TOAST_DURATION = {
   SUCCESS: 3000,
   ERROR: 5000,
   WARNING: 4000,
@@ -353,17 +264,7 @@ export const TOAST_DURATIONS: ToastDurations = {
 // API ENDPOINTS
 // =============================================================================
 
-export interface ApiEndpoints {
-  readonly ANALYTICS: string;
-  readonly GOALS: string;
-  readonly POTS: string;
-  readonly AUTOMATIONS: string;
-  readonly TRANSACTIONS: string;
-  readonly USER: string;
-  readonly AUTH: string;
-}
-
-export const API_ENDPOINTS: ApiEndpoints = {
+export const API_ENDPOINTS = {
   ANALYTICS: '/functions/v1/analytics',
   GOALS: '/rest/v1/goals',
   POTS: '/rest/v1/pots',
@@ -377,15 +278,7 @@ export const API_ENDPOINTS: ApiEndpoints = {
 // SECURITY HEADERS
 // =============================================================================
 
-export interface SecurityHeaders {
-  readonly 'Content-Security-Policy': string;
-  readonly 'X-Frame-Options': string;
-  readonly 'X-Content-Type-Options': string;
-  readonly 'Referrer-Policy': string;
-  readonly 'Permissions-Policy': string;
-}
-
-export const SECURITY_HEADERS: SecurityHeaders = {
+export const SECURITY_HEADERS = {
   'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';",
   'X-Frame-Options': 'DENY',
   'X-Content-Type-Options': 'nosniff',
@@ -397,15 +290,7 @@ export const SECURITY_HEADERS: SecurityHeaders = {
 // PERFORMANCE BUDGETS
 // =============================================================================
 
-export interface PerformanceBudgets {
-  readonly MAX_BUNDLE_SIZE: number; // bytes
-  readonly MAX_IMAGE_SIZE: number; // bytes
-  readonly TARGET_FCP: number; // milliseconds
-  readonly TARGET_LCP: number; // milliseconds
-  readonly TARGET_TTI: number; // milliseconds
-}
-
-export const PERFORMANCE_BUDGETS: PerformanceBudgets = {
+export const PERFORMANCE_BUDGETS = {
   MAX_BUNDLE_SIZE: 250 * 1024, // 250KB
   MAX_IMAGE_SIZE: 200 * 1024, // 200KB
   TARGET_FCP: 1800, // 1.8s
@@ -426,29 +311,46 @@ export const STORAGE_KEYS = {
 } as const;
 
 // =============================================================================
+// TYPE EXPORTS (inferred from constants)
+// =============================================================================
+
+export type FeatureFlags = typeof FEATURE_FLAGS;
+export type EnvConfig = typeof ENV_CONFIG;
+export type Breakpoints = typeof BREAKPOINTS;
+export type AnimationDurations = typeof ANIMATION_DURATION;
+export type ToastDurations = typeof TOAST_DURATION;
+export type ApiEndpoints = typeof API_ENDPOINTS;
+export type Limits = typeof LIMITS;
+export type OnboardingStep = typeof ONBOARDING_STEPS[number];
+export type SavingsTiers = typeof SAVINGS_TIERS;
+export type PerformanceBudgets = typeof PERFORMANCE_BUDGETS;
+export type SecurityHeaders = typeof SECURITY_HEADERS;
+
+// =============================================================================
 // DEFAULT EXPORT (Aggregated Constants)
 // =============================================================================
 
-const constants = {
-  ENV_CONFIG,
-  APP_CONFIG,
+export default {
+  FEATURE_FLAGS,
+  APP_NAME,
+  APP_TAGLINE,
+  API_BASE_URL,
+  DEFAULT_CURRENCY,
+  DEFAULT_LOCALE,
+  BREAKPOINTS,
+  ANIMATION_DURATION,
+  TOAST_DURATION,
+  FREEMIUM_FEATURE_ORDER,
+  API_ENDPOINTS,
+  LIMITS,
   TOKEN_COLORS,
   COLORS,
-  FEATURE_FLAGS,
-  FREEMIUM_FEATURE_ORDER,
-  LIMITS,
   ONBOARDING_STEPS,
   SAVINGS_TIERS,
-  BREAKPOINTS,
-  ANIMATION_DURATIONS,
-  TOAST_DURATIONS,
-  API_ENDPOINTS,
-  SECURITY_HEADERS,
   PERFORMANCE_BUDGETS,
+  SECURITY_HEADERS,
   STORAGE_KEYS,
-  // Helpers
+  ENV_CONFIG,
   isProduction,
   isDevelopment,
 } as const;
-
-export default constants;
