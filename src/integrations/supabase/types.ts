@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analytics_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          properties: Json | null
+          route: string | null
+          timestamp: string
+          user_hashed: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          properties?: Json | null
+          route?: string | null
+          timestamp?: string
+          user_hashed?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          properties?: Json | null
+          route?: string | null
+          timestamp?: string
+          user_hashed?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
