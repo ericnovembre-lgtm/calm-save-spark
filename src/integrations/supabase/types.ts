@@ -182,6 +182,128 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_scores: {
+        Row: {
+          change_from_previous: number | null
+          created_at: string | null
+          factors: Json | null
+          id: string
+          provider: string
+          score: number
+          score_date: string
+          user_id: string
+        }
+        Insert: {
+          change_from_previous?: number | null
+          created_at?: string | null
+          factors?: Json | null
+          id?: string
+          provider: string
+          score: number
+          score_date: string
+          user_id: string
+        }
+        Update: {
+          change_from_previous?: number | null
+          created_at?: string | null
+          factors?: Json | null
+          id?: string
+          provider?: string
+          score?: number
+          score_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      debt_payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          debt_id: string
+          id: string
+          interest_paid: number
+          payment_date: string
+          principal_paid: number
+          remaining_balance: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          debt_id: string
+          id?: string
+          interest_paid: number
+          payment_date: string
+          principal_paid: number
+          remaining_balance: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          debt_id?: string
+          id?: string
+          interest_paid?: number
+          payment_date?: string
+          principal_paid?: number
+          remaining_balance?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debt_payments_debt_id_fkey"
+            columns: ["debt_id"]
+            isOneToOne: false
+            referencedRelation: "debts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debts: {
+        Row: {
+          created_at: string | null
+          current_balance: number
+          debt_name: string
+          debt_type: string | null
+          id: string
+          interest_rate: number
+          minimum_payment: number | null
+          payment_due_date: number | null
+          payoff_strategy: string | null
+          principal_amount: number
+          target_payoff_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_balance: number
+          debt_name: string
+          debt_type?: string | null
+          id?: string
+          interest_rate: number
+          minimum_payment?: number | null
+          payment_due_date?: number | null
+          payoff_strategy?: string | null
+          principal_amount: number
+          target_payoff_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_balance?: number
+          debt_name?: string
+          debt_type?: string | null
+          id?: string
+          interest_rate?: number
+          minimum_payment?: number | null
+          payment_due_date?: number | null
+          payoff_strategy?: string | null
+          principal_amount?: number
+          target_payoff_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       detected_subscriptions: {
         Row: {
           amount: number
@@ -279,6 +401,48 @@ export type Database = {
           id?: string
           name?: string
           target_amount?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      investment_accounts: {
+        Row: {
+          account_name: string
+          account_type: string | null
+          cost_basis: number | null
+          created_at: string | null
+          gains_losses: number | null
+          holdings: Json | null
+          id: string
+          last_synced: string | null
+          total_value: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_type?: string | null
+          cost_basis?: number | null
+          created_at?: string | null
+          gains_losses?: number | null
+          holdings?: Json | null
+          id?: string
+          last_synced?: string | null
+          total_value: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_type?: string | null
+          cost_basis?: number | null
+          created_at?: string | null
+          gains_losses?: number | null
+          holdings?: Json | null
+          id?: string
+          last_synced?: string | null
+          total_value?: number
           updated_at?: string | null
           user_id?: string
         }

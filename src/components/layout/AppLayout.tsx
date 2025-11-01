@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot } from "lucide-react";
+import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -22,19 +22,21 @@ const taglines = [
 
 const mainNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
-  { name: "Transactions", path: "/transactions", icon: CreditCard },
+  { name: "Transactions", path: "/transactions", icon: DollarSign },
   { name: "Subscriptions", path: "/subscriptions", icon: Shield },
   { name: "Insights", path: "/insights", icon: Lightbulb },
   { name: "Budget", path: "/budget", icon: BarChart3 },
-  { name: "Goals", path: "/goals", icon: Target },
+  { name: "Debts", path: "/debts", icon: CreditCard },
+  { name: "Investments", path: "/investments", icon: TrendingUp },
+  { name: "Credit", path: "/credit", icon: BadgeDollarSign },
   { name: "Coach", path: "/coach", icon: Bot },
 ];
 
 const bottomNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
-  { name: "Transactions", path: "/transactions", icon: CreditCard },
-  { name: "Goals", path: "/goals", icon: Target },
-  { name: "Pots", path: "/pots", icon: Wallet },
+  { name: "Transactions", path: "/transactions", icon: DollarSign },
+  { name: "Insights", path: "/insights", icon: Lightbulb },
+  { name: "Coach", path: "/coach", icon: Bot },
   { name: "Settings", path: "/settings", icon: Settings },
 ];
 

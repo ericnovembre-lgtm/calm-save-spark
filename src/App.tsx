@@ -13,6 +13,9 @@ import Transactions from "./pages/Transactions";
 import Subscriptions from "./pages/Subscriptions";
 import Insights from "./pages/Insights";
 import Budget from "./pages/Budget";
+import Debts from "./pages/Debts";
+import Investments from "./pages/Investments";
+import Credit from "./pages/Credit";
 import Welcome from "./pages/Welcome";
 import IconDemo from "./pages/IconDemo";
 import Coach from "./pages/Coach";
@@ -54,6 +57,9 @@ const App = () => (
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/budget" element={<Budget />} />
+            <Route path="/debts" element={<Debts />} />
+            <Route path="/investments" element={<Investments />} />
+            <Route path="/credit" element={<Credit />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/pots" element={<Pots />} />
             <Route path="/automations" element={<Automations />} />
