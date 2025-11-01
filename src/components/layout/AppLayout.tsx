@@ -22,21 +22,19 @@ const taglines = [
 
 const mainNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
+  { name: "Transactions", path: "/transactions", icon: CreditCard },
+  { name: "Subscriptions", path: "/subscriptions", icon: Shield },
   { name: "Goals", path: "/goals", icon: Target },
   { name: "Pots", path: "/pots", icon: Wallet },
   { name: "Automations", path: "/automations", icon: Zap },
-  { name: "Rewards", path: "/rewards", icon: Gift },
-  { name: "Insights", path: "/insights", icon: Lightbulb },
-  { name: "Analytics", path: "/analytics", icon: BarChart3 },
-  { name: "Card", path: "/card", icon: CreditCard },
   { name: "Coach", path: "/coach", icon: Bot },
 ];
 
 const bottomNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
+  { name: "Transactions", path: "/transactions", icon: CreditCard },
   { name: "Goals", path: "/goals", icon: Target },
   { name: "Pots", path: "/pots", icon: Wallet },
-  { name: "Analytics", path: "/analytics", icon: BarChart3 },
   { name: "Settings", path: "/settings", icon: Settings },
 ];
 

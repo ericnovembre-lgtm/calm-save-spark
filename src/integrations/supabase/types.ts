@@ -77,6 +77,96 @@ export type Database = {
         }
         Relationships: []
       }
+      connected_accounts: {
+        Row: {
+          account_mask: string | null
+          account_type: string
+          balance: number | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          institution_name: string
+          last_synced: string | null
+          plaid_access_token: string | null
+          plaid_item_id: string | null
+          sync_status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_mask?: string | null
+          account_type: string
+          balance?: number | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          institution_name: string
+          last_synced?: string | null
+          plaid_access_token?: string | null
+          plaid_item_id?: string | null
+          sync_status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_mask?: string | null
+          account_type?: string
+          balance?: number | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          institution_name?: string
+          last_synced?: string | null
+          plaid_access_token?: string | null
+          plaid_item_id?: string | null
+          sync_status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      detected_subscriptions: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string | null
+          frequency: string | null
+          id: string
+          is_confirmed: boolean | null
+          last_charge_date: string | null
+          merchant: string
+          next_expected_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          is_confirmed?: boolean | null
+          last_charge_date?: string | null
+          merchant: string
+          next_expected_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          is_confirmed?: boolean | null
+          last_charge_date?: string | null
+          merchant?: string
+          next_expected_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       feature_access: {
         Row: {
           computed_at: string | null
@@ -190,6 +280,98 @@ export type Database = {
           id?: string
           new_amount?: number
           previous_amount?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          account_id: string | null
+          amount: number
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_recurring: boolean | null
+          merchant: string | null
+          recurring_frequency: string | null
+          tags: string[] | null
+          transaction_date: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_recurring?: boolean | null
+          merchant?: string | null
+          recurring_frequency?: string | null
+          tags?: string[] | null
+          transaction_date: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_recurring?: boolean | null
+          merchant?: string | null
+          recurring_frequency?: string | null
+          tags?: string[] | null
+          transaction_date?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_alerts: {
+        Row: {
+          action_url: string | null
+          alert_type: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          severity: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          alert_type: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          severity?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          alert_type?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          severity?: string | null
+          title?: string
           user_id?: string
         }
         Relationships: []

@@ -8,6 +8,9 @@ import LiveRegion from "@/components/layout/LiveRegion";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppLayout } from "./components/layout/AppLayout";
 import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import Transactions from "./pages/Transactions";
+import Subscriptions from "./pages/Subscriptions";
 import Welcome from "./pages/Welcome";
 import IconDemo from "./pages/IconDemo";
 import Coach from "./pages/Coach";
@@ -44,7 +47,9 @@ const App = () => (
             <Route path="/subscription" element={<SubscriptionManagement />} />
             
             {/* App routes with layout */}
-            <Route path="/dashboard" element={<AppLayout><div className="container mx-auto p-8">Dashboard - Coming Soon</div></AppLayout>} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/pots" element={<Pots />} />
             <Route path="/automations" element={<Automations />} />
