@@ -8,14 +8,6 @@
 // ENVIRONMENT & CONFIG
 // =============================================================================
 
-export interface EnvConfig {
-  readonly IS_PRODUCTION: boolean;
-  readonly IS_DEVELOPMENT: boolean;
-  readonly API_BASE_URL: string;
-  readonly APP_NAME: string;
-  readonly APP_VERSION: string;
-}
-
 /**
  * SSR-safe environment helpers
  */
@@ -28,15 +20,20 @@ export function isDevelopment(): boolean {
 }
 
 /**
- * Environment configuration
- * Uses getters for SSR safety
+ * Environment configuration with getters for SSR safety
  */
-export const ENV: EnvConfig = {
+export const ENV_CONFIG = {
   get IS_PRODUCTION() { return isProduction(); },
   get IS_DEVELOPMENT() { return isDevelopment(); },
+} as const;
+
+/**
+ * Application configuration
+ */
+export const APP_CONFIG = {
+  NAME: '$ave+',
+  VERSION: '1.0.0',
   API_BASE_URL: '', // Empty as per spec
-  APP_NAME: '$ave+',
-  APP_VERSION: '1.0.0',
 } as const;
 
 // =============================================================================
@@ -433,7 +430,8 @@ export const STORAGE_KEYS = {
 // =============================================================================
 
 const constants = {
-  ENV,
+  ENV_CONFIG,
+  APP_CONFIG,
   TOKEN_COLORS,
   COLORS,
   FEATURE_FLAGS,
