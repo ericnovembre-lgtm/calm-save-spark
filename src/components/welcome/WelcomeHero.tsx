@@ -42,7 +42,9 @@ export const WelcomeHero = () => {
                 data-testid="welcome-cta"
                 role="button"
                 aria-label="Launch dashboard"
+                variant="primary"
                 size="lg"
+                animated
                 className="w-full sm:w-auto group"
               >
                 Launch Dashboard
@@ -57,7 +59,9 @@ export const WelcomeHero = () => {
                   data-testid="welcome-cta"
                   role="button"
                   aria-label="Begin your journey"
+                  variant="primary"
                   size="lg"
+                  animated
                   className="w-full sm:w-auto group"
                 >
                   <Sparkles className="mr-2 w-5 h-5" />
@@ -67,8 +71,9 @@ export const WelcomeHero = () => {
               </Link>
               <Link to="/pricing">
                 <Button 
-                  variant="outline" 
+                  variant="neutral" 
                   size="lg"
+                  animated
                   className="w-full sm:w-auto"
                 >
                   Explore Plans

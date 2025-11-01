@@ -1,11 +1,12 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { motion, HTMLMotionProps } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -15,11 +16,16 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Neutral variants using design tokens
+        primary: "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90",
+        neutral: "bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]",
+        "neutral-ghost": "bg-transparent text-[hsl(var(--foreground))] border border-transparent hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--background))]",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        sm: "h-9 px-3 py-2 text-sm min-h-[36px]",
+        md: "h-11 px-4 py-2.5 text-base min-h-[44px]",
+        lg: "h-12 px-5 py-3 text-[1.0625rem] min-h-[52px]",
         icon: "h-10 w-10",
       },
     },
@@ -34,12 +40,39 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  animated?: boolean; // Enable micro-interactions
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, animated = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    const classes = cn(buttonVariants({ variant, size, className }));
+    
+    // Use motion wrapper for animated buttons
+    if (animated && !asChild) {
+      return (
+        <motion.button
+          ref={ref}
+          type={props.type}
+          className={classes}
+          disabled={props.disabled}
+          onClick={props.onClick}
+          onMouseEnter={props.onMouseEnter}
+          onMouseLeave={props.onMouseLeave}
+          onFocus={props.onFocus}
+          onBlur={props.onBlur}
+          aria-label={props['aria-label']}
+          aria-disabled={props['aria-disabled']}
+          whileHover={props.disabled ? undefined : { scale: 1.02 }}
+          whileTap={props.disabled ? undefined : { scale: 0.98 }}
+          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {props.children}
+        </motion.button>
+      );
+    }
+    
+    return <Comp className={classes} ref={ref} {...props} />;
   },
 );
 Button.displayName = "Button";
