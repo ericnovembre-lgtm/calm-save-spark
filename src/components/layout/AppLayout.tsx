@@ -4,7 +4,7 @@ import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lig
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import LiveRegion, { announce } from "./LiveRegion";
+import { announce } from "./LiveRegion";
 import { NavItem } from "./NavItem";
 import { BottomNavItem } from "./BottomNavItem";
 import { SearchToggle } from "./SearchToggle";
@@ -76,8 +76,6 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <LiveRegion />
-
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4">
