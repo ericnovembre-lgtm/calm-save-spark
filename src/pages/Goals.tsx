@@ -1,166 +1,178 @@
-import { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, Target, TrendingUp } from 'lucide-react';
-import { useFeatureLimits } from '@/hooks/useFeatureLimits';
-import { LimitIndicator } from '@/components/LimitIndicator';
-import { UpgradePrompt } from '@/components/UpgradePrompt';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { GoalCard } from '@/components/GoalCard';
+import { useState } from "react";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Plus, Target } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { GoalCard } from "@/components/GoalCard";
 
-interface Goal {
-  id: string;
-  name: string;
-  target_amount: number;
-  current_amount: number;
-  deadline: string | null;
-  icon: string;
-}
-
-export default function Goals() {
+const Goals = () => {
   const { toast } = useToast();
-  const { goals, canCreate, getUpgradeMessage, refresh } = useFeatureLimits();
-  const [goalsList, setGoalsList] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newGoal, setNewGoal] = useState({
+    name: "",
+    target_amount: "",
+    deadline: ""
+  });
 
-  useEffect(() => {
-    fetchGoals();
-  }, []);
-
-  const fetchGoals = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('goals')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load goals',
-        variant: 'destructive',
-      });
-    } else {
-      setGoalsList(data || []);
+  const { data: goals, isLoading } = useQuery({
+    queryKey: ['goals'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('goals')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
     }
-    setLoading(false);
-  };
+  });
+
+  const createGoalMutation = useMutation({
+    mutationFn: async (goal: typeof newGoal) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { error } = await supabase
+        .from('goals')
+        .insert([{
+          user_id: user.id,
+          name: goal.name,
+          target_amount: parseFloat(goal.target_amount),
+          deadline: goal.deadline || null
+        }]);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['goals'] });
+      toast({ title: "Goal created successfully!" });
+      setIsDialogOpen(false);
+      setNewGoal({ name: "", target_amount: "", deadline: "" });
+    },
+    onError: (error) => {
+      toast({ 
+        title: "Failed to create goal", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  });
 
   const handleCreateGoal = () => {
-    if (!canCreate('goals')) {
-      toast({
-        title: 'Limit Reached',
-        description: getUpgradeMessage('goals'),
-        variant: 'destructive',
-      });
+    if (!newGoal.name || !newGoal.target_amount) {
+      toast({ title: "Please fill in all required fields", variant: "destructive" });
       return;
     }
-    
-    // TODO: Open create goal dialog
-    toast({
-      title: 'Coming Soon',
-      description: 'Goal creation dialog will be implemented next',
-    });
+    createGoalMutation.mutate(newGoal);
   };
-
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className="container mx-auto p-8">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-muted rounded w-1/4"></div>
-            <div className="h-32 bg-muted rounded"></div>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout>
-      <div className="container mx-auto p-8 max-w-6xl">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Savings Goals</h1>
-              <p className="text-muted-foreground">
-                Track your progress and achieve your financial dreams
-              </p>
-            </div>
-            <Button 
-              onClick={handleCreateGoal}
-              disabled={!canCreate('goals')}
-              size="lg"
-              className="gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              New Goal
-            </Button>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-foreground">Savings Goals</h1>
+            <p className="text-muted-foreground">Track your progress toward financial milestones</p>
           </div>
-
-          {/* Limit Indicator */}
-          <Card className="bg-accent/20">
-            <CardContent className="p-4">
-              <LimitIndicator
-                current={goals.current}
-                max={goals.max}
-                label="Savings Goals"
-                showUpgrade={true}
-              />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Goals Grid */}
-        {goalsList.length === 0 ? (
-          <Card className="text-center p-12">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center">
-                <Target className="w-8 h-8 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2">No goals yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Create your first savings goal to get started
-                </p>
-                <Button onClick={handleCreateGoal} disabled={!canCreate('goals')}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Your First Goal
+          
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                New Goal
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Goal</DialogTitle>
+                <DialogDescription>
+                  Set a savings target and track your progress
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="goal-name">Goal Name</Label>
+                  <Input
+                    id="goal-name"
+                    placeholder="Emergency Fund"
+                    value={newGoal.name}
+                    onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="target-amount">Target Amount ($)</Label>
+                  <Input
+                    id="target-amount"
+                    type="number"
+                    placeholder="5000"
+                    value={newGoal.target_amount}
+                    onChange={(e) => setNewGoal({ ...newGoal, target_amount: e.target.value })}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="deadline">Deadline (Optional)</Label>
+                  <Input
+                    id="deadline"
+                    type="date"
+                    value={newGoal.deadline}
+                    onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
+                  />
+                </div>
+                
+                <Button 
+                  onClick={handleCreateGoal} 
+                  className="w-full"
+                  disabled={createGoalMutation.isPending}
+                >
+                  Create Goal
                 </Button>
               </div>
-            </div>
-          </Card>
-        ) : (
-          <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {goalsList.map((goal) => (
-                <GoalCard
-                  key={goal.id}
-                  title={goal.name}
-                  current={goal.current_amount}
-                  target={goal.target_amount}
-                  emoji={goal.icon || "🎯"}
-                />
-              ))}
-            </div>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-            {/* Upgrade Prompt if at limit */}
-            {!canCreate('goals') && (
-              <UpgradePrompt
-                feature="More Savings Goals"
-                message={getUpgradeMessage('goals')}
-                suggestedAmount={goals.max < 5 ? 1 : goals.max < 10 ? 5 : 9}
+        {isLoading ? (
+          <div className="text-center py-12 text-muted-foreground">Loading goals...</div>
+        ) : goals && goals.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {goals.map((goal) => (
+              <GoalCard 
+                key={goal.id} 
+                title={goal.name}
+                current={parseFloat(String(goal.current_amount))}
+                target={parseFloat(String(goal.target_amount))}
+                emoji={goal.icon}
               />
-            )}
-          </>
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Target className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-xl font-semibold mb-2">No Goals Yet</h3>
+              <p className="text-muted-foreground mb-6">
+                Start your savings journey by creating your first goal
+              </p>
+              <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
+                <Plus className="w-4 h-4" />
+                Create Your First Goal
+              </Button>
+            </CardContent>
+          </Card>
         )}
       </div>
     </AppLayout>
   );
-}
+};
+
+export default Goals;

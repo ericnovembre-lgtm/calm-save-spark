@@ -74,6 +74,42 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_rules: {
+        Row: {
+          action_config: Json | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          rule_name: string
+          rule_type: string
+          trigger_condition: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rule_name: string
+          rule_type: string
+          trigger_condition?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rule_name?: string
+          rule_type?: string
+          trigger_condition?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       automation_settings: {
         Row: {
           auto_save_enabled: boolean | null
@@ -443,6 +479,45 @@ export type Database = {
           id?: string
           last_synced?: string | null
           total_value?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pots: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          current_amount: number | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          target_amount: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          current_amount?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          target_amount: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          current_amount?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          target_amount?: number
           updated_at?: string | null
           user_id?: string
         }

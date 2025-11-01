@@ -1,99 +1,185 @@
-import { useState } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, Wallet } from 'lucide-react';
-import { useFeatureLimits } from '@/hooks/useFeatureLimits';
-import { LimitIndicator } from '@/components/LimitIndicator';
-import { UpgradePrompt } from '@/components/UpgradePrompt';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Wallet } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Progress } from "@/components/ui/progress";
 
-export default function Pots() {
+const Pots = () => {
   const { toast } = useToast();
-  const { pots, canCreate, getUpgradeMessage } = useFeatureLimits();
+  const queryClient = useQueryClient();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newPot, setNewPot] = useState({
+    name: "",
+    target_amount: "",
+    color: "blue"
+  });
+
+  const { data: pots, isLoading } = useQuery({
+    queryKey: ['pots'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pots')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const createPotMutation = useMutation({
+    mutationFn: async (pot: typeof newPot) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { error } = await supabase
+        .from('pots')
+        .insert([{
+          user_id: user.id,
+          name: pot.name,
+          target_amount: parseFloat(pot.target_amount),
+          color: pot.color
+        }]);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pots'] });
+      toast({ title: "Pot created successfully!" });
+      setIsDialogOpen(false);
+      setNewPot({ name: "", target_amount: "", color: "blue" });
+    },
+    onError: (error) => {
+      toast({ 
+        title: "Failed to create pot", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  });
 
   const handleCreatePot = () => {
-    if (!canCreate('pots')) {
-      toast({
-        title: 'Limit Reached',
-        description: getUpgradeMessage('pots'),
-        variant: 'destructive',
-      });
+    if (!newPot.name || !newPot.target_amount) {
+      toast({ title: "Please fill in all required fields", variant: "destructive" });
       return;
     }
-    
-    toast({
-      title: 'Coming Soon',
-      description: 'Pot creation will be implemented next',
-    });
+    createPotMutation.mutate(newPot);
   };
 
   return (
     <AppLayout>
-      <div className="container mx-auto p-8 max-w-6xl">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Smart Pots</h1>
-              <p className="text-muted-foreground">
-                Organize your savings into categorized pots
-              </p>
-            </div>
-            <Button 
-              onClick={handleCreatePot}
-              disabled={!canCreate('pots')}
-              size="lg"
-              className="gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              New Pot
-            </Button>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-foreground">Savings Pots</h1>
+            <p className="text-muted-foreground">Organize your savings into flexible containers</p>
           </div>
-
-          {/* Limit Indicator */}
-          <Card className="bg-accent/20">
-            <CardContent className="p-4">
-              <LimitIndicator
-                current={pots.current}
-                max={pots.max}
-                label="Smart Pots"
-                showUpgrade={true}
-              />
-            </CardContent>
-          </Card>
+          
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                New Pot
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Pot</DialogTitle>
+                <DialogDescription>
+                  Create a flexible savings container for any purpose
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="pot-name">Pot Name</Label>
+                  <Input
+                    id="pot-name"
+                    placeholder="Vacation Fund"
+                    value={newPot.name}
+                    onChange={(e) => setNewPot({ ...newPot, name: e.target.value })}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="pot-target">Target Amount ($)</Label>
+                  <Input
+                    id="pot-target"
+                    type="number"
+                    placeholder="2000"
+                    value={newPot.target_amount}
+                    onChange={(e) => setNewPot({ ...newPot, target_amount: e.target.value })}
+                  />
+                </div>
+                
+                <Button 
+                  onClick={handleCreatePot} 
+                  className="w-full"
+                  disabled={createPotMutation.isPending}
+                >
+                  Create Pot
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
-        {/* Empty State */}
-        <Card className="text-center p-12">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center">
-              <Wallet className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-2">No pots yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Create smart pots to organize your savings by category
+        {isLoading ? (
+          <div className="text-center py-12 text-muted-foreground">Loading pots...</div>
+        ) : pots && pots.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pots.map((pot) => {
+              const progress = pot.target_amount > 0 
+                ? (parseFloat(String(pot.current_amount)) / parseFloat(String(pot.target_amount))) * 100 
+                : 0;
+
+              return (
+                <Card key={pot.id}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Wallet className="w-5 h-5" />
+                      {pot.name}
+                    </CardTitle>
+                    <CardDescription>
+                      ${parseFloat(String(pot.current_amount)).toLocaleString()} of ${parseFloat(String(pot.target_amount)).toLocaleString()}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Progress value={Math.min(progress, 100)} className="mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {Number(progress.toFixed(1))}% complete
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Wallet className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-xl font-semibold mb-2">No Pots Yet</h3>
+              <p className="text-muted-foreground mb-6">
+                Create your first savings pot to organize your money
               </p>
-              <Button onClick={handleCreatePot} disabled={!canCreate('pots')}>
-                <Plus className="w-4 h-4 mr-2" />
+              <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
+                <Plus className="w-4 h-4" />
                 Create Your First Pot
               </Button>
-            </div>
-          </div>
-        </Card>
-
-        {/* Upgrade Prompt if at limit */}
-        {!canCreate('pots') && (
-          <div className="mt-8">
-            <UpgradePrompt
-              feature="More Smart Pots"
-              message={getUpgradeMessage('pots')}
-              suggestedAmount={pots.max < 10 ? 2 : pots.max < 15 ? 6 : 10}
-            />
-          </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </AppLayout>
   );
-}
+};
+
+export default Pots;
