@@ -12,8 +12,7 @@ const KEY = 'saveplus_theme'
 export function getTheme(): ThemeMode {
   if (typeof window === 'undefined') return 'system'
   const raw = localStorage.getItem(KEY)
-  if (raw === 'light' || raw === 'dark' || raw === 'system') return raw
-  return 'system'
+  return raw === 'light' || raw === 'dark' || raw === 'system' ? raw : 'system'
 }
 
 export function setTheme(mode: ThemeMode) {
@@ -31,53 +30,61 @@ export function setTheme(mode: ThemeMode) {
 
 export function applyTheme(mode: ThemeMode) {
   if (typeof document === 'undefined') return
-  const root = document.documentElement
   const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches
   const isDark = mode === 'dark' || (mode === 'system' && prefersDark)
-  root.classList.toggle('dark', !!isDark)
+  const root = document.documentElement
+  root.classList.toggle('dark', isDark)
   root.dataset.theme = mode
+  root.style.colorScheme = isDark ? 'dark' : 'light'
 }
 
+/** Re-apply system when OS theme flips */
 export function listenOSChange(onChange: () => void) {
   if (typeof window === 'undefined') return () => {}
   const mq = window.matchMedia('(prefers-color-scheme: dark)')
-  const handler = () => onChange()
+  const handler = () => {
+    if (getTheme() === 'system') {
+      applyTheme('system')
+      onChange?.()
+    }
+  }
   mq.addEventListener?.('change', handler)
   return () => mq.removeEventListener?.('change', handler)
 }
 
 /**
- * Hook to reactively access current theme
+ * Hook for components to read and set theme
  * Re-renders when theme changes
  */
 export function useTheme() {
-  const [theme, setThemeState] = useState<ThemeMode>(() => 
-    typeof window !== 'undefined' ? getTheme() : 'system'
-  );
+  const [theme, setThemeState] = useState<ThemeMode>(() => getTheme())
 
   useEffect(() => {
-    // Sync with actual theme
-    setThemeState(getTheme());
+    applyTheme(theme)
+    const cleanup = listenOSChange(() => setThemeState(getTheme()))
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === KEY) setThemeState(getTheme())
+    }
+    window.addEventListener('storage', onStorage)
+    return () => {
+      cleanup()
+      window.removeEventListener('storage', onStorage)
+    }
+  }, [theme])
 
-    // Listen to storage events (cross-tab sync)
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === KEY) {
-        setThemeState(getTheme());
-      }
-    };
-
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
-
-  return theme;
+  const change = (next: ThemeMode) => {
+    setTheme(next)
+    setThemeState(next)
+  }
+  
+  return { theme, setTheme: change }
 }
 
 /**
  * Hook to get resolved theme (light or dark)
  */
 export function useResolvedTheme(): 'light' | 'dark' {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const [resolved, setResolved] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {

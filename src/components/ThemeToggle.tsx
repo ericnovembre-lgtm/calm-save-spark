@@ -1,6 +1,6 @@
 import { Moon, Sun, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { setTheme, useTheme } from "@/lib/theme";
+import { useTheme } from "@/lib/theme";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
  * Shows current theme and allows switching between light, dark, and system
  */
 export function ThemeToggle() {
-  const theme = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -69,14 +69,10 @@ export function ThemeToggle() {
  * Simple theme toggle button (light/dark only, no system option)
  */
 export function SimpleThemeToggle() {
-  const theme = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
-    if (theme === 'dark') {
-      setTheme('light');
-    } else {
-      setTheme('dark');
-    }
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   return (
