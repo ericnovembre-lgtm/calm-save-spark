@@ -12,6 +12,7 @@ import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { SaveplusUIAssistantFAB } from "@/components/assistant/SaveplusUIAssistantFAB";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { trackPageView } from "@/lib/analytics";
+import NeutralBackground from "@/components/background/NeutralBackground";
 
 const features: Feature[] = [
   {
@@ -135,37 +136,8 @@ const Welcome = () => {
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
-      {/* Subtle background orbs - neutral palette only */}
-      {!prefersReducedMotion && (
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <motion.div 
-            className="absolute top-0 right-0 w-[500px] h-[500px] bg-[color:var(--color-text)]/5 dark:bg-[color:var(--color-bg)]/5 rounded-full blur-[120px]"
-            animate={{
-              x: [0, 50, 0],
-              y: [0, 30, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div 
-            className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[color:var(--color-accent)]/20 dark:bg-[color:var(--color-accent)]/10 rounded-full blur-[100px]"
-            animate={{
-              x: [0, -30, 0],
-              y: [0, -50, 0],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[color:var(--color-text)]/3 dark:bg-[color:var(--color-bg)]/3 rounded-full blur-[150px]"
-            animate={{
-              scale: [1, 1.15, 1],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </div>
-      )}
+      {/* Neutral canvas background with stars */}
+      <NeutralBackground />
 
       <motion.div
         initial={{ opacity: 0 }}
