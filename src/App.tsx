@@ -15,6 +15,8 @@ import Pricing from "./pages/Pricing";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import Checkout from "./pages/Checkout";
+import SubscriptionManagement from "./pages/SubscriptionManagement";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,8 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/subscription" element={<SubscriptionManagement />} />
             
             {/* App routes with layout */}
             <Route path="/dashboard" element={<AppLayout><div className="container mx-auto p-8">Dashboard - Coming Soon</div></AppLayout>} />
