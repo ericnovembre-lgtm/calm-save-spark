@@ -7,36 +7,25 @@
  * Simple hash function for user IDs (SHA-256)
  * Ensures user privacy in analytics without requiring server roundtrip
  */
-export async function hashUserId(userId: string): Promise<string> {
-  if (typeof window === 'undefined' || !window.crypto?.subtle) {
-    // Fallback for environments without Web Crypto API
-    return simpleHash(userId);
-  }
-
+export async function hashUserId(userId?: string | null): Promise<string | null> {
+  if (!userId) return null;
+  
   try {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(userId);
-    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex.substring(0, 16); // First 16 chars for brevity
-  } catch (error) {
-    console.warn('[Hash] Crypto API failed, using fallback:', error);
-    return simpleHash(userId);
-  }
-}
-
-/**
- * Simple fallback hash function
- */
-function simpleHash(str: string): string {
+    if (typeof window !== 'undefined' && crypto?.subtle) {
+      const data = new TextEncoder().encode(userId);
+      const digest = await crypto.subtle.digest('SHA-256', data);
+      const hex = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+      return 'user_' + hex.slice(0, 32);
+    }
+  } catch {}
+  
+  // Node/legacy fallback
   let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
+  for (let i = 0; i < userId.length; i++) {
+    hash = ((hash << 5) - hash) + userId.charCodeAt(i);
+    hash |= 0;
   }
-  return Math.abs(hash).toString(36);
+  return 'user_' + Math.abs(hash).toString(16);
 }
 
 /**
