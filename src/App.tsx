@@ -17,6 +17,9 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
 import SubscriptionManagement from "./pages/SubscriptionManagement";
+import Goals from "./pages/Goals";
+import Pots from "./pages/Pots";
+import Automations from "./pages/Automations";
 
 const queryClient = new QueryClient();
 
@@ -40,9 +43,9 @@ const App = () => (
             
             {/* App routes with layout */}
             <Route path="/dashboard" element={<AppLayout><div className="container mx-auto p-8">Dashboard - Coming Soon</div></AppLayout>} />
-            <Route path="/goals" element={<AppLayout><div className="container mx-auto p-8">Goals - Coming Soon</div></AppLayout>} />
-            <Route path="/pots" element={<AppLayout><div className="container mx-auto p-8">Pots - Coming Soon</div></AppLayout>} />
-            <Route path="/automations" element={<AppLayout><div className="container mx-auto p-8">Automations - Coming Soon</div></AppLayout>} />
+            <Route path="/goals" element={<Goals />} />
+            <Route path="/pots" element={<Pots />} />
+            <Route path="/automations" element={<Automations />} />
             <Route path="/rewards" element={<AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout>} />
             <Route path="/insights" element={<AppLayout><div className="container mx-auto p-8">Insights - Coming Soon</div></AppLayout>} />
             <Route path="/analytics" element={<AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout>} />

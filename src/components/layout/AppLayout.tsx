@@ -71,6 +71,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const allNavLinks = [
     ...mainNavLinks,
     { name: "Settings", path: "/settings", icon: Settings },
+    { name: "Subscription", path: "/subscription", icon: CreditCard },
     ...(user?.role === 'admin' && FEATURE_FLAGS.ADMIN_FEATURES_ENABLED ? adminNavLinks : []),
   ];
 
