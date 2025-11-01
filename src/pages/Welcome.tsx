@@ -9,6 +9,7 @@ import { StatCard } from "@/components/welcome/StatCard";
 import { SearchBarHinted } from "@/components/search/SearchBarHinted";
 import { SecureOnboardingCTA } from "@/components/welcome/SecureOnboardingCTA";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
+import { SaveplusUIAssistantFAB } from "@/components/assistant/SaveplusUIAssistantFAB";
 
 const features: Feature[] = [
   {
@@ -355,11 +356,13 @@ const Welcome = () => {
           onClose={handleCloseModal}
         />
         
-        {/* Coach Widget */}
+        {/* Floating Widgets */}
         <SaveplusCoachWidget />
+        <SaveplusUIAssistantFAB />
       </motion.div>
     </div>
   );
 };
 
 export default Welcome;
+
