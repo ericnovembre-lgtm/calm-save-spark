@@ -8,6 +8,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import Index from "./pages/Index";
 import Welcome from "./pages/Welcome";
 import IconDemo from "./pages/IconDemo";
+import Coach from "./pages/Coach";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/insights" element={<AppLayout><div className="container mx-auto p-8">Insights - Coming Soon</div></AppLayout>} />
             <Route path="/analytics" element={<AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout>} />
             <Route path="/card" element={<AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout>} />
+            <Route path="/coach" element={<AppLayout><Coach /></AppLayout>} />
             <Route path="/settings" element={<AppLayout><div className="container mx-auto p-8">Settings - Coming Soon</div></AppLayout>} />
             <Route path="/admin-agents" element={<AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout>} />
             <Route path="/admin-functions" element={<AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout>} />

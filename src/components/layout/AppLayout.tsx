@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code } from "lucide-react";
+import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -29,6 +29,7 @@ const mainNavLinks = [
   { name: "Insights", path: "/insights", icon: Lightbulb },
   { name: "Analytics", path: "/analytics", icon: BarChart3 },
   { name: "Card", path: "/card", icon: CreditCard },
+  { name: "Coach", path: "/coach", icon: Bot },
 ];
 
 const bottomNavLinks = [

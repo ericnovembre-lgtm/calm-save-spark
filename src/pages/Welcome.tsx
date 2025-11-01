@@ -6,8 +6,9 @@ import { LottieHero } from "@/components/welcome/LottieHero";
 import { FeatureCarousel, Feature } from "@/components/welcome/FeatureCarousel";
 import { FeatureDetailModal } from "@/components/welcome/FeatureDetailModal";
 import { StatCard } from "@/components/welcome/StatCard";
-import { SearchBarHinted } from "@/components/welcome/SearchBarHinted";
+import { SearchBarHinted } from "@/components/search/SearchBarHinted";
 import { SecureOnboardingCTA } from "@/components/welcome/SecureOnboardingCTA";
+import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 
 const features: Feature[] = [
   {
@@ -353,6 +354,9 @@ const Welcome = () => {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
         />
+        
+        {/* Coach Widget */}
+        <SaveplusCoachWidget />
       </motion.div>
     </div>
   );
