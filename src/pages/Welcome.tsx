@@ -10,6 +10,8 @@ import { SearchBarHinted } from "@/components/search/SearchBarHinted";
 import { SecureOnboardingCTA } from "@/components/welcome/SecureOnboardingCTA";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { SaveplusUIAssistantFAB } from "@/components/assistant/SaveplusUIAssistantFAB";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { trackPageView } from "@/lib/analytics";
 
 const features: Feature[] = [
   {
@@ -75,6 +77,7 @@ const Welcome = () => {
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const prefersReducedMotion = useReducedMotion();
   
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -86,8 +89,18 @@ const Welcome = () => {
   const featuresInView = useInView(featuresRef, { once: false, amount: 0.2 });
   const statsInView = useInView(statsRef, { once: false, amount: 0.3 });
   
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0.3]);
+  // Disable parallax if user prefers reduced motion
+  const parallaxY = prefersReducedMotion 
+    ? 0 
+    : useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const opacity = prefersReducedMotion
+    ? 1
+    : useTransform(scrollYProgress, [0, 0.3], [1, 0.3]);
+
+  // Track page view on mount
+  useEffect(() => {
+    trackPageView('Welcome');
+  }, []);
 
   useEffect(() => {
     fetch("/animations/saveplus-hero.json")
@@ -97,6 +110,9 @@ const Welcome = () => {
   }, []);
 
   useEffect(() => {
+    // Disable mouse tracking if user prefers reduced motion
+    if (prefersReducedMotion) return;
+    
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ 
         x: (e.clientX / window.innerWidth - 0.5) * 20,
@@ -105,7 +121,7 @@ const Welcome = () => {
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [prefersReducedMotion]);
 
   const handleFeatureClick = (feature: Feature) => {
     setSelectedFeature(feature);
