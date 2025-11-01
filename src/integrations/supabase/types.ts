@@ -44,6 +44,105 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_settings: {
+        Row: {
+          auto_save_enabled: boolean | null
+          created_at: string | null
+          id: string
+          round_up_enabled: boolean | null
+          scheduled_transfer_amount: number | null
+          scheduled_transfer_frequency: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_save_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          round_up_enabled?: boolean | null
+          scheduled_transfer_amount?: number | null
+          scheduled_transfer_frequency?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_save_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          round_up_enabled?: boolean | null
+          scheduled_transfer_amount?: number | null
+          scheduled_transfer_frequency?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      goals: {
+        Row: {
+          created_at: string | null
+          current_amount: number | null
+          deadline: string | null
+          icon: string | null
+          id: string
+          name: string
+          target_amount: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_amount?: number | null
+          deadline?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          target_amount: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_amount?: number | null
+          deadline?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          target_amount?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          onboarding_completed: boolean | null
+          onboarding_step: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          onboarding_completed?: boolean | null
+          onboarding_step?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          onboarding_completed?: boolean | null
+          onboarding_step?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

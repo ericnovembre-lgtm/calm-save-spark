@@ -12,6 +12,7 @@ import IconDemo from "./pages/IconDemo";
 import Coach from "./pages/Coach";
 import Help from "./pages/Help";
 import Pricing from "./pages/Pricing";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/auth" element={<div className="min-h-screen flex items-center justify-center p-8">Auth - Coming Soon</div>} />
             
             {/* App routes with layout */}
