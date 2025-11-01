@@ -1,15 +1,14 @@
 'use client'
-import { useEffect, PropsWithChildren } from 'react'
+import { PropsWithChildren, useEffect } from 'react'
 import { applyTheme, getTheme, listenOSChange } from '@/lib/theme'
 
 export function ThemeProvider({ children }: PropsWithChildren) {
   useEffect(() => {
-    const mode = getTheme()
-    applyTheme(mode)
-    const cleanup = listenOSChange(() => {
+    applyTheme(getTheme())
+    const stop = listenOSChange(() => {
       if (getTheme() === 'system') applyTheme('system')
     })
-    return cleanup
+    return stop
   }, [])
   return <>{children}</>
 }
