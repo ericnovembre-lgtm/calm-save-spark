@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import LiveRegion from "@/components/layout/LiveRegion";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppLayout } from "./components/layout/AppLayout";
 import Index from "./pages/Index";
 import Welcome from "./pages/Welcome";
@@ -24,13 +25,14 @@ import Automations from "./pages/Automations";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <LiveRegion />
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <TooltipProvider>
+          <LiveRegion />
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <Routes>
             {/* Public routes without layout */}
             <Route path="/" element={<Index />} />
@@ -66,6 +68,7 @@ const App = () => (
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

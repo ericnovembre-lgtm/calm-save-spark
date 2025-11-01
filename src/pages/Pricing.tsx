@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { trackSubscriptionEvent } from "@/lib/subscription-analytics";
 import { 
   Check, 
   Sparkles, 
@@ -49,42 +50,83 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedAmount, setSelectedAmount] = useState(5);
+  const [previousAmount, setPreviousAmount] = useState(5);
   const [isAnnual, setIsAnnual] = useState(false);
   const [currentSubscription, setCurrentSubscription] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchUserData();
+    
+    // Track page view
+    trackSubscriptionEvent.subscriptionPageViewed(currentSubscription);
   }, []);
 
-  const fetchUserData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      setIsAuthenticated(true);
-      const { data } = await supabase
-        .from('user_subscriptions')
-        .select('subscription_amount')
-        .eq('user_id', user.id)
-        .single();
-      
-      if (data) {
-        setCurrentSubscription(data.subscription_amount);
-        setSelectedAmount(data.subscription_amount);
+  useEffect(() => {
+    // Track when user leaves pricing page
+    return () => {
+      if (selectedAmount !== currentSubscription) {
+        trackSubscriptionEvent.checkoutAbandoned(selectedAmount, 'pricing_page');
       }
+    };
+  }, [selectedAmount, currentSubscription]);
+
+  const fetchUserData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setIsAuthenticated(true);
+        const { data } = await supabase
+          .from('user_subscriptions')
+          .select('subscription_amount')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data) {
+          setCurrentSubscription(data.subscription_amount);
+          setSelectedAmount(data.subscription_amount);
+          setPreviousAmount(data.subscription_amount);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleSliderChange = useCallback((value: number[]) => {
+    const newAmount = value[0];
+    trackSubscriptionEvent.sliderMoved(newAmount, previousAmount);
+    setPreviousAmount(newAmount);
+    setSelectedAmount(newAmount);
+  }, [previousAmount]);
+
+  const handleQuickSelect = useCallback((amount: number) => {
+    trackSubscriptionEvent.quickSelectClicked(amount);
+    setSelectedAmount(amount);
+    setPreviousAmount(amount);
+  }, []);
+
+  const handleAnnualToggle = useCallback((checked: boolean) => {
+    trackSubscriptionEvent.annualToggled(checked, selectedAmount);
+    setIsAnnual(checked);
+  }, [selectedAmount]);
 
   const annualPrice = selectedAmount * 12 * 0.85;
   const savings = (selectedAmount * 12) - annualPrice;
   const displayPrice = isAnnual ? annualPrice : selectedAmount;
 
-  const handleGetStarted = () => {
+  const handleGetStarted = useCallback(() => {
+    trackSubscriptionEvent.checkoutStarted(selectedAmount, isAnnual ? 'annual' : 'monthly');
+    
     if (!isAuthenticated) {
       navigate('/auth', { state: { returnTo: '/checkout', amount: selectedAmount } });
       return;
     }
 
-    if (selectedAmount === 0) {
+    if (selectedAmount === 0 && currentSubscription === 0) {
       toast({
         title: 'Free Plan',
         description: 'You\'re already on the free plan! Upgrade anytime.',
@@ -93,7 +135,7 @@ export default function Pricing() {
     }
 
     navigate('/checkout', { state: { amount: selectedAmount, billing: isAnnual ? 'annual' : 'monthly' } });
-  };
+  }, [selectedAmount, isAnnual, isAuthenticated, currentSubscription, navigate, toast]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -135,11 +177,12 @@ export default function Pricing() {
           <div className="mb-8">
             <Slider
               value={[selectedAmount]}
-              onValueChange={(v) => setSelectedAmount(v[0])}
+              onValueChange={handleSliderChange}
               min={0}
               max={15}
               step={1}
               className="mb-4"
+              disabled={loading}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>$0/mo</span>
@@ -154,7 +197,8 @@ export default function Pricing() {
                 key={amount}
                 variant={selectedAmount === amount ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSelectedAmount(amount)}
+                onClick={() => handleQuickSelect(amount)}
+                disabled={loading}
               >
                 ${amount}
               </Button>
@@ -167,7 +211,8 @@ export default function Pricing() {
             <Switch 
               id="annual-toggle"
               checked={isAnnual} 
-              onCheckedChange={setIsAnnual} 
+              onCheckedChange={handleAnnualToggle}
+              disabled={loading}
             />
             <Label htmlFor="annual-toggle" className="flex items-center gap-1">
               Annual 
@@ -180,11 +225,12 @@ export default function Pricing() {
             size="lg" 
             className="w-full gap-2"
             onClick={handleGetStarted}
+            disabled={loading || (currentSubscription === selectedAmount && currentSubscription !== 0)}
           >
             {currentSubscription === selectedAmount 
               ? 'Current Plan' 
               : currentSubscription > 0 
-                ? 'Change Plan' 
+                ? selectedAmount > currentSubscription ? 'Upgrade Plan' : 'Downgrade Plan'
                 : 'Get Started'}
             <ArrowRight className="w-5 h-5" />
           </Button>
