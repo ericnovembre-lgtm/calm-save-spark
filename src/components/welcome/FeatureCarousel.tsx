@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { announce } from "@/components/layout/LiveRegion";
 
 export interface Feature {
   id: string;
@@ -16,15 +17,6 @@ interface FeatureCarouselProps {
   autoInterval?: number;
 }
 
-// Simple announce function for accessibility
-const announce = (text: string, priority: 'polite' | 'assertive' = 'polite') => {
-  if (typeof window === 'undefined') return;
-  const region = document.querySelector(`[aria-live="${priority}"]`);
-  if (region) {
-    region.textContent = text;
-    setTimeout(() => { region.textContent = '' }, 1000);
-  }
-};
 
 export const FeatureCarousel = ({ 
   features, 
@@ -83,8 +75,6 @@ export const FeatureCarousel = ({
       aria-roledescription="carousel"
       aria-label="Feature highlights"
     >
-      {/* Accessibility live region */}
-      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only" />
 
       {/* Slide */}
       <motion.div 

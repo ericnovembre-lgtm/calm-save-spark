@@ -4,7 +4,7 @@ import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lig
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { LiveRegion, useLiveRegion } from "./LiveRegion";
+import LiveRegion, { announce } from "./LiveRegion";
 import { NavItem } from "./NavItem";
 import { BottomNavItem } from "./BottomNavItem";
 import { SearchToggle } from "./SearchToggle";
@@ -49,7 +49,6 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [taglineIndex, setTaglineIndex] = useState(0);
-  const { message, announce } = useLiveRegion();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -77,7 +76,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <LiveRegion message={message} />
+      <LiveRegion />
 
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
