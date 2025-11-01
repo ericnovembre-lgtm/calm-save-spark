@@ -135,35 +135,37 @@ const Welcome = () => {
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
-      {/* Animated background gradient orbs - stronger contrast */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <motion.div 
-          className="absolute top-0 right-0 w-[500px] h-[500px] bg-black/8 dark:bg-white/5 rounded-full blur-[120px]"
-          animate={{
-            x: [0, 50, 0],
-            y: [0, 30, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div 
-          className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#E9DFCE]/25 dark:bg-[#BBAE96]/15 rounded-full blur-[100px]"
-          animate={{
-            x: [0, -30, 0],
-            y: [0, -50, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-black/5 dark:bg-white/3 rounded-full blur-[150px]"
-          animate={{
-            scale: [1, 1.15, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
+      {/* Subtle background orbs - neutral palette only */}
+      {!prefersReducedMotion && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <motion.div 
+            className="absolute top-0 right-0 w-[500px] h-[500px] bg-[color:var(--color-text)]/5 dark:bg-[color:var(--color-bg)]/5 rounded-full blur-[120px]"
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[color:var(--color-accent)]/20 dark:bg-[color:var(--color-accent)]/10 rounded-full blur-[100px]"
+            animate={{
+              x: [0, -30, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[color:var(--color-text)]/3 dark:bg-[color:var(--color-bg)]/3 rounded-full blur-[150px]"
+            animate={{
+              scale: [1, 1.15, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+      )}
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -171,11 +173,11 @@ const Welcome = () => {
         transition={{ duration: 0.5 }}
         className="relative z-10"
       >
-        {/* Glass header with backdrop blur */}
+        {/* Header with neutral styling */}
         <motion.header 
-          className="sticky top-0 z-50 backdrop-blur-xl bg-[var(--color-surface)]/95 border-b border-[var(--color-border)]"
-          initial={{ y: -100 }}
-          animate={{ y: 0 }}
+          className="sticky top-0 z-50 backdrop-blur-xl bg-background/95 border-b border-[color:var(--color-border)]"
+          initial={prefersReducedMotion ? false : { y: -100 }}
+          animate={prefersReducedMotion ? false : { y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <div className="container mx-auto px-4 py-4">
@@ -204,16 +206,16 @@ const Welcome = () => {
         </motion.header>
 
         <main className="container mx-auto px-4 py-12 md:py-20 space-y-32">
-          {/* Hero Section with parallax - Off-white foundation */}
+          {/* Hero Section with parallax - Neutral styling */}
           <motion.section 
             ref={heroRef}
-            className="space-y-8 relative bg-[var(--color-bg)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl"
-            style={{ y: parallaxY, opacity }}
+            className="space-y-8 relative bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
+            style={prefersReducedMotion ? {} : { y: parallaxY, opacity }}
           >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
               <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={heroInView ? { opacity: 1, x: 0 } : {}}
+                initial={prefersReducedMotion ? false : { opacity: 0, x: -50 }}
+                animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, x: 0 } : {})}
                 transition={{ duration: 0.7, ease: "easeOut" }}
               >
                 <WelcomeHero />
@@ -221,14 +223,15 @@ const Welcome = () => {
               
               <motion.div 
                 className="relative w-full max-w-md mx-auto lg:max-w-none"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={heroInView ? { opacity: 1, scale: 1 } : {}}
+                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
+                animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, scale: 1 } : {})}
                 transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-                style={{
+                style={prefersReducedMotion ? {} : {
                   transform: `perspective(1000px) rotateY(${mousePosition.x * 0.5}deg) rotateX(${-mousePosition.y * 0.5}deg)`
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-accent/30 to-secondary/30 blur-3xl animate-glow" />
+                {/* Subtle accent glow - neutral only */}
+                <div className="absolute inset-0 bg-[color:var(--color-accent)]/20 blur-3xl" />
                 {animationData && (
                   <div className="relative">
                     <LottieHero 
