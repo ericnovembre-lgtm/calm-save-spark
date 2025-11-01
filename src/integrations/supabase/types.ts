@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_coaching_sessions: {
+        Row: {
+          conversation_history: Json | null
+          created_at: string | null
+          id: string
+          last_message_at: string | null
+          message_count: number | null
+          session_type: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_history?: Json | null
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          session_type?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_history?: Json | null
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          session_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -74,6 +104,33 @@ export type Database = {
           scheduled_transfer_frequency?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      budget_templates: {
+        Row: {
+          category_percentages: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          income_level: string | null
+          name: string
+        }
+        Insert: {
+          category_percentages: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          income_level?: string | null
+          name: string
+        }
+        Update: {
+          category_percentages?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          income_level?: string | null
+          name?: string
         }
         Relationships: []
       }
@@ -372,6 +429,42 @@ export type Database = {
           message?: string
           severity?: string | null
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_budgets: {
+        Row: {
+          category_limits: Json | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          period: string
+          total_limit: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category_limits?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          period: string
+          total_limit: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category_limits?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          period?: string
+          total_limit?: number
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []

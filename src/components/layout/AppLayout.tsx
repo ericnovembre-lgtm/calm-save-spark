@@ -24,9 +24,9 @@ const mainNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
   { name: "Transactions", path: "/transactions", icon: CreditCard },
   { name: "Subscriptions", path: "/subscriptions", icon: Shield },
+  { name: "Insights", path: "/insights", icon: Lightbulb },
+  { name: "Budget", path: "/budget", icon: BarChart3 },
   { name: "Goals", path: "/goals", icon: Target },
-  { name: "Pots", path: "/pots", icon: Wallet },
-  { name: "Automations", path: "/automations", icon: Zap },
   { name: "Coach", path: "/coach", icon: Bot },
 ];
 

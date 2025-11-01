@@ -11,6 +11,8 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Subscriptions from "./pages/Subscriptions";
+import Insights from "./pages/Insights";
+import Budget from "./pages/Budget";
 import Welcome from "./pages/Welcome";
 import IconDemo from "./pages/IconDemo";
 import Coach from "./pages/Coach";
@@ -50,11 +52,12 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/insights" element={<Insights />} />
+            <Route path="/budget" element={<Budget />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/pots" element={<Pots />} />
             <Route path="/automations" element={<Automations />} />
             <Route path="/rewards" element={<AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout>} />
-            <Route path="/insights" element={<AppLayout><div className="container mx-auto p-8">Insights - Coming Soon</div></AppLayout>} />
             <Route path="/analytics" element={<AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout>} />
             <Route path="/card" element={<AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout>} />
             <Route path="/coach" element={<AppLayout><Coach /></AppLayout>} />
