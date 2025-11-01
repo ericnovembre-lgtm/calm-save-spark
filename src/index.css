@@ -58,6 +58,20 @@ All colors MUST be HSL.
     /* Glass effects */
     --glass-bg: rgba(248, 246, 240, 0.7);
     --glass-border: rgba(0, 0, 0, 0.1);
+
+    /* Backward-compat: orbital vars mapped to neutral palette */
+    --orbital-space: var(--color-bg);
+    --orbital-nebula: #F4F0E6;
+    --orbital-star: #000000;
+    --orbital-comet: #000000;
+    --orbital-aurora: var(--color-accent);
+    --orbital-solar: var(--color-accent);
+    --orbital-cosmic: var(--color-accent);
+    --orbital-text: var(--color-text);
+    --orbital-text-muted: var(--color-muted);
+    --orbital-glow: rgba(0, 0, 0, 0.06);
+    --orbital-ring: rgba(0, 0, 0, 0.08);
+    --orbital-shadow: rgba(0, 0, 0, 0.10);
   }
 
   @keyframes float {
@@ -115,6 +129,20 @@ All colors MUST be HSL.
     --shadow-card: 0 4px 16px -4px hsl(0 0% 100% / 0.08);
     --glass-bg: rgba(15, 15, 15, 0.7);
     --glass-border: rgba(255, 255, 255, 0.1);
+
+    /* Backward-compat: orbital vars for dark mode */
+    --orbital-space: var(--color-bg);
+    --orbital-nebula: #0F0F0F;
+    --orbital-star: var(--color-text);
+    --orbital-comet: var(--color-text);
+    --orbital-aurora: var(--color-accent);
+    --orbital-solar: var(--color-accent);
+    --orbital-cosmic: var(--color-accent);
+    --orbital-text: var(--color-text);
+    --orbital-text-muted: var(--color-muted);
+    --orbital-glow: rgba(255, 255, 255, 0.08);
+    --orbital-ring: rgba(255, 255, 255, 0.10);
+    --orbital-shadow: rgba(0, 0, 0, 0.40);
   }
 }
 
