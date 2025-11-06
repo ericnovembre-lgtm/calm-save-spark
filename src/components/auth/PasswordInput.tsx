@@ -46,6 +46,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           <Input
             ref={ref}
             id={id}
+            name={id}
             type={showPassword ? 'text' : 'password'}
             value={value}
             onChange={(e) => onChange(e.target.value)}
@@ -57,6 +58,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             autoFocus={autoFocus}
             spellCheck={false}
             autoCapitalize="none"
+            readOnly={false}
           />
           {showToggle && (
             <Button
