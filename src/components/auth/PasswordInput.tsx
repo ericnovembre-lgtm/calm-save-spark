@@ -104,7 +104,7 @@ export function PasswordInput({
       >
         {label}
       </Label>
-      <div className="relative pointer-events-auto z-10">
+      <div className="relative">
         <Input
           ref={inputRef}
           id={id}
@@ -114,53 +114,51 @@ export function PasswordInput({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
-          className={cn("pr-10 relative z-10", error ? 'border-destructive' : '')}
+          className={cn("pr-10", error ? 'border-destructive' : '')}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
           autoComplete={autoComplete}
           spellCheck={false}
           autoCapitalize="none"
         />
-        <div className="absolute right-0 top-0 h-full flex items-center pointer-events-none">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "h-full px-3 pointer-events-auto",
-              "hover:bg-transparent focus-visible:ring-1 focus-visible:ring-ring",
-              "transition-all duration-200"
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "absolute right-0 top-0 h-full px-3",
+            "hover:bg-transparent focus-visible:ring-1 focus-visible:ring-ring",
+            "transition-all duration-200"
+          )}
+          onClick={() => setShowPassword(!showPassword)}
+          aria-label={showPassword ? 'Hide password' : 'Show password'}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {prefersReducedMotion ? (
+              <div key={showPassword ? 'hide' : 'show'}>
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                )}
+              </div>
+            ) : (
+              <motion.div
+                key={showPassword ? 'hide' : 'show'}
+                initial={{ opacity: 0, rotate: -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.15 }}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                )}
+              </motion.div>
             )}
-            onClick={() => setShowPassword(!showPassword)}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              {prefersReducedMotion ? (
-                <div key={showPassword ? 'hide' : 'show'}>
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  )}
-                </div>
-              ) : (
-                <motion.div
-                  key={showPassword ? 'hide' : 'show'}
-                  initial={{ opacity: 0, rotate: -90 }}
-                  animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: 90 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Button>
-        </div>
+          </AnimatePresence>
+        </Button>
       </div>
       
       {error && (
