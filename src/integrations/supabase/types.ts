@@ -553,6 +553,59 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_transfers: {
+        Row: {
+          amount: number
+          created_at: string
+          day_of_month: number | null
+          day_of_week: number | null
+          frequency: string
+          id: string
+          is_active: boolean
+          last_transfer_date: string | null
+          next_transfer_date: string
+          pot_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          day_of_month?: number | null
+          day_of_week?: number | null
+          frequency: string
+          id?: string
+          is_active?: boolean
+          last_transfer_date?: string | null
+          next_transfer_date: string
+          pot_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          day_of_month?: number | null
+          day_of_week?: number | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_transfer_date?: string | null
+          next_transfer_date?: string
+          pot_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_transfers_pot_id_fkey"
+            columns: ["pot_id"]
+            isOneToOne: false
+            referencedRelation: "pots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_history: {
         Row: {
           change_reason: string | null
@@ -632,6 +685,57 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_history: {
+        Row: {
+          amount: number
+          created_at: string
+          error_message: string | null
+          id: string
+          pot_id: string
+          scheduled_transfer_id: string | null
+          status: string
+          transfer_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          pot_id: string
+          scheduled_transfer_id?: string | null
+          status?: string
+          transfer_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          pot_id?: string
+          scheduled_transfer_id?: string | null
+          status?: string
+          transfer_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_history_pot_id_fkey"
+            columns: ["pot_id"]
+            isOneToOne: false
+            referencedRelation: "pots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_history_scheduled_transfer_id_fkey"
+            columns: ["scheduled_transfer_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_transfers"
             referencedColumns: ["id"]
           },
         ]

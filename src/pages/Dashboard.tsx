@@ -5,6 +5,9 @@ import { BalanceCard } from "@/components/BalanceCard";
 import { AutoSaveBanner } from "@/components/dashboard/AutoSaveBanner";
 import { GoalsSection } from "@/components/dashboard/GoalsSection";
 import { ManualTransferCard } from "@/components/dashboard/ManualTransferCard";
+import { ScheduledTransferDialog } from "@/components/dashboard/ScheduledTransferDialog";
+import { ScheduledTransfersList } from "@/components/dashboard/ScheduledTransfersList";
+import { TransferHistory } from "@/components/dashboard/TransferHistory";
 import { LoadingState } from "@/components/LoadingState";
 
 export default function Dashboard() {
@@ -55,7 +58,25 @@ export default function Dashboard() {
         
         <GoalsSection />
         
+        <div className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-display font-semibold text-foreground mb-2">
+                Transfer Options
+              </h3>
+              <p className="text-muted-foreground">
+                Move money to your savings goals
+              </p>
+            </div>
+            <ScheduledTransferDialog />
+          </div>
+        </div>
+
+        <ScheduledTransfersList />
+        
         <ManualTransferCard />
+
+        <TransferHistory />
         
         <div className="text-center text-xs text-muted-foreground pt-4 pb-2">
           <p>

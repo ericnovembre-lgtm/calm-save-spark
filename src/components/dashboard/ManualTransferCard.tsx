@@ -48,6 +48,18 @@ export const ManualTransferCard = () => {
         .eq('id', potId);
 
       if (error) throw error;
+
+      // Log transfer in history
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('transfer_history').insert({
+          user_id: user.id,
+          pot_id: potId,
+          amount,
+          transfer_type: 'manual',
+          status: 'completed',
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pots-for-transfer'] });
