@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SaveplusAnimIcon } from "@/components/icons";
 import { CheckCircle, Sparkles, TrendingUp, Target, Shield } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useCelebrationSounds } from "@/hooks/useCelebrationSounds";
 import NeutralConfetti from "@/components/effects/NeutralConfetti";
 
 interface CompleteStepProps {
@@ -13,10 +14,24 @@ interface CompleteStepProps {
 
 const CompleteStep = ({ onComplete }: CompleteStepProps) => {
   const prefersReducedMotion = useReducedMotion();
+  const { playSuccessChime, playConfettiPop } = useCelebrationSounds();
   const [showConfetti, setShowConfetti] = useState(true);
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
+    // Play celebration sounds on mount
+    const playSounds = async () => {
+      // Play confetti pop immediately
+      playConfettiPop();
+      
+      // Play success chime after a short delay
+      setTimeout(() => {
+        playSuccessChime();
+      }, 200);
+    };
+    
+    playSounds();
+
     // Countdown timer
     const countdownInterval = setInterval(() => {
       setCountdown((prev) => {
@@ -37,7 +52,7 @@ const CompleteStep = ({ onComplete }: CompleteStepProps) => {
       clearTimeout(timer);
       clearInterval(countdownInterval);
     };
-  }, [onComplete]);
+  }, [onComplete, playSuccessChime, playConfettiPop]);
 
   const achievements = [
     { icon: Target, label: "Goals Set", color: "text-primary" },
