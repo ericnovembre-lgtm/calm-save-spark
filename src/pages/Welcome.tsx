@@ -100,6 +100,9 @@ const Welcome = () => {
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   
+  // Track loading start time
+  const loadStartTimeRef = useRef<number>(Date.now());
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -164,25 +167,61 @@ const Welcome = () => {
     checkAuth();
   }, []);
 
-  // Progressive loading: load sections sequentially
+  // Progressive loading: load sections sequentially with analytics
   useEffect(() => {
     if (!isLoading) {
+      const authLoadTime = Date.now() - loadStartTimeRef.current;
+      
+      // Track auth check duration
+      saveplus_audit_event('section_loaded', {
+        section: 'auth_check',
+        load_time_ms: authLoadTime,
+        route: location.pathname
+      });
+      
       // Hero loads immediately after auth check
       setHeroLoaded(true);
+      saveplus_audit_event('section_loaded', {
+        section: 'hero',
+        load_time_ms: authLoadTime,
+        route: location.pathname
+      });
       
       // Features load after 300ms
       const featuresTimer = setTimeout(() => {
         setFeaturesLoaded(true);
+        saveplus_audit_event('section_loaded', {
+          section: 'features',
+          load_time_ms: Date.now() - loadStartTimeRef.current,
+          route: location.pathname
+        });
       }, 300);
       
       // Stats load after 600ms
       const statsTimer = setTimeout(() => {
         setStatsLoaded(true);
+        saveplus_audit_event('section_loaded', {
+          section: 'stats',
+          load_time_ms: Date.now() - loadStartTimeRef.current,
+          route: location.pathname
+        });
       }, 600);
       
       // CTA loads after 900ms
       const ctaTimer = setTimeout(() => {
         setCtaLoaded(true);
+        const totalLoadTime = Date.now() - loadStartTimeRef.current;
+        saveplus_audit_event('section_loaded', {
+          section: 'cta',
+          load_time_ms: totalLoadTime,
+          route: location.pathname
+        });
+        
+        // Track complete page load
+        saveplus_audit_event('page_fully_loaded', {
+          total_load_time_ms: totalLoadTime,
+          route: location.pathname
+        });
       }, 900);
       
       return () => {
@@ -191,7 +230,7 @@ const Welcome = () => {
         clearTimeout(ctaTimer);
       };
     }
-  }, [isLoading]);
+  }, [isLoading, location.pathname]);
 
   // Theme toggle deduplication
   useEffect(() => {
