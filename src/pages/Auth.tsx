@@ -47,6 +47,7 @@ export default function Auth() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
+  const [safeInputs, setSafeInputs] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
   // Check if user is already authenticated
@@ -273,10 +274,24 @@ export default function Auth() {
               }}
             />
 
+            {/* Safe mode toggle */}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSafeInputs(v => !v)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring rounded px-1"
+              >
+                {safeInputs ? 'Use enhanced inputs' : 'Having trouble typing? Use basic inputs'}
+              </button>
+            </div>
+
             <EmailInput
+              key={`email-${mode}`}
               value={email}
               onChange={setEmail}
               error={emailError}
+              autoFocus={true}
+              minimal={safeInputs}
             />
 
             <PasswordInput
@@ -285,6 +300,7 @@ export default function Auth() {
               error={passwordError}
               showStrengthMeter={mode === 'signup'}
               autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              minimal={safeInputs}
             />
 
             {mode === 'signup' && (
@@ -296,6 +312,7 @@ export default function Auth() {
                   id="confirm-password"
                   autoComplete="new-password"
                   placeholder="••••••••"
+                  minimal={safeInputs}
                 />
 
                 <div className="flex items-start gap-2">
