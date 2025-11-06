@@ -40,11 +40,30 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
                 </span>
               </div>
               <div className="h-2 bg-accent rounded-full overflow-hidden">
-                <div
+                <motion.div
                   className={`h-full transition-all duration-300 rounded-full ${prefersReducedMotion ? '' : 'ease-out'}`}
                   style={{
                     width: `${validation.score}%`,
                     backgroundColor: strengthColor,
+                    boxShadow: validation.strength === 'strong' && !prefersReducedMotion
+                      ? `0 0 8px ${strengthColor}, 0 0 12px ${strengthColor}`
+                      : 'none',
+                  }}
+                  animate={
+                    validation.strength === 'strong' && !prefersReducedMotion
+                      ? {
+                          boxShadow: [
+                            `0 0 8px ${strengthColor}, 0 0 12px ${strengthColor}`,
+                            `0 0 12px ${strengthColor}, 0 0 20px ${strengthColor}`,
+                            `0 0 8px ${strengthColor}, 0 0 12px ${strengthColor}`,
+                          ],
+                        }
+                      : {}
+                  }
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
                   }}
                 />
               </div>
