@@ -13,6 +13,7 @@ import { EmailInput } from '@/components/auth/EmailInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { MagicLinkOption } from '@/components/auth/MagicLinkOption';
 import { MFAVerification } from '@/components/auth/MFAVerification';
+import { BiometricAuth } from '@/components/auth/BiometricAuth';
 import { SecurityBadge } from '@/components/auth/SecurityBadge';
 import { AuthFooter } from '@/components/auth/AuthFooter';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -407,7 +408,18 @@ export default function Auth() {
               )}
             </AnimatePresence>
 
-              {mode === 'login' && <MagicLinkOption email={email} />}
+            {mode === 'login' && (
+              <>
+                <BiometricAuth 
+                  email={email} 
+                  onSuccess={() => {
+                    const returnUrl = getReturnUrl();
+                    navigate(returnUrl);
+                  }} 
+                />
+                <MagicLinkOption email={email} />
+              </>
+            )}
             </form>
 
             <AuthFooter mode={mode === 'reset-password' ? 'login' : mode} onForgotPassword={handleForgotPassword} />

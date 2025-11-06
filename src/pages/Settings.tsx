@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { TwoFactorAuth } from '@/components/settings/TwoFactorAuth';
 import { PasswordChange } from '@/components/settings/PasswordChange';
+import { BiometricSetup } from '@/components/auth/BiometricSetup';
 import { Shield, User, Bell, Lock } from 'lucide-react';
 
 export default function Settings() {
@@ -33,6 +34,8 @@ export default function Settings() {
             <PasswordChange />
             <Separator />
             <TwoFactorAuth />
+            <Separator />
+            <BiometricSetup />
           </CardContent>
         </Card>
 
