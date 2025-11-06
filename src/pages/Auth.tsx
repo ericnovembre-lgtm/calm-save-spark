@@ -23,8 +23,11 @@ import {
   trackEvent 
 } from '@/lib/analytics';
 import { announce } from '@/components/layout/LiveRegion';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Info } from 'lucide-react';
 import { NeutralConfetti } from '@/components/effects/NeutralConfetti';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 type AuthMode = 'login' | 'signup' | 'reset-password';
 
@@ -43,6 +46,7 @@ export default function Auth() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -312,6 +316,35 @@ export default function Auth() {
                 mode === 'signup' ? 'Create account' : 'Sign in'
               )}
             </Button>
+
+            {/* New user guidance */}
+            <AnimatePresence mode="wait">
+              {mode === 'login' && (
+                <motion.div
+                  {...(!prefersReducedMotion && {
+                    initial: { opacity: 0, y: -10 },
+                    exit: { opacity: 0, y: -10 },
+                  })}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Alert className="bg-primary/5 border-primary/20">
+                    <Info className="h-4 w-4 text-primary" />
+                    <AlertDescription className="text-sm">
+                      New to $ave+?{' '}
+                      <button
+                        type="button"
+                        onClick={() => handleModeChange('signup')}
+                        className="font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                      >
+                        Create an account
+                      </button>
+                      {' '}to get started.
+                    </AlertDescription>
+                  </Alert>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {mode === 'login' && <MagicLinkOption email={email} />}
           </form>
