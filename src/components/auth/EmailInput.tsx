@@ -2,11 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertCircle, Check } from 'lucide-react';
+import { AlertCircle, Check, AlertTriangle } from 'lucide-react';
 import { sanitizeEmail } from '@/lib/auth-utils';
 import { suggestEmailCorrection } from '@/lib/password-strength';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { cn } from '@/lib/utils';
+import { z } from 'zod';
+
+const emailSchema = z.string().trim().email().max(255);
 
 interface EmailInputProps {
   value: string;
@@ -20,9 +23,12 @@ interface EmailInputProps {
 export function EmailInput({ value, onChange, error, onValidation, autoFocus = false, minimal = false }: EmailInputProps) {
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [isValid, setIsValid] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
+  const [hasTyped, setHasTyped] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-focus on mount or when autoFocus changes
   useEffect(() => {
@@ -31,24 +37,53 @@ export function EmailInput({ value, onChange, error, onValidation, autoFocus = f
     }
   }, [autoFocus]);
 
+  // Debounced real-time validation (500ms after typing stops)
   useEffect(() => {
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const valid = emailRegex.test(value) && value.length <= 255;
-    setIsValid(valid);
-    onValidation?.(valid);
-
-    // Check for typos in domain
-    if (valid) {
-      const correctedEmail = suggestEmailCorrection(value);
-      setSuggestion(correctedEmail);
-    } else {
-      setSuggestion(null);
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
-  }, [value, onValidation]);
+
+    // Don't show validation until user has typed something
+    if (!value || !hasTyped) {
+      setShowValidation(false);
+      return;
+    }
+
+    // Debounce validation
+    debounceTimerRef.current = setTimeout(() => {
+      // Validate using zod schema
+      const result = emailSchema.safeParse(value);
+      const valid = result.success;
+      
+      setIsValid(valid);
+      setShowValidation(true);
+      onValidation?.(valid);
+
+      // Check for typos in domain
+      if (valid) {
+        const correctedEmail = suggestEmailCorrection(value);
+        setSuggestion(correctedEmail);
+      } else {
+        setSuggestion(null);
+      }
+    }, 500);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [value, onValidation, hasTyped]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(sanitizeEmail(e.target.value));
+    const sanitized = sanitizeEmail(e.target.value);
+    onChange(sanitized);
+    
+    // Mark that user has started typing
+    if (!hasTyped && sanitized) {
+      setHasTyped(true);
+    }
   };
 
   const applySuggestion = () => {
@@ -116,7 +151,9 @@ export function EmailInput({ value, onChange, error, onValidation, autoFocus = f
           placeholder="you@example.com"
           className={cn(
             "pr-10 relative z-10",
-            error ? 'border-destructive' : isValid && value ? 'border-green-600' : ''
+            error ? 'border-destructive' : 
+            showValidation && isValid && value ? 'border-green-600' : 
+            showValidation && !isValid && value ? 'border-amber-500' : ''
           )}
           aria-invalid={!!error}
           aria-describedby={error ? 'email-error' : suggestion ? 'email-suggestion' : undefined}
@@ -127,24 +164,7 @@ export function EmailInput({ value, onChange, error, onValidation, autoFocus = f
         />
         <div className="absolute right-3 top-3 pointer-events-none">
           <AnimatePresence mode="wait">
-            {isValid && value && !error && (
-              prefersReducedMotion ? (
-                <div key="valid">
-                  <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
-                </div>
-              ) : (
-                <motion.div
-                  key="valid"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
-                </motion.div>
-              )
-            )}
-            {error && (
+            {error ? (
               prefersReducedMotion ? (
                 <div key="error">
                   <AlertCircle className="h-4 w-4 text-destructive" aria-hidden="true" />
@@ -160,7 +180,39 @@ export function EmailInput({ value, onChange, error, onValidation, autoFocus = f
                   <AlertCircle className="h-4 w-4 text-destructive" aria-hidden="true" />
                 </motion.div>
               )
-            )}
+            ) : showValidation && isValid && value ? (
+              prefersReducedMotion ? (
+                <div key="valid">
+                  <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
+                </div>
+              ) : (
+                <motion.div
+                  key="valid"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
+                </motion.div>
+              )
+            ) : showValidation && !isValid && value ? (
+              prefersReducedMotion ? (
+                <div key="invalid">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" aria-hidden="true" />
+                </div>
+              ) : (
+                <motion.div
+                  key="invalid"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <AlertTriangle className="h-4 w-4 text-amber-500" aria-hidden="true" />
+                </motion.div>
+              )
+            ) : null}
           </AnimatePresence>
         </div>
       </div>
