@@ -3,6 +3,8 @@ import { Check, Circle } from 'lucide-react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { cn } from '@/lib/utils';
 import { validatePasswordStrength } from '@/lib/password-strength';
+import { useEffect, useRef } from 'react';
+import { NeutralConfetti } from '@/components/effects/NeutralConfetti';
 
 interface SignupProgressProps {
   email: string;
@@ -24,6 +26,7 @@ export function SignupProgress({
   agreeToTerms 
 }: SignupProgressProps) {
   const prefersReducedMotion = useReducedMotion();
+  const hasShownConfetti = useRef(false);
 
   // Calculate step completion
   const emailValid = email.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -41,13 +44,30 @@ export function SignupProgress({
   const totalSteps = steps.length;
   const progressPercentage = (completedCount / totalSteps) * 100;
 
+  // Trigger confetti when reaching 100% (only once)
+  useEffect(() => {
+    if (progressPercentage === 100 && !hasShownConfetti.current) {
+      hasShownConfetti.current = true;
+    }
+  }, [progressPercentage]);
+
+  // Reset confetti flag if progress drops below 100%
+  useEffect(() => {
+    if (progressPercentage < 100) {
+      hasShownConfetti.current = false;
+    }
+  }, [progressPercentage]);
+
   return (
-    <div 
-      className="space-y-3"
-      role="status"
-      aria-label="Signup progress"
-      aria-live="polite"
-    >
+    <>
+      <NeutralConfetti show={hasShownConfetti.current && progressPercentage === 100} />
+      
+      <div 
+        className="space-y-3"
+        role="status"
+        aria-label="Signup progress"
+        aria-live="polite"
+      >
       {/* Progress bar */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs">
@@ -160,6 +180,7 @@ export function SignupProgress({
           </motion.div>
         )
       )}
-    </div>
+      </div>
+    </>
   );
 }
