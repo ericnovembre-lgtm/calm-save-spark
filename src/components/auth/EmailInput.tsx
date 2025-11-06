@@ -139,7 +139,7 @@ export function EmailInput({ value, onChange, error, onValidation, autoFocus = f
       >
         Email address
       </Label>
-      <div className="relative pointer-events-auto z-10">
+      <div className="relative">
         <Input
           ref={inputRef}
           id="email"
@@ -150,7 +150,7 @@ export function EmailInput({ value, onChange, error, onValidation, autoFocus = f
           onBlur={() => setIsFocused(false)}
           placeholder="you@example.com"
           className={cn(
-            "pr-10 relative z-10",
+            "pr-10",
             error ? 'border-destructive' : 
             showValidation && isValid && value ? 'border-green-600' : 
             showValidation && !isValid && value ? 'border-amber-500' : ''
