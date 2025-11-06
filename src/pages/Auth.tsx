@@ -274,7 +274,7 @@ export default function Auth() {
 
               <AuthTabs mode={mode === 'reset-password' ? 'login' : mode} onModeChange={handleModeChange} />
 
-          <form onSubmit={handleSubmit} className="space-y-4" id="auth-panel" role="tabpanel">
+          <form onSubmit={handleSubmit} className="space-y-5" id="auth-panel" role="tabpanel">
             <SocialAuth
               onError={setError}
               onSuccess={() => {
