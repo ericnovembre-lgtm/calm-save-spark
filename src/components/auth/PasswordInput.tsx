@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { PasswordStrengthMeter } from './PasswordStrengthMeter';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { cn } from '@/lib/utils';
 
 interface PasswordInputProps {
   value: string;
@@ -27,10 +30,18 @@ export function PasswordInput({
   placeholder = '••••••••',
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="text-sm font-medium">
+      <Label 
+        htmlFor={id} 
+        className={cn(
+          "text-sm font-medium transition-colors duration-200",
+          isFocused ? "text-foreground" : "text-muted-foreground"
+        )}
+      >
         {label}
       </Label>
       <div className="relative">
@@ -39,6 +50,8 @@ export function PasswordInput({
           type={showPassword ? 'text' : 'password'}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
           className={`pr-10 ${error ? 'border-destructive' : ''}`}
           aria-invalid={!!error}
@@ -49,15 +62,39 @@ export function PasswordInput({
           type="button"
           variant="ghost"
           size="sm"
-          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+          className={cn(
+            "absolute right-0 top-0 h-full px-3",
+            "hover:bg-transparent focus-visible:ring-1 focus-visible:ring-ring",
+            "transition-all duration-200"
+          )}
           onClick={() => setShowPassword(!showPassword)}
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
-          {showPassword ? (
-            <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-          ) : (
-            <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-          )}
+          <AnimatePresence mode="wait" initial={false}>
+            {prefersReducedMotion ? (
+              <div key={showPassword ? 'hide' : 'show'}>
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                )}
+              </div>
+            ) : (
+              <motion.div
+                key={showPassword ? 'hide' : 'show'}
+                initial={{ opacity: 0, rotate: -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.15 }}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Button>
       </div>
       

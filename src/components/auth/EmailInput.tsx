@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AlertCircle, Check } from 'lucide-react';
 import { sanitizeEmail } from '@/lib/auth-utils';
 import { suggestEmailCorrection } from '@/lib/password-strength';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { cn } from '@/lib/utils';
 
 interface EmailInputProps {
   value: string;
@@ -15,6 +18,8 @@ interface EmailInputProps {
 export function EmailInput({ value, onChange, error, onValidation }: EmailInputProps) {
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [isValid, setIsValid] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     // Validate email format
@@ -45,7 +50,13 @@ export function EmailInput({ value, onChange, error, onValidation }: EmailInputP
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="email" className="text-sm font-medium">
+      <Label 
+        htmlFor="email" 
+        className={cn(
+          "text-sm font-medium transition-colors duration-200",
+          isFocused ? "text-foreground" : "text-muted-foreground"
+        )}
+      >
         Email address
       </Label>
       <div className="relative">
@@ -54,18 +65,52 @@ export function EmailInput({ value, onChange, error, onValidation }: EmailInputP
           type="email"
           value={value}
           onChange={handleChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           placeholder="you@example.com"
           className={`pr-10 ${error ? 'border-destructive' : isValid && value ? 'border-green-600' : ''}`}
           aria-invalid={!!error}
           aria-describedby={error ? 'email-error' : suggestion ? 'email-suggestion' : undefined}
           autoComplete="email"
         />
-        {isValid && value && !error && (
-          <Check className="absolute right-3 top-3 h-4 w-4 text-green-600" aria-hidden="true" />
-        )}
-        {error && (
-          <AlertCircle className="absolute right-3 top-3 h-4 w-4 text-destructive" aria-hidden="true" />
-        )}
+        <AnimatePresence mode="wait">
+          {isValid && value && !error && (
+            prefersReducedMotion ? (
+              <div key="valid" className="absolute right-3 top-3">
+                <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
+              </div>
+            ) : (
+              <motion.div
+                key="valid"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-3 top-3"
+              >
+                <Check className="h-4 w-4 text-green-600" aria-hidden="true" />
+              </motion.div>
+            )
+          )}
+          {error && (
+            prefersReducedMotion ? (
+              <div key="error" className="absolute right-3 top-3">
+                <AlertCircle className="h-4 w-4 text-destructive" aria-hidden="true" />
+              </div>
+            ) : (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-3 top-3"
+              >
+                <AlertCircle className="h-4 w-4 text-destructive" aria-hidden="true" />
+              </motion.div>
+            )
+          )}
+        </AnimatePresence>
       </div>
       
       {error && (
