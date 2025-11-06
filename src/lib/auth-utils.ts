@@ -50,7 +50,7 @@ export async function checkEmailExists(email: string): Promise<boolean> {
 }
 
 export function getReturnUrl(): string {
-  if (typeof window === 'undefined') return '/dashboard';
+  if (typeof window === 'undefined') return '/onboarding';
   
   // Check query params first
   const params = new URLSearchParams(window.location.search);
@@ -64,7 +64,7 @@ export function getReturnUrl(): string {
     return storedUrl;
   }
   
-  return '/dashboard';
+  return '/onboarding';
 }
 
 export function setReturnUrl(url: string): void {
