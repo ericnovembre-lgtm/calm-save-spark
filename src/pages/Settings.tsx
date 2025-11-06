@@ -2,6 +2,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { TwoFactorAuth } from '@/components/settings/TwoFactorAuth';
+import { PasswordChange } from '@/components/settings/PasswordChange';
 import { Shield, User, Bell, Lock } from 'lucide-react';
 
 export default function Settings() {
@@ -28,7 +29,9 @@ export default function Settings() {
               Protect your account with additional security measures
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-8">
+            <PasswordChange />
+            <Separator />
             <TwoFactorAuth />
           </CardContent>
         </Card>
