@@ -12,6 +12,7 @@ import { SearchBarHinted } from "@/components/search/SearchBarHinted";
 import { SecureOnboardingCTA } from "@/components/welcome/SecureOnboardingCTA";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { SaveplusUIAssistantFAB } from "@/components/assistant/SaveplusUIAssistantFAB";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { trackPageView, saveplus_audit_event } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,6 +92,7 @@ const Welcome = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [user, setUser] = useState<any>(null);
   const [userProgress, setUserProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   
@@ -151,6 +153,8 @@ const Welcome = () => {
         }
       } catch (error) {
         console.error("Auth check error:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     checkAuth();
@@ -352,7 +356,18 @@ const Welcome = () => {
                 Mission Control
               </h2>
             </motion.div>
-            <FeatureCarousel features={features} onFeatureClick={handleFeatureClick} />
+            {isLoading ? (
+              <div className="space-y-6">
+                <Skeleton className="h-64 w-full rounded-xl" />
+                <div className="flex justify-center gap-2">
+                  <Skeleton className="h-2 w-2 rounded-full" />
+                  <Skeleton className="h-2 w-2 rounded-full" />
+                  <Skeleton className="h-2 w-2 rounded-full" />
+                </div>
+              </div>
+            ) : (
+              <FeatureCarousel features={features} onFeatureClick={handleFeatureClick} />
+            )}
           </motion.section>
 
           {/* Stats Section with stagger animation - Beige accent zone */}
@@ -382,21 +397,29 @@ const Welcome = () => {
                 </h2>
               </motion.div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {stats.map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                  >
-                    <StatCard
-                      label={stat.label}
-                      value={stat.value}
-                      icon={stat.icon}
-                      delay={0}
-                    />
-                  </motion.div>
-                ))}
+                {isLoading ? (
+                  <>
+                    {[...Array(4)].map((_, index) => (
+                      <Skeleton key={index} className="h-32 w-full rounded-2xl" />
+                    ))}
+                  </>
+                ) : (
+                  stats.map((stat, index) => (
+                    <motion.div
+                      key={stat.label}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                    >
+                      <StatCard
+                        label={stat.label}
+                        value={stat.value}
+                        icon={stat.icon}
+                        delay={0}
+                      />
+                    </motion.div>
+                  ))
+                )}
               </div>
             </div>
           </motion.section>
