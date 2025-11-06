@@ -53,6 +53,43 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
     };
   }, []);
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowRight":
+        case "ArrowDown":
+          e.preventDefault();
+          if (!isLastStep) {
+            handleNext();
+          }
+          break;
+        case "ArrowLeft":
+        case "ArrowUp":
+          e.preventDefault();
+          if (currentStep > 0) {
+            handlePrev();
+          }
+          break;
+        case "Escape":
+          e.preventDefault();
+          handleSkipTour();
+          break;
+        case "Enter":
+          e.preventDefault();
+          handleNext();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentStep, isLastStep]);
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -88,12 +125,17 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
               <span className="text-sm font-medium text-muted-foreground">
                 Feature {currentStep + 1} of {features.length}
               </span>
-              <button
-                onClick={handleSkipTour}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Skip tour
-              </button>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-muted-foreground hidden sm:inline">
+                  Use arrow keys to navigate • ESC to skip
+                </span>
+                <button
+                  onClick={handleSkipTour}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Skip tour
+                </button>
+              </div>
             </div>
             <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
               <motion.div
@@ -156,9 +198,10 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
               onClick={handlePrev}
               disabled={currentStep === 0}
               className="gap-2"
+              aria-label="Previous feature (Arrow Left)"
             >
               <ChevronLeft className="w-4 h-4" />
-              Previous
+              <span className="hidden sm:inline">Previous</span>
             </Button>
 
             <div className="flex gap-2">
@@ -179,15 +222,16 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
             <Button
               onClick={handleNext}
               className="gap-2"
+              aria-label={isLastStep ? "Complete tour (Enter)" : "Next feature (Arrow Right)"}
             >
               {isLastStep ? (
                 <>
-                  Complete
+                  <span className="hidden sm:inline">Complete</span>
                   <Check className="w-4 h-4" />
                 </>
               ) : (
                 <>
-                  Next
+                  <span className="hidden sm:inline">Next</span>
                   <ChevronRight className="w-4 h-4" />
                 </>
               )}
