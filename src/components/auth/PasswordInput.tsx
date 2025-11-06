@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,22 +21,26 @@ interface PasswordInputProps {
   minimal?: boolean;
 }
 
-export function PasswordInput({
-  value,
-  onChange,
-  error,
-  showStrengthMeter = false,
-  label = 'Password',
-  id = 'password',
-  autoComplete = 'current-password',
-  placeholder = '••••••••',
-  autoFocus = false,
-  minimal = false,
-}: PasswordInputProps) {
+export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
+  ({
+    value,
+    onChange,
+    error,
+    showStrengthMeter = false,
+    label = 'Password',
+    id = 'password',
+    autoComplete = 'current-password',
+    placeholder = '••••••••',
+    autoFocus = false,
+    minimal = false,
+  }, forwardedRef) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const prefersReducedMotion = useReducedMotion();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const internalRef = useRef<HTMLInputElement>(null);
+  
+  // Merge internal ref with forwarded ref
+  const inputRef = (forwardedRef as React.RefObject<HTMLInputElement>) || internalRef;
 
   // Auto-focus on mount or when autoFocus changes
   useEffect(() => {
@@ -171,4 +175,6 @@ export function PasswordInput({
       {showStrengthMeter && <PasswordStrengthMeter password={value} />}
     </div>
   );
-}
+});
+
+PasswordInput.displayName = 'PasswordInput';

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -54,6 +54,12 @@ export default function Auth() {
   const [safeInputs, setSafeInputs] = useState(false);
   const [moreOptionsOpen, setMoreOptionsOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  
+  // Refs for form fields to enable focus management
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
+  const termsCheckboxRef = useRef<HTMLButtonElement>(null);
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -121,39 +127,73 @@ export default function Auth() {
 
     // Email validation
     if (!email) {
-      setEmailError('Email is required');
+      const errorMsg = 'Email is required';
+      setEmailError(errorMsg);
+      scrollToAndFocus(emailInputRef, errorMsg);
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255) {
-      setEmailError('Please enter a valid email address');
+      const errorMsg = 'Please enter a valid email address';
+      setEmailError(errorMsg);
+      scrollToAndFocus(emailInputRef, errorMsg);
       return false;
     }
 
     // Password validation
     if (!password) {
-      setPasswordError('Password is required');
+      const errorMsg = 'Password is required';
+      setPasswordError(errorMsg);
+      scrollToAndFocus(passwordInputRef, errorMsg);
       return false;
     }
 
     if (mode === 'signup') {
       const validation = validatePasswordStrength(password);
       if (!validation.isValid) {
-        setPasswordError('Password does not meet requirements');
+        const errorMsg = 'Password does not meet requirements';
+        setPasswordError(errorMsg);
+        scrollToAndFocus(passwordInputRef, errorMsg);
         return false;
       }
 
       if (password !== confirmPassword) {
-        setPasswordError('Passwords do not match');
+        const errorMsg = 'Passwords do not match';
+        setPasswordError(errorMsg);
+        scrollToAndFocus(confirmPasswordInputRef, errorMsg);
         return false;
       }
 
       if (!agreeToTerms) {
-        setError('You must agree to the terms and conditions');
+        const errorMsg = 'You must agree to the terms and conditions';
+        setError(errorMsg);
+        scrollToAndFocus(termsCheckboxRef, errorMsg);
         return false;
       }
     }
 
     return true;
+  };
+
+  // Helper function to scroll to and focus invalid field with ARIA announcement
+  const scrollToAndFocus = (
+    ref: React.RefObject<HTMLInputElement | HTMLButtonElement>,
+    errorMessage: string
+  ) => {
+    if (ref.current) {
+      // Smooth scroll to field
+      ref.current.scrollIntoView({ 
+        behavior: prefersReducedMotion ? 'auto' : 'smooth', 
+        block: 'center' 
+      });
+      
+      // Focus the field after a brief delay to ensure scroll completes
+      setTimeout(() => {
+        ref.current?.focus();
+      }, prefersReducedMotion ? 0 : 300);
+      
+      // Announce error to screen readers
+      announce(`Validation error: ${errorMessage}`, 'assertive');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -295,6 +335,7 @@ export default function Auth() {
             </div>
 
             <EmailInput
+              ref={emailInputRef}
               key={`email-${mode}`}
               value={email}
               onChange={setEmail}
@@ -304,6 +345,7 @@ export default function Auth() {
             />
 
             <PasswordInput
+              ref={passwordInputRef}
               value={password}
               onChange={setPassword}
               error={passwordError}
@@ -332,6 +374,7 @@ export default function Auth() {
             {mode === 'signup' && (
               <>
                 <PasswordInput
+                  ref={confirmPasswordInputRef}
                   value={confirmPassword}
                   onChange={setConfirmPassword}
                   label="Confirm password"
@@ -343,6 +386,7 @@ export default function Auth() {
 
                 <div className="flex items-start gap-2">
                   <Checkbox
+                    ref={termsCheckboxRef}
                     id="terms"
                     checked={agreeToTerms}
                     onCheckedChange={(checked) => setAgreeToTerms(checked === true)}

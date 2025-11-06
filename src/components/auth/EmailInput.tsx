@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,15 +20,19 @@ interface EmailInputProps {
   minimal?: boolean;
 }
 
-export function EmailInput({ value, onChange, error, onValidation, autoFocus = false, minimal = false }: EmailInputProps) {
+export const EmailInput = forwardRef<HTMLInputElement, EmailInputProps>(
+  ({ value, onChange, error, onValidation, autoFocus = false, minimal = false }, forwardedRef) => {
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [isValid, setIsValid] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [hasTyped, setHasTyped] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const prefersReducedMotion = useReducedMotion();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const internalRef = useRef<HTMLInputElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Merge internal ref with forwarded ref
+  const inputRef = (forwardedRef as React.RefObject<HTMLInputElement>) || internalRef;
 
   // Auto-focus on mount or when autoFocus changes
   useEffect(() => {
@@ -236,4 +240,6 @@ export function EmailInput({ value, onChange, error, onValidation, autoFocus = f
       )}
     </div>
   );
-}
+});
+
+EmailInput.displayName = 'EmailInput';
