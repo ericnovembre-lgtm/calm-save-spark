@@ -29,6 +29,7 @@ import SubscriptionManagement from "./pages/SubscriptionManagement";
 import Goals from "./pages/Goals";
 import Pots from "./pages/Pots";
 import Automations from "./pages/Automations";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -68,7 +69,7 @@ const App = () => (
             <Route path="/card" element={<AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout>} />
             <Route path="/coach" element={<AppLayout><Coach /></AppLayout>} />
             <Route path="/help" element={<AppLayout><Help /></AppLayout>} />
-            <Route path="/settings" element={<AppLayout><div className="container mx-auto p-8">Settings - Coming Soon</div></AppLayout>} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/admin-agents" element={<AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout>} />
             <Route path="/admin-functions" element={<AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout>} />
             

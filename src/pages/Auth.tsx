@@ -12,6 +12,7 @@ import { SocialAuth } from '@/components/auth/SocialAuth';
 import { EmailInput } from '@/components/auth/EmailInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { MagicLinkOption } from '@/components/auth/MagicLinkOption';
+import { MFAVerification } from '@/components/auth/MFAVerification';
 import { SecurityBadge } from '@/components/auth/SecurityBadge';
 import { AuthFooter } from '@/components/auth/AuthFooter';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -29,7 +30,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
-type AuthMode = 'login' | 'signup' | 'reset-password';
+type AuthMode = 'login' | 'signup' | 'reset-password' | 'mfa-verify';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -194,7 +195,14 @@ export default function Auth() {
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          // Check if MFA is required
+          if (error.message?.includes('MFA') || error.message?.includes('factor')) {
+            setMode('mfa-verify');
+            return;
+          }
+          throw error;
+        }
 
         if (data.user) {
           trackLogin();
@@ -239,9 +247,22 @@ export default function Auth() {
         <SecurityBadge />
 
         <AuthCard>
-          <AuthHeader mode={mode === 'reset-password' ? 'login' : mode} />
+          {mode === 'mfa-verify' ? (
+            <MFAVerification
+              onSuccess={() => {
+                const returnUrl = getReturnUrl();
+                navigate(returnUrl);
+              }}
+              onCancel={() => {
+                setMode('login');
+                setPassword('');
+              }}
+            />
+          ) : (
+            <>
+              <AuthHeader mode={mode === 'reset-password' ? 'login' : mode} />
 
-          <AuthTabs mode={mode === 'reset-password' ? 'login' : mode} onModeChange={handleModeChange} />
+              <AuthTabs mode={mode === 'reset-password' ? 'login' : mode} onModeChange={handleModeChange} />
 
           <form onSubmit={handleSubmit} className="space-y-4" id="auth-panel" role="tabpanel">
             <SocialAuth
@@ -346,10 +367,12 @@ export default function Auth() {
               )}
             </AnimatePresence>
 
-            {mode === 'login' && <MagicLinkOption email={email} />}
-          </form>
+              {mode === 'login' && <MagicLinkOption email={email} />}
+            </form>
 
-          <AuthFooter mode={mode === 'reset-password' ? 'login' : mode} onForgotPassword={handleForgotPassword} />
+            <AuthFooter mode={mode === 'reset-password' ? 'login' : mode} onForgotPassword={handleForgotPassword} />
+          </>
+        )}
         </AuthCard>
       </div>
     </div>
