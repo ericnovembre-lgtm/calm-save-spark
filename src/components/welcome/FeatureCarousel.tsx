@@ -2,12 +2,14 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { announce } from "@/components/layout/LiveRegion";
+import { SaveplusAnimIcon } from "@/components/icons";
 
 export interface Feature {
   id: string;
-  icon: React.ReactNode;
+  icon: string; // SaveplusAnimIcon name
   title: string;
   description: string;
+  summary?: string; // Optional summary for carousel display
   details: string;
 }
 
@@ -92,7 +94,7 @@ export const FeatureCarousel = ({
               transition={{ duration: 0.3 }}
             >
               <div className="text-[hsl(var(--foreground))]">
-                {current.icon}
+                <SaveplusAnimIcon name={current.icon} size={48} decorative />
               </div>
             </motion.div>
           </div>
@@ -103,7 +105,7 @@ export const FeatureCarousel = ({
               {current.title}
             </h3>
             <p className="text-base md:text-lg text-muted-foreground mb-6 leading-relaxed">
-              {current.description}
+              {current.summary || current.description}
             </p>
             <motion.button
               onClick={() => {

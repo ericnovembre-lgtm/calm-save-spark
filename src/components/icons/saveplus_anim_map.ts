@@ -33,6 +33,13 @@ const REGISTRY: Record<string, SaveplusIconRecord> = {
   pots: { key:'pots', label:'Pots', emoji_static:'🏺', static:'/icons/pots.svg' },
   automations: { key:'automations', label:'Automations', emoji_static:'⚙️', static:'/icons/automations.svg' },
   rewards: { key:'rewards', label:'Rewards', emoji_static:'🏆', static:'/icons/rewards.svg' },
+  card: { key:'card', label:'Credit Card', emoji_static:'💳', static:'/icons/card.svg' },
+  insights: { key:'insights', label:'Insights', emoji_static:'📈', static:'/icons/insights.svg' },
+  bot: { key:'bot', label:'AI Bot', emoji_static:'🤖', static:'/icons/bot.svg' },
+  shield: { key:'shield', label:'Security', emoji_static:'🛡️', static:'/icons/shield.svg' },
+  'trending-up': { key:'trending-up', label:'Trending Up', emoji_static:'📈', static:'/icons/trending-up.svg' },
+  users: { key:'users', label:'Users', emoji_static:'👥', static:'/icons/users.svg' },
+  money: { key:'money', label:'Money', emoji_static:'💰', static:'/icons/money.svg' },
 };
 
 /**

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { Target, Zap, TrendingUp, Shield, Gift, Bot, Lock, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { WelcomeHero } from "@/components/welcome/WelcomeHero";
 import { LottieHero } from "@/components/welcome/LottieHero";
 import { FeatureCarousel, Feature } from "@/components/welcome/FeatureCarousel";
@@ -11,66 +12,74 @@ import { SecureOnboardingCTA } from "@/components/welcome/SecureOnboardingCTA";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { SaveplusUIAssistantFAB } from "@/components/assistant/SaveplusUIAssistantFAB";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { trackPageView } from "@/lib/analytics";
+import { trackPageView, saveplus_audit_event } from "@/lib/analytics";
+import { supabase } from "@/integrations/supabase/client";
 import NeutralBackground from "@/components/background/NeutralBackground";
 
 const features: Feature[] = [
   {
     id: "smart-pots",
-    icon: <Target className="w-6 h-6" />,
-    title: "Smart Pots",
-    description: "Organize savings into custom goal-based accounts",
-    details: "Create dedicated savings pots for each financial goal. Set target amounts, deadlines, and watch your progress in real-time with automated tracking and insights."
+    icon: "pots",
+    title: "Smart Savings Pots",
+    description: "Create dedicated goals and track progress with unlimited pots, auto-allocations, and shared access.",
+    summary: "Create dedicated goals and track progress with unlimited pots, auto-allocations, and shared access.",
+    details: "Unlimited pots with targets and dates. Auto-allocate new deposits by percentage. Lock/unlock rules, notes, shared view access, and attachments.",
   },
   {
     id: "automated-savings",
-    icon: <Zap className="w-6 h-6" />,
+    icon: "automations",
     title: "Automated Savings",
-    description: "Set it and forget it with intelligent automation",
-    details: "Let AI analyze your spending patterns and automatically save the perfect amount. Round-ups, scheduled transfers, and smart rules work 24/7 to build your wealth."
+    description: "Set rules that save for you automatically—round-ups, paycheck skims, and scheduled transfers.",
+    summary: "Set rules that save for you automatically—round-ups, paycheck skims, and scheduled transfers.",
+    details: "Round-ups from card spend, paycheck skim %, threshold sweeps, and safe-to-save checks. Scheduled weekly/biweekly deposits with pause/resume.",
   },
   {
     id: "ave-plus-card",
-    icon: <Shield className="w-6 h-6" />,
-    title: "$ave+ Card",
-    description: "Earn while you spend with cashback rewards",
-    details: "Premium debit card with up to 5% cashback on everyday purchases. Every transaction automatically rounds up and saves the change to your goals."
+    icon: "card",
+    title: "$ave+ Credit Card",
+    description: "Build credit with real-time controls, instant freeze, and category insights.",
+    summary: "Build credit with real-time controls, instant freeze, and category insights.",
+    details: "Smart limits, instant freeze, category insights, statement reminders, and rewards posting. Disclosures available in-app.",
   },
   {
     id: "financial-insights",
-    icon: <TrendingUp className="w-6 h-6" />,
+    icon: "insights",
     title: "Financial Insights",
-    description: "AI-powered analytics for smarter decisions",
-    details: "Get personalized recommendations based on your spending habits, income patterns, and financial goals. Predictive analytics help you plan ahead and avoid surprises."
+    description: "Know where you stand with savings rate, time-to-goal, and net worth tracking.",
+    summary: "Know where you stand with savings rate, time-to-goal, and net worth tracking.",
+    details: "Savings rate, time-to-goal, APY history, interest earned, contributions by pot, and net worth across linked accounts. CSV/PDF export.",
   },
   {
     id: "rewards-program",
-    icon: <Gift className="w-6 h-6" />,
+    icon: "rewards",
     title: "Rewards Program",
-    description: "Earn points for healthy financial habits",
-    details: "Build your wealth while earning rewards. Complete savings challenges, maintain streaks, and hit milestones to unlock bonus interest rates and exclusive perks."
+    description: "Earn points for streaks and milestones, with boosters on goal completion.",
+    summary: "Earn points for streaks and milestones, with boosters on goal completion.",
+    details: "Points for streaks and milestones, boosters on goal completion, and perks for higher monthly support tiers.",
   },
   {
     id: "ai-coach",
-    icon: <Bot className="w-6 h-6" />,
+    icon: "bot",
     title: "AI Coach",
-    description: "24/7 financial guidance and support",
-    details: "Your personal AI financial advisor answers questions, provides insights, and helps optimize your savings strategy. Natural language conversations make finance simple."
+    description: "Get 24/7 guided help with step-by-step tasks and progress summaries.",
+    summary: "Get 24/7 guided help with step-by-step tasks and progress summaries.",
+    details: "Step-by-step tasks for linking bank, creating pots, drafting transfers, enabling automations, and summarizing progress. Not financial advice.",
   },
   {
     id: "bank-security",
-    icon: <Lock className="w-6 h-6" />,
+    icon: "shield",
     title: "Bank-Level Security",
-    description: "Military-grade encryption keeps your money safe",
-    details: "FDIC insured up to $250,000. 256-bit encryption, two-factor authentication, and biometric security. Your data and funds are protected by the highest industry standards."
-  }
+    description: "Protect your account with MFA, encryption, and device management.",
+    summary: "Protect your account with MFA, encryption, and device management.",
+    details: "MFA, device/session management, encryption in transit/at rest, consent logs, and data export/delete controls.",
+  },
 ];
 
 const stats = [
-  { label: "APY Rate", value: "4.25%" },
-  { label: "Happy Users", value: "50K+" },
-  { label: "Saved Together", value: "$2.1M+" },
-  { label: "Uptime", value: "99.9%" }
+  { label: "APY Rate", value: "4.25%", icon: "trending-up" },
+  { label: "Happy Users", value: "50K+", icon: "users" },
+  { label: "Saved Together", value: "$2.1M+", icon: "money" },
+  { label: "Uptime", value: "99.9%", icon: "shield" },
 ];
 
 const Welcome = () => {
@@ -78,12 +87,24 @@ const Welcome = () => {
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [user, setUser] = useState<any>(null);
+  const [userProgress, setUserProgress] = useState(0);
+  const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+  
+  // Calculate user progress based on available data
+  const calculateUserProgress = (userData: any) => {
+    let progress = 0;
+    if (userData?.email) progress += 0.1;
+    if (userData?.user_metadata?.full_name) progress += 0.1;
+    if (userData?.user_metadata?.avatar_url) progress += 0.1;
+    return Math.min(progress + 0.12, 1);
+  };
   
   const { scrollYProgress } = useScroll();
   const heroInView = useInView(heroRef, { once: false, amount: 0.3 });
@@ -102,6 +123,49 @@ const Welcome = () => {
   useEffect(() => {
     trackPageView('Welcome');
   }, []);
+
+  // Check authentication and calculate progress
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { user: userData } } = await supabase.auth.getUser();
+        if (userData) {
+          setUser(userData);
+          const progress = calculateUserProgress(userData);
+          setUserProgress(progress);
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Theme toggle deduplication
+  useEffect(() => {
+    const nodes = Array.from(
+      document.querySelectorAll('[data-theme-toggle="1"]')
+    );
+    
+    if (nodes.length > 1) {
+      saveplus_audit_event('toggle_dedup', {
+        count: nodes.length,
+        route: location.pathname
+      });
+      
+      nodes.slice(1).forEach((n) => {
+        (n as HTMLElement).style.display = 'none';
+        n.setAttribute('aria-hidden', 'true');
+      });
+    }
+    
+    return () => {
+      nodes.slice(1).forEach((n) => {
+        (n as HTMLElement).style.display = '';
+        n.removeAttribute('aria-hidden');
+      });
+    };
+  }, [location.pathname]);
 
   useEffect(() => {
     fetch("/animations/saveplus-hero.json")
@@ -125,6 +189,10 @@ const Welcome = () => {
   }, [prefersReducedMotion]);
 
   const handleFeatureClick = (feature: Feature) => {
+    saveplus_audit_event('feature_clicked', {
+      feature_id: feature.id,
+      feature_title: feature.title
+    });
     setSelectedFeature(feature);
     setIsModalOpen(true);
   };
@@ -287,6 +355,7 @@ const Welcome = () => {
                     <StatCard
                       label={stat.label}
                       value={stat.value}
+                      icon={stat.icon}
                       delay={0}
                     />
                   </motion.div>
