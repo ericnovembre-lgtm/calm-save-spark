@@ -6,6 +6,7 @@ import { WelcomeHero } from "@/components/welcome/WelcomeHero";
 import { LottieHero } from "@/components/welcome/LottieHero";
 import { FeatureCarousel, Feature } from "@/components/welcome/FeatureCarousel";
 import { FeatureDetailModal } from "@/components/welcome/FeatureDetailModal";
+import { FeatureTour, hasCompletedTour } from "@/components/welcome/FeatureTour";
 import { StatCard } from "@/components/welcome/StatCard";
 import { SearchBarHinted } from "@/components/search/SearchBarHinted";
 import { SecureOnboardingCTA } from "@/components/welcome/SecureOnboardingCTA";
@@ -86,6 +87,7 @@ const Welcome = () => {
   const [animationData, setAnimationData] = useState<any>(null);
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [user, setUser] = useState<any>(null);
   const [userProgress, setUserProgress] = useState(0);
@@ -119,10 +121,23 @@ const Welcome = () => {
     ? 1
     : useTransform(scrollYProgress, [0, 0.3], [1, 0.3]);
 
-  // Track page view on mount
+  // Track page view on mount and check for first visit
   useEffect(() => {
     trackPageView('Welcome');
-  }, []);
+    
+    // Show tour on first visit
+    const tourCompleted = hasCompletedTour();
+    if (!tourCompleted) {
+      // Delay tour slightly to let page load
+      const timer = setTimeout(() => {
+        setShowTour(true);
+        saveplus_audit_event('tour_started', {
+          route: location.pathname
+        });
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname]);
 
   // Check authentication and calculate progress
   useEffect(() => {
@@ -200,6 +215,21 @@ const Welcome = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setTimeout(() => setSelectedFeature(null), 300);
+  };
+
+  const handleTourComplete = () => {
+    saveplus_audit_event('tour_completed', {
+      route: location.pathname
+    });
+    setShowTour(false);
+  };
+
+  const handleTourSkip = () => {
+    saveplus_audit_event('tour_skipped', {
+      route: location.pathname,
+      step: 'early'
+    });
+    setShowTour(false);
   };
 
   return (
@@ -415,6 +445,15 @@ const Welcome = () => {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
         />
+
+        {/* Feature Tour */}
+        {showTour && (
+          <FeatureTour
+            features={features}
+            onComplete={handleTourComplete}
+            onSkip={handleTourSkip}
+          />
+        )}
         
         {/* Floating Widgets */}
         <SaveplusCoachWidget />
