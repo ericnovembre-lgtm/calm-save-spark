@@ -812,6 +812,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_milestones: {
+        Row: {
+          completed_at: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          milestone_description: string | null
+          milestone_icon: string | null
+          milestone_name: string
+          milestone_type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          milestone_description?: string | null
+          milestone_icon?: string | null
+          milestone_name: string
+          milestone_type: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          milestone_description?: string | null
+          milestone_icon?: string | null
+          milestone_name?: string
+          milestone_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null

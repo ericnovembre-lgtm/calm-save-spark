@@ -8,6 +8,7 @@ import { ManualTransferCard } from "@/components/dashboard/ManualTransferCard";
 import { ScheduledTransferDialog } from "@/components/dashboard/ScheduledTransferDialog";
 import { ScheduledTransfersList } from "@/components/dashboard/ScheduledTransfersList";
 import { TransferHistory } from "@/components/dashboard/TransferHistory";
+import JourneyMilestones from "@/components/dashboard/JourneyMilestones";
 import { LoadingState } from "@/components/LoadingState";
 
 export default function Dashboard() {
@@ -55,6 +56,8 @@ export default function Dashboard() {
         <BalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
         
         <AutoSaveBanner />
+        
+        <JourneyMilestones />
         
         <GoalsSection />
         
