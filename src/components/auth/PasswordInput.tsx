@@ -145,10 +145,10 @@ export function PasswordInput({
             ) : (
               <motion.div
                 key={showPassword ? 'hide' : 'show'}
-                initial={{ opacity: 0, rotate: -90 }}
-                animate={{ opacity: 1, rotate: 0 }}
-                exit={{ opacity: 0, rotate: 90 }}
-                transition={{ duration: 0.15 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
