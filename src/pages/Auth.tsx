@@ -17,6 +17,7 @@ import { MFAVerification } from '@/components/auth/MFAVerification';
 import { BiometricAuth } from '@/components/auth/BiometricAuth';
 import { SecurityBadge } from '@/components/auth/SecurityBadge';
 import { AuthFooter } from '@/components/auth/AuthFooter';
+import { SignupProgress } from '@/components/auth/SignupProgress';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { getAuthErrorMessage, getReturnUrl } from '@/lib/auth-utils';
 import { validatePasswordStrength } from '@/lib/password-strength';
@@ -333,6 +334,16 @@ export default function Auth() {
                 {safeInputs ? 'Use enhanced inputs' : 'Having trouble typing? Use basic inputs'}
               </button>
             </div>
+
+            {/* Signup progress indicator */}
+            {mode === 'signup' && (
+              <SignupProgress
+                email={email}
+                password={password}
+                confirmPassword={confirmPassword}
+                agreeToTerms={agreeToTerms}
+              />
+            )}
 
             <EmailInput
               ref={emailInputRef}
