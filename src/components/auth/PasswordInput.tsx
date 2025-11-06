@@ -16,6 +16,7 @@ interface PasswordInputProps {
   autoComplete?: string;
   placeholder?: string;
   autoFocus?: boolean;
+  showToggle?: boolean;
 }
 
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
@@ -30,6 +31,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
       autoComplete = 'current-password',
       placeholder = '••••••••',
       autoFocus = false,
+      showToggle = true,
     },
     ref
   ) => {
@@ -48,7 +50,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
-            className={cn('pr-10', error && 'border-destructive')}
+            className={cn(showToggle && 'pr-10', error && 'border-destructive')}
             aria-invalid={!!error}
             aria-describedby={error ? `${id}-error` : undefined}
             autoComplete={autoComplete}
@@ -56,21 +58,23 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             spellCheck={false}
             autoCapitalize="none"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-            onClick={() => setShowPassword(!showPassword)}
-            tabIndex={-1}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-          >
-            {showPassword ? (
-              <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            ) : (
-              <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            )}
-          </Button>
+          {showToggle && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              onClick={() => setShowPassword(!showPassword)}
+              tabIndex={-1}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              ) : (
+                <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              )}
+            </Button>
+          )}
         </div>
 
         {error && (

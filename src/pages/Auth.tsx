@@ -274,6 +274,7 @@ export default function Auth() {
               onChange={setPassword}
               showStrengthMeter={mode === 'signup'}
               autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              showToggle={false}
             />
 
             {/* Remember me checkbox - login only */}
@@ -301,6 +302,7 @@ export default function Auth() {
                   id="confirm-password"
                   autoComplete="new-password"
                   placeholder="••••••••"
+                  showToggle={false}
                 />
 
                 <div className="flex items-start gap-2">
