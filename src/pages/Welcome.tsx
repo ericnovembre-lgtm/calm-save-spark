@@ -232,6 +232,13 @@ const Welcome = () => {
     setShowTour(false);
   };
 
+  const handleRestartTour = () => {
+    saveplus_audit_event('tour_restarted', {
+      route: location.pathname
+    });
+    setShowTour(true);
+  };
+
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
       {/* Neutral canvas background with stars */}
@@ -419,7 +426,30 @@ const Welcome = () => {
               <Sparkles className="w-4 h-4 text-muted-foreground" />
               <p className="text-muted-foreground">Powered by $ave+</p>
             </div>
-            <div className="flex gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+              <motion.button
+                onClick={handleRestartTour}
+                className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Restart feature tour"
+              >
+                <svg 
+                  className="w-4 h-4" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                  />
+                </svg>
+                Restart Tour
+              </motion.button>
               <motion.a 
                 href="/privacy" 
                 className="text-muted-foreground hover:text-foreground transition-colors"
