@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -351,7 +351,22 @@ export default function Auth() {
                     id="terms-description"
                     className="text-xs text-muted-foreground font-normal leading-relaxed cursor-pointer"
                   >
-                    I agree to the Terms of Service and Privacy Policy
+                    I agree to the{' '}
+                    <Link 
+                      to="/terms" 
+                      className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Terms of Service
+                    </Link>
+                    {' '}and{' '}
+                    <Link 
+                      to="/privacy" 
+                      className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Privacy Policy
+                    </Link>
                   </Label>
                 </div>
               </>

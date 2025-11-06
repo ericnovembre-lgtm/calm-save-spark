@@ -11,7 +11,7 @@ export function AuthTabs({ mode, onModeChange }: AuthTabsProps) {
       <Button
         type="button"
         variant={mode === 'login' ? 'default' : 'ghost'}
-        className="flex-1"
+        className={mode === 'login' ? 'flex-1' : 'flex-1 hover:bg-accent-foreground/10'}
         onClick={() => onModeChange('login')}
         role="tab"
         aria-selected={mode === 'login'}
@@ -22,7 +22,7 @@ export function AuthTabs({ mode, onModeChange }: AuthTabsProps) {
       <Button
         type="button"
         variant={mode === 'signup' ? 'default' : 'ghost'}
-        className="flex-1"
+        className={mode === 'signup' ? 'flex-1' : 'flex-1 hover:bg-accent-foreground/10'}
         onClick={() => onModeChange('signup')}
         role="tab"
         aria-selected={mode === 'signup'}
