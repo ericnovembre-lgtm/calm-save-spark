@@ -60,7 +60,7 @@ export const WelcomeHero = () => {
         ) : (
           // Guest user
           <>
-            <Link to="/auth">
+            <Link to="/onboarding">
               <Button 
                 data-testid="welcome-cta"
                 role="button"

@@ -48,13 +48,13 @@ export const SecureOnboardingCTA = () => {
       await trackEvent('onboarding_cta_clicked', { source: 'welcome_page' });
       
       if (isAuthenticated) {
-        navigate('/auth');
+        navigate('/onboarding');
       } else {
-        // Store return path and redirect to auth
+        // Store return path and redirect to onboarding
         if (typeof window !== 'undefined') {
-          sessionStorage.setItem('auth_redirect', '/auth');
+          sessionStorage.setItem('auth_redirect', '/onboarding');
         }
-        navigate('/auth');
+        navigate('/onboarding');
       }
     } catch (e) {
       console.error('Error starting onboarding:', e);
