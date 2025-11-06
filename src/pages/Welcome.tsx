@@ -93,6 +93,10 @@ const Welcome = () => {
   const [user, setUser] = useState<any>(null);
   const [userProgress, setUserProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  const [featuresLoaded, setFeaturesLoaded] = useState(false);
+  const [statsLoaded, setStatsLoaded] = useState(false);
+  const [ctaLoaded, setCtaLoaded] = useState(false);
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   
@@ -159,6 +163,35 @@ const Welcome = () => {
     };
     checkAuth();
   }, []);
+
+  // Progressive loading: load sections sequentially
+  useEffect(() => {
+    if (!isLoading) {
+      // Hero loads immediately after auth check
+      setHeroLoaded(true);
+      
+      // Features load after 300ms
+      const featuresTimer = setTimeout(() => {
+        setFeaturesLoaded(true);
+      }, 300);
+      
+      // Stats load after 600ms
+      const statsTimer = setTimeout(() => {
+        setStatsLoaded(true);
+      }, 600);
+      
+      // CTA loads after 900ms
+      const ctaTimer = setTimeout(() => {
+        setCtaLoaded(true);
+      }, 900);
+      
+      return () => {
+        clearTimeout(featuresTimer);
+        clearTimeout(statsTimer);
+        clearTimeout(ctaTimer);
+      };
+    }
+  }, [isLoading]);
 
   // Theme toggle deduplication
   useEffect(() => {
@@ -293,47 +326,67 @@ const Welcome = () => {
             className="space-y-8 relative bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
             style={prefersReducedMotion ? {} : { y: parallaxY, opacity }}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-              <motion.div
-                initial={prefersReducedMotion ? false : { opacity: 0, x: -50 }}
-                animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, x: 0 } : {})}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-              >
-                <WelcomeHero />
-              </motion.div>
-              
-              <motion.div 
-                className="relative w-full max-w-md mx-auto lg:max-w-none"
-                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
-                animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, scale: 1 } : {})}
-                transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-                style={prefersReducedMotion ? {} : {
-                  transform: `perspective(1000px) rotateY(${mousePosition.x * 0.5}deg) rotateX(${-mousePosition.y * 0.5}deg)`
-                }}
-              >
-                {/* Subtle accent glow - neutral only */}
-                <div className="absolute inset-0 bg-[color:var(--color-accent)]/20 blur-3xl" />
-                {animationData && (
-                  <div className="relative">
-                    <LottieHero 
-                      animationData={animationData}
-                      autoplay
-                      loop
-                      className="w-full h-auto drop-shadow-2xl"
-                    />
+            {!heroLoaded ? (
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                  <div className="space-y-4">
+                    <Skeleton className="h-12 w-3/4 rounded-lg" />
+                    <Skeleton className="h-6 w-full rounded-lg" />
+                    <Skeleton className="h-6 w-5/6 rounded-lg" />
+                    <div className="flex gap-4 pt-4">
+                      <Skeleton className="h-12 w-48 rounded-lg" />
+                      <Skeleton className="h-12 w-36 rounded-lg" />
+                    </div>
                   </div>
-                )}
-              </motion.div>
-            </div>
-            
-            <motion.div 
-              className="mt-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <SearchBarHinted />
-            </motion.div>
+                  <Skeleton className="h-96 w-full rounded-2xl" />
+                </div>
+                <Skeleton className="h-14 w-full rounded-lg" />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                  <motion.div
+                    initial={prefersReducedMotion ? false : { opacity: 0, x: -50 }}
+                    animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, x: 0 } : {})}
+                    transition={{ duration: 0.7, ease: "easeOut" }}
+                  >
+                    <WelcomeHero />
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="relative w-full max-w-md mx-auto lg:max-w-none"
+                    initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
+                    animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, scale: 1 } : {})}
+                    transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+                    style={prefersReducedMotion ? {} : {
+                      transform: `perspective(1000px) rotateY(${mousePosition.x * 0.5}deg) rotateX(${-mousePosition.y * 0.5}deg)`
+                    }}
+                  >
+                    {/* Subtle accent glow - neutral only */}
+                    <div className="absolute inset-0 bg-[color:var(--color-accent)]/20 blur-3xl" />
+                    {animationData && (
+                      <div className="relative">
+                        <LottieHero 
+                          animationData={animationData}
+                          autoplay
+                          loop
+                          className="w-full h-auto drop-shadow-2xl"
+                        />
+                      </div>
+                    )}
+                  </motion.div>
+                </div>
+                
+                <motion.div 
+                  className="mt-8"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                >
+                  <SearchBarHinted />
+                </motion.div>
+              </>
+            )}
           </motion.section>
 
           {/* Mission Control Features with scroll animations - Pure white section */}
@@ -356,7 +409,7 @@ const Welcome = () => {
                 Mission Control
               </h2>
             </motion.div>
-            {isLoading ? (
+            {!featuresLoaded ? (
               <div className="space-y-6">
                 <Skeleton className="h-64 w-full rounded-xl" />
                 <div className="flex justify-center gap-2">
@@ -366,7 +419,13 @@ const Welcome = () => {
                 </div>
               </div>
             ) : (
-              <FeatureCarousel features={features} onFeatureClick={handleFeatureClick} />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <FeatureCarousel features={features} onFeatureClick={handleFeatureClick} />
+              </motion.div>
             )}
           </motion.section>
 
@@ -397,7 +456,7 @@ const Welcome = () => {
                 </h2>
               </motion.div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {isLoading ? (
+                {!statsLoaded ? (
                   <>
                     {[...Array(4)].map((_, index) => (
                       <Skeleton key={index} className="h-32 w-full rounded-2xl" />
@@ -433,7 +492,22 @@ const Welcome = () => {
             viewport={{ once: false, amount: 0.5 }}
             transition={{ duration: 0.5 }}
           >
-            <SecureOnboardingCTA />
+            {!ctaLoaded ? (
+              <div className="space-y-6 text-center">
+                <Skeleton className="h-10 w-3/4 mx-auto rounded-lg" />
+                <Skeleton className="h-6 w-full max-w-2xl mx-auto rounded-lg" />
+                <Skeleton className="h-6 w-5/6 max-w-2xl mx-auto rounded-lg" />
+                <Skeleton className="h-12 w-48 mx-auto rounded-lg mt-8" />
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <SecureOnboardingCTA />
+              </motion.div>
+            )}
           </motion.section>
         </main>
 
