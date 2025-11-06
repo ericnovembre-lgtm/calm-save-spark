@@ -48,11 +48,11 @@ export const SecureOnboardingCTA = () => {
       await trackEvent('onboarding_cta_clicked', { source: 'welcome_page' });
       
       if (isAuthenticated) {
-        navigate('/onboarding');
+        navigate('/auth');
       } else {
         // Store return path and redirect to auth
         if (typeof window !== 'undefined') {
-          sessionStorage.setItem('auth_redirect', '/onboarding');
+          sessionStorage.setItem('auth_redirect', '/auth');
         }
         navigate('/auth');
       }
