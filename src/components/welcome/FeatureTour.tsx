@@ -4,6 +4,7 @@ import { X, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SaveplusAnimIcon } from "@/components/icons";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { saveplus_audit_event } from "@/lib/analytics";
 import type { Feature } from "@/components/welcome/FeatureCarousel";
 
 interface FeatureTourProps {
@@ -45,6 +46,18 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
     onSkip();
   };
 
+  // Track keyboard shortcut with analytics
+  const trackKeyboardAction = (key: string, action: string) => {
+    saveplus_audit_event('tour_keyboard_shortcut', {
+      key,
+      action,
+      current_step: currentStep + 1,
+      total_steps: features.length,
+      feature_id: currentFeature.id,
+      feature_title: currentFeature.title
+    });
+  };
+
   // Prevent body scroll when tour is active
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -61,6 +74,7 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
         case "ArrowDown":
           e.preventDefault();
           if (!isLastStep) {
+            trackKeyboardAction(e.key, 'next');
             handleNext();
           }
           break;
@@ -68,15 +82,22 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
         case "ArrowUp":
           e.preventDefault();
           if (currentStep > 0) {
+            trackKeyboardAction(e.key, 'previous');
             handlePrev();
           }
           break;
         case "Escape":
           e.preventDefault();
+          trackKeyboardAction('Escape', 'skip');
           handleSkipTour();
           break;
         case "Enter":
           e.preventDefault();
+          if (isLastStep) {
+            trackKeyboardAction('Enter', 'complete');
+          } else {
+            trackKeyboardAction('Enter', 'next');
+          }
           handleNext();
           break;
         default:
@@ -195,7 +216,14 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
           <div className="flex items-center justify-between gap-4">
             <Button
               variant="outline"
-              onClick={handlePrev}
+              onClick={() => {
+                saveplus_audit_event('tour_button_click', {
+                  action: 'previous',
+                  current_step: currentStep + 1,
+                  feature_id: currentFeature.id
+                });
+                handlePrev();
+              }}
               disabled={currentStep === 0}
               className="gap-2"
               aria-label="Previous feature (Arrow Left)"
@@ -208,7 +236,14 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
               {features.map((_, idx) => (
                 <button
                   key={idx}
-                  onClick={() => setCurrentStep(idx)}
+                  onClick={() => {
+                    saveplus_audit_event('tour_dot_click', {
+                      from_step: currentStep + 1,
+                      to_step: idx + 1,
+                      feature_id: features[idx].id
+                    });
+                    setCurrentStep(idx);
+                  }}
                   className={`h-2 rounded-full transition-all ${
                     idx === currentStep
                       ? "w-8 bg-primary"
@@ -220,7 +255,14 @@ export const FeatureTour = ({ features, onComplete, onSkip }: FeatureTourProps) 
             </div>
 
             <Button
-              onClick={handleNext}
+              onClick={() => {
+                saveplus_audit_event('tour_button_click', {
+                  action: isLastStep ? 'complete' : 'next',
+                  current_step: currentStep + 1,
+                  feature_id: currentFeature.id
+                });
+                handleNext();
+              }}
               className="gap-2"
               aria-label={isLastStep ? "Complete tour (Enter)" : "Next feature (Arrow Right)"}
             >
