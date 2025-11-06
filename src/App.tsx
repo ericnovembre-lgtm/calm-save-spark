@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppLayout } from "./components/layout/AppLayout";
@@ -33,15 +35,21 @@ import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <LiveRegion />
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+const App = () => {
+  // Initialize session management on app startup
+  useEffect(() => {
+    initializeSessionManagement();
+  }, []);
+
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <TooltipProvider>
+            <LiveRegion />
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
           <Routes>
             {/* Public routes without layout */}
             <Route path="/" element={<Index />} />
@@ -84,6 +92,7 @@ const App = () => (
     </ThemeProvider>
   </QueryClientProvider>
   </ErrorBoundary>
-);
+  );
+};
 
 export default App;

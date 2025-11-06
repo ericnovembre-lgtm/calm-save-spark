@@ -18,6 +18,7 @@ import { AuthFooter } from '@/components/auth/AuthFooter';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { getAuthErrorMessage, getReturnUrl } from '@/lib/auth-utils';
 import { validatePasswordStrength } from '@/lib/password-strength';
+import { setRememberMe, markSessionActive } from '@/lib/session';
 import { 
   trackSignup, 
   trackLogin,
@@ -42,6 +43,7 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -206,6 +208,10 @@ export default function Auth() {
         }
 
         if (data.user) {
+          // Store remember me preference and mark session as active
+          setRememberMe(rememberMe);
+          markSessionActive();
+          
           trackLogin();
           announce('Logged in successfully', 'polite');
           
@@ -302,6 +308,23 @@ export default function Auth() {
               autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
               minimal={safeInputs}
             />
+
+            {/* Remember me checkbox - login mode only */}
+            {mode === 'login' && (
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="remember-me"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                />
+                <Label
+                  htmlFor="remember-me"
+                  className="text-sm text-muted-foreground font-normal cursor-pointer"
+                >
+                  Remember me
+                </Label>
+              </div>
+            )}
 
             {mode === 'signup' && (
               <>
