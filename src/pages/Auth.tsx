@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { AuthCard } from '@/components/auth/AuthCard';
 import { AuthHeader } from '@/components/auth/AuthHeader';
 import { AuthTabs } from '@/components/auth/AuthTabs';
@@ -26,7 +27,7 @@ import {
   trackEvent 
 } from '@/lib/analytics';
 import { announce } from '@/components/layout/LiveRegion';
-import { Loader2, AlertCircle, Info } from 'lucide-react';
+import { Loader2, AlertCircle, Info, ChevronDown } from 'lucide-react';
 import { NeutralConfetti } from '@/components/effects/NeutralConfetti';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -51,6 +52,7 @@ export default function Auth() {
   const [passwordError, setPasswordError] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
   const [safeInputs, setSafeInputs] = useState(false);
+  const [moreOptionsOpen, setMoreOptionsOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
   // Check if user is already authenticated
@@ -424,16 +426,39 @@ export default function Auth() {
             </AnimatePresence>
 
             {mode === 'login' && (
-              <>
-                <BiometricAuth 
-                  email={email} 
-                  onSuccess={() => {
-                    const returnUrl = getReturnUrl();
-                    navigate(returnUrl);
-                  }} 
-                />
-                <MagicLinkOption email={email} />
-              </>
+              <Collapsible 
+                open={moreOptionsOpen} 
+                onOpenChange={(open) => {
+                  setMoreOptionsOpen(open);
+                  if (open) {
+                    trackEvent('auth_more_options_expanded', {});
+                  }
+                }}
+              >
+                <CollapsibleTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    More sign-in options
+                    <ChevronDown 
+                      className={`h-4 w-4 transition-transform duration-200 ${moreOptionsOpen ? 'rotate-180' : ''}`} 
+                      aria-hidden="true" 
+                    />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-4 pt-4">
+                  <BiometricAuth 
+                    email={email} 
+                    onSuccess={() => {
+                      const returnUrl = getReturnUrl();
+                      navigate(returnUrl);
+                    }} 
+                  />
+                  <MagicLinkOption email={email} />
+                </CollapsibleContent>
+              </Collapsible>
             )}
             </form>
 
