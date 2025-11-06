@@ -2,3 +2,9 @@ project_id = "gmnpjgelzsmcidwrwbcg"
 
 [functions.analytics]
 verify_jwt = false
+
+[functions.create-checkout-session]
+verify_jwt = true
+
+[functions.handle-stripe-webhook]
+verify_jwt = false

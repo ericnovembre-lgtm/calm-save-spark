@@ -1,23 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { trackSubscriptionEvent } from "@/lib/subscription-analytics";
+import { saveplus_audit_event } from "@/lib/analytics";
+import { FREEMIUM_FEATURE_ORDER } from "@/lib/constants";
 import { 
-  Check, 
-  Sparkles, 
-  TrendingUp, 
+  AlertTriangle,
+  CreditCard,
+  Sparkles,
   Zap,
   Shield,
-  ArrowRight,
-  Info
 } from "lucide-react";
 import {
   Accordion,
@@ -25,347 +21,381 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-// Complete feature mapping by price point
-const FEATURE_MAP: Record<number, string[]> = {
-  0: ["Up to 3 savings goals", "5 smart pots", "Basic round-up automation", "3.5% APY", "Mobile & web app", "Email support"],
-  1: ["Up to 5 savings goals", "5 smart pots", "3.75% APY", "All free features"],
-  2: ["Up to 5 goals", "10 smart pots", "Basic spending insights", "All previous features"],
-  3: ["Up to 7 goals", "2 custom automation rules", "All previous features"],
-  4: ["4.0% APY", "Export transactions (CSV)", "All previous features"],
-  5: ["Up to 10 savings goals", "AI-powered savings tips", "All previous features"],
-  6: ["15 smart pots", "Advanced analytics dashboard", "All previous features"],
-  7: ["5 custom automation rules", "Goal milestones & celebrations", "All previous features"],
-  8: ["Priority email support", "Weekly financial reports", "All previous features"],
-  9: ["Unlimited savings goals", "4.15% APY", "All previous features"],
-  10: ["Unlimited smart pots", "AI financial coach (10 chats/month)", "All previous features"],
-  11: ["$ave+ Virtual Card", "1% cashback on purchases", "All previous features"],
-  12: ["Advanced AI insights", "Predictive analytics", "All previous features"],
-  13: ["Physical $ave+ Card", "1.5% cashback", "All previous features"],
-  14: ["Priority phone support", "Early access to features", "All previous features"],
-  15: ["4.25% APY", "Unlimited AI coach", "2% cashback", "Dedicated account manager", "API access"],
-};
+import { useStripeHealth } from "@/hooks/useStripeHealth";
+import AccessibleSlider from "@/components/pricing/AccessibleSlider";
+import FeatureItem from "@/components/pricing/FeatureItem";
+import ValueEarnedCard from "@/components/pricing/ValueEarnedCard";
 
 export default function Pricing() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
-  const [selectedAmount, setSelectedAmount] = useState(5);
-  const [previousAmount, setPreviousAmount] = useState(5);
-  const [isAnnual, setIsAnnual] = useState(false);
-  const [currentSubscription, setCurrentSubscription] = useState(0);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [selectedAmount, setSelectedAmount] = useState(0);
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const { ok: stripeHealthy, missing, loading: stripeLoading } = useStripeHealth();
 
   useEffect(() => {
-    fetchUserData();
-    
-    // Track page view
-    trackSubscriptionEvent.subscriptionPageViewed(currentSubscription);
-  }, []);
+    loadUserData();
 
-  useEffect(() => {
-    // Track when user leaves pricing page
-    return () => {
-      if (selectedAmount !== currentSubscription) {
-        trackSubscriptionEvent.checkoutAbandoned(selectedAmount, 'pricing_page');
+    // Check for success parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      setSuccess(true);
+      const amount = urlParams.get('amount');
+      if (amount) {
+        setSelectedAmount(parseInt(amount));
       }
-    };
-  }, [selectedAmount, currentSubscription]);
+    }
 
-  const fetchUserData = async () => {
+    // Track page view
+    saveplus_audit_event('pricing_page_viewed', {
+      route: location.pathname,
+    });
+  }, [location.pathname]);
+
+  const loadUserData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setIsAuthenticated(true);
+        setUser(user);
+
+        // Load current subscription
         const { data } = await supabase
           .from('user_subscriptions')
-          .select('subscription_amount')
+          .select('*')
           .eq('user_id', user.id)
           .single();
-        
+
         if (data) {
-          setCurrentSubscription(data.subscription_amount);
+          setCurrentSubscription(data);
           setSelectedAmount(data.subscription_amount);
-          setPreviousAmount(data.subscription_amount);
         }
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error("Failed to load user data:", error);
+    }
+  };
+
+  const handleSliderChange = useCallback((value: number) => {
+    saveplus_audit_event('pricing_slider_moved', {
+      amount: value,
+      previous_amount: selectedAmount,
+      route: location.pathname,
+    });
+    setSelectedAmount(value);
+  }, [selectedAmount, location.pathname]);
+
+  const handleConfirmPlan = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to continue.",
+        variant: "destructive",
+      });
+      navigate('/auth', { state: { returnTo: '/pricing' } });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      saveplus_audit_event('pricing_plan_confirm_started', {
+        amount: selectedAmount,
+        route: location.pathname,
+      });
+
+      if (selectedAmount === 0) {
+        // Free plan - handle locally
+        await supabase.from('user_subscriptions').upsert({
+          user_id: user.id,
+          subscription_amount: 0,
+          status: 'active',
+        });
+
+        setSuccess(true);
+        await loadUserData();
+
+        saveplus_audit_event('pricing_plan_confirmed', {
+          amount: 0,
+          plan_type: 'free',
+          route: location.pathname,
+        });
+      } else {
+        // Paid plan - call edge function to create checkout session
+        const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+          body: {
+            monthly_usd: selectedAmount,
+            success_url: `${window.location.origin}/pricing?success=true&amount=${selectedAmount}`,
+            cancel_url: `${window.location.origin}/pricing`,
+          },
+        });
+
+        if (error) throw error;
+
+        if (data.success) {
+          saveplus_audit_event('pricing_checkout_redirect', {
+            amount: selectedAmount,
+            route: location.pathname,
+          });
+          window.location.href = data.url;
+        } else {
+          throw new Error(data.message || "Failed to create checkout session");
+        }
+      }
+    } catch (error) {
+      console.error("Plan confirmation error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update plan. Please try again.",
+        variant: "destructive",
+      });
+
+      saveplus_audit_event('pricing_plan_confirm_error', {
+        amount: selectedAmount,
+        error: error.message,
+        route: location.pathname,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSliderChange = useCallback((value: number[]) => {
-    const newAmount = value[0];
-    trackSubscriptionEvent.sliderMoved(newAmount, previousAmount);
-    setPreviousAmount(newAmount);
-    setSelectedAmount(newAmount);
-  }, [previousAmount]);
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle>Choose Your Plan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">Please log in to continue.</p>
+            <Button onClick={() => navigate('/auth')} className="w-full">
+              Log In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  const handleQuickSelect = useCallback((amount: number) => {
-    trackSubscriptionEvent.quickSelectClicked(amount);
-    setSelectedAmount(amount);
-    setPreviousAmount(amount);
-  }, []);
-
-  const handleAnnualToggle = useCallback((checked: boolean) => {
-    trackSubscriptionEvent.annualToggled(checked, selectedAmount);
-    setIsAnnual(checked);
-  }, [selectedAmount]);
-
-  const annualPrice = selectedAmount * 12 * 0.85;
-  const savings = (selectedAmount * 12) - annualPrice;
-  const displayPrice = isAnnual ? annualPrice : selectedAmount;
-
-  const handleGetStarted = useCallback(() => {
-    trackSubscriptionEvent.checkoutStarted(selectedAmount, isAnnual ? 'annual' : 'monthly');
-    
-    if (!isAuthenticated) {
-      navigate('/auth', { state: { returnTo: '/checkout', amount: selectedAmount } });
-      return;
-    }
-
-    if (selectedAmount === 0 && currentSubscription === 0) {
-      toast({
-        title: 'Free Plan',
-        description: 'You\'re already on the free plan! Upgrade anytime.',
-      });
-      return;
-    }
-
-    navigate('/checkout', { state: { amount: selectedAmount, billing: isAnnual ? 'annual' : 'monthly' } });
-  }, [selectedAmount, isAnnual, isAuthenticated, currentSubscription, navigate, toast]);
+  const isCheckoutDisabled = selectedAmount > 0 && stripeHealthy === false;
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16">
-        {/* Hero Section */}
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <Badge className="mb-4 gap-1">
-            <Sparkles className="w-3 h-3" />
-            Flexible Pricing
-          </Badge>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Pay What You Want
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Choose your subscription amount from $0-$15/month. Every dollar unlocks more powerful features. 
-            No hidden fees. Cancel anytime.
-          </p>
-        </div>
-
-        {/* Interactive Slider Section */}
-        <div className="max-w-2xl mx-auto mb-16">
-          {/* Amount Display */}
-          <div className="text-center mb-8">
-            <div className="text-7xl font-bold mb-2">
-              ${isAnnual ? displayPrice.toFixed(2) : selectedAmount}
-            </div>
-            <div className="text-xl text-muted-foreground mb-3">
-              per {isAnnual ? 'year' : 'month'}
-            </div>
-            {isAnnual && savings > 0 && (
-              <Badge variant="secondary" className="gap-1">
-                <TrendingUp className="w-3 h-3" />
-                Save ${savings.toFixed(2)}/year
-              </Badge>
-            )}
-          </div>
-
-          {/* Slider */}
-          <div className="mb-8">
-            <Slider
-              value={[selectedAmount]}
-              onValueChange={handleSliderChange}
-              min={0}
-              max={15}
-              step={1}
-              className="mb-4"
-              disabled={loading}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>$0/mo</span>
-              <span>$15/mo</span>
-            </div>
-          </div>
-
-          {/* Quick Select Buttons */}
-          <div className="flex flex-wrap gap-2 justify-center mb-8">
-            {[0, 3, 5, 7, 10, 15].map((amount) => (
-              <Button
-                key={amount}
-                variant={selectedAmount === amount ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => handleQuickSelect(amount)}
-                disabled={loading}
-              >
-                ${amount}
-              </Button>
-            ))}
-          </div>
-
-          {/* Annual Toggle */}
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <Label htmlFor="annual-toggle">Monthly</Label>
-            <Switch 
-              id="annual-toggle"
-              checked={isAnnual} 
-              onCheckedChange={handleAnnualToggle}
-              disabled={loading}
-            />
-            <Label htmlFor="annual-toggle" className="flex items-center gap-1">
-              Annual 
-              <Badge variant="secondary" className="ml-1">Save 15%</Badge>
-            </Label>
-          </div>
-
-          {/* CTA Button */}
-          <Button 
-            size="lg" 
-            className="w-full gap-2"
-            onClick={handleGetStarted}
-            disabled={loading || (currentSubscription === selectedAmount && currentSubscription !== 0)}
-          >
-            {currentSubscription === selectedAmount 
-              ? 'Current Plan' 
-              : currentSubscription > 0 
-                ? selectedAmount > currentSubscription ? 'Upgrade Plan' : 'Downgrade Plan'
-                : 'Get Started'}
-            <ArrowRight className="w-5 h-5" />
-          </Button>
-          
-          <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Shield className="w-3 h-3" />
-              14-day free trial
-            </div>
-            <div className="flex items-center gap-1">
-              <Zap className="w-3 h-3" />
-              Cancel anytime
-            </div>
-          </div>
-        </div>
-
-        <Separator className="mb-16" />
-
-        {/* Feature Breakdown Cards */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
-          {/* Current Plan Card */}
-          {isAuthenticated && currentSubscription >= 0 && (
-            <Card className="border-2">
-              <CardHeader>
-                <Badge variant="outline" className="w-fit mb-2">Your Current Plan</Badge>
-                <CardTitle>
-                  ${currentSubscription}
-                  <span className="text-sm font-normal text-muted-foreground">/mo</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {FEATURE_MAP[currentSubscription]?.slice(0, 4).map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm">
-                      <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+        <div className="max-w-2xl mx-auto space-y-6">
+          {/* Stripe Health Banner */}
+          {stripeHealthy === false && (
+            <Card className="border-destructive/50 bg-destructive/5">
+              <CardContent className="p-4">
+                <div className="flex items-start space-x-3">
+                  <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-destructive">Billing Not Ready</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      We're waiting on Stripe configuration. Missing: {missing.join(', ')}
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Selected Amount Card */}
-          <Card className="border-2 border-primary shadow-lg">
-            <CardHeader>
-              <Badge className="w-fit mb-2 gap-1">
-                <Sparkles className="w-3 h-3" />
-                Selected
-              </Badge>
-              <CardTitle>
-                ${selectedAmount}
-                <span className="text-sm font-normal text-muted-foreground">/mo</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {FEATURE_MAP[selectedAmount]?.slice(0, 5).map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm">
-                    <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span className="font-medium">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+          {/* Header */}
+          <Card className="text-center">
+            <CardContent className="p-6">
+              <h1 className="text-3xl font-bold mb-2">Pay What You Want</h1>
+              <p className="text-muted-foreground">
+                Support $ave+ and unlock features as you go. Every dollar unlocks one feature.
+              </p>
+              {success && (
+                <div className="mt-4 p-3 bg-primary/10 border border-primary/20 text-primary rounded-lg">
+                  🎉 Plan updated successfully! Your new features are now available.
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Max Plan Card */}
+          {/* VALUE EARNED CARD */}
+          {currentSubscription && (
+            <ValueEarnedCard
+              userId={user.id}
+              currentMonthlyContribution={currentSubscription.subscription_amount || 0}
+              projectedTier={selectedAmount}
+            />
+          )}
+
+          {/* Current Plan */}
+          {currentSubscription && (
+            <Card className="bg-primary/5">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Zap className="w-5 h-5 text-primary" />
+                    <span className="font-medium">
+                      Current Plan: ${currentSubscription.subscription_amount}/month
+                    </span>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {currentSubscription.subscription_amount} feature{currentSubscription.subscription_amount === 1 ? '' : 's'} unlocked
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Slider */}
           <Card>
-            <CardHeader>
-              <Badge variant="secondary" className="w-fit mb-2 gap-1">
-                <TrendingUp className="w-3 h-3" />
-                Maximum
-              </Badge>
-              <CardTitle>
-                $15
-                <span className="text-sm font-normal text-muted-foreground">/mo</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {FEATURE_MAP[15].slice(0, 5).map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm">
-                    <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+            <CardContent className="p-6">
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold mb-2">
+                  Choose Your Monthly Support
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Move the slider to choose your monthly price. Each dollar unlocks one feature.
+                  Use arrow keys for precise control.
+                </p>
+              </div>
+
+              <AccessibleSlider
+                value={selectedAmount}
+                onChange={handleSliderChange}
+                min={0}
+                max={15}
+                step={1}
+              />
+
+              <div className="mt-6">
+                <Button
+                  onClick={handleConfirmPlan}
+                  disabled={loading || selectedAmount === currentSubscription?.subscription_amount || isCheckoutDisabled || stripeLoading}
+                  className="w-full py-4 rounded-xl font-semibold flex items-center justify-center space-x-2"
+                  size="lg"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-background"></div>
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      {selectedAmount === 0 ? (
+                        <span>Confirm Free Plan</span>
+                      ) : (
+                        <>
+                          <CreditCard className="w-5 h-5" />
+                          <span>Subscribe for ${selectedAmount}/month</span>
+                        </>
+                      )}
+                    </>
+                  )}
+                </Button>
+
+                <div className="mt-2 text-center" role="status" aria-live="polite">
+                  {stripeHealthy === false && (
+                    <p className="text-sm text-destructive">
+                      Billing unavailable. Awaiting Stripe configuration.
+                    </p>
+                  )}
+                  {selectedAmount === currentSubscription?.subscription_amount && (
+                    <p className="text-sm text-muted-foreground">
+                      This is your current plan
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Shield className="w-3 h-3" />
+                    14-day free trial
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-3 h-3" />
+                    Cancel anytime
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        </div>
 
-        {/* FAQ Section */}
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-              <AccordionTrigger>Can I change my subscription amount?</AccordionTrigger>
-              <AccordionContent>
-                Yes! You can adjust your subscription amount at any time. Changes take effect at the next billing cycle. 
-                Upgrades grant immediate access to new features.
-              </AccordionContent>
-            </AccordionItem>
+          {/* Features List */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold mb-4">
+                Features You'll Unlock
+              </h2>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {FREEMIUM_FEATURE_ORDER.map((feature, index) => (
+                  <FeatureItem
+                    key={feature.key}
+                    feature={feature}
+                    isUnlocked={index < selectedAmount}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-            <AccordionItem value="item-2">
-              <AccordionTrigger>What happens if I downgrade?</AccordionTrigger>
-              <AccordionContent>
-                When you downgrade, you'll keep access to your current features until the end of your billing period. 
-                After that, your account will reflect the new tier's limitations.
-              </AccordionContent>
-            </AccordionItem>
+          {/* Help */}
+          <Card className="bg-muted/50">
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground text-center">
+                Questions? <a href="/help" className="text-primary hover:underline">Contact support</a> or
+                visit our <a href="/docs" className="text-primary hover:underline">documentation</a>.
+              </p>
+            </CardContent>
+          </Card>
 
-            <AccordionItem value="item-3">
-              <AccordionTrigger>Is there a minimum commitment?</AccordionTrigger>
-              <AccordionContent>
-                No! There's no minimum commitment. You can start with $1/month or even stay on the free plan forever. 
-                Cancel anytime without penalty.
-              </AccordionContent>
-            </AccordionItem>
+          {/* FAQ Section */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>Can I change my subscription amount?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes! You can adjust your subscription amount at any time. Changes take effect at the next billing cycle.
+                    Upgrades grant immediate access to new features.
+                  </AccordionContent>
+                </AccordionItem>
 
-            <AccordionItem value="item-4">
-              <AccordionTrigger>How does the 14-day free trial work?</AccordionTrigger>
-              <AccordionContent>
-                All paid plans include a 14-day free trial. You won't be charged until the trial ends. 
-                You can cancel before the trial expires and won't pay anything.
-              </AccordionContent>
-            </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>What happens if I downgrade?</AccordionTrigger>
+                  <AccordionContent>
+                    When you downgrade, you'll keep access to your current features until the end of your billing period.
+                    After that, your account will reflect the new tier's limitations.
+                  </AccordionContent>
+                </AccordionItem>
 
-            <AccordionItem value="item-5">
-              <AccordionTrigger>What payment methods do you accept?</AccordionTrigger>
-              <AccordionContent>
-                We accept all major credit cards, debit cards, and digital wallets through our secure payment processor, Stripe.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+                <AccordionItem value="item-3">
+                  <AccordionTrigger>Is there a minimum commitment?</AccordionTrigger>
+                  <AccordionContent>
+                    No! There's no minimum commitment. You can start with $1/month or even stay on the free plan forever.
+                    Cancel anytime without penalty.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-4">
+                  <AccordionTrigger>How does the 14-day free trial work?</AccordionTrigger>
+                  <AccordionContent>
+                    All paid plans include a 14-day free trial. You won't be charged until the trial ends.
+                    You can cancel before the trial expires and won't pay anything.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-5">
+                  <AccordionTrigger>What payment methods do you accept?</AccordionTrigger>
+                  <AccordionContent>
+                    We accept all major credit cards, debit cards, and digital wallets through our secure payment processor, Stripe.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
