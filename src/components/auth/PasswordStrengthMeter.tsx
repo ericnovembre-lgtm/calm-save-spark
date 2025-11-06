@@ -35,9 +35,23 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Password strength</span>
-                <span className="font-medium" style={{ color: strengthColor }}>
+                <motion.span
+                  key={validation.strength}
+                  className="font-medium"
+                  style={{ color: strengthColor }}
+                  initial={prefersReducedMotion ? undefined : { scale: 1 }}
+                  animate={
+                    validation.strength === 'strong' && !prefersReducedMotion
+                      ? { scale: [1, 1.15, 1] }
+                      : { scale: 1 }
+                  }
+                  transition={{
+                    duration: 0.5,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
                   {strengthLabels[validation.strength]}
-                </span>
+                </motion.span>
               </div>
               <div className="h-2 bg-accent rounded-full overflow-hidden">
                 <motion.div
