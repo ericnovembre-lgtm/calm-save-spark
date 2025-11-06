@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Check, Circle } from 'lucide-react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { cn } from '@/lib/utils';
 import { validatePasswordStrength } from '@/lib/password-strength';
 import { useEffect, useRef } from 'react';
@@ -26,7 +27,9 @@ export function SignupProgress({
   agreeToTerms 
 }: SignupProgressProps) {
   const prefersReducedMotion = useReducedMotion();
+  const { triggerHaptic } = useHapticFeedback();
   const hasShownConfetti = useRef(false);
+  const previousProgressRef = useRef(0);
 
   // Calculate step completion
   const emailValid = email.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -43,6 +46,23 @@ export function SignupProgress({
   const completedCount = steps.filter(s => s.completed).length;
   const totalSteps = steps.length;
   const progressPercentage = (completedCount / totalSteps) * 100;
+
+  // Trigger haptic feedback when a step completes
+  useEffect(() => {
+    const previousCompleted = previousProgressRef.current;
+    
+    // Only trigger haptic if progress increased
+    if (completedCount > previousCompleted) {
+      // Use 'success' pattern when reaching 100%, 'light' for individual steps
+      if (progressPercentage === 100) {
+        triggerHaptic('success');
+      } else {
+        triggerHaptic('light');
+      }
+    }
+    
+    previousProgressRef.current = completedCount;
+  }, [completedCount, progressPercentage, triggerHaptic]);
 
   // Trigger confetti when reaching 100% (only once)
   useEffect(() => {
