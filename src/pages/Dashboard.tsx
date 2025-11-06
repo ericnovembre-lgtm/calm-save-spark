@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BalanceCard } from "@/components/BalanceCard";
 import { AutoSaveBanner } from "@/components/dashboard/AutoSaveBanner";
+import { EmailVerificationBanner } from "@/components/dashboard/EmailVerificationBanner";
 import { GoalsSection } from "@/components/dashboard/GoalsSection";
 import { ManualTransferCard } from "@/components/dashboard/ManualTransferCard";
 import { ScheduledTransferDialog } from "@/components/dashboard/ScheduledTransferDialog";
@@ -53,6 +54,8 @@ export default function Dashboard() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        <EmailVerificationBanner />
+        
         <BalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
         
         <AutoSaveBanner />
