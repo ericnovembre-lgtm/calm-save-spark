@@ -4,13 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/analytics";
 import { announce } from "@/components/layout/LiveRegion";
 import ProgressBar from "@/components/onboarding/ProgressBar";
+import SavingsDemo from "@/components/onboarding/SavingsDemo";
 import WelcomeStep from "@/components/onboarding/WelcomeStep";
 import AccountSetupStep from "@/components/onboarding/AccountSetupStep";
 import FirstGoalStep from "@/components/onboarding/FirstGoalStep";
 import AutomationStep from "@/components/onboarding/AutomationStep";
 import CompleteStep from "@/components/onboarding/CompleteStep";
 
-const STEPS = ['welcome', 'account', 'goal', 'automation', 'complete'] as const;
+const STEPS = ['demo', 'welcome', 'account', 'goal', 'automation', 'complete'] as const;
 type Step = typeof STEPS[number];
 
 const Onboarding = () => {
@@ -22,8 +23,15 @@ const Onboarding = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      
+      // Allow viewing demo step without auth
+      if (!session && currentStep !== 'demo') {
         navigate('/auth', { state: { returnTo: '/onboarding' } });
+        return;
+      }
+      
+      if (!session) {
+        setCurrentStep('demo');
         return;
       }
       
@@ -155,6 +163,15 @@ const Onboarding = () => {
       )}
       
       <main className="flex-1 flex items-center justify-center p-4">
+        {currentStep === 'demo' && (
+          <SavingsDemo onGetStarted={() => {
+            if (userId) {
+              handleNext();
+            } else {
+              navigate('/auth', { state: { returnTo: '/onboarding' } });
+            }
+          }} />
+        )}
         {currentStep === 'welcome' && (
           <WelcomeStep onNext={handleNext} />
         )}
