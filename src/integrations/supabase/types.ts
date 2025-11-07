@@ -573,6 +573,7 @@ export type Database = {
           full_name: string | null
           id: string
           onboarding_completed: boolean | null
+          onboarding_progress: Json | null
           onboarding_step: string | null
           updated_at: string | null
         }
@@ -583,6 +584,7 @@ export type Database = {
           full_name?: string | null
           id: string
           onboarding_completed?: boolean | null
+          onboarding_progress?: Json | null
           onboarding_step?: string | null
           updated_at?: string | null
         }
@@ -593,6 +595,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           onboarding_completed?: boolean | null
+          onboarding_progress?: Json | null
           onboarding_step?: string | null
           updated_at?: string | null
         }

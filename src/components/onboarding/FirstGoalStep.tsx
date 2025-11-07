@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, ArrowLeft, Target } from "lucide-react";
+import { ArrowRight, ArrowLeft, Target, HelpCircle } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { toast } from "sonner";
 import { trackGoalCreated } from "@/lib/analytics";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const formSchema = z.object({
   name: z.string().min(2, "Goal name must be at least 2 characters").max(100),
@@ -81,6 +82,18 @@ const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
           <div className="flex items-center gap-3 mb-2">
             <Target className="w-8 h-8 text-primary" />
             <CardTitle className="text-3xl font-display">Create your first goal</CardTitle>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-muted-foreground hover:text-foreground transition-colors">
+                    <HelpCircle className="w-5 h-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>Goals help you stay motivated and track your savings progress. You can create multiple goals for different purposes.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <CardDescription>
             What are you saving for? You can add more goals later.

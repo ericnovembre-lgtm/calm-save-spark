@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft, HelpCircle } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -69,7 +70,21 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
     >
       <Card className="border-border shadow-[var(--shadow-card)]">
         <CardHeader>
-          <CardTitle className="text-3xl font-display">Tell us about yourself</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-3xl font-display">Tell us about yourself</CardTitle>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-muted-foreground hover:text-foreground transition-colors">
+                    <HelpCircle className="w-5 h-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>Your full name helps us personalize your experience and is used for account identification.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <CardDescription>
             This helps us personalize your experience
           </CardDescription>

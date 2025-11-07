@@ -3,11 +3,12 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SaveplusAnimIcon } from "@/components/icons";
-import { CheckCircle, Sparkles, TrendingUp, Target, Shield, Share2 } from "lucide-react";
+import { CheckCircle, Sparkles, TrendingUp, Target, Shield, Share2, HelpCircle } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useCelebrationSounds } from "@/hooks/useCelebrationSounds";
 import { useShareAchievement } from "@/hooks/useShareAchievement";
 import NeutralConfetti from "@/components/effects/NeutralConfetti";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CompleteStepProps {
   onComplete: () => void;
@@ -155,14 +156,28 @@ const CompleteStep = ({ onComplete }: CompleteStepProps) => {
             </motion.div>
             
             {/* Title with stagger animation */}
-            <motion.h1 
+            <motion.div 
               initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className="text-4xl md:text-5xl font-display font-bold text-foreground mb-4"
+              className="flex items-center justify-center gap-2 mb-4"
             >
-              You're all set! 🎉
-            </motion.h1>
+              <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground">
+                You're all set! 🎉
+              </h1>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="text-muted-foreground hover:text-foreground transition-colors">
+                      <HelpCircle className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p>Next, explore our pricing plans to unlock premium features and maximize your savings potential.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </motion.div>
             
             <motion.p 
               initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}

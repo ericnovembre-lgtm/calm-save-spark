@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, ArrowLeft, Zap } from "lucide-react";
+import { ArrowRight, ArrowLeft, Zap, HelpCircle } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { toast } from "sonner";
 import { trackAutomationToggled } from "@/lib/analytics";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface AutomationStepProps {
   userId: string;
@@ -64,6 +65,18 @@ const AutomationStep = ({ userId, onNext, onPrevious }: AutomationStepProps) => 
           <div className="flex items-center gap-3 mb-2">
             <Zap className="w-8 h-8 text-primary" />
             <CardTitle className="text-3xl font-display">Automate your savings</CardTitle>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-muted-foreground hover:text-foreground transition-colors">
+                    <HelpCircle className="w-5 h-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>Automation makes saving effortless. Enable features that work in the background to help you save without thinking about it.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <CardDescription>
             Set up automatic features to help you save effortlessly

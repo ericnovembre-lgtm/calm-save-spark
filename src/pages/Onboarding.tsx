@@ -74,13 +74,26 @@ const Onboarding = () => {
     }
   }, [currentStep, userId]);
 
-  const handleNext = (data?: { skipStep?: boolean }) => {
+  const handleNext = async (data?: { skipStep?: boolean }) => {
     const currentIndex = STEPS.indexOf(currentStep);
     
     if (data?.skipStep) {
       trackEvent('onboarding_step_skipped', { step: currentStep });
     } else {
       trackEvent('onboarding_step_completed', { step: currentStep });
+    }
+    
+    // Update onboarding progress
+    if (userId) {
+      const status = data?.skipStep ? 'skipped' : 'completed';
+      await supabase
+        .from('profiles')
+        .update({
+          onboarding_progress: {
+            [currentStep]: status
+          }
+        })
+        .eq('id', userId);
     }
     
     if (currentIndex < STEPS.length - 1) {

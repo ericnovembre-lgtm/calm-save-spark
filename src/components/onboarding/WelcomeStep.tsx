@@ -2,8 +2,9 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SaveplusAnimIcon } from "@/components/icons";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, HelpCircle } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface WelcomeStepProps {
   onNext: () => void;
@@ -29,9 +30,23 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
             />
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-4">
-            Welcome to $ave+
-          </h1>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground">
+              Welcome to $ave+
+            </h1>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-muted-foreground hover:text-foreground transition-colors">
+                    <HelpCircle className="w-5 h-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>$ave+ helps you reach your financial goals with automated savings, budgeting tools, and personalized insights.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           
           <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto">
             Let's set up your account and create your first savings goal. 
