@@ -25,6 +25,19 @@ const Onboarding = () => {
         navigate('/auth', { state: { returnTo: '/onboarding' } });
         return;
       }
+      
+      // Check if user has already completed onboarding
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_completed')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (profile?.onboarding_completed) {
+        navigate('/dashboard');
+        return;
+      }
+      
       setUserId(session.user.id);
       
       // Track onboarding started
