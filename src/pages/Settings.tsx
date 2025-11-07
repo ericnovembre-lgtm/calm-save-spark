@@ -7,6 +7,7 @@ import { BiometricSetup } from '@/components/auth/BiometricSetup';
 import { AccountDeletion } from '@/components/settings/AccountDeletion';
 import { ProfilePictureUpload } from '@/components/settings/ProfilePictureUpload';
 import { NotificationPreferences } from '@/components/settings/NotificationPreferences';
+import { ResetOnboarding } from '@/components/settings/ResetOnboarding';
 import { Shield, User, Bell, Lock } from 'lucide-react';
 
 export default function Settings() {
@@ -55,6 +56,8 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-8">
             <ProfilePictureUpload />
+            <Separator />
+            <ResetOnboarding />
             <Separator />
             <AccountDeletion />
           </CardContent>

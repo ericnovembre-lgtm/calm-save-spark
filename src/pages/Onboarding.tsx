@@ -17,6 +17,7 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<Step>('welcome');
   const [userId, setUserId] = useState<string | null>(null);
+  const [isResuming, setIsResuming] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -40,7 +41,11 @@ const Onboarding = () => {
       
       // Restore saved onboarding step
       if (profile?.onboarding_step && STEPS.includes(profile.onboarding_step as Step)) {
-        setCurrentStep(profile.onboarding_step as Step);
+        const savedStep = profile.onboarding_step as Step;
+        if (savedStep !== 'welcome') {
+          setIsResuming(true);
+        }
+        setCurrentStep(savedStep);
       }
       
       setUserId(session.user.id);
@@ -127,6 +132,14 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <ProgressBar currentStep={currentStepIndex + 1} totalSteps={STEPS.length} />
+      
+      {isResuming && (
+        <div className="bg-primary/10 border-b border-primary/20 py-3 px-4 text-center">
+          <p className="text-sm font-medium text-foreground">
+            👋 Welcome back! Continuing from where you left off
+          </p>
+        </div>
+      )}
       
       <main className="flex-1 flex items-center justify-center p-4">
         {currentStep === 'welcome' && (

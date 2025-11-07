@@ -18,7 +18,7 @@ const formSchema = z.object({
 
 interface AccountSetupStepProps {
   userId: string;
-  onNext: () => void;
+  onNext: (data?: { skipStep?: boolean }) => void;
   onPrevious: () => void;
 }
 
@@ -54,6 +54,10 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSkip = () => {
+    onNext({ skipStep: true });
   };
 
   return (
@@ -101,6 +105,15 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
+                </Button>
+                
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleSkip}
+                  aria-label="Skip account setup"
+                >
+                  Skip for now
                 </Button>
                 
                 <Button
