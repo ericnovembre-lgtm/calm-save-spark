@@ -35,7 +35,7 @@ All colors MUST be HSL.
     --muted: 40 20% 90%;
     --muted-foreground: 0 0% 44%; /* #6F6F6F */
 
-    --accent: 40 35% 85%; /* #E9DFCE */
+    --accent: 38 45% 68%; /* Warmer gold-beige for emphasis */
     --accent-foreground: 0 0% 0%;
 
     --destructive: 0 72% 51%;
@@ -85,6 +85,29 @@ All colors MUST be HSL.
     50% { box-shadow: 0 0 40px hsl(40 35% 85% / 0.6); }
   }
 
+  @keyframes subtle-glow {
+    0%, 100% { 
+      opacity: 1;
+      text-shadow: 0 0 0px hsl(var(--accent) / 0);
+    }
+    50% { 
+      opacity: 1;
+      text-shadow: 0 0 20px hsl(var(--accent) / 0.3);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-subtle-glow {
+      animation: subtle-glow 3s ease-in-out infinite;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-subtle-glow {
+      animation: none;
+    }
+  }
+
   .dark {
     /* $ave+ Dark Mode Palette */
     --color-bg: #000000;
@@ -113,7 +136,7 @@ All colors MUST be HSL.
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 71%; /* #B5B5B5 */
 
-    --accent: 40 20% 55%; /* #BBAE96 */
+    --accent: 40 40% 65%; /* Brighter gold for dark mode emphasis */
     --accent-foreground: 0 0% 0%;
 
     --destructive: 0 72% 51%;

@@ -18,12 +18,12 @@ export const WelcomeHero = () => {
   return <div className="flex flex-col items-start gap-6">
       <h1 data-testid="welcome-hero-title" className="font-display font-semibold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[color:var(--color-text)] leading-[1.1] tracking-tight">
         Get Rewarded for{" "}
-        <span className="text-[color:var(--color-accent)]">
+        <span className="text-[color:var(--color-accent)] animate-subtle-glow">
           Saving, Not Spending
         </span>
       </h1>
-      <h2 className="font-display font-semibold text-2xl md:text-3xl text-[color:var(--color-text)]">
-        Navigate Your Financial Universe
+      <h2 className="font-display font-medium text-xl md:text-2xl text-muted-foreground">
+        Smart micro-savings that build real wealth
       </h2>
       <p className="text-lg md:text-xl text-muted-foreground max-w-md">
         Orbit through your savings goals with AI-powered insights and automated wealth building.
