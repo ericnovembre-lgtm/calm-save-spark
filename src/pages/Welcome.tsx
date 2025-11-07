@@ -432,7 +432,7 @@ const Welcome = () => {
           <motion.section 
             ref={featuresRef}
             aria-label="Features"
-            className="bg-[var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
+            className="bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
             initial={{ opacity: 0 }}
             animate={featuresInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.5 }}
@@ -472,7 +472,7 @@ const Welcome = () => {
           <motion.section 
             ref={statsRef}
             aria-label="Statistics"
-            className="relative bg-[var(--color-accent)]/40 dark:bg-[var(--color-accent)]/15 -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-3xl"
+            className="relative bg-[color:var(--color-accent)]/40 dark:bg-[color:var(--color-accent)]/15 -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-3xl"
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent rounded-3xl blur-3xl"
@@ -525,7 +525,7 @@ const Welcome = () => {
           {/* Secure Onboarding CTA - White surface */}
           <motion.section 
             aria-label="Get started"
-            className="bg-[var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
+            className="bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: false, amount: 0.5 }}

@@ -72,7 +72,9 @@ export const FeatureCarousel = ({
 
   return (
     <div
-      className="rounded-2xl border p-6 md:p-8 bg-[hsl(var(--background))] border-[hsl(var(--border))]"
+      className="rounded-2xl border p-6 md:p-8 bg-background border-[color:var(--color-border)] 
+                 transition-all duration-300 hover:border-[color:var(--color-accent)] 
+                 hover:shadow-[0_0_24px_rgba(0,0,0,0.08)]"
       role="region"
       aria-roledescription="carousel"
       aria-label="Feature highlights"
@@ -89,11 +91,13 @@ export const FeatureCarousel = ({
           {/* Icon */}
           <div className="flex-shrink-0">
             <motion.div 
-              className="rounded-2xl p-6 border border-[hsl(var(--border))] bg-[hsl(var(--card))]"
+              className="rounded-2xl p-6 border border-[color:var(--color-border)] bg-card
+                         transition-all duration-300 hover:border-[color:var(--color-accent)]
+                         hover:bg-[color:var(--color-accent)]/10"
               whileHover={reduceMotion ? {} : { scale: 1.05, rotate: [0, -5, 5, 0] }}
               transition={{ duration: 0.3 }}
             >
-              <div className="text-[hsl(var(--foreground))]">
+              <div className="text-foreground">
                 <SaveplusAnimIcon name={current.icon} size={48} decorative />
               </div>
             </motion.div>
@@ -101,7 +105,7 @@ export const FeatureCarousel = ({
 
           {/* Content */}
           <div className="flex-1 text-center md:text-left">
-            <h3 className="font-display text-2xl md:text-3xl font-bold text-[hsl(var(--foreground))] mb-3">
+            <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3">
               {current.title}
             </h3>
             <p className="text-base md:text-lg text-muted-foreground mb-6 leading-relaxed">
@@ -115,10 +119,11 @@ export const FeatureCarousel = ({
               whileHover={reduceMotion ? {} : { scale: 1.02 }}
               whileTap={reduceMotion ? {} : { scale: 0.98 }}
               className="px-6 py-3 rounded-xl font-semibold
-                         border border-[hsl(var(--border))]
-                         text-[hsl(var(--foreground))] 
-                         hover:bg-[hsl(var(--accent))] 
-                         transition-colors inline-flex items-center gap-2"
+                         border border-[color:var(--color-border)]
+                         text-foreground 
+                         hover:bg-[color:var(--color-accent)]/30
+                         hover:border-[color:var(--color-accent)]
+                         transition-all duration-300 inline-flex items-center gap-2"
               aria-label={`Learn more about ${current.title}`}
             >
               Learn More
@@ -132,13 +137,14 @@ export const FeatureCarousel = ({
       <div className="flex items-center justify-between mt-8 gap-4">
         <button
           onClick={() => { pauseAuto(); goPrev(); }}
-          className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-[hsl(var(--border))] 
+          className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-[color:var(--color-border)] 
                      flex items-center justify-center 
-                     hover:bg-[hsl(var(--accent))] 
-                     transition-colors shrink-0"
+                     hover:bg-[color:var(--color-accent)]/30
+                     hover:border-[color:var(--color-accent)]
+                     transition-all duration-300 shrink-0"
           aria-label="Previous feature"
         >
-          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-[hsl(var(--foreground))]" />
+          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
         </button>
 
         {/* Dots */}
@@ -152,11 +158,11 @@ export const FeatureCarousel = ({
                 role="tab"
                 aria-selected={active}
                 aria-label={`Go to feature ${idx + 1}`}
-                className={`h-2 md:h-3 rounded-full border transition-all shrink-0
-                            border-[hsl(var(--border))]
+                className={`h-2 md:h-3 rounded-full border transition-all shrink-0 duration-300
+                            border-[color:var(--color-border)]
                             ${active 
-                              ? 'w-6 md:w-8 bg-[hsl(var(--foreground))]' 
-                              : 'w-2 md:w-3 bg-transparent hover:bg-[hsl(var(--muted))]'
+                              ? 'w-6 md:w-8 bg-[color:var(--color-accent)]' 
+                              : 'w-2 md:w-3 bg-transparent hover:bg-[color:var(--color-accent)]/50'
                             }`}
               />
             );
@@ -165,13 +171,14 @@ export const FeatureCarousel = ({
 
         <button
           onClick={() => { pauseAuto(); goNext(); }}
-          className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-[hsl(var(--border))] 
+          className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-[color:var(--color-border)] 
                      flex items-center justify-center 
-                     hover:bg-[hsl(var(--accent))] 
-                     transition-colors shrink-0"
+                     hover:bg-[color:var(--color-accent)]/30
+                     hover:border-[color:var(--color-accent)]
+                     transition-all duration-300 shrink-0"
           aria-label="Next feature"
         >
-          <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-[hsl(var(--foreground))]" />
+          <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
         </button>
       </div>
 
