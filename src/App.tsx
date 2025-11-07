@@ -3,14 +3,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "./components/layout/AppLayout";
-import Index from "./pages/Index";
+
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Subscriptions from "./pages/Subscriptions";
@@ -53,7 +53,7 @@ const App = () => {
             <BrowserRouter>
           <Routes>
             {/* Public routes without layout */}
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Navigate to="/welcome" replace />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/pricing" element={<Pricing />} />
