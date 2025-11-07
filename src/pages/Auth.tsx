@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { setRememberMe } from '@/lib/session';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 
@@ -25,6 +27,7 @@ export default function Auth() {
   const [fullName, setFullName] = useState('');
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
+  const [rememberMe, setRememberMeState] = useState(false);
 
   const returnTo = (location.state as any)?.returnTo || '/dashboard';
 
@@ -40,6 +43,9 @@ export default function Auth() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // Set the remember me preference before login
+    setRememberMe(rememberMe);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -273,6 +279,20 @@ export default function Auth() {
                       required
                       disabled={loading}
                     />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="remember-me"
+                      checked={rememberMe}
+                      onCheckedChange={(checked) => setRememberMeState(checked === true)}
+                      disabled={loading}
+                    />
+                    <Label
+                      htmlFor="remember-me"
+                      className="text-sm font-normal text-muted-foreground cursor-pointer"
+                    >
+                      Remember me on this device
+                    </Label>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Logging in...' : 'Log In'}
