@@ -43,6 +43,8 @@ export default function Pricing() {
   const [targetUpgradeAmount, setTargetUpgradeAmount] = useState(0);
   const { ok: stripeHealthy, missing, loading: stripeLoading } = useStripeHealth();
   const featureTableRef = useRef<HTMLDivElement>(null);
+  const analyticsDebounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const previousTierRef = useRef<string | null>(null);
 
   useEffect(() => {
     loadUserData();
@@ -87,20 +89,40 @@ export default function Pricing() {
   };
 
   const handleSliderChange = useCallback((value: number) => {
-    saveplus_audit_event('pricing_slider_moved', {
-      amount: value,
-      previous_amount: selectedAmount,
-      route: location.pathname,
-    });
+    const previousAmount = selectedAmount;
     setSelectedAmount(value);
     
-    // Smooth scroll to feature table
-    setTimeout(() => {
-      featureTableRef.current?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
+    // Debounce analytics - only fire when user stops moving slider
+    if (analyticsDebounceTimer.current) {
+      clearTimeout(analyticsDebounceTimer.current);
+    }
+    
+    analyticsDebounceTimer.current = setTimeout(() => {
+      saveplus_audit_event('pricing_slider_moved', {
+        amount: value,
+        previous_amount: previousAmount,
+        route: location.pathname,
       });
-    }, 100);
+    }, 500);
+    
+    // Smart auto-scroll: only on tier boundary crosses
+    const currentTier = getTierForAmount(value).name;
+    const previousTier = previousTierRef.current || getTierForAmount(previousAmount).name;
+    
+    // Check if user has scrolled to features in this session
+    const hasScrolled = sessionStorage.getItem('pricing_features_viewed');
+    
+    if (currentTier !== previousTier && !hasScrolled) {
+      setTimeout(() => {
+        featureTableRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest' 
+        });
+        sessionStorage.setItem('pricing_features_viewed', 'true');
+      }, 100);
+    }
+    
+    previousTierRef.current = currentTier;
   }, [selectedAmount, location.pathname]);
 
   const handleTierBadgeClick = useCallback((amount: number) => {
