@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,8 +25,10 @@ import { useStripeHealth } from "@/hooks/useStripeHealth";
 import AccessibleSlider from "@/components/pricing/AccessibleSlider";
 import FeatureItem from "@/components/pricing/FeatureItem";
 import ValueEarnedCard from "@/components/pricing/ValueEarnedCard";
+import ProjectedSavingsCard from "@/components/pricing/ProjectedSavingsCard";
 import TierBadge, { getTierForAmount } from "@/components/pricing/TierBadge";
 import FeatureComparisonTable from "@/components/pricing/FeatureComparisonTable";
+import TierUpgradeModal from "@/components/pricing/TierUpgradeModal";
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -37,7 +39,10 @@ export default function Pricing() {
   const [currentSubscription, setCurrentSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [targetUpgradeAmount, setTargetUpgradeAmount] = useState(0);
   const { ok: stripeHealthy, missing, loading: stripeLoading } = useStripeHealth();
+  const featureTableRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadUserData();
@@ -88,7 +93,39 @@ export default function Pricing() {
       route: location.pathname,
     });
     setSelectedAmount(value);
+    
+    // Smooth scroll to feature table
+    setTimeout(() => {
+      featureTableRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+    }, 100);
   }, [selectedAmount, location.pathname]);
+
+  const handleTierBadgeClick = useCallback((amount: number) => {
+    if (amount > selectedAmount) {
+      setTargetUpgradeAmount(amount);
+      setUpgradeModalOpen(true);
+      
+      saveplus_audit_event('pricing_tier_badge_clicked', {
+        current_amount: selectedAmount,
+        target_amount: amount,
+        route: location.pathname,
+      });
+    }
+  }, [selectedAmount, location.pathname]);
+
+  const handleUpgradeConfirm = useCallback(() => {
+    setSelectedAmount(targetUpgradeAmount);
+    setUpgradeModalOpen(false);
+    
+    saveplus_audit_event('pricing_upgrade_confirmed', {
+      previous_amount: selectedAmount,
+      new_amount: targetUpgradeAmount,
+      route: location.pathname,
+    });
+  }, [targetUpgradeAmount, selectedAmount, location.pathname]);
 
   const handleConfirmPlan = async () => {
     if (!user) {
@@ -211,7 +248,12 @@ export default function Pricing() {
             <CardContent className="p-6">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <h1 className="text-3xl font-bold">Pay What You Want</h1>
-                <TierBadge amount={selectedAmount} size="lg" />
+                <button 
+                  onClick={() => handleTierBadgeClick(selectedAmount)}
+                  className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
+                >
+                  <TierBadge amount={selectedAmount} size="lg" />
+                </button>
               </div>
               <p className="text-muted-foreground mb-2">
                 Support $ave+ and unlock features as you go. Every dollar unlocks one feature.
@@ -225,7 +267,7 @@ export default function Pricing() {
             </CardContent>
           </Card>
 
-          {/* VALUE EARNED CARD */}
+          {/* VALUE CARDS */}
           {currentSubscription && (
             <ValueEarnedCard
               userId={user.id}
@@ -233,6 +275,9 @@ export default function Pricing() {
               projectedTier={selectedAmount}
             />
           )}
+          
+          {/* PROJECTED SAVINGS CALCULATOR */}
+          <ProjectedSavingsCard selectedAmount={selectedAmount} />
 
           {/* Current Plan */}
           {currentSubscription && (
@@ -328,7 +373,9 @@ export default function Pricing() {
           </Card>
 
           {/* Feature Comparison Table */}
-          <FeatureComparisonTable selectedAmount={selectedAmount} />
+          <div ref={featureTableRef}>
+            <FeatureComparisonTable selectedAmount={selectedAmount} />
+          </div>
 
           {/* Features List - Compact View */}
           <Card>
@@ -407,6 +454,15 @@ export default function Pricing() {
           </Card>
         </div>
       </div>
+      
+      {/* Tier Upgrade Modal */}
+      <TierUpgradeModal
+        open={upgradeModalOpen}
+        onOpenChange={setUpgradeModalOpen}
+        currentAmount={currentSubscription?.subscription_amount || 0}
+        targetAmount={targetUpgradeAmount}
+        onConfirm={handleUpgradeConfirm}
+      />
     </div>
   );
 }
