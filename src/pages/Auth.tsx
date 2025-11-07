@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
+import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 
@@ -334,9 +335,7 @@ export default function Auth() {
                       minLength={6}
                       disabled={loading}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      At least 6 characters
-                    </p>
+                    <PasswordStrengthMeter password={password} />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Creating account...' : 'Sign Up'}
