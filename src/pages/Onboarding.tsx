@@ -9,9 +9,10 @@ import WelcomeStep from "@/components/onboarding/WelcomeStep";
 import AccountSetupStep from "@/components/onboarding/AccountSetupStep";
 import FirstGoalStep from "@/components/onboarding/FirstGoalStep";
 import AutomationStep from "@/components/onboarding/AutomationStep";
+import DashboardPreview from "@/components/onboarding/DashboardPreview";
 import CompleteStep from "@/components/onboarding/CompleteStep";
 
-const STEPS = ['demo', 'welcome', 'account', 'goal', 'automation', 'complete'] as const;
+const STEPS = ['demo', 'welcome', 'account', 'goal', 'automation', 'preview', 'complete'] as const;
 type Step = typeof STEPS[number];
 
 const Onboarding = () => {
@@ -194,6 +195,13 @@ const Onboarding = () => {
             userId={userId}
             onNext={handleNext} 
             onPrevious={handlePrevious} 
+          />
+        )}
+        {currentStep === 'preview' && (
+          <DashboardPreview
+            userId={userId}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
           />
         )}
         {currentStep === 'complete' && (
