@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Calendar, Zap } from "lucide-react";
 import { getTierForAmount } from "./TierBadge";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface ProjectedSavingsCardProps {
   selectedAmount: number;
@@ -11,6 +12,7 @@ export default function ProjectedSavingsCard({
   selectedAmount,
 }: ProjectedSavingsCardProps) {
   const tier = getTierForAmount(selectedAmount);
+  const prefersReducedMotion = useReducedMotion();
   
   // Calculate projected savings based on tier features
   const calculateProjectedSavings = () => {
@@ -52,7 +54,9 @@ export default function ProjectedSavingsCard({
   }
 
   return (
-    <Card className="bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20">
+    <Card className={`bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20 ${
+      prefersReducedMotion ? '' : 'animate-fade-in'
+    }`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-primary" />
@@ -66,7 +70,9 @@ export default function ProjectedSavingsCard({
               <Calendar className="w-4 h-4" />
               Monthly Automation
             </div>
-            <div className="text-2xl font-bold text-primary">
+            <div className={`text-2xl font-bold text-primary transition-all duration-300 ${
+              prefersReducedMotion ? '' : 'hover:scale-105'
+            }`}>
               ${monthlySavings}
             </div>
           </div>
@@ -76,7 +82,9 @@ export default function ProjectedSavingsCard({
               <Zap className="w-4 h-4" />
               Annual Savings
             </div>
-            <div className="text-2xl font-bold text-primary">
+            <div className={`text-2xl font-bold text-primary transition-all duration-300 ${
+              prefersReducedMotion ? '' : 'hover:scale-105'
+            }`}>
               ${annualSavings}
             </div>
           </div>

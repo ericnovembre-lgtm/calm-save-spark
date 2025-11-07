@@ -3,17 +3,22 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { trackSubscriptionEvent } from "@/lib/subscription-analytics";
 import { saveplus_audit_event } from "@/lib/analytics";
 import { FREEMIUM_FEATURE_ORDER } from "@/lib/constants";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { 
   AlertTriangle,
   CreditCard,
   Sparkles,
   Zap,
   Shield,
+  ChevronDown,
+  ChevronUp,
+  List,
 } from "lucide-react";
 import {
   Accordion,
@@ -46,10 +51,14 @@ export default function Pricing() {
   const [tierInfoModalOpen, setTierInfoModalOpen] = useState(false);
   const [tierInfoClickedAmount, setTierInfoClickedAmount] = useState(0);
   const [checkoutConfirmModalOpen, setCheckoutConfirmModalOpen] = useState(false);
+  const [quickReferenceOpen, setQuickReferenceOpen] = useState(false);
+  const [showStickyButton, setShowStickyButton] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
   const { ok: stripeHealthy, missing, loading: stripeLoading } = useStripeHealth();
   const featureTableRef = useRef<HTMLDivElement>(null);
   const analyticsDebounceTimer = useRef<NodeJS.Timeout | null>(null);
   const previousTierRef = useRef<string | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     loadUserData();
@@ -68,9 +77,21 @@ export default function Pricing() {
     saveplus_audit_event('pricing_page_viewed', {
       route: location.pathname,
     });
+
+    // Scroll listener for sticky button
+    const handleScroll = () => {
+      if (featureTableRef.current) {
+        const rect = featureTableRef.current.getBoundingClientRect();
+        setShowStickyButton(rect.top < -100);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [location.pathname]);
 
   const loadUserData = async () => {
+    setDataLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -90,6 +111,8 @@ export default function Pricing() {
       }
     } catch (error) {
       console.error("Failed to load user data:", error);
+    } finally {
+      setDataLoading(false);
     }
   };
 
@@ -278,10 +301,58 @@ export default function Pricing() {
     );
   }
 
+  const scrollToComparison = () => {
+    featureTableRef.current?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
+    saveplus_audit_event('pricing_view_comparison_clicked', {
+      route: location.pathname,
+    });
+  };
+
   const isCheckoutDisabled = selectedAmount > 0 && stripeHealthy === false;
 
+  // Loading skeleton
+  if (dataLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <Skeleton className="h-8 w-2/3 mx-auto" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4 mx-auto" />
+              </CardContent>
+            </Card>
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Sticky View Comparison Button */}
+      {showStickyButton && (
+        <div className={`fixed bottom-6 right-6 z-50 ${
+          prefersReducedMotion ? '' : 'animate-fade-in'
+        }`}>
+          <Button
+            onClick={scrollToComparison}
+            size="lg"
+            className="shadow-lg hover:shadow-xl transition-shadow"
+          >
+            <List className="w-4 h-4 mr-2" />
+            View Full Comparison
+          </Button>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Stripe Health Banner */}
@@ -302,13 +373,15 @@ export default function Pricing() {
           )}
 
           {/* Header */}
-          <Card className="text-center">
+          <Card className={`text-center ${prefersReducedMotion ? '' : 'animate-fade-in'}`}>
             <CardContent className="p-6">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <h1 className="text-3xl font-bold">Pay What You Want</h1>
                 <button 
                   onClick={() => handleTierBadgeClick(selectedAmount)}
-                  className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
+                  className={`focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg transition-transform duration-300 ${
+                    prefersReducedMotion ? '' : 'hover:scale-110'
+                  }`}
                 >
                   <TierBadge amount={selectedAmount} size="lg" />
                 </button>
@@ -339,7 +412,7 @@ export default function Pricing() {
 
           {/* Current Plan */}
           {currentSubscription && (
-            <Card className="bg-primary/5">
+            <Card className={`bg-primary/5 ${prefersReducedMotion ? '' : 'animate-fade-in'}`}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
@@ -430,27 +503,54 @@ export default function Pricing() {
             </CardContent>
           </Card>
 
-          {/* Feature Comparison Table */}
-          <div ref={featureTableRef}>
+          {/* Feature Comparison Table - PRIMARY DISPLAY */}
+          <div ref={featureTableRef} className={prefersReducedMotion ? '' : 'animate-fade-in'}>
             <FeatureComparisonTable selectedAmount={selectedAmount} />
           </div>
 
-          {/* Features List - Compact View */}
-          <Card>
+          {/* Quick Reference - Collapsible Compact View */}
+          <Card className={prefersReducedMotion ? '' : 'animate-fade-in'}>
             <CardContent className="p-6">
-              <h2 className="text-lg font-semibold mb-4">
-                Your Selected Features ({selectedAmount}/{FREEMIUM_FEATURE_ORDER.length})
-              </h2>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {FREEMIUM_FEATURE_ORDER.map((feature, index) => (
-                  <FeatureItem
-                    key={feature.key}
-                    feature={feature}
-                    isUnlocked={index < selectedAmount}
-                    index={index}
-                  />
-                ))}
-              </div>
+              <button
+                onClick={() => {
+                  setQuickReferenceOpen(!quickReferenceOpen);
+                  saveplus_audit_event('pricing_quick_reference_toggled', {
+                    is_open: !quickReferenceOpen,
+                    route: location.pathname,
+                  });
+                }}
+                className="w-full flex items-center justify-between text-left group"
+              >
+                <div>
+                  <h2 className="text-lg font-semibold flex items-center gap-2">
+                    <List className="w-5 h-5 text-primary" />
+                    Quick Reference
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Your selected features ({selectedAmount}/{FREEMIUM_FEATURE_ORDER.length})
+                  </p>
+                </div>
+                {quickReferenceOpen ? (
+                  <ChevronUp className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                )}
+              </button>
+
+              {quickReferenceOpen && (
+                <div className={`mt-4 space-y-3 max-h-96 overflow-y-auto ${
+                  prefersReducedMotion ? '' : 'animate-accordion-down'
+                }`}>
+                  {FREEMIUM_FEATURE_ORDER.map((feature, index) => (
+                    <FeatureItem
+                      key={feature.key}
+                      feature={feature}
+                      isUnlocked={index < selectedAmount}
+                      index={index}
+                    />
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
