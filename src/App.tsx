@@ -33,6 +33,7 @@ import Pots from "./pages/Pots";
 import Automations from "./pages/Automations";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
+import Maintenance from "./pages/Maintenance";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,24 @@ const App = () => {
   useEffect(() => {
     initializeSessionManagement();
   }, []);
+
+  // Check for maintenance mode
+  const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'true';
+
+  // If maintenance mode is enabled, show maintenance page for all routes except /maintenance
+  if (isMaintenanceMode && window.location.pathname !== '/maintenance') {
+    return (
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <TooltipProvider>
+              <Maintenance />
+            </TooltipProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <ErrorBoundary>
@@ -84,6 +103,9 @@ const App = () => {
             
             {/* Icon System Demo */}
             <Route path="/icon-demo" element={<IconDemo />} />
+            
+            {/* Maintenance Page */}
+            <Route path="/maintenance" element={<Maintenance />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

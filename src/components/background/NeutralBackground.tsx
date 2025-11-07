@@ -64,14 +64,16 @@ export default function NeutralBackground() {
       ctx.globalAlpha = 1
 
       // Optional gentle haze using accent
-      const accent = getVar('--accent', '#E9DFCE')
+      const accentRaw = getVar('--accent', '40 20% 55%')
       if (!reduceMotionRef.current) {
         const grd = ctx.createRadialGradient(
           canvas.width * 0.7, canvas.height * 0.3, 0,
           canvas.width * 0.7, canvas.height * 0.3, Math.max(canvas.width, canvas.height) * 0.6
         )
-        grd.addColorStop(0, `${accent}33`)
-        grd.addColorStop(1, '#00000000')
+        // Convert HSL to proper rgba format
+        const accentColor = accentRaw.startsWith('hsl') ? accentRaw : `hsl(${accentRaw})`
+        grd.addColorStop(0, accentColor.replace('hsl(', 'hsla(').replace(')', ', 0.2)'))
+        grd.addColorStop(1, 'hsla(0, 0%, 0%, 0)')
         ctx.fillStyle = grd
         ctx.fillRect(0, 0, canvas.width, canvas.height)
       }
