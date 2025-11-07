@@ -4,6 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import { TwoFactorAuth } from '@/components/settings/TwoFactorAuth';
 import { PasswordChange } from '@/components/settings/PasswordChange';
 import { BiometricSetup } from '@/components/auth/BiometricSetup';
+import { AccountDeletion } from '@/components/settings/AccountDeletion';
 import { Shield, User, Bell, Lock } from 'lucide-react';
 
 export default function Settings() {
@@ -39,19 +40,19 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Account Section - Coming Soon */}
+        {/* Account Section */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5 text-primary" />
-              Account Information
+              Account Management
             </CardTitle>
             <CardDescription>
-              Update your personal information and preferences
+              Manage your account and data
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Coming soon</p>
+            <AccountDeletion />
           </CardContent>
         </Card>
 
