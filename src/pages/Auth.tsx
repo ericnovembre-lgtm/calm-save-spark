@@ -12,7 +12,6 @@ import { SocialAuth } from '@/components/auth/SocialAuth';
 import { EmailInput } from '@/components/auth/EmailInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { SecurityBadge } from '@/components/auth/SecurityBadge';
-import { Input } from '@/components/ui/input';
 import { SignupProgress } from '@/components/auth/SignupProgress';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { getAuthErrorMessage, getReturnUrl } from '@/lib/auth-utils';
@@ -269,27 +268,14 @@ export default function Auth() {
               autoFocus={true}
             />
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-              <Input
-                ref={passwordInputRef}
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setPassword(v);
-                  if (import.meta.env.DEV) console.log('[auth] password length:', v.length);
-                }}
-                placeholder="••••••••"
-                className="relative z-10 pointer-events-auto"
-                aria-invalid={!!error}
-                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-                spellCheck={false}
-                autoCapitalize="none"
-              />
-            </div>
+            <PasswordInput
+              ref={passwordInputRef}
+              value={password}
+              onChange={setPassword}
+              showStrengthMeter={mode === 'signup'}
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              showToggle={true}
+            />
 
             {/* Remember me checkbox - login only */}
             {mode === 'login' && (
@@ -308,22 +294,16 @@ export default function Auth() {
             {/* Confirm password - signup only */}
             {mode === 'signup' && (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password" className="text-sm font-medium">Confirm password</Label>
-                  <Input
-                    ref={confirmPasswordInputRef}
-                    id="confirm-password"
-                    name="confirm-password"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="relative z-10 pointer-events-auto"
-                    autoComplete="new-password"
-                    spellCheck={false}
-                    autoCapitalize="none"
-                  />
-                </div>
+                <PasswordInput
+                  ref={confirmPasswordInputRef}
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
+                  label="Confirm password"
+                  id="confirm-password"
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  showToggle={true}
+                />
 
                 <div className="flex items-start gap-2">
                   <Checkbox

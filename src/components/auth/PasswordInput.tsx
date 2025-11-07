@@ -4,7 +4,6 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { PasswordStrengthMeter } from './PasswordStrengthMeter';
-import { cn } from '@/lib/utils';
 
 interface PasswordInputProps {
   value: string;
@@ -42,7 +41,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         <Label htmlFor={id} className="text-sm font-medium">
           {label}
         </Label>
-        <div className="relative">
+        <div className="relative flex items-center">
           <Input
             ref={ref}
             id={id}
@@ -51,21 +50,20 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
-            className={cn(showToggle && 'pr-10', error && 'border-destructive')}
+            className="relative z-10 pointer-events-auto pr-10"
             aria-invalid={!!error}
             aria-describedby={error ? `${id}-error` : undefined}
             autoComplete={autoComplete}
             autoFocus={autoFocus}
             spellCheck={false}
             autoCapitalize="none"
-            readOnly={false}
           />
           {showToggle && (
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              className="absolute right-0 z-20 h-10 w-10 p-0 hover:bg-transparent pointer-events-auto"
               onClick={() => setShowPassword(!showPassword)}
               tabIndex={-1}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
