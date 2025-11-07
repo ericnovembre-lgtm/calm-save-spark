@@ -6,6 +6,7 @@ import { PasswordChange } from '@/components/settings/PasswordChange';
 import { BiometricSetup } from '@/components/auth/BiometricSetup';
 import { AccountDeletion } from '@/components/settings/AccountDeletion';
 import { ProfilePictureUpload } from '@/components/settings/ProfilePictureUpload';
+import { NotificationPreferences } from '@/components/settings/NotificationPreferences';
 import { Shield, User, Bell, Lock } from 'lucide-react';
 
 export default function Settings() {
@@ -59,7 +60,7 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Notifications Section - Coming Soon */}
+        {/* Notifications Section */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -71,7 +72,7 @@ export default function Settings() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Coming soon</p>
+            <NotificationPreferences />
           </CardContent>
         </Card>
 

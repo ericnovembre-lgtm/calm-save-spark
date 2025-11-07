@@ -484,6 +484,48 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          budget_alerts: boolean | null
+          created_at: string | null
+          email_notifications: boolean | null
+          goal_reminders: boolean | null
+          id: string
+          marketing_emails: boolean | null
+          push_notifications: boolean | null
+          transfer_alerts: boolean | null
+          updated_at: string | null
+          user_id: string
+          weekly_summary: boolean | null
+        }
+        Insert: {
+          budget_alerts?: boolean | null
+          created_at?: string | null
+          email_notifications?: boolean | null
+          goal_reminders?: boolean | null
+          id?: string
+          marketing_emails?: boolean | null
+          push_notifications?: boolean | null
+          transfer_alerts?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          weekly_summary?: boolean | null
+        }
+        Update: {
+          budget_alerts?: boolean | null
+          created_at?: string | null
+          email_notifications?: boolean | null
+          goal_reminders?: boolean | null
+          id?: string
+          marketing_emails?: boolean | null
+          push_notifications?: boolean | null
+          transfer_alerts?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          weekly_summary?: boolean | null
+        }
+        Relationships: []
+      }
       pots: {
         Row: {
           color: string | null
