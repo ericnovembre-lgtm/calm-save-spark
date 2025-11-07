@@ -29,13 +29,18 @@ const Onboarding = () => {
       // Check if user has already completed onboarding
       const { data: profile } = await supabase
         .from('profiles')
-        .select('onboarding_completed')
+        .select('onboarding_completed, onboarding_step')
         .eq('id', session.user.id)
         .single();
       
       if (profile?.onboarding_completed) {
         navigate('/dashboard');
         return;
+      }
+      
+      // Restore saved onboarding step
+      if (profile?.onboarding_step && STEPS.includes(profile.onboarding_step as Step)) {
+        setCurrentStep(profile.onboarding_step as Step);
       }
       
       setUserId(session.user.id);
@@ -47,11 +52,22 @@ const Onboarding = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (currentStep) {
+    if (currentStep && userId) {
       trackEvent('onboarding_step_started', { step: currentStep });
       announce(`Step ${STEPS.indexOf(currentStep) + 1} of ${STEPS.length}: ${currentStep}`, 'polite');
+      
+      // Save current step to database
+      supabase
+        .from('profiles')
+        .update({ onboarding_step: currentStep })
+        .eq('id', userId)
+        .then(({ error }) => {
+          if (error) {
+            console.error('Error saving onboarding step:', error);
+          }
+        });
     }
-  }, [currentStep]);
+  }, [currentStep, userId]);
 
   const handleNext = (data?: { skipStep?: boolean }) => {
     const currentIndex = STEPS.indexOf(currentStep);
