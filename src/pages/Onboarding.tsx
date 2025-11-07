@@ -117,6 +117,12 @@ const Onboarding = () => {
     }
   };
 
+  const handleNavigateToStep = (step: string) => {
+    if (STEPS.includes(step as Step)) {
+      setCurrentStep(step as Step);
+    }
+  };
+
   const handleComplete = async () => {
     if (!userId) return;
     
@@ -202,6 +208,7 @@ const Onboarding = () => {
             userId={userId}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onNavigateToStep={handleNavigateToStep}
           />
         )}
         {currentStep === 'complete' && (

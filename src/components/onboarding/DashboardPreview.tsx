@@ -16,8 +16,10 @@ import {
   PiggyBank,
   DollarSign,
   Calendar,
-  CheckCircle2
+  CheckCircle2,
+  Edit2
 } from "lucide-react";
+import { AnimatedCounter } from "./AnimatedCounter";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +29,7 @@ interface DashboardPreviewProps {
   userId: string;
   onNext: () => void;
   onPrevious: () => void;
+  onNavigateToStep?: (step: string) => void;
 }
 
 interface QuizData {
@@ -82,7 +85,32 @@ const AUTOMATION_MESSAGES: Record<string, string> = {
   hybrid: "Perfect balance of automation and personal control.",
 };
 
-const DashboardPreview = ({ userId, onNext, onPrevious }: DashboardPreviewProps) => {
+// Calculate projected 6-month savings based on challenge and automation
+const calculateProjectedSavings = (challenge: string, automation: string): number => {
+  // Base weekly savings estimates
+  const baseWeeklySavings: Record<string, number> = {
+    low_income: 10,
+    overspending: 25,
+    motivation: 30,
+    no_plan: 20,
+    unexpected: 15,
+  };
+
+  // Automation multipliers
+  const automationMultipliers: Record<string, number> = {
+    automatic: 1.3,  // 30% boost from consistency
+    hybrid: 1.15,    // 15% boost from partial automation
+    manual: 1.0,     // Baseline
+  };
+
+  const weeklyAmount = baseWeeklySavings[challenge] || 20;
+  const multiplier = automationMultipliers[automation] || 1.0;
+  
+  // 26 weeks = 6 months
+  return Math.round(weeklyAmount * multiplier * 26);
+};
+
+const DashboardPreview = ({ userId, onNext, onPrevious, onNavigateToStep }: DashboardPreviewProps) => {
   const prefersReducedMotion = useReducedMotion();
   const { triggerHaptic } = useHapticFeedback();
   const [quizData, setQuizData] = useState<QuizData>({});
@@ -120,6 +148,11 @@ const DashboardPreview = ({ userId, onNext, onPrevious }: DashboardPreviewProps)
     onPrevious();
   };
 
+  const handleEditGoal = () => {
+    triggerHaptic("light");
+    onNavigateToStep?.('account');
+  };
+
   if (isLoading) {
     return (
       <div className="w-full max-w-5xl flex items-center justify-center p-8">
@@ -135,6 +168,8 @@ const DashboardPreview = ({ userId, onNext, onPrevious }: DashboardPreviewProps)
   const challengeTip = CHALLENGE_TIPS[challenge];
   const automationPref = quizData.automation_preference || 'hybrid';
   const automationMessage = AUTOMATION_MESSAGES[automationPref];
+  const projectedSavings = calculateProjectedSavings(challenge, automationPref);
+  const monthlyProjected = Math.round(projectedSavings / 6);
 
   return (
     <motion.div
@@ -185,9 +220,23 @@ const DashboardPreview = ({ userId, onNext, onPrevious }: DashboardPreviewProps)
                     <p className="text-sm text-muted-foreground">Your primary goal</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-[color:var(--color-accent)]">$0</div>
-                  <p className="text-xs text-muted-foreground">of your target</p>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-[color:var(--color-accent)]">$0</div>
+                    <p className="text-xs text-muted-foreground">of your target</p>
+                  </div>
+                  {onNavigateToStep && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleEditGoal}
+                      className="gap-1 hover:bg-[color:var(--color-accent)]/10"
+                      aria-label="Edit your goal"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                      Edit
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardHeader>
@@ -201,27 +250,52 @@ const DashboardPreview = ({ userId, onNext, onPrevious }: DashboardPreviewProps)
                   <Progress value={0} className="h-3" />
                 </div>
                 
+                <div className="p-4 rounded-lg bg-[color:var(--color-accent)]/5 border border-[color:var(--color-accent)]/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-muted-foreground">6-Month Projection</span>
+                    <span className="text-xs bg-[color:var(--color-accent)]/20 text-[color:var(--color-accent)] px-2 py-0.5 rounded-full">
+                      Based on your plan
+                    </span>
+                  </div>
+                  <div className="text-3xl font-bold text-[color:var(--color-accent)]">
+                    <AnimatedCounter 
+                      value={projectedSavings} 
+                      prefix="$" 
+                      duration={2.5}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ~<AnimatedCounter value={monthlyProjected} prefix="$" duration={2.5} />/month average
+                  </p>
+                </div>
+                
                 <div className="grid grid-cols-3 gap-3 pt-2">
                   <div className="p-3 rounded-lg bg-background/50 border border-border/50">
                     <div className="flex items-center gap-2 mb-1">
                       <Calendar className="w-4 h-4 text-primary" />
                       <span className="text-xs text-muted-foreground">This Week</span>
                     </div>
-                    <div className="text-lg font-semibold text-foreground">$0</div>
+                    <div className="text-lg font-semibold text-foreground">
+                      <AnimatedCounter value={Math.round(projectedSavings / 26)} prefix="$" duration={2} />
+                    </div>
                   </div>
                   <div className="p-3 rounded-lg bg-background/50 border border-border/50">
                     <div className="flex items-center gap-2 mb-1">
                       <TrendingUp className="w-4 h-4 text-primary" />
                       <span className="text-xs text-muted-foreground">This Month</span>
                     </div>
-                    <div className="text-lg font-semibold text-foreground">$0</div>
+                    <div className="text-lg font-semibold text-foreground">
+                      <AnimatedCounter value={monthlyProjected} prefix="$" duration={2.2} />
+                    </div>
                   </div>
                   <div className="p-3 rounded-lg bg-background/50 border border-border/50">
                     <div className="flex items-center gap-2 mb-1">
                       <Target className="w-4 h-4 text-primary" />
                       <span className="text-xs text-muted-foreground">Streak</span>
                     </div>
-                    <div className="text-lg font-semibold text-foreground">0 days</div>
+                    <div className="text-lg font-semibold text-foreground">
+                      <AnimatedCounter value={7} suffix=" days" duration={1.5} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -244,7 +318,9 @@ const DashboardPreview = ({ userId, onNext, onPrevious }: DashboardPreviewProps)
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-muted-foreground">Total Saved</p>
-                  <p className="text-2xl font-bold text-foreground">$0.00</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    <AnimatedCounter value={0} prefix="$" decimals={2} duration={1.5} />
+                  </p>
                 </div>
               </div>
             </CardContent>

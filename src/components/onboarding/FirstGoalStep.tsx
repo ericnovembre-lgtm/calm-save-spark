@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,10 +29,40 @@ interface FirstGoalStepProps {
   onPrevious: () => void;
 }
 
+// Suggested target amounts based on goal type
+const GOAL_SUGGESTIONS: Record<string, number> = {
+  emergency: 1000,
+  vacation: 3000,
+  home: 20000,
+  education: 10000,
+  retirement: 50000,
+  general: 5000,
+};
+
+// Suggested goal names based on goal type
+const GOAL_NAMES: Record<string, string> = {
+  emergency: "Emergency Fund",
+  vacation: "Dream Vacation",
+  home: "Home Down Payment",
+  education: "Education Fund",
+  retirement: "Retirement Savings",
+  general: "General Savings",
+};
+
+// Adjustment multipliers based on challenge
+const CHALLENGE_MULTIPLIERS: Record<string, number> = {
+  low_income: 0.5,      // Lower targets for limited income
+  overspending: 0.8,    // Slightly lower to build confidence
+  motivation: 1.0,      // Standard amount
+  no_plan: 1.0,         // Standard amount
+  unexpected: 0.7,      // Lower to account for emergencies
+};
+
 const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
   const prefersReducedMotion = useReducedMotion();
   const { triggerHaptic } = useHapticFeedback();
   const [isLoading, setIsLoading] = useState(false);
+  const [suggestedAmount, setSuggestedAmount] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,6 +71,74 @@ const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
       targetAmount: "",
     },
   });
+
+  useEffect(() => {
+    const fetchQuizDataAndDraft = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('onboarding_quiz, onboarding_draft_data')
+          .eq('id', userId)
+          .single();
+
+        if (error) throw error;
+
+        const quizData = data?.onboarding_quiz as any;
+        const draftData = data?.onboarding_draft_data as any;
+
+        // Pre-populate from draft data if available (user's partial progress)
+        if (draftData?.goalName || draftData?.goalTargetAmount) {
+          form.setValue('name', draftData.goalName || '');
+          form.setValue('targetAmount', draftData.goalTargetAmount || '');
+        } 
+        // Otherwise pre-populate from quiz data
+        else if (quizData?.saving_goal) {
+          const goalType = quizData.saving_goal;
+          const challenge = quizData.biggest_challenge || 'motivation';
+          
+          // Calculate suggested amount based on goal and challenge
+          const baseAmount = GOAL_SUGGESTIONS[goalType] || GOAL_SUGGESTIONS.general;
+          const multiplier = CHALLENGE_MULTIPLIERS[challenge] || 1.0;
+          const adjustedAmount = Math.round(baseAmount * multiplier);
+          
+          // Pre-populate form
+          const goalName = GOAL_NAMES[goalType] || 'My Savings Goal';
+          form.setValue('name', goalName);
+          form.setValue('targetAmount', adjustedAmount.toString());
+          setSuggestedAmount(adjustedAmount.toString());
+        }
+      } catch (error) {
+        console.error('Error fetching quiz data:', error);
+      }
+    };
+
+    fetchQuizDataAndDraft();
+  }, [userId, form]);
+
+  // Auto-save draft data when form changes
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      const saveDraft = async () => {
+        if (value.name || value.targetAmount) {
+          await supabase
+            .from('profiles')
+            .update({
+              onboarding_draft_data: {
+                goalName: value.name,
+                goalTargetAmount: value.targetAmount,
+              }
+            })
+            .eq('id', userId);
+        }
+      };
+      
+      // Debounce the save
+      const timeoutId = setTimeout(saveDraft, 1000);
+      return () => clearTimeout(timeoutId);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, userId]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
@@ -56,6 +154,14 @@ const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
         });
 
       if (error) throw error;
+
+      // Clear draft data after successful submission
+      await supabase
+        .from('profiles')
+        .update({
+          onboarding_draft_data: {}
+        })
+        .eq('id', userId);
 
       trackGoalCreated(values.name);
       triggerHaptic("success");
@@ -150,7 +256,12 @@ const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
                       </div>
                     </FormControl>
                     <FormDescription>
-                      How much do you want to save?
+                      {suggestedAmount && (
+                        <span className="text-[color:var(--color-accent)]">
+                          💡 Suggested based on your goals
+                        </span>
+                      )}
+                      {!suggestedAmount && "How much do you want to save?"}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
