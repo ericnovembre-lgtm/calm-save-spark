@@ -29,6 +29,8 @@ import ProjectedSavingsCard from "@/components/pricing/ProjectedSavingsCard";
 import TierBadge, { getTierForAmount } from "@/components/pricing/TierBadge";
 import FeatureComparisonTable from "@/components/pricing/FeatureComparisonTable";
 import TierUpgradeModal from "@/components/pricing/TierUpgradeModal";
+import TierInfoModal from "@/components/pricing/TierInfoModal";
+import CheckoutConfirmationModal from "@/components/pricing/CheckoutConfirmationModal";
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -41,6 +43,9 @@ export default function Pricing() {
   const [success, setSuccess] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [targetUpgradeAmount, setTargetUpgradeAmount] = useState(0);
+  const [tierInfoModalOpen, setTierInfoModalOpen] = useState(false);
+  const [tierInfoClickedAmount, setTierInfoClickedAmount] = useState(0);
+  const [checkoutConfirmModalOpen, setCheckoutConfirmModalOpen] = useState(false);
   const { ok: stripeHealthy, missing, loading: stripeLoading } = useStripeHealth();
   const featureTableRef = useRef<HTMLDivElement>(null);
   const analyticsDebounceTimer = useRef<NodeJS.Timeout | null>(null);
@@ -126,15 +131,19 @@ export default function Pricing() {
   }, [selectedAmount, location.pathname]);
 
   const handleTierBadgeClick = useCallback((amount: number) => {
+    saveplus_audit_event('pricing_tier_badge_clicked', {
+      current_amount: selectedAmount,
+      target_amount: amount,
+      route: location.pathname,
+    });
+
     if (amount > selectedAmount) {
       setTargetUpgradeAmount(amount);
       setUpgradeModalOpen(true);
-      
-      saveplus_audit_event('pricing_tier_badge_clicked', {
-        current_amount: selectedAmount,
-        target_amount: amount,
-        route: location.pathname,
-      });
+    } else {
+      // Current tier or downgrade
+      setTierInfoClickedAmount(amount);
+      setTierInfoModalOpen(true);
     }
   }, [selectedAmount, location.pathname]);
 
@@ -149,7 +158,18 @@ export default function Pricing() {
     });
   }, [targetUpgradeAmount, selectedAmount, location.pathname]);
 
-  const handleConfirmPlan = async () => {
+  const handleTierInfoDowngrade = useCallback(() => {
+    setSelectedAmount(tierInfoClickedAmount);
+    setTierInfoModalOpen(false);
+    
+    saveplus_audit_event('pricing_downgrade_confirmed', {
+      previous_amount: selectedAmount,
+      new_amount: tierInfoClickedAmount,
+      route: location.pathname,
+    });
+  }, [tierInfoClickedAmount, selectedAmount, location.pathname]);
+
+  const handleInitiateCheckout = () => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -160,6 +180,22 @@ export default function Pricing() {
       return;
     }
 
+    if (selectedAmount === 0) {
+      // Free plan - no confirmation needed, process directly
+      handleConfirmPlan();
+    } else {
+      // Paid plan - show confirmation modal
+      setCheckoutConfirmModalOpen(true);
+      
+      saveplus_audit_event('pricing_checkout_confirmation_shown', {
+        amount: selectedAmount,
+        route: location.pathname,
+      });
+    }
+  };
+
+  const handleConfirmPlan = async () => {
+    setCheckoutConfirmModalOpen(false);
     setLoading(true);
 
     try {
@@ -343,7 +379,7 @@ export default function Pricing() {
 
               <div className="mt-6">
                 <Button
-                  onClick={handleConfirmPlan}
+                  onClick={handleInitiateCheckout}
                   disabled={loading || selectedAmount === currentSubscription?.subscription_amount || isCheckoutDisabled || stripeLoading}
                   className="w-full py-4 rounded-xl font-semibold flex items-center justify-center space-x-2"
                   size="lg"
@@ -484,6 +520,25 @@ export default function Pricing() {
         currentAmount={currentSubscription?.subscription_amount || 0}
         targetAmount={targetUpgradeAmount}
         onConfirm={handleUpgradeConfirm}
+      />
+
+      {/* Tier Info Modal (Current/Downgrade) */}
+      <TierInfoModal
+        open={tierInfoModalOpen}
+        onOpenChange={setTierInfoModalOpen}
+        currentAmount={currentSubscription?.subscription_amount || 0}
+        clickedAmount={tierInfoClickedAmount}
+        onDowngrade={handleTierInfoDowngrade}
+      />
+
+      {/* Checkout Confirmation Modal */}
+      <CheckoutConfirmationModal
+        open={checkoutConfirmModalOpen}
+        onOpenChange={setCheckoutConfirmModalOpen}
+        selectedAmount={selectedAmount}
+        currentAmount={currentSubscription?.subscription_amount || 0}
+        onConfirm={handleConfirmPlan}
+        loading={loading}
       />
     </div>
   );
