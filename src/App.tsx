@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "./components/layout/AppLayout";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -60,26 +61,26 @@ const App = () => {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/subscription" element={<SubscriptionManagement />} />
             
-            {/* App routes with layout */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/transactions" element={<Transactions />} />
-            <Route path="/subscriptions" element={<Subscriptions />} />
-            <Route path="/insights" element={<Insights />} />
-            <Route path="/budget" element={<Budget />} />
-            <Route path="/debts" element={<Debts />} />
-            <Route path="/investments" element={<Investments />} />
-            <Route path="/credit" element={<Credit />} />
-            <Route path="/goals" element={<Goals />} />
-            <Route path="/pots" element={<Pots />} />
-            <Route path="/automations" element={<Automations />} />
-            <Route path="/rewards" element={<AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout>} />
-            <Route path="/analytics" element={<AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout>} />
-            <Route path="/card" element={<AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout>} />
-            <Route path="/coach" element={<AppLayout><Coach /></AppLayout>} />
-            <Route path="/help" element={<AppLayout><Help /></AppLayout>} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/admin-agents" element={<AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout>} />
-            <Route path="/admin-functions" element={<AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout>} />
+            {/* App routes with layout - protected */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+            <Route path="/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
+            <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
+            <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
+            <Route path="/debts" element={<ProtectedRoute><Debts /></ProtectedRoute>} />
+            <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
+            <Route path="/credit" element={<ProtectedRoute><Credit /></ProtectedRoute>} />
+            <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+            <Route path="/pots" element={<ProtectedRoute><Pots /></ProtectedRoute>} />
+            <Route path="/automations" element={<ProtectedRoute><Automations /></ProtectedRoute>} />
+            <Route path="/rewards" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout></ProtectedRoute>} />
+            <Route path="/analytics" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout></ProtectedRoute>} />
+            <Route path="/card" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout></ProtectedRoute>} />
+            <Route path="/coach" element={<ProtectedRoute><AppLayout><Coach /></AppLayout></ProtectedRoute>} />
+            <Route path="/help" element={<ProtectedRoute><AppLayout><Help /></AppLayout></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/admin-agents" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></ProtectedRoute>} />
+            <Route path="/admin-functions" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></ProtectedRoute>} />
             
             {/* Icon System Demo */}
             <Route path="/icon-demo" element={<IconDemo />} />
