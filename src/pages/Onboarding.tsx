@@ -75,10 +75,10 @@ const Onboarding = () => {
         .eq('id', userId);
       
       trackEvent('onboarding_completed', {});
-      announce('Onboarding completed! Redirecting to dashboard...', 'assertive');
+      announce('Onboarding completed! Redirecting to pricing...', 'assertive');
       
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/pricing');
       }, 2000);
     } catch (error) {
       console.error('Error completing onboarding:', error);

@@ -104,10 +104,10 @@ export default function Auth() {
       } else {
         toast({
           title: 'Account Created!',
-          description: 'Welcome to $ave+. Redirecting...',
+          description: "Let's get you set up...",
         });
         // Auto-login after signup
-        setTimeout(() => navigate(returnTo), 1000);
+        setTimeout(() => navigate('/onboarding'), 1000);
       }
     } catch (error) {
       toast({
