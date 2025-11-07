@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AppUser, signOut } from "@/lib/session";
 import { useNavigate } from "react-router-dom";
@@ -34,11 +35,13 @@ export const UserChip = ({ user }: UserChipProps) => {
           className="flex items-center gap-2 px-3 h-9"
           aria-label="User menu"
         >
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="w-7 h-7 rounded-full bg-accent flex items-center justify-center"
-          >
-            <User className="w-4 h-4" />
+          <motion.div whileHover={{ scale: 1.05 }}>
+            <Avatar className="h-7 w-7">
+              <AvatarImage src={user.avatar_url || undefined} alt={user.full_name || 'User'} />
+              <AvatarFallback className="text-xs">
+                <User className="w-4 h-4" />
+              </AvatarFallback>
+            </Avatar>
           </motion.div>
           <span className="hidden md:inline text-sm font-medium">
             {user.full_name || user.email?.split('@')[0] || 'User'}

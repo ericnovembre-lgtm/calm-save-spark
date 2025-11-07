@@ -5,6 +5,7 @@ import { TwoFactorAuth } from '@/components/settings/TwoFactorAuth';
 import { PasswordChange } from '@/components/settings/PasswordChange';
 import { BiometricSetup } from '@/components/auth/BiometricSetup';
 import { AccountDeletion } from '@/components/settings/AccountDeletion';
+import { ProfilePictureUpload } from '@/components/settings/ProfilePictureUpload';
 import { Shield, User, Bell, Lock } from 'lucide-react';
 
 export default function Settings() {
@@ -51,7 +52,9 @@ export default function Settings() {
               Manage your account and data
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-8">
+            <ProfilePictureUpload />
+            <Separator />
             <AccountDeletion />
           </CardContent>
         </Card>

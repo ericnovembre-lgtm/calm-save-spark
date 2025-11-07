@@ -8,17 +8,26 @@ export type AppUser = {
   email?: string;
   full_name?: string;
   role?: 'user' | 'admin';
+  avatar_url?: string;
 };
 
 export const getClientUser = async (): Promise<AppUser | null> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   
+  // Fetch profile data including avatar
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name, avatar_url')
+    .eq('id', user.id)
+    .single();
+  
   return {
     id: user.id,
     email: user.email,
-    full_name: user.user_metadata?.full_name,
+    full_name: profile?.full_name || user.user_metadata?.full_name,
     role: user.user_metadata?.role || 'user',
+    avatar_url: profile?.avatar_url,
   };
 };
 
