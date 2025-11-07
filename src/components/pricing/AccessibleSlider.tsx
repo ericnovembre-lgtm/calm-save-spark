@@ -12,7 +12,7 @@ export default function AccessibleSlider({
   value, 
   onChange, 
   min = 0, 
-  max = 15, 
+  max = 20, 
   step = 1 
 }: AccessibleSliderProps) {
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {

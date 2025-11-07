@@ -131,6 +131,66 @@ export const FREEMIUM_FEATURE_ORDER: readonly FreemiumFeature[] = [
     name: '$ave+ Card',
     description: 'Premium debit card with cashback',
   },
+  {
+    key: 'debt_management',
+    name: 'Debt Management',
+    description: 'Track and optimize debt payoff strategies',
+  },
+  {
+    key: 'investment_tracking',
+    name: 'Investment Tracking',
+    description: 'Monitor portfolio performance and gains',
+  },
+  {
+    key: 'credit_monitoring',
+    name: 'Credit Monitoring',
+    description: 'Track credit score and improvement tips',
+  },
+  {
+    key: 'subscription_insights',
+    name: 'Subscription Insights',
+    description: 'Detect and manage recurring payments',
+  },
+  {
+    key: 'budget_templates',
+    name: 'Budget Templates',
+    description: 'Pre-built budgets for different income levels',
+  },
+  {
+    key: 'cashflow_forecast',
+    name: 'Cashflow Forecasting',
+    description: 'AI-powered predictions of future finances',
+  },
+  {
+    key: 'advanced_analytics',
+    name: 'Advanced Analytics',
+    description: 'Deep insights with custom reports',
+  },
+  {
+    key: 'custom_automation',
+    name: 'Custom Automation Rules',
+    description: 'Build complex multi-step automations',
+  },
+  {
+    key: 'api_access',
+    name: 'API Access',
+    description: 'Programmatic access to your data',
+  },
+  {
+    key: 'white_label',
+    name: 'White Label',
+    description: 'Custom branding and enterprise features',
+  },
+  {
+    key: 'dedicated_support',
+    name: 'Dedicated Account Manager',
+    description: 'Personal financial advisor and priority support',
+  },
+  {
+    key: 'enterprise_features',
+    name: 'Enterprise Features',
+    description: 'Team management, SSO, and advanced security',
+  },
 ] as const;
 
 // =============================================================================

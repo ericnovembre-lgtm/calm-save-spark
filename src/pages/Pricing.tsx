@@ -264,7 +264,7 @@ export default function Pricing() {
                 value={selectedAmount}
                 onChange={handleSliderChange}
                 min={0}
-                max={15}
+                max={20}
                 step={1}
               />
 
