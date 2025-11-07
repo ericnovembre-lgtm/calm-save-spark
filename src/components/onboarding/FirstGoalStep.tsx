@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, ArrowLeft, Target, HelpCircle } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { toast } from "sonner";
 import { trackGoalCreated } from "@/lib/analytics";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -30,6 +31,7 @@ interface FirstGoalStepProps {
 
 const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
   const prefersReducedMotion = useReducedMotion();
+  const { triggerHaptic } = useHapticFeedback();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -56,6 +58,7 @@ const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
       if (error) throw error;
 
       trackGoalCreated(values.name);
+      triggerHaptic("success");
       toast.success("Goal created!");
       onNext();
     } catch (error) {
@@ -67,7 +70,13 @@ const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
   };
 
   const handleSkip = () => {
+    triggerHaptic("light");
     onNext({ skipStep: true });
+  };
+
+  const handleBack = () => {
+    triggerHaptic("light");
+    onPrevious();
   };
 
   return (
@@ -152,7 +161,7 @@ const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={onPrevious}
+                  onClick={handleBack}
                   className="gap-2"
                   aria-label="Go back to previous step"
                 >

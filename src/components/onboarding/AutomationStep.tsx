@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, ArrowLeft, Zap, HelpCircle } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { toast } from "sonner";
 import { trackAutomationToggled } from "@/lib/analytics";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ interface AutomationStepProps {
 
 const AutomationStep = ({ userId, onNext, onPrevious }: AutomationStepProps) => {
   const prefersReducedMotion = useReducedMotion();
+  const { triggerHaptic } = useHapticFeedback();
   const [isLoading, setIsLoading] = useState(false);
   const [autoSave, setAutoSave] = useState(false);
   const [roundUp, setRoundUp] = useState(false);
@@ -39,6 +41,7 @@ const AutomationStep = ({ userId, onNext, onPrevious }: AutomationStepProps) => 
       if (autoSave) trackAutomationToggled('auto_save', true);
       if (roundUp) trackAutomationToggled('round_up', true);
       
+      triggerHaptic("success");
       toast.success("Automation settings saved!");
       onNext();
     } catch (error) {
@@ -50,7 +53,23 @@ const AutomationStep = ({ userId, onNext, onPrevious }: AutomationStepProps) => 
   };
 
   const handleSkip = () => {
+    triggerHaptic("light");
     onNext({ skipStep: true });
+  };
+
+  const handleBack = () => {
+    triggerHaptic("light");
+    onPrevious();
+  };
+
+  const handleAutoSaveToggle = (checked: boolean) => {
+    triggerHaptic("medium");
+    setAutoSave(checked);
+  };
+
+  const handleRoundUpToggle = (checked: boolean) => {
+    triggerHaptic("medium");
+    setRoundUp(checked);
   };
 
   return (
@@ -96,7 +115,7 @@ const AutomationStep = ({ userId, onNext, onPrevious }: AutomationStepProps) => 
               <Switch
                 id="auto-save"
                 checked={autoSave}
-                onCheckedChange={setAutoSave}
+                onCheckedChange={handleAutoSaveToggle}
                 aria-label="Enable auto-save feature"
               />
             </div>
@@ -113,7 +132,7 @@ const AutomationStep = ({ userId, onNext, onPrevious }: AutomationStepProps) => 
               <Switch
                 id="round-up"
                 checked={roundUp}
-                onCheckedChange={setRoundUp}
+                onCheckedChange={handleRoundUpToggle}
                 aria-label="Enable round-up savings feature"
               />
             </div>
@@ -123,7 +142,7 @@ const AutomationStep = ({ userId, onNext, onPrevious }: AutomationStepProps) => 
             <Button
               type="button"
               variant="outline"
-              onClick={onPrevious}
+              onClick={handleBack}
               className="gap-2"
               aria-label="Go back to previous step"
             >

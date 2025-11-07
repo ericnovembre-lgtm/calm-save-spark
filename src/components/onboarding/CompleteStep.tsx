@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SaveplusAnimIcon } from "@/components/icons";
 import { CheckCircle, Sparkles, TrendingUp, Target, Shield, Share2, HelpCircle } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { useCelebrationSounds } from "@/hooks/useCelebrationSounds";
 import { useShareAchievement } from "@/hooks/useShareAchievement";
 import NeutralConfetti from "@/components/effects/NeutralConfetti";
@@ -16,12 +17,16 @@ interface CompleteStepProps {
 
 const CompleteStep = ({ onComplete }: CompleteStepProps) => {
   const prefersReducedMotion = useReducedMotion();
+  const { triggerHaptic } = useHapticFeedback();
   const { playSuccessChime, playConfettiPop } = useCelebrationSounds();
   const { shareAchievement } = useShareAchievement();
   const [showConfetti, setShowConfetti] = useState(true);
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
+    // Trigger success haptic on mount
+    triggerHaptic("success");
+    
     // Play celebration sounds on mount
     const playSounds = async () => {
       // Play confetti pop immediately
@@ -55,7 +60,17 @@ const CompleteStep = ({ onComplete }: CompleteStepProps) => {
       clearTimeout(timer);
       clearInterval(countdownInterval);
     };
-  }, [onComplete, playSuccessChime, playConfettiPop]);
+  }, [onComplete, playSuccessChime, playConfettiPop, triggerHaptic]);
+
+  const handleComplete = () => {
+    triggerHaptic("medium");
+    onComplete();
+  };
+
+  const handleShare = () => {
+    triggerHaptic("light");
+    shareAchievement();
+  };
 
   const achievements = [
     { icon: Target, label: "Goals Set", color: "text-primary" },
@@ -225,7 +240,7 @@ const CompleteStep = ({ onComplete }: CompleteStepProps) => {
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button 
                   size="lg" 
-                  onClick={onComplete}
+                  onClick={handleComplete}
                   className="gap-2 hover-scale"
                   aria-label="Go to dashboard"
                 >
@@ -235,7 +250,7 @@ const CompleteStep = ({ onComplete }: CompleteStepProps) => {
                 <Button 
                   size="lg"
                   variant="outline"
-                  onClick={shareAchievement}
+                  onClick={handleShare}
                   className="gap-2 hover-scale"
                   aria-label="Share your achievement"
                 >
