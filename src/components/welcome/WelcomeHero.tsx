@@ -16,7 +16,12 @@ export const WelcomeHero = () => {
     checkAuth();
   }, []);
   return <div className="flex flex-col items-start gap-6">
-      <h1 data-testid="welcome-hero-title" className="font-display font-bold text-5xl md:text-6xl lg:text-7xl text-[color:var(--color-text)] leading-tight">​Get Rewarded for Saving, Not Spending</h1>
+      <h1 data-testid="welcome-hero-title" className="font-display font-semibold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[color:var(--color-text)] leading-[1.1] tracking-tight">
+        Get Rewarded for{" "}
+        <span className="text-[color:var(--color-accent)]">
+          Saving, Not Spending
+        </span>
+      </h1>
       <h2 className="font-display font-semibold text-2xl md:text-3xl text-[color:var(--color-text)]">
         Navigate Your Financial Universe
       </h2>
