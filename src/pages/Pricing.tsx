@@ -25,6 +25,8 @@ import { useStripeHealth } from "@/hooks/useStripeHealth";
 import AccessibleSlider from "@/components/pricing/AccessibleSlider";
 import FeatureItem from "@/components/pricing/FeatureItem";
 import ValueEarnedCard from "@/components/pricing/ValueEarnedCard";
+import TierBadge, { getTierForAmount } from "@/components/pricing/TierBadge";
+import FeatureComparisonTable from "@/components/pricing/FeatureComparisonTable";
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -207,10 +209,14 @@ export default function Pricing() {
           {/* Header */}
           <Card className="text-center">
             <CardContent className="p-6">
-              <h1 className="text-3xl font-bold mb-2">Pay What You Want</h1>
-              <p className="text-muted-foreground">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <h1 className="text-3xl font-bold">Pay What You Want</h1>
+                <TierBadge amount={selectedAmount} size="lg" />
+              </div>
+              <p className="text-muted-foreground mb-2">
                 Support $ave+ and unlock features as you go. Every dollar unlocks one feature.
               </p>
+              <TierBadge amount={selectedAmount} showDescription size="sm" />
               {success && (
                 <div className="mt-4 p-3 bg-primary/10 border border-primary/20 text-primary rounded-lg">
                   🎉 Plan updated successfully! Your new features are now available.
@@ -321,11 +327,14 @@ export default function Pricing() {
             </CardContent>
           </Card>
 
-          {/* Features List */}
+          {/* Feature Comparison Table */}
+          <FeatureComparisonTable selectedAmount={selectedAmount} />
+
+          {/* Features List - Compact View */}
           <Card>
             <CardContent className="p-6">
               <h2 className="text-lg font-semibold mb-4">
-                Features You'll Unlock
+                Your Selected Features ({selectedAmount}/{FREEMIUM_FEATURE_ORDER.length})
               </h2>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {FREEMIUM_FEATURE_ORDER.map((feature, index) => (
