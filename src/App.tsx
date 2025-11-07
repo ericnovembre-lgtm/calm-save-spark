@@ -31,6 +31,7 @@ import Goals from "./pages/Goals";
 import Pots from "./pages/Pots";
 import Automations from "./pages/Automations";
 import Settings from "./pages/Settings";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => {
             {/* Public routes without layout */}
             <Route path="/" element={<Index />} />
             <Route path="/welcome" element={<Welcome />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/checkout" element={<Checkout />} />
