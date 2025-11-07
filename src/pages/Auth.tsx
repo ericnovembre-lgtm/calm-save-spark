@@ -9,6 +9,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { z } from 'zod';
+
+const emailSchema = z.string().email('Please enter a valid email address');
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -18,6 +22,8 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
 
   const returnTo = (location.state as any)?.returnTo || '/dashboard';
 
@@ -105,6 +111,111 @@ export default function Auth() {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate email
+    const validation = emailSchema.safeParse(resetEmail);
+    if (!validation.success) {
+      toast({
+        title: 'Invalid Email',
+        description: validation.error.errors[0].message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+
+      if (error) {
+        toast({
+          title: 'Reset Failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Check Your Email',
+          description: 'Password reset instructions have been sent to your email.',
+        });
+        setShowResetPassword(false);
+        setResetEmail('');
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (showResetPassword) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="w-full max-w-md"
+        >
+          <div className="text-center mb-8">
+            <Link to="/welcome" className="inline-flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center">
+                <span className="text-background font-bold">$+</span>
+              </div>
+              <span className="font-bold text-2xl">$ave+</span>
+            </Link>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowResetPassword(false)}
+                className="w-fit mb-2"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Login
+              </Button>
+              <CardTitle>Reset Password</CardTitle>
+              <CardDescription>
+                Enter your email and we'll send you reset instructions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <Input
+                    id="reset-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Sending...' : 'Send Reset Link'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <motion.div
@@ -165,6 +276,13 @@ export default function Auth() {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Logging in...' : 'Log In'}
                   </Button>
+                  <button
+                    type="button"
+                    onClick={() => setShowResetPassword(true)}
+                    className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Forgot Password?
+                  </button>
                 </form>
               </CardContent>
             </Card>
