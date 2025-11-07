@@ -113,69 +113,6 @@ export const registerBiometric = async (deviceName?: string): Promise<boolean> =
   }
 };
 
-/**
- * Authenticate with biometric credential
- */
-export const authenticateBiometric = async (email: string): Promise<string> => {
-  try {
-    // Get authentication options from backend
-    const { data, error } = await supabase.functions.invoke('webauthn-authenticate', {
-      body: { email },
-    });
-    
-    if (error || !data) {
-      throw new Error(data?.error || 'Failed to get authentication options');
-    }
-
-    // Convert challenge to ArrayBuffer
-    const publicKeyOptions: PublicKeyCredentialRequestOptions = {
-      ...data,
-      challenge: base64urlToBuffer(data.challenge),
-      allowCredentials: data.allowCredentials.map((cred: any) => ({
-        ...cred,
-        id: base64urlToBuffer(cred.id),
-      })),
-    };
-
-    // Get credential
-    const credential = await navigator.credentials.get({
-      publicKey: publicKeyOptions,
-    }) as PublicKeyCredential;
-
-    if (!credential) {
-      throw new Error('Authentication cancelled');
-    }
-
-    const response = credential.response as AuthenticatorAssertionResponse;
-
-    // Verify credential with backend
-    const { data: loginData, error: loginError } = await supabase.functions.invoke('webauthn-login', {
-      body: {
-        email,
-        credential: {
-          id: credential.id,
-          rawId: bufferToBase64url(credential.rawId),
-          response: {
-            clientDataJSON: bufferToBase64url(response.clientDataJSON),
-            authenticatorData: bufferToBase64url(response.authenticatorData),
-            signature: bufferToBase64url(response.signature),
-            userHandle: response.userHandle ? bufferToBase64url(response.userHandle) : null,
-          },
-          type: credential.type,
-        },
-      },
-    });
-
-    if (loginError || !loginData?.redirectUrl) {
-      throw new Error('Failed to authenticate');
-    }
-
-    return loginData.redirectUrl;
-  } catch (error) {
-    console.error('Biometric authentication error:', error);
-    throw error;
-  }
-};
 
 /**
  * Check if user has registered biometric credentials
