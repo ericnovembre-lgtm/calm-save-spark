@@ -654,6 +654,36 @@ export type Database = {
           },
         ]
       }
+      subscription_analytics: {
+        Row: {
+          amount: number | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          plan_name: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          plan_name?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          plan_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_history: {
         Row: {
           change_reason: string | null
