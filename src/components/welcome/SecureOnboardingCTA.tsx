@@ -103,7 +103,7 @@ export const SecureOnboardingCTA = () => {
       >
         <div className="text-center mb-8">
           <h3 className="mb-4 font-display font-bold text-2xl sm:text-3xl text-[hsl(var(--foreground))]">
-            Ready to Start Your Savings Journey?
+            Ready to Start Your <span className="text-[color:var(--color-accent)] animate-subtle-glow">Savings Journey</span>?
           </h3>
           <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
             Join thousands of users who have already transformed their financial lives with $ave+.
@@ -170,7 +170,7 @@ export const SecureOnboardingCTA = () => {
           variant="primary"
           size="lg"
           animated
-          className="w-full text-lg h-14"
+          className="w-full text-lg h-14 bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent)]/90 text-foreground font-semibold"
         >
           {loading ? (
             <div className="flex items-center justify-center space-x-2">
@@ -266,7 +266,7 @@ export const SecureOnboardingCTA = () => {
                 }}
                 variant="primary"
                 size="lg"
-                className="flex-1"
+                className="flex-1 bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent)]/90 text-foreground font-semibold"
               >
                 I Understand & Accept
               </Button>

@@ -26,7 +26,7 @@ export const WelcomeHero = () => {
         Smart micro-savings that build real wealth
       </h2>
       <p className="text-lg md:text-xl text-muted-foreground max-w-md">
-        Orbit through your savings goals with AI-powered insights and automated wealth building.
+        Automate your savings with smart micro-transactions. Build wealth effortlessly while you live your life.
       </p>
       
       {/* Auth-aware CTAs */}

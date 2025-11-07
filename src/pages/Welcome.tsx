@@ -437,17 +437,17 @@ const Welcome = () => {
             animate={featuresInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.5 }}
           >
-            <motion.div
-              className="flex items-center gap-3 mb-8"
-              initial={{ opacity: 0, x: -20 }}
-              animate={featuresInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="h-1 w-12 bg-gradient-to-r from-foreground to-transparent rounded-full" />
-              <h2 className="font-display font-bold text-3xl md:text-4xl text-foreground">
-                Mission Control
-              </h2>
-            </motion.div>
+              <motion.div
+                className="flex items-center gap-3 mb-8"
+                initial={{ opacity: 0, x: -20 }}
+                animate={featuresInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="h-1 w-12 bg-gradient-to-r from-[color:var(--color-accent)] to-transparent rounded-full" />
+                <h2 className="font-display font-bold text-3xl md:text-4xl text-foreground">
+                  Mission Control
+                </h2>
+              </motion.div>
             {!featuresLoaded ? (
               <div className="space-y-6">
                 <Skeleton className="h-64 w-full rounded-xl" />
@@ -489,7 +489,7 @@ const Welcome = () => {
                 animate={statsInView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.5 }}
               >
-                <div className="h-1 w-12 bg-gradient-to-r from-foreground to-transparent rounded-full" />
+                <div className="h-1 w-12 bg-gradient-to-r from-[color:var(--color-accent)] to-transparent rounded-full" />
                 <h2 className="font-display font-bold text-3xl md:text-4xl text-foreground">
                   Why Choose $ave+?
                 </h2>
