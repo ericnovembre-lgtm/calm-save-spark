@@ -35,3 +35,12 @@ verify_jwt = false
 
 [functions.cashflow-forecast]
 verify_jwt = false
+
+[functions.categorize-business-expense]
+verify_jwt = true
+
+[functions.generate-tax-report]
+verify_jwt = true
+
+[functions.process-vendor-payments]
+verify_jwt = false

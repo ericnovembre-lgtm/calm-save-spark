@@ -342,6 +342,111 @@ export type Database = {
         }
         Relationships: []
       }
+      business_expenses: {
+        Row: {
+          amount: number
+          business_profile_id: string | null
+          category: string | null
+          created_at: string | null
+          currency: string | null
+          description: string
+          expense_date: string
+          id: string
+          receipt_url: string | null
+          tax_category: Database["public"]["Enums"]["tax_category"] | null
+          tax_deductible: boolean | null
+          updated_at: string | null
+          user_id: string
+          vendor_id: string | null
+        }
+        Insert: {
+          amount: number
+          business_profile_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description: string
+          expense_date: string
+          id?: string
+          receipt_url?: string | null
+          tax_category?: Database["public"]["Enums"]["tax_category"] | null
+          tax_deductible?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          vendor_id?: string | null
+        }
+        Update: {
+          amount?: number
+          business_profile_id?: string | null
+          category?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string
+          expense_date?: string
+          id?: string
+          receipt_url?: string | null
+          tax_category?: Database["public"]["Enums"]["tax_category"] | null
+          tax_deductible?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_expenses_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_expenses_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_profiles: {
+        Row: {
+          address: string | null
+          business_name: string
+          business_type: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          phone: string | null
+          tax_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          business_name: string
+          business_type?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          business_name?: string
+          business_type?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
           challenge_type: string
@@ -881,6 +986,78 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          amount: number
+          business_profile_id: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          due_date: string
+          id: string
+          invoice_number: string
+          invoice_type: string
+          issue_date: string
+          notes: string | null
+          paid_date: string | null
+          status: Database["public"]["Enums"]["invoice_status"] | null
+          updated_at: string | null
+          user_id: string
+          vendor_id: string | null
+        }
+        Insert: {
+          amount: number
+          business_profile_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          due_date: string
+          id?: string
+          invoice_number: string
+          invoice_type: string
+          issue_date: string
+          notes?: string | null
+          paid_date?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"] | null
+          updated_at?: string | null
+          user_id: string
+          vendor_id?: string | null
+        }
+        Update: {
+          amount?: number
+          business_profile_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          due_date?: string
+          id?: string
+          invoice_number?: string
+          invoice_type?: string
+          issue_date?: string
+          notes?: string | null
+          paid_date?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"] | null
+          updated_at?: string | null
+          user_id?: string
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           budget_alerts: boolean | null
@@ -1080,6 +1257,69 @@ export type Database = {
             columns: ["pot_id"]
             isOneToOne: false
             referencedRelation: "pots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_vendor_payments: {
+        Row: {
+          amount: number
+          business_profile_id: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          frequency: string
+          id: string
+          is_active: boolean | null
+          last_payment_date: string | null
+          next_payment_date: string
+          updated_at: string | null
+          user_id: string
+          vendor_id: string
+        }
+        Insert: {
+          amount: number
+          business_profile_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          frequency: string
+          id?: string
+          is_active?: boolean | null
+          last_payment_date?: string | null
+          next_payment_date: string
+          updated_at?: string | null
+          user_id: string
+          vendor_id: string
+        }
+        Update: {
+          amount?: number
+          business_profile_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          last_payment_date?: string | null
+          next_payment_date?: string
+          updated_at?: string | null
+          user_id?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_vendor_payments_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_vendor_payments_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]
@@ -1747,6 +1987,62 @@ export type Database = {
         }
         Relationships: []
       }
+      vendors: {
+        Row: {
+          address: string | null
+          business_profile_id: string | null
+          contact_person: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          payment_terms: string | null
+          phone: string | null
+          updated_at: string | null
+          user_id: string
+          vendor_name: string
+        }
+        Insert: {
+          address?: string | null
+          business_profile_id?: string | null
+          contact_person?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          payment_terms?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          user_id: string
+          vendor_name: string
+        }
+        Update: {
+          address?: string | null
+          business_profile_id?: string | null
+          contact_person?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          payment_terms?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          user_id?: string
+          vendor_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendors_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webauthn_challenges: {
         Row: {
           challenge: string
@@ -1831,6 +2127,20 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       family_role: "parent" | "child" | "partner"
+      invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
+      tax_category:
+        | "office_supplies"
+        | "equipment"
+        | "travel"
+        | "meals"
+        | "utilities"
+        | "rent"
+        | "insurance"
+        | "professional_services"
+        | "marketing"
+        | "software"
+        | "payroll"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1960,6 +2270,21 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       family_role: ["parent", "child", "partner"],
+      invoice_status: ["draft", "sent", "paid", "overdue", "cancelled"],
+      tax_category: [
+        "office_supplies",
+        "equipment",
+        "travel",
+        "meals",
+        "utilities",
+        "rent",
+        "insurance",
+        "professional_services",
+        "marketing",
+        "software",
+        "payroll",
+        "other",
+      ],
     },
   },
 } as const

@@ -38,6 +38,7 @@ import Achievements from "./pages/Achievements";
 import BillNegotiation from "./pages/BillNegotiation";
 import Family from "./pages/Family";
 import Student from "./pages/Student";
+import Business from "./pages/Business";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +107,7 @@ const App = () => {
             <Route path="/bill-negotiation" element={<ProtectedRoute><BillNegotiation /></ProtectedRoute>} />
             <Route path="/family" element={<ProtectedRoute><Family /></ProtectedRoute>} />
             <Route path="/student" element={<ProtectedRoute><Student /></ProtectedRoute>} />
+            <Route path="/business" element={<ProtectedRoute><Business /></ProtectedRoute>} />
             <Route path="/admin-agents" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></ProtectedRoute>} />
             <Route path="/admin-functions" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></ProtectedRoute>} />
             
