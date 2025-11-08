@@ -111,9 +111,12 @@ const App = () => {
             <Route path="/family" element={<ProtectedRoute><Family /></ProtectedRoute>} />
             <Route path="/student" element={<ProtectedRoute><Student /></ProtectedRoute>} />
             <Route path="/business" element={<ProtectedRoute><Business /></ProtectedRoute>} />
-            <Route path="/whitelabel" element={<ProtectedRoute><WhiteLabel /></ProtectedRoute>} />
-            <Route path="/literacy" element={<ProtectedRoute><FinancialLiteracy /></ProtectedRoute>} />
-            <Route path="/sustainability" element={<ProtectedRoute><Sustainability /></ProtectedRoute>} />
+          <Route path="/whitelabel" element={<ProtectedRoute><WhiteLabel /></ProtectedRoute>} />
+          <Route path="/literacy" element={<ProtectedRoute><FinancialLiteracy /></ProtectedRoute>} />
+          <Route path="/sustainability" element={<ProtectedRoute><Sustainability /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+          <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />
+          <Route path="/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
             <Route path="/admin-agents" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></ProtectedRoute>} />
             <Route path="/admin-functions" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></ProtectedRoute>} />
             
