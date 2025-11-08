@@ -447,6 +447,47 @@ export type Database = {
         }
         Relationships: []
       }
+      carbon_footprint_logs: {
+        Row: {
+          carbon_kg: number
+          category: string
+          created_at: string | null
+          id: string
+          log_date: string | null
+          merchant: string | null
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          carbon_kg: number
+          category: string
+          created_at?: string | null
+          id?: string
+          log_date?: string | null
+          merchant?: string | null
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          carbon_kg?: number
+          category?: string
+          created_at?: string | null
+          id?: string
+          log_date?: string | null
+          merchant?: string | null
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carbon_footprint_logs_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenges: {
         Row: {
           challenge_type: string
@@ -545,6 +586,88 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      course_certificates: {
+        Row: {
+          certificate_number: string
+          certificate_url: string | null
+          course_id: string
+          id: string
+          issued_at: string | null
+          user_id: string
+        }
+        Insert: {
+          certificate_number: string
+          certificate_url?: string | null
+          course_id: string
+          id?: string
+          issued_at?: string | null
+          user_id: string
+        }
+        Update: {
+          certificate_number?: string
+          certificate_url?: string | null
+          course_id?: string
+          id?: string
+          issued_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "literacy_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_modules: {
+        Row: {
+          content: string
+          course_id: string
+          created_at: string | null
+          duration_minutes: number | null
+          id: string
+          module_order: number
+          quiz_questions: Json | null
+          title: string
+          updated_at: string | null
+          video_url: string | null
+        }
+        Insert: {
+          content: string
+          course_id: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          module_order: number
+          quiz_questions?: Json | null
+          title: string
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          content?: string
+          course_id?: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          module_order?: number
+          quiz_questions?: Json | null
+          title?: string
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "literacy_courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       credit_scores: {
         Row: {
@@ -708,6 +831,90 @@ export type Database = {
           last_charge_date?: string | null
           merchant?: string
           next_expected_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      esg_investments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          environmental_score: number | null
+          esg_score: number | null
+          governance_score: number | null
+          id: string
+          investment_name: string
+          purchased_at: string | null
+          sectors: string[] | null
+          social_score: number | null
+          ticker_symbol: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          environmental_score?: number | null
+          esg_score?: number | null
+          governance_score?: number | null
+          id?: string
+          investment_name: string
+          purchased_at?: string | null
+          sectors?: string[] | null
+          social_score?: number | null
+          ticker_symbol?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          environmental_score?: number | null
+          esg_score?: number | null
+          governance_score?: number | null
+          id?: string
+          investment_name?: string
+          purchased_at?: string | null
+          sectors?: string[] | null
+          social_score?: number | null
+          ticker_symbol?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      esg_preferences: {
+        Row: {
+          carbon_offset_enabled: boolean | null
+          created_at: string | null
+          environmental_weight: number | null
+          exclude_sectors: string[] | null
+          governance_weight: number | null
+          id: string
+          social_weight: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          carbon_offset_enabled?: boolean | null
+          created_at?: string | null
+          environmental_weight?: number | null
+          exclude_sectors?: string[] | null
+          governance_weight?: number | null
+          id?: string
+          social_weight?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          carbon_offset_enabled?: boolean | null
+          created_at?: string | null
+          environmental_weight?: number | null
+          exclude_sectors?: string[] | null
+          governance_weight?: number | null
+          id?: string
+          social_weight?: number | null
           updated_at?: string | null
           user_id?: string
         }
@@ -1058,6 +1265,51 @@ export type Database = {
           },
         ]
       }
+      literacy_courses: {
+        Row: {
+          category: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          difficulty_level: string
+          duration_minutes: number | null
+          id: string
+          is_published: boolean | null
+          language: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: string
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          language?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: string
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          language?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           budget_alerts: boolean | null
@@ -1097,6 +1349,168 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           weekly_summary?: boolean | null
+        }
+        Relationships: []
+      }
+      organization_api_keys: {
+        Row: {
+          api_key: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          key_name: string
+          last_used_at: string | null
+          organization_id: string
+          permissions: Json | null
+        }
+        Insert: {
+          api_key: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_name: string
+          last_used_at?: string | null
+          organization_id: string
+          permissions?: Json | null
+        }
+        Update: {
+          api_key?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_name?: string
+          last_used_at?: string | null
+          organization_id?: string
+          permissions?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_api_keys_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_branding: {
+        Row: {
+          accent_color: string | null
+          created_at: string | null
+          custom_css: string | null
+          custom_domain: string | null
+          favicon_url: string | null
+          id: string
+          logo_url: string | null
+          organization_id: string
+          primary_color: string | null
+          secondary_color: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          created_at?: string | null
+          custom_css?: string | null
+          custom_domain?: string | null
+          favicon_url?: string | null
+          id?: string
+          logo_url?: string | null
+          organization_id: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          created_at?: string | null
+          custom_css?: string | null
+          custom_domain?: string | null
+          favicon_url?: string | null
+          id?: string
+          logo_url?: string | null
+          organization_id?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_branding_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          id: string
+          joined_at: string | null
+          organization_id: string
+          permissions: Json | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          organization_id: string
+          permissions?: Json | null
+          role?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          organization_id?: string
+          permissions?: Json | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          owner_id: string
+          plan_type: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          owner_id: string
+          plan_type?: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          owner_id?: string
+          plan_type?: string
+          slug?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1567,6 +1981,48 @@ export type Database = {
         }
         Relationships: []
       }
+      sustainable_goals: {
+        Row: {
+          created_at: string | null
+          current_amount: number | null
+          goal_name: string
+          goal_type: string
+          id: string
+          impact_metrics: Json | null
+          is_active: boolean | null
+          target_amount: number
+          target_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_amount?: number | null
+          goal_name: string
+          goal_type: string
+          id?: string
+          impact_metrics?: Json | null
+          is_active?: boolean | null
+          target_amount: number
+          target_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_amount?: number | null
+          goal_name?: string
+          goal_type?: string
+          id?: string
+          impact_metrics?: Json | null
+          is_active?: boolean | null
+          target_amount?: number
+          target_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           account_id: string | null
@@ -1821,6 +2277,50 @@ export type Database = {
             columns: ["challenge_id"]
             isOneToOne: false
             referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_course_progress: {
+        Row: {
+          completed_at: string | null
+          completed_modules: Json | null
+          course_id: string
+          id: string
+          progress_percentage: number | null
+          quiz_scores: Json | null
+          started_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_modules?: Json | null
+          course_id: string
+          id?: string
+          progress_percentage?: number | null
+          quiz_scores?: Json | null
+          started_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_modules?: Json | null
+          course_id?: string
+          id?: string
+          progress_percentage?: number | null
+          quiz_scores?: Json | null
+          started_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "literacy_courses"
             referencedColumns: ["id"]
           },
         ]

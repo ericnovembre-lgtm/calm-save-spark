@@ -44,3 +44,12 @@ verify_jwt = true
 
 [functions.process-vendor-payments]
 verify_jwt = false
+
+[functions.calculate-carbon-footprint]
+verify_jwt = true
+
+[functions.generate-api-key]
+verify_jwt = true
+
+[functions.issue-certificate]
+verify_jwt = true

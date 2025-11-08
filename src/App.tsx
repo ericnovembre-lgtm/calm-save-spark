@@ -39,6 +39,9 @@ import BillNegotiation from "./pages/BillNegotiation";
 import Family from "./pages/Family";
 import Student from "./pages/Student";
 import Business from "./pages/Business";
+import WhiteLabel from "./pages/WhiteLabel";
+import FinancialLiteracy from "./pages/FinancialLiteracy";
+import Sustainability from "./pages/Sustainability";
 
 const queryClient = new QueryClient();
 
@@ -108,6 +111,9 @@ const App = () => {
             <Route path="/family" element={<ProtectedRoute><Family /></ProtectedRoute>} />
             <Route path="/student" element={<ProtectedRoute><Student /></ProtectedRoute>} />
             <Route path="/business" element={<ProtectedRoute><Business /></ProtectedRoute>} />
+            <Route path="/whitelabel" element={<ProtectedRoute><WhiteLabel /></ProtectedRoute>} />
+            <Route path="/literacy" element={<ProtectedRoute><FinancialLiteracy /></ProtectedRoute>} />
+            <Route path="/sustainability" element={<ProtectedRoute><Sustainability /></ProtectedRoute>} />
             <Route path="/admin-agents" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></ProtectedRoute>} />
             <Route path="/admin-functions" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></ProtectedRoute>} />
             
