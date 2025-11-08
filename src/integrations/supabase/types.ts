@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          achievement_type: string
+          badge_color: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          points: number
+          requirement: Json
+        }
+        Insert: {
+          achievement_type: string
+          badge_color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          points?: number
+          requirement?: Json
+        }
+        Update: {
+          achievement_type?: string
+          badge_color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          points?: number
+          requirement?: Json
+        }
+        Relationships: []
+      }
       ai_coaching_sessions: {
         Row: {
           conversation_history: Json | null
@@ -143,6 +179,98 @@ export type Database = {
         }
         Relationships: []
       }
+      bill_negotiation_opportunities: {
+        Row: {
+          category: string | null
+          confidence_score: number | null
+          current_amount: number
+          detected_at: string | null
+          estimated_savings: number | null
+          id: string
+          last_charge_date: string | null
+          merchant: string
+          metadata: Json | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          confidence_score?: number | null
+          current_amount: number
+          detected_at?: string | null
+          estimated_savings?: number | null
+          id?: string
+          last_charge_date?: string | null
+          merchant: string
+          metadata?: Json | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          confidence_score?: number | null
+          current_amount?: number
+          detected_at?: string | null
+          estimated_savings?: number | null
+          id?: string
+          last_charge_date?: string | null
+          merchant?: string
+          metadata?: Json | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bill_negotiation_requests: {
+        Row: {
+          actual_savings: number | null
+          completed_at: string | null
+          current_amount: number
+          id: string
+          merchant: string
+          notes: string | null
+          opportunity_id: string | null
+          requested_at: string | null
+          result_amount: number | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          actual_savings?: number | null
+          completed_at?: string | null
+          current_amount: number
+          id?: string
+          merchant: string
+          notes?: string | null
+          opportunity_id?: string | null
+          requested_at?: string | null
+          result_amount?: number | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          actual_savings?: number | null
+          completed_at?: string | null
+          current_amount?: number
+          id?: string
+          merchant?: string
+          notes?: string | null
+          opportunity_id?: string | null
+          requested_at?: string | null
+          result_amount?: number | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_negotiation_requests_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "bill_negotiation_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_templates: {
         Row: {
           category_percentages: Json
@@ -170,17 +298,58 @@ export type Database = {
         }
         Relationships: []
       }
+      challenges: {
+        Row: {
+          challenge_type: string
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          points: number
+          requirement: Json
+        }
+        Insert: {
+          challenge_type: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          points?: number
+          requirement?: Json
+        }
+        Update: {
+          challenge_type?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          points?: number
+          requirement?: Json
+        }
+        Relationships: []
+      }
       connected_accounts: {
         Row: {
           account_mask: string | null
           account_type: string
+          available_balance: number | null
           balance: number | null
           created_at: string | null
           currency: string | null
+          current_balance: number | null
           id: string
+          institution_id: string | null
+          institution_logo: string | null
           institution_name: string
           last_synced: string | null
           plaid_access_token: string | null
+          plaid_account_id: string | null
           plaid_item_id: string | null
           sync_status: string | null
           updated_at: string | null
@@ -189,13 +358,18 @@ export type Database = {
         Insert: {
           account_mask?: string | null
           account_type: string
+          available_balance?: number | null
           balance?: number | null
           created_at?: string | null
           currency?: string | null
+          current_balance?: number | null
           id?: string
+          institution_id?: string | null
+          institution_logo?: string | null
           institution_name: string
           last_synced?: string | null
           plaid_access_token?: string | null
+          plaid_account_id?: string | null
           plaid_item_id?: string | null
           sync_status?: string | null
           updated_at?: string | null
@@ -204,13 +378,18 @@ export type Database = {
         Update: {
           account_mask?: string | null
           account_type?: string
+          available_balance?: number | null
           balance?: number | null
           created_at?: string | null
           currency?: string | null
+          current_balance?: number | null
           id?: string
+          institution_id?: string | null
+          institution_logo?: string | null
           institution_name?: string
           last_synced?: string | null
           plaid_access_token?: string | null
+          plaid_account_id?: string | null
           plaid_item_id?: string | null
           sync_status?: string | null
           updated_at?: string | null
@@ -295,6 +474,7 @@ export type Database = {
       debts: {
         Row: {
           created_at: string | null
+          currency: string | null
           current_balance: number
           debt_name: string
           debt_type: string | null
@@ -310,6 +490,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          currency?: string | null
           current_balance: number
           debt_name: string
           debt_type?: string | null
@@ -325,6 +506,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          currency?: string | null
           current_balance?: number
           debt_name?: string
           debt_type?: string | null
@@ -382,6 +564,30 @@ export type Database = {
         }
         Relationships: []
       }
+      exchange_rates: {
+        Row: {
+          base_currency: string
+          fetched_at: string | null
+          id: string
+          rate: number
+          target_currency: string
+        }
+        Insert: {
+          base_currency: string
+          fetched_at?: string | null
+          id?: string
+          rate: number
+          target_currency: string
+        }
+        Update: {
+          base_currency?: string
+          fetched_at?: string | null
+          id?: string
+          rate?: number
+          target_currency?: string
+        }
+        Relationships: []
+      }
       feature_access: {
         Row: {
           computed_at: string | null
@@ -409,6 +615,7 @@ export type Database = {
       goals: {
         Row: {
           created_at: string | null
+          currency: string | null
           current_amount: number | null
           deadline: string | null
           icon: string | null
@@ -420,6 +627,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          currency?: string | null
           current_amount?: number | null
           deadline?: string | null
           icon?: string | null
@@ -431,6 +639,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          currency?: string | null
           current_amount?: number | null
           deadline?: string | null
           icon?: string | null
@@ -526,10 +735,35 @@ export type Database = {
         }
         Relationships: []
       }
+      plaid_link_tokens: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          link_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          link_token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          link_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pots: {
         Row: {
           color: string | null
           created_at: string | null
+          currency: string | null
           current_amount: number | null
           icon: string | null
           id: string
@@ -542,6 +776,7 @@ export type Database = {
         Insert: {
           color?: string | null
           created_at?: string | null
+          currency?: string | null
           current_amount?: number | null
           icon?: string | null
           id?: string
@@ -554,6 +789,7 @@ export type Database = {
         Update: {
           color?: string | null
           created_at?: string | null
+          currency?: string | null
           current_amount?: number | null
           icon?: string | null
           id?: string
@@ -723,10 +959,13 @@ export type Database = {
           amount: number
           category: string
           created_at: string | null
+          currency: string | null
           description: string | null
           id: string
           is_recurring: boolean | null
           merchant: string | null
+          original_amount: number | null
+          original_currency: string | null
           recurring_frequency: string | null
           tags: string[] | null
           transaction_date: string
@@ -738,10 +977,13 @@ export type Database = {
           amount: number
           category: string
           created_at?: string | null
+          currency?: string | null
           description?: string | null
           id?: string
           is_recurring?: boolean | null
           merchant?: string | null
+          original_amount?: number | null
+          original_currency?: string | null
           recurring_frequency?: string | null
           tags?: string[] | null
           transaction_date: string
@@ -753,10 +995,13 @@ export type Database = {
           amount?: number
           category?: string
           created_at?: string | null
+          currency?: string | null
           description?: string | null
           id?: string
           is_recurring?: boolean | null
           merchant?: string | null
+          original_amount?: number | null
+          original_currency?: string | null
           recurring_frequency?: string | null
           tags?: string[] | null
           transaction_date?: string
@@ -820,6 +1065,38 @@ export type Database = {
             columns: ["scheduled_transfer_id"]
             isOneToOne: false
             referencedRelation: "scheduled_transfers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string | null
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
             referencedColumns: ["id"]
           },
         ]
@@ -896,6 +1173,68 @@ export type Database = {
         }
         Relationships: []
       }
+      user_challenge_progress: {
+        Row: {
+          challenge_id: string
+          completed: boolean | null
+          completed_at: string | null
+          id: string
+          progress: number | null
+          started_at: string | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          id?: string
+          progress?: number | null
+          started_at?: string | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          id?: string
+          progress?: number | null
+          started_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_currency_preferences: {
+        Row: {
+          display_all_currencies: boolean | null
+          id: string
+          primary_currency: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          display_all_currencies?: boolean | null
+          id?: string
+          primary_currency?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          display_all_currencies?: boolean | null
+          id?: string
+          primary_currency?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_milestones: {
         Row: {
           completed_at: string
@@ -949,6 +1288,39 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          created_at: string | null
+          current_streak: number | null
+          id: string
+          last_activity_date: string | null
+          longest_streak: number | null
+          streak_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          streak_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          streak_type?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
