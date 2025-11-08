@@ -29,3 +29,9 @@ verify_jwt = true
 
 [functions.process-allowances]
 verify_jwt = false
+
+[functions.budget-analyzer]
+verify_jwt = false
+
+[functions.cashflow-forecast]
+verify_jwt = false

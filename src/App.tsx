@@ -99,8 +99,8 @@ const App = () => {
             <Route path="/rewards" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout></ProtectedRoute>} />
             <Route path="/card" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout></ProtectedRoute>} />
-            <Route path="/coach" element={<ProtectedRoute><AppLayout><Coach /></AppLayout></ProtectedRoute>} />
-            <Route path="/help" element={<ProtectedRoute><AppLayout><Help /></AppLayout></ProtectedRoute>} />
+            <Route path="/coach" element={<ProtectedRoute><Coach /></ProtectedRoute>} />
+            <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
             <Route path="/bill-negotiation" element={<ProtectedRoute><BillNegotiation /></ProtectedRoute>} />
