@@ -1638,6 +1638,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_queue: {
+        Row: {
+          content: Json
+          created_at: string | null
+          id: string
+          notification_type: string
+          sent_at: string | null
+          status: string | null
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string | null
+          id?: string
+          notification_type: string
+          sent_at?: string | null
+          status?: string | null
+          subject: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          id?: string
+          notification_type?: string
+          sent_at?: string | null
+          status?: string | null
+          subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       organization_api_keys: {
         Row: {
           api_key: string
