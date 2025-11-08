@@ -26,3 +26,6 @@ verify_jwt = true
 
 [functions.analyze-bills]
 verify_jwt = true
+
+[functions.process-allowances]
+verify_jwt = false

@@ -11,9 +11,14 @@ import { ScheduledTransfersList } from "@/components/dashboard/ScheduledTransfer
 import { TransferHistory } from "@/components/dashboard/TransferHistory";
 import JourneyMilestones from "@/components/dashboard/JourneyMilestones";
 import { OnboardingProgress } from "@/components/dashboard/OnboardingProgress";
+import { ConnectAccountCard } from "@/components/dashboard/ConnectAccountCard";
 import { LoadingState } from "@/components/LoadingState";
+import { AchievementNotification } from "@/components/gamification/AchievementNotification";
+import { useAchievementNotifications } from "@/hooks/useAchievementNotifications";
 
 export default function Dashboard() {
+  const { newAchievements, dismissAchievements } = useAchievementNotifications();
+  
   const { data: accounts, isLoading: accountsLoading } = useQuery({
     queryKey: ['connected_accounts'],
     queryFn: async () => {
@@ -54,10 +59,17 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
+      <AchievementNotification 
+        achievements={newAchievements}
+        onDismiss={dismissAchievements}
+      />
+      
       <div className="space-y-6">
         <EmailVerificationBanner />
         
         <BalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
+        
+        <ConnectAccountCard />
         
         <AutoSaveBanner />
         

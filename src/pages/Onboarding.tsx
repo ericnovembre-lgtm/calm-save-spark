@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/analytics";
 import { announce } from "@/components/layout/LiveRegion";
+import { checkAchievements } from "@/lib/achievements";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import SavingsDemo from "@/components/onboarding/SavingsDemo";
 import WelcomeStep from "@/components/onboarding/WelcomeStep";
@@ -137,6 +138,10 @@ const Onboarding = () => {
         .eq('id', userId);
       
       trackEvent('onboarding_completed', {});
+      
+      // Check for onboarding achievement
+      await checkAchievements('onboarding_completed', {});
+      
       announce('Onboarding completed! Redirecting to pricing...', 'assertive');
       
       setTimeout(() => {
