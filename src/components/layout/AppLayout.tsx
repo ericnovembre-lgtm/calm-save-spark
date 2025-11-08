@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf } from "lucide-react";
+import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -38,6 +38,9 @@ const mainNavLinks = [
   { name: "White-Label", path: "/whitelabel", icon: Briefcase },
   { name: "Learn", path: "/literacy", icon: BookOpen },
   { name: "Sustainability", path: "/sustainability", icon: Leaf },
+  { name: "Analytics", path: "/analytics", icon: BarChart3 },
+  { name: "Social", path: "/social", icon: Trophy },
+  { name: "Integrations", path: "/integrations", icon: Plug },
 ];
 
 const bottomNavLinks = [

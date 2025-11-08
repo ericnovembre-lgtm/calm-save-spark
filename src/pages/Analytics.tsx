@@ -3,6 +3,8 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, TrendingUp, Users, FileText } from "lucide-react";
+import { SpendingChart } from "@/components/analytics/SpendingChart";
+import { ForecastChart } from "@/components/analytics/ForecastChart";
 import { ReportBuilder } from "@/components/analytics/ReportBuilder";
 import { ForecastDashboard } from "@/components/analytics/ForecastDashboard";
 import { BenchmarkComparison } from "@/components/analytics/BenchmarkComparison";
@@ -74,10 +76,12 @@ export default function Analytics() {
 
           <TabsContent value="reports" className="space-y-4">
             <ReportBuilder />
+            <SpendingChart />
           </TabsContent>
 
           <TabsContent value="forecasts" className="space-y-4">
             <ForecastDashboard />
+            <ForecastChart />
           </TabsContent>
 
           <TabsContent value="benchmarks" className="space-y-4">

@@ -53,3 +53,27 @@ verify_jwt = true
 
 [functions.issue-certificate]
 verify_jwt = true
+
+[functions.generate-custom-report]
+verify_jwt = true
+
+[functions.predict-spending-forecast]
+verify_jwt = true
+
+[functions.calculate-benchmarks]
+verify_jwt = true
+
+[functions.calculate-leaderboard]
+verify_jwt = false
+
+[functions.process-challenge-rewards]
+verify_jwt = false
+
+[functions.process-referral-rewards]
+verify_jwt = false
+
+[functions.sync-crypto-prices]
+verify_jwt = false
+
+[functions.sync-open-banking]
+verify_jwt = true

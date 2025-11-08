@@ -42,6 +42,9 @@ import Business from "./pages/Business";
 import WhiteLabel from "./pages/WhiteLabel";
 import FinancialLiteracy from "./pages/FinancialLiteracy";
 import Sustainability from "./pages/Sustainability";
+import Analytics from "./pages/Analytics";
+import Social from "./pages/Social";
+import Integrations from "./pages/Integrations";
 
 const queryClient = new QueryClient();
 
