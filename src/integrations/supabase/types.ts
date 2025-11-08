@@ -80,6 +80,50 @@ export type Database = {
         }
         Relationships: []
       }
+      allowances: {
+        Row: {
+          amount: number
+          child_user_id: string
+          created_at: string | null
+          family_group_id: string
+          frequency: string
+          id: string
+          is_active: boolean | null
+          next_payment_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          child_user_id: string
+          created_at?: string | null
+          family_group_id: string
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          next_payment_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          child_user_id?: string
+          created_at?: string | null
+          family_group_id?: string
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          next_payment_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allowances_family_group_id_fkey"
+            columns: ["family_group_id"]
+            isOneToOne: false
+            referencedRelation: "family_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -588,6 +632,150 @@ export type Database = {
         }
         Relationships: []
       }
+      family_budgets: {
+        Row: {
+          category_limits: Json | null
+          created_at: string | null
+          family_group_id: string
+          id: string
+          is_active: boolean | null
+          name: string
+          period: string
+          total_limit: number
+          updated_at: string | null
+        }
+        Insert: {
+          category_limits?: Json | null
+          created_at?: string | null
+          family_group_id: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          period: string
+          total_limit: number
+          updated_at?: string | null
+        }
+        Update: {
+          category_limits?: Json | null
+          created_at?: string | null
+          family_group_id?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          period?: string
+          total_limit?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_budgets_family_group_id_fkey"
+            columns: ["family_group_id"]
+            isOneToOne: false
+            referencedRelation: "family_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string | null
+          description: string | null
+          expense_date: string
+          family_group_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string | null
+          description?: string | null
+          expense_date: string
+          family_group_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          expense_date?: string
+          family_group_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_expenses_family_group_id_fkey"
+            columns: ["family_group_id"]
+            isOneToOne: false
+            referencedRelation: "family_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_groups: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      family_members: {
+        Row: {
+          family_group_id: string
+          id: string
+          joined_at: string | null
+          permissions: Json | null
+          role: Database["public"]["Enums"]["family_role"]
+          user_id: string
+        }
+        Insert: {
+          family_group_id: string
+          id?: string
+          joined_at?: string | null
+          permissions?: Json | null
+          role?: Database["public"]["Enums"]["family_role"]
+          user_id: string
+        }
+        Update: {
+          family_group_id?: string
+          id?: string
+          joined_at?: string | null
+          permissions?: Json | null
+          role?: Database["public"]["Enums"]["family_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_members_family_group_id_fkey"
+            columns: ["family_group_id"]
+            isOneToOne: false
+            referencedRelation: "family_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feature_access: {
         Row: {
           computed_at: string | null
@@ -895,6 +1083,192 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      scholarships: {
+        Row: {
+          amount: number
+          award_date: string | null
+          created_at: string | null
+          disbursement_schedule: string | null
+          id: string
+          name: string
+          notes: string | null
+          provider: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          award_date?: string | null
+          created_at?: string | null
+          disbursement_schedule?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          provider?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          award_date?: string | null
+          created_at?: string | null
+          disbursement_schedule?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          provider?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_budget_templates: {
+        Row: {
+          category_allocations: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          total_budget: number
+        }
+        Insert: {
+          category_allocations: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          total_budget: number
+        }
+        Update: {
+          category_allocations?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          total_budget?: number
+        }
+        Relationships: []
+      }
+      student_income: {
+        Row: {
+          amount: number
+          created_at: string | null
+          frequency: string
+          id: string
+          income_date: string
+          is_active: boolean | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          frequency?: string
+          id?: string
+          income_date: string
+          is_active?: boolean | null
+          source: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          frequency?: string
+          id?: string
+          income_date?: string
+          is_active?: boolean | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_loans: {
+        Row: {
+          created_at: string | null
+          current_balance: number
+          grace_period_end: string | null
+          id: string
+          interest_rate: number
+          lender: string | null
+          loan_name: string
+          loan_type: string | null
+          monthly_payment: number | null
+          principal_amount: number
+          repayment_plan: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_balance: number
+          grace_period_end?: string | null
+          id?: string
+          interest_rate: number
+          lender?: string | null
+          loan_name: string
+          loan_type?: string | null
+          monthly_payment?: number | null
+          principal_amount: number
+          repayment_plan?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_balance?: number
+          grace_period_end?: string | null
+          id?: string
+          interest_rate?: number
+          lender?: string | null
+          loan_name?: string
+          loan_type?: string | null
+          monthly_payment?: number | null
+          principal_amount?: number
+          repayment_plan?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_profiles: {
+        Row: {
+          created_at: string | null
+          degree_program: string | null
+          graduation_year: number | null
+          id: string
+          school_name: string | null
+          student_status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          degree_program?: string | null
+          graduation_year?: number | null
+          id?: string
+          school_name?: string | null
+          student_status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          degree_program?: string | null
+          graduation_year?: number | null
+          id?: string
+          school_name?: string | null
+          student_status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       subscription_analytics: {
         Row: {
@@ -1456,6 +1830,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      family_role: "parent" | "child" | "partner"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1584,6 +1959,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      family_role: ["parent", "child", "partner"],
     },
   },
 } as const
