@@ -1642,6 +1642,7 @@ export type Database = {
         Row: {
           budget_alerts: boolean | null
           created_at: string | null
+          digest_frequency: string | null
           email_notifications: boolean | null
           goal_reminders: boolean | null
           id: string
@@ -1656,6 +1657,7 @@ export type Database = {
         Insert: {
           budget_alerts?: boolean | null
           created_at?: string | null
+          digest_frequency?: string | null
           email_notifications?: boolean | null
           goal_reminders?: boolean | null
           id?: string
@@ -1670,6 +1672,7 @@ export type Database = {
         Update: {
           budget_alerts?: boolean | null
           created_at?: string | null
+          digest_frequency?: string | null
           email_notifications?: boolean | null
           goal_reminders?: boolean | null
           id?: string
@@ -2328,6 +2331,57 @@ export type Database = {
           forecast_date?: string
           id?: string
           predicted_amount?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      streak_freeze_inventory: {
+        Row: {
+          created_at: string | null
+          freeze_days_available: number
+          freeze_days_used: number
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          freeze_days_available?: number
+          freeze_days_used?: number
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          freeze_days_available?: number
+          freeze_days_used?: number
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      streak_freeze_usage: {
+        Row: {
+          created_at: string | null
+          freeze_end_date: string
+          freeze_start_date: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          freeze_end_date: string
+          freeze_start_date: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          freeze_end_date?: string
+          freeze_start_date?: string
+          id?: string
           user_id?: string
         }
         Relationships: []

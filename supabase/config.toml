@@ -95,3 +95,10 @@ verify_jwt = true
 
 [functions.send-weekly-digests-batch]
 verify_jwt = false
+
+[functions.send-daily-digests-batch]
+verify_jwt = false
+
+[functions.send-monthly-digests-batch]
+verify_jwt = false
+

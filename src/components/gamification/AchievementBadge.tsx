@@ -3,6 +3,8 @@ import { Award, Trophy, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { AchievementShareCard } from "./AchievementShareCard";
+import { AchievementProgress } from "./AchievementProgress";
 
 interface AchievementBadgeProps {
   name: string;
@@ -12,6 +14,9 @@ interface AchievementBadgeProps {
   points: number;
   earnedAt?: string;
   locked?: boolean;
+  achievementId?: string;
+  achievementType?: string;
+  requirement?: any;
 }
 
 export function AchievementBadge({
@@ -22,6 +27,9 @@ export function AchievementBadge({
   points,
   earnedAt,
   locked = false,
+  achievementId,
+  achievementType,
+  requirement,
 }: AchievementBadgeProps) {
   const IconComponent = icon === "trophy" ? Trophy : icon === "star" ? Star : Award;
 
@@ -64,15 +72,35 @@ export function AchievementBadge({
         </Badge>
         
         {earnedAt && !locked && (
-          <p className="text-xs text-muted-foreground mt-2">
-            Earned {new Date(earnedAt).toLocaleDateString()}
-          </p>
+          <>
+            <p className="text-xs text-muted-foreground mt-2">
+              Earned {new Date(earnedAt).toLocaleDateString()}
+            </p>
+            <div className="mt-3">
+              <AchievementShareCard
+                achievementName={name}
+                achievementDescription={description || ""}
+                points={points}
+                earnedAt={earnedAt}
+              />
+            </div>
+          </>
         )}
         
         {locked && (
-          <p className="text-xs text-muted-foreground mt-2">
-            🔒 Locked
-          </p>
+          <>
+            <p className="text-xs text-muted-foreground mt-2">
+              🔒 Locked
+            </p>
+            {achievementId && achievementType && requirement && (
+              <AchievementProgress
+                achievementId={achievementId}
+                achievementName={name}
+                achievementType={achievementType}
+                requirement={requirement}
+              />
+            )}
+          </>
         )}
       </Card>
     </motion.div>

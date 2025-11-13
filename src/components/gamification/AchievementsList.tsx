@@ -139,6 +139,9 @@ export function AchievementsList() {
                   badgeColor={achievement.badge_color}
                   points={achievement.points}
                   locked
+                  achievementId={achievement.id}
+                  achievementType={achievement.achievement_type}
+                  requirement={achievement.requirement}
                 />
               ))}
             </div>

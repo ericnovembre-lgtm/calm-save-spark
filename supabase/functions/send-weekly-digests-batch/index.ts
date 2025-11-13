@@ -23,16 +23,18 @@ serve(async (req) => {
     console.log("Starting batch weekly digest send...");
 
     // Fetch all users with email addresses who have weekly digest enabled
+    // Filter by digest frequency based on the current execution context
     const { data: profiles, error: profilesError } = await supabase
       .from("profiles")
       .select(`
         id, 
         email, 
         full_name,
-        notification_preferences!inner(weekly_digest_enabled)
+        notification_preferences!inner(weekly_digest_enabled, digest_frequency)
       `)
       .not("email", "is", null)
-      .eq("notification_preferences.weekly_digest_enabled", true);
+      .eq("notification_preferences.weekly_digest_enabled", true)
+      .eq("notification_preferences.digest_frequency", "weekly");
 
     if (profilesError) {
       console.error("Error fetching profiles:", profilesError);

@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface NotificationPrefs {
   email_notifications: boolean;
@@ -14,6 +15,7 @@ interface NotificationPrefs {
   budget_alerts: boolean;
   weekly_summary: boolean;
   weekly_digest_enabled: boolean;
+  digest_frequency: "daily" | "weekly" | "monthly" | "never";
   marketing_emails: boolean;
 }
 
@@ -28,6 +30,7 @@ export function NotificationPreferences() {
     budget_alerts: true,
     weekly_summary: true,
     weekly_digest_enabled: true,
+    digest_frequency: "weekly",
     marketing_emails: false,
   });
   const { toast } = useToast();
@@ -60,6 +63,7 @@ export function NotificationPreferences() {
           budget_alerts: data.budget_alerts,
           weekly_summary: data.weekly_summary,
           weekly_digest_enabled: data.weekly_digest_enabled ?? true,
+          digest_frequency: (data.digest_frequency as "daily" | "weekly" | "monthly" | "never") || "weekly",
           marketing_emails: data.marketing_emails,
         });
       }
@@ -247,6 +251,30 @@ export function NotificationPreferences() {
             onCheckedChange={(checked) => updatePreference('weekly_digest_enabled', checked)}
             disabled={saving || !preferences.email_notifications}
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="digest-frequency" className="text-sm font-medium">
+            Digest Email Frequency
+          </Label>
+          <Select
+            value={preferences.digest_frequency}
+            onValueChange={(value) => updatePreference('digest_frequency', value as any)}
+            disabled={saving || !preferences.email_notifications || !preferences.weekly_digest_enabled}
+          >
+            <SelectTrigger id="digest-frequency">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="daily">Daily</SelectItem>
+              <SelectItem value="weekly">Weekly (Monday 9 AM)</SelectItem>
+              <SelectItem value="monthly">Monthly (1st of month)</SelectItem>
+              <SelectItem value="never">Never</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Choose how often you want to receive digest emails
+          </p>
         </div>
       </div>
 
