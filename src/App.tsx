@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
@@ -11,6 +11,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AppLayout } from "./components/layout/AppLayout";
+import { AnimatePresence } from "framer-motion";
+import { PageTransition } from "@/components/animations/PageTransition";
 
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
@@ -85,66 +87,79 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
-          <Routes>
-            {/* Public routes without layout */}
-            <Route path="/" element={<Navigate to="/welcome" replace />} />
-            <Route path="/welcome" element={<Welcome />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/subscription" element={<SubscriptionManagement />} />
-            
-            {/* App routes with layout - protected */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/financial-health" element={<ProtectedRoute><FinancialHealth /></ProtectedRoute>} />
-            <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
-            <Route path="/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
-            <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
-            <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
-            <Route path="/debts" element={<ProtectedRoute><Debts /></ProtectedRoute>} />
-            <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
-            <Route path="/credit" element={<ProtectedRoute><Credit /></ProtectedRoute>} />
-            <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
-            <Route path="/pots" element={<ProtectedRoute><Pots /></ProtectedRoute>} />
-            <Route path="/automations" element={<ProtectedRoute><Automations /></ProtectedRoute>} />
-            <Route path="/rewards" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout></ProtectedRoute>} />
-            <Route path="/analytics" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout></ProtectedRoute>} />
-            <Route path="/card" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout></ProtectedRoute>} />
-            <Route path="/coach" element={<ProtectedRoute><Coach /></ProtectedRoute>} />
-            <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
-            <Route path="/bill-negotiation" element={<ProtectedRoute><BillNegotiation /></ProtectedRoute>} />
-            <Route path="/family" element={<ProtectedRoute><Family /></ProtectedRoute>} />
-            <Route path="/student" element={<ProtectedRoute><Student /></ProtectedRoute>} />
-            <Route path="/business" element={<ProtectedRoute><Business /></ProtectedRoute>} />
-          <Route path="/whitelabel" element={<ProtectedRoute><WhiteLabel /></ProtectedRoute>} />
-          <Route path="/literacy" element={<ProtectedRoute><FinancialLiteracy /></ProtectedRoute>} />
-          <Route path="/sustainability" element={<ProtectedRoute><Sustainability /></ProtectedRoute>} />
-          <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-          <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />
-          <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
-          <Route path="/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute><AdminRoute><Admin /></AdminRoute></ProtectedRoute>} />
-            <Route path="/admin-agents" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></ProtectedRoute>} />
-            <Route path="/admin-functions" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></ProtectedRoute>} />
-            
-            {/* Icon System Demo */}
-            <Route path="/icon-demo" element={<IconDemo />} />
-            
-            {/* Maintenance Page */}
-            <Route path="/maintenance" element={<Maintenance />} />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+              <AnimatedRoutes />
+            </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
   </ErrorBoundary>
   );
 };
+
+/**
+ * AnimatedRoutes - Routes wrapper with AnimatePresence for page transitions
+ */
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        {/* Public routes without layout */}
+        <Route path="/" element={<Navigate to="/welcome" replace />} />
+        <Route path="/welcome" element={<PageTransition><Welcome /></PageTransition>} />
+        <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
+        <Route path="/onboarding" element={<PageTransition><Onboarding /></PageTransition>} />
+        <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
+        <Route path="/subscription" element={<PageTransition><SubscriptionManagement /></PageTransition>} />
+        
+        {/* App routes with layout - protected */}
+        <Route path="/dashboard" element={<ProtectedRoute><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/financial-health" element={<ProtectedRoute><PageTransition><FinancialHealth /></PageTransition></ProtectedRoute>} />
+        <Route path="/transactions" element={<ProtectedRoute><PageTransition><Transactions /></PageTransition></ProtectedRoute>} />
+        <Route path="/subscriptions" element={<ProtectedRoute><PageTransition><Subscriptions /></PageTransition></ProtectedRoute>} />
+        <Route path="/insights" element={<ProtectedRoute><PageTransition><Insights /></PageTransition></ProtectedRoute>} />
+        <Route path="/budget" element={<ProtectedRoute><PageTransition><Budget /></PageTransition></ProtectedRoute>} />
+        <Route path="/debts" element={<ProtectedRoute><PageTransition><Debts /></PageTransition></ProtectedRoute>} />
+        <Route path="/investments" element={<ProtectedRoute><PageTransition><Investments /></PageTransition></ProtectedRoute>} />
+        <Route path="/credit" element={<ProtectedRoute><PageTransition><Credit /></PageTransition></ProtectedRoute>} />
+        <Route path="/goals" element={<ProtectedRoute><PageTransition><Goals /></PageTransition></ProtectedRoute>} />
+        <Route path="/pots" element={<ProtectedRoute><PageTransition><Pots /></PageTransition></ProtectedRoute>} />
+        <Route path="/automations" element={<ProtectedRoute><PageTransition><Automations /></PageTransition></ProtectedRoute>} />
+        <Route path="/rewards" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
+        <Route path="/analytics" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
+        <Route path="/card" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
+        <Route path="/coach" element={<ProtectedRoute><PageTransition><Coach /></PageTransition></ProtectedRoute>} />
+        <Route path="/help" element={<ProtectedRoute><PageTransition><Help /></PageTransition></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
+        <Route path="/achievements" element={<ProtectedRoute><PageTransition><Achievements /></PageTransition></ProtectedRoute>} />
+        <Route path="/bill-negotiation" element={<ProtectedRoute><PageTransition><BillNegotiation /></PageTransition></ProtectedRoute>} />
+        <Route path="/family" element={<ProtectedRoute><PageTransition><Family /></PageTransition></ProtectedRoute>} />
+        <Route path="/student" element={<ProtectedRoute><PageTransition><Student /></PageTransition></ProtectedRoute>} />
+        <Route path="/business" element={<ProtectedRoute><PageTransition><Business /></PageTransition></ProtectedRoute>} />
+        <Route path="/whitelabel" element={<ProtectedRoute><PageTransition><WhiteLabel /></PageTransition></ProtectedRoute>} />
+        <Route path="/literacy" element={<ProtectedRoute><PageTransition><FinancialLiteracy /></PageTransition></ProtectedRoute>} />
+        <Route path="/sustainability" element={<ProtectedRoute><PageTransition><Sustainability /></PageTransition></ProtectedRoute>} />
+        <Route path="/analytics" element={<ProtectedRoute><PageTransition><Analytics /></PageTransition></ProtectedRoute>} />
+        <Route path="/social" element={<ProtectedRoute><PageTransition><Social /></PageTransition></ProtectedRoute>} />
+        <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/integrations" element={<ProtectedRoute><PageTransition><Integrations /></PageTransition></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><PageTransition><AdminRoute><Admin /></AdminRoute></PageTransition></ProtectedRoute>} />
+        <Route path="/admin-agents" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
+        <Route path="/admin-functions" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
+        
+        {/* Icon System Demo */}
+        <Route path="/icon-demo" element={<PageTransition><IconDemo /></PageTransition>} />
+        
+        {/* Maintenance Page */}
+        <Route path="/maintenance" element={<PageTransition><Maintenance /></PageTransition>} />
+        
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
 
 export default App;
