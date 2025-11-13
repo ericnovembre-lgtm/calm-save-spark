@@ -1992,40 +1992,49 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          current_streak: number | null
           email: string | null
           full_name: string | null
           id: string
+          last_activity_date: string | null
           onboarding_completed: boolean | null
           onboarding_draft_data: Json | null
           onboarding_progress: Json | null
           onboarding_quiz: Json | null
           onboarding_step: string | null
+          preferred_currency: string | null
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          current_streak?: number | null
           email?: string | null
           full_name?: string | null
           id: string
+          last_activity_date?: string | null
           onboarding_completed?: boolean | null
           onboarding_draft_data?: Json | null
           onboarding_progress?: Json | null
           onboarding_quiz?: Json | null
           onboarding_step?: string | null
+          preferred_currency?: string | null
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          current_streak?: number | null
           email?: string | null
           full_name?: string | null
           id?: string
+          last_activity_date?: string | null
           onboarding_completed?: boolean | null
           onboarding_draft_data?: Json | null
           onboarding_progress?: Json | null
           onboarding_quiz?: Json | null
           onboarding_step?: string | null
+          preferred_currency?: string | null
           updated_at?: string | null
         }
         Relationships: []

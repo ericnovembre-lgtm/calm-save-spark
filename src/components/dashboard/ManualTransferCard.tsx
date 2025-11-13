@@ -62,13 +62,21 @@ export const ManualTransferCard = () => {
 
         // Trigger achievement check
         try {
-          await supabase.functions.invoke('check-achievements', {
+          const { data: achievementData } = await supabase.functions.invoke('check-achievements', {
             body: {
               userId: user.id,
               eventType: 'transfer_completed',
               eventData: { amount, potId, type: 'manual' }
             }
           });
+
+          // Show achievement toasts if any were unlocked
+          if (achievementData?.newAchievements && achievementData.newAchievements.length > 0) {
+            const { showAchievementToast } = await import('@/hooks/useAchievementToasts');
+            achievementData.newAchievements.forEach((achievement: any) => {
+              showAchievementToast(achievement);
+            });
+          }
         } catch (error) {
           console.error('Failed to check achievements:', error);
         }

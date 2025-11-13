@@ -87,13 +87,21 @@ export const ScheduledTransferDialog = () => {
 
       // Trigger achievement check for scheduled transfer creation
       try {
-        await supabase.functions.invoke('check-achievements', {
+        const { data: achievementData } = await supabase.functions.invoke('check-achievements', {
           body: {
             userId: user.id,
             eventType: 'scheduled_transfer_created',
             eventData: { amount: values.amount, frequency: values.frequency }
           }
         });
+
+        // Show achievement toasts if any were unlocked
+        if (achievementData?.newAchievements && achievementData.newAchievements.length > 0) {
+          const { showAchievementToast } = await import('@/hooks/useAchievementToasts');
+          achievementData.newAchievements.forEach((achievement: any) => {
+            showAchievementToast(achievement);
+          });
+        }
       } catch (error) {
         console.error('Failed to check achievements:', error);
       }

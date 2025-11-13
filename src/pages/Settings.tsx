@@ -8,7 +8,9 @@ import { AccountDeletion } from '@/components/settings/AccountDeletion';
 import { ProfilePictureUpload } from '@/components/settings/ProfilePictureUpload';
 import { NotificationPreferences } from '@/components/settings/NotificationPreferences';
 import { ResetOnboarding } from '@/components/settings/ResetOnboarding';
-import { Shield, User, Bell, Lock } from 'lucide-react';
+import { WeeklyDigestTrigger } from '@/components/settings/WeeklyDigestTrigger';
+import { CurrencyPreference } from '@/components/settings/CurrencyPreference';
+import { Shield, User, Bell, Lock, Globe } from 'lucide-react';
 
 export default function Settings() {
   return (
@@ -68,14 +70,32 @@ export default function Settings() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-primary" />
-              Notifications
+              Notifications & Emails
             </CardTitle>
             <CardDescription>
-              Manage your notification preferences
+              Manage your notification and email preferences
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            <NotificationPreferences />
+            <Separator />
+            <WeeklyDigestTrigger />
+          </CardContent>
+        </Card>
+
+        {/* Preferences Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5 text-primary" />
+              Display Preferences
+            </CardTitle>
+            <CardDescription>
+              Customize how information is displayed
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <NotificationPreferences />
+            <CurrencyPreference />
           </CardContent>
         </Card>
 

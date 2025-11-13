@@ -99,50 +99,26 @@ export default function Leaderboard() {
     },
   });
 
-  // Fetch streak leaders - simplified without current_streak column
+  // Fetch streak leaders using the new current_streak column
   const { data: streakLeaders } = useQuery({
     queryKey: ['leaderboard-streaks'],
     queryFn: async () => {
-      // Calculate streaks based on recent transfer activity
       const { data, error } = await supabase
-        .from('transfer_history')
-        .select(`
-          user_id,
-          created_at,
-          profiles:user_id(full_name, email)
-        `)
-        .order('created_at', { ascending: false });
+        .from('profiles')
+        .select('id, full_name, email, current_streak')
+        .order('current_streak', { ascending: false })
+        .limit(20);
       
       if (error) throw error;
 
-      // Group by user and calculate consecutive days
-      const userStreaks: Record<string, any> = {};
-      
-      data?.forEach((transfer: any) => {
-        const userId = transfer.user_id;
-        const name = transfer.profiles?.full_name || transfer.profiles?.email?.split('@')[0] || 'Unknown';
-        
-        if (!userStreaks[userId]) {
-          userStreaks[userId] = {
-            id: userId,
-            name,
-            lastTransferDate: new Date(transfer.created_at),
-            transferCount: 1,
-          };
-        } else {
-          userStreaks[userId].transferCount++;
-        }
-      });
-
-      // Convert to array and calculate simple streak based on transfer count
-      return Object.values(userStreaks)
-        .map((user: any) => ({
-          ...user,
-          streak: user.transferCount, // Simplified: use transfer count as "streak"
-        }))
-        .sort((a, b) => b.streak - a.streak)
-        .slice(0, 20)
-        .map((user, index) => ({ ...user, rank: index + 1 }));
+      return data
+        .filter(user => (user.current_streak || 0) > 0)
+        .map((user, index) => ({
+          id: user.id,
+          name: user.full_name || user.email.split('@')[0],
+          streak: user.current_streak || 0,
+          rank: index + 1,
+        }));
     },
   });
 
