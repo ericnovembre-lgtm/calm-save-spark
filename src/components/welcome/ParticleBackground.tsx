@@ -36,51 +36,66 @@ export const ParticleBackground = () => {
     updateCanvasSize();
     window.addEventListener("resize", updateCanvasSize);
 
-    // Create initial particles
-    const createParticle = (x?: number, y?: number): Particle => ({
+    // Create initial particles with more variety
+    const createParticle = (x?: number, y?: number, burst = false): Particle => ({
       x: x ?? Math.random() * canvas.width,
-      y: y ?? canvas.height + 10,
-      size: Math.random() * 3 + 1,
-      speedY: -(Math.random() * 1 + 0.5),
-      speedX: (Math.random() - 0.5) * 0.5,
-      opacity: Math.random() * 0.5 + 0.2,
-      life: Math.random() * 200 + 100,
+      y: y ?? (burst ? y : canvas.height + 10),
+      size: Math.random() * (burst ? 5 : 3) + (burst ? 2 : 1),
+      speedY: burst ? (Math.random() - 0.5) * 3 : -(Math.random() * 1.5 + 0.5),
+      speedX: (Math.random() - 0.5) * (burst ? 2 : 0.8),
+      opacity: Math.random() * 0.6 + (burst ? 0.4 : 0.2),
+      life: Math.random() * (burst ? 150 : 250) + (burst ? 50 : 100),
     });
 
-    // Initialize particles
-    for (let i = 0; i < 30; i++) {
-      particlesRef.current.push(createParticle());
+    // Initialize particles with varied distribution
+    for (let i = 0; i < 40; i++) {
+      particlesRef.current.push(createParticle(
+        Math.random() * canvas.width,
+        Math.random() * canvas.height
+      ));
     }
 
-    // Mouse move handler
+    // Mouse move handler with trail effect
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
       
-      // Small chance to spawn particle near mouse
-      if (Math.random() < 0.1) {
+      // Enhanced chance to spawn particle trail near mouse
+      if (Math.random() < 0.15) {
         particlesRef.current.push(
           createParticle(
-            e.clientX + (Math.random() - 0.5) * 50,
-            e.clientY + (Math.random() - 0.5) * 50
+            e.clientX + (Math.random() - 0.5) * 60,
+            e.clientY + (Math.random() - 0.5) * 60,
+            true
           )
         );
       }
     };
 
-    // Click handler - burst of particles
+    // Click handler - enhanced burst of particles
     const handleClick = (e: MouseEvent) => {
-      for (let i = 0; i < 15; i++) {
-        const angle = (Math.PI * 2 * i) / 15;
-        const speed = Math.random() * 2 + 1;
+      // Create a radial burst pattern
+      for (let i = 0; i < 20; i++) {
+        const angle = (Math.PI * 2 * i) / 20;
+        const speed = Math.random() * 3 + 1.5;
         particlesRef.current.push({
           x: e.clientX,
           y: e.clientY,
-          size: Math.random() * 4 + 2,
+          size: Math.random() * 5 + 2,
           speedY: Math.sin(angle) * speed,
           speedX: Math.cos(angle) * speed,
-          opacity: 0.8,
-          life: 60,
+          opacity: 0.9,
+          life: 80,
         });
+      }
+      // Add some random scattered particles
+      for (let i = 0; i < 10; i++) {
+        particlesRef.current.push(
+          createParticle(
+            e.clientX + (Math.random() - 0.5) * 100,
+            e.clientY + (Math.random() - 0.5) * 100,
+            true
+          )
+        );
       }
     };
 
@@ -102,23 +117,34 @@ export const ParticleBackground = () => {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Update and draw particles
+      // Update and draw particles with enhanced physics
       particlesRef.current = particlesRef.current.filter((particle) => {
-        // Mouse influence
+        // Enhanced mouse influence with attraction/repulsion
         const dx = mouseRef.current.x - particle.x;
         const dy = mouseRef.current.y - particle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        if (distance < 100) {
-          const force = (100 - distance) / 100;
-          particle.speedX += (dx / distance) * force * 0.01;
-          particle.speedY += (dy / distance) * force * 0.01;
+        if (distance < 150) {
+          const force = (150 - distance) / 150;
+          const attractionStrength = distance < 50 ? -0.02 : 0.015; // Repel when too close
+          particle.speedX += (dx / distance) * force * attractionStrength;
+          particle.speedY += (dy / distance) * force * attractionStrength;
         }
+
+        // Apply friction
+        particle.speedX *= 0.99;
+        particle.speedY *= 0.99;
 
         // Update position
         particle.x += particle.speedX;
         particle.y += particle.speedY;
         particle.life--;
+
+        // Wrap around edges for continuous effect
+        if (particle.x < -10) particle.x = canvas.width + 10;
+        if (particle.x > canvas.width + 10) particle.x = -10;
+        if (particle.y < -10) particle.y = canvas.height + 10;
+        if (particle.y > canvas.height + 10) particle.y = -10;
 
         // Fade out based on life
         const fadeOpacity = Math.min(particle.life / 50, 1) * particle.opacity;
