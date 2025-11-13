@@ -10,6 +10,7 @@ import { getRouteSuggestions, getContextualHelp, type RouteSuggestion } from "@/
 import { useRecentPages } from "@/hooks/useRecentPages";
 import { announce } from "@/components/layout/LiveRegion";
 import { StaggeredList } from "@/components/animations/StaggeredList";
+import { track404PageView, trackSuggestionClick, checkCustomRedirect, trackRedirectUsage } from "@/lib/analytics-404";
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -23,17 +24,39 @@ const NotFound = () => {
     const attemptedUrl = window.location.pathname;
     console.error("404 Error: User attempted to access non-existent route:", attemptedUrl);
     
-    // Announce to screen readers
-    announce("Page not found. 404 error.", "assertive");
-    
-    // Get intelligent suggestions
-    const routeSuggestions = getRouteSuggestions(attemptedUrl);
-    setSuggestions(routeSuggestions);
-    
-    // Get contextual help
-    const help = getContextualHelp(attemptedUrl);
-    setContextualHelp(help);
-  }, []);
+    // Check for custom redirects first
+    const checkRedirect = async () => {
+      const redirect = await checkCustomRedirect(attemptedUrl);
+      if (redirect) {
+        await trackRedirectUsage(redirect.redirectId);
+        navigate(redirect.toPath, { replace: true });
+        return;
+      }
+
+      // If no redirect, proceed with 404 page
+      // Announce to screen readers
+      announce("Page not found. 404 error.", "assertive");
+      
+      // Get intelligent suggestions
+      const routeSuggestions = getRouteSuggestions(attemptedUrl);
+      setSuggestions(routeSuggestions);
+      
+      // Get contextual help
+      const help = getContextualHelp(attemptedUrl);
+      setContextualHelp(help);
+
+      // Track 404 analytics
+      track404PageView({
+        attemptedUrl,
+        referrer: document.referrer || null,
+        suggestionsShown: routeSuggestions,
+        contextualHelpShown: !!help,
+        recentPagesCount: recentPages.length,
+      });
+    };
+
+    checkRedirect();
+  }, [navigate, recentPages.length]);
 
   const popularLinks = [
     { to: "/dashboard", label: "Dashboard", icon: Home },
@@ -93,7 +116,11 @@ const NotFound = () => {
               </p>
               <StaggeredList className="grid gap-3 max-w-md mx-auto">
                 {suggestions.map((suggestion) => (
-                  <Link key={suggestion.path} to={suggestion.path}>
+                  <Link 
+                    key={suggestion.path} 
+                    to={suggestion.path}
+                    onClick={() => trackSuggestionClick(window.location.pathname, suggestion.path)}
+                  >
                     <Button
                       variant="outline"
                       className="w-full h-auto py-4 px-4 flex flex-col items-start gap-1 hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] transition-all"
