@@ -80,3 +80,12 @@ verify_jwt = true
 
 [functions.send-notification-email]
 verify_jwt = false
+
+[functions.sync-investments]
+verify_jwt = false
+
+[functions.credit-score-sync]
+verify_jwt = false
+
+[functions.calculate-financial-health]
+verify_jwt = true

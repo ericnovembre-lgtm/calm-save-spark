@@ -14,20 +14,45 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) {
-      throw new Error('Not authenticated');
-    }
+    const body = await req.json().catch(() => ({}));
+    const isCronJob = body.cron === true;
 
-    // Fetch investment accounts
-    const { data: accounts } = await supabaseClient
-      .from('investment_accounts')
-      .select('*')
-      .eq('user_id', user.id);
+    let accounts;
+    
+    if (isCronJob) {
+      // Cron job: sync all users' investment accounts
+      console.log('Cron job triggered - syncing all investment accounts');
+      const { data } = await supabaseClient
+        .from('investment_accounts')
+        .select('*');
+      accounts = data;
+    } else {
+      // User request: sync only this user's accounts
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) {
+        throw new Error('Not authenticated');
+      }
+      
+      const userClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: authHeader } } }
+      );
+      
+      const { data: { user } } = await userClient.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      const { data } = await supabaseClient
+        .from('investment_accounts')
+        .select('*')
+        .eq('user_id', user.id);
+      accounts = data;
+    }
 
     // TODO: Integrate with Plaid Investments API
     // For now, simulate syncing by updating last_synced timestamp

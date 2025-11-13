@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, RefreshCw, TrendingUp, TrendingDown } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
+import { SyncStatusBadge } from "@/components/ui/SyncStatusBadge";
 
 export default function Investments() {
   const queryClient = useQueryClient();
@@ -249,11 +250,13 @@ export default function Investments() {
                         </span>
                       </div>
                     </div>
-                    {account.last_synced && (
-                      <p className="text-xs text-muted-foreground mt-4">
-                        Last synced: {new Date(account.last_synced).toLocaleString()}
-                      </p>
-                    )}
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <SyncStatusBadge 
+                        lastSynced={account.last_synced}
+                        isSyncing={syncMutation.isPending}
+                        syncType="investment"
+                      />
+                    </div>
                   </Card>
                 );
               })}

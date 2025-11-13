@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { RefreshCw, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
+import { SyncStatusBadge } from "@/components/ui/SyncStatusBadge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 
@@ -77,13 +78,23 @@ export default function Credit() {
         </div>
 
         {latestScore ? (
-          <CreditScoreCard
-            score={latestScore.score}
-            change={latestScore.change_from_previous || 0}
-            provider={latestScore.provider}
-            date={latestScore.score_date}
-            factors={latestScore.factors as any[]}
-          />
+          <div className="space-y-4">
+            <CreditScoreCard
+              score={latestScore.score}
+              change={latestScore.change_from_previous || 0}
+              provider={latestScore.provider}
+              date={latestScore.score_date}
+              factors={latestScore.factors as any[]}
+            />
+            <Card className="p-4 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Last Updated</p>
+              <SyncStatusBadge 
+                lastSynced={latestScore.score_date}
+                isSyncing={syncMutation.isPending}
+                syncType="credit score"
+              />
+            </Card>
+          </div>
         ) : (
           <Card className="p-12 text-center">
             <p className="text-muted-foreground mb-4">No credit score data yet</p>

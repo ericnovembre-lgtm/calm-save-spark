@@ -47,6 +47,7 @@ import Analytics from "./pages/Analytics";
 import Social from "./pages/Social";
 import Integrations from "./pages/Integrations";
 import Admin from "./pages/Admin";
+import FinancialHealth from "./pages/FinancialHealth";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,7 @@ const App = () => {
             
             {/* App routes with layout - protected */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/financial-health" element={<ProtectedRoute><FinancialHealth /></ProtectedRoute>} />
             <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
             <Route path="/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
             <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />

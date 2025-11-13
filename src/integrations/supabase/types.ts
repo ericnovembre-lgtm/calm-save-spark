@@ -1326,6 +1326,48 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_health_scores: {
+        Row: {
+          calculated_at: string | null
+          credit_score_component: number | null
+          debt_component: number | null
+          emergency_fund_component: number | null
+          goals_component: number | null
+          id: string
+          investment_component: number | null
+          overall_score: number
+          recommendations: Json | null
+          savings_component: number | null
+          user_id: string
+        }
+        Insert: {
+          calculated_at?: string | null
+          credit_score_component?: number | null
+          debt_component?: number | null
+          emergency_fund_component?: number | null
+          goals_component?: number | null
+          id?: string
+          investment_component?: number | null
+          overall_score: number
+          recommendations?: Json | null
+          savings_component?: number | null
+          user_id: string
+        }
+        Update: {
+          calculated_at?: string | null
+          credit_score_component?: number | null
+          debt_component?: number | null
+          emergency_fund_component?: number | null
+          goals_component?: number | null
+          id?: string
+          investment_component?: number | null
+          overall_score?: number
+          recommendations?: Json | null
+          savings_component?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           created_at: string | null
