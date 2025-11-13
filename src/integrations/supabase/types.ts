@@ -1650,6 +1650,7 @@ export type Database = {
           transfer_alerts: boolean | null
           updated_at: string | null
           user_id: string
+          weekly_digest_enabled: boolean | null
           weekly_summary: boolean | null
         }
         Insert: {
@@ -1663,6 +1664,7 @@ export type Database = {
           transfer_alerts?: boolean | null
           updated_at?: string | null
           user_id: string
+          weekly_digest_enabled?: boolean | null
           weekly_summary?: boolean | null
         }
         Update: {
@@ -1676,6 +1678,7 @@ export type Database = {
           transfer_alerts?: boolean | null
           updated_at?: string | null
           user_id?: string
+          weekly_digest_enabled?: boolean | null
           weekly_summary?: boolean | null
         }
         Relationships: []

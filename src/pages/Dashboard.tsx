@@ -21,6 +21,7 @@ import SkillTreeProgress from "@/components/dashboard/SkillTreeProgress";
 import PeerInsights from "@/components/dashboard/PeerInsights";
 import { DynamicWelcome } from "@/components/dashboard/DynamicWelcome";
 import { GoalTimeline } from "@/components/dashboard/GoalTimeline";
+import { StreakRecoveryBanner } from "@/components/dashboard/StreakRecoveryBanner";
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
@@ -82,6 +83,7 @@ export default function Dashboard() {
       
       <div className="space-y-6">
         <EmailVerificationBanner />
+        <StreakRecoveryBanner />
 
         <div className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
           <DynamicWelcome />

@@ -13,6 +13,7 @@ interface NotificationPrefs {
   transfer_alerts: boolean;
   budget_alerts: boolean;
   weekly_summary: boolean;
+  weekly_digest_enabled: boolean;
   marketing_emails: boolean;
 }
 
@@ -26,6 +27,7 @@ export function NotificationPreferences() {
     transfer_alerts: true,
     budget_alerts: true,
     weekly_summary: true,
+    weekly_digest_enabled: true,
     marketing_emails: false,
   });
   const { toast } = useToast();
@@ -57,6 +59,7 @@ export function NotificationPreferences() {
           transfer_alerts: data.transfer_alerts,
           budget_alerts: data.budget_alerts,
           weekly_summary: data.weekly_summary,
+          weekly_digest_enabled: data.weekly_digest_enabled ?? true,
           marketing_emails: data.marketing_emails,
         });
       }
@@ -225,6 +228,23 @@ export function NotificationPreferences() {
             id="weekly-summary"
             checked={preferences.weekly_summary}
             onCheckedChange={(checked) => updatePreference('weekly_summary', checked)}
+            disabled={saving || !preferences.email_notifications}
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="weekly-digest" className="text-sm font-medium">
+              Weekly Digest Emails
+            </Label>
+            <p className="text-sm text-muted-foreground">
+              Receive automated weekly digest emails every Monday
+            </p>
+          </div>
+          <Switch
+            id="weekly-digest"
+            checked={preferences.weekly_digest_enabled}
+            onCheckedChange={(checked) => updatePreference('weekly_digest_enabled', checked)}
             disabled={saving || !preferences.email_notifications}
           />
         </div>

@@ -22,18 +22,24 @@ serve(async (req) => {
 
     console.log("Starting batch weekly digest send...");
 
-    // Fetch all users with email addresses
+    // Fetch all users with email addresses who have weekly digest enabled
     const { data: profiles, error: profilesError } = await supabase
       .from("profiles")
-      .select("id, email, full_name")
-      .not("email", "is", null);
+      .select(`
+        id, 
+        email, 
+        full_name,
+        notification_preferences!inner(weekly_digest_enabled)
+      `)
+      .not("email", "is", null)
+      .eq("notification_preferences.weekly_digest_enabled", true);
 
     if (profilesError) {
       console.error("Error fetching profiles:", profilesError);
       throw profilesError;
     }
 
-    console.log(`Found ${profiles?.length || 0} users to send digests to`);
+    console.log(`Found ${profiles?.length || 0} users with weekly digest enabled to send to`);
 
     const results = {
       sent: 0,

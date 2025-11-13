@@ -10,7 +10,8 @@ import { NotificationPreferences } from '@/components/settings/NotificationPrefe
 import { ResetOnboarding } from '@/components/settings/ResetOnboarding';
 import { WeeklyDigestTrigger } from '@/components/settings/WeeklyDigestTrigger';
 import { CurrencyPreference } from '@/components/settings/CurrencyPreference';
-import { Shield, User, Bell, Lock, Globe } from 'lucide-react';
+import { AchievementsList } from '@/components/gamification/AchievementsList';
+import { Shield, User, Bell, Lock, Globe, Trophy } from 'lucide-react';
 
 export default function Settings() {
   return (
@@ -96,6 +97,22 @@ export default function Settings() {
           </CardHeader>
           <CardContent>
             <CurrencyPreference />
+          </CardContent>
+        </Card>
+
+        {/* Achievements Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-primary" />
+              Achievements
+            </CardTitle>
+            <CardDescription>
+              View all your earned badges and locked achievements
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AchievementsList />
           </CardContent>
         </Card>
 
