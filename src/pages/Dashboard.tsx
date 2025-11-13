@@ -29,11 +29,17 @@ import { Reorder } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
 import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
+import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
+import { ChatFAB } from "@/components/dashboard/ChatFAB";
+import { ChatSidebar } from "@/components/dashboard/ChatSidebar";
+import { useChatSidebar } from "@/hooks/useChatSidebar";
+import { cn } from "@/lib/utils";
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
   const queryClient = useQueryClient();
   const [isReordering, setIsReordering] = useState(false);
+  const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
   
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -95,6 +101,18 @@ export default function Dashboard() {
 
   // Card mapping for reorderable sections
   const cardComponents: Record<string, React.ReactNode> = {
+    'coach-widget': (
+      <CollapsibleSection
+        key="coach-widget"
+        id="coach-widget"
+        title="AI Coach Insights"
+        description="Personalized financial guidance and tips"
+        defaultOpen={!collapsedSections['coach-widget']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <SaveplusCoachWidget />
+      </CollapsibleSection>
+    ),
     'balance': (
       <CollapsibleSection
         key="balance"
@@ -234,7 +252,10 @@ export default function Dashboard() {
           onDismiss={dismissAchievements}
         />
         
-        <div className="space-y-6 pb-20">
+        <div className={cn(
+          "space-y-6 pb-20 transition-all duration-300",
+          isChatOpen && "lg:pr-[420px]"
+        )}>
           <EmailVerificationBanner />
           <StreakRecoveryBanner />
 
@@ -283,6 +304,8 @@ export default function Dashboard() {
 
         {/* Quick Actions FAB */}
         <QuickActionsFAB />
+        <ChatFAB />
+        <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />
       </PullToRefresh>
     </AppLayout>
   );
