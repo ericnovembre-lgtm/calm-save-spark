@@ -23,7 +23,14 @@ serve(async (req) => {
       throw new Error('Not authenticated');
     }
 
-    const plaidEnv = Deno.env.get('PLAID_ENV') || 'sandbox';
+    // Sanitize Plaid environment - remove spaces, dashes, and convert to lowercase
+    const rawPlaidEnv = Deno.env.get('PLAID_ENV') || 'sandbox';
+    const plaidEnv = rawPlaidEnv.toLowerCase().replace(/[\s\-]/g, '').trim();
+    
+    // Validate environment (must be sandbox, development, or production)
+    const validEnvs = ['sandbox', 'development', 'production'];
+    const finalPlaidEnv = validEnvs.includes(plaidEnv) ? plaidEnv : 'sandbox';
+    
     const plaidClientId = Deno.env.get('PLAID_CLIENT_ID');
     const plaidSecret = Deno.env.get('PLAID_SECRET');
 
@@ -31,10 +38,10 @@ serve(async (req) => {
       throw new Error('Plaid credentials not configured');
     }
 
-    console.log('Creating Plaid Link token for user:', user.id);
+    console.log('Creating Plaid Link token for user:', user.id, 'using environment:', finalPlaidEnv);
 
     // Create Plaid link token
-    const plaidResponse = await fetch(`https://${plaidEnv}.plaid.com/link/token/create`, {
+    const plaidResponse = await fetch(`https://${finalPlaidEnv}.plaid.com/link/token/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
