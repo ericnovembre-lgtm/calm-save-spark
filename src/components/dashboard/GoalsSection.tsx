@@ -4,8 +4,12 @@ import { GoalProgressCard } from "./GoalProgressCard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export const GoalsSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  
   const { data: goals, isLoading } = useQuery({
     queryKey: ['dashboard-goals'],
     queryFn: async () => {
@@ -47,15 +51,25 @@ export const GoalsSection = () => {
 
       {goals && goals.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {goals.map((goal) => (
-            <GoalProgressCard
+          {goals.map((goal, index) => (
+            <motion.div
               key={goal.id}
-              id={goal.id}
-              name={goal.name}
-              currentAmount={parseFloat(String(goal.current_amount || 0))}
-              targetAmount={parseFloat(String(goal.target_amount))}
-              icon={goal.icon}
-            />
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.3, 
+                delay: index * 0.1,
+                ease: [0.22, 1, 0.36, 1] 
+              }}
+            >
+              <GoalProgressCard
+                id={goal.id}
+                name={goal.name}
+                currentAmount={parseFloat(String(goal.current_amount || 0))}
+                targetAmount={parseFloat(String(goal.target_amount))}
+                icon={goal.icon}
+              />
+            </motion.div>
           ))}
         </div>
       ) : (

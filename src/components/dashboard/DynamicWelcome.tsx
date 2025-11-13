@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { Sun, Hand, Moon } from "lucide-react";
 import { Sparkles, TrendingUp, Target } from "lucide-react";
 
 interface DynamicWelcomeProps {
@@ -54,11 +57,11 @@ export const DynamicWelcome = ({ userName }: DynamicWelcomeProps) => {
     return 'evening';
   };
 
-  const getGreetingEmoji = () => {
+  const getGreetingIcon = () => {
     const timeOfDay = getTimeOfDay();
-    if (timeOfDay === 'morning') return '☀️';
-    if (timeOfDay === 'afternoon') return '👋';
-    return '🌙';
+    if (timeOfDay === 'morning') return Sun;
+    if (timeOfDay === 'afternoon') return Hand;
+    return Moon;
   };
 
   const getPersonalizedMessage = () => {
@@ -72,11 +75,14 @@ export const DynamicWelcome = ({ userName }: DynamicWelcomeProps) => {
     const greeting = greetings[timeOfDay];
 
     if (!recentActivity) {
-      return `${greeting}! Ready to start saving?`;
+      return { greeting, message: "Ready to start saving?" };
     }
 
     if (recentActivity.completedGoals > 0) {
-      return `${greeting}! You've completed ${recentActivity.completedGoals} goal${recentActivity.completedGoals > 1 ? 's' : ''} - amazing progress! 🎉`;
+      return { 
+        greeting, 
+        message: `You've completed ${recentActivity.completedGoals} goal${recentActivity.completedGoals > 1 ? 's' : ''} - amazing progress!` 
+      };
     }
 
     if (recentActivity.lastTransfer) {
@@ -84,17 +90,20 @@ export const DynamicWelcome = ({ userName }: DynamicWelcomeProps) => {
       const daysSince = Math.floor((Date.now() - transferDate.getTime()) / (1000 * 60 * 60 * 24));
       
       if (daysSince === 0) {
-        return `${greeting}! Great job on your recent transfer! 💪`;
+        return { greeting, message: "Great job on your recent transfer!" };
       } else if (daysSince < 7) {
-        return `${greeting}! Keep up the momentum from your recent transfer!`;
+        return { greeting, message: "Keep up the momentum from your recent transfer!" };
       }
     }
 
     if (recentActivity.totalGoals > 0) {
-      return `${greeting}! ${recentActivity.totalGoals} goal${recentActivity.totalGoals > 1 ? 's' : ''} in progress - you're on track!`;
+      return { 
+        greeting, 
+        message: `${recentActivity.totalGoals} goal${recentActivity.totalGoals > 1 ? 's' : ''} in progress - you're on track!` 
+      };
     }
 
-    return `${greeting}! Ready to make today count?`;
+    return { greeting, message: "Ready to make today count?" };
   };
 
   const getMotivationalIcon = () => {
@@ -111,20 +120,60 @@ export const DynamicWelcome = ({ userName }: DynamicWelcomeProps) => {
     return <Sparkles className="w-6 h-6 text-yellow-500" />;
   };
 
+  const prefersReducedMotion = useReducedMotion();
+  const { greeting, message } = getPersonalizedMessage();
+  const GreetingIcon = getGreetingIcon();
+
   return (
-    <div className="flex items-start justify-between">
-      <div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 flex items-center gap-2">
-          {getPersonalizedMessage()}{' '}
-          <span className="text-4xl">{getGreetingEmoji()}</span>
-        </h1>
-        <p className="text-muted-foreground">
+    <motion.div 
+      className="flex items-start justify-between"
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="flex-1">
+        <div className="flex items-center gap-3 mb-2">
+          <motion.div
+            initial={prefersReducedMotion ? false : { scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <GreetingIcon className="w-8 h-8 text-primary" />
+          </motion.div>
+          <motion.h1 
+            className="text-3xl sm:text-4xl font-bold text-foreground"
+            initial={prefersReducedMotion ? false : { opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {greeting}
+          </motion.h1>
+        </div>
+        <motion.p 
+          className="text-lg text-muted-foreground mb-1"
+          initial={prefersReducedMotion ? false : { opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {message}
+        </motion.p>
+        <motion.p 
+          className="text-sm text-muted-foreground"
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        >
           Here's what's happening with your money today
-        </p>
+        </motion.p>
       </div>
-      <div className="hidden sm:block p-3 rounded-xl bg-accent/10">
+      <motion.div 
+        className="hidden sm:block p-3 rounded-xl bg-accent/10 transition-all hover:bg-accent/20 hover:scale-105"
+        initial={prefersReducedMotion ? false : { scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
         {getMotivationalIcon()}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
