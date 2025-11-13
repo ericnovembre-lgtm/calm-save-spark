@@ -77,10 +77,21 @@ export const MouseGradient = () => {
 
       // Get accent color from CSS variables
       const accentRaw = getColor("--accent", "40 20% 55%");
-      const accentColor = accentRaw.startsWith("hsl") ? accentRaw : `hsl(${accentRaw})`;
-      
-      gradient.addColorStop(0, accentColor.replace("hsl(", "hsla(").replace(")", ", 0.15)"));
-      gradient.addColorStop(0.5, accentColor.replace("hsl(", "hsla(").replace(")", ", 0.05)"));
+
+      // Parse HSL values whether they're space or comma separated
+      let h: string, s: string, l: string;
+
+      if (accentRaw.includes(",")) {
+        // Already comma-separated: "40, 20%, 55%"
+        [h, s, l] = accentRaw.split(",").map(v => v.trim());
+      } else {
+        // Space-separated modern format: "40 20% 55%"
+        [h, s, l] = accentRaw.split(" ").map(v => v.trim());
+      }
+
+      // Create Canvas-compatible HSLA colors (comma-separated format required)
+      gradient.addColorStop(0, `hsla(${h}, ${s}, ${l}, 0.15)`);
+      gradient.addColorStop(0.5, `hsla(${h}, ${s}, ${l}, 0.05)`);
       gradient.addColorStop(1, "hsla(0, 0%, 0%, 0)");
 
       ctx.fillStyle = gradient;
