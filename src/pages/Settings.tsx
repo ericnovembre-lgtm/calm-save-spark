@@ -12,7 +12,8 @@ import { WeeklyDigestTrigger } from '@/components/settings/WeeklyDigestTrigger';
 import { CurrencyPreference } from '@/components/settings/CurrencyPreference';
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
-import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake } from 'lucide-react';
+import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles } from 'lucide-react';
+import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
 
 export default function Settings() {
   return (
@@ -98,6 +99,22 @@ export default function Settings() {
           </CardHeader>
           <CardContent>
             <CurrencyPreference />
+          </CardContent>
+        </Card>
+
+        {/* Motion & Accessibility Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Motion & Accessibility
+            </CardTitle>
+            <CardDescription>
+              Control animations, effects, and visual motion throughout the app
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MotionAccessibilitySettings />
           </CardContent>
         </Card>
 

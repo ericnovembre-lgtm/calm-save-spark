@@ -1,14 +1,16 @@
 import { useRef, useEffect, useState } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useMotionPreferences } from "@/hooks/useMotionPreferences";
 
 export const MouseGradient = () => {
   const prefersReducedMotion = useReducedMotion();
+  const { preferences } = useMotionPreferences();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion || !preferences.gradients) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -108,9 +110,9 @@ export const MouseGradient = () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [prefersReducedMotion, isVisible]);
+  }, [prefersReducedMotion, preferences.gradients, isVisible]);
 
-  if (prefersReducedMotion) {
+  if (prefersReducedMotion || !preferences.gradients) {
     return null;
   }
 
