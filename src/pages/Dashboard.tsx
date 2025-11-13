@@ -9,6 +9,7 @@ import { ManualTransferCard } from "@/components/dashboard/ManualTransferCard";
 import { ScheduledTransferDialog } from "@/components/dashboard/ScheduledTransferDialog";
 import { ScheduledTransfersList } from "@/components/dashboard/ScheduledTransfersList";
 import { TransferHistory } from "@/components/dashboard/TransferHistory";
+import { QuickActionsFAB } from "@/components/dashboard/QuickActionsFAB";
 import JourneyMilestones from "@/components/dashboard/JourneyMilestones";
 import { OnboardingProgress } from "@/components/dashboard/OnboardingProgress";
 import { ConnectAccountCard } from "@/components/dashboard/ConnectAccountCard";
@@ -141,6 +142,9 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+
+      {/* Quick Actions FAB */}
+      <QuickActionsFAB />
     </AppLayout>
   );
 }
