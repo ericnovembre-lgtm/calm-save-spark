@@ -59,6 +59,19 @@ export const ManualTransferCard = () => {
           transfer_type: 'manual',
           status: 'completed',
         });
+
+        // Trigger achievement check
+        try {
+          await supabase.functions.invoke('check-achievements', {
+            body: {
+              userId: user.id,
+              eventType: 'transfer_completed',
+              eventData: { amount, potId, type: 'manual' }
+            }
+          });
+        } catch (error) {
+          console.error('Failed to check achievements:', error);
+        }
       }
     },
     onSuccess: () => {

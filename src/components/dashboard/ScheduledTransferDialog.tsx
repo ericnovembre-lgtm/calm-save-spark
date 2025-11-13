@@ -84,6 +84,19 @@ export const ScheduledTransferDialog = () => {
         });
 
       if (error) throw error;
+
+      // Trigger achievement check for scheduled transfer creation
+      try {
+        await supabase.functions.invoke('check-achievements', {
+          body: {
+            userId: user.id,
+            eventType: 'scheduled_transfer_created',
+            eventData: { amount: values.amount, frequency: values.frequency }
+          }
+        });
+      } catch (error) {
+        console.error('Failed to check achievements:', error);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-transfers'] });

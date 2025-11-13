@@ -48,6 +48,7 @@ import Social from "./pages/Social";
 import Integrations from "./pages/Integrations";
 import Admin from "./pages/Admin";
 import FinancialHealth from "./pages/FinancialHealth";
+import Leaderboard from "./pages/Leaderboard";
 
 const queryClient = new QueryClient();
 
@@ -123,6 +124,7 @@ const App = () => {
           <Route path="/sustainability" element={<ProtectedRoute><Sustainability /></ProtectedRoute>} />
           <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
           <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />
+          <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
           <Route path="/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute><AdminRoute><Admin /></AdminRoute></ProtectedRoute>} />
             <Route path="/admin-agents" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></ProtectedRoute>} />

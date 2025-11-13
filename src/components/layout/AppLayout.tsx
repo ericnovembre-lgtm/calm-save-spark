@@ -33,6 +33,7 @@ const mainNavLinks = [
   { name: "Credit", path: "/credit", icon: BadgeDollarSign },
   { name: "Coach", path: "/coach", icon: Bot },
   { name: "Achievements", path: "/achievements", icon: Trophy },
+  { name: "Leaderboard", path: "/leaderboard", icon: Trophy },
   { name: "Bill Negotiation", path: "/bill-negotiation", icon: Receipt },
   { name: "Family", path: "/family", icon: UsersRound },
   { name: "Student", path: "/student", icon: GraduationCap },

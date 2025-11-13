@@ -89,3 +89,6 @@ verify_jwt = false
 
 [functions.calculate-financial-health]
 verify_jwt = true
+
+[functions.send-weekly-digest]
+verify_jwt = true
