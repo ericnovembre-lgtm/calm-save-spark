@@ -15,9 +15,23 @@ import { ConnectAccountCard } from "@/components/dashboard/ConnectAccountCard";
 import { LoadingState } from "@/components/LoadingState";
 import { AchievementNotification } from "@/components/gamification/AchievementNotification";
 import { useAchievementNotifications } from "@/hooks/useAchievementNotifications";
+import ProactiveRecommendations from "@/components/dashboard/ProactiveRecommendations";
+import CashFlowForecast from "@/components/dashboard/CashFlowForecast";
+import SkillTreeProgress from "@/components/dashboard/SkillTreeProgress";
+import PeerInsights from "@/components/dashboard/PeerInsights";
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
+  
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
+  const userId = session?.user?.id;
   
   const { data: accounts, isLoading: accountsLoading } = useQuery({
     queryKey: ['connected_accounts'],
@@ -76,6 +90,17 @@ export default function Dashboard() {
         <OnboardingProgress />
         
         <JourneyMilestones />
+
+        {userId && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ProactiveRecommendations userId={userId} />
+            <SkillTreeProgress userId={userId} />
+          </div>
+        )}
+
+        {userId && <CashFlowForecast userId={userId} />}
+
+        {userId && <PeerInsights userId={userId} />}
         
         <GoalsSection />
         
