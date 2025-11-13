@@ -6,6 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { LoadingState } from "@/components/LoadingState";
 import { Search, DollarSign, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { StaggeredList } from "@/components/animations/StaggeredList";
+import { SwipeableCard } from "@/components/ui/swipeable-card";
+import { toast } from "sonner";
 
 export const TransactionList = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,53 +67,62 @@ export const TransactionList = () => {
         </Select>
       </div>
 
-      <div className="space-y-2">
-        {filteredTransactions?.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <DollarSign className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>No transactions found</p>
-          </div>
-        ) : (
-          filteredTransactions?.map((tx) => (
-            <div
+      {filteredTransactions?.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <DollarSign className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <p>No transactions found</p>
+        </div>
+      ) : (
+        <StaggeredList staggerDelay={0.05} className="space-y-2">
+          {filteredTransactions?.map((tx) => (
+            <SwipeableCard
               key={tx.id}
-              className="bg-card rounded-lg p-4 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-soft)] transition-all"
+              onSwipeLeft={() => {
+                toast.info(`Archived transaction: ${tx.merchant}`);
+              }}
+              onSwipeRight={() => {
+                toast.error(`Deleted transaction: ${tx.merchant}`);
+              }}
+              className="bg-card rounded-lg shadow-[var(--shadow-card)]"
             >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="font-semibold text-foreground">
-                      {tx.merchant || 'Unknown Merchant'}
-                    </p>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent">
-                      {tx.category}
-                    </span>
-                  </div>
-                  {tx.description && (
-                    <p className="text-sm text-muted-foreground mb-2">{tx.description}</p>
-                  )}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {format(new Date(tx.transaction_date), 'MMM dd, yyyy')}
-                    </span>
-                    {tx.connected_accounts?.institution_name && (
-                      <span>{tx.connected_accounts.institution_name}</span>
+              <div className="p-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-semibold text-foreground">
+                        {tx.merchant || 'Unknown Merchant'}
+                      </p>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent">
+                        {tx.category}
+                      </span>
+                    </div>
+                    {tx.description && (
+                      <p className="text-sm text-muted-foreground mb-2">{tx.description}</p>
                     )}
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {format(new Date(tx.transaction_date), 'MMM dd, yyyy')}
+                      </span>
+                      {tx.connected_accounts?.institution_name && (
+                        <span>{tx.connected_accounts.institution_name}</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className={`text-lg font-bold tabular-nums ${
-                    parseFloat(String(tx.amount)) < 0 ? 'text-green-500' : 'text-foreground'
-                  }`}>
-                    {parseFloat(String(tx.amount)) < 0 ? '+' : '-'}${Math.abs(parseFloat(String(tx.amount))).toFixed(2)}
-                  </p>
+                  <div className="text-right">
+                    <p className={`font-bold text-lg ${
+                      parseFloat(String(tx.amount)) < 0 ? 'text-red-500' : 'text-green-500'
+                    }`}>
+                      {parseFloat(String(tx.amount)) < 0 ? '-' : '+'}
+                      ${Math.abs(parseFloat(String(tx.amount))).toFixed(2)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            </SwipeableCard>
+          ))}
+        </StaggeredList>
+      )}
     </div>
   );
 };
