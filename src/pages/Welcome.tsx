@@ -28,6 +28,9 @@ import { trackPageView, saveplus_audit_event } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
 import NeutralBackground from "@/components/background/NeutralBackground";
 import NeutralConfetti from "@/components/effects/NeutralConfetti";
+import { ParallaxBackground } from "@/components/welcome/ParallaxBackground";
+import { MouseGradient } from "@/components/welcome/MouseGradient";
+import { ScrollGradient } from "@/components/welcome/ScrollGradient";
 import { Users, DollarSign, TrendingUp, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -345,8 +348,11 @@ const Welcome = () => {
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
-      {/* Neutral canvas background with stars */}
+      {/* Enhanced Background Effects - Phase 7 */}
+      <ScrollGradient />
       <NeutralBackground />
+      <ParallaxBackground />
+      <MouseGradient />
       
       {/* Custom Cursor for desktop */}
       <CustomCursor />
