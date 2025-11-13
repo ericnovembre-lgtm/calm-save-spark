@@ -21,7 +21,7 @@ export async function track404PageView(data: NotFoundAnalytics): Promise<void> {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
-    await supabase.from('page_not_found_analytics').insert([{
+    await (supabase.from as any)('page_not_found_analytics').insert([{
       user_id: user?.id || null,
       attempted_url: data.attemptedUrl,
       referrer: data.referrer,
@@ -47,7 +47,7 @@ export async function trackSuggestionClick(
     // We'll track this as a separate event for real-time insights
     const { data: { user } } = await supabase.auth.getUser();
     
-    await supabase.from('page_not_found_analytics').insert([{
+    await (supabase.from as any)('page_not_found_analytics').insert([{
       user_id: user?.id || null,
       attempted_url: attemptedUrl,
       referrer: document.referrer,
@@ -69,8 +69,7 @@ export async function checkCustomRedirect(
   fromPath: string
 ): Promise<{ toPath: string; redirectId: string } | null> {
   try {
-    const { data, error } = await supabase
-      .from('custom_redirects')
+    const { data, error } = await (supabase.from as any)('custom_redirects')
       .select('id, to_path')
       .eq('from_path', fromPath)
       .eq('is_active', true)
@@ -93,7 +92,7 @@ export async function checkCustomRedirect(
  */
 export async function trackRedirectUsage(redirectId: string): Promise<void> {
   try {
-    await supabase.rpc('increment_redirect_usage', {
+    await (supabase.rpc as any)('increment_redirect_usage', {
       redirect_id: redirectId,
     });
   } catch (error) {
