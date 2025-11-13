@@ -4,12 +4,9 @@ import { GoalProgressCard } from "./GoalProgressCard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { StaggeredList } from "@/components/animations/StaggeredList";
 
 export const GoalsSection = () => {
-  const prefersReducedMotion = useReducedMotion();
-  
   const { data: goals, isLoading } = useQuery({
     queryKey: ['dashboard-goals'],
     queryFn: async () => {
@@ -50,28 +47,18 @@ export const GoalsSection = () => {
       </div>
 
       {goals && goals.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {goals.map((goal, index) => (
-            <motion.div
+        <StaggeredList staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {goals.map((goal) => (
+            <GoalProgressCard
               key={goal.id}
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.3, 
-                delay: index * 0.1,
-                ease: [0.22, 1, 0.36, 1] 
-              }}
-            >
-              <GoalProgressCard
-                id={goal.id}
-                name={goal.name}
-                currentAmount={parseFloat(String(goal.current_amount || 0))}
-                targetAmount={parseFloat(String(goal.target_amount))}
-                icon={goal.icon}
-              />
-            </motion.div>
+              id={goal.id}
+              name={goal.name}
+              currentAmount={parseFloat(String(goal.current_amount || 0))}
+              targetAmount={parseFloat(String(goal.target_amount))}
+              icon={goal.icon}
+            />
           ))}
-        </div>
+        </StaggeredList>
       ) : (
         <div className="bg-card rounded-lg p-12 text-center shadow-[var(--shadow-card)]">
           <h3 className="text-lg font-semibold mb-2 text-foreground">No goals yet</h3>
