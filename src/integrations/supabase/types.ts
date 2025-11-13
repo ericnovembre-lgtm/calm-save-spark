@@ -3244,6 +3244,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      reset_inactive_streaks: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"

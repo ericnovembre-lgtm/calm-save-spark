@@ -92,3 +92,6 @@ verify_jwt = true
 
 [functions.send-weekly-digest]
 verify_jwt = true
+
+[functions.send-weekly-digests-batch]
+verify_jwt = false
