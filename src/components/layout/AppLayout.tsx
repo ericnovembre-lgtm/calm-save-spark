@@ -12,6 +12,7 @@ import { UserChip } from "./UserChip";
 import { MobileDrawer } from "./MobileDrawer";
 import { getClientUser, AppUser } from "@/lib/session";
 import { FEATURE_FLAGS } from "@/lib/flags";
+import { supabase } from "@/integrations/supabase/client";
 
 const taglines = [
   "Navigate Your Financial Universe",
@@ -52,12 +53,14 @@ const bottomNavLinks = [
 ];
 
 const adminNavLinks = [
+  { name: "Admin", path: "/admin", icon: Shield },
   { name: "Admin Agents", path: "/admin-agents", icon: Users },
   { name: "Admin Functions", path: "/admin-functions", icon: Code },
 ];
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [taglineIndex, setTaglineIndex] = useState(0);
   const location = useLocation();
@@ -65,7 +68,26 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     getClientUser().then(setUser);
+    checkAdminRole();
   }, []);
+
+  const checkAdminRole = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error('Error checking admin role:', error);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -83,7 +105,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
     ...mainNavLinks,
     { name: "Settings", path: "/settings", icon: Settings },
     { name: "Subscription", path: "/subscription", icon: CreditCard },
-    ...(user?.role === 'admin' && FEATURE_FLAGS.ADMIN_FEATURES_ENABLED ? adminNavLinks : []),
+    ...(isAdmin && FEATURE_FLAGS.ADMIN_FEATURES_ENABLED ? adminNavLinks : []),
   ];
 
   return (

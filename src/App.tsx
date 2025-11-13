@@ -9,6 +9,7 @@ import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AppLayout } from "./components/layout/AppLayout";
 
 import Dashboard from "./pages/Dashboard";
@@ -45,6 +46,7 @@ import Sustainability from "./pages/Sustainability";
 import Analytics from "./pages/Analytics";
 import Social from "./pages/Social";
 import Integrations from "./pages/Integrations";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -120,6 +122,7 @@ const App = () => {
           <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
           <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />
           <Route path="/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminRoute><Admin /></AdminRoute></ProtectedRoute>} />
             <Route path="/admin-agents" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></ProtectedRoute>} />
             <Route path="/admin-functions" element={<ProtectedRoute><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></ProtectedRoute>} />
             
