@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BalanceCard } from "@/components/BalanceCard";
@@ -23,9 +23,16 @@ import PeerInsights from "@/components/dashboard/PeerInsights";
 import { DynamicWelcome } from "@/components/dashboard/DynamicWelcome";
 import { GoalTimeline } from "@/components/dashboard/GoalTimeline";
 import { StreakRecoveryBanner } from "@/components/dashboard/StreakRecoveryBanner";
+import { PullToRefresh } from "@/components/mobile/PullToRefresh";
+import { useDashboardOrder } from "@/hooks/useDashboardOrder";
+import { Reorder } from "framer-motion";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
+  const queryClient = useQueryClient();
+  const [isReordering, setIsReordering] = useState(false);
   
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -36,6 +43,7 @@ export default function Dashboard() {
   });
 
   const userId = session?.user?.id;
+  const { cardOrder, updateOrder } = useDashboardOrder(userId);
   
   const { data: accounts, isLoading: accountsLoading } = useQuery({
     queryKey: ['connected_accounts'],
@@ -73,78 +81,110 @@ export default function Dashboard() {
     ?.filter(tx => new Date(tx.transaction_date) >= thisMonth)
     .reduce((sum, tx) => sum + parseFloat(String(tx.amount)), 0) || 0;
 
+  // Pull to refresh handler
+  const handleRefresh = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['connected_accounts'] }),
+      queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+      queryClient.invalidateQueries({ queryKey: ['pots'] }),
+      queryClient.invalidateQueries({ queryKey: ['achievements'] }),
+    ]);
+    toast.success('Dashboard refreshed!');
+  };
+
+  // Card mapping for reorderable sections
+  const cardComponents: Record<string, React.ReactNode> = {
+    'balance': <BalanceCard key="balance" balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />,
+    'connect-account': <ConnectAccountCard key="connect-account" />,
+    'auto-save': <AutoSaveBanner key="auto-save" />,
+    'onboarding': <OnboardingProgress key="onboarding" />,
+    'milestones': <JourneyMilestones key="milestones" />,
+    'recommendations': userId ? <ProactiveRecommendations key="recommendations" userId={userId} /> : null,
+    'skill-tree': userId ? <SkillTreeProgress key="skill-tree" userId={userId} /> : null,
+    'cashflow': userId ? <CashFlowForecast key="cashflow" userId={userId} /> : null,
+    'peer-insights': userId ? <PeerInsights key="peer-insights" userId={userId} /> : null,
+    'timeline': userId ? <GoalTimeline key="timeline" userId={userId} /> : null,
+    'goals': <GoalsSection key="goals" />,
+    'scheduled': (
+      <div key="scheduled" className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-display font-semibold text-foreground mb-2">
+              Transfer Options
+            </h3>
+            <p className="text-muted-foreground">
+              Move money to your savings goals
+            </p>
+          </div>
+          <ScheduledTransferDialog />
+        </div>
+        <ScheduledTransfersList />
+      </div>
+    ),
+    'manual-transfer': <ManualTransferCard key="manual-transfer" />,
+    'history': <TransferHistory key="history" />,
+  };
+
   if (accountsLoading) return <LoadingState />;
 
   return (
     <AppLayout>
-      <AchievementNotification 
-        achievements={newAchievements}
-        onDismiss={dismissAchievements}
-      />
-      
-      <div className="space-y-6">
-        <EmailVerificationBanner />
-        <StreakRecoveryBanner />
+      <PullToRefresh onRefresh={handleRefresh}>
+        <AchievementNotification 
+          achievements={newAchievements}
+          onDismiss={dismissAchievements}
+        />
+        
+        <div className="space-y-6 pb-20">
+          <EmailVerificationBanner />
+          <StreakRecoveryBanner />
 
-        <div className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
-          <DynamicWelcome />
-        </div>
-        
-        <BalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
-        
-        <ConnectAccountCard />
-        
-        <AutoSaveBanner />
-        
-        <OnboardingProgress />
-        
-        <JourneyMilestones />
-
-        {userId && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ProactiveRecommendations userId={userId} />
-            <SkillTreeProgress userId={userId} />
+          <div className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
+            <DynamicWelcome />
           </div>
-        )}
 
-        {userId && <CashFlowForecast userId={userId} />}
+          {/* Reorderable Cards */}
+          <Reorder.Group
+            axis="y"
+            values={cardOrder}
+            onReorder={(newOrder) => {
+              updateOrder(newOrder);
+              if (!isReordering) {
+                setIsReordering(true);
+                toast.info('Dashboard layout saved!');
+                setTimeout(() => setIsReordering(false), 300);
+              }
+            }}
+            className="space-y-6"
+          >
+            {cardOrder.map((cardId) => {
+              const component = cardComponents[cardId];
+              if (!component) return null;
 
-        {userId && <PeerInsights userId={userId} />}
-
-        {userId && <GoalTimeline userId={userId} />}
-        
-        <GoalsSection />
-        
-        <div className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-xl font-display font-semibold text-foreground mb-2">
-                Transfer Options
-              </h3>
-              <p className="text-muted-foreground">
-                Move money to your savings goals
-              </p>
-            </div>
-            <ScheduledTransferDialog />
+              return (
+                <Reorder.Item
+                  key={cardId}
+                  value={cardId}
+                  className="cursor-grab active:cursor-grabbing"
+                  drag="y"
+                >
+                  {component}
+                </Reorder.Item>
+              );
+            })}
+          </Reorder.Group>
+          
+          <div className="text-center text-xs text-muted-foreground pt-4 pb-2">
+            <p>
+              Your $ave+ account is FDIC insured up to $250,000 through our banking partners.
+              Funds are held securely and are accessible anytime.
+            </p>
           </div>
         </div>
 
-        <ScheduledTransfersList />
-        
-        <ManualTransferCard />
-
-        <TransferHistory />
-        
-        <div className="text-center text-xs text-muted-foreground pt-4 pb-2">
-          <p>
-            Your $ave+ account is FDIC insured up to $250,000 through our banking partners.
-            Funds are held securely and are accessible anytime.
-          </p>
-        </div>
-      </div>
-
-      {/* Quick Actions FAB */}
-      <QuickActionsFAB />
+        {/* Quick Actions FAB */}
+        <QuickActionsFAB />
+      </PullToRefresh>
     </AppLayout>
   );
 }
