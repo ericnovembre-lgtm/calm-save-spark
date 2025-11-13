@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useMotionPreferences } from "@/hooks/useMotionPreferences";
 
 interface Particle {
   x: number;
@@ -13,14 +14,24 @@ interface Particle {
 
 export const ParticleBackground = () => {
   const prefersReducedMotion = useReducedMotion();
+  const { preferences } = useMotionPreferences();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef<number>();
   const [isVisible, setIsVisible] = useState(true);
+  
+  // FPS tracking for performance optimization
+  const fpsRef = useRef({ 
+    frames: 0, 
+    lastTime: performance.now(), 
+    fps: 60,
+    targetParticleCount: 40,
+    lastAdjustment: performance.now()
+  });
 
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion || !preferences.particles) return;
     
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -47,13 +58,19 @@ export const ParticleBackground = () => {
       life: Math.random() * (burst ? 150 : 250) + (burst ? 50 : 100),
     });
 
-    // Initialize particles with varied distribution
-    for (let i = 0; i < 40; i++) {
-      particlesRef.current.push(createParticle(
-        Math.random() * canvas.width,
-        Math.random() * canvas.height
-      ));
-    }
+    // Initialize particles with varied distribution (dynamic count)
+    const initParticles = (count?: number) => {
+      particlesRef.current = [];
+      const particleCount = count || fpsRef.current.targetParticleCount;
+      for (let i = 0; i < particleCount; i++) {
+        particlesRef.current.push(createParticle(
+          Math.random() * canvas.width,
+          Math.random() * canvas.height
+        ));
+      }
+    };
+    
+    initParticles();
 
     // Mouse move handler with trail effect
     const handleMouseMove = (e: MouseEvent) => {
@@ -114,6 +131,36 @@ export const ParticleBackground = () => {
         animationFrameRef.current = requestAnimationFrame(animate);
         return;
       }
+      
+      // FPS calculation and auto-adjustment
+      const currentTime = performance.now();
+      fpsRef.current.frames++;
+      
+      // Calculate FPS every second
+      if (currentTime >= fpsRef.current.lastTime + 1000) {
+        const fps = Math.round((fpsRef.current.frames * 1000) / (currentTime - fpsRef.current.lastTime));
+        fpsRef.current.fps = fps;
+        fpsRef.current.frames = 0;
+        fpsRef.current.lastTime = currentTime;
+        
+        // Auto-adjust particle count based on FPS (only adjust every 3 seconds)
+        const timeSinceLastAdjustment = currentTime - fpsRef.current.lastAdjustment;
+        if (timeSinceLastAdjustment > 3000) {
+          const currentCount = particlesRef.current.length;
+          
+          if (fps < 30 && currentCount > 20) {
+            // Poor performance: reduce particles by 25%
+            fpsRef.current.targetParticleCount = Math.max(20, Math.floor(currentCount * 0.75));
+            initParticles(fpsRef.current.targetParticleCount);
+            fpsRef.current.lastAdjustment = currentTime;
+          } else if (fps > 55 && currentCount < 80) {
+            // Good performance: can add more particles (up to 15% increase)
+            fpsRef.current.targetParticleCount = Math.min(80, Math.floor(currentCount * 1.15));
+            initParticles(fpsRef.current.targetParticleCount);
+            fpsRef.current.lastAdjustment = currentTime;
+          }
+        }
+      }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -159,8 +206,8 @@ export const ParticleBackground = () => {
         return particle.life > 0 && particle.y > -10;
       });
 
-      // Spawn new particles at bottom
-      if (Math.random() < 0.3 && particlesRef.current.length < 50) {
+      // Spawn new particles at bottom (respect target count)
+      if (Math.random() < 0.3 && particlesRef.current.length < fpsRef.current.targetParticleCount) {
         particlesRef.current.push(createParticle());
       }
 
@@ -178,9 +225,9 @@ export const ParticleBackground = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [prefersReducedMotion, isVisible]);
+  }, [prefersReducedMotion, preferences.particles, isVisible]);
 
-  if (prefersReducedMotion) {
+  if (prefersReducedMotion || !preferences.particles) {
     return (
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 opacity-5">
