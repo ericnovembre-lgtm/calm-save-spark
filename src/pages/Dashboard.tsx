@@ -28,6 +28,7 @@ import { useDashboardOrder } from "@/hooks/useDashboardOrder";
 import { Reorder } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
+import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
@@ -43,7 +44,7 @@ export default function Dashboard() {
   });
 
   const userId = session?.user?.id;
-  const { cardOrder, updateOrder } = useDashboardOrder(userId);
+  const { cardOrder, updateOrder, collapsedSections, toggleCollapsed } = useDashboardOrder(userId);
   
   const { data: accounts, isLoading: accountsLoading } = useQuery({
     queryKey: ['connected_accounts'],
@@ -94,35 +95,133 @@ export default function Dashboard() {
 
   // Card mapping for reorderable sections
   const cardComponents: Record<string, React.ReactNode> = {
-    'balance': <BalanceCard key="balance" balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />,
+    'balance': (
+      <CollapsibleSection
+        key="balance"
+        id="balance"
+        title="Account Balance"
+        description="Your total savings across all accounts"
+        defaultOpen={!collapsedSections['balance']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <BalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
+      </CollapsibleSection>
+    ),
     'connect-account': <ConnectAccountCard key="connect-account" />,
     'auto-save': <AutoSaveBanner key="auto-save" />,
     'onboarding': <OnboardingProgress key="onboarding" />,
-    'milestones': <JourneyMilestones key="milestones" />,
-    'recommendations': userId ? <ProactiveRecommendations key="recommendations" userId={userId} /> : null,
-    'skill-tree': userId ? <SkillTreeProgress key="skill-tree" userId={userId} /> : null,
-    'cashflow': userId ? <CashFlowForecast key="cashflow" userId={userId} /> : null,
-    'peer-insights': userId ? <PeerInsights key="peer-insights" userId={userId} /> : null,
-    'timeline': userId ? <GoalTimeline key="timeline" userId={userId} /> : null,
-    'goals': <GoalsSection key="goals" />,
+    'milestones': (
+      <CollapsibleSection
+        key="milestones"
+        id="milestones"
+        title="Journey Milestones"
+        description="Track your savings journey"
+        defaultOpen={!collapsedSections['milestones']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <JourneyMilestones />
+      </CollapsibleSection>
+    ),
+    'recommendations': userId ? (
+      <CollapsibleSection
+        key="recommendations"
+        id="recommendations"
+        title="Smart Recommendations"
+        description="Personalized insights for your goals"
+        defaultOpen={!collapsedSections['recommendations']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <ProactiveRecommendations userId={userId} />
+      </CollapsibleSection>
+    ) : null,
+    'skill-tree': userId ? (
+      <CollapsibleSection
+        key="skill-tree"
+        id="skill-tree"
+        title="Skill Progress"
+        description="Level up your financial skills"
+        defaultOpen={!collapsedSections['skill-tree']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <SkillTreeProgress userId={userId} />
+      </CollapsibleSection>
+    ) : null,
+    'cashflow': userId ? (
+      <CollapsibleSection
+        key="cashflow"
+        id="cashflow"
+        title="Cash Flow Forecast"
+        description="Predict your future balance"
+        defaultOpen={!collapsedSections['cashflow']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <CashFlowForecast userId={userId} />
+      </CollapsibleSection>
+    ) : null,
+    'peer-insights': userId ? (
+      <CollapsibleSection
+        key="peer-insights"
+        id="peer-insights"
+        title="Peer Insights"
+        description="Compare with similar savers"
+        defaultOpen={!collapsedSections['peer-insights']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <PeerInsights userId={userId} />
+      </CollapsibleSection>
+    ) : null,
+    'timeline': userId ? (
+      <CollapsibleSection
+        key="timeline"
+        id="timeline"
+        title="Goal Timeline"
+        description="Visualize your progress"
+        defaultOpen={!collapsedSections['timeline']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <GoalTimeline userId={userId} />
+      </CollapsibleSection>
+    ) : null,
+    'goals': (
+      <CollapsibleSection
+        key="goals"
+        id="goals"
+        title="Savings Goals"
+        description="Your active savings targets"
+        defaultOpen={!collapsedSections['goals']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <GoalsSection />
+      </CollapsibleSection>
+    ),
     'scheduled': (
-      <div key="scheduled" className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-xl font-display font-semibold text-foreground mb-2">
-              Transfer Options
-            </h3>
-            <p className="text-muted-foreground">
-              Move money to your savings goals
-            </p>
-          </div>
+      <CollapsibleSection
+        key="scheduled"
+        id="scheduled"
+        title="Transfer Options"
+        description="Move money to your savings goals"
+        defaultOpen={!collapsedSections['scheduled']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <div className="flex items-center justify-between mb-4">
           <ScheduledTransferDialog />
         </div>
         <ScheduledTransfersList />
-      </div>
+      </CollapsibleSection>
     ),
     'manual-transfer': <ManualTransferCard key="manual-transfer" />,
-    'history': <TransferHistory key="history" />,
+    'history': (
+      <CollapsibleSection
+        key="history"
+        id="history"
+        title="Transfer History"
+        description="Recent transactions"
+        defaultOpen={!collapsedSections['history']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <TransferHistory />
+      </CollapsibleSection>
+    ),
   };
 
   if (accountsLoading) return <LoadingState />;
