@@ -10,6 +10,9 @@ import { JourneyTimeline } from "@/components/welcome/JourneyTimeline";
 import { ExpandableStatCard } from "@/components/welcome/ExpandableStatCard";
 import { LiveActivityTicker } from "@/components/welcome/LiveActivityTicker";
 import { SavingsPlayground } from "@/components/welcome/SavingsPlayground";
+import { CustomCursor } from "@/components/welcome/CustomCursor";
+import { ClickerGame } from "@/components/welcome/ClickerGame";
+import { MoodToggle } from "@/components/welcome/MoodToggle";
 import { FeatureDetailModal } from "@/components/welcome/FeatureDetailModal";
 import { FeatureTour, hasCompletedTour } from "@/components/welcome/FeatureTour";
 import { StatCard } from "@/components/welcome/StatCard";
@@ -17,12 +20,17 @@ import { SearchBarHinted } from "@/components/search/SearchBarHinted";
 import { SecureOnboardingCTA } from "@/components/welcome/SecureOnboardingCTA";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { SaveplusUIAssistantFAB } from "@/components/assistant/SaveplusUIAssistantFAB";
+import { PullToRefreshStats } from "@/components/mobile/PullToRefreshStats";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useKonamiCode } from "@/hooks/useKonamiCode";
 import { trackPageView, saveplus_audit_event } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
 import NeutralBackground from "@/components/background/NeutralBackground";
-import { Users, DollarSign, TrendingUp } from "lucide-react";
+import NeutralConfetti from "@/components/effects/NeutralConfetti";
+import { Users, DollarSign, TrendingUp, Trophy } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 const features: Feature[] = [
   {
@@ -103,8 +111,22 @@ const Welcome = () => {
   const [featuresLoaded, setFeaturesLoaded] = useState(false);
   const [statsLoaded, setStatsLoaded] = useState(false);
   const [ctaLoaded, setCtaLoaded] = useState(false);
+  const [showClickerGame, setShowClickerGame] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [konamiUnlocked, setKonamiUnlocked] = useState(false);
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
+
+  // Konami code detection
+  const { success: konamiSuccess } = useKonamiCode(() => {
+    setShowConfetti(true);
+    setKonamiUnlocked(true);
+    toast.success("🎉 Secret Saver Badge Unlocked!", {
+      description: "You found the hidden achievement!",
+      duration: 5000,
+    });
+    setTimeout(() => setShowConfetti(false), 3000);
+  });
   
   // Track loading start time
   const loadStartTimeRef = useRef<number>(Date.now());
@@ -325,6 +347,29 @@ const Welcome = () => {
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
       {/* Neutral canvas background with stars */}
       <NeutralBackground />
+      
+      {/* Custom Cursor for desktop */}
+      <CustomCursor />
+      
+      {/* Konami Code Confetti */}
+      <NeutralConfetti show={showConfetti} />
+      
+      {/* Clicker Game Modal */}
+      <ClickerGame isOpen={showClickerGame} onClose={() => setShowClickerGame(false)} />
+      
+      {/* Konami Badge */}
+      {konamiSuccess && (
+        <motion.div
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          className="fixed top-20 right-4 z-40"
+        >
+          <Badge className="bg-accent text-accent-foreground px-4 py-2 shadow-lg">
+            <Trophy className="w-4 h-4 mr-2" />
+            Secret Saver
+          </Badge>
+        </motion.div>
+      )}
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -350,15 +395,16 @@ const Welcome = () => {
                 <h2 className="font-display font-bold text-2xl text-foreground">$ave+</h2>
               </motion.div>
               <motion.div
-                className="hidden md:flex gap-4 text-sm text-muted-foreground"
+                className="flex items-center gap-4"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <span className="flex items-center gap-2">
+                <span className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                   All systems operational
                 </span>
+                <MoodToggle />
               </motion.div>
             </div>
           </div>
@@ -515,8 +561,13 @@ const Welcome = () => {
                   Why Choose $ave+?
                 </h2>
               </motion.div>
-              <div className="space-y-8">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+              <PullToRefreshStats onRefresh={async () => {
+                // Simulate refresh
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                toast.success("Stats refreshed!");
+              }}>
+                <div className="space-y-8">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                   {!statsLoaded ? (
                     <>
                       {[...Array(3)].map((_, index) => (
@@ -584,11 +635,15 @@ const Welcome = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={statsInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ delay: 0.5, duration: 0.5 }}
+                    onDoubleClick={() => setShowClickerGame(true)}
+                    className="cursor-pointer"
+                    title="Double-click for a surprise!"
                   >
                     <LiveActivityTicker />
                   </motion.div>
                 )}
-              </div>
+                </div>
+              </PullToRefreshStats>
             </div>
           </motion.section>
 
