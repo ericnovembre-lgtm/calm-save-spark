@@ -51,8 +51,7 @@ export function RedirectManagement() {
   const { data: redirects, isLoading } = useQuery({
     queryKey: ['custom-redirects'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('custom_redirects')
+      const { data, error } = await (supabase.from as any)('custom_redirects')
         .select('*')
         .order('usage_count', { ascending: false });
 
@@ -67,14 +66,12 @@ export function RedirectManagement() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (editingId) {
-        const { error } = await supabase
-          .from('custom_redirects')
+        const { error } = await (supabase.from as any)('custom_redirects')
           .update(redirect)
           .eq('id', editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from('custom_redirects')
+        const { error } = await (supabase.from as any)('custom_redirects')
           .insert({ ...redirect, created_by: user?.id });
         if (error) throw error;
       }
@@ -93,8 +90,7 @@ export function RedirectManagement() {
   // Delete redirect
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('custom_redirects')
+      const { error } = await (supabase.from as any)('custom_redirects')
         .delete()
         .eq('id', id);
       if (error) throw error;
@@ -111,8 +107,7 @@ export function RedirectManagement() {
   // Toggle active status
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-      const { error } = await supabase
-        .from('custom_redirects')
+      const { error } = await (supabase.from as any)('custom_redirects')
         .update({ is_active: isActive })
         .eq('id', id);
       if (error) throw error;

@@ -25,8 +25,7 @@ export function NotFoundAnalytics() {
   const { data: analytics, isLoading } = useQuery({
     queryKey: ['404-analytics'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('page_not_found_analytics')
+      const { data, error } = await (supabase.from as any)('page_not_found_analytics')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
