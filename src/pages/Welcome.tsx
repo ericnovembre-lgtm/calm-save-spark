@@ -5,6 +5,11 @@ import { Sparkles } from "lucide-react";
 import { WelcomeHero } from "@/components/welcome/WelcomeHero";
 import { LottieHero } from "@/components/welcome/LottieHero";
 import { FeatureCarousel, Feature } from "@/components/welcome/FeatureCarousel";
+import { FlippableFeatureCard } from "@/components/welcome/FlippableFeatureCard";
+import { JourneyTimeline } from "@/components/welcome/JourneyTimeline";
+import { ExpandableStatCard } from "@/components/welcome/ExpandableStatCard";
+import { LiveActivityTicker } from "@/components/welcome/LiveActivityTicker";
+import { SavingsPlayground } from "@/components/welcome/SavingsPlayground";
 import { FeatureDetailModal } from "@/components/welcome/FeatureDetailModal";
 import { FeatureTour, hasCompletedTour } from "@/components/welcome/FeatureTour";
 import { StatCard } from "@/components/welcome/StatCard";
@@ -17,6 +22,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { trackPageView, saveplus_audit_event } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
 import NeutralBackground from "@/components/background/NeutralBackground";
+import { Users, DollarSign, TrendingUp } from "lucide-react";
 
 const features: Feature[] = [
   {
@@ -458,13 +464,28 @@ const Welcome = () => {
                 </div>
               </div>
             ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <FeatureCarousel features={features} onFeatureClick={handleFeatureClick} />
-              </motion.div>
+              <div className="space-y-12">
+                {/* Flippable Feature Cards Grid */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {features.slice(0, 6).map((feature, index) => (
+                    <motion.div
+                      key={feature.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                    >
+                      <FlippableFeatureCard
+                        {...feature}
+                        badge={index === 0 ? "Most Popular" : index === 1 ? "New" : undefined}
+                        onLearnMore={() => handleFeatureClick(feature)}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Journey Timeline */}
+                <JourneyTimeline />
+              </div>
             )}
           </motion.section>
 
@@ -494,32 +515,92 @@ const Welcome = () => {
                   Why Choose $ave+?
                 </h2>
               </motion.div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {!statsLoaded ? (
-                  <>
-                    {[...Array(4)].map((_, index) => (
-                      <Skeleton key={index} className="h-32 w-full rounded-2xl" />
-                    ))}
-                  </>
-                ) : (
-                  stats.map((stat, index) => (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ delay: index * 0.1, duration: 0.5 }}
-                    >
-                      <StatCard
-                        label={stat.label}
-                        value={stat.value}
-                        icon={stat.icon}
-                        delay={0}
-                      />
-                    </motion.div>
-                  ))
+              <div className="space-y-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                  {!statsLoaded ? (
+                    <>
+                      {[...Array(3)].map((_, index) => (
+                        <Skeleton key={index} className="h-40 w-full rounded-2xl" />
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                        transition={{ delay: 0, duration: 0.5 }}
+                      >
+                        <ExpandableStatCard
+                          label="Active Savers"
+                          value={50000}
+                          suffix="+"
+                          icon={<Users className="w-8 h-8" />}
+                          delay={0}
+                          breakdown={[
+                            { label: "This Month", value: "2,340", percentage: 75 },
+                            { label: "This Week", value: "580", percentage: 45 },
+                            { label: "Today", value: "120", percentage: 25 },
+                          ]}
+                        />
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                        transition={{ delay: 0.1, duration: 0.5 }}
+                      >
+                        <ExpandableStatCard
+                          label="Total Saved"
+                          value={2.1}
+                          suffix="M+"
+                          icon={<DollarSign className="w-8 h-8" />}
+                          delay={0.1}
+                          breakdown={[
+                            { label: "Automated Savings", value: "$1.2M", percentage: 57 },
+                            { label: "Round-ups", value: "$600K", percentage: 28 },
+                            { label: "Manual Transfers", value: "$300K", percentage: 15 },
+                          ]}
+                        />
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                      >
+                        <ExpandableStatCard
+                          label="Average APY"
+                          value={4.25}
+                          suffix="%"
+                          icon={<TrendingUp className="w-8 h-8" />}
+                          delay={0.2}
+                        />
+                      </motion.div>
+                    </>
+                  )}
+                </div>
+
+                {/* Live Activity Ticker */}
+                {statsLoaded && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                  >
+                    <LiveActivityTicker />
+                  </motion.div>
                 )}
               </div>
             </div>
+          </motion.section>
+
+          {/* Interactive Savings Playground */}
+          <motion.section
+            aria-label="Try savings calculator"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
+          >
+            <SavingsPlayground />
           </motion.section>
 
           {/* Secure Onboarding CTA - White surface */}
