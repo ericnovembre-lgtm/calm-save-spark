@@ -1,107 +1,62 @@
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 
-const DEFAULT_ORDER = [
+const DEFAULT_CARD_ORDER = [
   'balance',
   'goals',
-  'connect-account',
-  'auto-save',
-  'onboarding',
-  'milestones',
-  'recommendations',
-  'skill-tree',
-  'cashflow',
-  'peer-insights',
-  'timeline',
-  'scheduled',
   'manual-transfer',
-  'history',
+  'scheduled-transfers',
+  'connect-account',
+  'transfer-history',
+  'journey-milestones',
+  'recommendations',
+  'cash-flow',
+  'skill-tree',
+  'peer-insights',
+  'goal-timeline',
 ];
 
+const STORAGE_KEY = 'dashboard-card-order';
+
 /**
- * Hook for managing dashboard card order with persistent storage
+ * Hook for managing dashboard card order with persistent localStorage
+ * TODO: Migrate to database storage when user_preferences table is available
  */
 export function useDashboardOrder(userId?: string) {
-  const [cardOrder, setCardOrder] = useState<string[]>(DEFAULT_ORDER);
-  const queryClient = useQueryClient();
-
-  // Fetch user preferences
-  const { data: preferences } = useQuery({
-    queryKey: ['user-preferences', userId],
-    queryFn: async () => {
-      if (!userId) return null;
-      
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('dashboard_card_order')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!userId,
-  });
-
-  // Update local state when preferences load
-  useEffect(() => {
-    if (preferences?.dashboard_card_order) {
-      setCardOrder(preferences.dashboard_card_order);
+  const storageKey = userId ? `${STORAGE_KEY}-${userId}` : STORAGE_KEY;
+  
+  // Initialize from localStorage or default
+  const [cardOrder, setCardOrder] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return DEFAULT_CARD_ORDER;
+    
+    try {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? JSON.parse(stored) : DEFAULT_CARD_ORDER;
+    } catch {
+      return DEFAULT_CARD_ORDER;
     }
-  }, [preferences]);
-
-  // Save preferences mutation
-  const saveMutation = useMutation({
-    mutationFn: async (newOrder: string[]) => {
-      if (!userId) throw new Error('User not authenticated');
-
-      const { data: existing } = await supabase
-        .from('user_preferences')
-        .select('id')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (existing) {
-        // Update existing
-        const { error } = await supabase
-          .from('user_preferences')
-          .update({ dashboard_card_order: newOrder })
-          .eq('user_id', userId);
-
-        if (error) throw error;
-      } else {
-        // Insert new
-        const { error } = await supabase
-          .from('user_preferences')
-          .insert({
-            user_id: userId,
-            dashboard_card_order: newOrder,
-          });
-
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-preferences', userId] });
-    },
   });
 
   const updateOrder = (newOrder: string[]) => {
     setCardOrder(newOrder);
-    if (userId) {
-      saveMutation.mutate(newOrder);
+    
+    // Save to localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(newOrder));
+      } catch (error) {
+        console.error('Failed to save dashboard order:', error);
+      }
     }
   };
 
   const resetOrder = () => {
-    updateOrder(DEFAULT_ORDER);
+    updateOrder(DEFAULT_CARD_ORDER);
   };
 
   return {
     cardOrder,
     updateOrder,
     resetOrder,
-    isLoading: saveMutation.isPending,
+    isLoading: false,
   };
 }

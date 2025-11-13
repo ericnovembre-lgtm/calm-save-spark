@@ -5,9 +5,11 @@ import { AchievementBadge } from "@/components/gamification/AchievementBadge";
 import { StreakDisplay } from "@/components/gamification/StreakDisplay";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { Trophy, Target } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
+import { InteractiveCard } from "@/components/ui/interactive-card";
+import { AnimatedProgress } from "@/components/ui/animated-progress";
+import { motion } from "framer-motion";
 
 export default function Achievements() {
   const { data: userAchievements, isLoading: achievementsLoading } = useQuery({
@@ -97,8 +99,13 @@ export default function Achievements() {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-6">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, staggerChildren: 0.1 }}
+        >
+          <InteractiveCard className="p-6">
             <div className="flex items-center gap-3">
               <Trophy className="w-10 h-10 text-yellow-500" />
               <div>
@@ -106,9 +113,9 @@ export default function Achievements() {
                 <div className="text-sm text-muted-foreground">Achievements Unlocked</div>
               </div>
             </div>
-          </Card>
+          </InteractiveCard>
 
-          <Card className="p-6">
+          <InteractiveCard className="p-6">
             <div className="flex items-center gap-3">
               <Target className="w-10 h-10 text-blue-500" />
               <div>
@@ -116,18 +123,18 @@ export default function Achievements() {
                 <div className="text-sm text-muted-foreground">Total Points</div>
               </div>
             </div>
-          </Card>
+          </InteractiveCard>
 
-          <Card className="p-6">
+          <InteractiveCard className="p-6">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-foreground">Progress</span>
                 <span className="text-sm text-muted-foreground">{completionRate}%</span>
               </div>
-              <Progress value={Number(completionRate)} className="h-2" />
+              <AnimatedProgress value={Number(completionRate)} />
             </div>
-          </Card>
-        </div>
+          </InteractiveCard>
+        </motion.div>
 
         {/* Streak */}
         {streak && (
@@ -218,7 +225,7 @@ export default function Achievements() {
                         {progressPercent.toFixed(0)}%
                       </span>
                     </div>
-                    <Progress value={progressPercent} className="h-2" />
+                    <AnimatedProgress value={progressPercent} />
                   </div>
                 </Card>
               );
