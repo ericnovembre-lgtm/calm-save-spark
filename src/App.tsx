@@ -10,6 +10,7 @@ import LiveRegion from "@/components/layout/LiveRegion";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
+import { AuthRedirect } from "@/components/auth/AuthRedirect";
 import { AppLayout } from "./components/layout/AppLayout";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/animations/PageTransition";
@@ -106,8 +107,26 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         {/* Public routes without layout */}
-        <Route path="/" element={<Navigate to="/welcome" replace />} />
-        <Route path="/welcome" element={<PageTransition><Welcome /></PageTransition>} />
+        <Route 
+          path="/" 
+          element={
+            <AuthRedirect>
+              <PageTransition>
+                <Welcome />
+              </PageTransition>
+            </AuthRedirect>
+          } 
+        />
+        <Route 
+          path="/welcome" 
+          element={
+            <AuthRedirect>
+              <PageTransition>
+                <Welcome />
+              </PageTransition>
+            </AuthRedirect>
+          } 
+        />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
         <Route path="/onboarding" element={<PageTransition><Onboarding /></PageTransition>} />
