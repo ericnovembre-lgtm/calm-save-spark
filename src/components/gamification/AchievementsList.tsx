@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AchievementBadge } from "./AchievementBadge";
+import { AchievementLeaderboard } from "./AchievementLeaderboard";
+import { AchievementCollections } from "./AchievementCollections";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
@@ -92,9 +94,11 @@ export function AchievementsList() {
       </Card>
 
       <Tabs defaultValue="earned" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="earned">Earned ({earnedAchievements.length})</TabsTrigger>
           <TabsTrigger value="locked">Locked ({lockedAchievements.length})</TabsTrigger>
+          <TabsTrigger value="collections">Collections</TabsTrigger>
+          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
         </TabsList>
 
         <TabsContent value="earned" className="mt-6">
@@ -146,6 +150,14 @@ export function AchievementsList() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="collections" className="mt-6">
+          <AchievementCollections />
+        </TabsContent>
+
+        <TabsContent value="leaderboard" className="mt-6">
+          <AchievementLeaderboard />
         </TabsContent>
       </Tabs>
     </div>

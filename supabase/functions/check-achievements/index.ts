@@ -105,6 +105,23 @@ serve(async (req) => {
 
         newAchievements.push(achievement);
         console.log(`Achievement earned: ${achievement.name}`);
+
+        // Grant freeze day reward if achievement has one
+        if (achievement.freeze_day_reward && achievement.freeze_day_reward > 0) {
+          const { error: rewardError } = await supabaseClient.rpc(
+            'grant_freeze_day_reward',
+            {
+              p_user_id: user.id,
+              p_freeze_days: achievement.freeze_day_reward,
+            }
+          );
+
+          if (rewardError) {
+            console.error('Error granting freeze day reward:', rewardError);
+          } else {
+            console.log(`Granted ${achievement.freeze_day_reward} freeze days for achievement`);
+          }
+        }
       }
     }
 

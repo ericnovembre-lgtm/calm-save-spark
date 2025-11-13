@@ -14,12 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievement_collections: {
+        Row: {
+          category: Database["public"]["Enums"]["achievement_category"]
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["achievement_category"]
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["achievement_category"]
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       achievements: {
         Row: {
           achievement_type: string
           badge_color: string | null
+          category: Database["public"]["Enums"]["achievement_category"] | null
           created_at: string | null
           description: string | null
+          freeze_day_reward: number | null
           icon: string | null
           id: string
           name: string
@@ -29,8 +58,10 @@ export type Database = {
         Insert: {
           achievement_type: string
           badge_color?: string | null
+          category?: Database["public"]["Enums"]["achievement_category"] | null
           created_at?: string | null
           description?: string | null
+          freeze_day_reward?: number | null
           icon?: string | null
           id?: string
           name: string
@@ -40,8 +71,10 @@ export type Database = {
         Update: {
           achievement_type?: string
           badge_color?: string | null
+          category?: Database["public"]["Enums"]["achievement_category"] | null
           created_at?: string | null
           description?: string | null
+          freeze_day_reward?: number | null
           icon?: string | null
           id?: string
           name?: string
@@ -3289,11 +3322,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      achievement_leaderboard: {
+        Row: {
+          avatar_url: string | null
+          current_streak: number | null
+          full_name: string | null
+          rank: number | null
+          total_achievements: number | null
+          total_points: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_expired_webauthn_challenges: { Args: never; Returns: undefined }
       compute_user_features: { Args: { sub_amount: number }; Returns: Json }
+      grant_freeze_day_reward: {
+        Args: { p_freeze_days: number; p_user_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -3304,6 +3352,13 @@ export type Database = {
       reset_inactive_streaks: { Args: never; Returns: undefined }
     }
     Enums: {
+      achievement_category:
+        | "savings_mastery"
+        | "goal_achiever"
+        | "streak_champion"
+        | "financial_wellness"
+        | "automation_expert"
+        | "community_champion"
       app_role: "admin" | "user"
       family_role: "parent" | "child" | "partner"
       invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
@@ -3447,6 +3502,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      achievement_category: [
+        "savings_mastery",
+        "goal_achiever",
+        "streak_champion",
+        "financial_wellness",
+        "automation_expert",
+        "community_champion",
+      ],
       app_role: ["admin", "user"],
       family_role: ["parent", "child", "partner"],
       invoice_status: ["draft", "sent", "paid", "overdue", "cancelled"],
