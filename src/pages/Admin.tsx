@@ -1,10 +1,12 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Trophy, Gift, BarChart3 } from "lucide-react";
+import { Shield, Trophy, Gift, BarChart3, Route, AlertCircle } from "lucide-react";
 import { ChallengeManagement } from "@/components/admin/ChallengeManagement";
 import { ReferralReview } from "@/components/admin/ReferralReview";
 import { PlatformAnalytics } from "@/components/admin/PlatformAnalytics";
+import { RedirectManagement } from "@/components/admin/RedirectManagement";
+import { NotFoundAnalytics } from "@/components/admin/NotFoundAnalytics";
 import { ExportButton } from "@/components/analytics/ExportButton";
 
 export default function Admin() {
@@ -90,7 +92,7 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="challenges" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="challenges">
               <Trophy className="w-4 h-4 mr-2" />
               Challenges
@@ -102,6 +104,14 @@ export default function Admin() {
             <TabsTrigger value="analytics">
               <BarChart3 className="w-4 h-4 mr-2" />
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="redirects">
+              <Route className="w-4 h-4 mr-2" />
+              Redirects
+            </TabsTrigger>
+            <TabsTrigger value="404s">
+              <AlertCircle className="w-4 h-4 mr-2" />
+              404 Analytics
             </TabsTrigger>
           </TabsList>
 
@@ -115,6 +125,14 @@ export default function Admin() {
 
           <TabsContent value="analytics" className="space-y-4">
             <PlatformAnalytics />
+          </TabsContent>
+
+          <TabsContent value="redirects" className="space-y-4">
+            <RedirectManagement />
+          </TabsContent>
+
+          <TabsContent value="404s" className="space-y-4">
+            <NotFoundAnalytics />
           </TabsContent>
         </Tabs>
       </div>
