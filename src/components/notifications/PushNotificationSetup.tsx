@@ -89,7 +89,7 @@ export const PushNotificationSetup = () => {
       if (!session) throw new Error("Not authenticated");
 
       const { error } = await supabase
-        .from("push_subscriptions")
+        .from("push_subscriptions" as any)
         .insert({
           user_id: session.user.id,
           endpoint: subscription.endpoint,
@@ -124,7 +124,7 @@ export const PushNotificationSetup = () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           await supabase
-            .from("push_subscriptions")
+            .from("push_subscriptions" as any)
             .delete()
             .eq("user_id", session.user.id)
             .eq("endpoint", subscription.endpoint);
