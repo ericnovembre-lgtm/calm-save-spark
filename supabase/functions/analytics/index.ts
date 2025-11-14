@@ -1,16 +1,55 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface AnalyticsEvent {
-  event: string;
-  properties?: Record<string, any>;
-  userId?: string;
-  timestamp?: string;
-}
+// Validation schema with strict limits to prevent log injection and storage abuse
+const analyticsSchema = z.object({
+  event: z.string()
+    .trim()
+    .min(1, "Event name is required")
+    .max(100, "Event name must be less than 100 characters")
+    .regex(/^[a-zA-Z0-9_\-.:]+$/, "Event name can only contain alphanumeric characters, underscores, hyphens, colons, and dots"),
+  
+  properties: z.record(z.unknown())
+    .optional()
+    .refine(
+      (props) => {
+        if (!props) return true;
+        // Max 10 properties
+        if (Object.keys(props).length > 10) return false;
+        // Max 1KB total size
+        const jsonSize = JSON.stringify(props).length;
+        return jsonSize <= 1024;
+      },
+      {
+        message: "Properties must contain at most 10 entries and be under 1KB total size"
+      }
+    )
+    .transform((props) => {
+      if (!props) return {};
+      // Sanitize property keys to prevent injection
+      const sanitized: Record<string, any> = {};
+      for (const [key, value] of Object.entries(props)) {
+        const sanitizedKey = key.replace(/[^a-zA-Z0-9_\-]/g, '_').substring(0, 50);
+        sanitized[sanitizedKey] = value;
+      }
+      return sanitized;
+    }),
+  
+  userId: z.string()
+    .uuid("Invalid user ID format")
+    .optional(),
+  
+  timestamp: z.string()
+    .datetime({ message: "Invalid timestamp format" })
+    .optional(),
+});
+
+type AnalyticsEvent = z.infer<typeof analyticsSchema>;
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -25,18 +64,12 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Parse request body
-    const body: AnalyticsEvent = await req.json();
-    const { event, properties = {}, userId, timestamp } = body;
+    // Parse and validate request body
+    const body = await req.json();
+    const validated = analyticsSchema.parse(body);
+    const { event, properties = {}, userId, timestamp } = validated;
 
-    // Validate required fields
-    if (!event) {
-      console.error('[Analytics] Missing event name');
-      return new Response(
-        JSON.stringify({ error: 'Event name is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    console.log(`[Analytics] Processing event: ${event} (properties: ${Object.keys(properties).length})`);
 
     // Extract route from properties or default to unknown
     const route = properties.route || '/unknown';
@@ -69,6 +102,20 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('[Analytics] Unexpected error:', error);
+    
+    // Handle validation errors specifically
+    if (error instanceof z.ZodError) {
+      const validationErrors = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      console.warn('[Analytics] Validation failed:', validationErrors);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Validation error', 
+          details: validationErrors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
       JSON.stringify({ error: 'Internal server error', details: errorMessage }),
