@@ -59,6 +59,7 @@ const NotFound = () => {
   }, [navigate, recentPages.length]);
 
   const popularLinks = [
+    { to: "/", label: "Home", icon: Home, primary: true },
     { to: "/dashboard", label: "Dashboard", icon: Home },
     { to: "/goals", label: "Goals", icon: Compass },
     { to: "/transactions", label: "Transactions", icon: ArrowLeft },
@@ -196,14 +197,22 @@ const NotFound = () => {
             <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
               {popularLinks.map((link) => {
                 const Icon = link.icon;
+                const isPrimary = (link as any).primary;
                 return (
                   <Link key={link.to} to={link.to}>
                     <Button
-                      variant="outline"
-                      className="w-full h-auto py-4 flex flex-col items-center gap-2 hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] transition-all"
+                      variant={isPrimary ? "default" : "outline"}
+                      className={`w-full h-auto py-4 flex flex-col items-center gap-2 transition-all ${
+                        isPrimary 
+                          ? "bg-foreground text-background hover:bg-foreground/90" 
+                          : "hover:bg-accent hover:text-accent-foreground hover:scale-[1.02]"
+                      }`}
                     >
                       <Icon className="w-5 h-5" />
                       <span className="text-sm font-medium">{link.label}</span>
+                      {isPrimary && (
+                        <span className="text-xs opacity-70">Main Landing</span>
+                      )}
                     </Button>
                   </Link>
                 );
