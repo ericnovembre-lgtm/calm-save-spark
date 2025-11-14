@@ -117,11 +117,15 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
       if (error) throw error;
 
       trackEvent("intent_survey_completed", {
-        ...quizData,
         goals_count: values.savingGoal.length,
+        goals_list: values.savingGoal.join(','),
         has_custom_goal: values.savingGoal.includes("custom"),
+        custom_goal_name: values.customGoalName || null,
         challenges_count: values.biggestChallenge.length,
+        challenges_list: values.biggestChallenge.join(','),
         has_custom_challenge: values.biggestChallenge.includes("custom"),
+        custom_challenge_name: values.customChallengeName || null,
+        automation_preference: values.automationPreference,
       });
       triggerHaptic("success");
       toast.success("Your preferences have been saved!");
