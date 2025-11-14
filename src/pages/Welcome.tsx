@@ -409,28 +409,32 @@ const Welcome = () => {
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
-        {/* Enhanced Background Effects - Phase 7 (Progressive Enhancement) */}
+      {/* Enhanced Background Effects - Phase 7 (Progressive Enhancement) */}
       <NeutralBackground />
-      <ProgressiveLoader priority="low" delay={500}>
-        <LazyErrorBoundary componentName="ScrollGradient" fallbackHeight="100vh">
-          <ScrollGradient />
-        </LazyErrorBoundary>
-      </ProgressiveLoader>
-      <ProgressiveLoader priority="low" delay={700}>
-        <LazyErrorBoundary componentName="ParallaxBackground" fallbackHeight="100vh">
-          <ParallaxBackground />
-        </LazyErrorBoundary>
-      </ProgressiveLoader>
-      <ProgressiveLoader priority="low" delay={900}>
-        <LazyErrorBoundary componentName="ParticleBackground" fallbackHeight="100vh">
-          <ParticleBackground />
-        </LazyErrorBoundary>
-      </ProgressiveLoader>
-      <ProgressiveLoader priority="low" delay={1100}>
-        <LazyErrorBoundary componentName="MouseGradient" fallbackHeight="100vh">
-          <MouseGradient />
-        </LazyErrorBoundary>
-      </ProgressiveLoader>
+      
+      {/* Background layers container - forced behind all content */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
+        <ProgressiveLoader priority="low" delay={500}>
+          <LazyErrorBoundary componentName="ScrollGradient" fallbackHeight="100vh" background>
+            <ScrollGradient />
+          </LazyErrorBoundary>
+        </ProgressiveLoader>
+        <ProgressiveLoader priority="low" delay={700}>
+          <LazyErrorBoundary componentName="ParallaxBackground" fallbackHeight="100vh" background>
+            <ParallaxBackground />
+          </LazyErrorBoundary>
+        </ProgressiveLoader>
+        <ProgressiveLoader priority="low" delay={900}>
+          <LazyErrorBoundary componentName="ParticleBackground" fallbackHeight="100vh" background>
+            <ParticleBackground />
+          </LazyErrorBoundary>
+        </ProgressiveLoader>
+        <ProgressiveLoader priority="low" delay={1100}>
+          <LazyErrorBoundary componentName="MouseGradient" fallbackHeight="100vh" background>
+            <MouseGradient />
+          </LazyErrorBoundary>
+        </ProgressiveLoader>
+      </div>
       
       {/* Gesture Handler - Phase 8 */}
       <GestureHandler enableShakeToConfetti={true}>
@@ -513,69 +517,52 @@ const Welcome = () => {
             className="space-y-8 relative z-20 bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
             style={prefersReducedMotion ? {} : { y: parallaxY, opacity }}
           >
-            {!heroLoaded ? (
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-                  <div className="space-y-4">
-                    <Skeleton className="h-12 w-3/4 rounded-lg" />
-                    <Skeleton className="h-6 w-full rounded-lg" />
-                    <Skeleton className="h-6 w-5/6 rounded-lg" />
-                    <div className="flex gap-4 pt-4">
-                      <Skeleton className="h-12 w-48 rounded-lg" />
-                      <Skeleton className="h-12 w-36 rounded-lg" />
-                    </div>
+            {/* Hero content - always visible */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              <motion.div
+                initial={prefersReducedMotion ? false : { opacity: 0, x: -50 }}
+                animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, x: 0 } : {})}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+              >
+                <WelcomeHero />
+              </motion.div>
+              
+              <motion.div 
+                className="relative w-full max-w-md mx-auto lg:max-w-none"
+                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
+                animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, scale: 1 } : {})}
+                transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+                style={prefersReducedMotion ? {} : {
+                  transform: `perspective(1000px) rotateY(${mousePosition.x * 0.5}deg) rotateX(${-mousePosition.y * 0.5}deg)`
+                }}
+              >
+                {/* Subtle accent glow - neutral only */}
+                <div className="absolute inset-0 bg-[color:var(--color-accent)]/20 blur-3xl" />
+                {animationData ? (
+                  <div className="relative">
+                    <LazyErrorBoundary componentName="LottieHero" fallbackHeight="384px">
+                      <LottieHero 
+                        animationData={animationData}
+                        autoplay
+                        loop
+                        className="w-full h-auto drop-shadow-2xl"
+                      />
+                    </LazyErrorBoundary>
                   </div>
+                ) : (
                   <Skeleton className="h-96 w-full rounded-2xl" />
-                </div>
-                <Skeleton className="h-14 w-full rounded-lg" />
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-                  <motion.div
-                    initial={prefersReducedMotion ? false : { opacity: 0, x: -50 }}
-                    animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, x: 0 } : {})}
-                    transition={{ duration: 0.7, ease: "easeOut" }}
-                  >
-                    <WelcomeHero />
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="relative w-full max-w-md mx-auto lg:max-w-none"
-                    initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
-                    animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, scale: 1 } : {})}
-                    transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-                    style={prefersReducedMotion ? {} : {
-                      transform: `perspective(1000px) rotateY(${mousePosition.x * 0.5}deg) rotateX(${-mousePosition.y * 0.5}deg)`
-                    }}
-                  >
-                    {/* Subtle accent glow - neutral only */}
-                    <div className="absolute inset-0 bg-[color:var(--color-accent)]/20 blur-3xl" />
-                    {animationData && (
-                      <div className="relative">
-                        <LazyErrorBoundary componentName="LottieHero" fallbackHeight="384px">
-                          <LottieHero 
-                            animationData={animationData}
-                            autoplay
-                            loop
-                            className="w-full h-auto drop-shadow-2xl"
-                          />
-                        </LazyErrorBoundary>
-                      </div>
-                    )}
-                  </motion.div>
-                </div>
-                
-                <motion.div 
-                  className="mt-8"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={heroInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                >
-                  <SearchBarHinted />
-                </motion.div>
-              </>
-            )}
+                )}
+              </motion.div>
+            </div>
+            
+            <motion.div 
+              className="mt-8"
+              initial={{ opacity: 0, y: 30 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <SearchBarHinted />
+            </motion.div>
           </motion.section>
 
           {/* Mission Control Features with scroll animations - Pure white section */}

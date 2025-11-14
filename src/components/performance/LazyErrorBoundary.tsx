@@ -10,6 +10,7 @@ interface LazyErrorBoundaryProps {
   fallbackHeight?: string;
   componentName?: string;
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  background?: boolean;
 }
 
 interface State {
@@ -103,12 +104,23 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
 
   render() {
     const { hasError, error, retryCount } = this.state;
-    const { children, fallback, fallbackHeight = '200px', componentName } = this.props;
+    const { children, fallback, fallbackHeight = '200px', componentName, background } = this.props;
 
     if (hasError && error) {
       // If custom fallback is provided, use it
       if (fallback) {
         return fallback;
+      }
+
+      // For background components, use minimal non-blocking fallback
+      if (background) {
+        return (
+          <div 
+            className="pointer-events-none relative -z-10" 
+            style={{ minHeight: fallbackHeight }}
+            aria-hidden="true"
+          />
+        );
       }
 
       // Check if it's a chunk loading error

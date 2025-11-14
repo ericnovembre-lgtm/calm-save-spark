@@ -5,8 +5,6 @@ import { useEffect, useState } from "react";
 import { getClientUser } from "@/lib/user";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { TypewriterText } from "./TypewriterText";
-import { FloatingIcons } from "./FloatingIcons";
-import { ParticleBackground } from "./ParticleBackground";
 export const WelcomeHero = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -19,10 +17,6 @@ export const WelcomeHero = () => {
     checkAuth();
   }, []);
   return <div className="relative flex flex-col items-start gap-6">
-      {/* Background Effects */}
-      <ParticleBackground />
-      <FloatingIcons />
-      
       <h1 data-testid="welcome-hero-title" className="font-display font-semibold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[color:var(--color-text)] leading-[1.1] tracking-tight relative z-10">
         Get Rewarded for{" "}
         <TypewriterText 

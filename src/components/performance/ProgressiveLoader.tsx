@@ -27,23 +27,26 @@ export const ProgressiveLoader = ({
 
     const effectiveDelay = priorityDelays[priority];
 
-    // Wait for idle time or fallback to timeout
+    // Timeout-first strategy: guarantee rendering after delay
+    const timeout = setTimeout(() => {
+      setShouldRender(true);
+    }, effectiveDelay);
+
+    // Use requestIdleCallback as opportunistic hint, but timeout is the guarantee
+    let idleCallback: number | undefined;
     if ('requestIdleCallback' in window) {
-      const idleCallback = requestIdleCallback(
-        () => {
-          setShouldRender(true);
-        },
-        { timeout: effectiveDelay + 1000 }
-      );
-
-      return () => cancelIdleCallback(idleCallback);
-    } else {
-      const timeout = setTimeout(() => {
+      idleCallback = requestIdleCallback(() => {
+        clearTimeout(timeout);
         setShouldRender(true);
-      }, effectiveDelay);
-
-      return () => clearTimeout(timeout);
+      });
     }
+
+    return () => {
+      clearTimeout(timeout);
+      if (idleCallback !== undefined) {
+        cancelIdleCallback(idleCallback);
+      }
+    };
   }, [delay, priority]);
 
   return shouldRender ? <>{children}</> : null;
