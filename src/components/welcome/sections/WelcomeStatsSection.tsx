@@ -19,6 +19,7 @@ import { ExpandableStatCard } from "@/components/welcome/ExpandableStatCard";
 import { LiveActivityTicker } from "@/components/welcome/LiveActivityTicker";
 import { PullToRefreshStats } from "@/components/mobile/PullToRefreshStats";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { usePlatformStats, transformPlatformStats } from "@/hooks/usePlatformStats";
 import { WELCOME_STATS } from "@/components/welcome/constants";
 
 /**
@@ -83,6 +84,12 @@ export function WelcomeStatsSection({
   onDoubleClick
 }: WelcomeStatsSectionProps) {
   const prefersReducedMotion = useReducedMotion();
+  
+  // Fetch real-time platform stats
+  const { data: platformStats, isLoading, refetch } = usePlatformStats();
+  
+  // Transform stats or use static fallback
+  const stats = transformPlatformStats(platformStats);
 
   return (
     <LazyLoad threshold={0.1} minHeight="600px">
@@ -104,22 +111,35 @@ export function WelcomeStatsSection({
         </motion.div>
         <LazyErrorBoundary componentName="PullToRefreshStats" fallbackHeight="400px">
           <PullToRefreshStats onRefresh={async () => {
-            // Simulate refresh
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Refetch real-time stats
+            await refetch();
             toast.success("Stats refreshed!");
           }}>
             <div className="space-y-8">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                {WELCOME_STATS.map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                  >
-                    <ExpandableStatCard {...stat} />
-                  </motion.div>
-                ))}
+                {isLoading ? (
+                  // Show loading skeletons while fetching
+                  [0, 1, 2].map((index) => (
+                    <motion.div
+                      key={`skeleton-${index}`}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                      className="h-48 bg-muted/50 rounded-orbital animate-pulse"
+                    />
+                  ))
+                ) : (
+                  stats.map((stat, index) => (
+                    <motion.div
+                      key={stat.label}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                    >
+                      <ExpandableStatCard {...stat} />
+                    </motion.div>
+                  ))
+                )}
               </div>
 
               {/* Live Activity Ticker */}
