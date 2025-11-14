@@ -40,6 +40,23 @@ const REGISTRY: Record<string, SaveplusIconRecord> = {
   'trending-up': { key:'trending-up', label:'Trending Up', emoji_static:'📈', static:'/icons/trending-up.svg' },
   users: { key:'users', label:'Users', emoji_static:'👥', static:'/icons/users.svg' },
   money: { key:'money', label:'Money', emoji_static:'💰', static:'/icons/money.svg' },
+  
+  // Onboarding-specific animated icons
+  'piggy-bank': { key:'piggy-bank', label:'Piggy Bank', emoji_static:'🐷', static:'/icons/piggy-bank.svg' },
+  'rocket': { key:'rocket', label:'Rocket Launch', emoji_static:'🚀', static:'/icons/rocket.svg' },
+  'shield-check': { key:'shield-check', label:'Security Check', emoji_static:'✅', static:'/icons/shield-check.svg' },
+  'sparkles': { key:'sparkles', label:'Sparkles', emoji_static:'✨', static:'/icons/sparkles.svg' },
+  'chart-up': { key:'chart-up', label:'Growth Chart', emoji_static:'📈', static:'/icons/chart-up.svg' },
+  'handshake': { key:'handshake', label:'Handshake', emoji_static:'🤝', static:'/icons/handshake.svg' },
+  'target-arrow': { key:'target-arrow', label:'Target Achievement', emoji_static:'🎯', static:'/icons/target-arrow.svg' },
+  'coin-stack': { key:'coin-stack', label:'Coin Stack', emoji_static:'🪙', static:'/icons/coin-stack.svg' },
+  'lightning-bolt': { key:'lightning-bolt', label:'Lightning', emoji_static:'⚡', static:'/icons/lightning-bolt.svg' },
+  'calendar-check': { key:'calendar-check', label:'Calendar Check', emoji_static:'📅', static:'/icons/calendar-check.svg' },
+  'trophy': { key:'trophy', label:'Trophy', emoji_static:'🏆', static:'/icons/trophy.svg' },
+  'gift': { key:'gift', label:'Gift', emoji_static:'🎁', static:'/icons/gift.svg' },
+  'star': { key:'star', label:'Star', emoji_static:'⭐', static:'/icons/star.svg' },
+  'heart': { key:'heart', label:'Heart', emoji_static:'❤️', static:'/icons/heart.svg' },
+  'fire': { key:'fire', label:'Fire', emoji_static:'🔥', static:'/icons/fire.svg' },
 };
 
 /**
