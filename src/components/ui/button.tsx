@@ -2,6 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { motion, HTMLMotionProps } from "framer-motion";
+import { haptics } from "@/lib/haptics";
 
 import { cn } from "@/lib/utils";
 
@@ -48,6 +49,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     const classes = cn(buttonVariants({ variant, size, className }));
     
+    // Handle button press with haptic feedback
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!props.disabled) {
+        haptics.buttonPress();
+      }
+      if (props.onClick) {
+        props.onClick(e);
+      }
+    };
+    
     // Use motion wrapper for animated buttons
     if (animated && !asChild) {
       return (
@@ -56,7 +67,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           type={props.type}
           className={classes}
           disabled={props.disabled}
-          onClick={props.onClick}
+          onClick={handleClick}
           onMouseEnter={props.onMouseEnter}
           onMouseLeave={props.onMouseLeave}
           onFocus={props.onFocus}
@@ -72,7 +83,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       );
     }
     
-    return <Comp className={classes} ref={ref} {...props} />;
+    return <Comp className={classes} ref={ref} {...props} onClick={handleClick} />;
   },
 );
 Button.displayName = "Button";
