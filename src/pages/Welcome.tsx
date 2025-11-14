@@ -452,7 +452,7 @@ const Welcome = () => {
       <NeutralBackground />
       
       {/* Background layers container - forced behind all content */}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0" style={{ zIndex: 'var(--z-background)' }}>
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
         <ProgressiveLoader priority="low" delay={500}>
           <LazyErrorBoundary 
             componentName="ScrollGradient" 

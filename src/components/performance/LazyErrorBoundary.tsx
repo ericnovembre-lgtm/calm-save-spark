@@ -296,8 +296,8 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
       if (background) {
         return (
           <div 
-            className="pointer-events-none relative" 
-            style={{ minHeight: fallbackHeight, zIndex: 'var(--z-background)' }}
+            className="pointer-events-none relative -z-10" 
+            style={{ minHeight: fallbackHeight }}
             aria-hidden="true"
           />
         );
@@ -323,8 +323,8 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
       if (background) {
         return (
           <div 
-            className="pointer-events-none relative" 
-            style={{ minHeight: fallbackHeight, zIndex: 'var(--z-background)' }}
+            className="pointer-events-none relative -z-10" 
+            style={{ minHeight: fallbackHeight }}
             aria-hidden="true"
           />
         );
