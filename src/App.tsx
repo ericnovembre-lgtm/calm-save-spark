@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,45 +16,47 @@ import { AuthRedirect } from "@/components/auth/AuthRedirect";
 import { AppLayout } from "./components/layout/AppLayout";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/animations/PageTransition";
+import { LoadingState } from "./components/LoadingState";
 
-import Dashboard from "./pages/Dashboard";
-import Transactions from "./pages/Transactions";
-import Subscriptions from "./pages/Subscriptions";
-import Insights from "./pages/Insights";
-import Budget from "./pages/Budget";
-import Debts from "./pages/Debts";
-import Investments from "./pages/Investments";
-import Credit from "./pages/Credit";
-import Welcome from "./pages/Welcome";
-import IconDemo from "./pages/IconDemo";
-import Coach from "./pages/Coach";
-import Help from "./pages/Help";
-import Pricing from "./pages/Pricing";
-import Onboarding from "./pages/Onboarding";
-import NotFound from "./pages/NotFound";
-import Checkout from "./pages/Checkout";
-import SubscriptionManagement from "./pages/SubscriptionManagement";
-import Goals from "./pages/Goals";
-import Pots from "./pages/Pots";
-import Automations from "./pages/Automations";
-import Settings from "./pages/Settings";
-import Auth from "./pages/Auth";
-import Maintenance from "./pages/Maintenance";
-import Achievements from "./pages/Achievements";
-import BillNegotiation from "./pages/BillNegotiation";
-import Family from "./pages/Family";
-import Student from "./pages/Student";
-import Business from "./pages/Business";
-import WhiteLabel from "./pages/WhiteLabel";
-import FinancialLiteracy from "./pages/FinancialLiteracy";
-import Sustainability from "./pages/Sustainability";
-import Analytics from "./pages/Analytics";
-import Social from "./pages/Social";
-import Integrations from "./pages/Integrations";
-import Admin from "./pages/Admin";
-import FinancialHealth from "./pages/FinancialHealth";
-import Leaderboard from "./pages/Leaderboard";
-import Install from "./pages/Install";
+// Lazy load all pages for optimal code splitting
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Transactions = lazy(() => import("./pages/Transactions"));
+const Subscriptions = lazy(() => import("./pages/Subscriptions"));
+const Insights = lazy(() => import("./pages/Insights"));
+const Budget = lazy(() => import("./pages/Budget"));
+const Debts = lazy(() => import("./pages/Debts"));
+const Investments = lazy(() => import("./pages/Investments"));
+const Credit = lazy(() => import("./pages/Credit"));
+const Welcome = lazy(() => import("./pages/Welcome"));
+const IconDemo = lazy(() => import("./pages/IconDemo"));
+const Coach = lazy(() => import("./pages/Coach"));
+const Help = lazy(() => import("./pages/Help"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const SubscriptionManagement = lazy(() => import("./pages/SubscriptionManagement"));
+const Goals = lazy(() => import("./pages/Goals"));
+const Pots = lazy(() => import("./pages/Pots"));
+const Automations = lazy(() => import("./pages/Automations"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Maintenance = lazy(() => import("./pages/Maintenance"));
+const Achievements = lazy(() => import("./pages/Achievements"));
+const BillNegotiation = lazy(() => import("./pages/BillNegotiation"));
+const Family = lazy(() => import("./pages/Family"));
+const Student = lazy(() => import("./pages/Student"));
+const Business = lazy(() => import("./pages/Business"));
+const WhiteLabel = lazy(() => import("./pages/WhiteLabel"));
+const FinancialLiteracy = lazy(() => import("./pages/FinancialLiteracy"));
+const Sustainability = lazy(() => import("./pages/Sustainability"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const Social = lazy(() => import("./pages/Social"));
+const Integrations = lazy(() => import("./pages/Integrations"));
+const Admin = lazy(() => import("./pages/Admin"));
+const FinancialHealth = lazy(() => import("./pages/FinancialHealth"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const Install = lazy(() => import("./pages/Install"));
 
 const queryClient = new QueryClient();
 
@@ -74,7 +76,9 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <TooltipProvider>
-              <Maintenance />
+              <Suspense fallback={<LoadingState />}>
+                <Maintenance />
+              </Suspense>
             </TooltipProvider>
           </ThemeProvider>
         </QueryClientProvider>
