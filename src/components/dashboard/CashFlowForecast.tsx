@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area, AreaChart } from "recharts";
+import { LazyAreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "@/components/charts/LazyAreaChart";
 import { TrendingUp, Calendar } from "lucide-react";
 import { addDays, format, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 import { motion } from "framer-motion";
@@ -123,71 +123,69 @@ export default function CashFlowForecast({ userId }: CashFlowForecastProps) {
         </div>
 
         <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={forecastData}>
-              <defs>
-                <linearGradient id="balanceAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
-                  <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
-                </linearGradient>
-                <linearGradient id="projectedAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-              <XAxis 
-                dataKey="date" 
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                tickMargin={8}
-              />
-              <YAxis 
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                tickFormatter={(value) => `$${value}`}
-              />
-              <Tooltip 
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  color: 'hsl(var(--foreground))',
-                  boxShadow: '0 4px 12px hsl(var(--primary) / 0.1)'
-                }}
-                formatter={(value: number, name: string) => {
-                  const labels: Record<string, string> = {
-                    balance: 'Expected Balance',
-                    projected: 'Optimistic Scenario'
-                  };
-                  return [`$${value.toLocaleString()}`, labels[name] || name];
-                }}
-              />
-              <Legend />
-              <Area
-                type="monotone" 
-                dataKey="balance" 
-                stroke="hsl(var(--primary))" 
-                strokeWidth={3}
-                fill="url(#balanceAreaGradient)"
-                name="Expected Balance"
-                animationDuration={prefersReducedMotion ? 0 : 1000}
-                animationEasing="ease-out"
-              />
-              <Area
-                type="monotone" 
-                dataKey="projected" 
-                stroke="hsl(var(--accent))" 
-                strokeWidth={2}
-                strokeDasharray="5 5"
-                fill="url(#projectedAreaGradient)"
-                name="Optimistic Scenario"
-                animationDuration={prefersReducedMotion ? 0 : 1200}
-                animationEasing="ease-out"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <LazyAreaChart data={forecastData} height={256}>
+            <defs>
+              <linearGradient id="balanceAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
+                <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
+                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
+              </linearGradient>
+              <linearGradient id="projectedAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+            <XAxis 
+              dataKey="date" 
+              stroke="hsl(var(--muted-foreground))"
+              fontSize={12}
+              tickMargin={8}
+            />
+            <YAxis 
+              stroke="hsl(var(--muted-foreground))"
+              fontSize={12}
+              tickFormatter={(value) => `$${value}`}
+            />
+            <Tooltip 
+              contentStyle={{
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                color: 'hsl(var(--foreground))',
+                boxShadow: '0 4px 12px hsl(var(--primary) / 0.1)'
+              }}
+              formatter={(value: number, name: string) => {
+                const labels: Record<string, string> = {
+                  balance: 'Expected Balance',
+                  projected: 'Optimistic Scenario'
+                };
+                return [`$${value.toLocaleString()}`, labels[name] || name];
+              }}
+            />
+            <Legend />
+            <Area
+              type="monotone" 
+              dataKey="balance" 
+              stroke="hsl(var(--primary))" 
+              strokeWidth={3}
+              fill="url(#balanceAreaGradient)"
+              name="Expected Balance"
+              animationDuration={prefersReducedMotion ? 0 : 1000}
+              animationEasing="ease-out"
+            />
+            <Area
+              type="monotone" 
+              dataKey="projected" 
+              stroke="hsl(var(--accent))" 
+              strokeWidth={2}
+              strokeDasharray="5 5"
+              fill="url(#projectedAreaGradient)"
+              name="Optimistic Scenario"
+              animationDuration={prefersReducedMotion ? 0 : 1200}
+              animationEasing="ease-out"
+            />
+          </LazyAreaChart>
         </div>
       </Card>
     </motion.div>

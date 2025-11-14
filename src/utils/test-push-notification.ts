@@ -38,7 +38,7 @@ export const testPushNotification = async () => {
     // Show a test notification
     await registration.showNotification("$ave+ Test Notification", {
       body: "This is a test notification from $ave+",
-      icon: "/icon-192.png",
+      icon: "/icon-512.webp",
       badge: "/icon-192.png",
       tag: "test-notification",
       data: {
