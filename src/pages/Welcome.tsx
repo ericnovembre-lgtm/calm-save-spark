@@ -38,6 +38,12 @@ import { useComponentTracking } from "@/hooks/useComponentTracking";
 import { TrackedLazyComponent } from "@/components/performance/TrackedLazyComponent";
 import type { Feature } from "@/components/welcome/FeatureCarousel";
 
+// Import section components
+import { WelcomeHeroSection } from "@/components/welcome/sections/WelcomeHeroSection";
+import { WelcomeFeaturesSection } from "@/components/welcome/sections/WelcomeFeaturesSection";
+import { WelcomeStatsSection } from "@/components/welcome/sections/WelcomeStatsSection";
+import { WelcomeCTASection } from "@/components/welcome/sections/WelcomeCTASection";
+
 // Lazy load heavy components for better performance
 const LottieHero = lazy(() => import("@/components/welcome/LottieHero").then(m => ({ default: m.LottieHero })));
 const FeatureCarousel = lazy(() => import("@/components/welcome/FeatureCarousel").then(m => ({ default: m.FeatureCarousel })));
@@ -635,229 +641,30 @@ const Welcome = () => {
 
         <main className="relative container mx-auto px-4 py-12 md:py-20 space-y-32" style={{ zIndex: 'var(--z-content-elevated)' } as React.CSSProperties}>
           {/* Hero Section with parallax - CRITICAL PRIORITY (Above-the-fold) */}
-          <PriorityLoader priority="critical" minHeight="600px">
-            <motion.section 
-              ref={heroRef}
-              className="space-y-8 relative bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
-              style={prefersReducedMotion ? { zIndex: 'var(--z-content-priority)' } as React.CSSProperties : { y: parallaxY, opacity: scrollYProgress.get() < 0.1 ? 1 : opacity, zIndex: 'var(--z-content-priority)' } as React.CSSProperties}
-            >
-            {/* Hero content - always visible */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-              <motion.div
-                initial={prefersReducedMotion ? false : { opacity: 0, x: -50 }}
-                animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, x: 0 } : {})}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-              >
-                <WelcomeHero />
-              </motion.div>
-              
-              <motion.div 
-                className="relative w-full max-w-md mx-auto lg:max-w-none"
-                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
-                animate={prefersReducedMotion ? false : (heroInView ? { opacity: 1, scale: 1 } : {})}
-                transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-                style={prefersReducedMotion ? {} : {
-                  transform: `perspective(1000px) rotateY(${mousePosition.x * 0.5}deg) rotateX(${-mousePosition.y * 0.5}deg)`
-                }}
-              >
-                {/* Subtle accent glow - neutral only */}
-                <div className="absolute inset-0 bg-[color:var(--color-accent)]/20 blur-3xl" />
-                {animationData ? (
-                  <div className="relative">
-                    <TrackedLazyComponent componentName="LottieHero" minHeight="384px">
-                      <LazyErrorBoundary componentName="LottieHero" fallbackHeight="384px">
-                        <LottieHero 
-                          animationData={animationData}
-                          autoplay
-                          loop
-                          className="w-full h-auto drop-shadow-2xl"
-                          authState={user ? 'authenticated' : (isLoading ? 'checking' : 'unauthenticated')}
-                        />
-                      </LazyErrorBoundary>
-                    </TrackedLazyComponent>
-                  </div>
-                ) : (
-                  <Skeleton className="h-96 w-full rounded-2xl" />
-                )}
-              </motion.div>
-            </div>
-            
-            <motion.div 
-              className="mt-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <SearchBarHinted />
-            </motion.div>
-          </motion.section>
-          </PriorityLoader>
+          <WelcomeHeroSection
+            heroRef={heroRef}
+            heroInView={heroInView}
+            animationData={animationData}
+            mousePosition={mousePosition}
+            parallaxY={parallaxY}
+            opacity={opacity}
+            scrollYProgress={scrollYProgress}
+          />
 
           {/* Mission Control Features with scroll animations - HIGH PRIORITY */}
-          <PriorityLoader priority="high" minHeight="600px">
-            <LazyLoad minHeight="600px" rootMargin="100px">
-            <motion.section 
-              ref={featuresRef}
-              aria-label="Features"
-              className="relative z-20 bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
-              initial={{ opacity: 0 }}
-              animate={featuresInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.5 }}
-            >
-              <motion.div
-                className="flex items-center gap-3 mb-8"
-                initial={{ opacity: 0, x: -20 }}
-                animate={featuresInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="h-1 w-12 bg-gradient-to-r from-[color:var(--color-accent)] to-transparent rounded-full" />
-                <h2 className="font-display font-bold text-3xl md:text-4xl text-foreground">
-                  Mission Control
-                </h2>
-              </motion.div>
-              <div className="space-y-12">
-                {/* Flippable Feature Cards Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <TrackedLazyComponent componentName="FlippableFeatureCards" minHeight="256px">
-                    <LazyErrorBoundary componentName="FlippableFeatureCard" fallbackHeight="256px">
-                      {features.slice(0, 6).map((feature, index) => (
-                        <motion.div
-                          key={feature.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1, duration: 0.5 }}
-                        >
-                          <FlippableFeatureCard
-                            {...feature}
-                            badge={index === 0 ? "Most Popular" : index === 1 ? "New" : undefined}
-                            onLearnMore={() => handleFeatureClick(feature)}
-                          />
-                        </motion.div>
-                      ))}
-                    </LazyErrorBoundary>
-                  </TrackedLazyComponent>
-                </div>
-
-                {/* Journey Timeline */}
-                <TrackedLazyComponent componentName="JourneyTimeline" minHeight="256px">
-                  <LazyErrorBoundary componentName="JourneyTimeline" fallbackHeight="256px">
-                    <JourneyTimeline />
-                  </LazyErrorBoundary>
-                </TrackedLazyComponent>
-              </div>
-            </motion.section>
-          </LazyLoad>
-          </PriorityLoader>
+          <WelcomeFeaturesSection
+            featuresRef={featuresRef}
+            featuresInView={featuresInView}
+            features={features}
+            onFeatureClick={handleFeatureClick}
+          />
 
           {/* Stats Section with stagger animation - MEDIUM PRIORITY */}
-          <PriorityLoader priority="medium" minHeight="500px">
-            <LazyLoad minHeight="500px" rootMargin="150px">
-            <motion.section 
-              ref={statsRef}
-              aria-label="Statistics"
-              className="relative z-20 bg-[color:var(--color-accent)]/40 dark:bg-[color:var(--color-accent)]/15 -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-3xl"
-            >
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent rounded-3xl blur-3xl"
-              animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.3, 0.5, 0.3],
-              }}
-              transition={{ duration: 8, repeat: Infinity }}
-            />
-            <div className="relative">
-              <motion.div
-                className="flex items-center gap-3 mb-8"
-                initial={{ opacity: 0, x: -20 }}
-                animate={statsInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="h-1 w-12 bg-gradient-to-r from-[color:var(--color-accent)] to-transparent rounded-full" />
-                <h2 className="font-display font-bold text-3xl md:text-4xl text-foreground">
-                  Why Choose $ave+?
-                </h2>
-              </motion.div>
-              <LazyErrorBoundary componentName="PullToRefreshStats" fallbackHeight="400px">
-                <PullToRefreshStats onRefresh={async () => {
-                  // Simulate refresh
-                  await new Promise(resolve => setTimeout(resolve, 1000));
-                  toast.success("Stats refreshed!");
-                }}>
-                  <div className="space-y-8">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                    <>
-                      <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                        transition={{ delay: 0, duration: 0.5 }}
-                      >
-                        <ExpandableStatCard
-                          label="Active Savers"
-                          value={50000}
-                          suffix="+"
-                          icon={<Users className="w-8 h-8" />}
-                          delay={0}
-                          breakdown={[
-                            { label: "This Month", value: "2,340", percentage: 75 },
-                            { label: "This Week", value: "580", percentage: 45 },
-                            { label: "Today", value: "120", percentage: 25 },
-                          ]}
-                        />
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                        transition={{ delay: 0.1, duration: 0.5 }}
-                      >
-                        <ExpandableStatCard
-                          label="Total Saved"
-                          value={2.1}
-                          suffix="M+"
-                          icon={<DollarSign className="w-8 h-8" />}
-                          delay={0.1}
-                          breakdown={[
-                            { label: "Automated Savings", value: "$1.2M", percentage: 57 },
-                            { label: "Round-ups", value: "$600K", percentage: 28 },
-                            { label: "Manual Transfers", value: "$300K", percentage: 15 },
-                          ]}
-                        />
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                        transition={{ delay: 0.2, duration: 0.5 }}
-                      >
-                        <ExpandableStatCard
-                          label="Average APY"
-                          value={4.25}
-                          suffix="%"
-                          icon={<TrendingUp className="w-8 h-8" />}
-                          delay={0.2}
-                        />
-                      </motion.div>
-                    </>
-                </div>
-
-                {/* Live Activity Ticker */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: 0.5, duration: 0.5 }}
-                    onDoubleClick={() => setShowClickerGame(true)}
-                    className="cursor-pointer"
-                    title="Double-click for a surprise!"
-                  >
-                    <LazyErrorBoundary componentName="LiveActivityTicker" fallbackHeight="64px">
-                      <LiveActivityTicker />
-                    </LazyErrorBoundary>
-                  </motion.div>
-                  </div>
-                </PullToRefreshStats>
-              </LazyErrorBoundary>
-              </div>
-            </motion.section>
-          </LazyLoad>
-          </PriorityLoader>
+          <WelcomeStatsSection
+            statsRef={statsRef}
+            statsInView={statsInView}
+            onDoubleClick={() => setShowClickerGame(true)}
+          />
 
           {/* Interactive Savings Playground - LOW PRIORITY (Below-the-fold) */}
           <PriorityLoader priority="low" minHeight="600px">
@@ -878,24 +685,7 @@ const Welcome = () => {
           </PriorityLoader>
 
           {/* Secure Onboarding CTA - MEDIUM PRIORITY */}
-          <PriorityLoader priority="medium" minHeight="400px">
-            <motion.section
-            aria-label="Get started"
-            className="relative z-20 bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: false, amount: 0.5 }}
-            transition={{ duration: 0.5 }}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <SecureOnboardingCTA />
-            </motion.div>
-          </motion.section>
-          </PriorityLoader>
+          <WelcomeCTASection />
         </main>
 
         <footer className="relative z-10 container mx-auto px-4 py-12 mt-20 border-t border-border/50">
