@@ -4,6 +4,7 @@ const DEFAULT_CARD_ORDER = [
   'balance',
   'ai-insights',
   'goals',
+  'challenges',
   'predictive',
   'manual-transfer',
   'scheduled-transfers',
