@@ -356,23 +356,45 @@ const Welcome = () => {
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
-      {/* Enhanced Background Effects - Phase 7 */}
+        {/* Enhanced Background Effects - Phase 7 (Progressive Enhancement) */}
       <NeutralBackground />
-      <ScrollGradient />
-      <ParallaxBackground />
-      <ParticleBackground />
-      <MouseGradient />
+      <ProgressiveLoader priority="low" delay={500}>
+        <Suspense fallback={null}>
+          <ScrollGradient />
+        </Suspense>
+      </ProgressiveLoader>
+      <ProgressiveLoader priority="low" delay={700}>
+        <Suspense fallback={null}>
+          <ParallaxBackground />
+        </Suspense>
+      </ProgressiveLoader>
+      <ProgressiveLoader priority="low" delay={900}>
+        <Suspense fallback={null}>
+          <ParticleBackground />
+        </Suspense>
+      </ProgressiveLoader>
+      <ProgressiveLoader priority="low" delay={1100}>
+        <Suspense fallback={null}>
+          <MouseGradient />
+        </Suspense>
+      </ProgressiveLoader>
       
       {/* Gesture Handler - Phase 8 */}
       <GestureHandler enableShakeToConfetti={true}>
-        {/* Custom Cursor for desktop */}
-        <CustomCursor />
+        {/* Custom Cursor for desktop (Progressive) */}
+        <ProgressiveLoader priority="low" delay={600}>
+          <Suspense fallback={null}>
+            <CustomCursor />
+          </Suspense>
+        </ProgressiveLoader>
         
         {/* Konami Code Confetti */}
         <NeutralConfetti show={showConfetti} />
         
-        {/* Clicker Game Modal */}
-        <ClickerGame isOpen={showClickerGame} onClose={() => setShowClickerGame(false)} />
+        {/* Clicker Game Modal (Lazy Loaded) */}
+        <Suspense fallback={null}>
+          <ClickerGame isOpen={showClickerGame} onClose={() => setShowClickerGame(false)} />
+        </Suspense>
         
         {/* Konami Badge */}
         {konamiSuccess && (
@@ -421,7 +443,9 @@ const Welcome = () => {
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                   All systems operational
                 </span>
-                <MoodToggle />
+                <Suspense fallback={<div className="w-10 h-10" />}>
+                  <MoodToggle />
+                </Suspense>
               </motion.div>
             </div>
           </div>
@@ -474,12 +498,14 @@ const Welcome = () => {
                     <div className="absolute inset-0 bg-[color:var(--color-accent)]/20 blur-3xl" />
                     {animationData && (
                       <div className="relative">
-                        <LottieHero 
-                          animationData={animationData}
-                          autoplay
-                          loop
-                          className="w-full h-auto drop-shadow-2xl"
-                        />
+                        <Suspense fallback={<Skeleton className="w-full h-96 rounded-2xl" />}>
+                          <LottieHero 
+                            animationData={animationData}
+                            autoplay
+                            loop
+                            className="w-full h-auto drop-shadow-2xl"
+                          />
+                        </Suspense>
                       </div>
                     )}
                   </motion.div>
@@ -498,14 +524,15 @@ const Welcome = () => {
           </motion.section>
 
           {/* Mission Control Features with scroll animations - Pure white section */}
-          <motion.section 
-            ref={featuresRef}
-            aria-label="Features"
-            className="bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
-            initial={{ opacity: 0 }}
-            animate={featuresInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.5 }}
-          >
+          <LazyLoad minHeight="600px" rootMargin="100px">
+            <motion.section 
+              ref={featuresRef}
+              aria-label="Features"
+              className="bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
+              initial={{ opacity: 0 }}
+              animate={featuresInView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.5 }}
+            >
               <motion.div
                 className="flex items-center gap-3 mb-8"
                 initial={{ opacity: 0, x: -20 }}
@@ -530,34 +557,46 @@ const Welcome = () => {
               <div className="space-y-12">
                 {/* Flippable Feature Cards Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {features.slice(0, 6).map((feature, index) => (
-                    <motion.div
-                      key={feature.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.5 }}
-                    >
-                      <FlippableFeatureCard
-                        {...feature}
-                        badge={index === 0 ? "Most Popular" : index === 1 ? "New" : undefined}
-                        onLearnMore={() => handleFeatureClick(feature)}
-                      />
-                    </motion.div>
-                  ))}
+                  <Suspense fallback={
+                    <>
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <Skeleton key={i} className="h-64 rounded-xl" />
+                      ))}
+                    </>
+                  }>
+                    {features.slice(0, 6).map((feature, index) => (
+                      <motion.div
+                        key={feature.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.5 }}
+                      >
+                        <FlippableFeatureCard
+                          {...feature}
+                          badge={index === 0 ? "Most Popular" : index === 1 ? "New" : undefined}
+                          onLearnMore={() => handleFeatureClick(feature)}
+                        />
+                      </motion.div>
+                    ))}
+                  </Suspense>
                 </div>
 
                 {/* Journey Timeline */}
-                <JourneyTimeline />
-              </div>
-            )}
-          </motion.section>
+                <Suspense fallback={<Skeleton className="h-64 w-full rounded-xl" />}>
+                  <JourneyTimeline />
+                </Suspense>
+                </div>
+              )}
+            </motion.section>
+          </LazyLoad>
 
           {/* Stats Section with stagger animation - Beige accent zone */}
-          <motion.section 
-            ref={statsRef}
-            aria-label="Statistics"
-            className="relative bg-[color:var(--color-accent)]/40 dark:bg-[color:var(--color-accent)]/15 -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-3xl"
-          >
+          <LazyLoad minHeight="500px" rootMargin="150px">
+            <motion.section 
+              ref={statsRef}
+              aria-label="Statistics"
+              className="relative bg-[color:var(--color-accent)]/40 dark:bg-[color:var(--color-accent)]/15 -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-3xl"
+            >
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent rounded-3xl blur-3xl"
               animate={{
@@ -578,12 +617,13 @@ const Welcome = () => {
                   Why Choose $ave+?
                 </h2>
               </motion.div>
-              <PullToRefreshStats onRefresh={async () => {
-                // Simulate refresh
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                toast.success("Stats refreshed!");
-              }}>
-                <div className="space-y-8">
+              <Suspense fallback={<Skeleton className="w-full h-[400px] rounded-xl" />}>
+                <PullToRefreshStats onRefresh={async () => {
+                  // Simulate refresh
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                  toast.success("Stats refreshed!");
+                }}>
+                  <div className="space-y-8">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                   {!statsLoaded ? (
                     <>
@@ -647,33 +687,41 @@ const Welcome = () => {
                 </div>
 
                 {/* Live Activity Ticker */}
-                {statsLoaded && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: 0.5, duration: 0.5 }}
-                    onDoubleClick={() => setShowClickerGame(true)}
-                    className="cursor-pointer"
-                    title="Double-click for a surprise!"
-                  >
-                    <LiveActivityTicker />
-                  </motion.div>
-                )}
-                </div>
-              </PullToRefreshStats>
-            </div>
-          </motion.section>
+                  {statsLoaded && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                      transition={{ delay: 0.5, duration: 0.5 }}
+                      onDoubleClick={() => setShowClickerGame(true)}
+                      className="cursor-pointer"
+                      title="Double-click for a surprise!"
+                    >
+                      <Suspense fallback={<Skeleton className="h-16 w-full rounded-xl" />}>
+                        <LiveActivityTicker />
+                      </Suspense>
+                    </motion.div>
+                  )}
+                  </div>
+                </PullToRefreshStats>
+              </Suspense>
+              </div>
+            </motion.section>
+          </LazyLoad>
 
           {/* Interactive Savings Playground */}
-          <motion.section
-            aria-label="Try savings calculator"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5 }}
-          >
-            <SavingsPlayground />
-          </motion.section>
+          <LazyLoad minHeight="600px" rootMargin="200px">
+            <motion.section
+              aria-label="Try savings calculator"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Suspense fallback={<Skeleton className="h-[600px] w-full rounded-3xl" />}>
+                <SavingsPlayground />
+              </Suspense>
+            </motion.section>
+          </LazyLoad>
 
           {/* Secure Onboarding CTA - White surface */}
           <motion.section 
@@ -778,8 +826,10 @@ const Welcome = () => {
         <SaveplusCoachWidget />
         <SaveplusUIAssistantFAB />
         
-        {/* Sound Toggle - Phase 9 */}
-        <SoundToggle />
+        {/* Sound Toggle - Phase 9 (Progressive Enhancement) */}
+        <ProgressiveLoader priority="low" delay={800}>
+          <SoundToggle />
+        </ProgressiveLoader>
       </motion.div>
       </GestureHandler>
     </div>
