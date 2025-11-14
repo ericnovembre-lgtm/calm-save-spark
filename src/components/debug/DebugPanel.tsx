@@ -32,11 +32,14 @@ export const DebugPanel = ({ loadingStates = {}, onClose }: DebugPanelProps) => 
   const lastTimeRef = useRef(performance.now());
   const renderCountRef = useRef(0);
 
-  // Track renders
+  // Track renders - only update on mount to prevent infinite loop
   useEffect(() => {
-    renderCountRef.current++;
-    setRenderCount(renderCountRef.current);
-  });
+    const interval = setInterval(() => {
+      setRenderCount(prev => prev + 1);
+    }, 100);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Track FPS and memory
   useEffect(() => {
