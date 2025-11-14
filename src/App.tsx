@@ -9,6 +9,7 @@ import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { PageTracker } from "@/components/layout/PageTracker";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ErrorBoundaryWithRetry } from "@/components/ErrorBoundaryWithRetry";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
@@ -88,21 +89,23 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <TooltipProvider>
-            <LiveRegion />
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <PageTracker />
-              <InstallPrompt />
-              <AnimatedRoutes />
-            </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-  </ErrorBoundary>
+      <ErrorBoundaryWithRetry>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <TooltipProvider>
+              <LiveRegion />
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <PageTracker />
+                <InstallPrompt />
+                <AnimatedRoutes />
+              </BrowserRouter>
+            </TooltipProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </ErrorBoundaryWithRetry>
+    </ErrorBoundary>
   );
 };
 

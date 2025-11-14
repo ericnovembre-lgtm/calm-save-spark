@@ -70,10 +70,18 @@ export default function NeutralBackground() {
           canvas.width * 0.7, canvas.height * 0.3, 0,
           canvas.width * 0.7, canvas.height * 0.3, Math.max(canvas.width, canvas.height) * 0.6
         )
-        // Convert HSL to proper rgba format
-        const accentColor = accentRaw.startsWith('hsl') ? accentRaw : `hsl(${accentRaw})`
-        grd.addColorStop(0, accentColor.replace('hsl(', 'hsla(').replace(')', ', 0.2)'))
-        grd.addColorStop(1, 'hsla(0, 0%, 0%, 0)')
+        // Convert HSL values to proper rgba format for canvas
+        // Parse HSL values: "40 20% 55%" or "hsl(40, 20%, 55%)"
+        const hslMatch = accentRaw.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+        if (hslMatch) {
+          const [, h, s, l] = hslMatch
+          grd.addColorStop(0, `hsla(${h}, ${s}%, ${l}%, 0.2)`)
+          grd.addColorStop(1, `hsla(${h}, ${s}%, ${l}%, 0)`)
+        } else {
+          // Fallback to transparent gradient
+          grd.addColorStop(0, 'rgba(214, 200, 162, 0.2)')
+          grd.addColorStop(1, 'rgba(214, 200, 162, 0)')
+        }
         ctx.fillStyle = grd
         ctx.fillRect(0, 0, canvas.width, canvas.height)
       }
