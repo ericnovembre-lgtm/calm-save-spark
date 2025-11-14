@@ -32,7 +32,7 @@ export function ChallengeCard({ challenge, onJoin }: ChallengeCardProps) {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
     >
-      <Card className="relative overflow-hidden bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-sm border-primary/20">
+      <Card className="relative overflow-hidden bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-sm border-primary/20 opacity-80 saturate-80">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">

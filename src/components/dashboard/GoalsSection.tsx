@@ -2,11 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SwipeableGoalCard } from "./SwipeableGoalCard";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { StaggeredList } from "@/components/animations/StaggeredList";
+import { EmptyState } from "@/components/ui/empty-state";
+import { useNavigate } from "react-router-dom";
 
 export const GoalsSection = () => {
+  const navigate = useNavigate();
   const { data: goals, isLoading } = useQuery({
     queryKey: ['dashboard-goals'],
     queryFn: async () => {
@@ -60,18 +63,14 @@ export const GoalsSection = () => {
           ))}
         </StaggeredList>
       ) : (
-        <div className="bg-card rounded-lg p-12 text-center shadow-[var(--shadow-card)]">
-          <h3 className="text-lg font-semibold mb-2 text-foreground">No goals yet</h3>
-          <p className="text-muted-foreground mb-4">
-            Create your first savings goal to start tracking your progress
-          </p>
-          <Link to="/goals">
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Your First Goal
-            </Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon={Target}
+          title="No Goals Yet"
+          description="Start your savings journey by creating your first goal! Whether it's a vacation, emergency fund, or dream purchase, we'll help you get there."
+          actionLabel="Create Your First Goal"
+          onAction={() => navigate('/goals')}
+          variant="goals"
+        />
       )}
     </div>
   );

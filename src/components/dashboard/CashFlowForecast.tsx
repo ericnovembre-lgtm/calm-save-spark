@@ -122,8 +122,8 @@ export default function CashFlowForecast({ userId }: CashFlowForecastProps) {
           </div>
         </div>
 
-        <div className="h-64">
-          <LazyAreaChart data={forecastData} height={256}>
+        <div className="h-48 md:h-64">
+          <LazyAreaChart data={forecastData} height={256} className="h-full">
             <defs>
               <linearGradient id="balanceAreaGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>

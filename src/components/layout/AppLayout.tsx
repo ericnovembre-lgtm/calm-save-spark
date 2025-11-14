@@ -4,6 +4,7 @@ import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lig
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { HelpButton } from "@/components/dashboard/HelpButton";
 import { announce } from "./LiveRegion";
 import { NavItem } from "./NavItem";
 import { BottomNavItem } from "./BottomNavItem";
@@ -163,9 +164,10 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
               ))}
             </nav>
 
-            {/* Right: Search, Theme, User */}
+            {/* Right: Search, Theme, Help, User */}
             <div className="flex items-center gap-2">
               {FEATURE_FLAGS.SEARCH_ENABLED && <SearchToggle />}
+              <HelpButton />
               <ThemeToggle />
               
               {user ? (
