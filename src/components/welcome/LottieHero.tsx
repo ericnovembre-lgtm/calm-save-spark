@@ -6,13 +6,17 @@ interface LottieHeroProps {
   autoplay?: boolean;
   loop?: boolean;
   className?: string;
+  onComplete?: () => void;
+  authState?: 'authenticated' | 'unauthenticated' | 'checking';
 }
 
 export const LottieHero = ({ 
   animationData, 
   autoplay = true, 
   loop = true,
-  className = ""
+  className = "",
+  onComplete,
+  authState = 'checking'
 }: LottieHeroProps) => {
   const lottieRef = useRef<LottieRefCurrentProps>(null);
 
@@ -22,8 +26,10 @@ export const LottieHero = ({
     const handleMotionPreference = () => {
       if (mediaQuery.matches && lottieRef.current) {
         lottieRef.current.pause();
+        console.log('[LottieHero] Animation paused due to reduced motion preference');
       } else if (lottieRef.current && autoplay) {
         lottieRef.current.play();
+        console.log('[LottieHero] Animation playing');
       }
     };
 
@@ -33,6 +39,32 @@ export const LottieHero = ({
     return () => mediaQuery.removeEventListener("change", handleMotionPreference);
   }, [autoplay]);
 
+  // Detect stuck animations
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (lottieRef.current) {
+        const isPaused = lottieRef.current.animationItem?.isPaused;
+        if (!isPaused) {
+          console.log('[LottieHero] Animation playing normally');
+        } else {
+          console.warn('[LottieHero] Animation may be stuck, attempting restart');
+          lottieRef.current.play();
+        }
+      }
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  const handleComplete = () => {
+    console.log('[LottieHero] Animation complete', { authState });
+    onComplete?.();
+  };
+
+  const handleLoopComplete = () => {
+    console.log('[LottieHero] Animation loop complete', { authState });
+  };
+
   return (
     <Lottie
       lottieRef={lottieRef}
@@ -40,6 +72,8 @@ export const LottieHero = ({
       loop={loop}
       autoplay={autoplay}
       className={className}
+      onComplete={handleComplete}
+      onLoopComplete={handleLoopComplete}
     />
   );
 };

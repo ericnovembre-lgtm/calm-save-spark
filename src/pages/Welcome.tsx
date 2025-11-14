@@ -200,22 +200,57 @@ const Welcome = () => {
 
   // Check authentication and calculate progress
   useEffect(() => {
+    const authStartTime = Date.now();
+    console.log('[Welcome] Starting auth check');
+    
     const checkAuth = async () => {
       try {
         const { data: { user: userData } } = await supabase.auth.getUser();
+        const authDuration = Date.now() - authStartTime;
+        
         if (userData) {
+          console.log('[Welcome] User authenticated', {
+            userId: userData.id,
+            email: userData.email,
+            duration: authDuration
+          });
+          
           setUser(userData);
           const progress = calculateUserProgress(userData);
           setUserProgress(progress);
+          
+          saveplus_audit_event('auth_check_complete', {
+            auth_state: 'authenticated',
+            duration_ms: authDuration,
+            user_id: userData.id,
+            route: location.pathname
+          });
+        } else {
+          console.log('[Welcome] User not authenticated', {
+            duration: authDuration
+          });
+          
+          saveplus_audit_event('auth_check_complete', {
+            auth_state: 'unauthenticated',
+            duration_ms: authDuration,
+            route: location.pathname
+          });
         }
       } catch (error) {
-        console.error("Auth check error:", error);
+        const authDuration = Date.now() - authStartTime;
+        console.error('[Welcome] Auth check failed', error);
+        
+        saveplus_audit_event('auth_check_error', {
+          error: error instanceof Error ? error.message : 'Unknown error',
+          duration_ms: authDuration,
+          route: location.pathname
+        });
       } finally {
         setIsLoading(false);
       }
     };
     checkAuth();
-  }, []);
+  }, [location.pathname]);
 
   // Progressive loading: load sections sequentially with analytics
   useEffect(() => {
@@ -351,11 +386,36 @@ const Welcome = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    fetch("/animations/saveplus-hero-optimized.json")
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    
+    console.log('[Welcome] Fetching animation data');
+    
+    fetch("/animations/saveplus-hero-optimized.json", { signal: controller.signal })
       .then(r => r.json())
-      .then(data => setAnimationData(data))
-      .catch(() => setAnimationData({}));
-  }, []);
+      .then(data => {
+        clearTimeout(timeoutId);
+        setAnimationData(data);
+        console.log('[Welcome] Animation loaded successfully');
+        saveplus_audit_event('animation_loaded', {
+          route: location.pathname
+        });
+      })
+      .catch(err => {
+        clearTimeout(timeoutId);
+        console.warn('[Welcome] Animation load failed:', err.message);
+        setAnimationData({}); // Trigger fallback
+        saveplus_audit_event('animation_load_failed', {
+          error: err.message,
+          route: location.pathname
+        });
+      });
+      
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [location.pathname]);
 
   useEffect(() => {
     // Disable mouse tracking if user prefers reduced motion
@@ -413,24 +473,52 @@ const Welcome = () => {
       <NeutralBackground />
       
       {/* Background layers container - forced behind all content */}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0" style={{ zIndex: 'var(--z-background)' }}>
         <ProgressiveLoader priority="low" delay={500}>
-          <LazyErrorBoundary componentName="ScrollGradient" fallbackHeight="100vh" background>
+          <LazyErrorBoundary 
+            componentName="ScrollGradient" 
+            fallbackHeight="100vh" 
+            background
+            timeoutMs={10000}
+            onLoadStart={() => console.log('[Welcome] ScrollGradient loading started')}
+            onLoadComplete={() => console.log('[Welcome] ScrollGradient loaded')}
+          >
             <ScrollGradient />
           </LazyErrorBoundary>
         </ProgressiveLoader>
         <ProgressiveLoader priority="low" delay={700}>
-          <LazyErrorBoundary componentName="ParallaxBackground" fallbackHeight="100vh" background>
+          <LazyErrorBoundary 
+            componentName="ParallaxBackground" 
+            fallbackHeight="100vh" 
+            background
+            timeoutMs={10000}
+            onLoadStart={() => console.log('[Welcome] ParallaxBackground loading started')}
+            onLoadComplete={() => console.log('[Welcome] ParallaxBackground loaded')}
+          >
             <ParallaxBackground />
           </LazyErrorBoundary>
         </ProgressiveLoader>
         <ProgressiveLoader priority="low" delay={900}>
-          <LazyErrorBoundary componentName="ParticleBackground" fallbackHeight="100vh" background>
+          <LazyErrorBoundary 
+            componentName="ParticleBackground" 
+            fallbackHeight="100vh" 
+            background
+            timeoutMs={10000}
+            onLoadStart={() => console.log('[Welcome] ParticleBackground loading started')}
+            onLoadComplete={() => console.log('[Welcome] ParticleBackground loaded')}
+          >
             <ParticleBackground />
           </LazyErrorBoundary>
         </ProgressiveLoader>
         <ProgressiveLoader priority="low" delay={1100}>
-          <LazyErrorBoundary componentName="MouseGradient" fallbackHeight="100vh" background>
+          <LazyErrorBoundary 
+            componentName="MouseGradient" 
+            fallbackHeight="100vh" 
+            background
+            timeoutMs={10000}
+            onLoadStart={() => console.log('[Welcome] MouseGradient loading started')}
+            onLoadComplete={() => console.log('[Welcome] MouseGradient loaded')}
+          >
             <MouseGradient />
           </LazyErrorBoundary>
         </ProgressiveLoader>

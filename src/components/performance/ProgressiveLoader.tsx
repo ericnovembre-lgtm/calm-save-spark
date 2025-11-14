@@ -18,6 +18,8 @@ export const ProgressiveLoader = ({
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
+    if (shouldRender) return;
+
     // Calculate delay based on priority
     const priorityDelays = {
       high: delay,
@@ -26,28 +28,33 @@ export const ProgressiveLoader = ({
     };
 
     const effectiveDelay = priorityDelays[priority];
+    const startTime = Date.now();
 
     // Timeout-first strategy: guarantee rendering after delay
-    const timeout = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
+      const duration = Date.now() - startTime;
+      console.log(`[ProgressiveLoader] Rendering via timeout after ${duration}ms (priority: ${priority})`);
       setShouldRender(true);
     }, effectiveDelay);
 
-    // Use requestIdleCallback as opportunistic hint, but timeout is the guarantee
-    let idleCallback: number | undefined;
+    // Use requestIdleCallback opportunistically
+    let idleCallbackId: number | undefined;
     if ('requestIdleCallback' in window) {
-      idleCallback = requestIdleCallback(() => {
-        clearTimeout(timeout);
+      idleCallbackId = window.requestIdleCallback(() => {
+        const duration = Date.now() - startTime;
+        console.log(`[ProgressiveLoader] Rendering via idle callback after ${duration}ms (priority: ${priority})`);
+        clearTimeout(timeoutId);
         setShouldRender(true);
-      });
+      }, { timeout: effectiveDelay });
     }
 
     return () => {
-      clearTimeout(timeout);
-      if (idleCallback !== undefined) {
-        cancelIdleCallback(idleCallback);
+      clearTimeout(timeoutId);
+      if (idleCallbackId !== undefined) {
+        window.cancelIdleCallback(idleCallbackId);
       }
     };
-  }, [delay, priority]);
+  }, [delay, priority, shouldRender]);
 
   return shouldRender ? <>{children}</> : null;
 };

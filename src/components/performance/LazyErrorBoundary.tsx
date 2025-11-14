@@ -11,12 +11,18 @@ interface LazyErrorBoundaryProps {
   componentName?: string;
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
   background?: boolean;
+  timeoutMs?: number;
+  onLoadStart?: () => void;
+  onLoadComplete?: () => void;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
   retryCount: number;
+  hasTimedOut: boolean;
+  recoveryAttempts: number;
+  lastRecoveryTime: number | null;
 }
 
 /**
@@ -30,6 +36,8 @@ interface State {
  */
 class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
   private retryTimeout: NodeJS.Timeout | null = null;
+  private loadingTimeout: NodeJS.Timeout | null = null;
+  private loadStartTime: number = 0;
   private readonly maxRetries = 3;
   private readonly retryDelay = 1000; // Base delay in ms
 
@@ -39,6 +47,9 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
       hasError: false,
       error: null,
       retryCount: 0,
+      hasTimedOut: false,
+      recoveryAttempts: 0,
+      lastRecoveryTime: null,
     };
   }
 
@@ -49,15 +60,40 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
     };
   }
 
+  componentDidMount() {
+    const { timeoutMs = 5000, componentName, onLoadStart } = this.props;
+    this.loadStartTime = Date.now();
+    
+    console.log(`[LazyErrorBoundary] ${componentName} loading started`);
+    onLoadStart?.();
+
+    // Set timeout to detect indefinite loading
+    this.loadingTimeout = setTimeout(() => {
+      const loadDuration = Date.now() - this.loadStartTime;
+      console.warn(`[LazyErrorBoundary] ${componentName} loading timeout after ${loadDuration}ms`);
+      
+      this.setState({ hasTimedOut: true });
+
+      // Track timeout event
+      if (typeof window !== 'undefined' && (window as any).saveplus_audit_event) {
+        (window as any).saveplus_audit_event('component_timeout', {
+          component: componentName,
+          timeout_ms: timeoutMs,
+          load_duration_ms: loadDuration
+        });
+      }
+    }, timeoutMs);
+  }
+
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     const { onError, componentName } = this.props;
     const { retryCount } = this.state;
+    const loadDuration = Date.now() - this.loadStartTime;
 
-    console.error(`[LazyErrorBoundary] Error in ${componentName || 'component'}:`, error, errorInfo);
-
-    // Call optional error callback
-    if (onError) {
-      onError(error, errorInfo);
+    // Clear loading timeout if it exists
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+      this.loadingTimeout = null;
     }
 
     // Check if this is a chunk loading error
@@ -65,6 +101,38 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
       error.message.includes('Failed to fetch dynamically imported module') ||
       error.message.includes('Importing a module script failed') ||
       error.message.includes('error loading dynamically imported module');
+
+    // Detailed error log
+    const errorLog = {
+      component: componentName || 'unknown',
+      error: {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      },
+      errorInfo: {
+        componentStack: errorInfo.componentStack
+      },
+      retryCount,
+      isChunkError,
+      loadDuration,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+      connectionSpeed: (navigator as any).connection?.effectiveType || 'unknown'
+    };
+
+    console.error(`[LazyErrorBoundary] Error details:`, errorLog);
+
+    // Track error event
+    if (typeof window !== 'undefined' && (window as any).saveplus_audit_event) {
+      (window as any).saveplus_audit_event('component_error', errorLog);
+    }
+
+    // Call optional error callback
+    if (onError) {
+      onError(error, errorInfo);
+    }
 
     // Auto-retry for chunk errors with exponential backoff
     if (isChunkError && retryCount < this.maxRetries) {
@@ -77,25 +145,63 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
       this.retryTimeout = setTimeout(() => {
         this.handleRetry();
       }, delay);
+    } else if (retryCount >= this.maxRetries) {
+      console.error(`[LazyErrorBoundary] Max retries (${this.maxRetries}) reached for ${componentName}`);
+    }
+  }
+
+  componentDidUpdate(prevProps: LazyErrorBoundaryProps, prevState: State) {
+    // Detect successful load
+    if (prevState.hasError && !this.state.hasError) {
+      const loadDuration = Date.now() - this.loadStartTime;
+      console.log(`[LazyErrorBoundary] ${this.props.componentName} loaded successfully after ${loadDuration}ms`);
+      this.props.onLoadComplete?.();
+
+      if (this.loadingTimeout) {
+        clearTimeout(this.loadingTimeout);
+        this.loadingTimeout = null;
+      }
     }
   }
 
   componentWillUnmount() {
     if (this.retryTimeout) {
       clearTimeout(this.retryTimeout);
+      this.retryTimeout = null;
+    }
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+      this.loadingTimeout = null;
     }
   }
 
   handleRetry = () => {
+    const now = Date.now();
+    const timeSinceLastRecovery = this.state.lastRecoveryTime 
+      ? now - this.state.lastRecoveryTime 
+      : 0;
+
+    console.log(`[LazyErrorBoundary] Manual retry for ${this.props.componentName}`, {
+      retryCount: this.state.retryCount + 1,
+      recoveryAttempts: this.state.recoveryAttempts + 1,
+      timeSinceLastRecovery
+    });
+
     if (this.retryTimeout) {
       clearTimeout(this.retryTimeout);
+      this.retryTimeout = null;
     }
 
     this.setState(prevState => ({
       hasError: false,
       error: null,
-      retryCount: prevState.retryCount + 1,
+      retryCount: 0,
+      hasTimedOut: false,
+      recoveryAttempts: prevState.recoveryAttempts + 1,
+      lastRecoveryTime: now,
     }));
+
+    this.loadStartTime = Date.now();
   };
 
   handleReload = () => {
@@ -103,8 +209,30 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
   };
 
   render() {
-    const { hasError, error, retryCount } = this.state;
+    const { hasError, error, retryCount, hasTimedOut } = this.state;
     const { children, fallback, fallbackHeight = '200px', componentName, background } = this.props;
+
+    // Handle timeout state
+    if (hasTimedOut && !hasError) {
+      if (background) {
+        return (
+          <div 
+            className="pointer-events-none relative" 
+            style={{ minHeight: fallbackHeight, zIndex: 'var(--z-background)' }}
+            aria-hidden="true"
+          />
+        );
+      }
+
+      return (
+        <div className="p-4 border border-border rounded-lg bg-muted/20">
+          <p className="text-sm text-muted-foreground mb-2">Taking longer than expected...</p>
+          <Button size="sm" variant="outline" onClick={this.handleRetry}>
+            Retry
+          </Button>
+        </div>
+      );
+    }
 
     if (hasError && error) {
       // If custom fallback is provided, use it
@@ -116,8 +244,8 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
       if (background) {
         return (
           <div 
-            className="pointer-events-none relative -z-10" 
-            style={{ minHeight: fallbackHeight }}
+            className="pointer-events-none relative" 
+            style={{ minHeight: fallbackHeight, zIndex: 'var(--z-background)' }}
             aria-hidden="true"
           />
         );
