@@ -5,7 +5,7 @@ import { BalanceCard } from "@/components/BalanceCard";
 import { EnhancedBalanceCard } from "@/components/dashboard/EnhancedBalanceCard";
 import { SwipeableGoalCard } from "@/components/dashboard/SwipeableGoalCard";
 import { CommandPalette } from "@/components/dashboard/CommandPalette";
-import { SmartFAB } from "@/components/dashboard/SmartFAB";
+import { UnifiedFAB } from "@/components/dashboard/UnifiedFAB";
 import { AIInsightsCard } from "@/components/dashboard/AIInsightsCard";
 import { PredictiveAnalytics } from "@/components/dashboard/PredictiveAnalytics";
 import { KeyboardHints } from "@/components/dashboard/KeyboardHints";
@@ -16,7 +16,6 @@ import { ManualTransferCard } from "@/components/dashboard/ManualTransferCard";
 import { ScheduledTransferDialog } from "@/components/dashboard/ScheduledTransferDialog";
 import { ScheduledTransfersList } from "@/components/dashboard/ScheduledTransfersList";
 import { TransferHistory } from "@/components/dashboard/TransferHistory";
-import { QuickActionsFAB } from "@/components/dashboard/QuickActionsFAB";
 import JourneyMilestones from "@/components/dashboard/JourneyMilestones";
 import { OnboardingProgress } from "@/components/dashboard/OnboardingProgress";
 import { ConnectAccountCard } from "@/components/dashboard/ConnectAccountCard";
@@ -54,7 +53,6 @@ import { toast } from "sonner";
 import { staggerContainer } from "@/lib/motion-variants";
 import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
-import { ChatFAB } from "@/components/dashboard/ChatFAB";
 import { ChatSidebar } from "@/components/dashboard/ChatSidebar";
 import { useChatSidebar } from "@/hooks/useChatSidebar";
 import { cn } from "@/lib/utils";
@@ -64,6 +62,7 @@ import type { WizardStep } from "@/components/onboarding/InteractiveWizard";
 import { createElement } from "react";
 import { DashboardTutorialOverlay } from "@/components/onboarding/DashboardTutorialOverlay";
 import { useKonamiCode } from "@/hooks/useKonamiCode";
+import { DashboardErrorBoundary } from "@/components/error/DashboardErrorBoundary";
 import { SecretTheme } from "@/components/effects/SecretTheme";
 import { HolidayEffect } from "@/components/effects/HolidayEffect";
 import { MilestoneCelebration } from "@/components/effects/MilestoneCelebration";
@@ -275,23 +274,25 @@ export default function Dashboard() {
       </CollapsibleSection>
     ),
     'balance': (
-      <CollapsibleSection
-        key="balance"
-        id="balance"
-        title="Account Balance"
-        description="Your total savings across all accounts"
-        defaultOpen={!collapsedSections['balance']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <div data-wizard="balance-card">
-          <EnhancedBalanceCard 
-            balance={totalBalance} 
-            monthlyGrowth={monthlyChange}
-            savingsVelocity={savingsVelocity}
-            weeklyTrend={weeklyTrend}
-          />
-        </div>
-      </CollapsibleSection>
+      <DashboardErrorBoundary key="balance" sectionName="Account Balance">
+        <CollapsibleSection
+          key="balance"
+          id="balance"
+          title="Account Balance"
+          description="Your total savings across all accounts"
+          defaultOpen={!collapsedSections['balance']}
+          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+        >
+          <div data-wizard="balance-card">
+            <EnhancedBalanceCard 
+              balance={totalBalance} 
+              monthlyGrowth={monthlyChange}
+              savingsVelocity={savingsVelocity}
+              weeklyTrend={weeklyTrend}
+            />
+          </div>
+        </CollapsibleSection>
+      </DashboardErrorBoundary>
     ),
     'connect-account': <ConnectAccountCard key="connect-account" />,
     'auto-save': <AutoSaveBanner key="auto-save" />,
@@ -311,16 +312,18 @@ export default function Dashboard() {
       </CollapsibleSection>
     ),
     'ai-insights': (
-      <CollapsibleSection
-        key="ai-insights"
-        id="ai-insights"
-        title="AI-Powered Insights"
-        description="Smart recommendations just for you"
-        defaultOpen={!collapsedSections['ai-insights']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <AIInsightsCard />
-      </CollapsibleSection>
+      <DashboardErrorBoundary key="ai-insights" sectionName="AI-Powered Insights">
+        <CollapsibleSection
+          key="ai-insights"
+          id="ai-insights"
+          title="AI-Powered Insights"
+          description="Smart recommendations just for you"
+          defaultOpen={!collapsedSections['ai-insights']}
+          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+        >
+          <AIInsightsCard />
+        </CollapsibleSection>
+      </DashboardErrorBoundary>
     ),
     'recommendations': userId ? (
       <CollapsibleSection
@@ -421,18 +424,20 @@ export default function Dashboard() {
       </CollapsibleSection>
     ),
     'goals': (
-      <CollapsibleSection
-        key="goals"
-        id="goals"
-        title="Savings Goals"
-        description="Your active savings targets"
-        defaultOpen={!collapsedSections['goals']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <div data-wizard="goals-section">
-          <GoalsSection />
-        </div>
-      </CollapsibleSection>
+      <DashboardErrorBoundary key="goals" sectionName="Savings Goals">
+        <CollapsibleSection
+          key="goals"
+          id="goals"
+          title="Savings Goals"
+          description="Your active savings targets"
+          defaultOpen={!collapsedSections['goals']}
+          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+        >
+          <div data-wizard="goals-section">
+            <GoalsSection />
+          </div>
+        </CollapsibleSection>
+      </DashboardErrorBoundary>
     ),
     'scheduled': (
       <CollapsibleSection
@@ -450,9 +455,11 @@ export default function Dashboard() {
       </CollapsibleSection>
     ),
     'manual-transfer': (
-      <div data-wizard="manual-transfer" key="manual-transfer">
-        <ManualTransferCard />
-      </div>
+      <DashboardErrorBoundary key="manual-transfer" sectionName="Manual Transfer">
+        <div data-wizard="manual-transfer" key="manual-transfer">
+          <ManualTransferCard />
+        </div>
+      </DashboardErrorBoundary>
     ),
     'history': (
       <CollapsibleSection
@@ -467,16 +474,18 @@ export default function Dashboard() {
       </CollapsibleSection>
     ),
     'analytics-dashboard': (
-      <CollapsibleSection
-        key="analytics-dashboard"
-        id="analytics-dashboard"
-        title="Analytics Dashboard"
-        description="Key performance metrics"
-        defaultOpen={!collapsedSections['analytics-dashboard']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <AdvancedAnalyticsDashboard />
-      </CollapsibleSection>
+      <DashboardErrorBoundary key="analytics-dashboard" sectionName="Analytics Dashboard">
+        <CollapsibleSection
+          key="analytics-dashboard"
+          id="analytics-dashboard"
+          title="Analytics Dashboard"
+          description="Key performance metrics"
+          defaultOpen={!collapsedSections['analytics-dashboard']}
+          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+        >
+          <AdvancedAnalyticsDashboard />
+        </CollapsibleSection>
+      </DashboardErrorBoundary>
     ),
     'layout-manager': (
       <CollapsibleSection
@@ -612,8 +621,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Smart FAB, Command Palette, and Keyboard Hints */}
-        <SmartFAB />
+        {/* Unified FAB, Command Palette, and Keyboard Hints */}
+        <UnifiedFAB />
         <CommandPalette />
         <KeyboardHints />
         <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />

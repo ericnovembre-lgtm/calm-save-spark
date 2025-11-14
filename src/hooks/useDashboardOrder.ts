@@ -1,6 +1,16 @@
 import { useState } from 'react';
 
-const DEFAULT_CARD_ORDER = [
+// Core sections shown to new users
+const CORE_SECTIONS = [
+  'balance',
+  'goals',
+  'manual-transfer',
+  'ai-insights',
+  'challenges',
+];
+
+// Full list of all available sections
+const ALL_SECTIONS = [
   'balance',
   'ai-insights',
   'goals',
@@ -23,24 +33,56 @@ const DEFAULT_CARD_ORDER = [
 
 const STORAGE_KEY = 'dashboard-card-order';
 const COLLAPSED_KEY = 'dashboard-collapsed-sections';
+const FIRST_VISIT_KEY = 'dashboard-first-visit';
+const UNLOCKED_SECTIONS_KEY = 'dashboard-unlocked-sections';
 
 /**
  * Hook for managing dashboard card order and collapsed state with persistent localStorage
- * TODO: Migrate to database storage when user_preferences table is available
+ * Implements smart defaults: new users see only core sections
  */
 export function useDashboardOrder(userId?: string) {
   const storageKey = userId ? `${STORAGE_KEY}-${userId}` : STORAGE_KEY;
   const collapsedKey = userId ? `${COLLAPSED_KEY}-${userId}` : COLLAPSED_KEY;
+  const firstVisitKey = userId ? `${FIRST_VISIT_KEY}-${userId}` : FIRST_VISIT_KEY;
+  const unlockedKey = userId ? `${UNLOCKED_SECTIONS_KEY}-${userId}` : UNLOCKED_SECTIONS_KEY;
   
-  // Initialize card order from localStorage or default
+  // Check if this is the user's first visit
+  const isFirstVisit = () => {
+    if (typeof window === 'undefined') return false;
+    return !localStorage.getItem(firstVisitKey);
+  };
+
+  // Initialize card order from localStorage or smart default
   const [cardOrder, setCardOrder] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return DEFAULT_CARD_ORDER;
+    if (typeof window === 'undefined') return ALL_SECTIONS;
     
     try {
       const stored = localStorage.getItem(storageKey);
-      return stored ? JSON.parse(stored) : DEFAULT_CARD_ORDER;
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      
+      // First visit: show only core sections
+      if (isFirstVisit()) {
+        localStorage.setItem(firstVisitKey, 'true');
+        return CORE_SECTIONS;
+      }
+      
+      return ALL_SECTIONS;
     } catch {
-      return DEFAULT_CARD_ORDER;
+      return isFirstVisit() ? CORE_SECTIONS : ALL_SECTIONS;
+    }
+  });
+
+  // Track unlocked sections
+  const [unlockedSections, setUnlockedSections] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return CORE_SECTIONS;
+    
+    try {
+      const stored = localStorage.getItem(unlockedKey);
+      return stored ? JSON.parse(stored) : CORE_SECTIONS;
+    } catch {
+      return CORE_SECTIONS;
     }
   });
 
@@ -84,7 +126,40 @@ export function useDashboardOrder(userId?: string) {
   };
 
   const resetOrder = () => {
-    updateOrder(DEFAULT_CARD_ORDER);
+    updateOrder(ALL_SECTIONS);
+  };
+
+  const unlockSection = (sectionId: string) => {
+    if (unlockedSections.includes(sectionId)) return;
+    
+    const newUnlocked = [...unlockedSections, sectionId];
+    setUnlockedSections(newUnlocked);
+    
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(unlockedKey, JSON.stringify(newUnlocked));
+      } catch (error) {
+        console.error('Failed to save unlocked sections:', error);
+      }
+    }
+    
+    // Add to card order if not already present
+    if (!cardOrder.includes(sectionId)) {
+      updateOrder([...cardOrder, sectionId]);
+    }
+  };
+
+  const unlockAllSections = () => {
+    setUnlockedSections(ALL_SECTIONS);
+    updateOrder(ALL_SECTIONS);
+    
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(unlockedKey, JSON.stringify(ALL_SECTIONS));
+      } catch (error) {
+        console.error('Failed to save unlocked sections:', error);
+      }
+    }
   };
 
   return {
@@ -93,6 +168,10 @@ export function useDashboardOrder(userId?: string) {
     resetOrder,
     collapsedSections,
     toggleCollapsed,
+    unlockedSections,
+    unlockSection,
+    unlockAllSections,
+    isFirstVisit: isFirstVisit(),
     isLoading: false,
   };
 }
