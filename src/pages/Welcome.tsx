@@ -211,6 +211,10 @@ const Welcome = () => {
     if (!isLoading) {
       const authLoadTime = Date.now() - loadStartTimeRef.current;
       
+      if (import.meta.env.DEV) {
+        console.log('[Welcome] Auth check completed in', authLoadTime, 'ms');
+      }
+      
       // Track auth check duration
       saveplus_audit_event('section_loaded', {
         section: 'auth_check',
@@ -220,6 +224,9 @@ const Welcome = () => {
       
       // Hero loads immediately after auth check
       setHeroLoaded(true);
+      if (import.meta.env.DEV) {
+        console.log('[Welcome] Hero loaded');
+      }
       saveplus_audit_event('section_loaded', {
         section: 'hero',
         load_time_ms: authLoadTime,
@@ -229,6 +236,9 @@ const Welcome = () => {
       // Features load after 300ms
       const featuresTimer = setTimeout(() => {
         setFeaturesLoaded(true);
+        if (import.meta.env.DEV) {
+          console.log('[Welcome] Features loaded');
+        }
         saveplus_audit_event('section_loaded', {
           section: 'features',
           load_time_ms: Date.now() - loadStartTimeRef.current,
@@ -239,6 +249,9 @@ const Welcome = () => {
       // Stats load after 600ms
       const statsTimer = setTimeout(() => {
         setStatsLoaded(true);
+        if (import.meta.env.DEV) {
+          console.log('[Welcome] Stats loaded');
+        }
         saveplus_audit_event('section_loaded', {
           section: 'stats',
           load_time_ms: Date.now() - loadStartTimeRef.current,
@@ -249,6 +262,9 @@ const Welcome = () => {
       // CTA loads after 900ms
       const ctaTimer = setTimeout(() => {
         setCtaLoaded(true);
+        if (import.meta.env.DEV) {
+          console.log('[Welcome] CTA loaded');
+        }
         const totalLoadTime = Date.now() - loadStartTimeRef.current;
         saveplus_audit_event('section_loaded', {
           section: 'cta',
@@ -270,6 +286,32 @@ const Welcome = () => {
       };
     }
   }, [isLoading, location.pathname]);
+
+  // Timeout fallback: force all content to show after 3 seconds if something fails
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      if (!heroLoaded || !featuresLoaded || !statsLoaded || !ctaLoaded) {
+        if (import.meta.env.DEV) {
+          console.warn('[Welcome] Loading timeout - forcing all sections to load', {
+            heroLoaded,
+            featuresLoaded,
+            statsLoaded,
+            ctaLoaded
+          });
+        }
+        setHeroLoaded(true);
+        setFeaturesLoaded(true);
+        setStatsLoaded(true);
+        setCtaLoaded(true);
+        saveplus_audit_event('loading_timeout_fallback', {
+          route: location.pathname,
+          timeout_ms: 3000
+        });
+      }
+    }, 3000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [heroLoaded, featuresLoaded, statsLoaded, ctaLoaded, location.pathname]);
 
   // Theme toggle deduplication
   useEffect(() => {
@@ -451,11 +493,11 @@ const Welcome = () => {
           </div>
         </motion.header>
 
-        <main className="container mx-auto px-4 py-12 md:py-20 space-y-32">
+        <main className="relative z-10 container mx-auto px-4 py-12 md:py-20 space-y-32">
           {/* Hero Section with parallax - Neutral styling */}
           <motion.section 
             ref={heroRef}
-            className="space-y-8 relative bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
+            className="space-y-8 relative z-20 bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
             style={prefersReducedMotion ? {} : { y: parallaxY, opacity }}
           >
             {!heroLoaded ? (
@@ -528,7 +570,7 @@ const Welcome = () => {
             <motion.section 
               ref={featuresRef}
               aria-label="Features"
-              className="bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
+              className="relative z-20 bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
               initial={{ opacity: 0 }}
               animate={featuresInView ? { opacity: 1 } : {}}
               transition={{ duration: 0.5 }}
@@ -595,7 +637,7 @@ const Welcome = () => {
             <motion.section 
               ref={statsRef}
               aria-label="Statistics"
-              className="relative bg-[color:var(--color-accent)]/40 dark:bg-[color:var(--color-accent)]/15 -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-3xl"
+              className="relative z-20 bg-[color:var(--color-accent)]/40 dark:bg-[color:var(--color-accent)]/15 -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-3xl"
             >
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent rounded-3xl blur-3xl"
@@ -712,6 +754,7 @@ const Welcome = () => {
           <LazyLoad minHeight="600px" rootMargin="200px">
             <motion.section
               aria-label="Try savings calculator"
+              className="relative z-20"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true, amount: 0.3 }}
@@ -726,7 +769,7 @@ const Welcome = () => {
           {/* Secure Onboarding CTA - White surface */}
           <motion.section 
             aria-label="Get started"
-            className="bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
+            className="relative z-20 bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: false, amount: 0.5 }}
@@ -751,7 +794,7 @@ const Welcome = () => {
           </motion.section>
         </main>
 
-        <footer className="relative container mx-auto px-4 py-12 mt-20 border-t border-border/50">
+        <footer className="relative z-10 container mx-auto px-4 py-12 mt-20 border-t border-border/50">
           <motion.div 
             className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm"
             initial={{ opacity: 0 }}

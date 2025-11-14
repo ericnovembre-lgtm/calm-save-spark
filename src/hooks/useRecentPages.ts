@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface RecentPage {
   path: string;
@@ -28,7 +28,7 @@ export function useRecentPages() {
     }
   }, []);
 
-  const addPage = (path: string, title: string) => {
+  const addPage = useCallback((path: string, title: string) => {
     try {
       const updated = [
         { path, title, timestamp: Date.now() },
@@ -40,7 +40,7 @@ export function useRecentPages() {
     } catch (error) {
       console.error('Error saving recent page:', error);
     }
-  };
+  }, [pages]);
 
   return { pages, addPage };
 }
