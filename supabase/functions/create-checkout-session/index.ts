@@ -1,17 +1,33 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { ErrorHandlerOptions, handleError, handleValidationError } from "../_shared/error-handler.ts";
+import { enforceRateLimit } from "../_shared/rate-limiter.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Validation schema
+const inputSchema = z.object({
+  monthly_usd: z.number()
+    .min(0, "Subscription amount cannot be negative")
+    .max(20, "Maximum subscription amount is $20")
+    .int("Subscription amount must be a whole number"),
+  success_url: z.string().url("Success URL must be a valid URL").optional(),
+  cancel_url: z.string().url("Cancel URL must be a valid URL").optional(),
+});
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  let userId: string | undefined;
+  const errorOptions = new ErrorHandlerOptions(corsHeaders, 'create-checkout-session');
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -27,22 +43,28 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { monthly_usd, success_url, cancel_url } = await req.json();
+    userId = user.id;
+    errorOptions.userId = userId;
 
-    console.log('Creating checkout session:', { 
-      userId: user.id, 
-      monthly_usd, 
-      success_url, 
-      cancel_url 
-    });
+    // Check rate limit - 5 checkout attempts per hour
+    const rateLimitResponse = await enforceRateLimit(
+      supabase,
+      user.id,
+      {
+        functionName: 'create-checkout-session',
+        maxCalls: 5,
+        windowMinutes: 60,
+      },
+      corsHeaders
+    );
+    if (rateLimitResponse) return rateLimitResponse;
 
     // Validate input
-    if (monthly_usd < 0 || monthly_usd > 15) {
-      throw new Error('Invalid subscription amount');
-    }
+    const body = await req.json();
+    const validated = inputSchema.parse(body);
 
     // For free plan ($0), handle locally without Stripe
-    if (monthly_usd === 0) {
+    if (validated.monthly_usd === 0) {
       // Update or create subscription
       const { error: subError } = await supabase
         .from('user_subscriptions')
@@ -58,7 +80,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: true,
-          url: success_url,
+          url: validated.success_url || '/',
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -83,7 +105,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        url: success_url, // Temporary: redirect to success immediately
+        url: validated.success_url || '/',
         message: 'Stripe integration pending - subscription updated locally',
       }),
       {
@@ -91,16 +113,9 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error in create-checkout-session:', error);
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'An unknown error occurred'
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    if ((error as any)?.name === 'ZodError') {
+      return handleValidationError(error, errorOptions);
+    }
+    return handleError(error, errorOptions);
   }
 });
