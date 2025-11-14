@@ -1,4 +1,5 @@
 import { useReducedMotion } from './useReducedMotion';
+import { haptics } from '@/lib/haptics';
 
 type HapticPattern = 'light' | 'medium' | 'heavy' | 'success';
 
@@ -12,6 +13,8 @@ const HAPTIC_PATTERNS: Record<HapticPattern, number | number[]> = {
 /**
  * Hook for triggering haptic feedback on mobile devices
  * Respects reduced motion preferences and gracefully degrades on unsupported devices
+ * 
+ * @deprecated Use haptics utility from @/lib/haptics for better control
  */
 export function useHapticFeedback() {
   const prefersReducedMotion = useReducedMotion();
@@ -22,17 +25,20 @@ export function useHapticFeedback() {
       return;
     }
 
-    // Check if Vibration API is supported
-    if (!navigator.vibrate) {
-      return;
-    }
-
-    try {
-      const vibrationPattern = HAPTIC_PATTERNS[pattern];
-      navigator.vibrate(vibrationPattern);
-    } catch (error) {
-      // Silently fail if vibration is not supported or blocked
-      console.debug('Haptic feedback not available:', error);
+    // Use centralized haptics manager
+    switch (pattern) {
+      case 'light':
+        haptics.vibrate('light');
+        break;
+      case 'medium':
+        haptics.vibrate('medium');
+        break;
+      case 'heavy':
+        haptics.vibrate('heavy');
+        break;
+      case 'success':
+        haptics.pattern('success');
+        break;
     }
   };
 

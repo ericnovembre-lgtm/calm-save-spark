@@ -32,6 +32,7 @@ import { ParallaxBackground } from "@/components/welcome/ParallaxBackground";
 import { ParticleBackground } from "@/components/welcome/ParticleBackground";
 import { MouseGradient } from "@/components/welcome/MouseGradient";
 import { ScrollGradient } from "@/components/welcome/ScrollGradient";
+import { GestureHandler, PinchZoomWrapper } from "@/components/welcome/GestureHandler";
 import { Users, DollarSign, TrendingUp, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -356,28 +357,30 @@ const Welcome = () => {
       <ParticleBackground />
       <MouseGradient />
       
-      {/* Custom Cursor for desktop */}
-      <CustomCursor />
-      
-      {/* Konami Code Confetti */}
-      <NeutralConfetti show={showConfetti} />
-      
-      {/* Clicker Game Modal */}
-      <ClickerGame isOpen={showClickerGame} onClose={() => setShowClickerGame(false)} />
-      
-      {/* Konami Badge */}
-      {konamiSuccess && (
-        <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          className="fixed top-20 right-4 z-40"
-        >
-          <Badge className="bg-accent text-accent-foreground px-4 py-2 shadow-lg">
-            <Trophy className="w-4 h-4 mr-2" />
-            Secret Saver
-          </Badge>
-        </motion.div>
-      )}
+      {/* Gesture Handler - Phase 8 */}
+      <GestureHandler enableShakeToConfetti={true}>
+        {/* Custom Cursor for desktop */}
+        <CustomCursor />
+        
+        {/* Konami Code Confetti */}
+        <NeutralConfetti show={showConfetti} />
+        
+        {/* Clicker Game Modal */}
+        <ClickerGame isOpen={showClickerGame} onClose={() => setShowClickerGame(false)} />
+        
+        {/* Konami Badge */}
+        {konamiSuccess && (
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            className="fixed top-20 right-4 z-40"
+          >
+            <Badge className="bg-accent text-accent-foreground px-4 py-2 shadow-lg">
+              <Trophy className="w-4 h-4 mr-2" />
+              Secret Saver
+            </Badge>
+          </motion.div>
+        )}
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -769,6 +772,7 @@ const Welcome = () => {
         <SaveplusCoachWidget />
         <SaveplusUIAssistantFAB />
       </motion.div>
+      </GestureHandler>
     </div>
   );
 };
