@@ -26,7 +26,7 @@ import { StreakRecoveryBanner } from "@/components/dashboard/StreakRecoveryBanne
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { useDashboardOrder } from "@/hooks/useDashboardOrder";
 import { Reorder } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
@@ -34,12 +34,17 @@ import { ChatFAB } from "@/components/dashboard/ChatFAB";
 import { ChatSidebar } from "@/components/dashboard/ChatSidebar";
 import { useChatSidebar } from "@/hooks/useChatSidebar";
 import { cn } from "@/lib/utils";
+import { InteractiveWizard, hasCompletedWizard } from "@/components/onboarding/InteractiveWizard";
+import { DASHBOARD_WIZARD_STEPS, type WizardStepWithIcon } from "@/lib/wizard-steps";
+import type { WizardStep } from "@/components/onboarding/InteractiveWizard";
+import { createElement } from "react";
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
   const queryClient = useQueryClient();
   const [isReordering, setIsReordering] = useState(false);
   const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
+  const [showWizard, setShowWizard] = useState(false);
   
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -51,6 +56,39 @@ export default function Dashboard() {
 
   const userId = session?.user?.id;
   const { cardOrder, updateOrder, collapsedSections, toggleCollapsed } = useDashboardOrder(userId);
+  
+  // Check if wizard should be shown to first-time users
+  useEffect(() => {
+    const checkWizardStatus = async () => {
+      if (!userId) return;
+      
+      // Check if wizard has been completed
+      if (hasCompletedWizard()) {
+        setShowWizard(false);
+        return;
+      }
+      
+      // Check if user has completed onboarding
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_completed')
+        .eq('id', userId)
+        .single();
+      
+      // Show wizard after initial onboarding
+      if (profile?.onboarding_completed) {
+        setShowWizard(true);
+      }
+    };
+    
+    checkWizardStatus();
+  }, [userId]);
+  
+  // Convert icon components to React elements
+  const wizardSteps: WizardStep[] = DASHBOARD_WIZARD_STEPS.map(step => ({
+    ...step,
+    icon: step.iconComponent ? createElement(step.iconComponent, { className: "w-5 h-5" }) : undefined
+  }));
   
   const { data: accounts, isLoading: accountsLoading } = useQuery({
     queryKey: ['connected_accounts'],
@@ -122,7 +160,9 @@ export default function Dashboard() {
         defaultOpen={!collapsedSections['balance']}
         onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
       >
-        <BalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
+        <div data-wizard="balance-card">
+          <BalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
+        </div>
       </CollapsibleSection>
     ),
     'connect-account': <ConnectAccountCard key="connect-account" />,
@@ -137,7 +177,9 @@ export default function Dashboard() {
         defaultOpen={!collapsedSections['milestones']}
         onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
       >
-        <JourneyMilestones />
+        <div data-wizard="milestones">
+          <JourneyMilestones />
+        </div>
       </CollapsibleSection>
     ),
     'recommendations': userId ? (
@@ -149,7 +191,9 @@ export default function Dashboard() {
         defaultOpen={!collapsedSections['recommendations']}
         onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
       >
-        <ProactiveRecommendations userId={userId} />
+        <div data-wizard="insights">
+          <ProactiveRecommendations userId={userId} />
+        </div>
       </CollapsibleSection>
     ) : null,
     'skill-tree': userId ? (
@@ -209,7 +253,9 @@ export default function Dashboard() {
         defaultOpen={!collapsedSections['goals']}
         onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
       >
-        <GoalsSection />
+        <div data-wizard="goals-section">
+          <GoalsSection />
+        </div>
       </CollapsibleSection>
     ),
     'scheduled': (
@@ -227,7 +273,11 @@ export default function Dashboard() {
         <ScheduledTransfersList />
       </CollapsibleSection>
     ),
-    'manual-transfer': <ManualTransferCard key="manual-transfer" />,
+    'manual-transfer': (
+      <div data-wizard="manual-transfer" key="manual-transfer">
+        <ManualTransferCard />
+      </div>
+    ),
     'history': (
       <CollapsibleSection
         key="history"
@@ -303,10 +353,27 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions FAB */}
-        <QuickActionsFAB />
+        <div data-wizard="quick-actions">
+          <QuickActionsFAB />
+        </div>
         <ChatFAB />
         <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />
       </PullToRefresh>
+      
+      {/* Interactive Wizard */}
+      {showWizard && (
+        <InteractiveWizard
+          steps={wizardSteps}
+          onComplete={() => {
+            setShowWizard(false);
+            toast.success("Welcome to $ave+! You're all set to start saving.");
+          }}
+          onSkip={() => {
+            setShowWizard(false);
+            toast.info("You can restart the tour anytime from Settings.");
+          }}
+        />
+      )}
     </AppLayout>
   );
 }
