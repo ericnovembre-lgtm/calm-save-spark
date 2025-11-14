@@ -60,8 +60,8 @@ export interface Stat {
   /** Optional suffix (e.g., "+", "M", "%") */
   suffix?: string;
   
-  /** Optional icon element to display */
-  icon?: React.ReactNode;
+  /** Optional icon element to display (ReactNode) or icon name string to be resolved at render */
+  icon?: string | React.ReactNode;
   
   /** Optional animation delay in seconds */
   delay?: number;

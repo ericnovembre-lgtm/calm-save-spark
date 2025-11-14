@@ -7,6 +7,29 @@ import { Stat } from "@/components/welcome/types";
 
 type ExpandableStatCardProps = Stat;
 
+/**
+ * Resolves icon to React element at render time
+ * Supports both icon name strings and direct ReactNode icons
+ */
+const resolveIcon = (icon: string | React.ReactNode | undefined): React.ReactNode => {
+  if (!icon) return null;
+  
+  if (typeof icon === 'string') {
+    switch(icon) {
+      case 'users':
+        return <Users className="w-8 h-8" />;
+      case 'dollar-sign':
+        return <DollarSign className="w-8 h-8" />;
+      case 'trending-up':
+        return <TrendingUp className="w-8 h-8" />;
+      default:
+        return null;
+    }
+  }
+  
+  return icon;
+};
+
 export const ExpandableStatCard = ({
   label,
   value,
@@ -18,6 +41,9 @@ export const ExpandableStatCard = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSparkle, setShowSparkle] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  
+  // Resolve icon at render time
+  const resolvedIcon = resolveIcon(icon);
 
   useEffect(() => {
     if (!prefersReducedMotion) {
@@ -97,13 +123,13 @@ export const ExpandableStatCard = ({
 
         <div className="relative z-10">
           <div className="flex items-start justify-between mb-4">
-            {icon && (
+            {resolvedIcon && (
               <motion.div
                 className="text-foreground"
                 whileHover={prefersReducedMotion ? {} : { rotate: [0, -5, 5, 0], scale: 1.1 }}
                 transition={{ duration: 0.3 }}
               >
-                {icon}
+                {resolvedIcon}
               </motion.div>
             )}
             {breakdown && (

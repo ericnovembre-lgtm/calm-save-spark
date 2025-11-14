@@ -7,7 +7,6 @@
  * @module components/welcome/constants
  */
 
-import { Users, DollarSign, TrendingUp } from "lucide-react";
 import type { Feature, Stat, Milestone } from "./types";
 import type { Feature as FeatureCarouselType } from "@/components/welcome/FeatureCarousel";
 
@@ -83,7 +82,7 @@ export const WELCOME_STATS: Stat[] = [
     label: "Active Savers",
     value: 50000,
     suffix: "+",
-    icon: <Users className="w-8 h-8" />,
+    icon: "users",
     delay: 0,
     breakdown: [
       { label: "This Month", value: "2,340", percentage: 75 },
@@ -95,7 +94,7 @@ export const WELCOME_STATS: Stat[] = [
     label: "Total Saved",
     value: 2.1,
     suffix: "M+",
-    icon: <DollarSign className="w-8 h-8" />,
+    icon: "dollar-sign",
     delay: 0.1,
     breakdown: [
       { label: "Automated Savings", value: "$1.2M", percentage: 57 },
@@ -107,7 +106,7 @@ export const WELCOME_STATS: Stat[] = [
     label: "Average APY",
     value: 4.25,
     suffix: "%",
-    icon: <TrendingUp className="w-8 h-8" />,
+    icon: "trending-up",
     delay: 0.2,
   },
 ];
