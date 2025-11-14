@@ -84,7 +84,9 @@ export function SaveplusAnimIcon({
 
   // Handle image load errors
   const handleImageError = () => {
-    console.warn(`Failed to load asset #${fallbackIndex} for icon "${name}"`);
+    if (import.meta.env.DEV) {
+      console.debug(`Failed to load asset #${fallbackIndex} for icon "${name}"`);
+    }
     setFallbackIndex(prev => prev + 1);
   };
 
