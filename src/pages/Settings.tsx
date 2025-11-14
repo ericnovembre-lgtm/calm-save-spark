@@ -12,11 +12,12 @@ import { WeeklyDigestTrigger } from '@/components/settings/WeeklyDigestTrigger';
 import { CurrencyPreference } from '@/components/settings/CurrencyPreference';
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
-import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity } from 'lucide-react';
+import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2 } from 'lucide-react';
 import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
 import { SoundSettings } from '@/components/settings/SoundSettings';
 import { PerformanceDashboard } from '@/components/settings/PerformanceDashboard';
 import { HighContrastMode } from '@/components/settings/HighContrastMode';
+import { EasterEggsSettings } from '@/components/settings/EasterEggsSettings';
 
 export default function Settings() {
   return (
