@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
@@ -129,8 +129,6 @@ function AnimatedRoutes() {
             </AuthRedirect>
           } 
         />
-        {/* Redirect /welcome to / for backward compatibility */}
-        <Route path="/welcome" element={<Navigate to="/" replace />} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
