@@ -3,19 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ChevronDown, TrendingUp, Users, DollarSign } from "lucide-react";
 import { AnimatedCounter } from "@/components/onboarding/AnimatedCounter";
+import { Stat } from "@/components/welcome/types";
 
-interface ExpandableStatCardProps {
-  label: string;
-  value: number;
-  suffix?: string;
-  icon?: React.ReactNode;
-  delay?: number;
-  breakdown?: {
-    label: string;
-    value: string;
-    percentage: number;
-  }[];
-}
+type ExpandableStatCardProps = Stat;
 
 export const ExpandableStatCard = ({
   label,

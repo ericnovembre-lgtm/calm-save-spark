@@ -17,28 +17,7 @@ import { TrackedLazyComponent } from "@/components/performance/TrackedLazyCompon
 import { FlippableFeatureCard } from "@/components/welcome/FlippableFeatureCard";
 import { JourneyTimeline } from "@/components/welcome/JourneyTimeline";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-
-/**
- * Feature data structure
- * 
- * @interface Feature
- */
-interface Feature {
-  /** Unique identifier for the feature */
-  id: string;
-  
-  /** Display title of the feature */
-  title: string;
-  
-  /** Short description explaining the feature */
-  description: string;
-  
-  /** Icon name from lucide-react or custom icon set */
-  icon: string;
-  
-  /** Optional detailed explanation shown in modal or card back */
-  details?: string;
-}
+import { Feature } from "@/components/welcome/types";
 
 /**
  * Props for the WelcomeFeaturesSection component
