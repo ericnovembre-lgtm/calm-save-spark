@@ -16,6 +16,7 @@ import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, 
 import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
 import { SoundSettings } from '@/components/settings/SoundSettings';
 import { PerformanceDashboard } from '@/components/settings/PerformanceDashboard';
+import { HighContrastMode } from '@/components/settings/HighContrastMode';
 
 export default function Settings() {
   return (
@@ -131,8 +132,10 @@ export default function Settings() {
               Control animations, effects, and visual motion throughout the app
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
             <MotionAccessibilitySettings />
+            <Separator />
+            <HighContrastMode />
           </CardContent>
         </Card>
 

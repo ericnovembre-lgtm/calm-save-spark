@@ -18,6 +18,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { LoadingState } from "./components/LoadingState";
+import "@/styles/accessibility.css";
 
 // Lazy load all pages for optimal code splitting
 const Dashboard = lazy(() => import("./pages/Dashboard"));
