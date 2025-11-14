@@ -10,6 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GoalCard } from "@/components/GoalCard";
+import { GoalSavingsOptimizer } from "@/components/goals/GoalSavingsOptimizer";
+import { AIGoalSuggestions } from "@/components/goals/AIGoalSuggestions";
+import { QuickGoalTemplates } from "@/components/goals/QuickGoalTemplates";
 
 const Goals = () => {
   const { toast } = useToast();
@@ -75,11 +78,11 @@ const Goals = () => {
 
   return (
     <AppLayout>
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-6 space-y-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-display font-bold text-foreground">Savings Goals</h1>
-            <p className="text-muted-foreground">Track your progress toward financial milestones</p>
+            <p className="text-muted-foreground">Achieve your goals faster with AI-powered optimization</p>
           </div>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -144,31 +147,38 @@ const Goals = () => {
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">Loading goals...</div>
         ) : goals && goals.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {goals.map((goal) => (
-              <GoalCard 
-                key={goal.id} 
-                title={goal.name}
-                current={parseFloat(String(goal.current_amount))}
-                target={parseFloat(String(goal.target_amount))}
-                emoji={goal.icon}
-              />
-            ))}
-          </div>
+          <>
+            <GoalSavingsOptimizer />
+            <AIGoalSuggestions />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {goals.map((goal) => (
+                <GoalCard 
+                  key={goal.id} 
+                  title={goal.name}
+                  current={parseFloat(String(goal.current_amount))}
+                  target={parseFloat(String(goal.target_amount))}
+                  emoji={goal.icon}
+                />
+              ))}
+            </div>
+          </>
         ) : (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Target className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">No Goals Yet</h3>
-              <p className="text-muted-foreground mb-6">
-                Start your savings journey by creating your first goal
-              </p>
-              <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Create Your First Goal
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="space-y-8">
+            <QuickGoalTemplates />
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Target className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-semibold mb-2">No Goals Yet</h3>
+                <p className="text-muted-foreground mb-6">
+                  Start your savings journey by creating your first goal or use a template above
+                </p>
+                <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Create Your First Goal
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </AppLayout>
