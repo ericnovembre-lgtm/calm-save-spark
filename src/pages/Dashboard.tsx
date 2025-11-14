@@ -30,6 +30,12 @@ import PeerInsights from "@/components/dashboard/PeerInsights";
 import { DynamicWelcome } from "@/components/dashboard/DynamicWelcome";
 import { GoalTimeline } from "@/components/dashboard/GoalTimeline";
 import { StreakRecoveryBanner } from "@/components/dashboard/StreakRecoveryBanner";
+import { StreakTrackerHeader } from "@/components/gamification/StreakTrackerHeader";
+import { LevelSystem } from "@/components/gamification/LevelSystem";
+import { EnhancedAchievementToast } from "@/components/gamification/EnhancedAchievementToast";
+import { GoalCompletionCelebration } from "@/components/gamification/GoalCompletionCelebration";
+import { ChallengeCard } from "@/components/gamification/ChallengeCard";
+import { useEnhancedAchievements } from "@/hooks/useEnhancedAchievements";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { useDashboardOrder } from "@/hooks/useDashboardOrder";
 import { Reorder, motion } from "framer-motion";
@@ -50,6 +56,8 @@ import { DashboardTutorialOverlay } from "@/components/onboarding/DashboardTutor
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
+  const { currentAchievement, handleDismiss: handleAchievementDismiss } = useEnhancedAchievements();
+  const [completedGoal, setCompletedGoal] = useState<any>(null);
   const queryClient = useQueryClient();
   const [isReordering, setIsReordering] = useState(false);
   const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
@@ -156,6 +164,32 @@ export default function Dashboard() {
     const baseAmount = totalBalance - (monthlyChange / 30 * dayOffset);
     return Math.max(0, baseAmount + (Math.random() - 0.5) * 100);
   });
+
+  // Mock challenges data
+  const mockChallenges = [
+    {
+      id: '1',
+      name: 'Weekly Savings Sprint',
+      description: 'Save $500 this week',
+      type: 'weekly' as const,
+      target: 500,
+      current: 320,
+      reward: '+100 XP and 1 Streak Freeze',
+      participants: 1247,
+      endsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+    },
+    {
+      id: '2',
+      name: 'Monthly Goal Master',
+      description: 'Complete 3 savings goals this month',
+      type: 'monthly' as const,
+      target: 3,
+      current: 1,
+      reward: '+500 XP and Premium Badge',
+      participants: 892,
+      endsAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
+    }
+  ];
 
 
   // Pull to refresh handler
@@ -269,6 +303,26 @@ export default function Dashboard() {
         <CashFlowForecast userId={userId} />
       </CollapsibleSection>
     ) : null,
+    'challenges': (
+      <CollapsibleSection
+        key="challenges"
+        id="challenges"
+        title="Active Challenges"
+        description="Join community challenges and earn rewards"
+        defaultOpen={!collapsedSections['challenges']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <div className="space-y-4">
+          {mockChallenges.map((challenge) => (
+            <ChallengeCard
+              key={challenge.id}
+              challenge={challenge}
+              onJoin={() => toast.info(`Joined ${challenge.name}!`)}
+            />
+          ))}
+        </div>
+      </CollapsibleSection>
+    ),
     'peer-insights': userId ? (
       <CollapsibleSection
         key="peer-insights"
@@ -372,7 +426,28 @@ export default function Dashboard() {
           isChatOpen && "lg:pr-[420px]"
         )}>
           <EmailVerificationBanner />
-          <StreakRecoveryBanner />
+      <EnhancedAchievementToast 
+        achievement={currentAchievement} 
+        onDismiss={handleAchievementDismiss} 
+      />
+      
+      <GoalCompletionCelebration 
+        goal={completedGoal}
+        onDismiss={() => setCompletedGoal(null)}
+        onNextGoal={() => {
+          setCompletedGoal(null);
+          // Navigate to goals or open goal creation
+        }}
+      />
+
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <StreakTrackerHeader />
+          <LevelSystem />
+        </div>
+      </div>
+
+      <StreakRecoveryBanner />
 
           <div className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
             <DynamicWelcome />
