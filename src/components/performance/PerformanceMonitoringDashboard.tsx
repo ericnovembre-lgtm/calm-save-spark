@@ -3,8 +3,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Activity, Clock, Zap, AlertCircle, TrendingUp, Database } from "lucide-react";
+import { Activity, Clock, Zap, AlertCircle, TrendingUp, Database, PlayCircle, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SessionReplayViewer } from "./SessionReplayViewer";
+import { PerformanceComparisonView } from "./PerformanceComparisonView";
 
 interface PerformanceMetric {
   name: string;
@@ -52,6 +55,7 @@ export const PerformanceMonitoringDashboard = () => {
   });
 
   const [isOpen, setIsOpen] = useState(false);
+  const [showReplayViewer, setShowReplayViewer] = useState(false);
 
   useEffect(() => {
     // Listen to performance events from various components
@@ -189,15 +193,32 @@ export const PerformanceMonitoringDashboard = () => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Activity className="w-5 h-5" />
-            Welcome Page Performance Metrics
+            Performance Monitoring Center
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <Tabs defaultValue="metrics" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="metrics">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Current Metrics
+            </TabsTrigger>
+            <TabsTrigger value="comparison">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Comparison
+            </TabsTrigger>
+            <TabsTrigger value="replay">
+              <PlayCircle className="w-4 h-4 mr-2" />
+              Session Replay
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Current Metrics Tab */}
+          <TabsContent value="metrics" className="space-y-6 mt-6">
           {/* Summary Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="p-4 text-center">
@@ -300,8 +321,33 @@ export const PerformanceMonitoringDashboard = () => {
               ))}
             </div>
           </div>
-        </div>
+        </TabsContent>
+
+        {/* Comparison Tab */}
+        <TabsContent value="comparison">
+          <PerformanceComparisonView />
+        </TabsContent>
+
+        {/* Session Replay Tab */}
+        <TabsContent value="replay">
+          <Card className="p-6 text-center">
+            <PlayCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="font-semibold mb-2">Session Replay</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              View recorded user sessions with performance overlays
+            </p>
+            <Button onClick={() => setShowReplayViewer(true)}>
+              View Sample Session
+            </Button>
+          </Card>
+        </TabsContent>
+      </Tabs>
       </DialogContent>
+
+      {/* Session Replay Viewer Modal */}
+      {showReplayViewer && (
+        <SessionReplayViewer onClose={() => setShowReplayViewer(false)} />
+      )}
     </Dialog>
   );
 };

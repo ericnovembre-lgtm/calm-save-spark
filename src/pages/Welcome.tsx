@@ -31,6 +31,7 @@ import { useIntelligentPrefetch } from "@/hooks/useIntelligentPrefetch";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { WelcomeLoadingSkeleton } from "@/components/welcome/WelcomeLoadingSkeleton";
 import { PerformanceMonitoringDashboard } from "@/components/performance/PerformanceMonitoringDashboard";
+import { usePerformanceBudgetAlerts } from "@/hooks/usePerformanceBudgetAlerts";
 import type { Feature } from "@/components/welcome/FeatureCarousel";
 
 // Lazy load heavy components for better performance
@@ -132,6 +133,9 @@ const Welcome = () => {
 
   // Initialize Web Vitals monitoring
   useWebVitals(true);
+  
+  // Initialize performance budget alerts (dev only)
+  usePerformanceBudgetAlerts(import.meta.env.DEV);
   
   // Initialize intelligent prefetching
   const { connectionSpeed } = useIntelligentPrefetch();
