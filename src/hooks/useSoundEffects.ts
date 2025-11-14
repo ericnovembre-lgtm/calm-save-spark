@@ -43,20 +43,16 @@ export const useSoundEffects = () => {
     }
   }, [preferences]);
 
-  const getAudioContext = useCallback(() => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    return audioContextRef.current;
-  }, []);
-
   /**
    * Play coin drop sound for savings actions
    */
   const playCoinSound = useCallback(() => {
     if (!preferences.enabled || !preferences.savingsSound) return;
 
-    const audioContext = getAudioContext();
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const audioContext = audioContextRef.current;
     const now = audioContext.currentTime;
 
     // Create coin "clink" sound
@@ -75,7 +71,7 @@ export const useSoundEffects = () => {
 
     oscillator.start(now);
     oscillator.stop(now + 0.15);
-  }, [preferences, getAudioContext]);
+  }, [preferences]);
 
   /**
    * Play success chime for achievements
@@ -83,7 +79,10 @@ export const useSoundEffects = () => {
   const playAchievementSound = useCallback(() => {
     if (!preferences.enabled || !preferences.achievementSound) return;
 
-    const audioContext = getAudioContext();
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const audioContext = audioContextRef.current;
     const now = audioContext.currentTime;
 
     // Create ascending chord for achievement
@@ -109,7 +108,7 @@ export const useSoundEffects = () => {
       oscillator.start(startTime);
       oscillator.stop(startTime + duration);
     });
-  }, [preferences, getAudioContext]);
+  }, [preferences]);
 
   /**
    * Play subtle interaction sound
@@ -117,7 +116,10 @@ export const useSoundEffects = () => {
   const playClickSound = useCallback(() => {
     if (!preferences.enabled) return;
 
-    const audioContext = getAudioContext();
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const audioContext = audioContextRef.current;
     const now = audioContext.currentTime;
 
     const oscillator = audioContext.createOscillator();
@@ -134,7 +136,7 @@ export const useSoundEffects = () => {
 
     oscillator.start(now);
     oscillator.stop(now + 0.05);
-  }, [preferences, getAudioContext]);
+  }, [preferences]);
 
   /**
    * Play goal completion sound
@@ -142,7 +144,10 @@ export const useSoundEffects = () => {
   const playGoalCompleteSound = useCallback(() => {
     if (!preferences.enabled || !preferences.achievementSound) return;
 
-    const audioContext = getAudioContext();
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const audioContext = audioContextRef.current;
     const now = audioContext.currentTime;
 
     // Triumphant fanfare
@@ -168,7 +173,7 @@ export const useSoundEffects = () => {
       oscillator.start(startTime);
       oscillator.stop(startTime + duration);
     });
-  }, [preferences, getAudioContext]);
+  }, [preferences]);
 
   /**
    * Play ambient background music
@@ -176,7 +181,10 @@ export const useSoundEffects = () => {
   const startAmbientMusic = useCallback(() => {
     if (!preferences.enabled || !preferences.ambientMusic) return;
 
-    const audioContext = getAudioContext();
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const audioContext = audioContextRef.current;
     
     // Create a gentle ambient drone
     const oscillator1 = audioContext.createOscillator();
@@ -210,7 +218,7 @@ export const useSoundEffects = () => {
       oscillator1.stop();
       oscillator2.stop();
     };
-  }, [preferences, getAudioContext]);
+  }, [preferences]);
 
   const updatePreference = <K extends keyof SoundPreferences>(
     key: K,
