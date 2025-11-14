@@ -63,6 +63,8 @@ import { createElement } from "react";
 import { DashboardTutorialOverlay } from "@/components/onboarding/DashboardTutorialOverlay";
 import { useKonamiCode } from "@/hooks/useKonamiCode";
 import { DashboardErrorBoundary } from "@/components/error/DashboardErrorBoundary";
+import { PersonalImpactCard } from "@/components/dashboard/PersonalImpactCard";
+import { HelpButton } from "@/components/dashboard/HelpButton";
 import { SecretTheme } from "@/components/effects/SecretTheme";
 import { HolidayEffect } from "@/components/effects/HolidayEffect";
 import { MilestoneCelebration } from "@/components/effects/MilestoneCelebration";
@@ -261,6 +263,11 @@ export default function Dashboard() {
 
   // Card mapping for reorderable sections
   const cardComponents: Record<string, React.ReactNode> = {
+    'personal-impact': userId ? (
+      <DashboardErrorBoundary key="personal-impact" sectionName="Personal Impact">
+        <PersonalImpactCard userId={userId} />
+      </DashboardErrorBoundary>
+    ) : null,
     'coach-widget': (
       <CollapsibleSection
         key="coach-widget"
@@ -540,7 +547,7 @@ export default function Dashboard() {
         />
         
         <div className={cn(
-          "space-y-6 pb-20 transition-all duration-300",
+          "max-w-7xl mx-auto space-y-6 pb-20 transition-all duration-300 px-4 sm:px-6 lg:px-8",
           isChatOpen && "lg:pr-[420px]"
         )}>
           <EmailVerificationBanner />

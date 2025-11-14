@@ -55,7 +55,7 @@ export function AIInsightsCard() {
     setDisplayedText("");
     
     let currentChar = 0;
-    const typingSpeed = 30; // ms per character
+    const typingSpeed = 60; // Slowed down from 30ms to 60ms (50% speed)
 
     const interval = setInterval(() => {
       if (currentChar < currentInsight.text.length) {
