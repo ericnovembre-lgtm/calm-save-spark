@@ -14,9 +14,11 @@ interface EnhancedCompleteStepProps {
   onComplete: () => void;
   userName?: string;
   completionTime?: number; // in seconds
+  formData?: Record<string, any>;
+  onPrevious?: () => void;
 }
 
-const EnhancedCompleteStep = ({ onComplete, userName, completionTime }: EnhancedCompleteStepProps) => {
+const EnhancedCompleteStep = ({ onComplete, userName, completionTime, formData, onPrevious }: EnhancedCompleteStepProps) => {
   const prefersReducedMotion = useReducedMotion();
   const { triggerHaptic } = useHapticFeedback();
   const { playSuccessChime, playConfettiPop } = useCelebrationSounds();
