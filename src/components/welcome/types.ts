@@ -69,3 +69,28 @@ export interface Stat {
   /** Optional breakdown data for expandable cards */
   breakdown?: StatBreakdown[];
 }
+
+/**
+ * Milestone data structure for journey timeline
+ * 
+ * @interface Milestone
+ */
+export interface Milestone {
+  /** Unique identifier for the milestone */
+  id: string;
+  
+  /** Display title of the milestone */
+  title: string;
+  
+  /** Description explaining the milestone */
+  description: string;
+  
+  /** Icon name from lucide-react or custom icon set */
+  icon: string;
+  
+  /** Timeframe when milestone is typically achieved */
+  timeframe: string;
+  
+  /** Whether the milestone has been completed */
+  completed?: boolean;
+}

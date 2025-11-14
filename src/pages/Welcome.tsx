@@ -61,71 +61,7 @@ const ParticleBackground = lazy(() => import("@/components/welcome/ParticleBackg
 const MouseGradient = lazy(() => import("@/components/welcome/MouseGradient").then(m => ({ default: m.MouseGradient })));
 const ScrollGradient = lazy(() => import("@/components/welcome/ScrollGradient").then(m => ({ default: m.ScrollGradient })));
 
-const features: Feature[] = [
-  {
-    id: "smart-pots",
-    icon: "pots",
-    title: "Smart Savings Pots",
-    description: "Create dedicated goals and track progress with unlimited pots, auto-allocations, and shared access.",
-    summary: "Create dedicated goals and track progress with unlimited pots, auto-allocations, and shared access.",
-    details: "Unlimited pots with targets and dates. Auto-allocate new deposits by percentage. Lock/unlock rules, notes, shared view access, and attachments.",
-  },
-  {
-    id: "automated-savings",
-    icon: "automations",
-    title: "Automated Savings",
-    description: "Set rules that save for you automatically—round-ups, paycheck skims, and scheduled transfers.",
-    summary: "Set rules that save for you automatically—round-ups, paycheck skims, and scheduled transfers.",
-    details: "Round-ups from card spend, paycheck skim %, threshold sweeps, and safe-to-save checks. Scheduled weekly/biweekly deposits with pause/resume.",
-  },
-  {
-    id: "ave-plus-card",
-    icon: "card",
-    title: "$ave+ Credit Card",
-    description: "Build credit with real-time controls, instant freeze, and category insights.",
-    summary: "Build credit with real-time controls, instant freeze, and category insights.",
-    details: "Smart limits, instant freeze, category insights, statement reminders, and rewards posting. Disclosures available in-app.",
-  },
-  {
-    id: "financial-insights",
-    icon: "insights",
-    title: "Financial Insights",
-    description: "Know where you stand with savings rate, time-to-goal, and net worth tracking.",
-    summary: "Know where you stand with savings rate, time-to-goal, and net worth tracking.",
-    details: "Savings rate, time-to-goal, APY history, interest earned, contributions by pot, and net worth across linked accounts. CSV/PDF export.",
-  },
-  {
-    id: "rewards-program",
-    icon: "rewards",
-    title: "Rewards Program",
-    description: "Earn points for streaks and milestones, with boosters on goal completion.",
-    summary: "Earn points for streaks and milestones, with boosters on goal completion.",
-    details: "Points for streaks and milestones, boosters on goal completion, and perks for higher monthly support tiers.",
-  },
-  {
-    id: "ai-coach",
-    icon: "bot",
-    title: "AI Coach",
-    description: "Get 24/7 guided help with step-by-step tasks and progress summaries.",
-    summary: "Get 24/7 guided help with step-by-step tasks and progress summaries.",
-    details: "Step-by-step tasks for linking bank, creating pots, drafting transfers, enabling automations, and summarizing progress. Not financial advice.",
-  },
-  {
-    id: "bank-security",
-    icon: "shield",
-    title: "Bank-Level Security",
-    description: "Protect your account with MFA, encryption, and device management.",
-    summary: "Protect your account with MFA, encryption, and device management.",
-    details: "MFA, device/session management, encryption in transit/at rest, consent logs, and data export/delete controls.",
-  },
-];
-
-const stats = [
-  { label: "APY Rate", value: "4.25%", icon: "trending-up" },
-  { label: "Happy Users", value: "50K+", icon: "users" },
-  { label: "Saved Together", value: "$2.1M+", icon: "money" },
-  { label: "Uptime", value: "99.9%", icon: "shield" },
-];
+import { WELCOME_FEATURES, SIMPLE_STATS } from "@/components/welcome/constants";
 
 const Welcome = () => {
   const [animationData, setAnimationData] = useState<any>(null);
@@ -136,6 +72,10 @@ const Welcome = () => {
   const [user, setUser] = useState<any>(null);
   const [userProgress, setUserProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Use constants from centralized file
+  const features = WELCOME_FEATURES;
+  const stats = SIMPLE_STATS;
 
   // Initialize Web Vitals monitoring
   useWebVitals(true);

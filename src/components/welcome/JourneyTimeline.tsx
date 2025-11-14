@@ -1,64 +1,19 @@
 import { motion, useInView } from "framer-motion";
+import { Check } from "lucide-react";
 import { useRef } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { SaveplusAnimIcon } from "@/components/icons";
-import { CheckCircle2 } from "lucide-react";
-
-interface Milestone {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  timeframe: string;
-  completed?: boolean;
-}
-
-const milestones: Milestone[] = [
-  {
-    id: "signup",
-    title: "Sign Up",
-    description: "Create your account and set your first goal",
-    icon: "user",
-    timeframe: "Day 1",
-    completed: true,
-  },
-  {
-    id: "first-save",
-    title: "First $50 Saved",
-    description: "Automated savings start working for you",
-    icon: "piggy-bank",
-    timeframe: "Week 1",
-  },
-  {
-    id: "automation",
-    title: "Enable Automation",
-    description: "Set up round-ups and scheduled transfers",
-    icon: "automations",
-    timeframe: "Week 2",
-  },
-  {
-    id: "first-goal",
-    title: "Hit First Goal",
-    description: "Celebrate your first savings milestone!",
-    icon: "trophy",
-    timeframe: "Month 1",
-  },
-  {
-    id: "wealth-building",
-    title: "Wealth Building",
-    description: "Continue growing your savings effortlessly",
-    icon: "chart",
-    timeframe: "Ongoing",
-  },
-];
+import { SaveplusAnimIcon } from "@/components/icons/SaveplusAnimIcon";
+import { JOURNEY_MILESTONES } from "@/components/welcome/constants";
 
 export const JourneyTimeline = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const timelineInView = useInView(timelineRef, { once: true, amount: 0.2 });
   const prefersReducedMotion = useReducedMotion();
+  const milestones = JOURNEY_MILESTONES;
 
   return (
-    <div ref={ref} className="relative py-12">
+    <div ref={timelineRef} className="relative py-12"
+>
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
           Your Savings Journey
@@ -81,7 +36,7 @@ export const JourneyTimeline = () => {
             fill="none"
             strokeDasharray="10 5"
             initial={{ pathLength: 0, opacity: 0 }}
-            animate={isInView ? { pathLength: 1, opacity: 0.3 } : {}}
+            animate={timelineInView ? { pathLength: 1, opacity: 0.3 } : {}}
             transition={{ duration: 2, ease: "easeInOut" }}
           />
         </svg>
@@ -92,7 +47,7 @@ export const JourneyTimeline = () => {
             <motion.div
               key={milestone.id}
               initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              animate={timelineInView ? { opacity: 1, x: 0 } : {}}
               transition={{ delay: index * 0.2, duration: 0.5 }}
               className={`flex items-center gap-6 ${
                 index % 2 === 0 ? "flex-row" : "flex-row-reverse"
@@ -110,7 +65,7 @@ export const JourneyTimeline = () => {
                 >
                   <div className="flex items-center gap-3 mb-2">
                     {milestone.completed && (
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <Check className="w-5 h-5 text-green-500" />
                     )}
                     <h3 className="text-xl font-display font-bold">
                       {milestone.title}
@@ -129,7 +84,7 @@ export const JourneyTimeline = () => {
               <motion.div
                 className="flex-shrink-0 relative"
                 initial={prefersReducedMotion ? {} : { scale: 0 }}
-                animate={isInView ? { scale: 1 } : {}}
+                animate={timelineInView ? { scale: 1 } : {}}
                 transition={{ delay: index * 0.2 + 0.2, type: "spring", stiffness: 200 }}
               >
                 <div className="w-16 h-16 rounded-full bg-accent/20 border-4 border-background flex items-center justify-center shadow-lg">
@@ -142,7 +97,7 @@ export const JourneyTimeline = () => {
                     animate={{ scale: 1 }}
                     transition={{ delay: index * 0.2 + 0.4, type: "spring" }}
                   >
-                    <CheckCircle2 className="w-4 h-4 text-white" />
+                    <Check className="w-4 h-4 text-white" />
                   </motion.div>
                 )}
               </motion.div>
