@@ -23,7 +23,6 @@ export function PageTracker() {
     // Map paths to readable titles
     const pathTitleMap: Record<string, string> = {
       '/': 'Home',
-      '/welcome': 'Welcome',
       '/dashboard': 'Dashboard',
       '/goals': 'Goals',
       '/transactions': 'Transactions',
