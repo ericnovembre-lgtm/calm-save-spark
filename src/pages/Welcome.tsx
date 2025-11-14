@@ -130,10 +130,6 @@ const Welcome = () => {
   const [user, setUser] = useState<any>(null);
   const [userProgress, setUserProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [heroLoaded, setHeroLoaded] = useState(false);
-  const [featuresLoaded, setFeaturesLoaded] = useState(false);
-  const [statsLoaded, setStatsLoaded] = useState(false);
-  const [ctaLoaded, setCtaLoaded] = useState(false);
 
   // Initialize Web Vitals monitoring
   useWebVitals(true);
@@ -339,12 +335,6 @@ const Welcome = () => {
       window.dispatchEvent(new CustomEvent('performance_metric', {
         detail: { metric: 'auth_check', value: authLoadTime }
       }));
-      
-      // Load all sections immediately to prevent blank page
-      setHeroLoaded(true);
-      setFeaturesLoaded(true);
-      setStatsLoaded(true);
-      setCtaLoaded(true);
       
       console.log('[Welcome] All sections loaded immediately');
       
@@ -725,16 +715,6 @@ const Welcome = () => {
                   Mission Control
                 </h2>
               </motion.div>
-            {!featuresLoaded ? (
-              <div className="space-y-6">
-                <Skeleton className="h-64 w-full rounded-xl" />
-                <div className="flex justify-center gap-2">
-                  <Skeleton className="h-2 w-2 rounded-full" />
-                  <Skeleton className="h-2 w-2 rounded-full" />
-                  <Skeleton className="h-2 w-2 rounded-full" />
-                </div>
-              </div>
-            ) : (
               <div className="space-y-12">
                 {/* Flippable Feature Cards Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -764,8 +744,7 @@ const Welcome = () => {
                     <JourneyTimeline />
                   </LazyErrorBoundary>
                 </TrackedLazyComponent>
-                </div>
-              )}
+              </div>
             </motion.section>
           </LazyLoad>
           </PriorityLoader>
@@ -806,13 +785,6 @@ const Welcome = () => {
                 }}>
                   <div className="space-y-8">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                  {!statsLoaded ? (
-                    <>
-                      {[...Array(3)].map((_, index) => (
-                        <Skeleton key={index} className="h-40 w-full rounded-2xl" />
-                      ))}
-                    </>
-                  ) : (
                     <>
                       <motion.div
                         initial={{ opacity: 0, y: 30 }}
@@ -864,24 +836,21 @@ const Welcome = () => {
                         />
                       </motion.div>
                     </>
-                  )}
                 </div>
 
                 {/* Live Activity Ticker */}
-                  {statsLoaded && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ delay: 0.5, duration: 0.5 }}
-                      onDoubleClick={() => setShowClickerGame(true)}
-                      className="cursor-pointer"
-                      title="Double-click for a surprise!"
-                    >
-                      <LazyErrorBoundary componentName="LiveActivityTicker" fallbackHeight="64px">
-                        <LiveActivityTicker />
-                      </LazyErrorBoundary>
-                    </motion.div>
-                  )}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                    onDoubleClick={() => setShowClickerGame(true)}
+                    className="cursor-pointer"
+                    title="Double-click for a surprise!"
+                  >
+                    <LazyErrorBoundary componentName="LiveActivityTicker" fallbackHeight="64px">
+                      <LiveActivityTicker />
+                    </LazyErrorBoundary>
+                  </motion.div>
                   </div>
                 </PullToRefreshStats>
               </LazyErrorBoundary>
@@ -918,22 +887,13 @@ const Welcome = () => {
             viewport={{ once: false, amount: 0.5 }}
             transition={{ duration: 0.5 }}
           >
-            {!ctaLoaded ? (
-              <div className="space-y-6 text-center">
-                <Skeleton className="h-10 w-3/4 mx-auto rounded-lg" />
-                <Skeleton className="h-6 w-full max-w-2xl mx-auto rounded-lg" />
-                <Skeleton className="h-6 w-5/6 max-w-2xl mx-auto rounded-lg" />
-                <Skeleton className="h-12 w-48 mx-auto rounded-lg mt-8" />
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <SecureOnboardingCTA />
-              </motion.div>
-            )}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <SecureOnboardingCTA />
+            </motion.div>
           </motion.section>
           </PriorityLoader>
         </main>
@@ -1022,14 +982,7 @@ const Welcome = () => {
         <NetworkStatusIndicator />
 
         {/* Debug Panel - Development Only */}
-        <DebugPanel
-          loadingStates={{
-            hero: heroLoaded,
-            features: featuresLoaded,
-            stats: statsLoaded,
-            cta: ctaLoaded,
-          }}
-        />
+        <DebugPanel loadingStates={{}} />
         
         {/* Component Tracking Overlay - Development Only */}
         {import.meta.env.DEV && <ComponentTrackingOverlay />}
