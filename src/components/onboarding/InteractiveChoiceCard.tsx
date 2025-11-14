@@ -49,18 +49,18 @@ export const InteractiveChoiceCard = ({
       className="relative perspective-1000"
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.02, y: -2 }}
       whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
     >
       <motion.button
         type="button"
         onClick={handleClick}
         className={cn(
-          "relative w-full p-5 rounded-xl border-2 transition-all text-left",
+          "relative w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left overflow-hidden",
           "transform-style-preserve-3d",
           isSelected
-            ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-            : "border-border bg-card hover:border-primary/50 hover:shadow-md"
+            ? "border-primary bg-primary/5 shadow-xl shadow-primary/20 ring-2 ring-primary/20"
+            : "border-border bg-card hover:border-primary/40 hover:shadow-lg hover:bg-accent/5"
         )}
         animate={
           prefersReducedMotion
@@ -82,10 +82,10 @@ export const InteractiveChoiceCard = ({
             {/* Icon with animation */}
             <motion.div
               className={cn(
-                "flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center",
+                "flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300",
                 isSelected
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-muted-foreground"
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                  : "bg-accent/50 text-muted-foreground"
               )}
               animate={
                 prefersReducedMotion || !isSelected
@@ -97,24 +97,28 @@ export const InteractiveChoiceCard = ({
               }
               transition={{ duration: 0.5 }}
             >
-              <Icon className="w-6 h-6" />
+              <Icon className="w-7 h-7" />
             </motion.div>
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-foreground">{label}</h3>
+              <div className="flex items-center gap-2 mb-1.5">
+                <h3 className={cn(
+                  "font-semibold transition-colors text-base",
+                  isSelected ? "text-primary" : "text-foreground"
+                )}>{label}</h3>
                 {isSelected && (
                   <motion.div
                     initial={prefersReducedMotion ? false : { scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
-                    className="flex-shrink-0"
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center"
                   >
-                    <Check className="w-4 h-4 text-primary" strokeWidth={3} />
+                    <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
                   </motion.div>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">{description}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
 
               {/* Flip indicator */}
               {detailedInfo && (
