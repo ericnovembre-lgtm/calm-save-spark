@@ -128,7 +128,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 <Menu className="w-5 h-5" />
               </Button>
 
-              <Link to="/welcome" className="flex items-center gap-2">
+              <Link to="/" className="flex items-center gap-2">
                 <motion.div
                   whileHover={{ rotate: 360 }}
                   transition={{ duration: 0.6 }}

@@ -33,7 +33,7 @@ Smart chunk preloading based on user behavior and network conditions:
 
 **Route Patterns:**
 ```
-/welcome → /auth, /onboarding
+/ → /auth, /onboarding
 /auth → /onboarding, /dashboard
 /dashboard → /goals, /transactions, /insights, /pots
 ... and more

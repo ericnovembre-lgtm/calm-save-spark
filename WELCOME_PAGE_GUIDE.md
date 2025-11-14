@@ -7,7 +7,8 @@ The Welcome page (`src/pages/Welcome.tsx`) is the main landing page for $ave+, s
 ## Architecture
 
 ### Route
-- **Path**: `/welcome`
+- **Path**: `/` (root landing page)
+- **Backward Compatibility**: `/welcome` redirects to `/`
 - **Layout**: Full-page layout (no AppLayout wrapper)
 - **Access**: Public (no authentication required)
 
