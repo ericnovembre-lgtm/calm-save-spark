@@ -55,6 +55,15 @@ All colors MUST be HSL.
     /* Animation */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
+    /* Z-Index Scale for consistent stacking */
+    --z-background: -10;        /* Fixed backgrounds */
+    --z-content-base: 0;        /* Default content flow */
+    --z-content-elevated: 10;   /* Sections, cards */
+    --z-content-priority: 20;   /* Hero, important content */
+    --z-modal: 40;              /* Modals, dialogs */
+    --z-notification: 50;       /* Toasts, alerts */
+    --z-debug: 9999;            /* Debug panel */
+
     /* Glass effects */
     --glass-bg: rgba(248, 246, 240, 0.7);
     --glass-border: rgba(0, 0, 0, 0.1);
