@@ -4,6 +4,11 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { BalanceCard } from "@/components/BalanceCard";
 import { EnhancedBalanceCard } from "@/components/dashboard/EnhancedBalanceCard";
 import { SwipeableGoalCard } from "@/components/dashboard/SwipeableGoalCard";
+import { CommandPalette } from "@/components/dashboard/CommandPalette";
+import { SmartFAB } from "@/components/dashboard/SmartFAB";
+import { AIInsightsCard } from "@/components/dashboard/AIInsightsCard";
+import { PredictiveAnalytics } from "@/components/dashboard/PredictiveAnalytics";
+import { KeyboardHints } from "@/components/dashboard/KeyboardHints";
 import { AutoSaveBanner } from "@/components/dashboard/AutoSaveBanner";
 import { EmailVerificationBanner } from "@/components/dashboard/EmailVerificationBanner";
 import { GoalsSection } from "@/components/dashboard/GoalsSection";
@@ -214,6 +219,18 @@ export default function Dashboard() {
         </div>
       </CollapsibleSection>
     ),
+    'ai-insights': (
+      <CollapsibleSection
+        key="ai-insights"
+        id="ai-insights"
+        title="AI-Powered Insights"
+        description="Smart recommendations just for you"
+        defaultOpen={!collapsedSections['ai-insights']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <AIInsightsCard />
+      </CollapsibleSection>
+    ),
     'recommendations': userId ? (
       <CollapsibleSection
         key="recommendations"
@@ -276,6 +293,22 @@ export default function Dashboard() {
         <GoalTimeline userId={userId} />
       </CollapsibleSection>
     ) : null,
+    'predictive': (
+      <CollapsibleSection
+        key="predictive"
+        id="predictive"
+        title="Predictive Analytics"
+        description="Explore different savings scenarios"
+        defaultOpen={!collapsedSections['predictive']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <PredictiveAnalytics
+          currentSavingsRate={250}
+          goalAmount={10000}
+          currentAmount={2500}
+        />
+      </CollapsibleSection>
+    ),
     'goals': (
       <CollapsibleSection
         key="goals"
@@ -390,11 +423,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Quick Actions FAB */}
-        <div data-wizard="quick-actions">
-          <QuickActionsFAB />
-        </div>
-        <ChatFAB />
+        {/* Smart FAB, Command Palette, and Keyboard Hints */}
+        <SmartFAB />
+        <CommandPalette />
+        <KeyboardHints />
         <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />
       </PullToRefresh>
       

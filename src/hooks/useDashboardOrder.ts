@@ -2,7 +2,9 @@ import { useState } from 'react';
 
 const DEFAULT_CARD_ORDER = [
   'balance',
+  'ai-insights',
   'goals',
+  'predictive',
   'manual-transfer',
   'scheduled-transfers',
   'connect-account',
