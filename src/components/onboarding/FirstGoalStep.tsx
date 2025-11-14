@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { trackGoalCreated } from "@/lib/analytics";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BehaviorTooltipWrapper } from "./BehaviorTooltipWrapper";
+import { GoalVisualizer } from "./GoalVisualizer";
 
 const formSchema = z.object({
   name: z.string().min(2, "Goal name must be at least 2 characters").max(100),
@@ -68,6 +69,7 @@ const FirstGoalStep = ({ userId, onNext, onPrevious, abTest }: FirstGoalStepProp
   const { triggerHaptic } = useHapticFeedback();
   const [isLoading, setIsLoading] = useState(false);
   const [suggestedAmount, setSuggestedAmount] = useState<string>("");
+  const [goalType, setGoalType] = useState<string>("general");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -98,16 +100,18 @@ const FirstGoalStep = ({ userId, onNext, onPrevious, abTest }: FirstGoalStepProp
         } 
         // Otherwise pre-populate from quiz data
         else if (quizData?.saving_goal) {
-          const goalType = quizData.saving_goal;
+          const goalTypeFromQuiz = quizData.saving_goal;
           const challenge = quizData.biggest_challenge || 'motivation';
           
+          setGoalType(goalTypeFromQuiz);
+          
           // Calculate suggested amount based on goal and challenge
-          const baseAmount = GOAL_SUGGESTIONS[goalType] || GOAL_SUGGESTIONS.general;
+          const baseAmount = GOAL_SUGGESTIONS[goalTypeFromQuiz] || GOAL_SUGGESTIONS.general;
           const multiplier = CHALLENGE_MULTIPLIERS[challenge] || 1.0;
           const adjustedAmount = Math.round(baseAmount * multiplier);
           
           // Pre-populate form
-          const goalName = GOAL_NAMES[goalType] || 'My Savings Goal';
+          const goalName = GOAL_NAMES[goalTypeFromQuiz] || 'My Savings Goal';
           form.setValue('name', goalName);
           form.setValue('targetAmount', adjustedAmount.toString());
           setSuggestedAmount(adjustedAmount.toString());
@@ -296,6 +300,22 @@ const FirstGoalStep = ({ userId, onNext, onPrevious, abTest }: FirstGoalStepProp
                   </FormItem>
                 )}
               />
+
+              {/* Goal Visualizer */}
+              {form.watch('name') && form.watch('targetAmount') && Number(form.watch('targetAmount')) > 0 && (
+                <motion.div
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <GoalVisualizer
+                    goalName={form.watch('name')}
+                    targetAmount={Number(form.watch('targetAmount'))}
+                    monthlyContribution={100}
+                    goalType={goalType}
+                  />
+                </motion.div>
+              )}
 
               <div className="flex gap-3 pt-4">
                 <Button

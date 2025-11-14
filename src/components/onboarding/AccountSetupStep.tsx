@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowRight, 
@@ -33,6 +31,8 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
+import { InteractiveChoiceCard } from "./InteractiveChoiceCard";
+import { AchievementPreview } from "./AchievementPreview";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -248,46 +248,23 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <RadioGroup 
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                triggerHaptic("light");
-                              }} 
-                              value={field.value}
-                              className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-                            >
-                              {SAVING_GOALS.map((goal) => {
-                                const Icon = goal.icon;
-                                const isSelected = field.value === goal.value;
-                                return (
-                                  <div key={goal.value} className="relative">
-                                    <RadioGroupItem 
-                                      value={goal.value} 
-                                      id={`goal-${goal.value}`}
-                                      className="peer sr-only"
-                                    />
-                                    <Label
-                                      htmlFor={`goal-${goal.value}`}
-                                      className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all hover:border-[color:var(--color-accent)]/50 hover:shadow-[var(--shadow-soft)] ${
-                                        isSelected 
-                                          ? "border-[color:var(--color-accent)] bg-[color:var(--color-accent)]/5 shadow-[var(--shadow-soft)]" 
-                                          : "border-border bg-card"
-                                      }`}
-                                    >
-                                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-                                        isSelected ? "bg-[color:var(--color-accent)] text-[color:var(--color-text-on-accent)]" : "bg-primary/10 text-primary"
-                                      }`}>
-                                        <Icon className="w-5 h-5" />
-                                      </div>
-                                      <div className="flex-1">
-                                        <div className="font-semibold text-foreground mb-1">{goal.label}</div>
-                                        <div className="text-sm text-muted-foreground">{goal.description}</div>
-                                      </div>
-                                    </Label>
-                                  </div>
-                                );
-                              })}
-                            </RadioGroup>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {SAVING_GOALS.map((goal) => (
+                                <InteractiveChoiceCard
+                                  key={goal.value}
+                                  value={goal.value}
+                                  label={goal.label}
+                                  description={goal.description}
+                                  icon={goal.icon}
+                                  isSelected={field.value === goal.value}
+                                  onSelect={() => {
+                                    field.onChange(goal.value);
+                                    triggerHaptic("light");
+                                  }}
+                                  detailedInfo={`Set up automated savings specifically for ${goal.label.toLowerCase()}. Track your progress and get personalized tips.`}
+                                />
+                              ))}
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -311,46 +288,23 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <RadioGroup 
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                triggerHaptic("light");
-                              }} 
-                              value={field.value}
-                              className="grid grid-cols-1 gap-3"
-                            >
-                              {CHALLENGES.map((challenge) => {
-                                const Icon = challenge.icon;
-                                const isSelected = field.value === challenge.value;
-                                return (
-                                  <div key={challenge.value} className="relative">
-                                    <RadioGroupItem 
-                                      value={challenge.value} 
-                                      id={`challenge-${challenge.value}`}
-                                      className="peer sr-only"
-                                    />
-                                    <Label
-                                      htmlFor={`challenge-${challenge.value}`}
-                                      className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all hover:border-[color:var(--color-accent)]/50 hover:shadow-[var(--shadow-soft)] ${
-                                        isSelected 
-                                          ? "border-[color:var(--color-accent)] bg-[color:var(--color-accent)]/5 shadow-[var(--shadow-soft)]" 
-                                          : "border-border bg-card"
-                                      }`}
-                                    >
-                                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-                                        isSelected ? "bg-[color:var(--color-accent)] text-[color:var(--color-text-on-accent)]" : "bg-primary/10 text-primary"
-                                      }`}>
-                                        <Icon className="w-5 h-5" />
-                                      </div>
-                                      <div className="flex-1">
-                                        <div className="font-semibold text-foreground mb-1">{challenge.label}</div>
-                                        <div className="text-sm text-muted-foreground">{challenge.description}</div>
-                                      </div>
-                                    </Label>
-                                  </div>
-                                );
-                              })}
-                            </RadioGroup>
+                            <div className="grid grid-cols-1 gap-3">
+                              {CHALLENGES.map((challenge) => (
+                                <InteractiveChoiceCard
+                                  key={challenge.value}
+                                  value={challenge.value}
+                                  label={challenge.label}
+                                  description={challenge.description}
+                                  icon={challenge.icon}
+                                  isSelected={field.value === challenge.value}
+                                  onSelect={() => {
+                                    field.onChange(challenge.value);
+                                    triggerHaptic("light");
+                                  }}
+                                  detailedInfo={`We'll help you overcome ${challenge.label.toLowerCase()} with personalized strategies and automation.`}
+                                />
+                              ))}
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -374,51 +328,31 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <RadioGroup 
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                triggerHaptic("light");
-                              }} 
-                              value={field.value}
-                              className="grid grid-cols-1 gap-3"
-                            >
-                              {AUTOMATION_PREFS.map((pref) => {
-                                const Icon = pref.icon;
-                                const isSelected = field.value === pref.value;
-                                return (
-                                  <div key={pref.value} className="relative">
-                                    <RadioGroupItem 
-                                      value={pref.value} 
-                                      id={`pref-${pref.value}`}
-                                      className="peer sr-only"
-                                    />
-                                    <Label
-                                      htmlFor={`pref-${pref.value}`}
-                                      className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all hover:border-[color:var(--color-accent)]/50 hover:shadow-[var(--shadow-soft)] ${
-                                        isSelected 
-                                          ? "border-[color:var(--color-accent)] bg-[color:var(--color-accent)]/5 shadow-[var(--shadow-soft)]" 
-                                          : "border-border bg-card"
-                                      }`}
-                                    >
-                                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-                                        isSelected ? "bg-[color:var(--color-accent)] text-[color:var(--color-text-on-accent)]" : "bg-primary/10 text-primary"
-                                      }`}>
-                                        <Icon className="w-5 h-5" />
-                                      </div>
-                                      <div className="flex-1">
-                                        <div className="font-semibold text-foreground mb-1">{pref.label}</div>
-                                        <div className="text-sm text-muted-foreground">{pref.description}</div>
-                                      </div>
-                                    </Label>
-                                  </div>
-                                );
-                              })}
-                            </RadioGroup>
+                            <div className="grid grid-cols-1 gap-3">
+                              {AUTOMATION_PREFS.map((pref) => (
+                                <InteractiveChoiceCard
+                                  key={pref.value}
+                                  value={pref.value}
+                                  label={pref.label}
+                                  description={pref.description}
+                                  icon={pref.icon}
+                                  isSelected={field.value === pref.value}
+                                  onSelect={() => {
+                                    field.onChange(pref.value);
+                                    triggerHaptic("light");
+                                  }}
+                                  detailedInfo={`${pref.label} gives you ${pref.description.toLowerCase()}. You can always adjust this later in settings.`}
+                                />
+                              ))}
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
+                    {/* Achievement Preview */}
+                    <AchievementPreview />
                   </motion.div>
                 )}
               </AnimatePresence>
