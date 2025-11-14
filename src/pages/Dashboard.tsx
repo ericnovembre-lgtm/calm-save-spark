@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BalanceCard } from "@/components/BalanceCard";
+import { EnhancedBalanceCard } from "@/components/dashboard/EnhancedBalanceCard";
 import { AutoSaveBanner } from "@/components/dashboard/AutoSaveBanner";
 import { EmailVerificationBanner } from "@/components/dashboard/EmailVerificationBanner";
 import { GoalsSection } from "@/components/dashboard/GoalsSection";
@@ -25,9 +26,10 @@ import { GoalTimeline } from "@/components/dashboard/GoalTimeline";
 import { StreakRecoveryBanner } from "@/components/dashboard/StreakRecoveryBanner";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { useDashboardOrder } from "@/hooks/useDashboardOrder";
-import { Reorder } from "framer-motion";
+import { Reorder, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { staggerContainer } from "@/lib/motion-variants";
 import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { ChatFAB } from "@/components/dashboard/ChatFAB";
@@ -172,7 +174,7 @@ export default function Dashboard() {
         onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
       >
         <div data-wizard="balance-card">
-          <BalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
+          <EnhancedBalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
         </div>
       </CollapsibleSection>
     ),
@@ -325,35 +327,41 @@ export default function Dashboard() {
           </div>
 
           {/* Reorderable Cards */}
-          <Reorder.Group
-            axis="y"
-            values={cardOrder}
-            onReorder={(newOrder) => {
-              updateOrder(newOrder);
-              if (!isReordering) {
-                setIsReordering(true);
-                toast.info('Dashboard layout saved!');
-                setTimeout(() => setIsReordering(false), 300);
-              }
-            }}
-            className="space-y-6"
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
           >
-            {cardOrder.map((cardId) => {
-              const component = cardComponents[cardId];
-              if (!component) return null;
+            <Reorder.Group
+              axis="y"
+              values={cardOrder}
+              onReorder={(newOrder) => {
+                updateOrder(newOrder);
+                if (!isReordering) {
+                  setIsReordering(true);
+                  toast.info('Dashboard layout saved!');
+                  setTimeout(() => setIsReordering(false), 300);
+                }
+              }}
+              className="space-y-6"
+            >
+              {cardOrder.map((cardId) => {
+                const component = cardComponents[cardId];
+                if (!component) return null;
 
-              return (
-                <Reorder.Item
-                  key={cardId}
-                  value={cardId}
-                  className="cursor-grab active:cursor-grabbing"
-                  drag="y"
-                >
-                  {component}
-                </Reorder.Item>
-              );
-            })}
-          </Reorder.Group>
+                return (
+                  <Reorder.Item
+                    key={cardId}
+                    value={cardId}
+                    className="cursor-grab active:cursor-grabbing"
+                    drag="y"
+                  >
+                    {component}
+                  </Reorder.Item>
+                );
+              })}
+            </Reorder.Group>
+          </motion.div>
           
           <div className="text-center text-xs text-muted-foreground pt-4 pb-2">
             <p>
