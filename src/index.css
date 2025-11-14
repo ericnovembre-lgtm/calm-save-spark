@@ -175,6 +175,23 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Interactive Wizard Highlight */
+  .wizard-highlight {
+    position: relative;
+    z-index: 101;
+    animation: wizard-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes wizard-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 20px 10px hsl(var(--primary) / 0.2);
+    }
   }
 }
