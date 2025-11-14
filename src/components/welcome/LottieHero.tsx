@@ -69,7 +69,7 @@ export const LottieHero = ({
     <Lottie
       lottieRef={lottieRef}
       animationData={animationData}
-      loop={loop}
+      loop={loop ? 3 : false}
       autoplay={autoplay}
       className={className}
       onComplete={handleComplete}

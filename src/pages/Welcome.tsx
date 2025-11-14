@@ -208,7 +208,7 @@ const Welcome = () => {
     : useTransform(scrollYProgress, [0, 1], [0, -100]);
   const opacity = prefersReducedMotion
     ? 1
-    : useTransform(scrollYProgress, [0, 0.5], [1, 0.85]);
+    : useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   // Debug: Log opacity issues
   useEffect(() => {
