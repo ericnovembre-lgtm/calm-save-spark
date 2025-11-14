@@ -29,6 +29,8 @@ import DebugPanel from "@/components/debug/DebugPanel";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { useIntelligentPrefetch } from "@/hooks/useIntelligentPrefetch";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
+import { WelcomeLoadingSkeleton } from "@/components/welcome/WelcomeLoadingSkeleton";
+import { PerformanceMonitoringDashboard } from "@/components/performance/PerformanceMonitoringDashboard";
 import type { Feature } from "@/components/welcome/FeatureCarousel";
 
 // Lazy load heavy components for better performance
@@ -321,6 +323,11 @@ const Welcome = () => {
         load_time_ms: authLoadTime,
         route: location.pathname
       });
+
+      // Dispatch performance metric event
+      window.dispatchEvent(new CustomEvent('performance_metric', {
+        detail: { metric: 'auth_check', value: authLoadTime }
+      }));
       
       // Hero loads immediately after auth check
       setHeroLoaded(true);
@@ -330,6 +337,11 @@ const Welcome = () => {
         load_time_ms: authLoadTime,
         route: location.pathname
       });
+
+      // Dispatch hero metric
+      window.dispatchEvent(new CustomEvent('performance_metric', {
+        detail: { metric: 'hero_load', value: authLoadTime }
+      }));
       
       // Features load after 300ms
       const featuresTimer = setTimeout(() => {
@@ -341,6 +353,11 @@ const Welcome = () => {
           load_time_ms: featuresLoadTime,
           route: location.pathname
         });
+
+        // Dispatch features metric
+        window.dispatchEvent(new CustomEvent('performance_metric', {
+          detail: { metric: 'features_load', value: featuresLoadTime }
+        }));
       }, 300);
       
       // Stats load after 600ms
@@ -353,6 +370,11 @@ const Welcome = () => {
           load_time_ms: statsLoadTime,
           route: location.pathname
         });
+
+        // Dispatch stats metric
+        window.dispatchEvent(new CustomEvent('performance_metric', {
+          detail: { metric: 'stats_load', value: statsLoadTime }
+        }));
       }, 600);
       
       // CTA loads after 900ms
@@ -371,6 +393,16 @@ const Welcome = () => {
           total_load_time_ms: totalLoadTime,
           route: location.pathname
         });
+
+        // Dispatch page load metric
+        window.dispatchEvent(new CustomEvent('performance_metric', {
+          detail: { metric: 'page_load', value: totalLoadTime }
+        }));
+
+        // Dispatch CTA metric
+        window.dispatchEvent(new CustomEvent('performance_metric', {
+          detail: { metric: 'cta_load', value: totalLoadTime }
+        }));
       }, 900);
       
       return () => {
@@ -535,8 +567,16 @@ const Welcome = () => {
     setShowTour(true);
   };
 
+  // Show loading skeleton while auth is being checked and initial components load
+  if (isLoading || (!heroLoaded && !featuresLoaded)) {
+    return <WelcomeLoadingSkeleton />;
+  }
+
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
+      {/* Performance Monitoring Dashboard */}
+      <PerformanceMonitoringDashboard />
+      
       {/* Enhanced Background Effects - Phase 7 (Progressive Enhancement) */}
       <NeutralBackground />
       
