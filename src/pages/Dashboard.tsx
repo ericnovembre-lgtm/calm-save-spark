@@ -36,6 +36,11 @@ import { EnhancedAchievementToast } from "@/components/gamification/EnhancedAchi
 import { GoalCompletionCelebration } from "@/components/gamification/GoalCompletionCelebration";
 import { ChallengeCard } from "@/components/gamification/ChallengeCard";
 import { useEnhancedAchievements } from "@/hooks/useEnhancedAchievements";
+import { SkipLinks } from "@/components/accessibility/SkipLinks";
+import { LiveRegionAnnouncer, useAnnounce } from "@/components/accessibility/LiveRegionAnnouncer";
+import { useProgressiveSections } from "@/hooks/useProgressiveLoad";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
+import { useKeyboardShortcuts, defaultDashboardShortcuts, useShortcutsHelp } from "@/hooks/useKeyboardShortcuts";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { useDashboardOrder } from "@/hooks/useDashboardOrder";
 import { Reorder, motion } from "framer-motion";
@@ -63,6 +68,25 @@ export default function Dashboard() {
   const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
   const [showWizard, setShowWizard] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  
+  // Progressive loading
+  const { isSectionLoaded } = useProgressiveSections();
+  
+  // Accessibility
+  const { announce } = useAnnounce();
+  const [balanceAnnouncement, setBalanceAnnouncement] = useState('');
+  
+  // Keyboard shortcuts
+  const shortcuts = useKeyboardShortcuts([
+    ...defaultDashboardShortcuts,
+    {
+      key: '?',
+      shift: true,
+      description: 'Show shortcuts',
+      action: () => showHelp()
+    }
+  ]);
+  const { showHelp } = useShortcutsHelp(shortcuts);
   
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -143,6 +167,15 @@ export default function Dashboard() {
   });
 
   const totalBalance = accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.balance)), 0) || 0;
+  
+  // Announce balance changes to screen readers
+  useEffect(() => {
+    if (totalBalance > 0) {
+      const message = `Current balance: $${totalBalance.toLocaleString()}`;
+      setBalanceAnnouncement(message);
+      announce(message, 'polite');
+    }
+  }, [totalBalance, announce]);
   
   // Calculate this month's change
   const thisMonth = new Date();
@@ -415,6 +448,9 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
+      <SkipLinks />
+      <LiveRegionAnnouncer message={balanceAnnouncement} priority="polite" />
+      
       <PullToRefresh onRefresh={handleRefresh}>
         <AchievementNotification 
           achievements={newAchievements}
