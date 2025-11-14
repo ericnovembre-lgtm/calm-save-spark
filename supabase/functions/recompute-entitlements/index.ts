@@ -4,6 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { ErrorHandlerOptions, handleError, handleValidationError } from "../_shared/error-handler.ts";
 import { enforceRateLimit } from "../_shared/rate-limiter.ts";
+import { isAdmin } from "../_shared/admin-guard.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -64,17 +65,21 @@ serve(async (req) => {
 
     // Security: Only allow users to recompute their own entitlements (or admins)
     if (user.id !== validated.userId) {
-      // Check if user is admin
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
+      // Check if user is admin using secure helper function
+      const userIsAdmin = await isAdmin(supabase, user.id);
 
-      if (!roles) {
+      if (!userIsAdmin) {
+        console.warn('[ENTITLEMENTS] Non-admin user attempted to recompute another user\'s entitlements:', {
+          requesting_user: user.id,
+          target_user: validated.userId,
+        });
         throw new Error('Forbidden: Can only recompute own entitlements');
       }
+
+      console.log('[ENTITLEMENTS] Admin user recomputing entitlements for another user:', {
+        admin_user: user.id,
+        target_user: validated.userId,
+      });
     }
 
     // Get current subscription

@@ -1,8 +1,9 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { crypto } from 'https://deno.land/std@0.177.0/crypto/mod.ts';
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { ErrorHandlerOptions, handleError, handleValidationError } from "../_shared/error-handler.ts";
 import { enforceRateLimit, RATE_LIMITS } from "../_shared/rate-limiter.ts";
+import { enforceAdmin } from "../_shared/admin-guard.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,31 +41,29 @@ Deno.serve(async (req) => {
   const errorOptions = new ErrorHandlerOptions(corsHeaders, 'generate-api-key');
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    );
+    // Use service role key for admin operations
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    // SECURITY: Enforce admin-only access
+    const adminCheckResult = await enforceAdmin(req, supabase, corsHeaders);
+    if (adminCheckResult) {
+      return adminCheckResult; // Return error response if not admin
     }
 
-    userId = user.id;
+    // Get authenticated user (already validated by enforceAdmin)
+    const authHeader = req.headers.get('Authorization')!;
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user } } = await supabase.auth.getUser(token);
+
+    userId = user!.id;
     errorOptions.userId = userId;
 
-    // Check rate limit
+    // Check rate limit (10 keys per hour)
     const rateLimitResponse = await enforceRateLimit(
-      supabaseClient,
-      user.id,
+      supabase,
+      user!.id,
       RATE_LIMITS['generate-api-key'],
       corsHeaders
     );
@@ -75,19 +74,22 @@ Deno.serve(async (req) => {
     const validated = inputSchema.parse(body);
 
     // Verify user owns the organization
-    const { data: org, error: orgError } = await supabaseClient
+    const { data: org, error: orgError } = await supabase
       .from('organizations')
       .select('*')
       .eq('id', validated.organization_id)
-      .eq('owner_id', user.id)
+      .eq('owner_id', user!.id)
       .single();
 
     if (orgError || !org) {
+      console.warn('[API_KEY] Organization not found or unauthorized:', validated.organization_id);
       throw new Error('Organization not found or unauthorized');
     }
 
+    console.log('[API_KEY] Generating API key for organization:', org.id);
+
     // Check if organization already has maximum number of keys (10)
-    const { count: keyCount } = await supabaseClient
+    const { count: keyCount } = await supabase
       .from('organization_api_keys')
       .select('*', { count: 'exact', head: true })
       .eq('organization_id', validated.organization_id)
@@ -107,7 +109,7 @@ Deno.serve(async (req) => {
     }
 
     // Check for duplicate key name
-    const { data: existingKey } = await supabaseClient
+    const { data: existingKey } = await supabase
       .from('organization_api_keys')
       .select('id')
       .eq('organization_id', validated.organization_id)
@@ -141,7 +143,7 @@ Deno.serve(async (req) => {
     }
 
     // Store API key
-    const { data: keyData, error: keyError } = await supabaseClient
+    const { data: keyData, error: keyError } = await supabase
       .from('organization_api_keys')
       .insert({
         organization_id: validated.organization_id,
