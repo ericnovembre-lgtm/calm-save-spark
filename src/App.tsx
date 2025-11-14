@@ -58,6 +58,7 @@ const Admin = lazy(() => import("./pages/Admin"));
 const FinancialHealth = lazy(() => import("./pages/FinancialHealth"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Install = lazy(() => import("./pages/Install"));
+const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
 
 const queryClient = new QueryClient();
 
@@ -168,6 +169,7 @@ function AnimatedRoutes() {
         <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
         <Route path="/integrations" element={<ProtectedRoute><PageTransition><Integrations /></PageTransition></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><PageTransition><AdminRoute><Admin /></AdminRoute></PageTransition></ProtectedRoute>} />
+        <Route path="/security-monitoring" element={<ProtectedRoute><PageTransition><AdminRoute><SecurityMonitoring /></AdminRoute></PageTransition></ProtectedRoute>} />
         <Route path="/admin-agents" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         <Route path="/admin-functions" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         

@@ -36,6 +36,16 @@ export const RATE_LIMITS: Record<string, RateLimitConfig> = {
     maxCalls: 100, // 100 automation runs per hour
     windowMinutes: 60,
   },
+  'create-checkout-session': {
+    functionName: 'create-checkout-session',
+    maxCalls: 5, // 5 checkout attempts per hour
+    windowMinutes: 60,
+  },
+  'recompute-entitlements': {
+    functionName: 'recompute-entitlements',
+    maxCalls: 20, // 20 recomputes per hour
+    windowMinutes: 60,
+  },
 };
 
 /**

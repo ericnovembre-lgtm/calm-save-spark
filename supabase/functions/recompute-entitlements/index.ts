@@ -1,17 +1,32 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { ErrorHandlerOptions, handleError, handleValidationError } from "../_shared/error-handler.ts";
+import { enforceRateLimit } from "../_shared/rate-limiter.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Validation schema
+const inputSchema = z.object({
+  userId: z.string().uuid("Invalid user ID format"),
+  monthlyUsd: z.number()
+    .min(0, "Subscription amount cannot be negative")
+    .max(20, "Maximum subscription amount is $20")
+    .optional(),
+});
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  let requestUserId: string | undefined;
+  const errorOptions = new ErrorHandlerOptions(corsHeaders, 'recompute-entitlements');
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -27,24 +42,35 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { userId, monthlyUsd } = await req.json();
+    requestUserId = user.id;
+    errorOptions.userId = requestUserId;
 
-    console.log('Recomputing entitlements:', { userId, monthlyUsd });
+    // Check rate limit - 20 recomputes per hour
+    const rateLimitResponse = await enforceRateLimit(
+      supabase,
+      user.id,
+      {
+        functionName: 'recompute-entitlements',
+        maxCalls: 20,
+        windowMinutes: 60,
+      },
+      corsHeaders
+    );
+    if (rateLimitResponse) return rateLimitResponse;
 
     // Validate input
-    if (!userId || monthlyUsd === undefined) {
-      throw new Error('Missing required parameters: userId and monthlyUsd');
-    }
+    const body = await req.json();
+    const validated = inputSchema.parse(body);
 
-    // Only allow users to recompute their own entitlements (or admins)
-    if (user.id !== userId) {
+    // Security: Only allow users to recompute their own entitlements (or admins)
+    if (user.id !== validated.userId) {
       // Check if user is admin
       const { data: roles } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
         .eq('role', 'admin')
-        .single();
+        .maybeSingle();
 
       if (!roles) {
         throw new Error('Forbidden: Can only recompute own entitlements');
@@ -55,22 +81,25 @@ serve(async (req) => {
     const { data: subscription, error: subError } = await supabase
       .from('user_subscriptions')
       .select('subscription_amount')
-      .eq('user_id', userId)
+      .eq('user_id', validated.userId)
       .single();
 
-    if (subError) {
-      console.error('Error fetching subscription:', subError);
+    if (subError && subError.code !== 'PGRST116') {
       throw new Error('Failed to fetch subscription');
     }
 
-    const amount = monthlyUsd ?? subscription?.subscription_amount ?? 0;
+    const amount = validated.monthlyUsd ?? subscription?.subscription_amount ?? 0;
+
+    // Validate amount
+    if (amount < 0 || amount > 20) {
+      throw new Error('Invalid subscription amount');
+    }
 
     // Compute features using database function
     const { data: computedFeatures, error: computeError } = await supabase
       .rpc('compute_user_features', { sub_amount: amount });
 
     if (computeError) {
-      console.error('Error computing features:', computeError);
       throw new Error('Failed to compute features');
     }
 
@@ -78,27 +107,26 @@ serve(async (req) => {
     const { error: updateError } = await supabase
       .from('feature_access')
       .upsert({
-        user_id: userId,
+        user_id: validated.userId,
         features: computedFeatures,
         computed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
 
     if (updateError) {
-      console.error('Error updating feature access:', updateError);
       throw new Error('Failed to update feature access');
     }
 
-    console.log('Entitlements recomputed successfully:', {
-      userId,
+    console.log('[ENTITLEMENTS_COMPUTED]', {
+      timestamp: new Date().toISOString(),
+      target_user_id: validated.userId,
       amount,
-      features: computedFeatures,
     });
 
     return new Response(
       JSON.stringify({
         success: true,
-        userId,
+        userId: validated.userId,
         amount,
         features: computedFeatures,
       }),
@@ -107,19 +135,9 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error in recompute-entitlements:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    const statusCode = errorMessage === 'Unauthorized' ? 401 : errorMessage === 'Forbidden: Can only recompute own entitlements' ? 403 : 500;
-    
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: errorMessage,
-      }),
-      {
-        status: statusCode,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    if ((error as any)?.name === 'ZodError') {
+      return handleValidationError(error, errorOptions);
+    }
+    return handleError(error, errorOptions);
   }
 });

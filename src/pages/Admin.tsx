@@ -8,6 +8,8 @@ import { PlatformAnalytics } from "@/components/admin/PlatformAnalytics";
 import { RedirectManagement } from "@/components/admin/RedirectManagement";
 import { NotFoundAnalytics } from "@/components/admin/NotFoundAnalytics";
 import { ExportButton } from "@/components/analytics/ExportButton";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 export default function Admin() {
   // Sample admin export data
@@ -38,7 +40,15 @@ export default function Admin() {
               </p>
             </div>
           </div>
-          <ExportButton data={exportData} />
+          <div className="flex gap-2">
+            <Link to="/security-monitoring">
+              <Button variant="outline" className="gap-2">
+                <Shield className="w-4 h-4" />
+                Security Monitoring
+              </Button>
+            </Link>
+            <ExportButton data={exportData} />
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-4">
