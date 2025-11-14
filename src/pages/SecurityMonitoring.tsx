@@ -16,13 +16,13 @@ export default function SecurityMonitoring() {
     queryKey: ["rate-limits"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("edge_function_rate_limits")
+        .from("edge_function_rate_limits" as any)
         .select("*")
         .order("window_start", { ascending: false })
         .limit(100);
       
       if (error) throw error;
-      return data;
+      return data as any;
     },
   });
 
@@ -31,13 +31,13 @@ export default function SecurityMonitoring() {
     queryKey: ["validation-failures"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("security_validation_failures")
+        .from("security_validation_failures" as any)
         .select("*")
         .order("created_at", { ascending: false })
         .limit(100);
       
       if (error) throw error;
-      return data;
+      return data as any;
     },
   });
 
@@ -46,13 +46,13 @@ export default function SecurityMonitoring() {
     queryKey: ["error-logs"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("security_error_logs")
+        .from("security_error_logs" as any)
         .select("*")
         .order("last_seen_at", { ascending: false })
         .limit(100);
       
       if (error) throw error;
-      return data;
+      return data as any;
     },
   });
 
