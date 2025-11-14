@@ -69,7 +69,6 @@ export const useOnboardingAnalytics = ({
       session_id: sessionId,
       step_name: stepName,
       step_number: stepNumber,
-      variant: abTest.variant,
     });
 
     abTest.trackStepStart(stepName, stepNumber);
@@ -154,14 +153,14 @@ export const useOnboardingAnalytics = ({
   // Track drop-off
   const trackDropOff = useCallback((stepName: string, stepNumber: number, reason?: string) => {
     const totalTime = Date.now() - startTimeRef.current;
-    const completionRate = (stepNumber / totalSteps) * 100;
+    const completionRate = Math.round((stepNumber / totalSteps) * 100);
 
     trackEvent('onboarding_drop_off', {
       session_id: sessionId,
       step_name: stepName,
       step_number: stepNumber,
       completion_rate: completionRate,
-      total_time_ms: totalTime,
+      time_ms: totalTime,
       reason: reason || 'unknown',
     });
 
@@ -171,14 +170,15 @@ export const useOnboardingAnalytics = ({
   // Track successful completion
   const trackCompletion = useCallback((finalData?: Record<string, any>) => {
     const totalTime = Date.now() - startTimeRef.current;
+    const totalInteractions = Object.values(stepMetricsRef.current).reduce((sum, m) => sum + m.interactionCount, 0);
+    const totalErrors = Object.values(stepMetricsRef.current).reduce((sum, m) => sum + m.errorCount, 0);
 
     trackEvent('onboarding_completed', {
       session_id: sessionId,
-      variant: abTest.variant,
-      total_time_ms: totalTime,
-      total_steps: totalSteps,
-      total_interactions: Object.values(stepMetricsRef.current).reduce((sum, m) => sum + m.interactionCount, 0),
-      total_errors: Object.values(stepMetricsRef.current).reduce((sum, m) => sum + m.errorCount, 0),
+      time_ms: totalTime,
+      steps: totalSteps,
+      interactions: totalInteractions,
+      errors: totalErrors,
     });
 
     abTest.trackCompletion();
