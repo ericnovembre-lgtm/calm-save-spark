@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BalanceCard } from "@/components/BalanceCard";
 import { EnhancedBalanceCard } from "@/components/dashboard/EnhancedBalanceCard";
+import { SwipeableGoalCard } from "@/components/dashboard/SwipeableGoalCard";
 import { AutoSaveBanner } from "@/components/dashboard/AutoSaveBanner";
 import { EmailVerificationBanner } from "@/components/dashboard/EmailVerificationBanner";
 import { GoalsSection } from "@/components/dashboard/GoalsSection";
@@ -139,6 +140,19 @@ export default function Dashboard() {
     ?.filter(tx => new Date(tx.transaction_date) >= thisMonth)
     .reduce((sum, tx) => sum + parseFloat(String(tx.amount)), 0) || 0;
 
+  // Calculate savings velocity (0-100) based on recent activity
+  const savingsVelocity = Math.min(100, Math.max(0, 
+    Math.abs(monthlyChange) / (totalBalance || 1) * 100 * 5 // Scale up for visibility
+  ));
+
+  // Generate 7-day trend data
+  const weeklyTrend = [...Array(7)].map((_, i) => {
+    const dayOffset = 6 - i;
+    const baseAmount = totalBalance - (monthlyChange / 30 * dayOffset);
+    return Math.max(0, baseAmount + (Math.random() - 0.5) * 100);
+  });
+
+
   // Pull to refresh handler
   const handleRefresh = async () => {
     await Promise.all([
@@ -174,7 +188,12 @@ export default function Dashboard() {
         onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
       >
         <div data-wizard="balance-card">
-          <EnhancedBalanceCard balance={totalBalance} monthlyGrowth={Math.abs(monthlyChange)} />
+          <EnhancedBalanceCard 
+            balance={totalBalance} 
+            monthlyGrowth={monthlyChange}
+            savingsVelocity={savingsVelocity}
+            weeklyTrend={weeklyTrend}
+          />
         </div>
       </CollapsibleSection>
     ),

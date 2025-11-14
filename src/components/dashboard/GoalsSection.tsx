@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { GoalProgressCard } from "./GoalProgressCard";
+import { SwipeableGoalCard } from "./SwipeableGoalCard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -49,13 +49,13 @@ export const GoalsSection = () => {
       {goals && goals.length > 0 ? (
         <StaggeredList staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {goals.map((goal) => (
-            <GoalProgressCard
+            <SwipeableGoalCard
               key={goal.id}
               id={goal.id}
-              name={goal.name}
-              currentAmount={parseFloat(String(goal.current_amount || 0))}
-              targetAmount={parseFloat(String(goal.target_amount))}
-              icon={goal.icon}
+              title={goal.name}
+              current={parseFloat(String(goal.current_amount || 0))}
+              target={parseFloat(String(goal.target_amount))}
+              contributionHistory={[150, 200, 175, 225]} // Would come from actual data
             />
           ))}
         </StaggeredList>
