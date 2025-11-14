@@ -69,9 +69,7 @@ export const useOnboardingAnalytics = ({
       session_id: sessionId,
       step_name: stepName,
       step_number: stepNumber,
-      total_steps: totalSteps,
       variant: abTest.variant,
-      time_since_start: Date.now() - startTimeRef.current,
     });
 
     abTest.trackStepStart(stepName, stepNumber);
@@ -92,32 +90,24 @@ export const useOnboardingAnalytics = ({
       session_id: sessionId,
       step_name: stepName,
       step_number: stepNumber,
-      total_steps: totalSteps,
-      variant: abTest.variant,
       time_spent_ms: timeSpent,
       interaction_count: interactionCountRef.current,
       error_count: errorCountRef.current,
-      help_viewed: metrics?.helpViewed || false,
-      video_watched: metrics?.videoWatched || false,
-      form_data_keys: formData ? Object.keys(formData) : [],
-      time_since_start: Date.now() - startTimeRef.current,
     });
 
     abTest.trackStepComplete(stepName, stepNumber);
   }, [sessionId, totalSteps, abTest]);
 
   // Track user interactions within a step
-  const trackInteraction = useCallback((stepName: string, interactionType: string, details?: Record<string, any>) => {
+  const trackInteraction = useCallback((stepName: string, interactionType: string) => {
     interactionCountRef.current++;
 
     trackEvent('onboarding_interaction', {
       session_id: sessionId,
       step_name: stepName,
       interaction_type: interactionType,
-      variant: abTest.variant,
-      ...details,
     });
-  }, [sessionId, abTest.variant]);
+  }, [sessionId]);
 
   // Track errors and validation issues
   const trackError = useCallback((stepName: string, errorType: string, errorMessage?: string) => {
@@ -127,11 +117,9 @@ export const useOnboardingAnalytics = ({
       session_id: sessionId,
       step_name: stepName,
       error_type: errorType,
-      error_message: errorMessage,
-      variant: abTest.variant,
-      time_since_step_start: Date.now() - stepStartTimeRef.current,
+      error_message: errorMessage?.substring(0, 100), // Limit message length
     });
-  }, [sessionId, abTest.variant]);
+  }, [sessionId]);
 
   // Track help overlay usage
   const trackHelpViewed = useCallback((stepName: string, helpTopic?: string) => {
@@ -144,9 +132,8 @@ export const useOnboardingAnalytics = ({
       session_id: sessionId,
       step_name: stepName,
       help_topic: helpTopic,
-      variant: abTest.variant,
     });
-  }, [sessionId, abTest.variant]);
+  }, [sessionId]);
 
   // Track video interactions
   const trackVideoInteraction = useCallback((stepName: string, action: 'play' | 'pause' | 'complete', videoId?: string) => {
@@ -160,11 +147,9 @@ export const useOnboardingAnalytics = ({
     trackEvent('onboarding_video_interaction', {
       session_id: sessionId,
       step_name: stepName,
-      video_id: videoId,
       action,
-      variant: abTest.variant,
     });
-  }, [sessionId, abTest.variant]);
+  }, [sessionId]);
 
   // Track drop-off
   const trackDropOff = useCallback((stepName: string, stepNumber: number, reason?: string) => {
@@ -175,12 +160,9 @@ export const useOnboardingAnalytics = ({
       session_id: sessionId,
       step_name: stepName,
       step_number: stepNumber,
-      total_steps: totalSteps,
       completion_rate: completionRate,
       total_time_ms: totalTime,
-      variant: abTest.variant,
       reason: reason || 'unknown',
-      step_metrics: stepMetricsRef.current,
     });
 
     abTest.trackDropOff(stepName, stepNumber, reason);
@@ -192,17 +174,11 @@ export const useOnboardingAnalytics = ({
 
     trackEvent('onboarding_completed', {
       session_id: sessionId,
-      user_id: userId,
       variant: abTest.variant,
       total_time_ms: totalTime,
-      total_time_minutes: Math.round(totalTime / 60000),
       total_steps: totalSteps,
       total_interactions: Object.values(stepMetricsRef.current).reduce((sum, m) => sum + m.interactionCount, 0),
       total_errors: Object.values(stepMetricsRef.current).reduce((sum, m) => sum + m.errorCount, 0),
-      help_viewed_count: Object.values(stepMetricsRef.current).filter(m => m.helpViewed).length,
-      videos_watched_count: Object.values(stepMetricsRef.current).filter(m => m.videoWatched).length,
-      step_metrics: stepMetricsRef.current,
-      final_data_keys: finalData ? Object.keys(finalData) : [],
     });
 
     abTest.trackCompletion();
