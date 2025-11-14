@@ -158,7 +158,7 @@ export const InteractiveChoiceCard = ({
           <div
             className={cn(
               "absolute inset-0 backface-hidden p-5 flex items-center justify-center",
-              !isFlipped && "opacity-0"
+              !isFlipped && "opacity-0 pointer-events-none"
             )}
             style={{ transform: "rotateY(180deg)" }}
           >
@@ -183,7 +183,7 @@ export const InteractiveChoiceCard = ({
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-1 h-1 rounded-full bg-primary"
+                className="absolute w-1 h-1 rounded-full bg-primary pointer-events-none"
                 style={{
                   top: `${20 + i * 30}%`,
                   right: "10px",

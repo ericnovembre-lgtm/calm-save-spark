@@ -31,6 +31,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
+import { cn } from "@/lib/utils";
 import { InteractiveChoiceCard } from "./InteractiveChoiceCard";
 import { AchievementPreview } from "./AchievementPreview";
 
@@ -374,8 +375,15 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                     type="button"
                     onClick={handleNext}
                     disabled={!canProceed()}
-                    className="flex-1 gap-2"
-                    aria-label="Continue to next question"
+                    className={cn(
+                      "flex-1 gap-2 transition-all",
+                      !canProceed() && "opacity-50 cursor-not-allowed"
+                    )}
+                    aria-label={
+                      canProceed() 
+                        ? "Continue to next question"
+                        : "Please make a selection to continue"
+                    }
                   >
                     Continue
                     <ArrowRight className="w-4 h-4" />
@@ -384,8 +392,17 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                   <Button
                     type="submit"
                     disabled={isLoading || !canProceed()}
-                    className="flex-1 gap-2"
-                    aria-label="Complete survey and continue"
+                    className={cn(
+                      "flex-1 gap-2 transition-all",
+                      (!canProceed() && !isLoading) && "opacity-50 cursor-not-allowed"
+                    )}
+                    aria-label={
+                      isLoading 
+                        ? "Saving your information"
+                        : canProceed() 
+                        ? "Complete survey and continue"
+                        : "Please make a selection to complete"
+                    }
                   >
                     {isLoading ? "Saving..." : "Complete Survey"}
                     <ArrowRight className="w-4 h-4" />
