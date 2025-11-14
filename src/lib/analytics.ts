@@ -102,7 +102,7 @@ export const trackEvent = async (eventType: string, metadata: Record<string, any
     }
 
     // Fallback to Supabase edge function
-    await supabase.functions.invoke('analytics', {
+    const { data, error: invokeError } = await supabase.functions.invoke('analytics', {
       body: {
         event: eventType,
         properties: payload.metadata,
@@ -110,8 +110,20 @@ export const trackEvent = async (eventType: string, metadata: Record<string, any
         timestamp: payload.metadata.timestamp,
       },
     });
+    
+    // Log invoke errors but don't throw - analytics should never break the app
+    if (invokeError) {
+      console.warn('[Analytics] Edge function error (non-blocking):', invokeError);
+    }
+    if (data?.error) {
+      console.warn('[Analytics] Edge function returned error (non-blocking):', data.error);
+    }
   } catch (error) {
-    console.error('[Analytics] Tracking error:', error);
+    // Analytics errors should never crash the app - log and continue
+    if (import.meta.env.DEV) {
+      console.warn('[Analytics] Tracking error (non-blocking):', error);
+    }
+    // Silent in production to avoid console spam
   }
 };
 
