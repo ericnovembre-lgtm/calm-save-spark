@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
  * Based on common user navigation patterns
  */
 const ROUTE_PATTERNS: Record<string, string[]> = {
-  '/welcome': ['/auth', '/onboarding'],
+  '/': ['/auth', '/onboarding'],
   '/auth': ['/onboarding', '/dashboard'],
   '/onboarding': ['/dashboard'],
   '/dashboard': ['/goals', '/transactions', '/insights', '/pots'],

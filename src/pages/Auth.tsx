@@ -242,7 +242,7 @@ export default function Auth() {
           className="w-full max-w-md"
         >
           <div className="text-center mb-8">
-            <Link to="/welcome" className="inline-flex items-center gap-2 mb-4">
+            <Link to="/" className="inline-flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center">
                 <span className="text-background font-bold">$+</span>
               </div>
@@ -324,7 +324,7 @@ export default function Auth() {
           className="w-full max-w-md"
         >
           <div className="text-center mb-8">
-            <Link to="/welcome" className="inline-flex items-center gap-2 mb-4">
+            <Link to="/" className="inline-flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center">
                 <span className="text-background font-bold">$+</span>
               </div>
@@ -382,7 +382,7 @@ export default function Auth() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <Link to="/welcome" className="inline-flex items-center gap-2 mb-4">
+          <Link to="/" className="inline-flex items-center gap-2 mb-4">
             <div className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center">
               <span className="text-background font-bold">$+</span>
             </div>

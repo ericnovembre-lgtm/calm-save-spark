@@ -222,7 +222,7 @@ const NotFound = () => {
               <ArrowLeft className="w-4 h-4" />
               Go Back
             </Button>
-            <Link to="/welcome">
+            <Link to="/">
               <Button size="lg" className="gap-2 w-full sm:w-auto">
                 <Home className="w-4 h-4" />
                 Back to Home

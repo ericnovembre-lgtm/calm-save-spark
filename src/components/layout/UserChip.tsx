@@ -24,7 +24,7 @@ export const UserChip = ({ user }: UserChipProps) => {
   const handleSignOut = async () => {
     await signOut();
     toast.success("Signed out successfully");
-    navigate("/welcome");
+    navigate("/");
   };
 
   return (

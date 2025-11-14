@@ -129,16 +129,8 @@ function AnimatedRoutes() {
             </AuthRedirect>
           } 
         />
-        <Route 
-          path="/welcome" 
-          element={
-            <AuthRedirect>
-              <PageTransition>
-                <Welcome />
-              </PageTransition>
-            </AuthRedirect>
-          } 
-        />
+        {/* Redirect /welcome to / for backward compatibility */}
+        <Route path="/welcome" element={<Navigate to="/" replace />} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
