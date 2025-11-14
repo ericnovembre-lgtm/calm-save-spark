@@ -385,17 +385,14 @@ const Welcome = () => {
     };
   }, [location.pathname]);
 
-  // Track landing route analytics (/ vs /welcome redirect)
+  // Track landing route analytics
   useEffect(() => {
     const referrer = document.referrer;
-    const isRedirect = location.pathname === '/' && referrer.includes('/welcome');
     const urlParams = new URLSearchParams(window.location.search);
     const utmSource = urlParams.get('utm_source');
     
     saveplus_audit_event('landing_page_visit', {
       route: location.pathname,
-      is_redirect: isRedirect,
-      from_welcome_redirect: isRedirect,
       referrer: referrer || 'direct',
       utm_source: utmSource || 'none',
       user_agent: navigator.userAgent,
@@ -404,7 +401,6 @@ const Welcome = () => {
     
     console.log('[Welcome] Landing analytics tracked', {
       route: location.pathname,
-      isRedirect,
       referrer
     });
   }, [location.pathname]);
