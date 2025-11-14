@@ -20,7 +20,6 @@ import { LiveActivityTicker } from "@/components/welcome/LiveActivityTicker";
 import { PullToRefreshStats } from "@/components/mobile/PullToRefreshStats";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { usePlatformStats, transformPlatformStats } from "@/hooks/usePlatformStats";
-import { WELCOME_STATS } from "@/components/welcome/constants";
 
 /**
  * Props for the WelcomeStatsSection component
