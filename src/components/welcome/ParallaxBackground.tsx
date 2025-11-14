@@ -18,7 +18,11 @@ export const ParallaxBackground = () => {
   }
 
   return (
-    <div ref={containerRef} className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
+    <div 
+      ref={containerRef} 
+      className="fixed inset-0 pointer-events-none overflow-hidden" 
+      style={{ zIndex: 'var(--z-background)' } as React.CSSProperties}
+    >
       {/* Layer 1 - Slowest */}
       <motion.div
         style={{ y: y1, opacity }}

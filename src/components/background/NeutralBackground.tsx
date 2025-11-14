@@ -120,7 +120,7 @@ export default function NeutralBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0 }}
+      style={{ zIndex: 'var(--z-background)' } as React.CSSProperties}
       aria-hidden="true"
     />
   )
