@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Sparkles } from "lucide-react";
