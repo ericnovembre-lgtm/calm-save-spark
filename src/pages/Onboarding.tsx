@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/analytics";
 import { announce } from "@/components/layout/LiveRegion";
 import { checkAchievements } from "@/lib/achievements";
+import { useOnboardingABTest } from "@/hooks/useOnboardingABTest";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import SavingsDemo from "@/components/onboarding/SavingsDemo";
 import WelcomeStep from "@/components/onboarding/WelcomeStep";
@@ -21,6 +22,13 @@ const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState<Step>('welcome');
   const [userId, setUserId] = useState<string | null>(null);
   const [isResuming, setIsResuming] = useState(false);
+  const [onboardingStartTime] = useState(Date.now());
+  
+  // A/B testing tracking
+  const abTest = useOnboardingABTest({
+    userId,
+    totalSteps: STEPS.length,
+  });
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -68,8 +76,13 @@ const Onboarding = () => {
 
   useEffect(() => {
     if (currentStep && userId) {
+      const stepNumber = STEPS.indexOf(currentStep) + 1;
+      
       trackEvent('onboarding_step_started', { step: currentStep });
-      announce(`Step ${STEPS.indexOf(currentStep) + 1} of ${STEPS.length}: ${currentStep}`, 'polite');
+      announce(`Step ${stepNumber} of ${STEPS.length}: ${currentStep}`, 'polite');
+      
+      // A/B test tracking
+      abTest.trackStepStart(currentStep, stepNumber);
       
       // Save current step to database
       supabase
@@ -82,15 +95,18 @@ const Onboarding = () => {
           }
         });
     }
-  }, [currentStep, userId]);
+  }, [currentStep, userId, abTest]);
 
   const handleNext = async (data?: { skipStep?: boolean }) => {
     const currentIndex = STEPS.indexOf(currentStep);
+    const stepNumber = currentIndex + 1;
     
     if (data?.skipStep) {
       trackEvent('onboarding_step_skipped', { step: currentStep });
+      abTest.trackStepSkip(currentStep, stepNumber);
     } else {
       trackEvent('onboarding_step_completed', { step: currentStep });
+      abTest.trackStepComplete(currentStep, stepNumber);
     }
     
     // Update onboarding progress
@@ -128,24 +144,31 @@ const Onboarding = () => {
     if (!userId) return;
     
     try {
-      // Mark onboarding as completed
+      // Track A/B test completion
+      abTest.trackCompletion();
+      
+      // Mark onboarding as completed and request dashboard tutorial
       await supabase
         .from('profiles')
         .update({ 
           onboarding_completed: true,
-          onboarding_step: 'complete' 
+          onboarding_step: 'complete',
+          show_dashboard_tutorial: true // Flag to show tutorial on dashboard
         })
         .eq('id', userId);
       
-      trackEvent('onboarding_completed', {});
+      trackEvent('onboarding_completed', {
+        total_time_ms: Date.now() - onboardingStartTime,
+        variant: abTest.variant,
+      });
       
       // Check for onboarding achievement
       await checkAchievements('onboarding_completed', {});
       
-      announce('Onboarding completed! Redirecting to pricing...', 'assertive');
+      announce('Onboarding completed! Redirecting to dashboard...', 'assertive');
       
       setTimeout(() => {
-        navigate('/pricing');
+        navigate('/dashboard');
       }, 2000);
     } catch (error) {
       console.error('Error completing onboarding:', error);
@@ -198,7 +221,8 @@ const Onboarding = () => {
           <FirstGoalStep 
             userId={userId}
             onNext={handleNext} 
-            onPrevious={handlePrevious} 
+            onPrevious={handlePrevious}
+            abTest={abTest}
           />
         )}
         {currentStep === 'automation' && (

@@ -38,6 +38,7 @@ import { InteractiveWizard, hasCompletedWizard } from "@/components/onboarding/I
 import { DASHBOARD_WIZARD_STEPS, type WizardStepWithIcon } from "@/lib/wizard-steps";
 import type { WizardStep } from "@/components/onboarding/InteractiveWizard";
 import { createElement } from "react";
+import { DashboardTutorialOverlay } from "@/components/onboarding/DashboardTutorialOverlay";
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
@@ -45,6 +46,7 @@ export default function Dashboard() {
   const [isReordering, setIsReordering] = useState(false);
   const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
   const [showWizard, setShowWizard] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -68,15 +70,24 @@ export default function Dashboard() {
         return;
       }
       
-      // Check if user has completed onboarding
+      // Check if user has completed onboarding and should see tutorial
       const { data: profile } = await supabase
         .from('profiles')
-        .select('onboarding_completed')
+        .select('onboarding_completed, show_dashboard_tutorial')
         .eq('id', userId)
         .single();
       
-      // Show wizard after initial onboarding
-      if (profile?.onboarding_completed) {
+      // Show tutorial if flag is set (from post-onboarding)
+      if (profile?.show_dashboard_tutorial) {
+        setShowTutorial(true);
+        // Clear the flag so it doesn't show again
+        await supabase
+          .from('profiles')
+          .update({ show_dashboard_tutorial: false })
+          .eq('id', userId);
+      }
+      // Otherwise show wizard after initial onboarding
+      else if (profile?.onboarding_completed) {
         setShowWizard(true);
       }
     };
@@ -374,6 +385,19 @@ export default function Dashboard() {
           }}
         />
       )}
+      
+      {/* Dashboard Tutorial Overlay (post-onboarding) */}
+      <DashboardTutorialOverlay
+        show={showTutorial}
+        onComplete={() => {
+          setShowTutorial(false);
+          toast.success("Tutorial completed! You're all set to start saving.");
+        }}
+        onSkip={() => {
+          setShowTutorial(false);
+          toast.info("You can always access help from the menu.");
+        }}
+      />
     </AppLayout>
   );
 }

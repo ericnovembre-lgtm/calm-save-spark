@@ -14,6 +14,7 @@ import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { toast } from "sonner";
 import { trackGoalCreated } from "@/lib/analytics";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { BehaviorTooltipWrapper } from "./BehaviorTooltipWrapper";
 
 const formSchema = z.object({
   name: z.string().min(2, "Goal name must be at least 2 characters").max(100),
@@ -27,6 +28,10 @@ interface FirstGoalStepProps {
   userId: string;
   onNext: (data?: { skipStep?: boolean }) => void;
   onPrevious: () => void;
+  abTest?: {
+    variant: 'control' | 'variant_a';
+    trackFieldInteraction: (step: string, fieldName: string, interactionType: 'focus' | 'blur' | 'change' | 'tooltip_shown') => void;
+  };
 }
 
 // Suggested target amounts based on goal type
@@ -58,7 +63,7 @@ const CHALLENGE_MULTIPLIERS: Record<string, number> = {
   unexpected: 0.7,      // Lower to account for emergencies
 };
 
-const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
+const FirstGoalStep = ({ userId, onNext, onPrevious, abTest }: FirstGoalStepProps) => {
   const prefersReducedMotion = useReducedMotion();
   const { triggerHaptic } = useHapticFeedback();
   const [isLoading, setIsLoading] = useState(false);
@@ -224,11 +229,23 @@ const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
                   <FormItem>
                     <FormLabel>Goal Name</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="e.g., Emergency Fund, Vacation, New Car" 
-                        {...field}
-                        aria-label="Goal name"
-                      />
+                      <BehaviorTooltipWrapper
+                        fieldName="goal_name"
+                        helpText="Choose a meaningful name that motivates you. Examples: 'Emergency Fund for 6 months', 'Dream Vacation to Japan', 'Home Down Payment'."
+                        onTooltipShown={() => abTest?.trackFieldInteraction('goal', 'goal_name', 'tooltip_shown')}
+                      >
+                        <Input 
+                          placeholder="e.g., Emergency Fund, Vacation, New Car" 
+                          {...field}
+                          aria-label="Goal name"
+                          onFocus={() => abTest?.trackFieldInteraction('goal', 'goal_name', 'focus')}
+                          onBlur={() => abTest?.trackFieldInteraction('goal', 'goal_name', 'blur')}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            abTest?.trackFieldInteraction('goal', 'goal_name', 'change');
+                          }}
+                        />
+                      </BehaviorTooltipWrapper>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -242,18 +259,30 @@ const FirstGoalStep = ({ userId, onNext, onPrevious }: FirstGoalStepProps) => {
                   <FormItem>
                     <FormLabel>Target Amount</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          $
-                        </span>
-                        <Input 
-                          type="number"
-                          placeholder="5000" 
-                          {...field}
-                          className="pl-7"
-                          aria-label="Target amount in dollars"
-                        />
-                      </div>
+                      <BehaviorTooltipWrapper
+                        fieldName="target_amount"
+                        helpText="Set a realistic target based on your income and expenses. Start small if you're new to saving - you can always increase it later!"
+                        onTooltipShown={() => abTest?.trackFieldInteraction('goal', 'target_amount', 'tooltip_shown')}
+                      >
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                            $
+                          </span>
+                          <Input 
+                            type="number"
+                            placeholder="5000" 
+                            {...field}
+                            className="pl-7"
+                            aria-label="Target amount in dollars"
+                            onFocus={() => abTest?.trackFieldInteraction('goal', 'target_amount', 'focus')}
+                            onBlur={() => abTest?.trackFieldInteraction('goal', 'target_amount', 'blur')}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              abTest?.trackFieldInteraction('goal', 'target_amount', 'change');
+                            }}
+                          />
+                        </div>
+                      </BehaviorTooltipWrapper>
                     </FormControl>
                     <FormDescription>
                       {suggestedAmount && (

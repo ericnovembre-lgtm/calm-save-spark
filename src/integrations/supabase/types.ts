@@ -2219,6 +2219,7 @@ export type Database = {
           onboarding_quiz: Json | null
           onboarding_step: string | null
           preferred_currency: string | null
+          show_dashboard_tutorial: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -2235,6 +2236,7 @@ export type Database = {
           onboarding_quiz?: Json | null
           onboarding_step?: string | null
           preferred_currency?: string | null
+          show_dashboard_tutorial?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -2251,6 +2253,7 @@ export type Database = {
           onboarding_quiz?: Json | null
           onboarding_step?: string | null
           preferred_currency?: string | null
+          show_dashboard_tutorial?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
