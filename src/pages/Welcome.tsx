@@ -32,6 +32,10 @@ import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { WelcomeLoadingSkeleton } from "@/components/welcome/WelcomeLoadingSkeleton";
 import { PerformanceMonitoringDashboard } from "@/components/performance/PerformanceMonitoringDashboard";
 import { usePerformanceBudgetAlerts } from "@/hooks/usePerformanceBudgetAlerts";
+import { ComponentTrackingOverlay } from "@/components/debug/ComponentTrackingOverlay";
+import { PriorityLoader } from "@/components/performance/PriorityLoader";
+import { useComponentTracking } from "@/hooks/useComponentTracking";
+import { TrackedLazyComponent } from "@/components/performance/TrackedLazyComponent";
 import type { Feature } from "@/components/welcome/FeatureCarousel";
 
 // Lazy load heavy components for better performance
@@ -136,6 +140,9 @@ const Welcome = () => {
   
   // Initialize performance budget alerts (dev only)
   usePerformanceBudgetAlerts(import.meta.env.DEV);
+  
+  // Track Welcome page component
+  useComponentTracking('WelcomePage');
   
   // Initialize intelligent prefetching
   const { connectionSpeed } = useIntelligentPrefetch();
@@ -637,12 +644,13 @@ const Welcome = () => {
         </motion.header>
 
         <main className="relative container mx-auto px-4 py-12 md:py-20 space-y-32" style={{ zIndex: 'var(--z-content-elevated)' } as React.CSSProperties}>
-          {/* Hero Section with parallax - Neutral styling */}
-          <motion.section 
-            ref={heroRef}
-            className="space-y-8 relative bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
-            style={prefersReducedMotion ? { zIndex: 'var(--z-content-priority)' } as React.CSSProperties : { y: parallaxY, opacity: scrollYProgress.get() < 0.1 ? 1 : opacity, zIndex: 'var(--z-content-priority)' } as React.CSSProperties}
-          >
+          {/* Hero Section with parallax - CRITICAL PRIORITY (Above-the-fold) */}
+          <PriorityLoader priority="critical" minHeight="600px">
+            <motion.section 
+              ref={heroRef}
+              className="space-y-8 relative bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
+              style={prefersReducedMotion ? { zIndex: 'var(--z-content-priority)' } as React.CSSProperties : { y: parallaxY, opacity: scrollYProgress.get() < 0.1 ? 1 : opacity, zIndex: 'var(--z-content-priority)' } as React.CSSProperties}
+            >
             {/* Hero content - always visible */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
               <motion.div
@@ -666,15 +674,17 @@ const Welcome = () => {
                 <div className="absolute inset-0 bg-[color:var(--color-accent)]/20 blur-3xl" />
                 {animationData ? (
                   <div className="relative">
-                    <LazyErrorBoundary componentName="LottieHero" fallbackHeight="384px">
-                      <LottieHero 
-                        animationData={animationData}
-                        autoplay
-                        loop
-                        className="w-full h-auto drop-shadow-2xl"
-                        authState={user ? 'authenticated' : (isLoading ? 'checking' : 'unauthenticated')}
-                      />
-                    </LazyErrorBoundary>
+                    <TrackedLazyComponent componentName="LottieHero" minHeight="384px">
+                      <LazyErrorBoundary componentName="LottieHero" fallbackHeight="384px">
+                        <LottieHero 
+                          animationData={animationData}
+                          autoplay
+                          loop
+                          className="w-full h-auto drop-shadow-2xl"
+                          authState={user ? 'authenticated' : (isLoading ? 'checking' : 'unauthenticated')}
+                        />
+                      </LazyErrorBoundary>
+                    </TrackedLazyComponent>
                   </div>
                 ) : (
                   <Skeleton className="h-96 w-full rounded-2xl" />
@@ -691,9 +701,11 @@ const Welcome = () => {
               <SearchBarHinted />
             </motion.div>
           </motion.section>
+          </PriorityLoader>
 
-          {/* Mission Control Features with scroll animations - Pure white section */}
-          <LazyLoad minHeight="600px" rootMargin="100px">
+          {/* Mission Control Features with scroll animations - HIGH PRIORITY */}
+          <PriorityLoader priority="high" minHeight="600px">
+            <LazyLoad minHeight="600px" rootMargin="100px">
             <motion.section 
               ref={featuresRef}
               aria-label="Features"
@@ -726,35 +738,41 @@ const Welcome = () => {
               <div className="space-y-12">
                 {/* Flippable Feature Cards Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <LazyErrorBoundary componentName="FlippableFeatureCard" fallbackHeight="256px">
-                    {features.slice(0, 6).map((feature, index) => (
-                      <motion.div
-                        key={feature.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1, duration: 0.5 }}
-                      >
-                        <FlippableFeatureCard
-                          {...feature}
-                          badge={index === 0 ? "Most Popular" : index === 1 ? "New" : undefined}
-                          onLearnMore={() => handleFeatureClick(feature)}
-                        />
-                      </motion.div>
-                    ))}
-                  </LazyErrorBoundary>
+                  <TrackedLazyComponent componentName="FlippableFeatureCards" minHeight="256px">
+                    <LazyErrorBoundary componentName="FlippableFeatureCard" fallbackHeight="256px">
+                      {features.slice(0, 6).map((feature, index) => (
+                        <motion.div
+                          key={feature.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1, duration: 0.5 }}
+                        >
+                          <FlippableFeatureCard
+                            {...feature}
+                            badge={index === 0 ? "Most Popular" : index === 1 ? "New" : undefined}
+                            onLearnMore={() => handleFeatureClick(feature)}
+                          />
+                        </motion.div>
+                      ))}
+                    </LazyErrorBoundary>
+                  </TrackedLazyComponent>
                 </div>
 
                 {/* Journey Timeline */}
-                <LazyErrorBoundary componentName="JourneyTimeline" fallbackHeight="256px">
-                  <JourneyTimeline />
-                </LazyErrorBoundary>
+                <TrackedLazyComponent componentName="JourneyTimeline" minHeight="256px">
+                  <LazyErrorBoundary componentName="JourneyTimeline" fallbackHeight="256px">
+                    <JourneyTimeline />
+                  </LazyErrorBoundary>
+                </TrackedLazyComponent>
                 </div>
               )}
             </motion.section>
           </LazyLoad>
+          </PriorityLoader>
 
-          {/* Stats Section with stagger animation - Beige accent zone */}
-          <LazyLoad minHeight="500px" rootMargin="150px">
+          {/* Stats Section with stagger animation - MEDIUM PRIORITY */}
+          <PriorityLoader priority="medium" minHeight="500px">
+            <LazyLoad minHeight="500px" rootMargin="150px">
             <motion.section 
               ref={statsRef}
               aria-label="Statistics"
@@ -870,9 +888,11 @@ const Welcome = () => {
               </div>
             </motion.section>
           </LazyLoad>
+          </PriorityLoader>
 
-          {/* Interactive Savings Playground */}
-          <LazyLoad minHeight="600px" rootMargin="200px">
+          {/* Interactive Savings Playground - LOW PRIORITY (Below-the-fold) */}
+          <PriorityLoader priority="low" minHeight="600px">
+            <LazyLoad minHeight="600px" rootMargin="200px">
             <motion.section
               aria-label="Try savings calculator"
               className="relative z-20"
@@ -886,9 +906,11 @@ const Welcome = () => {
               </LazyErrorBoundary>
             </motion.section>
           </LazyLoad>
+          </PriorityLoader>
 
-          {/* Secure Onboarding CTA - White surface */}
-          <motion.section 
+          {/* Secure Onboarding CTA - MEDIUM PRIORITY */}
+          <PriorityLoader priority="medium" minHeight="400px">
+            <motion.section
             aria-label="Get started"
             className="relative z-20 bg-[color:var(--color-surface)] -mx-4 px-4 lg:-mx-20 lg:px-20 py-20 rounded-2xl"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -913,6 +935,7 @@ const Welcome = () => {
               </motion.div>
             )}
           </motion.section>
+          </PriorityLoader>
         </main>
 
         <footer className="relative z-10 container mx-auto px-4 py-12 mt-20 border-t border-border/50">
@@ -1007,6 +1030,9 @@ const Welcome = () => {
             cta: ctaLoaded,
           }}
         />
+        
+        {/* Component Tracking Overlay - Development Only */}
+        {import.meta.env.DEV && <ComponentTrackingOverlay />}
       </motion.div>
       </GestureHandler>
     </div>
