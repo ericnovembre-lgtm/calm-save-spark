@@ -5,6 +5,7 @@ export interface MotionPreferences {
   particles: boolean;
   gradients: boolean;
   haptics: boolean;
+  batteryAware: boolean;
 }
 
 const DEFAULT_PREFERENCES: MotionPreferences = {
@@ -12,9 +13,14 @@ const DEFAULT_PREFERENCES: MotionPreferences = {
   particles: true,
   gradients: true,
   haptics: true,
+  batteryAware: true,
 };
 
 const STORAGE_KEY = 'motion-preferences';
+
+// Battery-aware mode thresholds
+const LOW_BATTERY_THRESHOLD = 0.20; // 20%
+const CRITICAL_BATTERY_THRESHOLD = 0.10; // 10%
 
 /**
  * Hook to manage motion and animation preferences for accessibility
@@ -31,6 +37,44 @@ export function useMotionPreferences() {
     }
     return DEFAULT_PREFERENCES;
   });
+
+  const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
+  const [isLowPowerMode, setIsLowPowerMode] = useState(false);
+
+  // Monitor battery level
+  useEffect(() => {
+    if (!preferences.batteryAware) return;
+    if (!('getBattery' in navigator)) return;
+
+    let battery: any;
+
+    const updateBatteryStatus = (b: any) => {
+      const level = b.level;
+      setBatteryLevel(level);
+
+      // Enable low power mode if battery is low and not charging
+      if (!b.charging && level <= LOW_BATTERY_THRESHOLD) {
+        setIsLowPowerMode(true);
+      } else if (level > LOW_BATTERY_THRESHOLD || b.charging) {
+        setIsLowPowerMode(false);
+      }
+    };
+
+    (navigator as any).getBattery().then((b: any) => {
+      battery = b;
+      updateBatteryStatus(b);
+
+      b.addEventListener('levelchange', () => updateBatteryStatus(b));
+      b.addEventListener('chargingchange', () => updateBatteryStatus(b));
+    });
+
+    return () => {
+      if (battery) {
+        battery.removeEventListener('levelchange', updateBatteryStatus);
+        battery.removeEventListener('chargingchange', updateBatteryStatus);
+      }
+    };
+  }, [preferences.batteryAware]);
 
   useEffect(() => {
     try {
@@ -57,13 +101,25 @@ export function useMotionPreferences() {
       particles: false,
       gradients: false,
       haptics: false,
+      batteryAware: preferences.batteryAware, // Preserve battery-aware setting
     });
   };
 
+  // Return effective preferences considering battery mode
+  const effectivePreferences = isLowPowerMode ? {
+    ...preferences,
+    animations: false,
+    particles: false,
+    gradients: false,
+  } : preferences;
+
   return {
-    preferences,
+    preferences: effectivePreferences,
     updatePreference,
     resetToDefaults,
     disableAll,
+    batteryLevel,
+    isLowPowerMode,
+    rawPreferences: preferences, // Original preferences without battery override
   };
 }

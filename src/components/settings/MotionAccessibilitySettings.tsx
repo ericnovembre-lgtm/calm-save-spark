@@ -2,11 +2,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useMotionPreferences } from "@/hooks/useMotionPreferences";
-import { Info } from "lucide-react";
+import { Info, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 export const MotionAccessibilitySettings = () => {
-  const { preferences, updatePreference, resetToDefaults, disableAll } = useMotionPreferences();
+  const { preferences, updatePreference, resetToDefaults, disableAll, batteryLevel, isLowPowerMode, rawPreferences } = useMotionPreferences();
 
   const handleToggle = (key: keyof typeof preferences, value: boolean) => {
     updatePreference(key, value);
@@ -23,7 +23,38 @@ export const MotionAccessibilitySettings = () => {
         </p>
       </div>
 
+      {/* Battery Status */}
+      {isLowPowerMode && (
+        <div className="flex items-start gap-2 text-sm bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-lg">
+          <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0 text-yellow-500" />
+          <div>
+            <p className="font-medium text-yellow-500">Battery Saver Active</p>
+            <p className="text-muted-foreground mt-1">
+              Motion effects have been automatically reduced to conserve battery. 
+              Battery level: {batteryLevel ? Math.round(batteryLevel * 100) : '—'}%
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-6">
+        {/* Battery Aware Toggle */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="battery-aware" className="text-base font-medium">
+              Battery-Aware Mode
+            </Label>
+            <p className="text-sm text-muted-foreground">
+              Automatically reduce motion effects when battery is low
+            </p>
+          </div>
+          <Switch
+            id="battery-aware"
+            checked={rawPreferences?.batteryAware ?? true}
+            onCheckedChange={(checked) => handleToggle('batteryAware', checked)}
+          />
+        </div>
+
         {/* Animations Toggle */}
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">

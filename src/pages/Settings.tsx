@@ -12,8 +12,10 @@ import { WeeklyDigestTrigger } from '@/components/settings/WeeklyDigestTrigger';
 import { CurrencyPreference } from '@/components/settings/CurrencyPreference';
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
-import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles } from 'lucide-react';
+import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity } from 'lucide-react';
 import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
+import { SoundSettings } from '@/components/settings/SoundSettings';
+import { PerformanceDashboard } from '@/components/settings/PerformanceDashboard';
 
 export default function Settings() {
   return (
@@ -102,6 +104,22 @@ export default function Settings() {
           </CardContent>
         </Card>
 
+        {/* Sound Settings Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Volume2 className="h-5 w-5 text-primary" />
+              Sound & Audio
+            </CardTitle>
+            <CardDescription>
+              Control sound effects, volume, and audio feedback
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SoundSettings />
+          </CardContent>
+        </Card>
+
         {/* Motion & Accessibility Section */}
         <Card>
           <CardHeader>
@@ -115,6 +133,22 @@ export default function Settings() {
           </CardHeader>
           <CardContent>
             <MotionAccessibilitySettings />
+          </CardContent>
+        </Card>
+
+        {/* Performance Dashboard Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              Performance Dashboard
+            </CardTitle>
+            <CardDescription>
+              Monitor app performance and optimize settings for your device
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PerformanceDashboard />
           </CardContent>
         </Card>
 

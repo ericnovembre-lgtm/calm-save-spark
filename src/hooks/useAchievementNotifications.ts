@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useSoundEffects } from "./useSoundEffects";
 
 interface Achievement {
   id: string;
@@ -12,6 +13,7 @@ interface Achievement {
 
 export function useAchievementNotifications() {
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const { playAchievementSound } = useSoundEffects();
 
   useEffect(() => {
     // Subscribe to new achievements
@@ -36,6 +38,7 @@ export function useAchievementNotifications() {
 
           if (achievement) {
             setNewAchievements(prev => [...prev, achievement]);
+            playAchievementSound(); // Play sound when achievement unlocked
           }
         }
       )

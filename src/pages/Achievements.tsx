@@ -2,14 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AchievementBadge } from "@/components/gamification/AchievementBadge";
+import { AchievementShareCard } from "@/components/gamification/AchievementShareCard";
 import { StreakDisplay } from "@/components/gamification/StreakDisplay";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Target } from "lucide-react";
+import { Trophy, Target, Share2 } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { InteractiveCard } from "@/components/ui/interactive-card";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export default function Achievements() {
   const { data: userAchievements, isLoading: achievementsLoading } = useQuery({
@@ -86,16 +89,42 @@ export default function Achievements() {
     ? ((userAchievements?.length || 0) / allAchievements.length * 100).toFixed(0)
     : 0;
 
+  const handleShareProgress = () => {
+    const text = `I've unlocked ${userAchievements?.length || 0} achievements and earned ${totalPoints} points on $ave+! 🎯`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: '$ave+ Achievements',
+        text,
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(text);
+      toast.success('Achievement progress copied to clipboard!');
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-4xl font-display font-bold text-foreground mb-2">
-            Achievements & Challenges
-          </h1>
-          <p className="text-muted-foreground">
-            Track your progress and unlock rewards
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-display font-bold text-foreground mb-2">
+              Achievements & Challenges
+            </h1>
+            <p className="text-muted-foreground">
+              Track your progress and unlock rewards
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleShareProgress}
+            className="gap-2"
+          >
+            <Share2 className="h-4 w-4" />
+            Share Progress
+          </Button>
         </div>
 
         {/* Stats Overview */}
@@ -155,15 +184,24 @@ export default function Achievements() {
           <TabsContent value="earned" className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {userAchievements?.map((userAch) => (
-                <AchievementBadge
-                  key={userAch.id}
-                  name={userAch.achievements?.name || ''}
-                  description={userAch.achievements?.description}
-                  icon={userAch.achievements?.icon}
-                  badgeColor={userAch.achievements?.badge_color}
-                  points={userAch.achievements?.points || 0}
-                  earnedAt={userAch.earned_at}
-                />
+                <div key={userAch.id} className="relative group">
+                  <AchievementBadge
+                    name={userAch.achievements?.name || ''}
+                    description={userAch.achievements?.description}
+                    icon={userAch.achievements?.icon}
+                    badgeColor={userAch.achievements?.badge_color}
+                    points={userAch.achievements?.points || 0}
+                    earnedAt={userAch.earned_at}
+                  />
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <AchievementShareCard
+                      achievementName={userAch.achievements?.name || ''}
+                      achievementDescription={userAch.achievements?.description || ''}
+                      points={userAch.achievements?.points || 0}
+                      earnedAt={userAch.earned_at}
+                    />
+                  </div>
+                </div>
               ))}
             </div>
             {userAchievements?.length === 0 && (
