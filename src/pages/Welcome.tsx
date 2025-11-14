@@ -26,6 +26,9 @@ import { LazyLoad } from "@/components/performance/LazyLoad";
 import { ProgressiveLoader } from "@/components/performance/ProgressiveLoader";
 import LazyErrorBoundary from "@/components/performance/LazyErrorBoundary";
 import DebugPanel from "@/components/debug/DebugPanel";
+import { useWebVitals } from "@/hooks/useWebVitals";
+import { useIntelligentPrefetch } from "@/hooks/useIntelligentPrefetch";
+import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import type { Feature } from "@/components/welcome/FeatureCarousel";
 
 // Lazy load heavy components for better performance
@@ -124,6 +127,12 @@ const Welcome = () => {
   const [featuresLoaded, setFeaturesLoaded] = useState(false);
   const [statsLoaded, setStatsLoaded] = useState(false);
   const [ctaLoaded, setCtaLoaded] = useState(false);
+
+  // Initialize Web Vitals monitoring
+  useWebVitals(true);
+  
+  // Initialize intelligent prefetching
+  const { connectionSpeed } = useIntelligentPrefetch();
   const [showClickerGame, setShowClickerGame] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [konamiUnlocked, setKonamiUnlocked] = useState(false);
@@ -871,6 +880,9 @@ const Welcome = () => {
         <ProgressiveLoader priority="low" delay={800}>
           <SoundToggle />
         </ProgressiveLoader>
+
+        {/* Network Status Indicator */}
+        <NetworkStatusIndicator />
 
         {/* Debug Panel - Development Only */}
         <DebugPanel
