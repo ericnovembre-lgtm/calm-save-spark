@@ -1,0 +1,27 @@
+/**
+ * Touch Target Compliance Utilities
+ * Ensures all interactive elements meet WCAG 2.1 AAA minimum of 44x44px
+ */
+
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.touch-target-comfortable {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+.touch-icon-button {
+  padding: 0.75rem;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-spacing > * + * {
+  margin-left: 0.5rem;
+}

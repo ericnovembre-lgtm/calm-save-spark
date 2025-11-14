@@ -133,106 +133,119 @@ export const ManualTransferCard = () => {
   };
 
   return (
-    <>
-      <InteractiveCard className="p-8 text-center" hapticOnPress={false}>
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <h3 className="text-xl font-display font-semibold text-foreground mb-2">
-            Make a Manual Transfer
-          </h3>
-          <p className="text-muted-foreground mb-6">
-            Move money to your savings goals anytime
-          </p>
-          
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <AnimatedButton className="w-full sm:w-auto">
-                Transfer
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </AnimatedButton>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Make a Transfer</DialogTitle>
-                <DialogDescription>
-                  Add money to one of your savings goals
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Amount</Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      placeholder="0.00"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      className="pl-9"
-                      required
-                    />
-                  </div>
+    <InteractiveCard 
+      id="manual-transfer"
+      className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent"
+      hapticOnPress={false}
+    >
+      <motion.div
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="p-6"
+      >
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <ArrowRight className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-lg font-display font-semibold text-foreground">
+              Transfer to Savings
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Move money to your goals anytime
+            </p>
+          </div>
+        </div>
+        
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <AnimatedButton className="w-full h-12 text-base font-semibold gap-2">
+              Transfer Now
+              <ArrowRight className="w-4 h-4" />
+            </AnimatedButton>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <ArrowRight className="w-5 h-5 text-primary" />
+                Transfer to Savings
+              </DialogTitle>
+              <DialogDescription>
+                Add money to one of your savings goals
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="amount" className="text-sm font-medium">
+                  Transfer Amount
+                </Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    placeholder="0.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="pl-9 h-12"
+                    required
+                  />
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="goal">Select Goal</Label>
-                  <Select value={selectedPotId} onValueChange={setSelectedPotId} required>
-                    <SelectTrigger id="goal">
-                      <SelectValue placeholder="Choose a goal" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isLoading ? (
-                        <SelectItem value="loading" disabled>Loading goals...</SelectItem>
-                      ) : pots && pots.length > 0 ? (
-                        pots.map((pot) => {
-                          const progress = (parseFloat(String(pot.current_amount || 0)) / parseFloat(String(pot.target_amount))) * 100;
-                          return (
-                            <SelectItem key={pot.id} value={pot.id}>
-                              {pot.name} (${parseFloat(String(pot.current_amount || 0)).toLocaleString()} / ${parseFloat(String(pot.target_amount)).toLocaleString()} - {Math.round(progress)}%)
-                            </SelectItem>
-                          );
-                        })
-                      ) : (
-                        <SelectItem value="none" disabled>No goals available</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="goal" className="text-sm font-medium">
+                  To Goal
+                </Label>
+                <Select value={selectedPotId} onValueChange={setSelectedPotId} required>
+                  <SelectTrigger id="goal" className="h-12">
+                    <SelectValue placeholder="Choose a goal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isLoading ? (
+                      <SelectItem value="loading" disabled>Loading goals...</SelectItem>
+                    ) : pots && pots.length > 0 ? (
+                      pots.map((pot) => {
+                        const progress = (parseFloat(String(pot.current_amount || 0)) / parseFloat(String(pot.target_amount))) * 100;
+                        return (
+                          <SelectItem key={pot.id} value={pot.id}>
+                            {pot.name} (${parseFloat(String(pot.current_amount || 0)).toLocaleString()} / ${parseFloat(String(pot.target_amount)).toLocaleString()} - {Math.round(progress)}%)
+                          </SelectItem>
+                        );
+                      })
+                    ) : (
+                      <SelectItem value="none" disabled>No goals available</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setOpen(false)}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                  <AnimatedButton
-                    type="submit"
-                    className="flex-1"
-                    disabled={transferMutation.isPending || !amount || !selectedPotId}
-                  >
-                    {transferMutation.isPending ? "Processing..." : "Confirm Transfer"}
-                  </AnimatedButton>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </motion.div>
-      </InteractiveCard>
-
-      {/* Celebration effect */}
-      <CelebrationManager 
-        trigger={showCelebration} 
-        type="milestone"
-      />
-    </>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                  className="flex-1 h-11"
+                >
+                  Cancel
+                </Button>
+                <AnimatedButton
+                  type="submit"
+                  disabled={transferMutation.isPending}
+                  className="flex-1 h-11"
+                >
+                  {transferMutation.isPending ? "Processing..." : "Confirm Transfer"}
+                </AnimatedButton>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </motion.div>
+      
+      <CelebrationManager trigger={showCelebration} onComplete={() => setShowCelebration(false)} />
+    </InteractiveCard>
   );
 };
