@@ -63,6 +63,14 @@ import { DASHBOARD_WIZARD_STEPS, type WizardStepWithIcon } from "@/lib/wizard-st
 import type { WizardStep } from "@/components/onboarding/InteractiveWizard";
 import { createElement } from "react";
 import { DashboardTutorialOverlay } from "@/components/onboarding/DashboardTutorialOverlay";
+import { useKonamiCode } from "@/hooks/useKonamiCode";
+import { SecretTheme } from "@/components/effects/SecretTheme";
+import { HolidayEffect } from "@/components/effects/HolidayEffect";
+import { MilestoneCelebration } from "@/components/effects/MilestoneCelebration";
+import { useMilestoneDetector } from "@/hooks/useMilestoneDetector";
+import { FloatingCoins } from "@/components/effects/FloatingCoins";
+import { CursorSpotlight } from "@/components/effects/CursorSpotlight";
+import { TimeOfDayTheme } from "@/components/effects/TimeOfDayTheme";
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
@@ -73,6 +81,12 @@ export default function Dashboard() {
   const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
   const [showWizard, setShowWizard] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  
+  // Easter eggs
+  const [easterEggsEnabled] = useState(() => localStorage.getItem('easter-eggs-enabled') !== 'false');
+  const { success: konamiActive, reset: resetKonami } = useKonamiCode(() => {
+    if (easterEggsEnabled) toast.success("🎮 Developer Mode Activated!", { duration: 3000 });
+  });
   
   // Progressive loading
   const { isSectionLoaded } = useProgressiveSections();
@@ -175,6 +189,8 @@ export default function Dashboard() {
   });
 
   const totalBalance = accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.balance)), 0) || 0;
+  
+  const { milestone, dismissMilestone } = useMilestoneDetector(totalBalance);
   
   // Announce balance changes to screen readers
   useEffect(() => {
@@ -496,6 +512,16 @@ export default function Dashboard() {
   return (
     <AppLayout>
       <SkipLinks />
+      {easterEggsEnabled && (
+        <>
+          <SecretTheme active={konamiActive} onExit={resetKonami} />
+          <HolidayEffect />
+          <MilestoneCelebration milestone={milestone} onDismiss={dismissMilestone} />
+          {totalBalance > 1000 && <FloatingCoins density="low" elements="coins" />}
+          <CursorSpotlight />
+          <TimeOfDayTheme enabled />
+        </>
+      )}
       <LiveRegionAnnouncer message={balanceAnnouncement} priority="polite" />
       
       <PullToRefresh onRefresh={handleRefresh}>

@@ -8,6 +8,12 @@ import { fadeInUp } from "@/lib/motion-variants";
 import { AnimatedCounter } from "./AnimatedCounter";
 import { TrendSparkline } from "./TrendSparkline";
 import { SavingsVelocityGauge } from "./SavingsVelocityGauge";
+import { useTripleTap } from "@/hooks/useTripleTap";
+import { NeutralConfetti } from "@/components/effects/NeutralConfetti";
+import { useCelebrationSounds } from "@/hooks/useCelebrationSounds";
+import { haptics } from "@/lib/haptics";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface EnhancedBalanceCardProps {
   balance: number;
@@ -25,6 +31,20 @@ export const EnhancedBalanceCard = ({
   const { convertedAmount, targetCurrency } = useCurrencyConversion(balance);
   const prefersReducedMotion = useReducedMotion();
   const isPositive = monthlyGrowth >= 0;
+  const [showConfetti, setShowConfetti] = useState(false);
+  const { playConfettiPop } = useCelebrationSounds();
+
+  const handleTripleTap = () => {
+    setShowConfetti(true);
+    playConfettiPop();
+    haptics.achievementUnlocked();
+    toast.success("✨ Secret found! Keep exploring...", {
+      duration: 3000
+    });
+    setTimeout(() => setShowConfetti(false), 3000);
+  };
+
+  const { register } = useTripleTap({ onTripleTap: handleTripleTap });
 
   const getCurrencySymbol = (currency: string) => {
     const symbols: Record<string, string> = {
@@ -34,7 +54,9 @@ export const EnhancedBalanceCard = ({
   };
 
   return (
-    <GlassCard enableTilt glowOnHover className="p-6 md:p-8 overflow-hidden">
+    <GlassCard enableTilt glowOnHover className="p-6 md:p-8 overflow-hidden relative">
+      <NeutralConfetti show={showConfetti} duration={2500} count={35} />
+      
       <motion.div
         variants={!prefersReducedMotion ? fadeInUp : undefined}
         initial="hidden"
@@ -45,10 +67,12 @@ export const EnhancedBalanceCard = ({
           <div>
             <p className="text-sm text-muted-foreground mb-1">Total Balance</p>
             <motion.div 
-              className="flex items-baseline gap-1"
+              {...register}
+              className="flex items-baseline gap-1 cursor-pointer select-none"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              whileTap={!prefersReducedMotion ? { scale: 0.98 } : undefined}
             >
               <span className="text-3xl md:text-4xl font-display font-bold text-foreground">
                 {getCurrencySymbol(targetCurrency)}
