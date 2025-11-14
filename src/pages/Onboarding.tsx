@@ -5,7 +5,8 @@ import { trackEvent } from "@/lib/analytics";
 import { announce } from "@/components/layout/LiveRegion";
 import { checkAchievements } from "@/lib/achievements";
 import { useOnboardingABTest } from "@/hooks/useOnboardingABTest";
-import ProgressBar from "@/components/onboarding/ProgressBar";
+import { ProgressBarPremium } from "@/components/onboarding/ProgressBarPremium";
+import { StepTransition } from "@/components/onboarding/StepTransition";
 import SavingsDemo from "@/components/onboarding/SavingsDemo";
 import WelcomeStep from "@/components/onboarding/WelcomeStep";
 import AccountSetupStep from "@/components/onboarding/AccountSetupStep";
@@ -17,12 +18,15 @@ import CompleteStep from "@/components/onboarding/CompleteStep";
 const STEPS = ['demo', 'welcome', 'account', 'goal', 'automation', 'preview', 'complete'] as const;
 type Step = typeof STEPS[number];
 
+const STEP_LABELS = ['Demo', 'Welcome', 'Profile', 'Goals', 'Automate', 'Preview', 'Complete'];
+
 const Onboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<Step>('welcome');
   const [userId, setUserId] = useState<string | null>(null);
   const [isResuming, setIsResuming] = useState(false);
   const [onboardingStartTime] = useState(Date.now());
+  const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   
   // A/B testing tracking
   const abTest = useOnboardingABTest({
@@ -187,7 +191,13 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <ProgressBar currentStep={currentStepIndex + 1} totalSteps={STEPS.length} />
+      <div className="pt-8">
+        <ProgressBarPremium 
+          currentStep={currentStepIndex} 
+          totalSteps={STEPS.length - 1} 
+          stepLabels={STEP_LABELS}
+        />
+      </div>
       
       {isResuming && (
         <div className="bg-primary/10 border-b border-primary/20 py-3 px-4 text-center">
@@ -198,51 +208,53 @@ const Onboarding = () => {
       )}
       
       <main className="flex-1 flex items-center justify-center p-4">
-        {currentStep === 'demo' && (
-          <SavingsDemo onGetStarted={() => {
-            if (userId) {
-              handleNext();
-            } else {
-              navigate('/auth', { state: { returnTo: '/onboarding' } });
-            }
-          }} />
-        )}
-        {currentStep === 'welcome' && (
-          <WelcomeStep onNext={handleNext} />
-        )}
-        {currentStep === 'account' && (
-          <AccountSetupStep 
-            userId={userId}
-            onNext={handleNext} 
-            onPrevious={handlePrevious} 
-          />
-        )}
-        {currentStep === 'goal' && (
-          <FirstGoalStep 
-            userId={userId}
-            onNext={handleNext} 
-            onPrevious={handlePrevious}
-            abTest={abTest}
-          />
-        )}
-        {currentStep === 'automation' && (
-          <AutomationStep 
-            userId={userId}
-            onNext={handleNext} 
-            onPrevious={handlePrevious} 
-          />
-        )}
-        {currentStep === 'preview' && (
-          <DashboardPreview
-            userId={userId}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-            onNavigateToStep={handleNavigateToStep}
-          />
-        )}
-        {currentStep === 'complete' && (
-          <CompleteStep onComplete={handleComplete} />
-        )}
+        <StepTransition stepKey={currentStep} direction={direction}>
+          {currentStep === 'demo' && (
+            <SavingsDemo onGetStarted={() => {
+              if (userId) {
+                handleNext();
+              } else {
+                navigate('/auth', { state: { returnTo: '/onboarding' } });
+              }
+            }} />
+          )}
+          {currentStep === 'welcome' && (
+            <WelcomeStep onNext={handleNext} />
+          )}
+          {currentStep === 'account' && (
+            <AccountSetupStep 
+              userId={userId}
+              onNext={handleNext} 
+              onPrevious={handlePrevious} 
+            />
+          )}
+          {currentStep === 'goal' && (
+            <FirstGoalStep 
+              userId={userId}
+              onNext={handleNext} 
+              onPrevious={handlePrevious}
+              abTest={abTest}
+            />
+          )}
+          {currentStep === 'automation' && (
+            <AutomationStep 
+              userId={userId}
+              onNext={handleNext} 
+              onPrevious={handlePrevious} 
+            />
+          )}
+          {currentStep === 'preview' && (
+            <DashboardPreview
+              userId={userId}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              onNavigateToStep={handleNavigateToStep}
+            />
+          )}
+          {currentStep === 'complete' && (
+            <CompleteStep onComplete={handleComplete} />
+          )}
+        </StepTransition>
       </main>
     </div>
   );
