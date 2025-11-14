@@ -40,8 +40,14 @@ const analyticsSchema = z.object({
       return sanitized;
     }),
   
+  // Accept UUIDs, hashed IDs, or null/undefined for unauthenticated users
   userId: z.union([
     z.string().uuid("Invalid user ID format"),
+    z.string()
+      .trim()
+      .min(1, "User ID cannot be empty")
+      .max(128, "User ID must be under 128 chars")
+      .regex(/^[a-zA-Z0-9._:-]+$/, "User ID contains invalid characters"),
     z.null(),
     z.undefined()
   ]).optional(),
