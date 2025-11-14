@@ -1,15 +1,27 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { ErrorHandlerOptions, handleError, handleValidationError } from "../_shared/error-handler.ts";
+import { enforceRateLimit, RATE_LIMITS } from "../_shared/rate-limiter.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Validation schema
+const inputSchema = z.object({
+  message: z.string().trim().min(1, "Message cannot be empty").max(2000, "Message too long"),
+  sessionId: z.string().uuid().optional(),
+});
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
+
+  let userId: string | undefined;
+  const errorOptions = new ErrorHandlerOptions(corsHeaders, 'ai-coach');
 
   try {
     const supabaseClient = createClient(
@@ -23,21 +35,37 @@ serve(async (req) => {
       throw new Error('Not authenticated');
     }
 
-    const { message, sessionId } = await req.json();
+    // Set user ID for logging
+    userId = user.id;
+    errorOptions.userId = userId;
+
+    // Check rate limit
+    const rateLimitResponse = await enforceRateLimit(
+      supabaseClient,
+      user.id,
+      RATE_LIMITS['ai-coach'],
+      corsHeaders
+    );
+    if (rateLimitResponse) return rateLimitResponse;
+
+    // Validate input
+    const body = await req.json();
+    const validated = inputSchema.parse(body);
 
     // Fetch or create session
     let session;
-    if (sessionId) {
+    if (validated.sessionId) {
       const { data } = await supabaseClient
         .from('ai_coaching_sessions')
         .select('*')
-        .eq('id', sessionId)
+        .eq('id', validated.sessionId)
+        .eq('user_id', user.id) // Security: ensure session belongs to user
         .single();
       session = data;
     }
 
     if (!session) {
-      const { data: newSession } = await supabaseClient
+      const { data: newSession, error: sessionError } = await supabaseClient
         .from('ai_coaching_sessions')
         .insert({
           user_id: user.id,
@@ -47,6 +75,8 @@ serve(async (req) => {
         })
         .select()
         .single();
+      
+      if (sessionError) throw sessionError;
       session = newSession;
     }
 
@@ -83,7 +113,7 @@ serve(async (req) => {
 Provide personalized, actionable financial advice. Be encouraging and specific.`;
 
     const conversationHistory = session.conversation_history || [];
-    conversationHistory.push({ role: 'user', content: message });
+    conversationHistory.push({ role: 'user', content: validated.message });
 
     // Call Lovable AI
     const aiResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/lovable-ai`, {
@@ -127,11 +157,9 @@ Provide personalized, actionable financial advice. Be encouraging and specific.`
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('AI Coach Error:', errorMessage);
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    if ((error as any)?.name === 'ZodError') {
+      return handleValidationError(error, errorOptions);
+    }
+    return handleError(error, errorOptions);
   }
 });
