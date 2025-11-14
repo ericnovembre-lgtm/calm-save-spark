@@ -40,7 +40,8 @@ const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
   savingGoal: z.array(z.string()).min(1, "Please select at least one savings goal"),
   customGoalName: z.string().optional(),
-  biggestChallenge: z.string().min(1, "Please select your biggest challenge"),
+  biggestChallenge: z.array(z.string()).min(1, "Please select at least one challenge"),
+  customChallengeName: z.string().optional(),
   automationPreference: z.string().min(1, "Please select your saving preference"),
 });
 
@@ -66,6 +67,7 @@ const CHALLENGES = [
   { value: "motivation", label: "Staying Motivated", icon: Frown, description: "Lose momentum quickly" },
   { value: "no_plan", label: "No Clear Plan", icon: AlertCircle, description: "Don't know where to start" },
   { value: "unexpected", label: "Unexpected Costs", icon: DollarSign, description: "Emergencies drain savings" },
+  { value: "custom", label: "Custom Challenge", icon: Plus, description: "Describe your own challenge" },
 ];
 
 const AUTOMATION_PREFS = [
@@ -86,7 +88,8 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
       fullName: "",
       savingGoal: [],
       customGoalName: "",
-      biggestChallenge: "",
+      biggestChallenge: [],
+      customChallengeName: "",
       automationPreference: "",
     },
   });
@@ -97,7 +100,8 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
       const quizData = {
         saving_goals: values.savingGoal,
         custom_goal_name: values.customGoalName || null,
-        biggest_challenge: values.biggestChallenge,
+        biggest_challenges: values.biggestChallenge,
+        custom_challenge_name: values.customChallengeName || null,
         automation_preference: values.automationPreference,
       };
 
@@ -116,6 +120,8 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
         ...quizData,
         goals_count: values.savingGoal.length,
         has_custom_goal: values.savingGoal.includes("custom"),
+        challenges_count: values.biggestChallenge.length,
+        has_custom_challenge: values.biggestChallenge.includes("custom"),
       });
       triggerHaptic("success");
       toast.success("Your preferences have been saved!");
@@ -155,7 +161,14 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
       }
       return goals.length > 0;
     }
-    if (currentQuestion === 2) return !!values.biggestChallenge;
+    if (currentQuestion === 2) {
+      const challenges = values.biggestChallenge || [];
+      // If custom challenge is selected, require custom challenge name
+      if (challenges.includes("custom") && !values.customChallengeName?.trim()) {
+        return false;
+      }
+      return challenges.length > 0;
+    }
     if (currentQuestion === 3) return !!values.automationPreference;
     return false;
   };
@@ -164,7 +177,7 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
     switch (currentQuestion) {
       case 0: return "What's your name?";
       case 1: return "What are your savings goals?";
-      case 2: return "What's your biggest savings challenge?";
+      case 2: return "What are your biggest savings challenges?";
       case 3: return "How do you prefer to save?";
       default: return "";
     }
@@ -174,7 +187,7 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
     switch (currentQuestion) {
       case 0: return "Help us personalize your experience";
       case 1: return "Select all that apply - you can choose multiple goals";
-      case 2: return "We'll help you overcome it with smart strategies";
+      case 2: return "Select all that apply - we'll help you overcome them";
       case 3: return "Choose what feels most comfortable for you";
       default: return "";
     }
@@ -339,28 +352,62 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <div className="grid grid-cols-1 gap-3">
-                              {CHALLENGES.map((challenge) => (
-                                <InteractiveChoiceCard
-                                  key={challenge.value}
-                                  value={challenge.value}
-                                  label={challenge.label}
-                                  description={challenge.description}
-                                  icon={challenge.icon}
-                                  isSelected={field.value === challenge.value}
-                                  onSelect={() => {
-                                    field.onChange(challenge.value);
-                                    triggerHaptic("light");
-                                  }}
-                                  detailedInfo={`We'll help you overcome ${challenge.label.toLowerCase()} with personalized strategies and automation.`}
-                                />
-                              ))}
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-1 gap-3">
+                                {CHALLENGES.map((challenge) => (
+                                  <InteractiveChoiceCard
+                                    key={challenge.value}
+                                    value={challenge.value}
+                                    label={challenge.label}
+                                    description={challenge.description}
+                                    icon={challenge.icon}
+                                    isSelected={field.value.includes(challenge.value)}
+                                    onSelect={() => {
+                                      const currentChallenges = field.value || [];
+                                      if (currentChallenges.includes(challenge.value)) {
+                                        // Remove challenge
+                                        field.onChange(currentChallenges.filter(c => c !== challenge.value));
+                                      } else {
+                                        // Add challenge
+                                        field.onChange([...currentChallenges, challenge.value]);
+                                      }
+                                      triggerHaptic("light");
+                                    }}
+                                    detailedInfo={`We'll help you overcome ${challenge.label.toLowerCase()} with personalized strategies and automation.`}
+                                  />
+                                ))}
+                              </div>
+                              <p className="text-sm text-muted-foreground text-center">
+                                {field.value.length} challenge{field.value.length !== 1 ? 's' : ''} selected
+                              </p>
                             </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    
+                    {/* Custom Challenge Input */}
+                    {form.watch("biggestChallenge")?.includes("custom") && (
+                      <FormField
+                        control={form.control}
+                        name="customChallengeName"
+                        render={({ field }) => (
+                          <FormItem className="mt-4">
+                            <FormLabel>Describe your challenge</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="e.g., Inconsistent income, Medical expenses, Supporting family"
+                                {...field}
+                                className="text-base h-11"
+                                aria-label="Enter your custom challenge"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </motion.div>
                 )}
 
