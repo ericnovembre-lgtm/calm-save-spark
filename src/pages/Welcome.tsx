@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { LazyLoad } from "@/components/performance/LazyLoad";
 import { ProgressiveLoader } from "@/components/performance/ProgressiveLoader";
 import LazyErrorBoundary from "@/components/performance/LazyErrorBoundary";
+import DebugPanel from "@/components/debug/DebugPanel";
 import type { Feature } from "@/components/welcome/FeatureCarousel";
 
 // Lazy load heavy components for better performance
@@ -402,24 +403,24 @@ const Welcome = () => {
         {/* Enhanced Background Effects - Phase 7 (Progressive Enhancement) */}
       <NeutralBackground />
       <ProgressiveLoader priority="low" delay={500}>
-        <Suspense fallback={null}>
+        <LazyErrorBoundary componentName="ScrollGradient" fallbackHeight="100vh">
           <ScrollGradient />
-        </Suspense>
+        </LazyErrorBoundary>
       </ProgressiveLoader>
       <ProgressiveLoader priority="low" delay={700}>
-        <Suspense fallback={null}>
+        <LazyErrorBoundary componentName="ParallaxBackground" fallbackHeight="100vh">
           <ParallaxBackground />
-        </Suspense>
+        </LazyErrorBoundary>
       </ProgressiveLoader>
       <ProgressiveLoader priority="low" delay={900}>
-        <Suspense fallback={null}>
+        <LazyErrorBoundary componentName="ParticleBackground" fallbackHeight="100vh">
           <ParticleBackground />
-        </Suspense>
+        </LazyErrorBoundary>
       </ProgressiveLoader>
       <ProgressiveLoader priority="low" delay={1100}>
-        <Suspense fallback={null}>
+        <LazyErrorBoundary componentName="MouseGradient" fallbackHeight="100vh">
           <MouseGradient />
-        </Suspense>
+        </LazyErrorBoundary>
       </ProgressiveLoader>
       
       {/* Gesture Handler - Phase 8 */}
@@ -487,7 +488,9 @@ const Welcome = () => {
                   All systems operational
                 </span>
                 <Suspense fallback={<div className="w-10 h-10" />}>
-                  <MoodToggle />
+                  <LazyErrorBoundary componentName="MoodToggle" fallbackHeight="40px">
+                    <MoodToggle />
+                  </LazyErrorBoundary>
                 </Suspense>
               </motion.div>
             </div>
@@ -541,14 +544,14 @@ const Welcome = () => {
                     <div className="absolute inset-0 bg-[color:var(--color-accent)]/20 blur-3xl" />
                     {animationData && (
                       <div className="relative">
-                        <Suspense fallback={<Skeleton className="w-full h-96 rounded-2xl" />}>
+                        <LazyErrorBoundary componentName="LottieHero" fallbackHeight="384px">
                           <LottieHero 
                             animationData={animationData}
                             autoplay
                             loop
                             className="w-full h-auto drop-shadow-2xl"
                           />
-                        </Suspense>
+                        </LazyErrorBoundary>
                       </div>
                     )}
                   </motion.div>
@@ -600,13 +603,7 @@ const Welcome = () => {
               <div className="space-y-12">
                 {/* Flippable Feature Cards Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <Suspense fallback={
-                    <>
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <Skeleton key={i} className="h-64 rounded-xl" />
-                      ))}
-                    </>
-                  }>
+                  <LazyErrorBoundary componentName="FlippableFeatureCard" fallbackHeight="256px">
                     {features.slice(0, 6).map((feature, index) => (
                       <motion.div
                         key={feature.id}
@@ -621,13 +618,13 @@ const Welcome = () => {
                         />
                       </motion.div>
                     ))}
-                  </Suspense>
+                  </LazyErrorBoundary>
                 </div>
 
                 {/* Journey Timeline */}
-                <Suspense fallback={<Skeleton className="h-64 w-full rounded-xl" />}>
+                <LazyErrorBoundary componentName="JourneyTimeline" fallbackHeight="256px">
                   <JourneyTimeline />
-                </Suspense>
+                </LazyErrorBoundary>
                 </div>
               )}
             </motion.section>
@@ -660,7 +657,7 @@ const Welcome = () => {
                   Why Choose $ave+?
                 </h2>
               </motion.div>
-              <Suspense fallback={<Skeleton className="w-full h-[400px] rounded-xl" />}>
+              <LazyErrorBoundary componentName="PullToRefreshStats" fallbackHeight="400px">
                 <PullToRefreshStats onRefresh={async () => {
                   // Simulate refresh
                   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -739,14 +736,14 @@ const Welcome = () => {
                       className="cursor-pointer"
                       title="Double-click for a surprise!"
                     >
-                      <Suspense fallback={<Skeleton className="h-16 w-full rounded-xl" />}>
+                      <LazyErrorBoundary componentName="LiveActivityTicker" fallbackHeight="64px">
                         <LiveActivityTicker />
-                      </Suspense>
+                      </LazyErrorBoundary>
                     </motion.div>
                   )}
                   </div>
                 </PullToRefreshStats>
-              </Suspense>
+              </LazyErrorBoundary>
               </div>
             </motion.section>
           </LazyLoad>
@@ -761,9 +758,9 @@ const Welcome = () => {
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.5 }}
             >
-              <Suspense fallback={<Skeleton className="h-[600px] w-full rounded-3xl" />}>
+              <LazyErrorBoundary componentName="SavingsPlayground" fallbackHeight="600px">
                 <SavingsPlayground />
-              </Suspense>
+              </LazyErrorBoundary>
             </motion.section>
           </LazyLoad>
 
@@ -874,6 +871,16 @@ const Welcome = () => {
         <ProgressiveLoader priority="low" delay={800}>
           <SoundToggle />
         </ProgressiveLoader>
+
+        {/* Debug Panel - Development Only */}
+        <DebugPanel
+          loadingStates={{
+            hero: heroLoaded,
+            features: featuresLoaded,
+            stats: statsLoaded,
+            cta: ctaLoaded,
+          }}
+        />
       </motion.div>
       </GestureHandler>
     </div>

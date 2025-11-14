@@ -134,6 +134,54 @@ export default defineConfig(({ mode }) => ({
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Cache Lottie animations (optimized JSON files)
+            urlPattern: /\/animations\/.*\.json$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'lottie-animations-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 90 // 90 days - animations rarely change
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Cache lazy-loaded chunks (code splitting)
+            urlPattern: /\/assets\/.*\.js$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'lazy-chunks-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Cache CSS chunks
+            urlPattern: /\/assets\/.*\.css$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'css-chunks-cache',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
               }
             }
           }
