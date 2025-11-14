@@ -195,7 +195,25 @@ const Welcome = () => {
     : useTransform(scrollYProgress, [0, 1], [0, -100]);
   const opacity = prefersReducedMotion
     ? 1
-    : useTransform(scrollYProgress, [0, 0.3], [1, 0.3]);
+    : useTransform(scrollYProgress, [0, 0.5], [1, 0.85]);
+
+  // Debug: Log opacity issues
+  useEffect(() => {
+    const checkInterval = setInterval(() => {
+      if (typeof opacity === 'object' && 'get' in opacity) {
+        const currentOpacity = opacity.get();
+        if (currentOpacity < 0.5) {
+          console.warn('[Welcome] Low opacity detected', {
+            opacity: currentOpacity,
+            scrollProgress: scrollYProgress.get(),
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+    }, 2000);
+    
+    return () => clearInterval(checkInterval);
+  }, [opacity, scrollYProgress]);
 
   // Track page view on mount and check for first visit
   useEffect(() => {
@@ -271,6 +289,20 @@ const Welcome = () => {
       }
     };
     checkAuth();
+
+    // Timeout fallback: force loading complete after 5 seconds
+    const authTimeout = setTimeout(() => {
+      if (isLoading) {
+        console.warn('[Welcome] Auth check timeout - forcing load completion');
+        setIsLoading(false);
+        saveplus_audit_event('auth_timeout_fallback', {
+          route: location.pathname,
+          timeout_ms: 5000
+        });
+      }
+    }, 5000);
+
+    return () => clearTimeout(authTimeout);
   }, [location.pathname]);
 
   // Progressive loading: load sections sequentially with analytics
@@ -641,7 +673,7 @@ const Welcome = () => {
           <motion.section 
             ref={heroRef}
             className="space-y-8 relative bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
-            style={prefersReducedMotion ? { zIndex: 'var(--z-content-priority)' } as React.CSSProperties : { y: parallaxY, opacity, zIndex: 'var(--z-content-priority)' } as React.CSSProperties}
+            style={prefersReducedMotion ? { zIndex: 'var(--z-content-priority)' } as React.CSSProperties : { y: parallaxY, opacity: scrollYProgress.get() < 0.1 ? 1 : opacity, zIndex: 'var(--z-content-priority)' } as React.CSSProperties}
           >
             {/* Hero content - always visible */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -672,6 +704,7 @@ const Welcome = () => {
                         autoplay
                         loop
                         className="w-full h-auto drop-shadow-2xl"
+                        authState={user ? 'authenticated' : (isLoading ? 'checking' : 'unauthenticated')}
                       />
                     </LazyErrorBoundary>
                   </div>
