@@ -29,6 +29,7 @@ import { supabase } from "@/integrations/supabase/client";
 import NeutralBackground from "@/components/background/NeutralBackground";
 import NeutralConfetti from "@/components/effects/NeutralConfetti";
 import { ParallaxBackground } from "@/components/welcome/ParallaxBackground";
+import { ParticleBackground } from "@/components/welcome/ParticleBackground";
 import { MouseGradient } from "@/components/welcome/MouseGradient";
 import { ScrollGradient } from "@/components/welcome/ScrollGradient";
 import { Users, DollarSign, TrendingUp, Trophy } from "lucide-react";
@@ -349,9 +350,10 @@ const Welcome = () => {
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
       {/* Enhanced Background Effects - Phase 7 */}
-      <ScrollGradient />
       <NeutralBackground />
+      <ScrollGradient />
       <ParallaxBackground />
+      <ParticleBackground />
       <MouseGradient />
       
       {/* Custom Cursor for desktop */}
