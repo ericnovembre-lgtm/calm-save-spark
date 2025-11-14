@@ -9,6 +9,7 @@ import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { PageTracker } from "@/components/layout/PageTracker";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AuthRedirect } from "@/components/auth/AuthRedirect";
@@ -53,6 +54,7 @@ import Integrations from "./pages/Integrations";
 import Admin from "./pages/Admin";
 import FinancialHealth from "./pages/FinancialHealth";
 import Leaderboard from "./pages/Leaderboard";
+import Install from "./pages/Install";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +92,7 @@ const App = () => {
             <Sonner />
             <BrowserRouter>
               <PageTracker />
+              <InstallPrompt />
               <AnimatedRoutes />
             </BrowserRouter>
       </TooltipProvider>
@@ -131,6 +134,7 @@ function AnimatedRoutes() {
         />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
+        <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
         <Route path="/onboarding" element={<PageTransition><Onboarding /></PageTransition>} />
         <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
         <Route path="/subscription" element={<PageTransition><SubscriptionManagement /></PageTransition>} />
