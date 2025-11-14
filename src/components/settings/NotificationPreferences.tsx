@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PushNotificationSetup } from '@/components/notifications/PushNotificationSetup';
 
 interface NotificationPrefs {
   email_notifications: boolean;
@@ -125,6 +126,11 @@ export function NotificationPreferences() {
 
   return (
     <div className="space-y-6">
+      {/* Push Notification Setup Card */}
+      <PushNotificationSetup />
+      
+      <Separator />
+
       {/* Main Toggles */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
