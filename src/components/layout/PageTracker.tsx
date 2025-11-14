@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecentPages } from '@/hooks/useRecentPages';
 
@@ -9,8 +9,12 @@ import { useRecentPages } from '@/hooks/useRecentPages';
 export function PageTracker() {
   const location = useLocation();
   const { addPage } = useRecentPages();
+  const isTracking = useRef(false);
 
   useEffect(() => {
+    // Prevent duplicate tracking
+    if (isTracking.current) return;
+    
     // Don't track 404 pages or auth pages
     if (location.pathname === '*' || location.pathname.startsWith('/auth')) {
       return;
@@ -54,7 +58,17 @@ export function PageTracker() {
     const title = pathTitleMap[location.pathname] || 'Page';
     
     // Add page to recent history
-    addPage(location.pathname, title);
+    isTracking.current = true;
+    try {
+      addPage(location.pathname, title);
+    } catch (error) {
+      console.error('PageTracker error:', error);
+    } finally {
+      // Reset tracking flag after a short delay
+      setTimeout(() => {
+        isTracking.current = false;
+      }, 100);
+    }
   }, [location.pathname, addPage]);
 
   return null;
