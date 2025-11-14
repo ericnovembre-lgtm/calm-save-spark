@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { LazyLoad } from "@/components/performance/LazyLoad";
 import { ProgressiveLoader } from "@/components/performance/ProgressiveLoader";
+import LazyErrorBoundary from "@/components/performance/LazyErrorBoundary";
 import type { Feature } from "@/components/welcome/FeatureCarousel";
 
 // Lazy load heavy components for better performance
@@ -340,7 +341,7 @@ const Welcome = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    fetch("/animations/saveplus-hero.json")
+    fetch("/animations/saveplus-hero-optimized.json")
       .then(r => r.json())
       .then(data => setAnimationData(data))
       .catch(() => setAnimationData({}));
