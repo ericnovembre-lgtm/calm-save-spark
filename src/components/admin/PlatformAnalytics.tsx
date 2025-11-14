@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { LazyBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "@/components/charts/LazyBarChart";
+import { LazyLineChart, Line } from "@/components/charts/LazyLineChart";
 
 export function PlatformAnalytics() {
   // Mock analytics data
@@ -24,42 +25,38 @@ export function PlatformAnalytics() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="p-6">
           <h3 className="text-lg font-bold mb-4">User Growth</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={userGrowthData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="month" className="text-xs" />
-              <YAxis className="text-xs" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
-                }}
-              />
-              <Legend />
-              <Line type="monotone" dataKey="users" stroke="hsl(var(--primary))" strokeWidth={2} />
-              <Line type="monotone" dataKey="active" stroke="hsl(var(--accent))" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
+          <LazyLineChart data={userGrowthData} height={300}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <XAxis dataKey="month" className="text-xs" />
+            <YAxis className="text-xs" />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px'
+              }}
+            />
+            <Legend />
+            <Line type="monotone" dataKey="users" stroke="hsl(var(--primary))" strokeWidth={2} />
+            <Line type="monotone" dataKey="active" stroke="hsl(var(--accent))" strokeWidth={2} />
+          </LazyLineChart>
         </Card>
 
         <Card className="p-6">
           <h3 className="text-lg font-bold mb-4">Feature Usage</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={featureUsageData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis type="number" className="text-xs" />
-              <YAxis dataKey="feature" type="category" className="text-xs" width={120} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
-                }}
-              />
-              <Bar dataKey="usage" fill="hsl(var(--primary))" radius={[0, 8, 8, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <LazyBarChart data={featureUsageData} layout="vertical" height={300}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <XAxis type="number" className="text-xs" />
+            <YAxis dataKey="feature" type="category" className="text-xs" width={120} />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px'
+              }}
+            />
+            <Bar dataKey="usage" fill="hsl(var(--primary))" radius={[0, 8, 8, 0]} />
+          </LazyBarChart>
         </Card>
       </div>
 

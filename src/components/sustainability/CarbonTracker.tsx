@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Leaf } from "lucide-react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { LazyLineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "@/components/charts/LazyLineChart";
 import { format, subDays } from "date-fns";
 
 export function CarbonTracker() {
@@ -72,15 +72,13 @@ export function CarbonTracker() {
         {isLoading ? (
           <p className="text-center text-muted-foreground py-8">Loading carbon data...</p>
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={carbonData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip formatter={(value) => `${value} kg CO2`} />
-              <Line type="monotone" dataKey="carbon" stroke="#16a34a" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
+          <LazyLineChart data={carbonData} height={300}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip formatter={(value) => `${value} kg CO2`} />
+            <Line type="monotone" dataKey="carbon" stroke="#16a34a" strokeWidth={2} />
+          </LazyLineChart>
         )}
       </Card>
 

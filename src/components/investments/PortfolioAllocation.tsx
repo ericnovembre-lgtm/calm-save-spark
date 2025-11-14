@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { LazyPieChart, Pie, Cell, Tooltip } from '@/components/charts/LazyPieChart';
 
 interface PortfolioAllocationProps {
   accounts: any[];
@@ -19,33 +19,31 @@ export const PortfolioAllocation = ({ accounts }: PortfolioAllocationProps) => {
     <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
       <h3 className="text-xl font-semibold text-foreground mb-4">Portfolio Allocation</h3>
       
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-            outerRadius={100}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '8px',
-              color: 'hsl(var(--foreground))'
-            }}
-            formatter={(value: number) => `$${value.toFixed(2)}`}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+      <LazyPieChart height={300}>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+          outerRadius={100}
+          fill="#8884d8"
+          dataKey="value"
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
+          ))}
+        </Pie>
+        <Tooltip 
+          contentStyle={{ 
+            backgroundColor: 'hsl(var(--card))',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '8px',
+            color: 'hsl(var(--foreground))'
+          }}
+          formatter={(value: number) => `$${value.toFixed(2)}`}
+        />
+      </LazyPieChart>
 
       <div className="mt-6 space-y-2">
         {data.map((item, idx) => (
