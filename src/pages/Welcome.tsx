@@ -333,115 +333,39 @@ const Welcome = () => {
         detail: { metric: 'auth_check', value: authLoadTime }
       }));
       
-      // Hero loads immediately after auth check
+      // Load all sections immediately to prevent blank page
       setHeroLoaded(true);
-      console.log('[Welcome] Hero section loaded');
+      setFeaturesLoaded(true);
+      setStatsLoaded(true);
+      setCtaLoaded(true);
+      
+      console.log('[Welcome] All sections loaded immediately');
+      
+      // Track metrics
       saveplus_audit_event('section_loaded', {
-        section: 'hero',
+        section: 'all',
         load_time_ms: authLoadTime,
         route: location.pathname
       });
 
-      // Dispatch hero metric
+      // Dispatch metrics
       window.dispatchEvent(new CustomEvent('performance_metric', {
         detail: { metric: 'hero_load', value: authLoadTime }
       }));
-      
-      // Features load after 300ms
-      const featuresTimer = setTimeout(() => {
-        setFeaturesLoaded(true);
-        const featuresLoadTime = Date.now() - loadStartTimeRef.current;
-        console.log('[Welcome] Features section loaded', { duration: featuresLoadTime });
-        saveplus_audit_event('section_loaded', {
-          section: 'features',
-          load_time_ms: featuresLoadTime,
-          route: location.pathname
-        });
-
-        // Dispatch features metric
-        window.dispatchEvent(new CustomEvent('performance_metric', {
-          detail: { metric: 'features_load', value: featuresLoadTime }
-        }));
-      }, 300);
-      
-      // Stats load after 600ms
-      const statsTimer = setTimeout(() => {
-        setStatsLoaded(true);
-        const statsLoadTime = Date.now() - loadStartTimeRef.current;
-        console.log('[Welcome] Stats section loaded', { duration: statsLoadTime });
-        saveplus_audit_event('section_loaded', {
-          section: 'stats',
-          load_time_ms: statsLoadTime,
-          route: location.pathname
-        });
-
-        // Dispatch stats metric
-        window.dispatchEvent(new CustomEvent('performance_metric', {
-          detail: { metric: 'stats_load', value: statsLoadTime }
-        }));
-      }, 600);
-      
-      // CTA loads after 900ms
-      const ctaTimer = setTimeout(() => {
-        setCtaLoaded(true);
-        const totalLoadTime = Date.now() - loadStartTimeRef.current;
-        console.log('[Welcome] CTA section loaded - Page fully loaded', { totalDuration: totalLoadTime });
-        saveplus_audit_event('section_loaded', {
-          section: 'cta',
-          load_time_ms: totalLoadTime,
-          route: location.pathname
-        });
-        
-        // Track complete page load
-        saveplus_audit_event('page_fully_loaded', {
-          total_load_time_ms: totalLoadTime,
-          route: location.pathname
-        });
-
-        // Dispatch page load metric
-        window.dispatchEvent(new CustomEvent('performance_metric', {
-          detail: { metric: 'page_load', value: totalLoadTime }
-        }));
-
-        // Dispatch CTA metric
-        window.dispatchEvent(new CustomEvent('performance_metric', {
-          detail: { metric: 'cta_load', value: totalLoadTime }
-        }));
-      }, 900);
-      
-      return () => {
-        clearTimeout(featuresTimer);
-        clearTimeout(statsTimer);
-        clearTimeout(ctaTimer);
-      };
+      window.dispatchEvent(new CustomEvent('performance_metric', {
+        detail: { metric: 'features_load', value: authLoadTime }
+      }));
+      window.dispatchEvent(new CustomEvent('performance_metric', {
+        detail: { metric: 'stats_load', value: authLoadTime }
+      }));
+      window.dispatchEvent(new CustomEvent('performance_metric', {
+        detail: { metric: 'cta_load', value: authLoadTime }
+      }));
+      window.dispatchEvent(new CustomEvent('performance_metric', {
+        detail: { metric: 'page_load', value: authLoadTime }
+      }));
     }
   }, [isLoading, location.pathname]);
-
-  // Timeout fallback: force all content to show after 3 seconds if something fails
-  useEffect(() => {
-    const fallbackTimer = setTimeout(() => {
-      if (!heroLoaded || !featuresLoaded || !statsLoaded || !ctaLoaded) {
-        if (import.meta.env.DEV) {
-          console.warn('[Welcome] Loading timeout - forcing all sections to load', {
-            heroLoaded,
-            featuresLoaded,
-            statsLoaded,
-            ctaLoaded
-          });
-        }
-        setHeroLoaded(true);
-        setFeaturesLoaded(true);
-        setStatsLoaded(true);
-        setCtaLoaded(true);
-        saveplus_audit_event('loading_timeout_fallback', {
-          route: location.pathname,
-          timeout_ms: 3000
-        });
-      }
-    }, 3000);
-
-    return () => clearTimeout(fallbackTimer);
-  }, [heroLoaded, featuresLoaded, statsLoaded, ctaLoaded, location.pathname]);
 
   // Theme toggle deduplication
   useEffect(() => {
@@ -571,8 +495,8 @@ const Welcome = () => {
     setShowTour(true);
   };
 
-  // Show loading skeleton while auth is being checked and initial components load
-  if (isLoading || (!heroLoaded && !featuresLoaded)) {
+  // Show loading skeleton only while auth is being checked
+  if (isLoading) {
     return <WelcomeLoadingSkeleton />;
   }
 
