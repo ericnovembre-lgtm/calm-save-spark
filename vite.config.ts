@@ -35,6 +35,12 @@ export default defineConfig(({ mode }) => ({
             purpose: 'any'
           },
           {
+            src: '/icon-512.webp',
+            sizes: '512x512',
+            type: 'image/webp',
+            purpose: 'any'
+          },
+          {
             src: '/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
