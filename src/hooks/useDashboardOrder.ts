@@ -7,6 +7,7 @@ const DEFAULT_CARD_ORDER = [
   'challenges',
   'predictive',
   'manual-transfer',
+  'analytics-dashboard',
   'scheduled-transfers',
   'connect-account',
   'transfer-history',
@@ -16,6 +17,8 @@ const DEFAULT_CARD_ORDER = [
   'skill-tree',
   'peer-insights',
   'goal-timeline',
+  'layout-manager',
+  'theme-customizer',
 ];
 
 const STORAGE_KEY = 'dashboard-card-order';

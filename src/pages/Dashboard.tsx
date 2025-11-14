@@ -41,6 +41,11 @@ import { LiveRegionAnnouncer, useAnnounce } from "@/components/accessibility/Liv
 import { useProgressiveSections } from "@/hooks/useProgressiveLoad";
 import { SkeletonCard } from "@/components/ui/skeleton-card";
 import { useKeyboardShortcuts, defaultDashboardShortcuts, useShortcutsHelp } from "@/hooks/useKeyboardShortcuts";
+import { SyncIndicator } from "@/components/ui/sync-indicator";
+import { useSyncStatus } from "@/hooks/useSyncStatus";
+import { LayoutManager } from "@/components/dashboard/LayoutManager";
+import { AdvancedAnalyticsDashboard } from "@/components/analytics/AdvancedAnalyticsDashboard";
+import { ThemeCustomizer } from "@/components/dashboard/ThemeCustomizer";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { useDashboardOrder } from "@/hooks/useDashboardOrder";
 import { Reorder, motion } from "framer-motion";
@@ -87,6 +92,9 @@ export default function Dashboard() {
     }
   ]);
   const { showHelp } = useShortcutsHelp(shortcuts);
+  
+  // Sync status
+  const { status: syncStatus, lastSynced, forceRefresh } = useSyncStatus();
   
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -442,6 +450,45 @@ export default function Dashboard() {
         <TransferHistory />
       </CollapsibleSection>
     ),
+    'analytics-dashboard': (
+      <CollapsibleSection
+        key="analytics-dashboard"
+        id="analytics-dashboard"
+        title="Analytics Dashboard"
+        description="Key performance metrics"
+        defaultOpen={!collapsedSections['analytics-dashboard']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <AdvancedAnalyticsDashboard />
+      </CollapsibleSection>
+    ),
+    'layout-manager': (
+      <CollapsibleSection
+        key="layout-manager"
+        id="layout-manager"
+        title="Layout Manager"
+        description="Save and manage custom layouts"
+        defaultOpen={!collapsedSections['layout-manager']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <LayoutManager 
+          currentLayout={cardOrder}
+          onLayoutChange={updateOrder}
+        />
+      </CollapsibleSection>
+    ),
+    'theme-customizer': (
+      <CollapsibleSection
+        key="theme-customizer"
+        id="theme-customizer"
+        title="Theme Customizer"
+        description="Personalize your experience"
+        defaultOpen={!collapsedSections['theme-customizer']}
+        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+      >
+        <ThemeCustomizer />
+      </CollapsibleSection>
+    ),
   };
 
   if (accountsLoading) return <LoadingState />;
@@ -480,6 +527,11 @@ export default function Dashboard() {
         <div className="flex items-center gap-4">
           <StreakTrackerHeader />
           <LevelSystem />
+          <SyncIndicator 
+            status={syncStatus}
+            lastSynced={lastSynced}
+            onRefresh={forceRefresh}
+          />
         </div>
       </div>
 
