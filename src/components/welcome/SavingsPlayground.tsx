@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -28,16 +29,30 @@ export const SavingsPlayground = () => {
   const [selectedGoal, setSelectedGoal] = useState<Goal>(goals[0]);
   const [showConfetti, setShowConfetti] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const { playCoinSound, playGoalCompleteSound } = useSoundEffects();
 
   const daysToGoal = Math.ceil(selectedGoal.amount / dailyAmount);
   const monthsToGoal = Math.ceil(daysToGoal / 30);
   const yearlyTotal = dailyAmount * 365;
   const progress = Math.min((dailyAmount * 30) / selectedGoal.amount, 1) * 100;
 
+  const handleSliderChange = (value: number[]) => {
+    setDailyAmount(value[0]);
+    playCoinSound(); // Play sound on slider change
+  };
+
+  const handleGoalSelect = (goal: Goal) => {
+    setSelectedGoal(goal);
+    playCoinSound(); // Play sound on goal selection
+  };
+
   const handleCalculate = () => {
     if (daysToGoal <= 365) {
+      playGoalCompleteSound(); // Play success sound
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
+    } else {
+      playCoinSound(); // Play regular sound for other cases
     }
   };
 
@@ -66,7 +81,7 @@ export const SavingsPlayground = () => {
                 <DollarSign className="w-5 h-5 text-muted-foreground" />
                 <Slider
                   value={[dailyAmount]}
-                  onValueChange={(value) => setDailyAmount(value[0])}
+                  onValueChange={handleSliderChange}
                   min={1}
                   max={100}
                   step={1}
@@ -89,7 +104,7 @@ export const SavingsPlayground = () => {
                 {goals.map((goal) => (
                   <motion.button
                     key={goal.id}
-                    onClick={() => setSelectedGoal(goal)}
+                    onClick={() => handleGoalSelect(goal)}
                     className={`p-4 rounded-xl border-2 transition-all ${
                       selectedGoal.id === goal.id
                         ? "border-accent bg-accent/10"

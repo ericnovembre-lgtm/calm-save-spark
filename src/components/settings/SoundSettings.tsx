@@ -98,14 +98,20 @@ export const SoundSettings = () => {
                   Ambient Background
                 </Label>
                 <p className="text-sm text-muted-foreground">
-                  Subtle background music (coming soon)
+                  Soft background ambience (optional)
                 </p>
               </div>
               <Switch
                 id="ambient-music"
                 checked={preferences.ambientMusic}
-                onCheckedChange={(checked) => updatePreference('ambientMusic', checked)}
-                disabled
+                onCheckedChange={(checked) => {
+                  updatePreference('ambientMusic', checked);
+                  toast.info(
+                    checked 
+                      ? 'Ambient music enabled - restart page to begin' 
+                      : 'Ambient music disabled'
+                  );
+                }}
               />
             </div>
           </div>

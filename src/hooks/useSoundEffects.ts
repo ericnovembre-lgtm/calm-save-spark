@@ -136,6 +136,82 @@ export const useSoundEffects = () => {
     oscillator.stop(now + 0.05);
   }, [preferences, getAudioContext]);
 
+  /**
+   * Play goal completion sound
+   */
+  const playGoalCompleteSound = useCallback(() => {
+    if (!preferences.enabled || !preferences.achievementSound) return;
+
+    const audioContext = getAudioContext();
+    const now = audioContext.currentTime;
+
+    // Triumphant fanfare
+    const frequencies = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+    
+    frequencies.forEach((freq, index) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.frequency.value = freq;
+      oscillator.type = 'triangle';
+
+      const startTime = now + (index * 0.08);
+      const duration = 0.5;
+
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(preferences.volume * 0.3, startTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    });
+  }, [preferences, getAudioContext]);
+
+  /**
+   * Play ambient background music
+   */
+  const startAmbientMusic = useCallback(() => {
+    if (!preferences.enabled || !preferences.ambientMusic) return;
+
+    const audioContext = getAudioContext();
+    
+    // Create a gentle ambient drone
+    const oscillator1 = audioContext.createOscillator();
+    const oscillator2 = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
+    oscillator1.connect(filter);
+    oscillator2.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // Soft ambient frequencies
+    oscillator1.frequency.value = 220; // A3
+    oscillator2.frequency.value = 329.63; // E4
+    oscillator1.type = 'sine';
+    oscillator2.type = 'sine';
+
+    // Low-pass filter for warmth
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+
+    // Very quiet volume for ambient
+    gainNode.gain.setValueAtTime(preferences.volume * 0.05, audioContext.currentTime);
+
+    oscillator1.start();
+    oscillator2.start();
+
+    // Store for cleanup
+    return () => {
+      oscillator1.stop();
+      oscillator2.stop();
+    };
+  }, [preferences, getAudioContext]);
+
   const updatePreference = <K extends keyof SoundPreferences>(
     key: K,
     value: SoundPreferences[K]
@@ -149,5 +225,7 @@ export const useSoundEffects = () => {
     playCoinSound,
     playAchievementSound,
     playClickSound,
+    playGoalCompleteSound,
+    startAmbientMusic,
   };
 };

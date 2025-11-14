@@ -33,6 +33,7 @@ import { ParticleBackground } from "@/components/welcome/ParticleBackground";
 import { MouseGradient } from "@/components/welcome/MouseGradient";
 import { ScrollGradient } from "@/components/welcome/ScrollGradient";
 import { GestureHandler, PinchZoomWrapper } from "@/components/welcome/GestureHandler";
+import { SoundToggle } from "@/components/welcome/SoundToggle";
 import { Users, DollarSign, TrendingUp, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -771,6 +772,9 @@ const Welcome = () => {
         {/* Floating Widgets */}
         <SaveplusCoachWidget />
         <SaveplusUIAssistantFAB />
+        
+        {/* Sound Toggle - Phase 9 */}
+        <SoundToggle />
       </motion.div>
       </GestureHandler>
     </div>
