@@ -39,7 +39,7 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
   private loadingTimeout: NodeJS.Timeout | null = null;
   private loadStartTime: number = 0;
   private readonly maxRetries = 3;
-  private readonly retryDelay = 1000; // Base delay in ms
+  private readonly baseRetryDelay = 1000; // Base delay in ms for exponential backoff
 
   constructor(props: LazyErrorBoundaryProps) {
     super(props);
@@ -108,11 +108,37 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
         const loadDuration = Date.now() - this.loadStartTime;
         console.log(`[LazyErrorBoundary] ${componentName} loaded successfully after ${loadDuration}ms (recovered from error)`);
         onLoadComplete?.();
+
+        // Dispatch component load event for performance monitoring
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('performance_metric', {
+            detail: {
+              metric: 'component_load',
+              value: loadDuration,
+              component: componentName,
+              retries: this.state.retryCount,
+              status: 'success'
+            }
+          }));
+        }
       }
     }
     
     if (prevState.hasTimedOut !== hasTimedOut && hasTimedOut) {
       console.warn(`[LazyErrorBoundary] ${componentName} timed out, showing fallback`);
+
+      // Dispatch timeout event
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('performance_metric', {
+          detail: {
+            metric: 'component_load',
+            value: Date.now() - this.loadStartTime,
+            component: componentName,
+            retries: this.state.retryCount,
+            status: 'timeout'
+          }
+        }));
+      }
     }
     
     // Successful load (no error, no timeout)
@@ -122,6 +148,19 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
       const loadDuration = Date.now() - this.loadStartTime;
       console.log(`[LazyErrorBoundary] ${componentName} loaded successfully in ${loadDuration}ms`);
       onLoadComplete?.();
+
+      // Dispatch component load event for performance monitoring
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('performance_metric', {
+          detail: {
+            metric: 'component_load',
+            value: loadDuration,
+            component: componentName,
+            retries: this.state.retryCount,
+            status: 'success'
+          }
+        }));
+      }
     }
   }
 
@@ -174,9 +213,22 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
       onError(error, errorInfo);
     }
 
+    // Dispatch failure event for performance monitoring
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('performance_metric', {
+        detail: {
+          metric: 'component_load',
+          value: loadDuration,
+          component: componentName,
+          retries: retryCount,
+          status: 'failed'
+        }
+      }));
+    }
+
     // Auto-retry for chunk errors with exponential backoff
     if (isChunkError && retryCount < this.maxRetries) {
-      const delay = this.retryDelay * Math.pow(2, retryCount);
+      const delay = this.baseRetryDelay * Math.pow(2, retryCount);
       
       if (import.meta.env.DEV) {
         console.log(`[LazyErrorBoundary] Auto-retrying in ${delay}ms (attempt ${retryCount + 1}/${this.maxRetries})`);
