@@ -1,17 +1,27 @@
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, DollarSign } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { SaveplusAnimIcon } from "@/components/icons";
 import { useCurrencyConversion } from "@/hooks/useCurrencyConversion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { fadeInUp } from "@/lib/motion-variants";
+import { AnimatedCounter } from "./AnimatedCounter";
+import { TrendSparkline } from "./TrendSparkline";
+import { SavingsVelocityGauge } from "./SavingsVelocityGauge";
 
 interface EnhancedBalanceCardProps {
   balance: number;
   monthlyGrowth?: number;
+  savingsVelocity?: number; // 0-100
+  weeklyTrend?: number[]; // 7-day balance history
 }
 
-export const EnhancedBalanceCard = ({ balance, monthlyGrowth = 0 }: EnhancedBalanceCardProps) => {
+export const EnhancedBalanceCard = ({ 
+  balance, 
+  monthlyGrowth = 0,
+  savingsVelocity = 50,
+  weeklyTrend = [2800, 2950, 3100, 3050, 3200, 3180, 3247]
+}: EnhancedBalanceCardProps) => {
   const { convertedAmount, targetCurrency } = useCurrencyConversion(balance);
   const prefersReducedMotion = useReducedMotion();
   const isPositive = monthlyGrowth >= 0;
@@ -35,18 +45,19 @@ export const EnhancedBalanceCard = ({ balance, monthlyGrowth = 0 }: EnhancedBala
           <div>
             <p className="text-sm text-muted-foreground mb-1">Total Balance</p>
             <motion.div 
-              className="flex items-baseline gap-2"
+              className="flex items-baseline gap-1"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="text-4xl md:text-5xl font-display font-bold text-foreground tabular-nums">
+              <span className="text-3xl md:text-4xl font-display font-bold text-foreground">
                 {getCurrencySymbol(targetCurrency)}
-                {convertedAmount.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })}
               </span>
+              <AnimatedCounter 
+                value={convertedAmount} 
+                decimals={2}
+                className="text-4xl md:text-5xl font-display font-bold text-foreground"
+              />
             </motion.div>
           </div>
           
@@ -105,23 +116,22 @@ export const EnhancedBalanceCard = ({ balance, monthlyGrowth = 0 }: EnhancedBala
           </motion.div>
         )}
 
-        {/* Sparkline placeholder - will enhance in Phase 2 */}
-        <div className="mt-6 pt-6 border-t border-border/50">
-          <div className="flex justify-between items-center text-xs text-muted-foreground">
-            <span>7-day trend</span>
-            <motion.div
-              animate={!prefersReducedMotion ? {
-                opacity: [0.5, 1, 0.5]
-              } : undefined}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="text-primary"
-            >
-              Coming soon
-            </motion.div>
+        {/* Sparkline and Velocity */}
+        <div className="mt-6 pt-6 border-t border-border/50 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs text-muted-foreground">7-day trend</span>
+              <span className="text-xs font-semibold text-foreground">
+                {isPositive ? "+" : ""}
+                {((weeklyTrend[weeklyTrend.length - 1] - weeklyTrend[0]) / weeklyTrend[0] * 100).toFixed(1)}%
+              </span>
+            </div>
+            <TrendSparkline data={weeklyTrend} width={200} height={40} />
+          </div>
+
+          <div>
+            <div className="text-xs text-muted-foreground mb-2">Savings Velocity</div>
+            <SavingsVelocityGauge velocity={savingsVelocity} />
           </div>
         </div>
       </motion.div>
