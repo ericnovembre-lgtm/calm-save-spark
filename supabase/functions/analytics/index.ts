@@ -40,9 +40,11 @@ const analyticsSchema = z.object({
       return sanitized;
     }),
   
-  userId: z.string()
-    .uuid("Invalid user ID format")
-    .nullish(),
+  userId: z.union([
+    z.string().uuid("Invalid user ID format"),
+    z.null(),
+    z.undefined()
+  ]).optional(),
   
   timestamp: z.string()
     .datetime({ message: "Invalid timestamp format" })
