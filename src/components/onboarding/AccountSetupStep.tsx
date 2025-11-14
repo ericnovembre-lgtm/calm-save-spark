@@ -24,7 +24,8 @@ import {
   DollarSign,
   Zap,
   Hand,
-  Settings
+  Settings,
+  Plus
 } from "lucide-react";
 import { SaveplusAnimIcon } from "@/components/icons";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -37,7 +38,8 @@ import { AchievementPreview } from "./AchievementPreview";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
-  savingGoal: z.string().min(1, "Please select your main savings goal"),
+  savingGoal: z.array(z.string()).min(1, "Please select at least one savings goal"),
+  customGoalName: z.string().optional(),
   biggestChallenge: z.string().min(1, "Please select your biggest challenge"),
   automationPreference: z.string().min(1, "Please select your saving preference"),
 });
@@ -55,6 +57,7 @@ const SAVING_GOALS = [
   { value: "education", label: "Education", icon: GraduationCap, description: "Learning and growth" },
   { value: "retirement", label: "Retirement", icon: PiggyBank, description: "Long-term security" },
   { value: "general", label: "General Savings", icon: Target, description: "Build wealth" },
+  { value: "custom", label: "Custom Goal", icon: Plus, description: "Create your own goal" },
 ];
 
 const CHALLENGES = [
@@ -81,7 +84,8 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
-      savingGoal: "",
+      savingGoal: [],
+      customGoalName: "",
       biggestChallenge: "",
       automationPreference: "",
     },
@@ -91,7 +95,8 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
     setIsLoading(true);
     try {
       const quizData = {
-        saving_goal: values.savingGoal,
+        saving_goals: values.savingGoal,
+        custom_goal_name: values.customGoalName || null,
         biggest_challenge: values.biggestChallenge,
         automation_preference: values.automationPreference,
       };
@@ -107,7 +112,11 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
 
       if (error) throw error;
 
-      trackEvent("intent_survey_completed", quizData);
+      trackEvent("intent_survey_completed", {
+        ...quizData,
+        goals_count: values.savingGoal.length,
+        has_custom_goal: values.savingGoal.includes("custom"),
+      });
       triggerHaptic("success");
       toast.success("Your preferences have been saved!");
       onNext();
@@ -138,7 +147,14 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
   const canProceed = () => {
     const values = form.getValues();
     if (currentQuestion === 0) return values.fullName.length >= 2;
-    if (currentQuestion === 1) return !!values.savingGoal;
+    if (currentQuestion === 1) {
+      const goals = values.savingGoal || [];
+      // If custom goal is selected, require custom goal name
+      if (goals.includes("custom") && !values.customGoalName?.trim()) {
+        return false;
+      }
+      return goals.length > 0;
+    }
     if (currentQuestion === 2) return !!values.biggestChallenge;
     if (currentQuestion === 3) return !!values.automationPreference;
     return false;
@@ -147,7 +163,7 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
   const getQuestionTitle = () => {
     switch (currentQuestion) {
       case 0: return "What's your name?";
-      case 1: return "What's your main savings goal?";
+      case 1: return "What are your savings goals?";
       case 2: return "What's your biggest savings challenge?";
       case 3: return "How do you prefer to save?";
       default: return "";
@@ -157,9 +173,9 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
   const getQuestionDescription = () => {
     switch (currentQuestion) {
       case 0: return "Help us personalize your experience";
-      case 1: return "We'll tailor your dashboard to help you achieve it";
-      case 2: return "We'll provide relevant tips and strategies";
-      case 3: return "We'll set up your automation accordingly";
+      case 1: return "Select all that apply - you can choose multiple goals";
+      case 2: return "We'll help you overcome it with smart strategies";
+      case 3: return "Choose what feels most comfortable for you";
       default: return "";
     }
   };
@@ -249,28 +265,62 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              {SAVING_GOALS.map((goal) => (
-                                <InteractiveChoiceCard
-                                  key={goal.value}
-                                  value={goal.value}
-                                  label={goal.label}
-                                  description={goal.description}
-                                  icon={goal.icon}
-                                  isSelected={field.value === goal.value}
-                                  onSelect={() => {
-                                    field.onChange(goal.value);
-                                    triggerHaptic("light");
-                                  }}
-                                  detailedInfo={`Set up automated savings specifically for ${goal.label.toLowerCase()}. Track your progress and get personalized tips.`}
-                                />
-                              ))}
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {SAVING_GOALS.map((goal) => (
+                                  <InteractiveChoiceCard
+                                    key={goal.value}
+                                    value={goal.value}
+                                    label={goal.label}
+                                    description={goal.description}
+                                    icon={goal.icon}
+                                    isSelected={field.value.includes(goal.value)}
+                                    onSelect={() => {
+                                      const currentGoals = field.value || [];
+                                      if (currentGoals.includes(goal.value)) {
+                                        // Remove goal
+                                        field.onChange(currentGoals.filter(g => g !== goal.value));
+                                      } else {
+                                        // Add goal
+                                        field.onChange([...currentGoals, goal.value]);
+                                      }
+                                      triggerHaptic("light");
+                                    }}
+                                    detailedInfo={`Set up automated savings specifically for ${goal.label.toLowerCase()}. Track your progress and get personalized tips.`}
+                                  />
+                                ))}
+                              </div>
+                              <p className="text-sm text-muted-foreground text-center">
+                                {field.value.length} goal{field.value.length !== 1 ? 's' : ''} selected
+                              </p>
                             </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    
+                    {/* Custom Goal Input */}
+                    {form.watch("savingGoal")?.includes("custom") && (
+                      <FormField
+                        control={form.control}
+                        name="customGoalName"
+                        render={({ field }) => (
+                          <FormItem className="mt-4">
+                            <FormLabel>What's your custom goal?</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="e.g., Buy a car, Start a business, Wedding fund"
+                                {...field}
+                                className="text-base h-11"
+                                aria-label="Enter your custom goal name"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </motion.div>
                 )}
 
