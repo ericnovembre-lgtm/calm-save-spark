@@ -7,13 +7,14 @@ import { checkAchievements } from "@/lib/achievements";
 import { useOnboardingABTest } from "@/hooks/useOnboardingABTest";
 import { ProgressBarPremium } from "@/components/onboarding/ProgressBarPremium";
 import { StepTransition } from "@/components/onboarding/StepTransition";
+import { HelpOverlay } from "@/components/onboarding/HelpOverlay";
 import SavingsDemo from "@/components/onboarding/SavingsDemo";
 import WelcomeStep from "@/components/onboarding/WelcomeStep";
 import AccountSetupStep from "@/components/onboarding/AccountSetupStep";
 import FirstGoalStep from "@/components/onboarding/FirstGoalStep";
 import AutomationStep from "@/components/onboarding/AutomationStep";
 import DashboardPreview from "@/components/onboarding/DashboardPreview";
-import CompleteStep from "@/components/onboarding/CompleteStep";
+import EnhancedCompleteStep from "@/components/onboarding/EnhancedCompleteStep";
 
 const STEPS = ['demo', 'welcome', 'account', 'goal', 'automation', 'preview', 'complete'] as const;
 type Step = typeof STEPS[number];
@@ -252,10 +253,16 @@ const Onboarding = () => {
             />
           )}
           {currentStep === 'complete' && (
-            <CompleteStep onComplete={handleComplete} />
+            <EnhancedCompleteStep 
+              onComplete={handleComplete}
+              completionTime={Math.floor((Date.now() - onboardingStartTime) / 1000)}
+            />
           )}
         </StepTransition>
       </main>
+
+      {/* Help Overlay - Available throughout onboarding */}
+      <HelpOverlay />
     </div>
   );
 };

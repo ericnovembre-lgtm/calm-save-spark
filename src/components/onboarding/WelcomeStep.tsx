@@ -5,6 +5,7 @@ import { SaveplusAnimIcon } from "@/components/icons";
 import { ArrowRight, HelpCircle } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { FloatingElement } from "./MicroInteractions";
 
 interface WelcomeStepProps {
   onNext: () => void;
@@ -22,13 +23,15 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
     >
       <Card className="border-border shadow-[var(--shadow-card)]">
         <CardContent className="p-8 md:p-12 text-center">
-          <div className="mb-6 flex justify-center">
-            <SaveplusAnimIcon 
-              name="piggy-bank" 
-              size={120}
-              className="text-primary"
-            />
-          </div>
+          <FloatingElement yOffset={8} duration={4}>
+            <div className="mb-6 flex justify-center">
+              <SaveplusAnimIcon 
+                name="piggy-bank" 
+                size={120}
+                className="text-primary"
+              />
+            </div>
+          </FloatingElement>
           
           <div className="flex items-center justify-center gap-2 mb-4">
             <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground">
@@ -54,15 +57,25 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
           </p>
           
           <div className="flex flex-col gap-4 items-center">
-            <Button 
-              size="lg" 
-              onClick={onNext}
-              className="gap-2"
-              aria-label="Get started with onboarding"
+            <motion.div
+              whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+              whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
             >
-              Get Started
-              <ArrowRight className="w-5 h-5" />
-            </Button>
+              <Button 
+                size="lg" 
+                onClick={onNext}
+                className="gap-2 shadow-lg"
+                aria-label="Get started with onboarding"
+              >
+                Get Started
+                <motion.div
+                  animate={prefersReducedMotion ? {} : { x: [0, 5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <ArrowRight className="w-5 h-5" />
+                </motion.div>
+              </Button>
+            </motion.div>
             
             <p className="text-sm text-muted-foreground">
               5 quick steps • 3 minutes

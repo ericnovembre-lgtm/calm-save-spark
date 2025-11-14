@@ -11,6 +11,7 @@ import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 import { toast } from "sonner";
 import { trackAutomationToggled } from "@/lib/analytics";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { VideoExplainer } from "./VideoExplainer";
 
 interface AutomationStepProps {
   userId: string;
@@ -137,6 +138,22 @@ const AutomationStep = ({ userId, onNext, onPrevious }: AutomationStepProps) => 
               />
             </div>
           </div>
+
+          {/* Video explainer for round-ups */}
+          {roundUp && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <VideoExplainer
+                title="See How Round-Ups Work"
+                description="Watch this 10-second demo of automatic round-up savings in action"
+                duration={10}
+              />
+            </motion.div>
+          )}
 
           <div className="flex gap-3 pt-4">
             <Button
