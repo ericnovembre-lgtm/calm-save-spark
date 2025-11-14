@@ -153,6 +153,23 @@ const Welcome = () => {
   // Track loading start time
   const loadStartTimeRef = useRef<number>(Date.now());
   
+  // Log page mount
+  useEffect(() => {
+    console.log('[Welcome] Page mounted', {
+      timestamp: new Date().toISOString(),
+      route: location.pathname,
+      loadStartTime: loadStartTimeRef.current
+    });
+    
+    return () => {
+      const totalLoadTime = Date.now() - loadStartTimeRef.current;
+      console.log('[Welcome] Page unmounted', {
+        timestamp: new Date().toISOString(),
+        totalLifetime: totalLoadTime
+      });
+    };
+  }, []);
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -182,13 +199,17 @@ const Welcome = () => {
 
   // Track page view on mount and check for first visit
   useEffect(() => {
+    console.log('[Welcome] Tracking page view');
     trackPageView('Welcome');
     
     // Show tour on first visit
     const tourCompleted = hasCompletedTour();
+    console.log('[Welcome] Tour status:', { completed: tourCompleted });
+    
     if (!tourCompleted) {
       // Delay tour slightly to let page load
       const timer = setTimeout(() => {
+        console.log('[Welcome] Starting tour');
         setShowTour(true);
         saveplus_audit_event('tour_started', {
           route: location.pathname
@@ -257,9 +278,10 @@ const Welcome = () => {
     if (!isLoading) {
       const authLoadTime = Date.now() - loadStartTimeRef.current;
       
-      if (import.meta.env.DEV) {
-        console.log('[Welcome] Auth check completed in', authLoadTime, 'ms');
-      }
+      console.log('[Welcome] Auth check completed', {
+        duration: authLoadTime,
+        user: user ? 'authenticated' : 'unauthenticated'
+      });
       
       // Track auth check duration
       saveplus_audit_event('section_loaded', {
@@ -270,9 +292,7 @@ const Welcome = () => {
       
       // Hero loads immediately after auth check
       setHeroLoaded(true);
-      if (import.meta.env.DEV) {
-        console.log('[Welcome] Hero loaded');
-      }
+      console.log('[Welcome] Hero section loaded');
       saveplus_audit_event('section_loaded', {
         section: 'hero',
         load_time_ms: authLoadTime,
@@ -282,12 +302,11 @@ const Welcome = () => {
       // Features load after 300ms
       const featuresTimer = setTimeout(() => {
         setFeaturesLoaded(true);
-        if (import.meta.env.DEV) {
-          console.log('[Welcome] Features loaded');
-        }
+        const featuresLoadTime = Date.now() - loadStartTimeRef.current;
+        console.log('[Welcome] Features section loaded', { duration: featuresLoadTime });
         saveplus_audit_event('section_loaded', {
           section: 'features',
-          load_time_ms: Date.now() - loadStartTimeRef.current,
+          load_time_ms: featuresLoadTime,
           route: location.pathname
         });
       }, 300);
@@ -295,12 +314,11 @@ const Welcome = () => {
       // Stats load after 600ms
       const statsTimer = setTimeout(() => {
         setStatsLoaded(true);
-        if (import.meta.env.DEV) {
-          console.log('[Welcome] Stats loaded');
-        }
+        const statsLoadTime = Date.now() - loadStartTimeRef.current;
+        console.log('[Welcome] Stats section loaded', { duration: statsLoadTime });
         saveplus_audit_event('section_loaded', {
           section: 'stats',
-          load_time_ms: Date.now() - loadStartTimeRef.current,
+          load_time_ms: statsLoadTime,
           route: location.pathname
         });
       }, 600);
@@ -308,10 +326,8 @@ const Welcome = () => {
       // CTA loads after 900ms
       const ctaTimer = setTimeout(() => {
         setCtaLoaded(true);
-        if (import.meta.env.DEV) {
-          console.log('[Welcome] CTA loaded');
-        }
         const totalLoadTime = Date.now() - loadStartTimeRef.current;
+        console.log('[Welcome] CTA section loaded - Page fully loaded', { totalDuration: totalLoadTime });
         saveplus_audit_event('section_loaded', {
           section: 'cta',
           load_time_ms: totalLoadTime,
@@ -579,11 +595,13 @@ const Welcome = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10"
+        className="relative"
+        style={{ zIndex: 'var(--z-content-base)' } as React.CSSProperties}
       >
         {/* Header with neutral styling */}
         <motion.header 
-          className="sticky top-0 z-50 backdrop-blur-xl bg-background/95 border-b border-[color:var(--color-border)]"
+          className="sticky top-0 backdrop-blur-xl bg-background/95 border-b border-[color:var(--color-border)]"
+          style={{ zIndex: 'var(--z-content-priority)' } as React.CSSProperties}
           initial={prefersReducedMotion ? false : { y: -100 }}
           animate={prefersReducedMotion ? false : { y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -618,12 +636,12 @@ const Welcome = () => {
           </div>
         </motion.header>
 
-        <main className="relative z-10 container mx-auto px-4 py-12 md:py-20 space-y-32">
+        <main className="relative container mx-auto px-4 py-12 md:py-20 space-y-32" style={{ zIndex: 'var(--z-content-elevated)' } as React.CSSProperties}>
           {/* Hero Section with parallax - Neutral styling */}
           <motion.section 
             ref={heroRef}
-            className="space-y-8 relative z-20 bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
-            style={prefersReducedMotion ? {} : { y: parallaxY, opacity }}
+            className="space-y-8 relative bg-background -mx-4 px-4 lg:-mx-20 lg:px-20 py-12 rounded-2xl border border-[color:var(--color-border)]"
+            style={prefersReducedMotion ? { zIndex: 'var(--z-content-priority)' } as React.CSSProperties : { y: parallaxY, opacity, zIndex: 'var(--z-content-priority)' } as React.CSSProperties}
           >
             {/* Hero content - always visible */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">

@@ -64,13 +64,21 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
     const { timeoutMs = 5000, componentName, onLoadStart } = this.props;
     this.loadStartTime = Date.now();
     
-    console.log(`[LazyErrorBoundary] ${componentName} loading started`);
+    console.log(`[LazyErrorBoundary] ${componentName} loading started`, {
+      timestamp: new Date().toISOString(),
+      timeoutMs,
+      route: window.location.pathname
+    });
     onLoadStart?.();
 
     // Set timeout to detect indefinite loading
     this.loadingTimeout = setTimeout(() => {
       const loadDuration = Date.now() - this.loadStartTime;
-      console.warn(`[LazyErrorBoundary] ${componentName} loading timeout after ${loadDuration}ms`);
+      console.warn(`[LazyErrorBoundary] ${componentName} loading timeout after ${loadDuration}ms`, {
+        expected: timeoutMs,
+        actual: loadDuration,
+        timestamp: new Date().toISOString()
+      });
       
       this.setState({ hasTimedOut: true });
 
@@ -79,10 +87,42 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
         (window as any).saveplus_audit_event('component_timeout', {
           component: componentName,
           timeout_ms: timeoutMs,
-          load_duration_ms: loadDuration
+          load_duration_ms: loadDuration,
+          url: window.location.href,
+          user_agent: navigator.userAgent
         });
       }
     }, timeoutMs);
+  }
+
+  componentDidUpdate(prevProps: LazyErrorBoundaryProps, prevState: State) {
+    const { componentName, onLoadComplete } = this.props;
+    const { hasError, hasTimedOut } = this.state;
+    
+    // Log state transitions
+    if (prevState.hasError !== hasError) {
+      if (hasError) {
+        console.error(`[LazyErrorBoundary] ${componentName} entered error state`);
+      } else {
+        // Detect successful load after error
+        const loadDuration = Date.now() - this.loadStartTime;
+        console.log(`[LazyErrorBoundary] ${componentName} loaded successfully after ${loadDuration}ms (recovered from error)`);
+        onLoadComplete?.();
+      }
+    }
+    
+    if (prevState.hasTimedOut !== hasTimedOut && hasTimedOut) {
+      console.warn(`[LazyErrorBoundary] ${componentName} timed out, showing fallback`);
+    }
+    
+    // Successful load (no error, no timeout)
+    if (!hasError && !hasTimedOut && this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+      this.loadingTimeout = null;
+      const loadDuration = Date.now() - this.loadStartTime;
+      console.log(`[LazyErrorBoundary] ${componentName} loaded successfully in ${loadDuration}ms`);
+      onLoadComplete?.();
+    }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -150,19 +190,6 @@ class LazyErrorBoundary extends Component<LazyErrorBoundaryProps, State> {
     }
   }
 
-  componentDidUpdate(prevProps: LazyErrorBoundaryProps, prevState: State) {
-    // Detect successful load
-    if (prevState.hasError && !this.state.hasError) {
-      const loadDuration = Date.now() - this.loadStartTime;
-      console.log(`[LazyErrorBoundary] ${this.props.componentName} loaded successfully after ${loadDuration}ms`);
-      this.props.onLoadComplete?.();
-
-      if (this.loadingTimeout) {
-        clearTimeout(this.loadingTimeout);
-        this.loadingTimeout = null;
-      }
-    }
-  }
 
   componentWillUnmount() {
     if (this.retryTimeout) {
