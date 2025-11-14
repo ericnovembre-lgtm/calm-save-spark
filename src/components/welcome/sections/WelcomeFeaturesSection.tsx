@@ -1,3 +1,15 @@
+/**
+ * @fileoverview Welcome Features Section Component
+ * 
+ * Renders the "Mission Control" features section showcasing the app's core capabilities:
+ * - Interactive flippable feature cards with mini demos
+ * - Journey timeline showing user progression
+ * - Staggered animations for engaging visual experience
+ * - Performance optimizations with lazy loading
+ * 
+ * @module components/welcome/sections/WelcomeFeaturesSection
+ */
+
 import { motion, useInView } from "framer-motion";
 import { LazyLoad } from "@/components/performance/LazyLoad";
 import LazyErrorBoundary from "@/components/performance/LazyErrorBoundary";
@@ -6,21 +18,89 @@ import { FlippableFeatureCard } from "@/components/welcome/FlippableFeatureCard"
 import { JourneyTimeline } from "@/components/welcome/JourneyTimeline";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
+/**
+ * Feature data structure
+ * 
+ * @interface Feature
+ */
 interface Feature {
+  /** Unique identifier for the feature */
   id: string;
+  
+  /** Display title of the feature */
   title: string;
+  
+  /** Short description explaining the feature */
   description: string;
+  
+  /** Icon name from lucide-react or custom icon set */
   icon: string;
+  
+  /** Optional detailed explanation shown in modal or card back */
   details?: string;
 }
 
+/**
+ * Props for the WelcomeFeaturesSection component
+ * 
+ * @interface WelcomeFeaturesSectionProps
+ */
 interface WelcomeFeaturesSectionProps {
+  /** Reference to the features section DOM element for scroll tracking */
   featuresRef: React.RefObject<HTMLDivElement>;
+  
+  /** Whether the features section is currently in the viewport */
   featuresInView: boolean;
+  
+  /** Array of feature objects to display in the grid */
   features: Feature[];
+  
+  /** Callback fired when a user clicks "Learn More" on a feature card */
   onFeatureClick: (feature: Feature) => void;
 }
 
+/**
+ * WelcomeFeaturesSection Component
+ * 
+ * Displays the Mission Control features section with interactive flippable cards
+ * and a journey timeline. Features are displayed in a responsive grid layout
+ * with staggered animations.
+ * 
+ * Features:
+ * - High priority lazy loading (rendered before stats section)
+ * - Responsive grid: 1 column (mobile) → 2 columns (tablet) → 3 columns (desktop)
+ * - First 6 features shown with "Most Popular" and "New" badges
+ * - Each card flips to reveal mini interactive demos
+ * - Journey timeline shows user progression milestones
+ * - Staggered entrance animations (0.1s delay per card)
+ * 
+ * Performance:
+ * - Uses LazyLoad with 100px root margin for optimized rendering
+ * - TrackedLazyComponent monitors rendering performance
+ * - Error boundaries provide fallbacks if components fail
+ * 
+ * @component
+ * @example
+ * ```tsx
+ * <WelcomeFeaturesSection
+ *   featuresRef={featuresRef}
+ *   featuresInView={featuresInView}
+ *   features={[
+ *     {
+ *       id: 'smart-pots',
+ *       title: 'Smart Savings Pots',
+ *       description: 'Organize your money into goals',
+ *       icon: 'piggy-bank',
+ *       details: 'Create unlimited pots...'
+ *     }
+ *   ]}
+ *   onFeatureClick={(feature) => console.log('Clicked:', feature.title)}
+ * />
+ * ```
+ * 
+ * @param {WelcomeFeaturesSectionProps} props - Component props
+ * @returns {JSX.Element} Rendered features section with cards and timeline
+ */
 export function WelcomeFeaturesSection({
   featuresRef,
   featuresInView,

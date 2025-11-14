@@ -1,3 +1,16 @@
+/**
+ * @fileoverview Welcome Statistics Section Component
+ * 
+ * Renders the "Why Choose $ave+?" statistics section featuring:
+ * - Expandable stat cards showing key metrics (users, savings, APY)
+ * - Live activity ticker with real-time updates
+ * - Pull-to-refresh functionality for mobile users
+ * - Staggered animations for visual impact
+ * - Hidden easter egg (double-click to unlock clicker game)
+ * 
+ * @module components/welcome/sections/WelcomeStatsSection
+ */
+
 import { motion, useInView } from "framer-motion";
 import { Users, DollarSign, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
@@ -8,12 +21,62 @@ import { LiveActivityTicker } from "@/components/welcome/LiveActivityTicker";
 import { PullToRefreshStats } from "@/components/mobile/PullToRefreshStats";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
+/**
+ * Props for the WelcomeStatsSection component
+ * 
+ * @interface WelcomeStatsSectionProps
+ */
 interface WelcomeStatsSectionProps {
+  /** Reference to the stats section DOM element for scroll tracking */
   statsRef: React.RefObject<HTMLDivElement>;
+  
+  /** Whether the stats section is currently in the viewport */
   statsInView: boolean;
+  
+  /** Callback fired when user double-clicks the live activity ticker (easter egg) */
   onDoubleClick: () => void;
 }
 
+/**
+ * WelcomeStatsSection Component
+ * 
+ * Displays key platform statistics in an engaging, interactive format.
+ * Features expandable cards that reveal detailed breakdowns on click/tap,
+ * and includes a live activity ticker showing real-time savings events.
+ * 
+ * Statistics Displayed:
+ * - Active Savers: 50,000+ (with monthly/weekly/daily breakdown)
+ * - Total Saved: $2.1M+ (with automated/round-up/manual breakdown)
+ * - Average APY: 4.25% (competitive interest rate)
+ * 
+ * Features:
+ * - Medium priority lazy loading (rendered after features)
+ * - Responsive grid: 2 columns (mobile) → 3 columns (desktop)
+ * - Cards expand on click to show detailed breakdowns
+ * - Pull-to-refresh on mobile refreshes stats
+ * - Staggered entrance animations (0, 0.1s, 0.2s delays)
+ * - Live activity ticker with smooth auto-scroll
+ * - Easter egg: double-click ticker to unlock clicker game
+ * 
+ * Accessibility:
+ * - Respects prefers-reduced-motion for animations
+ * - ARIA labels for screen readers
+ * - Keyboard accessible expandable cards
+ * - High contrast color scheme
+ * 
+ * @component
+ * @example
+ * ```tsx
+ * <WelcomeStatsSection
+ *   statsRef={statsRef}
+ *   statsInView={statsInView}
+ *   onDoubleClick={() => setShowClickerGame(true)}
+ * />
+ * ```
+ * 
+ * @param {WelcomeStatsSectionProps} props - Component props
+ * @returns {JSX.Element} Rendered statistics section with interactive cards
+ */
 export function WelcomeStatsSection({
   statsRef,
   statsInView,
