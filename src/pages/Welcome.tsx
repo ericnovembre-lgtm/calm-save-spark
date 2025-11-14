@@ -1,18 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { WelcomeHero } from "@/components/welcome/WelcomeHero";
-import { LottieHero } from "@/components/welcome/LottieHero";
-import { FeatureCarousel, Feature } from "@/components/welcome/FeatureCarousel";
-import { FlippableFeatureCard } from "@/components/welcome/FlippableFeatureCard";
-import { JourneyTimeline } from "@/components/welcome/JourneyTimeline";
-import { ExpandableStatCard } from "@/components/welcome/ExpandableStatCard";
-import { LiveActivityTicker } from "@/components/welcome/LiveActivityTicker";
-import { SavingsPlayground } from "@/components/welcome/SavingsPlayground";
-import { CustomCursor } from "@/components/welcome/CustomCursor";
-import { ClickerGame } from "@/components/welcome/ClickerGame";
-import { MoodToggle } from "@/components/welcome/MoodToggle";
 import { FeatureDetailModal } from "@/components/welcome/FeatureDetailModal";
 import { FeatureTour, hasCompletedTour } from "@/components/welcome/FeatureTour";
 import { StatCard } from "@/components/welcome/StatCard";
@@ -20,7 +10,6 @@ import { SearchBarHinted } from "@/components/search/SearchBarHinted";
 import { SecureOnboardingCTA } from "@/components/welcome/SecureOnboardingCTA";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { SaveplusUIAssistantFAB } from "@/components/assistant/SaveplusUIAssistantFAB";
-import { PullToRefreshStats } from "@/components/mobile/PullToRefreshStats";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useKonamiCode } from "@/hooks/useKonamiCode";
@@ -28,15 +17,31 @@ import { trackPageView, saveplus_audit_event } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
 import NeutralBackground from "@/components/background/NeutralBackground";
 import NeutralConfetti from "@/components/effects/NeutralConfetti";
-import { ParallaxBackground } from "@/components/welcome/ParallaxBackground";
-import { ParticleBackground } from "@/components/welcome/ParticleBackground";
-import { MouseGradient } from "@/components/welcome/MouseGradient";
-import { ScrollGradient } from "@/components/welcome/ScrollGradient";
 import { GestureHandler, PinchZoomWrapper } from "@/components/welcome/GestureHandler";
 import { SoundToggle } from "@/components/welcome/SoundToggle";
 import { Users, DollarSign, TrendingUp, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { LazyLoad } from "@/components/performance/LazyLoad";
+import { ProgressiveLoader } from "@/components/performance/ProgressiveLoader";
+import type { Feature } from "@/components/welcome/FeatureCarousel";
+
+// Lazy load heavy components for better performance
+const LottieHero = lazy(() => import("@/components/welcome/LottieHero").then(m => ({ default: m.LottieHero })));
+const FeatureCarousel = lazy(() => import("@/components/welcome/FeatureCarousel").then(m => ({ default: m.FeatureCarousel })));
+const FlippableFeatureCard = lazy(() => import("@/components/welcome/FlippableFeatureCard").then(m => ({ default: m.FlippableFeatureCard })));
+const JourneyTimeline = lazy(() => import("@/components/welcome/JourneyTimeline").then(m => ({ default: m.JourneyTimeline })));
+const ExpandableStatCard = lazy(() => import("@/components/welcome/ExpandableStatCard").then(m => ({ default: m.ExpandableStatCard })));
+const LiveActivityTicker = lazy(() => import("@/components/welcome/LiveActivityTicker").then(m => ({ default: m.LiveActivityTicker })));
+const SavingsPlayground = lazy(() => import("@/components/welcome/SavingsPlayground").then(m => ({ default: m.SavingsPlayground })));
+const CustomCursor = lazy(() => import("@/components/welcome/CustomCursor").then(m => ({ default: m.CustomCursor })));
+const ClickerGame = lazy(() => import("@/components/welcome/ClickerGame").then(m => ({ default: m.ClickerGame })));
+const MoodToggle = lazy(() => import("@/components/welcome/MoodToggle").then(m => ({ default: m.MoodToggle })));
+const PullToRefreshStats = lazy(() => import("@/components/mobile/PullToRefreshStats").then(m => ({ default: m.PullToRefreshStats })));
+const ParallaxBackground = lazy(() => import("@/components/welcome/ParallaxBackground").then(m => ({ default: m.ParallaxBackground })));
+const ParticleBackground = lazy(() => import("@/components/welcome/ParticleBackground").then(m => ({ default: m.ParticleBackground })));
+const MouseGradient = lazy(() => import("@/components/welcome/MouseGradient").then(m => ({ default: m.MouseGradient })));
+const ScrollGradient = lazy(() => import("@/components/welcome/ScrollGradient").then(m => ({ default: m.ScrollGradient })));
 
 const features: Feature[] = [
   {
