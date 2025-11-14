@@ -25,7 +25,8 @@ import {
   Zap,
   Hand,
   Settings,
-  Plus
+  Plus,
+  Check
 } from "lucide-react";
 import { SaveplusAnimIcon } from "@/components/icons";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -204,32 +205,53 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
       transition={{ duration: 0.3 }}
       className="w-full max-w-2xl"
     >
-      <Card className="border-border shadow-[var(--shadow-card)]">
-        <CardHeader>
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <SaveplusAnimIcon name="sparkles" size={24} className="text-[color:var(--color-accent)]" />
-              <span className="text-sm font-medium text-muted-foreground">
-                Question {currentQuestion + 1} of 4
-              </span>
-            </div>
-            <div className="flex gap-1">
-              {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all ${
-                    i === currentQuestion 
-                      ? "w-8 bg-[color:var(--color-accent)]" 
-                      : i < currentQuestion 
-                        ? "w-4 bg-[color:var(--color-accent)]/50"
-                        : "w-4 bg-border"
-                  }`}
-                />
-              ))}
+      <Card className="border-border shadow-[var(--shadow-card)] overflow-hidden">
+        <CardHeader className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <motion.div
+                animate={prefersReducedMotion ? {} : {
+                  rotate: [0, 10, -10, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <SaveplusAnimIcon name="sparkles" size={28} className="text-primary" />
+              </motion.div>
+              <div>
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Step {currentQuestion + 1} of 4
+                </div>
+                <div className="flex gap-1.5 mt-1.5">
+                  {[0, 1, 2, 3].map((i) => (
+                    <motion.div
+                      key={i}
+                      className={cn(
+                        "h-2 rounded-full transition-all duration-300",
+                        i === currentQuestion 
+                          ? "w-12 bg-primary shadow-sm shadow-primary/50" 
+                          : i < currentQuestion 
+                            ? "w-8 bg-primary/40"
+                            : "w-8 bg-border"
+                      )}
+                      initial={false}
+                      animate={{ 
+                        scale: i === currentQuestion ? 1 : 0.9,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-          <CardTitle className="text-3xl font-display">{getQuestionTitle()}</CardTitle>
-          <CardDescription>{getQuestionDescription()}</CardDescription>
+          <div className="space-y-2">
+            <CardTitle className="text-3xl md:text-4xl font-display leading-tight">
+              {getQuestionTitle()}
+            </CardTitle>
+            <CardDescription className="text-base">
+              {getQuestionDescription()}
+            </CardDescription>
+          </div>
         </CardHeader>
         
         <CardContent>
@@ -255,7 +277,7 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                             <Input 
                               placeholder="e.g., Sarah Johnson" 
                               {...field}
-                              className="text-lg h-12"
+                              className="text-lg h-14 rounded-xl border-2 focus:ring-2 focus:ring-primary/20"
                               aria-label="Enter your full name"
                               autoFocus
                             />
@@ -307,9 +329,18 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                                   />
                                 ))}
                               </div>
-                              <p className="text-sm text-muted-foreground text-center">
-                                {field.value.length} goal{field.value.length !== 1 ? 's' : ''} selected
-                              </p>
+                              {field.value.length > 0 && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: -10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="flex items-center justify-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20"
+                                >
+                                  <Check className="w-4 h-4 text-primary" />
+                                  <p className="text-sm font-medium text-primary">
+                                    {field.value.length} goal{field.value.length !== 1 ? 's' : ''} selected
+                                  </p>
+                                </motion.div>
+                              )}
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -329,8 +360,9 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                               <Input 
                                 placeholder="e.g., Buy a car, Start a business, Wedding fund"
                                 {...field}
-                                className="text-base h-11"
+                                className="text-base h-12 rounded-xl border-2 focus:ring-2 focus:ring-primary/20"
                                 aria-label="Enter your custom goal name"
+                                autoFocus
                               />
                             </FormControl>
                             <FormMessage />
@@ -381,9 +413,18 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                                   />
                                 ))}
                               </div>
-                              <p className="text-sm text-muted-foreground text-center">
-                                {field.value.length} challenge{field.value.length !== 1 ? 's' : ''} selected
-                              </p>
+                              {field.value.length > 0 && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: -10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="flex items-center justify-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20"
+                                >
+                                  <Check className="w-4 h-4 text-primary" />
+                                  <p className="text-sm font-medium text-primary">
+                                    {field.value.length} challenge{field.value.length !== 1 ? 's' : ''} selected
+                                  </p>
+                                </motion.div>
+                              )}
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -403,8 +444,9 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                               <Input 
                                 placeholder="e.g., Inconsistent income, Medical expenses, Supporting family"
                                 {...field}
-                                className="text-base h-11"
+                                className="text-base h-12 rounded-xl border-2 focus:ring-2 focus:ring-primary/20"
                                 aria-label="Enter your custom challenge"
+                                autoFocus
                               />
                             </FormControl>
                             <FormMessage />
@@ -459,13 +501,13 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                 )}
               </AnimatePresence>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-6 border-t border-border/50 mt-6">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleBack}
-                  className="gap-2"
-                  aria-label="Go back"
+                  className="gap-2 h-12 rounded-xl border-2 hover:bg-accent/50"
+                  aria-label="Go back to previous question"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
@@ -477,8 +519,10 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                     onClick={handleNext}
                     disabled={!canProceed()}
                     className={cn(
-                      "flex-1 gap-2 transition-all",
-                      !canProceed() && "opacity-50 cursor-not-allowed"
+                      "flex-1 gap-2 h-12 rounded-xl transition-all duration-300 font-semibold",
+                      canProceed() 
+                        ? "shadow-lg hover:shadow-xl hover:scale-[1.02]" 
+                        : "opacity-50 cursor-not-allowed"
                     )}
                     aria-label={
                       canProceed() 
@@ -494,8 +538,10 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                     type="submit"
                     disabled={isLoading || !canProceed()}
                     className={cn(
-                      "flex-1 gap-2 transition-all",
-                      (!canProceed() && !isLoading) && "opacity-50 cursor-not-allowed"
+                      "flex-1 gap-2 h-12 rounded-xl transition-all duration-300 font-semibold",
+                      canProceed() && !isLoading
+                        ? "shadow-lg hover:shadow-xl hover:scale-[1.02]" 
+                        : "opacity-50 cursor-not-allowed"
                     )}
                     aria-label={
                       isLoading 
@@ -505,11 +551,39 @@ const AccountSetupStep = ({ userId, onNext, onPrevious }: AccountSetupStepProps)
                         : "Please make a selection to complete"
                     }
                   >
-                    {isLoading ? "Saving..." : "Complete Survey"}
-                    <ArrowRight className="w-4 h-4" />
+                    {isLoading ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        >
+                          <SaveplusAnimIcon name="loader-circle" size={16} />
+                        </motion.div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        Complete Survey
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
                   </Button>
                 )}
               </div>
+              
+              {!canProceed() && currentQuestion > 0 && (
+                <motion.p 
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-xs text-muted-foreground text-center mt-3"
+                >
+                  {currentQuestion === 1 && form.watch("savingGoal")?.includes("custom") && !form.watch("customGoalName")?.trim()
+                    ? "Please enter a name for your custom goal"
+                    : currentQuestion === 2 && form.watch("biggestChallenge")?.includes("custom") && !form.watch("customChallengeName")?.trim()
+                    ? "Please describe your custom challenge"
+                    : "Select at least one option to continue"}
+                </motion.p>
+              )}
             </form>
           </Form>
         </CardContent>
