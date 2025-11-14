@@ -7,11 +7,13 @@ export class ErrorHandlerOptions {
   corsHeaders: Record<string, string>;
   functionName: string;
   userId?: string;
+  ipAddress?: string;
 
-  constructor(corsHeaders: Record<string, string>, functionName: string, userId?: string) {
+  constructor(corsHeaders: Record<string, string>, functionName: string, userId?: string, ipAddress?: string) {
     this.corsHeaders = corsHeaders;
     this.functionName = functionName;
     this.userId = userId;
+    this.ipAddress = ipAddress;
   }
 }
 
