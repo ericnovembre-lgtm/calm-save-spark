@@ -32,6 +32,20 @@ serve(async (req) => {
 
     const { scenarioId, parameters, monteCarloRuns = 100 } = await req.json();
 
+    // Check cache first for expensive simulations (24 hour TTL)
+    const cacheKey = `digital_twin:${user.id}:${scenarioId || 'new'}:${monteCarloRuns}`;
+    const { data: cachedData } = await supabaseClient.rpc('get_cached_response', {
+      p_cache_key: cacheKey
+    });
+
+    if (cachedData) {
+      console.log('Returning cached digital twin simulation');
+      return new Response(
+        JSON.stringify(cachedData),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'HIT' } }
+      );
+    }
+
     // Get user's current financial state
     const { data: profile } = await supabaseClient
       .from('digital_twin_profiles')
@@ -99,17 +113,30 @@ serve(async (req) => {
 
     if (scenarioError) throw scenarioError;
 
+    const responseData = {
+      scenario,
+      results: {
+        successProbability,
+        percentiles: { p10, p50, p90 },
+        timeline,
+        simulations: simulations.length,
+      },
+    };
+
+    // Cache the response (24 hour TTL for expensive simulations)
+    await supabaseClient.rpc('set_cached_response', {
+      p_cache_key: cacheKey,
+      p_cache_type: 'digital_twin',
+      p_user_id: user.id,
+      p_response_data: responseData,
+      p_ttl_seconds: 86400 // 24 hours
+    });
+
+    console.log(`Digital twin simulation complete (${monteCarloRuns} runs) and cached`);
+
     return new Response(
-      JSON.stringify({
-        scenario,
-        results: {
-          successProbability,
-          percentiles: { p10, p50, p90 },
-          timeline,
-          simulations: simulations.length,
-        },
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify(responseData),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'MISS' } }
     );
   } catch (error) {
     console.error('Error in digital-twin-simulate:', error);

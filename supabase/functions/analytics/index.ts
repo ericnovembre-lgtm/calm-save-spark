@@ -55,6 +55,15 @@ const analyticsSchema = z.object({
   timestamp: z.string()
     .datetime({ message: "Invalid timestamp format" })
     .optional(),
+  
+  // Support batch events
+  batch: z.boolean().optional(),
+  events: z.array(z.object({
+    event: z.string(),
+    properties: z.record(z.unknown()).optional(),
+    userId: z.string().optional(),
+    timestamp: z.string(),
+  })).optional(),
 });
 
 type AnalyticsEvent = z.infer<typeof analyticsSchema>;
@@ -75,8 +84,41 @@ Deno.serve(async (req) => {
     // Parse and validate request body
     const body = await req.json();
     const validated = analyticsSchema.parse(body);
-    const { event, properties = {}, userId, timestamp } = validated;
+    const { event, properties = {}, userId, timestamp, batch, events } = validated;
 
+    // Handle batch events
+    if (batch && events && events.length > 0) {
+      console.log(`[Analytics] Processing batch of ${events.length} events`);
+      
+      const insertData = events.map(evt => ({
+        event: evt.event,
+        properties: evt.properties || {},
+        user_hashed: evt.userId,
+        route: (evt.properties as any)?.route || '/unknown',
+        timestamp: evt.timestamp || new Date().toISOString(),
+      }));
+      
+      // Batch insert for better performance
+      const { error: batchError } = await supabase
+        .from('analytics_events')
+        .insert(insertData);
+      
+      if (batchError) {
+        console.error('[Analytics] Batch insert error:', batchError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to store batch events', count: 0 }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      console.log(`[Analytics] Batch stored: ${events.length} events`);
+      return new Response(
+        JSON.stringify({ success: true, count: events.length }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Handle single event (legacy support)
     console.log(`[Analytics] Processing event: ${event} (properties: ${Object.keys(properties).length})`);
 
     // Extract route from properties or default to unknown
