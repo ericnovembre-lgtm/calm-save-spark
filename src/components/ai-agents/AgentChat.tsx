@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAgentChat } from '@/hooks/useAgentChat';
+import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
@@ -24,16 +28,24 @@ export function AgentChat({
   className,
 }: AgentChatProps) {
   const [input, setInput] = useState('');
+  const [autoSpeak, setAutoSpeak] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
   const { messages, isLoading, sendMessage } = useAgentChat({
     agentType,
     conversationId,
+    onMessageReceived: (message) => {
+      if (autoSpeak) {
+        speak(message);
+      }
+    },
   });
 
+  const { isRecording, isProcessing, startRecording, stopRecording, cancelRecording } = useVoiceRecording();
+  const { isSpeaking, speak, stop: stopSpeaking } = useTextToSpeech();
+
   useEffect(() => {
-    // Scroll to bottom when new messages arrive
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -53,6 +65,38 @@ export function AgentChat({
       e.preventDefault();
       handleSubmit(e);
     }
+  };
+
+  const handleVoiceInput = async () => {
+    if (isRecording) {
+      try {
+        const audioBase64 = await stopRecording();
+        
+        const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+          body: { audio: audioBase64 },
+        });
+
+        if (error) throw error;
+
+        if (data?.text) {
+          setInput(data.text);
+          toast.success('Transcription complete');
+        }
+      } catch (error) {
+        console.error('Error transcribing audio:', error);
+        toast.error('Failed to transcribe audio');
+        cancelRecording();
+      }
+    } else {
+      await startRecording();
+    }
+  };
+
+  const toggleAutoSpeak = () => {
+    if (autoSpeak && isSpeaking) {
+      stopSpeaking();
+    }
+    setAutoSpeak(!autoSpeak);
   };
 
   return (
@@ -105,18 +149,52 @@ export function AgentChat({
       <div className="border-t border-border/50 p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
           <div className="flex gap-2">
+            <div className="flex gap-1">
+              <Button
+                type="button"
+                size="icon"
+                variant={isRecording ? 'destructive' : 'outline'}
+                onClick={handleVoiceInput}
+                disabled={isLoading || isProcessing}
+                className="shrink-0"
+                title={isRecording ? 'Stop recording' : 'Start voice input'}
+              >
+                {isProcessing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : isRecording ? (
+                  <MicOff className="w-4 h-4" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant={autoSpeak ? 'default' : 'outline'}
+                onClick={toggleAutoSpeak}
+                disabled={isLoading}
+                className="shrink-0"
+                title={autoSpeak ? 'Disable auto-speak' : 'Enable auto-speak'}
+              >
+                {autoSpeak ? (
+                  <Volume2 className="w-4 h-4" />
+                ) : (
+                  <VolumeX className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               className="min-h-[60px] max-h-[200px] resize-none bg-muted/30"
-              disabled={isLoading}
+              disabled={isLoading || isRecording}
             />
             <Button
               type="submit"
               size="icon"
-              disabled={!input.trim() || isLoading}
+              disabled={!input.trim() || isLoading || isRecording}
               className="h-[60px] w-[60px] shrink-0"
             >
               {isLoading ? (

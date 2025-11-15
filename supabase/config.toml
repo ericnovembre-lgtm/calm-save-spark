@@ -108,4 +108,13 @@ verify_jwt = false
 [functions.ai-agent]
 verify_jwt = true
 
+[functions.transcribe-audio]
+verify_jwt = true
+
+[functions.text-to-speech]
+verify_jwt = true
+
+[functions.generate-image]
+verify_jwt = true
+
 
