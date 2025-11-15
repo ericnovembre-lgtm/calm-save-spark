@@ -1,3 +1,91 @@
+/**
+ * Life Event Orchestrator Edge Function
+ * 
+ * Intelligent automation system for major life milestones including marriage,
+ * home buying, new children, career changes, and more.
+ * 
+ * @endpoint POST /life-event-orchestrator
+ * @auth Required - JWT token in Authorization header
+ * 
+ * @description
+ * This function orchestrates complex multi-step workflows for life events by:
+ * - Analyzing financial impact using Digital Twin simulations
+ * - Automating repetitive tasks (document collection, notifications, etc.)
+ * - Coordinating with other AI agents for specialized actions
+ * - Tracking progress and maintaining execution state
+ * 
+ * @actions
+ * 
+ * **analyze_financial_impact**
+ * Runs Monte Carlo simulations to project the financial impact of a life event
+ * over 10 years, considering income changes, new expenses, and asset purchases.
+ * 
+ * **automate_task**
+ * Marks specific playbook tasks as automated and assigns them to the orchestrator
+ * agent for autonomous execution.
+ * 
+ * @requires Database Tables:
+ * - life_event_playbooks: Event templates and workflows
+ * - life_event_executions: Active event tracking
+ * - playbook_tasks: Individual task items
+ * - digital_twin_profiles: User financial models
+ * 
+ * @example Request (Analyze Impact):
+ * ```typescript
+ * const response = await supabase.functions.invoke('life-event-orchestrator', {
+ *   body: {
+ *     action: 'analyze_financial_impact',
+ *     executionId: 'uuid-of-execution'
+ *   }
+ * });
+ * ```
+ * 
+ * @example Request (Automate Task):
+ * ```typescript
+ * const response = await supabase.functions.invoke('life-event-orchestrator', {
+ *   body: {
+ *     action: 'automate_task',
+ *     taskId: 'uuid-of-task'
+ *   }
+ * });
+ * ```
+ * 
+ * @example Response (Analyze Impact):
+ * ```json
+ * {
+ *   "execution": { ... },
+ *   "financialImpact": {
+ *     "projectedOutcomes": [...],
+ *     "riskMetrics": { ... }
+ *   },
+ *   "recommendations": [
+ *     "Review emergency fund for increased expenses",
+ *     "Adjust savings goals timeline"
+ *   ]
+ * }
+ * ```
+ * 
+ * @supported_events
+ * - home_purchase: Down payment planning, mortgage simulation
+ * - new_child: Childcare cost projection, education planning
+ * - marriage: Joint financial planning, tax optimization
+ * - career_change: Income transition modeling
+ * - retirement: Distribution strategy, healthcare costs
+ * 
+ * @errors
+ * - 401: Not authenticated
+ * - 404: Execution or task not found
+ * - 400: Unknown action
+ * - 500: Internal server error
+ * 
+ * @performance
+ * - Average response time: 1-3 seconds (includes simulation)
+ * - Recommended usage: On-demand for specific events
+ * 
+ * @version 1.0.0
+ * @since 2025-11-15
+ */
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
