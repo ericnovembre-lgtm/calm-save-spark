@@ -8,6 +8,16 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { DollarSign } from "lucide-react";
 
+interface RoundUpRule {
+  id: string;
+  user_id: string;
+  goal_id: string;
+  multiplier: number;
+  active: boolean;
+  total_saved: number;
+  created_at: string;
+}
+
 interface RoundUpToggleProps {
   goalId: string;
   existingRule?: {
@@ -32,7 +42,7 @@ export const RoundUpToggle = ({ goalId, existingRule }: RoundUpToggleProps) => {
       if (existingRule) {
         // Update existing rule
         const { error } = await supabase
-          .from('round_up_rules')
+          .from('round_up_rules' as any)
           .update({ active: checked })
           .eq('id', existingRule.id);
         
@@ -40,7 +50,7 @@ export const RoundUpToggle = ({ goalId, existingRule }: RoundUpToggleProps) => {
       } else if (checked) {
         // Create new rule
         const { error } = await supabase
-          .from('round_up_rules')
+          .from('round_up_rules' as any)
           .insert({
             user_id: user.id,
             goal_id: goalId,
@@ -76,7 +86,7 @@ export const RoundUpToggle = ({ goalId, existingRule }: RoundUpToggleProps) => {
     if (existingRule) {
       try {
         const { error } = await supabase
-          .from('round_up_rules')
+          .from('round_up_rules' as any)
           .update({ multiplier: newMultiplier })
           .eq('id', existingRule.id);
         
