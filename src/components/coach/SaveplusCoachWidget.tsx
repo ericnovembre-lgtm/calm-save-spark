@@ -101,11 +101,11 @@ export function SaveplusCoachWidget() {
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-3 py-2 bg-primary/90 text-primary-foreground rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 backdrop-blur-sm opacity-90 hover:opacity-100"
         aria-label="Open coach widget"
       >
-        <Sparkles className="w-5 h-5" />
-        <span className="font-medium">Coach ({insights.length})</span>
+        <Sparkles className="w-4 h-4" />
+        <span className="text-sm font-medium">Coach ({insights.length})</span>
       </button>
     );
   }
@@ -114,18 +114,18 @@ export function SaveplusCoachWidget() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-6 right-6 z-40 w-full max-w-sm"
+      className="fixed bottom-6 right-6 z-40 w-full max-w-[280px]"
     >
-      <Card className="shadow-lg border-2 border-primary/20">
-        <CardHeader className="pb-3">
+      <Card className="shadow-md border border-primary/10 bg-background/90 backdrop-blur-md">
+        <CardHeader className="pb-2">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <div className="p-2 rounded-lg bg-primary/10">
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-lg">$ave+ Coach</CardTitle>
-                <CardDescription className="text-xs">
+                <CardTitle className="text-base">$ave+ Coach</CardTitle>
+                <CardDescription className="text-[10px]">
                   {insights.length} insight{insights.length !== 1 ? 's' : ''} for you
                 </CardDescription>
               </div>
@@ -176,10 +176,10 @@ export function SaveplusCoachWidget() {
 
               {/* Insight content */}
               <div>
-                <h3 className="font-semibold text-base mb-1">
+                <h3 className="font-semibold text-sm mb-1">
                   {currentInsight.title}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {currentInsight.description}
                 </p>
               </div>
