@@ -83,6 +83,56 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notifications: {
+        Row: {
+          action_taken: string | null
+          created_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          notification_type: string
+          read: boolean | null
+          read_at: string | null
+          related_incident_id: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          action_taken?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          notification_type: string
+          read?: boolean | null
+          read_at?: string | null
+          related_incident_id?: string | null
+          severity: string
+          title: string
+        }
+        Update: {
+          action_taken?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          notification_type?: string
+          read?: boolean | null
+          read_at?: string | null
+          related_incident_id?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notifications_related_incident_id_fkey"
+            columns: ["related_incident_id"]
+            isOneToOne: false
+            referencedRelation: "incident_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_agents: {
         Row: {
           agent_type: string
@@ -1873,6 +1923,53 @@ export type Database = {
         }
         Relationships: []
       }
+      incident_logs: {
+        Row: {
+          action_description: string
+          action_type: string
+          ai_diagnosis: string | null
+          breach_id: string | null
+          created_at: string | null
+          execution_time_ms: number | null
+          fix_applied: string | null
+          fix_successful: boolean | null
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          ai_diagnosis?: string | null
+          breach_id?: string | null
+          created_at?: string | null
+          execution_time_ms?: number | null
+          fix_applied?: string | null
+          fix_successful?: boolean | null
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          ai_diagnosis?: string | null
+          breach_id?: string | null
+          created_at?: string | null
+          execution_time_ms?: number | null
+          fix_applied?: string | null
+          fix_successful?: boolean | null
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_logs_breach_id_fkey"
+            columns: ["breach_id"]
+            isOneToOne: false
+            referencedRelation: "slo_breaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       insurance_policies: {
         Row: {
           beneficiaries: string[] | null
@@ -2829,6 +2926,42 @@ export type Database = {
           },
         ]
       }
+      performance_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          recorded_at: string | null
+          status: string
+          threshold_value: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          recorded_at?: string | null
+          status: string
+          threshold_value?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          metric_type?: string
+          metric_value?: number
+          recorded_at?: string | null
+          status?: string
+          threshold_value?: number | null
+        }
+        Relationships: []
+      }
       plaid_link_tokens: {
         Row: {
           created_at: string | null
@@ -3392,6 +3525,48 @@ export type Database = {
           ip_address?: string | null
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      slo_breaches: {
+        Row: {
+          breach_duration_seconds: number | null
+          breach_type: string
+          created_at: string | null
+          current_value: number
+          id: string
+          metadata: Json | null
+          metric_name: string
+          resolved: boolean | null
+          resolved_at: string | null
+          severity: string
+          threshold_value: number
+        }
+        Insert: {
+          breach_duration_seconds?: number | null
+          breach_type: string
+          created_at?: string | null
+          current_value: number
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          resolved?: boolean | null
+          resolved_at?: string | null
+          severity: string
+          threshold_value: number
+        }
+        Update: {
+          breach_duration_seconds?: number | null
+          breach_type?: string
+          created_at?: string | null
+          current_value?: number
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          resolved?: boolean | null
+          resolved_at?: string | null
+          severity?: string
+          threshold_value?: number
         }
         Relationships: []
       }
@@ -4539,6 +4714,7 @@ export type Database = {
     Functions: {
       cleanup_expired_ip_blocks: { Args: never; Returns: undefined }
       cleanup_expired_webauthn_challenges: { Args: never; Returns: undefined }
+      cleanup_old_monitoring_data: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_security_logs: { Args: never; Returns: undefined }
       compute_user_features: { Args: { sub_amount: number }; Returns: Json }
@@ -4546,13 +4722,15 @@ export type Database = {
         Args: { p_freeze_days: number; p_user_id: string }
         Returns: undefined
       }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      has_role:
+        | { Args: { role_name: string; user_id: string }; Returns: boolean }
+        | {
+            Args: {
+              _role: Database["public"]["Enums"]["app_role"]
+              _user_id: string
+            }
+            Returns: boolean
+          }
       increment_redirect_usage: {
         Args: { redirect_id: string }
         Returns: undefined
