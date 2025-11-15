@@ -65,6 +65,8 @@ const Accounts = lazy(() => import("./pages/Accounts"));
 const Search = lazy(() => import("./pages/Search"));
 const AIAgents = lazy(() => import("./pages/AIAgents"));
 const FeaturesHub = lazy(() => import("./pages/FeaturesHub"));
+const DigitalTwin = lazy(() => import("./pages/DigitalTwin"));
+const AgentHub = lazy(() => import("./pages/AgentHub"));
 
 const queryClient = new QueryClient();
 

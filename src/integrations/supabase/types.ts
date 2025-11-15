@@ -133,6 +133,101 @@ export type Database = {
           },
         ]
       }
+      agent_actions: {
+        Row: {
+          action_type: string
+          delegation_id: string | null
+          executed_at: string | null
+          id: string
+          parameters: Json | null
+          result: Json | null
+          success: boolean | null
+          user_id: string
+          user_notified: boolean | null
+        }
+        Insert: {
+          action_type: string
+          delegation_id?: string | null
+          executed_at?: string | null
+          id?: string
+          parameters?: Json | null
+          result?: Json | null
+          success?: boolean | null
+          user_id: string
+          user_notified?: boolean | null
+        }
+        Update: {
+          action_type?: string
+          delegation_id?: string | null
+          executed_at?: string | null
+          id?: string
+          parameters?: Json | null
+          result?: Json | null
+          success?: boolean | null
+          user_id?: string
+          user_notified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_actions_delegation_id_fkey"
+            columns: ["delegation_id"]
+            isOneToOne: false
+            referencedRelation: "agent_delegations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_delegations: {
+        Row: {
+          agent_id: string | null
+          constraints: Json | null
+          created_at: string | null
+          granted_permissions: Json | null
+          id: string
+          last_action_at: string | null
+          scenario_id: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          constraints?: Json | null
+          created_at?: string | null
+          granted_permissions?: Json | null
+          id?: string
+          last_action_at?: string | null
+          scenario_id?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          constraints?: Json | null
+          created_at?: string | null
+          granted_permissions?: Json | null
+          id?: string
+          last_action_at?: string | null
+          scenario_id?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_delegations_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "autonomous_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_delegations_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "twin_scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_agents: {
         Row: {
           agent_type: string
@@ -377,6 +472,69 @@ export type Database = {
           scheduled_transfer_amount?: number | null
           scheduled_transfer_frequency?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      autonomous_agents: {
+        Row: {
+          agent_name: string
+          agent_type: string
+          capabilities: Json[] | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          required_permissions: string[] | null
+        }
+        Insert: {
+          agent_name: string
+          agent_type: string
+          capabilities?: Json[] | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          required_permissions?: string[] | null
+        }
+        Update: {
+          agent_name?: string
+          agent_type?: string
+          capabilities?: Json[] | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          required_permissions?: string[] | null
+        }
+        Relationships: []
+      }
+      behavioral_guardrails: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          parameters: Json | null
+          rule_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          parameters?: Json | null
+          rule_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          parameters?: Json | null
+          rule_type?: string
           user_id?: string
         }
         Relationships: []
@@ -872,6 +1030,36 @@ export type Database = {
           plaid_item_id?: string | null
           sync_status?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      cooling_off_sessions: {
+        Row: {
+          early_exit_requested: boolean | null
+          end_time: string | null
+          id: string
+          reflection_notes: string | null
+          start_time: string | null
+          triggered_by: string
+          user_id: string
+        }
+        Insert: {
+          early_exit_requested?: boolean | null
+          end_time?: string | null
+          id?: string
+          reflection_notes?: string | null
+          start_time?: string | null
+          triggered_by: string
+          user_id: string
+        }
+        Update: {
+          early_exit_requested?: boolean | null
+          end_time?: string | null
+          id?: string
+          reflection_notes?: string | null
+          start_time?: string | null
+          triggered_by?: string
           user_id?: string
         }
         Relationships: []
@@ -1441,6 +1629,39 @@ export type Database = {
           next_expected_date?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      digital_twin_profiles: {
+        Row: {
+          created_at: string | null
+          current_state: Json
+          id: string
+          life_stage: string | null
+          risk_tolerance: string | null
+          updated_at: string | null
+          user_id: string
+          values_priorities: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_state?: Json
+          id?: string
+          life_stage?: string | null
+          risk_tolerance?: string | null
+          updated_at?: string | null
+          user_id: string
+          values_priorities?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          current_state?: Json
+          id?: string
+          life_stage?: string | null
+          risk_tolerance?: string | null
+          updated_at?: string | null
+          user_id?: string
+          values_priorities?: Json | null
         }
         Relationships: []
       }
@@ -4086,6 +4307,39 @@ export type Database = {
         }
         Relationships: []
       }
+      trading_emotions: {
+        Row: {
+          confidence_score: number | null
+          detected_at: string | null
+          detected_emotion: string
+          id: string
+          intervention_shown: boolean | null
+          triggers: Json | null
+          user_action: string | null
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          detected_at?: string | null
+          detected_emotion: string
+          id?: string
+          intervention_shown?: boolean | null
+          triggers?: Json | null
+          user_action?: string | null
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          detected_at?: string | null
+          detected_emotion?: string
+          id?: string
+          intervention_shown?: boolean | null
+          triggers?: Json | null
+          user_action?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           account_id: string | null
@@ -4198,6 +4452,91 @@ export type Database = {
             columns: ["scheduled_transfer_id"]
             isOneToOne: false
             referencedRelation: "scheduled_transfers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      twin_scenarios: {
+        Row: {
+          created_at: string | null
+          id: string
+          monte_carlo_runs: number | null
+          parameters: Json
+          projected_outcomes: Json | null
+          scenario_name: string | null
+          scenario_type: string
+          success_probability: number | null
+          twin_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          monte_carlo_runs?: number | null
+          parameters?: Json
+          projected_outcomes?: Json | null
+          scenario_name?: string | null
+          scenario_type: string
+          success_probability?: number | null
+          twin_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          monte_carlo_runs?: number | null
+          parameters?: Json
+          projected_outcomes?: Json | null
+          scenario_name?: string | null
+          scenario_type?: string
+          success_probability?: number | null
+          twin_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "twin_scenarios_twin_id_fkey"
+            columns: ["twin_id"]
+            isOneToOne: false
+            referencedRelation: "digital_twin_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      twin_sessions: {
+        Row: {
+          created_at: string | null
+          decisions: Json[] | null
+          final_state: Json | null
+          id: string
+          session_name: string | null
+          twin_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          decisions?: Json[] | null
+          final_state?: Json | null
+          id?: string
+          session_name?: string | null
+          twin_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          decisions?: Json[] | null
+          final_state?: Json | null
+          id?: string
+          session_name?: string | null
+          twin_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "twin_sessions_twin_id_fkey"
+            columns: ["twin_id"]
+            isOneToOne: false
+            referencedRelation: "digital_twin_profiles"
             referencedColumns: ["id"]
           },
         ]
