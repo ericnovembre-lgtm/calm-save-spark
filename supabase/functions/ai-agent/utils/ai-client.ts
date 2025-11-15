@@ -30,8 +30,7 @@ export async function streamAIResponse(
       model,
       messages,
       stream: true,
-      temperature: 0.7,
-      max_tokens: 3000,
+      max_completion_tokens: 3000,
     }),
   });
 
