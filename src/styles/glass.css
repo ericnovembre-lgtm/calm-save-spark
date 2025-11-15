@@ -1,0 +1,23 @@
+/* Glassmorphism utility classes */
+.bg-glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.border-glass-border {
+  border-color: var(--glass-border);
+}
+
+.shadow-glass {
+  box-shadow: var(--glass-shadow);
+}
+
+/* Dark mode glass effects */
+.dark .bg-glass {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark .border-glass-border {
+  border-color: rgba(248, 246, 240, 0.1);
+}

@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import './styles/touch-targets.css';
+@import './styles/glass.css';
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
@@ -75,6 +76,8 @@ All colors MUST be HSL.
     /* Glass effects */
     --glass-bg: rgba(248, 246, 240, 0.7);
     --glass-border: rgba(0, 0, 0, 0.1);
+    --glass-blur: blur(12px);
+    --glass-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.12);
 
     /* Backward-compat: orbital vars mapped to neutral palette */
     --orbital-space: var(--color-bg);
