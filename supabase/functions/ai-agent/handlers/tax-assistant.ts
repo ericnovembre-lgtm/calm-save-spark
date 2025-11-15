@@ -34,7 +34,7 @@ Analyze transactions for potential deductions and provide tax-saving recommendat
     enhancedPrompt, 
     history, 
     message,
-    'google/gemini-2.5-pro'
+    'openai/gpt-5'
   );
 
   let fullResponse = '';
