@@ -36,7 +36,8 @@ import AnimatedFeatureTable from "@/components/pricing/advanced/AnimatedFeatureT
 import TierUpgradeModal from "@/components/pricing/TierUpgradeModal";
 import TierInfoModal from "@/components/pricing/TierInfoModal";
 import CheckoutConfirmationModal from "@/components/pricing/CheckoutConfirmationModal";
-import ParticleBackground from "@/components/pricing/advanced/ParticleBackground";
+import DowngradeWarningModal from "@/components/pricing/DowngradeWarningModal";
+import TierPreviewBar from "@/components/pricing/TierPreviewBar";
 import ScrollingTicker from "@/components/pricing/advanced/ScrollingTicker";
 import CelebrationSystem from "@/components/pricing/advanced/CelebrationSystem";
 import StaggeredContainer, { StaggeredItem } from "@/components/pricing/advanced/StaggeredContainer";
@@ -58,6 +59,8 @@ export default function Pricing() {
   const [tierInfoModalOpen, setTierInfoModalOpen] = useState(false);
   const [tierInfoClickedAmount, setTierInfoClickedAmount] = useState(0);
   const [checkoutConfirmModalOpen, setCheckoutConfirmModalOpen] = useState(false);
+  const [downgradeWarningOpen, setDowngradeWarningOpen] = useState(false);
+  const [pendingDowngradeAmount, setPendingDowngradeAmount] = useState(0);
   const [quickReferenceOpen, setQuickReferenceOpen] = useState(false);
   const [showStickyButton, setShowStickyButton] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
@@ -127,6 +130,14 @@ export default function Pricing() {
 
   const handleSliderChange = useCallback((value: number) => {
     const previousAmount = selectedAmount;
+    
+    // Check for downgrade - show warning if user has current subscription and is moving down
+    if (currentSubscription && value < currentSubscription.subscription_amount) {
+      setPendingDowngradeAmount(value);
+      setDowngradeWarningOpen(true);
+      return; // Don't update immediately, wait for confirmation
+    }
+    
     setSelectedAmount(value);
     
     // Debounce analytics - only fire when user stops moving slider
@@ -167,7 +178,7 @@ export default function Pricing() {
     }
     
     previousTierRef.current = currentTier;
-  }, [selectedAmount, location.pathname]);
+  }, [selectedAmount, currentSubscription, location.pathname]);
 
   const handleTierBadgeClick = useCallback((amount: number) => {
     saveplus_audit_event('pricing_tier_badge_clicked', {
@@ -207,6 +218,22 @@ export default function Pricing() {
       route: location.pathname,
     });
   }, [tierInfoClickedAmount, selectedAmount, location.pathname]);
+
+  const handleDowngradeConfirm = useCallback(() => {
+    setSelectedAmount(pendingDowngradeAmount);
+    setDowngradeWarningOpen(false);
+    
+    saveplus_audit_event('pricing_downgrade_confirmed_via_slider', {
+      previous_amount: selectedAmount,
+      new_amount: pendingDowngradeAmount,
+      route: location.pathname,
+    });
+  }, [pendingDowngradeAmount, selectedAmount, location.pathname]);
+
+  const handleDowngradeCancel = useCallback(() => {
+    setDowngradeWarningOpen(false);
+    setPendingDowngradeAmount(0);
+  }, []);
 
   const handleInitiateCheckout = () => {
     if (!user) {
@@ -338,9 +365,6 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Particle Background */}
-      <ParticleBackground />
-      
       {/* Celebration System */}
       <CelebrationSystem
         show={showCelebration}
@@ -497,6 +521,9 @@ export default function Pricing() {
                     </p>
                   </div>
 
+                  {/* Tier Preview Bar */}
+                  <TierPreviewBar selectedAmount={selectedAmount} />
+
                   <EnhancedPricingSlider
                     value={selectedAmount}
                     onChange={handleSliderChange}
@@ -524,7 +551,10 @@ export default function Pricing() {
                       ) : (
                         <>
                           {selectedAmount === 0 ? (
-                            <span>Confirm Free Plan</span>
+                            <div className="flex flex-col items-center gap-1">
+                              <span>Get Started Free</span>
+                              <span className="text-xs text-muted-foreground">No credit card required</span>
+                            </div>
                           ) : (
                             <>
                               <CreditCard className="w-5 h-5" />
@@ -542,12 +572,13 @@ export default function Pricing() {
                         </p>
                       ) : selectedAmount === 0 ? (
                         <p className="text-sm text-muted-foreground">
-                          Start with full access to the savings demo
+                          Start saving today with 3 free features including basic analytics and AI insights
                         </p>
                       ) : stripeHealthy === false ? (
-                        <p className="text-sm text-destructive">
-                          Billing unavailable. Awaiting Stripe configuration.
-                        </p>
+                        <div className="flex items-center justify-center gap-2 text-sm text-destructive">
+                          <AlertTriangle className="w-4 h-4" />
+                          <p>Payment processing temporarily unavailable. Try again or select Free Plan.</p>
+                        </div>
                       ) : selectedAmount === currentSubscription?.subscription_amount ? (
                         <p className="text-sm text-muted-foreground">
                           This is your current plan
@@ -556,14 +587,29 @@ export default function Pricing() {
                     </div>
 
                     <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Shield className="w-3 h-3" />
-                        14-day free trial
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Zap className="w-3 h-3" />
-                        Cancel anytime
-                      </div>
+                      {selectedAmount === 0 ? (
+                        <>
+                          <div className="flex items-center gap-1">
+                            <Shield className="w-3 h-3" />
+                            Free forever
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            No credit card
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-1">
+                            <Shield className="w-3 h-3" />
+                            14-day free trial
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Zap className="w-3 h-3" />
+                            Cancel anytime
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -707,6 +753,15 @@ export default function Pricing() {
         currentAmount={currentSubscription?.subscription_amount || 0}
         onConfirm={handleConfirmPlan}
         loading={loading}
+      />
+
+      {/* Downgrade Warning Modal */}
+      <DowngradeWarningModal
+        open={downgradeWarningOpen}
+        onClose={handleDowngradeCancel}
+        onConfirm={handleDowngradeConfirm}
+        currentAmount={currentSubscription?.subscription_amount || 0}
+        targetAmount={pendingDowngradeAmount}
       />
     </div>
   );
