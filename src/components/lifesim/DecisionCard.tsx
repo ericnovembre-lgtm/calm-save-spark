@@ -55,18 +55,24 @@ export function DecisionCard({ session }: DecisionCardProps) {
 
   const makeDecision = useMutation({
     mutationFn: async (choice: any) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       // Record decision
       const { error: decisionError } = await supabase
-        .from('lifesim_decisions')
+        .from('lifesim_player_decisions')
         .insert({
           session_id: session.id,
-          turn_number: Math.floor((session.current_age - 22) / 1),
           decision_type: currentDecision.id,
-          decision_category: currentDecision.category,
-          choice_made: choice.id,
-          alternatives_presented: currentDecision.choices,
-          immediate_impact: choice.impact,
-          risk_level: currentDecision.riskLevel,
+          decision_data: {
+            category: currentDecision.category,
+            choice_made: choice.id,
+            alternatives: currentDecision.choices,
+            immediate_impact: choice.impact,
+          },
+          game_year: Math.floor((session.current_age - 22) / 1),
+          financial_impact: choice.impact,
+          risk_score: currentDecision.riskLevel === 'high' ? 0.8 : currentDecision.riskLevel === 'medium' ? 0.5 : 0.2,
         });
 
       if (decisionError) throw decisionError;
@@ -76,32 +82,26 @@ export function DecisionCard({ session }: DecisionCardProps) {
       const newIncome = Number(session.current_income) + (choice.impact.income || 0);
 
       const { error: updateError } = await supabase
-        .from('lifesim_sessions')
+        .from('lifesim_game_sessions')
         .update({
-          current_capital: newCapital,
-          current_income: newIncome,
+          financial_state: {
+            cash: newCapital,
+            income: newIncome,
+            debt: session.current_debt || 0,
+            investments: choice.impact.investments || 0,
+          },
           current_age: session.current_age + 1,
+          current_year: session.current_year + 1,
+          score: (session.score || 0) + 10,
           updated_at: new Date().toISOString(),
         })
         .eq('id', session.id);
 
       if (updateError) throw updateError;
-
-      // Record turn
-      await supabase.from('lifesim_turns').insert({
-        session_id: session.id,
-        turn_number: Math.floor((session.current_age - 22) / 1),
-        age: session.current_age + 1,
-        net_worth: newCapital,
-        income: newIncome,
-        expenses: session.current_expenses,
-        savings_rate: ((newIncome - session.current_expenses) / newIncome * 100),
-        investments: choice.impact.investments || 0,
-        debt: session.current_debt,
-      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lifesim-sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['lifesim-session'] });
+      queryClient.invalidateQueries({ queryKey: ['lifesim-player-decisions'] });
       toast.success('Decision made! Life continues...');
     },
     onError: () => {
