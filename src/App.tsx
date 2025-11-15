@@ -67,6 +67,8 @@ const AIAgents = lazy(() => import("./pages/AIAgents"));
 const FeaturesHub = lazy(() => import("./pages/FeaturesHub"));
 const DigitalTwin = lazy(() => import("./pages/DigitalTwin"));
 const AgentHub = lazy(() => import("./pages/AgentHub"));
+const BehavioralGuardian = lazy(() => import("./pages/BehavioralGuardian"));
+const CoolingOff = lazy(() => import("./pages/CoolingOff"));
 
 const queryClient = new QueryClient();
 
@@ -185,6 +187,12 @@ function AnimatedRoutes() {
         <Route path="/admin-monitoring" element={<ProtectedRoute><PageTransition><AdminRoute><AdminMonitoring /></AdminRoute></PageTransition></ProtectedRoute>} />
         <Route path="/admin-agents" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         <Route path="/admin-functions" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
+        
+        {/* Next-Gen Features */}
+        <Route path="/digital-twin" element={<ProtectedRoute><PageTransition><DigitalTwin /></PageTransition></ProtectedRoute>} />
+        <Route path="/agent-hub" element={<ProtectedRoute><PageTransition><AgentHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/guardian" element={<ProtectedRoute><PageTransition><BehavioralGuardian /></PageTransition></ProtectedRoute>} />
+        <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />
         
         {/* Icon System Demo */}
         <Route path="/icon-demo" element={<PageTransition><IconDemo /></PageTransition>} />

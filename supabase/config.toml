@@ -126,4 +126,16 @@ verify_jwt = false
 [functions.send-hephaestus-alert]
 verify_jwt = false
 
+[functions.digital-twin-simulate]
+verify_jwt = true
+
+[functions.digital-twin-explain]
+verify_jwt = true
+
+[functions.sentiment-analyzer]
+verify_jwt = true
+
+[functions.guardian-intervene]
+verify_jwt = true
+
 
