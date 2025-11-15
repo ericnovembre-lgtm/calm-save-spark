@@ -68,40 +68,40 @@ export function SyntheticPaycheck() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">Gross Income</p>
-                  <p className="text-3xl font-bold">${latestPaycheck.total_income?.toLocaleString()}</p>
+                  <p className="text-3xl font-bold">${(latestPaycheck as any).total_income?.toLocaleString()}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">Net Paycheck</p>
-                  <p className="text-3xl font-bold text-green-600">${latestPaycheck.net_paycheck?.toLocaleString()}</p>
+                  <p className="text-3xl font-bold text-green-600">${(latestPaycheck as any).net_paycheck?.toLocaleString()}</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span>Federal Withholding</span>
-                  <span className="font-medium">${latestPaycheck.withholding_federal?.toLocaleString()}</span>
+                  <span className="font-medium">${(latestPaycheck as any).withholding_federal?.toLocaleString()}</span>
                 </div>
-                <Progress value={(latestPaycheck.withholding_federal / latestPaycheck.total_income) * 100} />
+                <Progress value={((latestPaycheck as any).withholding_federal / (latestPaycheck as any).total_income) * 100} />
 
                 <div className="flex justify-between text-sm">
                   <span>State Withholding</span>
-                  <span className="font-medium">${latestPaycheck.withholding_state?.toLocaleString()}</span>
+                  <span className="font-medium">${(latestPaycheck as any).withholding_state?.toLocaleString()}</span>
                 </div>
-                <Progress value={(latestPaycheck.withholding_state / latestPaycheck.total_income) * 100} />
+                <Progress value={((latestPaycheck as any).withholding_state / (latestPaycheck as any).total_income) * 100} />
 
                 <div className="flex justify-between text-sm">
                   <span>FICA (Social Security & Medicare)</span>
-                  <span className="font-medium">${latestPaycheck.withholding_fica?.toLocaleString()}</span>
+                  <span className="font-medium">${(latestPaycheck as any).withholding_fica?.toLocaleString()}</span>
                 </div>
-                <Progress value={(latestPaycheck.withholding_fica / latestPaycheck.total_income) * 100} />
+                <Progress value={((latestPaycheck as any).withholding_fica / (latestPaycheck as any).total_income) * 100} />
               </div>
 
               <div className="pt-4 border-t">
                 <p className="text-sm text-muted-foreground">
-                  Period: {new Date(latestPaycheck.period_start).toLocaleDateString()} - {new Date(latestPaycheck.period_end).toLocaleDateString()}
+                  Period: {new Date((latestPaycheck as any).period_start).toLocaleDateString()} - {new Date((latestPaycheck as any).period_end).toLocaleDateString()}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Method: {latestPaycheck.calculation_method?.replace('_', ' ')}
+                  Method: {(latestPaycheck as any).calculation_method?.replace('_', ' ')}
                 </p>
               </div>
             </div>

@@ -54,7 +54,7 @@ export function DocumentCenter({ executionId }: DocumentCenterProps) {
     return configs[status as keyof typeof configs] || configs.pending;
   };
 
-  if (documents.length === 0) {
+  if (!documents || documents.length === 0) {
     return (
       <Card className="p-12 text-center">
         <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />

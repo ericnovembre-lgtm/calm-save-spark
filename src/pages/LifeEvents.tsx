@@ -29,13 +29,12 @@ export default function LifeEvents() {
     queryKey: ['life-event-playbooks'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('life_event_playbooks')
+        .from('life_event_playbooks' as any)
         .select('*')
-        .eq('is_active', true)
         .order('playbook_name');
       
       if (error) throw error;
-      return data;
+      return data as any[];
     },
   });
 
@@ -47,8 +46,8 @@ export default function LifeEvents() {
     );
   }
 
-  const activeExecutions = executions?.filter(e => e.is_active) || [];
-  const completedCount = executions?.filter(e => !e.is_active).length || 0;
+  const activeExecutions = executions?.filter((e: any) => e.status === 'active' || e.status === 'in_progress') || [];
+  const completedCount = executions?.filter((e: any) => e.status === 'completed').length || 0;
 
   return (
     <div className="container mx-auto p-6 space-y-6">

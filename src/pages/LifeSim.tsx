@@ -106,9 +106,9 @@ export default function LifeSim() {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-xl font-semibold">{activeSession.session_name}</h3>
+                  <h3 className="text-xl font-semibold">{(activeSession as any).session_name}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Age {activeSession.current_age} / {activeSession.target_age}
+                    Age {activeSession.current_age} / {(activeSession as any).target_age}
                   </p>
                 </div>
                 <div className="text-right">
@@ -119,7 +119,7 @@ export default function LifeSim() {
                 </div>
               </div>
               <Progress 
-                value={(activeSession.current_age - activeSession.starting_age) / (activeSession.target_age - activeSession.starting_age) * 100}
+                value={(activeSession.current_age - (activeSession as any).starting_age) / ((activeSession as any).target_age - (activeSession as any).starting_age) * 100}
                 className="h-2"
               />
             </Card>
