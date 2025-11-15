@@ -283,23 +283,6 @@ export default function Pricing() {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <CardTitle>Choose Your Plan</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">Please log in to continue.</p>
-            <Button onClick={() => navigate('/auth')} className="w-full">
-              Log In
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   const scrollToComparison = () => {
     featureTableRef.current?.scrollIntoView({ 
