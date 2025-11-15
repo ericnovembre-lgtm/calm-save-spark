@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useBudgetRealtime } from "@/hooks/useBudgetRealtime";
+import { useCalculateBudgetSpending } from "@/hooks/useCalculateBudgetSpending";
 import { BudgetHeader } from "@/components/budget/BudgetHeader";
 import { BudgetOverview } from "@/components/budget/BudgetOverview";
 import { BudgetAnalytics } from "@/components/budget/BudgetAnalytics";
@@ -25,6 +27,7 @@ export default function Budget() {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const queryClient = useQueryClient();
+  const calculateSpending = useCalculateBudgetSpending();
 
   // Fetch user
   const { data: user } = useQuery({
@@ -107,6 +110,46 @@ export default function Budget() {
     },
     enabled: !!user,
   });
+
+  // Enable real-time updates
+  useBudgetRealtime(user?.id);
+
+  // Auto-calculate spending for new budgets
+  useEffect(() => {
+    if (budgets.length > 0 && user) {
+      budgets.forEach(budget => {
+        // Calculate spending for current period
+        const today = new Date();
+        let periodStart = new Date();
+        let periodEnd = new Date();
+
+        if (budget.period === 'monthly') {
+          periodStart = new Date(today.getFullYear(), today.getMonth(), 1);
+          periodEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        } else if (budget.period === 'weekly') {
+          const dayOfWeek = today.getDay();
+          periodStart = new Date(today);
+          periodStart.setDate(today.getDate() - dayOfWeek);
+          periodEnd = new Date(periodStart);
+          periodEnd.setDate(periodStart.getDate() + 6);
+        } else if (budget.period === 'annual') {
+          periodStart = new Date(today.getFullYear(), 0, 1);
+          periodEnd = new Date(today.getFullYear(), 11, 31);
+        }
+
+        // Only calculate if we don't have recent spending data
+        const existingSpending = spending[budget.id];
+        if (!existingSpending || 
+            new Date(existingSpending.last_updated).getTime() < Date.now() - 5 * 60 * 1000) {
+          calculateSpending.mutate({
+            budget_id: budget.id,
+            period_start: periodStart.toISOString().split('T')[0],
+            period_end: periodEnd.toISOString().split('T')[0]
+          });
+        }
+      });
+    }
+  }, [budgets, user, spending]);
 
   // Check if we should show onboarding
   useEffect(() => {
