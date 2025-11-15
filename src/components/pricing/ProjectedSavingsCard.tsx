@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Calendar, Zap } from "lucide-react";
 import { getTierForAmount } from "./TierBadge";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { motion } from "framer-motion";
+import Animated3DCard from "./advanced/Animated3DCard";
 
 interface ProjectedSavingsCardProps {
   selectedAmount: number;
@@ -54,64 +56,79 @@ export default function ProjectedSavingsCard({
   }
 
   return (
-    <Card className={`bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20 ${
-      prefersReducedMotion ? '' : 'animate-fade-in'
-    }`}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-primary" />
-          Projected Annual Value with {tier.name}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Calendar className="w-4 h-4" />
-              Monthly Automation
+    <Animated3DCard intensity={0.5}>
+      <motion.div
+        animate={!prefersReducedMotion ? {
+          y: [0, -8, 0],
+        } : {}}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      >
+        <Card className="bg-gradient-to-br from-primary/5 via-background to-accent/5 border-primary/20 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              Projected Annual Value with {tier.name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4" />
+                  Monthly Automation
+                </div>
+                <motion.div 
+                  className="text-2xl font-bold text-primary"
+                  whileHover={!prefersReducedMotion ? { scale: 1.05 } : {}}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  ${monthlySavings}
+                </motion.div>
+              </div>
+              
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Zap className="w-4 h-4" />
+                  Annual Savings
+                </div>
+                <motion.div 
+                  className="text-2xl font-bold text-primary"
+                  whileHover={!prefersReducedMotion ? { scale: 1.05 } : {}}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  ${annualSavings}
+                </motion.div>
+              </div>
             </div>
-            <div className={`text-2xl font-bold text-primary transition-all duration-300 ${
-              prefersReducedMotion ? '' : 'hover:scale-105'
-            }`}>
-              ${monthlySavings}
+            
+            <div className="pt-4 border-t space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Annual Cost</span>
+                <span className="font-medium">${annualCost}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Automated Savings</span>
+                <span className="font-medium text-primary">+${annualSavings}</span>
+              </div>
+              <div className="flex justify-between font-semibold pt-2 border-t">
+                <span>Net Annual Value</span>
+                <span className="text-primary">${netValue}</span>
+              </div>
+              <Badge variant="secondary" className="w-full justify-center mt-2">
+                {roi}x ROI
+              </Badge>
             </div>
-          </div>
-          
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Zap className="w-4 h-4" />
-              Annual Savings
-            </div>
-            <div className={`text-2xl font-bold text-primary transition-all duration-300 ${
-              prefersReducedMotion ? '' : 'hover:scale-105'
-            }`}>
-              ${annualSavings}
-            </div>
-          </div>
-        </div>
-        
-        <div className="pt-4 border-t space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Annual Cost</span>
-            <span className="font-medium">${annualCost}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Automated Savings</span>
-            <span className="font-medium text-primary">+${annualSavings}</span>
-          </div>
-          <div className="flex justify-between font-semibold pt-2 border-t">
-            <span>Net Annual Value</span>
-            <span className="text-primary">${netValue}</span>
-          </div>
-          <Badge variant="secondary" className="w-full justify-center mt-2">
-            {roi}x ROI
-          </Badge>
-        </div>
-        
-        <p className="text-xs text-muted-foreground text-center">
-          Estimates based on average user automation and savings patterns
-        </p>
-      </CardContent>
-    </Card>
+            
+            <p className="text-xs text-muted-foreground text-center">
+              Estimates based on average user automation and savings patterns
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </Animated3DCard>
   );
 }
