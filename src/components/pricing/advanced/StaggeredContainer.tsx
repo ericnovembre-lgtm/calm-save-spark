@@ -10,7 +10,7 @@ interface StaggeredContainerProps {
 
 export default function StaggeredContainer({
   children,
-  staggerDelay = 0.05,
+  staggerDelay = 0.02,
   className = '',
 }: StaggeredContainerProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -60,8 +60,8 @@ export function StaggeredItem({
       variants={{
         hidden: { 
           opacity: 0, 
-          y: 20,
-          filter: 'blur(10px)',
+          y: 10,
+          filter: 'blur(4px)',
         },
         visible: { 
           opacity: 1, 
@@ -69,8 +69,8 @@ export function StaggeredItem({
           filter: 'blur(0px)',
           transition: {
             type: 'spring',
-            stiffness: 300,
-            damping: 30,
+            stiffness: 400,
+            damping: 35,
           },
         },
       }}
