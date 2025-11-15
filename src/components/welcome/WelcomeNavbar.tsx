@@ -40,6 +40,11 @@ export const WelcomeNavbar = () => {
           <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-accent transition-colors">
             How It Works
           </a>
+          {isAuthenticated && (
+            <Link to="/ai-agents" className="text-sm font-medium text-foreground hover:text-accent transition-colors">
+              AI Agents
+            </Link>
+          )}
         </div>
 
         {/* Auth Buttons */}
@@ -52,7 +57,7 @@ export const WelcomeNavbar = () => {
             </Link>
           ) : (
             <>
-              <Link to="/login">
+              <Link to="/auth">
                 <Button variant="ghost" size="sm">
                   Login
                 </Button>
