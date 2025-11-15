@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { Feature } from "@/pages/FeaturesHub";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { ArrowRight, Clock, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { FeatureBadge } from "./FeatureBadge";
 
 interface FeatureGridProps {
   features: Feature[];
@@ -15,7 +16,7 @@ export function FeatureGrid({ features, onFeatureClick, isNextGen }: FeatureGrid
   const navigate = useNavigate();
 
   const handleFeatureClick = (feature: Feature) => {
-    if (feature.route && feature.status === "available") {
+    if (feature.route && (feature.status === "available" || feature.status === "beta")) {
       navigate(feature.route);
     } else {
       onFeatureClick(feature);
@@ -48,24 +49,7 @@ export function FeatureGrid({ features, onFeatureClick, isNextGen }: FeatureGrid
 
               {/* Status badge */}
               <div className="absolute top-4 right-4">
-                {feature.status === "available" && (
-                  <span className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-success/20 text-success border border-success/30">
-                    <CheckCircle2 className="w-3 h-3" />
-                    Available
-                  </span>
-                )}
-                {feature.status === "coming-soon" && (
-                  <span className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-muted text-muted-foreground border border-border">
-                    <Clock className="w-3 h-3" />
-                    Coming Soon
-                  </span>
-                )}
-                {feature.status === "beta" && (
-                  <span className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-primary/20 text-primary border border-primary/30">
-                    <Sparkles className="w-3 h-3" />
-                    Beta
-                  </span>
-                )}
+                <FeatureBadge status={feature.status} />
               </div>
 
               {/* Icon */}
@@ -87,7 +71,11 @@ export function FeatureGrid({ features, onFeatureClick, isNextGen }: FeatureGrid
 
               {/* Action indicator */}
               <div className="flex items-center gap-2 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                <span>{feature.status === "available" ? "Open" : "Learn more"}</span>
+                <span>
+                  {feature.status === "available" || feature.status === "beta" 
+                    ? "Open" 
+                    : "Learn more"}
+                </span>
                 <motion.div
                   animate={!prefersReducedMotion ? { x: [0, 4, 0] } : {}}
                   transition={{ duration: 1, repeat: Infinity }}
