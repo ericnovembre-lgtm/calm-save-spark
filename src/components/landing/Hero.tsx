@@ -25,7 +25,7 @@ export const Hero = () => {
                 <TypewriterText phrases={["Saving, Not Spending", "Owning, Not Loaning", "Growing, Not Owing", "Wealth, Not Poverty"]} className="text-accent" />
               </span>
               <br />
-              <span className="text-accent">​More Money, Less  Problems with $ave+</span>
+              <span className="text-accent text-3xl md:text-5xl xl:text-6xl">​More Money, Less  Problems with $ave+</span>
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-xl">
