@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Sparkles, TrendingUp, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { ANIMATION } from "@/lib/animation-constants";
+import { ANIMATION_DURATION, ANIMATION_EASING } from "@/lib/animation-constants";
 
 export const GoalSavingsOptimizer = () => {
   const { toast } = useToast();
@@ -64,7 +64,7 @@ export const GoalSavingsOptimizer = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: ANIMATION.DURATION.NORMAL, ease: ANIMATION.EASING.SMOOTH }}
+      transition={{ duration: ANIMATION_DURATION.normal / 1000, ease: ANIMATION_EASING.smooth }}
     >
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <CardHeader>
@@ -88,7 +88,7 @@ export const GoalSavingsOptimizer = () => {
               className="p-4 rounded-lg bg-card border border-border"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: ANIMATION.DURATION.FAST }}
+              transition={{ duration: ANIMATION_DURATION.fast / 1000 }}
             >
               <div className="flex items-start justify-between mb-2">
                 <div>

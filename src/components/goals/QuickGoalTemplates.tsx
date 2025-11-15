@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Shield, Plane, Home, Car, Heart, GraduationCap, Gift, TrendingDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { ANIMATION } from "@/lib/animation-constants";
+import { ANIMATION_DURATION, ANIMATION_EASING, STAGGER_DELAY } from "@/lib/animation-constants";
 
 const iconMap: Record<string, any> = {
   shield: Shield,
@@ -100,9 +100,9 @@ export const QuickGoalTemplates = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ 
-                duration: ANIMATION.DURATION.NORMAL, 
-                delay: index * ANIMATION.STAGGER.CARD,
-                ease: ANIMATION.EASING.SMOOTH 
+                duration: ANIMATION_DURATION.normal / 1000, 
+                delay: index * (STAGGER_DELAY.cards / 1000),
+                ease: ANIMATION_EASING.smooth 
               }}
             >
               <Card className="h-full hover:shadow-lg transition-shadow hover:border-primary/40 cursor-pointer">
