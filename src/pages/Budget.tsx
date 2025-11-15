@@ -7,13 +7,13 @@ import { useBudgetRealtime } from "@/hooks/useBudgetRealtime";
 import { useCalculateBudgetSpending } from "@/hooks/useCalculateBudgetSpending";
 import { BudgetHeader } from "@/components/budget/BudgetHeader";
 import { BudgetOverview } from "@/components/budget/BudgetOverview";
-import { BudgetAnalytics } from "@/components/budget/BudgetAnalytics";
-import { CategoryManager } from "@/components/budget/CategoryManager";
+import { EnhancedBudgetAnalytics } from "@/components/budget/EnhancedBudgetAnalytics";
+import { EnhancedCategoryManager } from "@/components/budget/EnhancedCategoryManager";
 import { BudgetCard } from "@/components/budget/BudgetCard";
-import { CreateBudgetModal } from "@/components/budget/CreateBudgetModal";
+import { CreateBudgetWizard } from "@/components/budget/CreateBudgetWizard";
 import { RuleManager } from "@/components/budget/RuleManager";
 import { ExportDialog } from "@/components/budget/ExportDialog";
-import { BudgetOnboarding } from "@/components/budget/BudgetOnboarding";
+import { InteractiveBudgetOnboarding } from "@/components/budget/InteractiveBudgetOnboarding";
 import { ScrollSection } from "@/components/animations/ScrollSection";
 import StaggeredContainer, { StaggeredItem } from "@/components/pricing/advanced/StaggeredContainer";
 import { CelebrationManager } from "@/components/effects/CelebrationManager";
@@ -264,7 +264,7 @@ export default function Budget() {
         <CelebrationManager trigger={celebrationTrigger} type="milestone" />
 
         {/* Onboarding */}
-        <BudgetOnboarding
+        <InteractiveBudgetOnboarding
           isOpen={showOnboarding}
           onComplete={handleOnboardingComplete}
           onSkip={handleOnboardingSkip}
@@ -324,7 +324,7 @@ export default function Budget() {
 
         {/* Analytics Tab */}
         {activeView === 'analytics' && (
-          <BudgetAnalytics
+          <EnhancedBudgetAnalytics
             budgets={budgets}
             spending={spending}
           />
@@ -332,11 +332,11 @@ export default function Budget() {
 
         {/* Categories Tab */}
         {activeView === 'categories' && (
-          <CategoryManager categories={categories} />
+          <EnhancedCategoryManager categories={categories} />
         )}
 
         {/* Modals */}
-        <CreateBudgetModal
+        <CreateBudgetWizard
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onSave={async (data) => { await createBudgetMutation.mutateAsync(data); }}
