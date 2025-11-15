@@ -30,7 +30,12 @@ ${contextString}
 
 Provide strategic, empathetic debt management guidance. Focus on actionable steps.`;
 
-  const aiStream = await streamAIResponse(enhancedPrompt, history, message);
+  const aiStream = await streamAIResponse(
+    enhancedPrompt, 
+    history, 
+    message,
+    'openai/gpt-5-mini'
+  );
 
   let fullResponse = '';
   

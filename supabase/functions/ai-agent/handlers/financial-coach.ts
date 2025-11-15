@@ -35,7 +35,12 @@ ${contextString}
 Use this context to provide personalized advice. Reference specific data points when relevant.`;
 
   // Stream AI response
-  const aiStream = await streamAIResponse(enhancedPrompt, history, message);
+  const aiStream = await streamAIResponse(
+    enhancedPrompt, 
+    history, 
+    message,
+    'openai/gpt-5-mini'
+  );
 
   // Create a transform stream to capture the full response
   let fullResponse = '';

@@ -6,7 +6,8 @@ interface Message {
 export async function streamAIResponse(
   systemPrompt: string,
   conversationHistory: Message[],
-  userMessage: string
+  userMessage: string,
+  model: string = 'google/gemini-2.5-flash'
 ): Promise<ReadableStream> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   if (!LOVABLE_API_KEY) {
@@ -26,11 +27,11 @@ export async function streamAIResponse(
       'Authorization': `Bearer ${LOVABLE_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
+      model,
       messages,
       stream: true,
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 3000,
     }),
   });
 

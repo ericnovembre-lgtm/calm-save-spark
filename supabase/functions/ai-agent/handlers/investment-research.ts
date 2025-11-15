@@ -30,7 +30,12 @@ ${contextString}
 
 Provide objective analysis and educational insights. Always emphasize this is not financial advice.`;
 
-  const aiStream = await streamAIResponse(enhancedPrompt, history, message);
+  const aiStream = await streamAIResponse(
+    enhancedPrompt, 
+    history, 
+    message,
+    'google/gemini-2.5-pro'
+  );
 
   let fullResponse = '';
   
