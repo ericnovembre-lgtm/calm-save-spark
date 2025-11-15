@@ -245,7 +245,7 @@ const Onboarding = () => {
     }
   };
 
-  if (!userId) {
+  if (!userId && currentStep !== 'demo') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse text-foreground">Loading...</div>
