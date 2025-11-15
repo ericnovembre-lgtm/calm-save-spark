@@ -1,19 +1,17 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { toast } from "sonner";
 import { useBudgetRealtime } from "@/hooks/useBudgetRealtime";
 import { useCalculateBudgetSpending } from "@/hooks/useCalculateBudgetSpending";
+import { useBudgetAlerts } from "@/hooks/useBudgetAlerts";
 import { BudgetHeader } from "@/components/budget/BudgetHeader";
 import { BudgetOverview } from "@/components/budget/BudgetOverview";
-import { EnhancedBudgetAnalytics } from "@/components/budget/EnhancedBudgetAnalytics";
-import { EnhancedCategoryManager } from "@/components/budget/EnhancedCategoryManager";
+import { AICoachPanel } from "@/components/budget/AICoachPanel";
+import { BudgetGoalTracker } from "@/components/budget/BudgetGoalTracker";
+import { SavingsOpportunities } from "@/components/budget/SavingsOpportunities";
 import { BudgetCard } from "@/components/budget/BudgetCard";
-import { CreateBudgetWizard } from "@/components/budget/CreateBudgetWizard";
-import { RuleManager } from "@/components/budget/RuleManager";
-import { ExportDialog } from "@/components/budget/ExportDialog";
-import { InteractiveBudgetOnboarding } from "@/components/budget/InteractiveBudgetOnboarding";
 import { ScrollSection } from "@/components/animations/ScrollSection";
 import StaggeredContainer, { StaggeredItem } from "@/components/pricing/advanced/StaggeredContainer";
 import { CelebrationManager } from "@/components/effects/CelebrationManager";
@@ -21,6 +19,15 @@ import { useBudgetMilestones } from "@/hooks/useBudgetMilestones";
 import { Card } from "@/components/ui/card";
 import { Target, Plus } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { PageLoadingSkeleton } from "@/components/ui/page-loading-skeleton";
+
+// Lazy load heavy components
+const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
+const EnhancedCategoryManager = lazy(() => import("@/components/budget/EnhancedCategoryManager").then(m => ({ default: m.EnhancedCategoryManager })));
+const CreateBudgetWizard = lazy(() => import("@/components/budget/CreateBudgetWizard").then(m => ({ default: m.CreateBudgetWizard })));
+const RuleManager = lazy(() => import("@/components/budget/RuleManager").then(m => ({ default: m.RuleManager })));
+const ExportDialog = lazy(() => import("@/components/budget/ExportDialog").then(m => ({ default: m.ExportDialog })));
+const InteractiveBudgetOnboarding = lazy(() => import("@/components/budget/InteractiveBudgetOnboarding").then(m => ({ default: m.InteractiveBudgetOnboarding })));
 
 export default function Budget() {
   const [activeView, setActiveView] = useState('overview');
@@ -29,19 +36,21 @@ export default function Budget() {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const queryClient = useQueryClient();
-  const calculateSpending = useCalculateBudgetSpending();
+  const calculateSpendingMutation = useCalculateBudgetSpending();
   const { celebrationTrigger, checkMilestones } = useBudgetMilestones();
 
-  // Fetch user
+  // Fetch user with optimized cache
   const { data: user } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       return user;
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
-  // Fetch budgets
+  // Fetch budgets with optimized cache
   const { data: budgets = [], isLoading: budgetsLoading } = useQuery({
     queryKey: ['user_budgets', user?.id],
     queryFn: async () => {
@@ -57,9 +66,10 @@ export default function Budget() {
       return data || [];
     },
     enabled: !!user,
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
-  // Fetch budget spending
+  // Fetch budget spending with optimized cache
   const { data: spending = {} } = useQuery({
     queryKey: ['budget_spending', user?.id],
     queryFn: async () => {
@@ -78,9 +88,10 @@ export default function Budget() {
       return spendingMap;
     },
     enabled: !!user,
+    staleTime: 1 * 60 * 1000, // 1 minute
   });
 
-  // Fetch categories
+  // Fetch categories with optimized cache
   const { data: categories = [] } = useQuery({
     queryKey: ['budget_categories', user?.id],
     queryFn: async () => {
@@ -95,6 +106,7 @@ export default function Budget() {
       return data || [];
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Fetch onboarding status
@@ -114,93 +126,46 @@ export default function Budget() {
     enabled: !!user,
   });
 
-  // Enable real-time updates
+  // Enable realtime updates
   useBudgetRealtime(user?.id);
 
-  // Auto-calculate spending for new budgets
+  // Proactive alerts
+  useBudgetAlerts(budgets, spending);
+
+  // Calculate spending on mount - no longer needed as it's calculated by edge function
+  // Removing this to prevent unnecessary API calls
+
+  // Check for budget milestones
   useEffect(() => {
-    if (budgets.length > 0 && user) {
-      budgets.forEach(budget => {
-        // Calculate spending for current period
-        const today = new Date();
-        let periodStart = new Date();
-        let periodEnd = new Date();
-
-        if (budget.period === 'monthly') {
-          periodStart = new Date(today.getFullYear(), today.getMonth(), 1);
-          periodEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        } else if (budget.period === 'weekly') {
-          const dayOfWeek = today.getDay();
-          periodStart = new Date(today);
-          periodStart.setDate(today.getDate() - dayOfWeek);
-          periodEnd = new Date(periodStart);
-          periodEnd.setDate(periodStart.getDate() + 6);
-        } else if (budget.period === 'annual') {
-          periodStart = new Date(today.getFullYear(), 0, 1);
-          periodEnd = new Date(today.getFullYear(), 11, 31);
-        }
-
-        // Only calculate if we don't have recent spending data
-        const existingSpending = spending[budget.id];
-        if (!existingSpending || 
-            new Date(existingSpending.last_updated).getTime() < Date.now() - 5 * 60 * 1000) {
-          calculateSpending.mutate({
-            budget_id: budget.id,
-            period_start: periodStart.toISOString().split('T')[0],
-            period_end: periodEnd.toISOString().split('T')[0]
-          });
-        }
-      });
+    if (budgets.length > 0 && Object.keys(spending).length > 0) {
+      checkMilestones(budgets, spending);
     }
-  }, [budgets, user, spending]);
+  }, [budgets, spending]);
 
-  // Check if we should show onboarding
+  // Show onboarding for new users
   useEffect(() => {
-    if (user && !onboarding && budgets.length === 0) {
-      // Create onboarding record
-      supabase
-        .from('budget_onboarding')
-        .insert({ user_id: user.id })
-        .then(() => {
-          setShowOnboarding(true);
-          queryClient.invalidateQueries({ queryKey: ['budget_onboarding'] });
-        });
-    } else if (onboarding && !onboarding.completed && !onboarding.skipped) {
+    if (onboarding && !onboarding.completed && !onboarding.skipped) {
       setShowOnboarding(true);
     }
-  }, [user, onboarding, budgets, queryClient]);
+  }, [onboarding]);
 
   // Create budget mutation
   const createBudgetMutation = useMutation({
     mutationFn: async (budgetData: any) => {
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error('No user');
       
       const { data, error } = await supabase
         .from('user_budgets')
-        .insert({
-          user_id: user.id,
-          ...budgetData,
-          category_limits: budgetData.category_limits || {}
-        })
+        .insert([{ ...budgetData, user_id: user.id }])
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user_budgets'] });
-      toast.success('Budget created successfully! 🎉');
-      setShowCreateModal(false);
-      
-      // Update onboarding
-      if (onboarding && !onboarding.first_budget_created) {
-        supabase
-          .from('budget_onboarding')
-          .update({ first_budget_created: true })
-          .eq('id', onboarding.id)
-          .then(() => queryClient.invalidateQueries({ queryKey: ['budget_onboarding'] }));
-      }
+      toast.success('Budget created successfully! 🎯');
     },
     onError: (error) => {
       console.error('Error creating budget:', error);
@@ -210,13 +175,14 @@ export default function Budget() {
 
   // Complete onboarding
   const handleOnboardingComplete = async () => {
-    if (!onboarding || !user) return;
+    if (!onboarding) return;
     
     await supabase
       .from('budget_onboarding')
-      .update({ 
-        completed: true, 
-        completed_at: new Date().toISOString() 
+      .update({
+        completed: true,
+        completed_at: new Date().toISOString(),
+        first_budget_created: true
       })
       .eq('id', onboarding.id);
     
@@ -264,11 +230,13 @@ export default function Budget() {
         <CelebrationManager trigger={celebrationTrigger} type="milestone" />
 
         {/* Onboarding */}
-        <InteractiveBudgetOnboarding
-          isOpen={showOnboarding}
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingSkip}
-        />
+        <Suspense fallback={null}>
+          <InteractiveBudgetOnboarding
+            isOpen={showOnboarding}
+            onComplete={handleOnboardingComplete}
+            onSkip={handleOnboardingSkip}
+          />
+        </Suspense>
 
         {/* Header */}
         <BudgetHeader
@@ -291,8 +259,15 @@ export default function Budget() {
               categories={categories}
             />
 
+            {/* Smart Features Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+              <AICoachPanel budgets={budgets} spending={spending} />
+              <BudgetGoalTracker budgets={budgets} spending={spending} />
+              <SavingsOpportunities budgets={budgets} spending={spending} />
+            </div>
+
             {budgets.length === 0 ? (
-              <Card className="p-12 text-center backdrop-blur-sm bg-card/80 border-border/50">
+              <Card className="p-12 text-center backdrop-blur-sm bg-card/80 border-border/50 mt-6">
                 <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 rounded-full bg-primary/10 border border-primary/20">
                   <Target className="w-10 h-10 text-primary" />
                 </div>
@@ -300,14 +275,14 @@ export default function Budget() {
                 <p className="text-muted-foreground mb-6">Create your first budget to start tracking your spending</p>
                 <MagneticButton
                   onClick={() => setShowCreateModal(true)}
-                  className="gap-2 bg-gradient-to-r from-primary to-purple-600"
+                  className="gap-2 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
                 >
                   <Plus className="w-5 h-5" />
                   Create Your First Budget
                 </MagneticButton>
               </Card>
             ) : (
-              <StaggeredContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <StaggeredContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
                 {budgets.map((budget) => (
                   <StaggeredItem key={budget.id}>
                     <BudgetCard
@@ -324,36 +299,42 @@ export default function Budget() {
 
         {/* Analytics Tab */}
         {activeView === 'analytics' && (
-          <EnhancedBudgetAnalytics
-            budgets={budgets}
-            spending={spending}
-          />
+          <Suspense fallback={<PageLoadingSkeleton variant="dashboard" />}>
+            <EnhancedBudgetAnalytics
+              budgets={budgets}
+              spending={spending}
+            />
+          </Suspense>
         )}
 
         {/* Categories Tab */}
         {activeView === 'categories' && (
-          <EnhancedCategoryManager categories={categories} />
+          <Suspense fallback={<PageLoadingSkeleton variant="cards" />}>
+            <EnhancedCategoryManager categories={categories} />
+          </Suspense>
         )}
 
         {/* Modals */}
-        <CreateBudgetWizard
-          isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onSave={async (data) => { await createBudgetMutation.mutateAsync(data); }}
-          categories={categories}
-        />
+        <Suspense fallback={null}>
+          <CreateBudgetWizard
+            isOpen={showCreateModal}
+            onClose={() => setShowCreateModal(false)}
+            onSave={async (data) => { await createBudgetMutation.mutateAsync(data); }}
+            categories={categories}
+          />
 
-        <RuleManager
-          isOpen={showRuleManager}
-          onClose={() => setShowRuleManager(false)}
-        />
+          <RuleManager
+            isOpen={showRuleManager}
+            onClose={() => setShowRuleManager(false)}
+          />
 
-        <ExportDialog
-          isOpen={showExportDialog}
-          onClose={() => setShowExportDialog(false)}
-          budgets={budgets}
-          spending={spending}
-        />
+          <ExportDialog
+            isOpen={showExportDialog}
+            onClose={() => setShowExportDialog(false)}
+            budgets={budgets}
+            spending={spending}
+          />
+        </Suspense>
       </div>
     </AppLayout>
   );
