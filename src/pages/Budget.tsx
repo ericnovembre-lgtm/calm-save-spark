@@ -13,7 +13,7 @@ import { BudgetGoalTracker } from "@/components/budget/BudgetGoalTracker";
 import { SavingsOpportunities } from "@/components/budget/SavingsOpportunities";
 import { BudgetCard } from "@/components/budget/BudgetCard";
 import { ScrollSection } from "@/components/animations/ScrollSection";
-import StaggeredContainer, { StaggeredItem } from "@/components/pricing/advanced/StaggeredContainer";
+import { motion } from "framer-motion";
 import { CelebrationManager } from "@/components/effects/CelebrationManager";
 import { useBudgetMilestones } from "@/hooks/useBudgetMilestones";
 import { Card } from "@/components/ui/card";
@@ -282,17 +282,27 @@ export default function Budget() {
                 </MagneticButton>
               </Card>
             ) : (
-              <StaggeredContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
-                {budgets.map((budget) => (
-                  <StaggeredItem key={budget.id}>
+              <motion.div 
+                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                {budgets.map((budget, index) => (
+                  <motion.div
+                    key={budget.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
                     <BudgetCard
                       budget={budget as any}
                       spending={spending[budget.id]}
                       categoryData={categories.find(c => c.code === Object.keys((budget.category_limits as any) || {})[0])}
                     />
-                  </StaggeredItem>
+                  </motion.div>
                 ))}
-              </StaggeredContainer>
+              </motion.div>
             )}
           </ScrollSection>
         )}
