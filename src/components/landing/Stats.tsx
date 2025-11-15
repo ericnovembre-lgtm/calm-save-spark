@@ -62,7 +62,7 @@ export const Stats = () => {
                     prefix={stat.prefix}
                     suffix={stat.suffix}
                     decimals={stat.decimals}
-                    className={`text-4xl md:text-5xl font-bold ${stat.className}`}
+                    className={`text-3xl md:text-4xl font-bold ${stat.className}`}
                     duration={2.5}
                     delay={index * 0.2}
                   />
