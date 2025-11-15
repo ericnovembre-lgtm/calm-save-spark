@@ -68,6 +68,8 @@ import { AIAgentsCard } from "@/components/dashboard/AIAgentsCard";
 import { HelpButton } from "@/components/dashboard/HelpButton";
 import { SecretTheme } from "@/components/effects/SecretTheme";
 import { HolidayEffect } from "@/components/effects/HolidayEffect";
+import { WelcomeBackBanner } from "@/components/auth/WelcomeBackBanner";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { MilestoneCelebration } from "@/components/effects/MilestoneCelebration";
 import { useMilestoneDetector } from "@/hooks/useMilestoneDetector";
 import { FloatingCoins } from "@/components/effects/FloatingCoins";
@@ -121,6 +123,10 @@ export default function Dashboard() {
   });
 
   const userId = session?.user?.id;
+  
+  // Check onboarding status and redirect if not completed
+  useOnboardingStatus(true);
+  
   const { cardOrder, updateOrder, collapsedSections, toggleCollapsed } = useDashboardOrder(userId);
   
   // Check if wizard should be shown to first-time users
@@ -533,6 +539,7 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
+      <WelcomeBackBanner />
       <SkipLinks />
       {easterEggsEnabled && (
         <>
