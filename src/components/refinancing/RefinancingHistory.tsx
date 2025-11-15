@@ -58,14 +58,14 @@ export function RefinancingHistory() {
       {history.map((item) => {
         const statusConfig = getStatusConfig(item.status);
         const StatusIcon = statusConfig.icon;
-        const savings = Number(item.net_savings);
+        const savings = Number(item.net_savings || item.estimated_savings_total || 0);
 
         return (
           <Card key={item.id} className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3">
-                  <h4 className="text-lg font-semibold capitalize">{item.loan_type}</h4>
+                  <h4 className="text-lg font-semibold capitalize">{item.loan_type || 'Loan'}</h4>
                   <Badge className={statusConfig.className}>
                     <StatusIcon className="w-3 h-3 mr-1" />
                     {statusConfig.label}
@@ -76,7 +76,7 @@ export function RefinancingHistory() {
                   <div>
                     <p className="text-muted-foreground">Rate Change</p>
                     <p className="font-semibold">
-                      {(Number(item.current_rate) * 100).toFixed(2)}% → {(Number(item.available_rate) * 100).toFixed(2)}%
+                      {(Number(item.current_rate) * 100).toFixed(2)}% → {(Number(item.available_rate || item.current_rate) * 100).toFixed(2)}%
                     </p>
                   </div>
                   <div>

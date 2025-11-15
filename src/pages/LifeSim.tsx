@@ -18,10 +18,10 @@ export default function LifeSim() {
   const queryClient = useQueryClient();
 
   const { data: activeSessions, isLoading } = useQuery({
-    queryKey: ['lifesim-sessions'],
+    queryKey: ['lifesim-game-sessions'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('lifesim_sessions')
+        .from('lifesim_game_sessions')
         .select('*')
         .order('created_at', { ascending: false });
       
@@ -34,12 +34,17 @@ export default function LifeSim() {
 
   const createSession = useMutation({
     mutationFn: async (params: { sessionName: string; startingAge: number; targetAge: number }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
       const { data, error } = await supabase
-        .from('lifesim_sessions')
+        .from('lifesim_game_sessions')
         .insert({
+          user_id: user.id,
           session_name: params.sessionName,
-          current_age: params.startingAge,
+          starting_age: params.startingAge,
           target_age: params.targetAge,
+          current_age: params.startingAge,
         })
         .select()
         .single();
@@ -48,7 +53,7 @@ export default function LifeSim() {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['lifesim-sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['lifesim-game-sessions'] });
       setActiveSessionId(data.id);
       toast.success('New simulation started!');
     },
@@ -107,14 +112,14 @@ export default function LifeSim() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Net Worth</p>
+                  <p className="text-sm text-muted-foreground">Financial State</p>
                   <p className="text-2xl font-bold">
-                    ${activeSession.current_capital.toLocaleString()}
+                    ${((activeSession.financial_state as any)?.net_worth || 0).toLocaleString()}
                   </p>
                 </div>
               </div>
               <Progress 
-                value={(activeSession.current_age - 22) / (activeSession.target_age - 22) * 100} 
+                value={(activeSession.current_age - activeSession.starting_age) / (activeSession.target_age - activeSession.starting_age) * 100}
                 className="h-2"
               />
             </Card>
@@ -130,7 +135,7 @@ export default function LifeSim() {
           </TabsContent>
 
           <TabsContent value="stats">
-            <StatsPanel sessionId={activeSession.id} />
+            <StatsPanel sessionId={activeSession?.id || ''} />
           </TabsContent>
 
           <TabsContent value="history">

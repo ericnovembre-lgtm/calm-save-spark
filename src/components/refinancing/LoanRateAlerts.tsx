@@ -79,7 +79,7 @@ export function LoanRateAlerts() {
                 </div>
                 {alert.debts && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    {alert.debts.debt_name} - ${Number(alert.current_balance).toLocaleString()}
+                    {alert.debts.debt_name} - ${Number(alert.debts.current_balance).toLocaleString()}
                   </p>
                 )}
 
