@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import Joyride from 'react-joyride';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Target, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -21,7 +23,14 @@ import { QuickActionMenu } from "@/components/goals/interactions/QuickActionMenu
 import { AnimatedLoadingState } from "@/components/goals/advanced/AnimatedLoadingState";
 import { ContributeDialog } from "@/components/goals/ContributeDialog";
 import { EditGoalDialog } from "@/components/goals/EditGoalDialog";
+import { GoalAnalytics } from "@/components/goals/GoalAnalytics";
+import { GoalCelebration } from "@/components/goals/GoalCelebration";
+import { EnhancedEmptyState } from "@/components/goals/EnhancedEmptyState";
+import { KeyboardShortcutsDialog } from "@/components/goals/KeyboardShortcutsDialog";
+import { HelpButton } from "@/components/goals/HelpButton";
 import { goalSchema, GoalFormData } from "@/lib/validations/goal-schemas";
+import { useGoalTour } from "@/hooks/useGoalTour";
+import { useGoalKeyboardShortcuts } from "@/hooks/useGoalKeyboardShortcuts";
 
 const Goals = () => {
   const { toast } = useToast();
@@ -36,6 +45,18 @@ const Goals = () => {
   const [selectedGoal, setSelectedGoal] = useState<any>(null);
   const [contributeDialogOpen, setContributeDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
+  const [celebrationOpen, setCelebrationOpen] = useState(false);
+  const [completedGoal, setCompletedGoal] = useState<any>(null);
+
+  // Tour setup
+  const { run, steps, stepIndex, handleJoyrideCallback, resetTour } = useGoalTour();
+
+  // Keyboard shortcuts
+  const { shortcuts } = useGoalKeyboardShortcuts({
+    onNewGoal: () => setIsDialogOpen(true),
+    onHelp: () => setShortcutsDialogOpen(true),
+  });
 
   const { data: goals, isLoading } = useQuery({
     queryKey: ['goals'],
@@ -49,6 +70,28 @@ const Goals = () => {
       return data;
     }
   });
+
+  // Check for newly completed goals
+  useEffect(() => {
+    if (goals) {
+      goals.forEach(goal => {
+        const current = parseFloat(String(goal.current_amount || 0));
+        const target = parseFloat(String(goal.target_amount || 1));
+        
+        if (current >= target) {
+          const celebratedKey = `goal-celebrated-${goal.id}`;
+          if (!localStorage.getItem(celebratedKey)) {
+            setCompletedGoal(goal);
+            setCelebrationOpen(true);
+            localStorage.setItem(celebratedKey, 'true');
+          }
+        }
+      });
+    }
+  }, [goals]);
+
+  // Memoize goals for performance
+  const memoizedGoals = useMemo(() => goals || [], [goals]);
 
   const createGoalMutation = useMutation({
     mutationFn: async (goal: typeof newGoal) => {
@@ -159,12 +202,26 @@ const Goals = () => {
             <p className="text-muted-foreground">Achieve your goals faster with AI-powered optimization</p>
           </div>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <div className="flex items-center gap-2">
+            <HelpButton
+              onShowShortcuts={() => setShortcutsDialogOpen(true)}
+              onResetTour={resetTour}
+            />
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="w-4 h-4" />
-                New Goal
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button className="gap-2" data-tour="new-goal-button">
+                      <Plus className="w-4 h-4" />
+                      New Goal
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>⌘/Ctrl + N</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -237,13 +294,16 @@ const Goals = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {isLoading ? (
           <AnimatedLoadingState />
-        ) : goals && goals.length > 0 ? (
+        ) : memoizedGoals && memoizedGoals.length > 0 ? (
           <>
-            <Accordion type="single" collapsible className="w-full">
+            <GoalAnalytics goals={memoizedGoals} />
+
+            <Accordion type="single" collapsible className="w-full" data-tour="ai-insights">
               <AccordionItem value="ai-insights" className="border rounded-lg px-4">
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-2">
@@ -259,52 +319,51 @@ const Goals = () => {
             </Accordion>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {goals.map((goal) => (
-                <GoalCard3D
-                  key={goal.id}
-                  id={goal.id}
-                  name={goal.name}
-                  current={parseFloat(String(goal.current_amount))}
-                  target={parseFloat(String(goal.target_amount))}
-                  icon={goal.icon || undefined}
-                  deadline={goal.deadline || undefined}
-                  onContribute={() => {
-                    setSelectedGoal(goal);
-                    setContributeDialogOpen(true);
-                  }}
-                  onEdit={() => {
-                    setSelectedGoal(goal);
-                    setEditDialogOpen(true);
-                  }}
-                  onDelete={() => deleteGoalMutation.mutate(goal.id)}
-                  onTogglePause={() => toast({ title: "Pause/Resume coming soon!" })}
-                />
+              {memoizedGoals.map((goal, index) => (
+                <div key={goal.id} data-tour={index === 0 ? "goal-card" : undefined}>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <GoalCard3D
+                            id={goal.id}
+                            name={goal.name}
+                            current={parseFloat(String(goal.current_amount))}
+                            target={parseFloat(String(goal.target_amount))}
+                            icon={goal.icon || undefined}
+                            deadline={goal.deadline || undefined}
+                            onContribute={() => {
+                              setSelectedGoal(goal);
+                              setContributeDialogOpen(true);
+                            }}
+                            onEdit={() => {
+                              setSelectedGoal(goal);
+                              setEditDialogOpen(true);
+                            }}
+                            onDelete={() => deleteGoalMutation.mutate(goal.id)}
+                            onTogglePause={() => toast({ title: "Pause/Resume coming soon!" })}
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        <p>Click the menu icon for actions</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               ))}
             </div>
           </>
         ) : (
-          <div className="space-y-8">
-            <QuickGoalTemplates />
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Target className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No Goals Yet</h3>
-                <p className="text-muted-foreground mb-6">
-                  Start your savings journey by creating your first goal or use a template above
-                </p>
-                <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
-                  <Plus className="w-4 h-4" />
-                  Create Your First Goal
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          <EnhancedEmptyState onCreateGoal={() => setIsDialogOpen(true)} />
         )}
         
-        <QuickActionMenu
-          onNewGoal={() => setIsDialogOpen(true)}
-          onQuickDeposit={() => toast({ title: "Quick deposit coming soon!" })}
-        />
+        <div data-tour="quick-actions">
+          <QuickActionMenu
+            onNewGoal={() => setIsDialogOpen(true)}
+            onQuickDeposit={() => toast({ title: "Quick deposit coming soon!" })}
+          />
+        </div>
 
         <ContributeDialog
           open={contributeDialogOpen}
@@ -322,6 +381,39 @@ const Goals = () => {
           goal={selectedGoal}
           onSubmit={(id, data) => updateGoalMutation.mutate({ id, data })}
           isSubmitting={updateGoalMutation.isPending}
+        />
+
+        <KeyboardShortcutsDialog
+          open={shortcutsDialogOpen}
+          onOpenChange={setShortcutsDialogOpen}
+          shortcuts={shortcuts}
+        />
+
+        <GoalCelebration
+          open={celebrationOpen}
+          onOpenChange={setCelebrationOpen}
+          goalName={completedGoal?.name || ""}
+          amount={parseFloat(String(completedGoal?.target_amount || 0))}
+        />
+
+        <Joyride
+          steps={steps}
+          run={run}
+          stepIndex={stepIndex}
+          continuous
+          showProgress
+          showSkipButton
+          callback={handleJoyrideCallback}
+          styles={{
+            options: {
+              primaryColor: 'hsl(var(--primary))',
+              textColor: 'hsl(var(--foreground))',
+              backgroundColor: 'hsl(var(--card))',
+              arrowColor: 'hsl(var(--card))',
+              overlayColor: 'rgba(0, 0, 0, 0.4)',
+              zIndex: 10000,
+            },
+          }}
         />
       </div>
     </AppLayout>
