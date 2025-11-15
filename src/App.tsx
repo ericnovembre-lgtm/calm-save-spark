@@ -69,6 +69,7 @@ const DigitalTwin = lazy(() => import("./pages/DigitalTwin"));
 const AgentHub = lazy(() => import("./pages/AgentHub"));
 const BehavioralGuardian = lazy(() => import("./pages/BehavioralGuardian"));
 const CoolingOff = lazy(() => import("./pages/CoolingOff"));
+const Wallet = lazy(() => import("./pages/Wallet"));
 
 const queryClient = new QueryClient();
 
@@ -158,6 +159,7 @@ function AnimatedRoutes() {
         <Route path="/budget" element={<ProtectedRoute><PageTransition><Budget /></PageTransition></ProtectedRoute>} />
         <Route path="/debts" element={<ProtectedRoute><PageTransition><Debts /></PageTransition></ProtectedRoute>} />
         <Route path="/investments" element={<ProtectedRoute><PageTransition><Investments /></PageTransition></ProtectedRoute>} />
+        <Route path="/wallet" element={<ProtectedRoute><PageTransition><Wallet /></PageTransition></ProtectedRoute>} />
         <Route path="/credit" element={<ProtectedRoute><PageTransition><Credit /></PageTransition></ProtectedRoute>} />
         <Route path="/goals" element={<ProtectedRoute><PageTransition><Goals /></PageTransition></ProtectedRoute>} />
         <Route path="/pots" element={<ProtectedRoute><PageTransition><Pots /></PageTransition></ProtectedRoute>} />
