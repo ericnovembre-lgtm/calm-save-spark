@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug, Heart, Search, Sparkles, Brain } from "lucide-react";
+import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug, Heart, Search, Sparkles, Brain, Gamepad2, RefreshCw, MapPin, Coins } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -50,9 +50,16 @@ const mainNavLinks = [
   { name: "Analytics", path: "/analytics", icon: BarChart3 },
   { name: "Social", path: "/social", icon: Trophy },
   { name: "Integrations", path: "/integrations", icon: Plug },
+  // Next-Gen Features Section
   { name: "Digital Twin", path: "/digital-twin", icon: Brain },
   { name: "Agent Hub", path: "/agent-hub", icon: Bot },
   { name: "Guardian", path: "/guardian", icon: Shield },
+  { name: "LifeSim", path: "/lifesim", icon: Gamepad2 },
+  { name: "Investment Manager", path: "/investment-manager", icon: TrendingUp },
+  { name: "Refinancing Hub", path: "/refinancing-hub", icon: RefreshCw },
+  { name: "Life Events", path: "/life-events", icon: MapPin },
+  { name: "Business OS", path: "/business-os", icon: Briefcase },
+  { name: "DeFi Manager", path: "/defi-manager", icon: Coins },
 ];
 
 const bottomNavLinks = [

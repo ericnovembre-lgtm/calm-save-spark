@@ -233,7 +233,8 @@ const sections: Section[] = [
         title: "Personal Financial Digital Twin",
         description: "Dynamic simulation engine for your entire financial life",
         details: "Run 'what-if' scenarios to visualize the long-term impact of major decisions like buying a home, changing careers, or retiring early. Uses Monte Carlo simulations to gauge probability of success for your goals.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/digital-twin"
       },
       {
         id: "behavioral-guardian",
@@ -241,7 +242,8 @@ const sections: Section[] = [
         title: "Behavioral Finance Guardian",
         description: "Emotional circuit-breaker during high-risk decisions",
         details: "Detects patterns of FOMO and FUD using sentiment analysis. Provides data-driven counter-arguments and enforces user-defined cooling-off periods to prevent wealth-destroying emotional decisions.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/guardian"
       },
       {
         id: "agent-hub",
@@ -249,7 +251,8 @@ const sections: Section[] = [
         title: "Autonomous Agent Delegation Hub",
         description: "Central control for your team of AI financial agents",
         details: "Review goals validated by your Digital Twin and grant specific permissions to autonomous AI agents to execute tasks on your behalf with pre-authorized constraints.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/agent-hub"
       },
       {
         id: "wallet",
@@ -257,7 +260,8 @@ const sections: Section[] = [
         title: "Embedded Self-Custodial Wallet",
         description: "Secure multi-chain digital wallet built into the app",
         details: "Whitelabeled wallet infrastructure for managing on-chain assets. Acts as the vessel for autonomous agents to perform secure blockchain transactions on your behalf.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/wallet"
       },
       {
         id: "lifesim",
@@ -265,7 +269,8 @@ const sections: Section[] = [
         title: "LifeSim Financial Simulator",
         description: "SimCity for personal finance - learn by living",
         details: "Live a simulated life from graduation to retirement, making complex financial choices to viscerally learn about compound interest, taxes, and risk. Your game behavior refines your Digital Twin profile.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/lifesim"
       }
     ]
   },
@@ -283,7 +288,8 @@ const sections: Section[] = [
         title: "Autonomous Investment Manager",
         description: "24/7 portfolio optimization and tax-loss harvesting",
         details: "Executes your investment mandate with continuous tax-loss harvesting and automatic rebalancing based on goals defined in your Digital Twin. Maximizes returns while minimizing tax burden.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/investment-manager"
       },
       {
         id: "liability-agent",
@@ -291,7 +297,8 @@ const sections: Section[] = [
         title: "Proactive Liability Agent",
         description: "Automatically refinances loans at optimal times",
         details: "Monitors markets and your financial profile to proactively initiate and execute end-to-end refinancing for mortgages, student loans, and auto loans when net-positive opportunities arise.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/refinancing-hub"
       },
       {
         id: "defi-manager",
@@ -299,7 +306,8 @@ const sections: Section[] = [
         title: "Autonomous DeFi & RWA Manager",
         description: "Optimizes yields across decentralized finance protocols",
         details: "Uses embedded wallet to execute automated yield farming across audited protocols and manage tokenized Real-World Assets like U.S. Treasuries and fractionalized real estate.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/defi-manager"
       },
       {
         id: "alternatives-portal",
@@ -325,7 +333,8 @@ const sections: Section[] = [
         title: "Finance as a Life Event Orchestrator",
         description: "Automated playbooks for major life milestones",
         details: "End-to-end automation of financial, administrative, and legal tasks for marriage, home purchase, or having a child. Handles everything from updating beneficiaries to opening 529 plans.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/life-events"
       },
       {
         id: "business-of-one",
@@ -333,7 +342,8 @@ const sections: Section[] = [
         title: "Business-of-One OS",
         description: "Complete financial solution for creators & freelancers",
         details: "Automated S-Corp setup, bookkeeping, multi-state quarterly tax projection and payment, plus irregular income smoothing with synthetic paychecks.",
-        status: "coming-soon"
+        status: "beta",
+        route: "/business-os"
       },
       {
         id: "family-office",
