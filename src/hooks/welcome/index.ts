@@ -7,3 +7,5 @@
  */
 
 export { useMagneticEffect } from './useMagneticEffect';
+export { useAIPersonalization } from './useAIPersonalization';
+

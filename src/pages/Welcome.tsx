@@ -37,6 +37,10 @@ import { PriorityLoader } from "@/components/performance/PriorityLoader";
 import { useComponentTracking } from "@/hooks/useComponentTracking";
 import { TrackedLazyComponent } from "@/components/performance/TrackedLazyComponent";
 import type { Feature } from "@/components/welcome/FeatureCarousel";
+import { InteractiveSavingsCalculator } from "@/components/welcome/advanced/InteractiveSavingsCalculator";
+import { LiveActivityFeed } from "@/components/welcome/advanced/LiveActivityFeed";
+import { SavingsStreakWidget } from "@/components/welcome/advanced/SavingsStreakWidget";
+import { useAIPersonalization } from "@/hooks/welcome/useAIPersonalization";
 
 // Import section components
 import { WelcomeHeroSection } from "@/components/welcome/sections/WelcomeHeroSection";
@@ -623,6 +627,65 @@ const Welcome = () => {
             </motion.section>
           </LazyLoad>
           </PriorityLoader>
+
+          {/* Interactive Widgets Section - Phase 3 */}
+          <motion.section
+            className="space-y-12"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="text-center mb-12">
+              <motion.h2 
+                className="font-display font-bold text-3xl md:text-4xl text-foreground mb-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+              >
+                Explore Your Savings Potential
+              </motion.h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Interactive tools to help you plan, track, and achieve your financial goals
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+              {/* Savings Calculator */}
+              <motion.div
+                className="lg:col-span-2"
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+              >
+                <InteractiveSavingsCalculator />
+              </motion.div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                {/* Streak Widget */}
+                <motion.div
+                  initial={{ opacity: 0, x: 40 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <SavingsStreakWidget />
+                </motion.div>
+
+                {/* Live Activity Feed */}
+                <motion.div
+                  initial={{ opacity: 0, x: 40 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <LiveActivityFeed />
+                </motion.div>
+              </div>
+            </div>
+          </motion.section>
 
           {/* Secure Onboarding CTA - MEDIUM PRIORITY */}
           <WelcomeCTASection />
