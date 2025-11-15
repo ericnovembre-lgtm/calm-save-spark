@@ -117,4 +117,13 @@ verify_jwt = true
 [functions.generate-image]
 verify_jwt = true
 
+[functions.aegis-monitor]
+verify_jwt = false
+
+[functions.hephaestus-fixer]
+verify_jwt = false
+
+[functions.send-hephaestus-alert]
+verify_jwt = false
+
 

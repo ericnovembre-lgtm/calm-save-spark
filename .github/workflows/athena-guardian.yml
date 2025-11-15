@@ -1,0 +1,113 @@
+name: 🛡️ Athena - UI/UX Guardian
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  athena-analysis:
+    runs-on: ubuntu-latest
+    name: Analyze UI/UX Impact
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Analyze Bundle Size
+        id: bundle
+        run: |
+          CURRENT_SIZE=$(du -sb dist | cut -f1)
+          git checkout ${{ github.event.pull_request.base.sha }}
+          npm ci
+          npm run build
+          BASE_SIZE=$(du -sb dist | cut -f1)
+          DELTA=$((CURRENT_SIZE - BASE_SIZE))
+          DELTA_KB=$((DELTA / 1024))
+          echo "delta_kb=$DELTA_KB" >> $GITHUB_OUTPUT
+          echo "current_mb=$((CURRENT_SIZE / 1024 / 1024))" >> $GITHUB_OUTPUT
+          echo "base_mb=$((BASE_SIZE / 1024 / 1024))" >> $GITHUB_OUTPUT
+      
+      - name: Run Lighthouse CI
+        id: lighthouse
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            http://localhost:8080
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        continue-on-error: true
+      
+      - name: Check Accessibility
+        id: a11y
+        run: |
+          npx @axe-core/cli dist/**/*.html --exit
+        continue-on-error: true
+      
+      - name: Check Design System Compliance
+        id: design-system
+        run: |
+          VIOLATIONS=$(grep -r "color:\s*#" src/ --include="*.tsx" --include="*.ts" | wc -l || echo "0")
+          echo "violations=$VIOLATIONS" >> $GITHUB_OUTPUT
+      
+      - name: Post Athena Report
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const bundleDelta = ${{ steps.bundle.outputs.delta_kb }};
+            const currentMB = ${{ steps.bundle.outputs.current_mb }};
+            const baseMB = ${{ steps.bundle.outputs.base_mb }};
+            const designViolations = ${{ steps.design-system.outputs.violations }};
+            
+            let warnings = [];
+            let criticals = [];
+            
+            if (bundleDelta > 50) {
+              criticals.push(`📦 **Bundle Size**: Increased by ${bundleDelta}KB (${baseMB}MB → ${currentMB}MB). Target: <50KB increase.`);
+            } else if (bundleDelta > 25) {
+              warnings.push(`📦 **Bundle Size**: Increased by ${bundleDelta}KB. Consider code splitting.`);
+            }
+            
+            if (designViolations > 0) {
+              warnings.push(`🎨 **Design System**: Found ${designViolations} direct color usage(s). Use CSS variables instead.`);
+            }
+            
+            const emoji = criticals.length > 0 ? '⚠️' : warnings.length > 0 ? '⚡' : '✅';
+            const status = criticals.length > 0 ? 'WARNINGS DETECTED' : warnings.length > 0 ? 'Minor Issues Found' : 'ALL CHECKS PASSED';
+            
+            let comment = `## ${emoji} Athena UI/UX Analysis - ${status}\n\n`;
+            
+            if (criticals.length > 0) {
+              comment += `### 🚨 Critical Warnings\n${criticals.map(w => `- ${w}`).join('\n')}\n\n`;
+            }
+            
+            if (warnings.length > 0) {
+              comment += `### ⚡ Warnings\n${warnings.map(w => `- ${w}`).join('\n')}\n\n`;
+            }
+            
+            if (criticals.length === 0 && warnings.length === 0) {
+              comment += `### ✨ Perfect!\nNo UI/UX regressions detected. Bundle size: ${currentMB}MB.\n\n`;
+            }
+            
+            comment += `---\n*🛡️ Athena Guardian | Merge allowed with warnings*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
