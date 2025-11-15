@@ -10,46 +10,56 @@ import { TrendingUp, Scale, Receipt, Settings, Target, Zap, Shield, BarChart3 } 
 import { PageLoadingSkeleton } from '@/components/ui/page-loading-skeleton';
 import { FeatureEmptyState } from '@/components/ui/feature-empty-state';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { withErrorHandling } from '@/lib/errorHandling';
 
 export default function InvestmentManager() {
   const { data: mandate, isLoading } = useQuery({
     queryKey: ['investment-mandate'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('investment_mandates')
-        .select('*')
-        .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
-    },
+    queryFn: () => withErrorHandling(
+      async () => {
+        const { data, error } = await supabase
+          .from('investment_mandates')
+          .select('*')
+          .single();
+        
+        if (error && error.code !== 'PGRST116') throw error;
+        return data;
+      },
+      { action: 'loading investment mandate', component: 'InvestmentManager' }
+    ),
   });
 
   const { data: portfolio } = useQuery({
     queryKey: ['portfolio-holdings'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('portfolio_holdings')
-        .select('*')
-        .order('market_value', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => withErrorHandling(
+      async () => {
+        const { data, error } = await supabase
+          .from('portfolio_holdings')
+          .select('*')
+          .order('market_value', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+      },
+      { action: 'loading portfolio holdings', component: 'InvestmentManager' }
+    ),
   });
 
   const { data: tlhOpportunities } = useQuery({
     queryKey: ['tlh-opportunities'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tax_loss_harvest_opportunities')
-        .select('*')
-        .eq('status', 'pending')
-        .order('potential_tax_savings', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => withErrorHandling(
+      async () => {
+        const { data, error } = await supabase
+          .from('tax_loss_harvest_opportunities')
+          .select('*')
+          .eq('status', 'pending')
+          .order('potential_tax_savings', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+      },
+      { action: 'loading tax-loss harvesting opportunities', component: 'InvestmentManager' }
+    ),
   });
 
   if (isLoading) {
