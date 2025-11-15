@@ -30,7 +30,7 @@ serve(async (req) => {
       });
     }
 
-    const { scenarioId, parameters, monteCarloRuns = 1000 } = await req.json();
+    const { scenarioId, parameters, monteCarloRuns = 100 } = await req.json();
 
     // Get user's current financial state
     const { data: profile } = await supabaseClient
