@@ -38,7 +38,7 @@ export const Hero = () => {
                 className="px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-sm font-semibold text-foreground flex items-center gap-2"
               >
                 <CreditCard className="w-4 h-4" />
-                Connect Card
+                Connect Bank Account
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
