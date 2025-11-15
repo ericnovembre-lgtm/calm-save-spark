@@ -45,9 +45,11 @@ export const FloatingParticles = ({
     setSize();
     window.addEventListener('resize', setSize);
 
-    // Get computed color from CSS variable
+    // Get computed color from CSS variable and convert to Canvas-compatible format
     const computedStyle = getComputedStyle(document.documentElement);
     const accentHSL = computedStyle.getPropertyValue('--accent').trim() || '38 45% 68%';
+    // Convert space-separated HSL to comma-separated for Canvas API
+    const canvasColor = accentHSL.replace(/\s+/g, ', ');
 
     // Initialize particles
     particlesRef.current = Array.from({ length: count }, () => ({
@@ -56,7 +58,7 @@ export const FloatingParticles = ({
       vx: (Math.random() - 0.5) * 0.5,
       vy: (Math.random() - 0.5) * 0.5,
       radius: Math.random() * 3 + 1,
-      color: accentHSL,
+      color: canvasColor,
       alpha: Math.random() * 0.3 + 0.1
     }));
 
