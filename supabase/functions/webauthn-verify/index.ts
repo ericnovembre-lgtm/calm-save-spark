@@ -6,6 +6,21 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Base64URL decoding helper
+function base64urlDecode(base64url: string): Uint8Array {
+  const base64 = base64url
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(base64url.length + (4 - base64url.length % 4) % 4, '=');
+  
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -32,17 +47,42 @@ serve(async (req) => {
 
     const { credential, deviceName } = await req.json();
 
-    // Verify challenge exists
+    // Decode and parse clientDataJSON
+    const clientDataBytes = base64urlDecode(credential.response.clientDataJSON);
+    const clientDataText = new TextDecoder().decode(clientDataBytes);
+    const clientData = JSON.parse(clientDataText);
+    
+    // Extract challenge from clientData
+    const receivedChallenge = clientData.challenge;
+
+    if (!receivedChallenge) {
+      return new Response(JSON.stringify({ error: 'No challenge in clientDataJSON' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Verify challenge exists and matches
     const { data: challengeData, error: challengeError } = await supabase
       .from('webauthn_challenges')
       .select('*')
       .eq('user_id', user.id)
       .eq('type', 'registration')
-      .eq('challenge', credential.response.clientDataJSON)
+      .eq('challenge', receivedChallenge)
       .single();
 
     if (challengeError || !challengeData) {
+      console.error('Challenge verification failed:', challengeError);
       return new Response(JSON.stringify({ error: 'Invalid challenge' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Verify challenge is not expired (5 minutes)
+    const challengeAge = Date.now() - new Date(challengeData.created_at).getTime();
+    if (challengeAge > 5 * 60 * 1000) {
+      return new Response(JSON.stringify({ error: 'Challenge expired' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

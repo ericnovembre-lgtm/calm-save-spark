@@ -6,6 +6,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Base64URL encoding helper
+function base64urlEncode(buffer: Uint8Array): string {
+  const base64 = btoa(String.fromCharCode(...buffer));
+  return base64
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -30,8 +39,10 @@ serve(async (req) => {
       });
     }
 
-    // Generate a random challenge
-    const challenge = crypto.randomUUID();
+    // Generate cryptographically secure random challenge (32 bytes)
+    const challengeBytes = new Uint8Array(32);
+    crypto.getRandomValues(challengeBytes);
+    const challenge = base64urlEncode(challengeBytes);
 
     // Store challenge in database
     const { error: insertError } = await supabase

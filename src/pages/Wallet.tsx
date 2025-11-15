@@ -3,6 +3,8 @@ import { WalletOverview } from "@/components/wallet/WalletOverview";
 import { SendForm } from "@/components/wallet/SendForm";
 import { ReceiveModal } from "@/components/wallet/ReceiveModal";
 import { TransactionHistory } from "@/components/wallet/TransactionHistory";
+import { DemoModeWarningBanner } from "@/components/wallet/DemoModeWarningBanner";
+import { WalletDemoModal } from "@/components/wallet/WalletDemoModal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowUpRight, ArrowDownLeft, Clock } from "lucide-react";
@@ -13,6 +15,8 @@ export default function Wallet() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <WalletDemoModal />
+      
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Wallet</h1>
         <p className="text-muted-foreground">
@@ -20,6 +24,8 @@ export default function Wallet() {
         </p>
       </div>
 
+      <DemoModeWarningBanner />
+      
       <WalletOverview />
 
       <div className="flex gap-4 mb-8">
