@@ -60,6 +60,7 @@
     "react-countup": "^6.5.3",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
+    "react-dropzone": "^14.3.8",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.61.1",
     "react-hotkeys-hook": "^5.2.1",

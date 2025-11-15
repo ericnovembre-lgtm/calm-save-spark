@@ -2224,6 +2224,7 @@ export type Database = {
           is_completed: boolean | null
           item_type: string
           life_plan_id: string
+          priority: string | null
           reminder_date: string | null
           title: string
         }
@@ -2238,6 +2239,7 @@ export type Database = {
           is_completed?: boolean | null
           item_type: string
           life_plan_id: string
+          priority?: string | null
           reminder_date?: string | null
           title: string
         }
@@ -2252,6 +2254,7 @@ export type Database = {
           is_completed?: boolean | null
           item_type?: string
           life_plan_id?: string
+          priority?: string | null
           reminder_date?: string | null
           title?: string
         }
@@ -2279,6 +2282,7 @@ export type Database = {
           is_paid: boolean | null
           life_plan_id: string
           notes: string | null
+          payment_date: string | null
         }
         Insert: {
           actual_amount?: number | null
@@ -2293,6 +2297,7 @@ export type Database = {
           is_paid?: boolean | null
           life_plan_id: string
           notes?: string | null
+          payment_date?: string | null
         }
         Update: {
           actual_amount?: number | null
@@ -2307,6 +2312,7 @@ export type Database = {
           is_paid?: boolean | null
           life_plan_id?: string
           notes?: string | null
+          payment_date?: string | null
         }
         Relationships: [
           {
@@ -3795,6 +3801,9 @@ export type Database = {
           generated_at: string | null
           id: string
           metadata: Json | null
+          parsed_data: Json | null
+          processing_status: string | null
+          storage_path: string | null
           tax_year: number
           user_id: string
         }
@@ -3807,6 +3816,9 @@ export type Database = {
           generated_at?: string | null
           id?: string
           metadata?: Json | null
+          parsed_data?: Json | null
+          processing_status?: string | null
+          storage_path?: string | null
           tax_year: number
           user_id: string
         }
@@ -3819,6 +3831,9 @@ export type Database = {
           generated_at?: string | null
           id?: string
           metadata?: Json | null
+          parsed_data?: Json | null
+          processing_status?: string | null
+          storage_path?: string | null
           tax_year?: number
           user_id?: string
         }
