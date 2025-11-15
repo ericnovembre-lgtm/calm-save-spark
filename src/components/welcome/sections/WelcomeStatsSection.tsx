@@ -20,6 +20,8 @@ import { LiveActivityTicker } from "@/components/welcome/LiveActivityTicker";
 import { PullToRefreshStats } from "@/components/mobile/PullToRefreshStats";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { WELCOME_STATS } from "@/components/welcome/constants";
+import { TiltCard3D } from "@/components/welcome/advanced/TiltCard3D";
+import { MorphingNumber } from "@/components/welcome/advanced/MorphingNumber";
 
 /**
  * Props for the WelcomeStatsSection component
@@ -112,14 +114,15 @@ export function WelcomeStatsSection({
             <div className="space-y-8">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                 {stats.map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                  >
-                    <ExpandableStatCard {...stat} />
-                  </motion.div>
+                  <TiltCard3D key={stat.label} maxTilt={8} glare={true}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                    >
+                      <ExpandableStatCard {...stat} />
+                    </motion.div>
+                  </TiltCard3D>
                 ))}
               </div>
 

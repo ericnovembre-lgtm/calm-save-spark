@@ -57,7 +57,7 @@ const ClickerGame = lazy(() => import("@/components/welcome/ClickerGame").then(m
 const MoodToggle = lazy(() => import("@/components/welcome/MoodToggle").then(m => ({ default: m.MoodToggle })));
 const PullToRefreshStats = lazy(() => import("@/components/mobile/PullToRefreshStats").then(m => ({ default: m.PullToRefreshStats })));
 const ParallaxBackground = lazy(() => import("@/components/welcome/ParallaxBackground").then(m => ({ default: m.ParallaxBackground })));
-const ParticleBackground = lazy(() => import("@/components/welcome/ParticleBackground").then(m => ({ default: m.ParticleBackground })));
+const ParticleBackground = lazy(() => import("@/components/welcome/effects/EnhancedParticles").then(m => ({ default: m.EnhancedParticles })));
 const MouseGradient = lazy(() => import("@/components/welcome/MouseGradient").then(m => ({ default: m.MouseGradient })));
 const ScrollGradient = lazy(() => import("@/components/welcome/ScrollGradient").then(m => ({ default: m.ScrollGradient })));
 
