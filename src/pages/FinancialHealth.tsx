@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { LoadingState } from "@/components/LoadingState";
 import { useFinancialHealth } from "@/hooks/useFinancialHealth";
 import { useFinancialHealthHistory, useFinancialHealthTrend } from "@/hooks/useFinancialHealthHistory";
 import { HolographicHealthGlobe } from "@/components/financial-health/HolographicHealthGlobe";
@@ -13,6 +12,8 @@ import { CelebrationEffect } from "@/components/financial-health/CelebrationEffe
 import { RecommendationCard } from "@/components/financial-health/RecommendationCard";
 import { ActionTimeline } from "@/components/financial-health/ActionTimeline";
 import { BenchmarkComparison } from "@/components/analytics/BenchmarkComparison";
+import { SectionDivider } from "@/components/financial-health/SectionDivider";
+import { FinancialHealthSkeleton } from "@/components/financial-health/FinancialHealthSkeleton";
 import { Card } from "@/components/ui/card";
 import { 
   CreditCard, 
@@ -20,7 +21,11 @@ import {
   PiggyBank, 
   Target, 
   TrendingUp, 
-  Shield 
+  Shield,
+  BarChart3,
+  Calculator,
+  Users,
+  Bell
 } from "lucide-react";
 import { ScrollSection } from "@/components/animations/ScrollSection";
 
@@ -52,7 +57,7 @@ export default function FinancialHealth() {
     }
   }, [healthData?.overallScore]);
 
-  if (isLoading) return <LoadingState />;
+  if (isLoading) return <AppLayout><FinancialHealthSkeleton /></AppLayout>;
 
   const activeRecommendations = healthData?.recommendations?.filter(
     (rec: any) => !dismissedRecommendations.includes(rec.id)
@@ -97,7 +102,7 @@ export default function FinancialHealth() {
 
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-8 space-y-12">
+      <div className="container mx-auto px-4 py-12 space-y-16 max-w-7xl">
         {/* Celebration Effect */}
         {showCelebration && (
           <CelebrationEffect
@@ -116,21 +121,22 @@ export default function FinancialHealth() {
           />
         )}
 
-        {/* Header */}
+        {/* Header with gradient background */}
         <ScrollSection>
-          <div className="text-center">
-            <h1 className="text-5xl font-display font-bold text-foreground mb-3 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-              Financial Health Dashboard
+          <div className="text-center relative">
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent blur-3xl -z-10" />
+            <h1 className="text-6xl md:text-7xl font-display font-bold mb-4 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent animate-subtle-glow">
+              Financial Health
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Your comprehensive, AI-powered financial wellness center
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Your comprehensive, AI-powered financial wellness dashboard
             </p>
           </div>
         </ScrollSection>
 
         {/* Hero Section - 3D Holographic Globe */}
         <ScrollSection>
-          <Card className="overflow-hidden border-2 border-primary/20">
+          <Card className="overflow-hidden border-2 border-primary/10 shadow-2xl bg-gradient-to-br from-card via-card to-accent/5 backdrop-blur-xl">
             <HolographicHealthGlobe 
               score={healthData?.overallScore || 0} 
               trend={trend || 0}
@@ -138,27 +144,167 @@ export default function FinancialHealth() {
           </Card>
         </ScrollSection>
 
+        {/* Predictive Timeline */}
+        <ScrollSection>
+          {historyData && historyData.length > 0 && (
+            <>
+              <SectionDivider 
+                title="Score Projection" 
+                subtitle="AI-powered 3-month forecast"
+                icon={<TrendingUp className="w-6 h-6" />}
+              />
+              <PredictiveTimelineChart
+                historicalData={historyData}
+                currentScore={healthData?.overallScore || 0}
+              />
+            </>
+          )}
+        </ScrollSection>
+
+        {/* Breakdown Section - Liquid Metric Cards */}
+        <ScrollSection>
+          <SectionDivider 
+            title="Health Breakdown" 
+            subtitle="Detailed analysis of each financial dimension"
+            icon={<BarChart3 className="w-6 h-6" />}
+          />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <LiquidMetricCard
+              title="Credit Health"
+              subtitle="FICO Score Impact"
+              value={`${Math.round((healthData?.components?.credit || 50) * 8.5)} / 850`}
+              numericValue={Math.round((healthData?.components?.credit || 50) * 8.5)}
+              score={healthData?.components?.credit || 50}
+              icon={CreditCard}
+              actionLabel="View Credit Report"
+              actionLink="/credit"
+            />
+            
+            <LiquidMetricCard
+              title="Debt Management"
+              subtitle="Total Debt Level"
+              value="Low Risk"
+              score={healthData?.components?.debt || 50}
+              icon={TrendingDown}
+              actionLabel="Manage Debts"
+              actionLink="/debts"
+            />
+            
+            <LiquidMetricCard
+              title="Savings Progress"
+              subtitle="Goal Achievement"
+              value={`${healthData?.components?.savings || 50}%`}
+              numericValue={healthData?.components?.savings || 50}
+              score={healthData?.components?.savings || 50}
+              icon={PiggyBank}
+              actionLabel="Review Goals"
+              actionLink="/goals"
+            />
+            
+            <LiquidMetricCard
+              title="Goal Tracking"
+              subtitle="Goals on Track"
+              value={`${healthData?.components?.goals || 50}%`}
+              numericValue={healthData?.components?.goals || 50}
+              score={healthData?.components?.goals || 50}
+              icon={Target}
+              actionLabel="Manage Goals"
+              actionLink="/goals"
+            />
+            
+            <LiquidMetricCard
+              title="Investment Health"
+              subtitle="Portfolio Diversity"
+              value="Good"
+              score={healthData?.components?.investment || 50}
+              icon={TrendingUp}
+              actionLabel="View Portfolio"
+              actionLink="/investments"
+            />
+            
+            <LiquidMetricCard
+              title="Emergency Fund"
+              subtitle="Months of Coverage"
+              value={`${((healthData?.components?.emergency_fund || 50) / 20).toFixed(1)} months`}
+              numericValue={((healthData?.components?.emergency_fund || 50) / 20)}
+              score={healthData?.components?.emergency_fund || 50}
+              icon={Shield}
+              actionLabel="Build Fund"
+              actionLink="/emergency-fund"
+            />
+          </div>
+        </ScrollSection>
+
+        {/* Health Radar Chart */}
+        <ScrollSection>
+          {radarMetrics.length > 0 && (
+            <>
+              <SectionDivider 
+                title="360° Overview" 
+                subtitle="Complete financial wellness snapshot"
+                icon={<Target className="w-6 h-6" />}
+              />
+              <HealthRadarChart metrics={radarMetrics} />
+            </>
+          )}
+        </ScrollSection>
+
+        {/* Scenario Builder */}
+        <ScrollSection>
+          <SectionDivider 
+            title="What-If Scenarios" 
+            subtitle="Experiment and plan your financial future"
+            icon={<Calculator className="w-6 h-6" />}
+          />
+          <ScenarioBuilder
+            currentScore={healthData?.overallScore || 0}
+            components={healthData?.components || {}}
+          />
+        </ScrollSection>
+
+        {/* Benchmark Comparison */}
+        <ScrollSection>
+          <SectionDivider 
+            title="Peer Comparison" 
+            subtitle="See how you stack up anonymously"
+            icon={<Users className="w-6 h-6" />}
+          />
+          <BenchmarkComparison />
+        </ScrollSection>
 
         {/* Recommendations Section */}
-        {activeRecommendations.length > 0 && (
-          <div>
-            <h2 className="text-2xl font-semibold text-foreground mb-4">
-              Personalized Recommendations
-            </h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {activeRecommendations.map((recommendation: any) => (
-                <RecommendationCard
-                  key={recommendation.id}
-                  recommendation={recommendation}
-                  onDismiss={handleDismissRecommendation}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        <ScrollSection>
+          {activeRecommendations.length > 0 && (
+            <>
+              <SectionDivider 
+                title="Personalized Insights" 
+                subtitle="AI-powered recommendations just for you"
+                icon={<TrendingUp className="w-6 h-6" />}
+              />
+              <div className="grid gap-6 md:grid-cols-2">
+                {activeRecommendations.map((rec: any) => (
+                  <RecommendationCard
+                    key={rec.id}
+                    recommendation={rec}
+                    onDismiss={handleDismissRecommendation}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </ScrollSection>
 
-        {/* Action Timeline */}
-        <ActionTimeline items={upcomingActions} />
+        {/* Upcoming Actions Timeline */}
+        <ScrollSection>
+          <SectionDivider 
+            title="Upcoming Actions" 
+            subtitle="Stay on top of your financial calendar"
+            icon={<Bell className="w-6 h-6" />}
+          />
+          <Card className="p-8 border-2 border-border/50 shadow-xl backdrop-blur-sm bg-gradient-to-br from-card via-card to-accent/5">
+            <ActionTimeline items={upcomingActions} />
+          </Card>
+        </ScrollSection>
       </div>
     </AppLayout>
   );

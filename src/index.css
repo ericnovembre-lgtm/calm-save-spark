@@ -54,30 +54,39 @@ All colors MUST be HSL.
     --input: 42 20% 91%;
     --ring: 0 0% 0%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     /* Gradients and effects */
     --gradient-subtle: linear-gradient(135deg, #F8F6F0, #E9DFCE);
+    --gradient-premium: linear-gradient(135deg, #FFFFFF, #F8F6F0, #E9DFCE);
     --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.08);
     --shadow-card: 0 4px 16px -4px hsl(0 0% 0% / 0.1);
+    --shadow-premium: 0 8px 32px -8px hsl(0 0% 0% / 0.15);
     
     /* Animation */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     /* Z-Index Scale for consistent stacking */
-    --z-background: -10;        /* Fixed backgrounds */
-    --z-content-base: 0;        /* Default content flow */
-    --z-content-elevated: 10;   /* Sections, cards */
-    --z-content-priority: 20;   /* Hero, important content */
-    --z-modal: 40;              /* Modals, dialogs */
-    --z-notification: 50;       /* Toasts, alerts */
-    --z-debug: 9999;            /* Debug panel */
+    --z-background: -10;
+    --z-content-base: 0;
+    --z-content-elevated: 10;
+    --z-content-priority: 20;
+    --z-modal: 40;
+    --z-notification: 50;
+    --z-debug: 9999;
 
     /* Glass effects */
     --glass-bg: rgba(248, 246, 240, 0.7);
     --glass-border: rgba(0, 0, 0, 0.1);
     --glass-blur: blur(12px);
     --glass-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.12);
+
+    /* Financial Health specific tokens */
+    --health-excellent: 142 76% 36%; /* Green */
+    --health-good: 200 88% 40%; /* Blue */
+    --health-fair: 45 93% 47%; /* Yellow */
+    --health-poor: 0 84% 60%; /* Red */
 
     /* Backward-compat: orbital vars mapped to neutral palette */
     --orbital-space: var(--color-bg);
@@ -205,6 +214,30 @@ All colors MUST be HSL.
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+    transition: background 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-foreground/20;
+  }
+
   /* Interactive Wizard Highlight */
   .wizard-highlight {
     position: relative;
@@ -243,5 +276,36 @@ All colors MUST be HSL.
 
   .bg-success {
     background-color: hsl(142 76% 36%);
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 999px;
+    transition: background 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--foreground) / 0.2);
   }
 }
