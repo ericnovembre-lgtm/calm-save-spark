@@ -90,6 +90,28 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in ai-agent function:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    // Handle specific error cases
+    if (errorMessage === 'RATE_LIMIT_EXCEEDED') {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
+    if (errorMessage === 'PAYMENT_REQUIRED') {
+      return new Response(
+        JSON.stringify({ error: 'AI credits depleted. Please add credits to continue.' }),
+        {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ error: errorMessage }),
       {

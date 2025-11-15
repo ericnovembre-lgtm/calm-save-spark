@@ -8,3 +8,4 @@
 
 export { AgentChat } from './AgentChat';
 export { AgentSelector } from './AgentSelector';
+export { ConversationHistory } from './ConversationHistory';
