@@ -25,13 +25,13 @@ const DEFAULT_FREE_FEATURES: UserFeatures = {
   max_automation_rules: 0,
   apy_rate: 3.5,
   has_advanced_automation: false,
-  has_ai_insights: false,
+  has_ai_insights: true, // Basic automated insights for free users
   has_saveplus_card: false,
   has_priority_support: false,
-  has_analytics: false,
-  has_export: false,
+  has_analytics: true, // Basic analytics (current month only)
+  has_export: true, // CSV export for transparency
   cashback_rate: 0,
-  ai_chat_limit: 0,
+  ai_chat_limit: 3, // 3 AI coaching questions per month
   has_physical_card: false,
   has_phone_support: false,
   has_api_access: false,
