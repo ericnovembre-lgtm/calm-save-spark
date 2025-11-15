@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug, Heart } from "lucide-react";
+import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug, Heart, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -24,6 +24,9 @@ const taglines = [
 
 const mainNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
+  { name: "Accounts", path: "/accounts", icon: Wallet },
+  { name: "Goals", path: "/goals", icon: Target },
+  { name: "Pots", path: "/pots", icon: Wallet },
   { name: "Financial Health", path: "/financial-health", icon: Heart },
   { name: "Transactions", path: "/transactions", icon: DollarSign },
   { name: "Subscriptions", path: "/subscriptions", icon: Shield },
@@ -49,8 +52,8 @@ const mainNavLinks = [
 
 const bottomNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
-  { name: "Transactions", path: "/transactions", icon: DollarSign },
-  { name: "Insights", path: "/insights", icon: Lightbulb },
+  { name: "Goals", path: "/goals", icon: Target },
+  { name: "Pots", path: "/pots", icon: Wallet },
   { name: "Coach", path: "/coach", icon: Bot },
   { name: "Settings", path: "/settings", icon: Settings },
 ];
@@ -166,6 +169,15 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
             {/* Right: Search, Theme, Help, User */}
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/search')}
+                className="gap-2"
+              >
+                <Search className="w-4 h-4" />
+                <span className="hidden md:inline">Search</span>
+              </Button>
               {FEATURE_FLAGS.SEARCH_ENABLED && <SearchToggle />}
               <HelpButton />
               <ThemeToggle />

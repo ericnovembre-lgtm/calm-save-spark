@@ -60,6 +60,8 @@ const FinancialHealth = lazy(() => import("./pages/FinancialHealth"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Install = lazy(() => import("./pages/Install"));
 const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
+const Accounts = lazy(() => import("./pages/Accounts"));
+const Search = lazy(() => import("./pages/Search"));
 
 const queryClient = new QueryClient();
 
@@ -140,6 +142,8 @@ function AnimatedRoutes() {
         
         {/* App routes with layout - protected */}
         <Route path="/dashboard" element={<ProtectedRoute><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/accounts" element={<ProtectedRoute><PageTransition><Accounts /></PageTransition></ProtectedRoute>} />
+        <Route path="/search" element={<ProtectedRoute><PageTransition><Search /></PageTransition></ProtectedRoute>} />
         <Route path="/financial-health" element={<ProtectedRoute><PageTransition><FinancialHealth /></PageTransition></ProtectedRoute>} />
         <Route path="/transactions" element={<ProtectedRoute><PageTransition><Transactions /></PageTransition></ProtectedRoute>} />
         <Route path="/subscriptions" element={<ProtectedRoute><PageTransition><Subscriptions /></PageTransition></ProtectedRoute>} />
