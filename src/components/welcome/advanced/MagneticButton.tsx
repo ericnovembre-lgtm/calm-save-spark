@@ -8,7 +8,7 @@ interface MagneticButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   strength?: number;
   radius?: number;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'default' | 'secondary' | 'outline';
 }
 
 /**
@@ -19,7 +19,7 @@ export const MagneticButton = ({
   children,
   strength = 0.4,
   radius = 80,
-  variant = 'primary',
+  variant = 'default',
   className = '',
   ...props
 }: MagneticButtonProps) => {
@@ -29,7 +29,7 @@ export const MagneticButton = ({
   const baseClasses = 'relative px-6 py-3 rounded-xl font-semibold transition-all duration-300';
   
   const variantClasses = {
-    primary: 'bg-primary text-primary-foreground hover:shadow-lg',
+    default: 'bg-primary text-primary-foreground hover:shadow-lg',
     secondary: 'bg-secondary text-secondary-foreground hover:shadow-md',
     outline: 'border-2 border-border text-foreground hover:bg-accent/30',
   };

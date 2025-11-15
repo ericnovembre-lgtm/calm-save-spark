@@ -1,9 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getClientUser } from "@/lib/user";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, TrendingUp, DollarSign, Zap } from "lucide-react";
 import { TypewriterText } from "./TypewriterText";
 import { MagneticButton } from "@/components/welcome/advanced/MagneticButton";
 export const WelcomeHero = () => {
@@ -24,57 +23,82 @@ export const WelcomeHero = () => {
           phrases={[
             "Saving, Not Spending",
             "Building, Not Borrowing",
-            "Growing, Not Owing"
+            "Growing Your Wealth"
           ]}
           className="text-[color:var(--color-accent)]"
         />
       </h1>
-      <h2 className="font-display font-medium text-xl md:text-2xl text-muted-foreground relative z-10">
-        Smart micro-savings that build real wealth
-      </h2>
-      <p className="text-lg md:text-xl text-muted-foreground max-w-md relative z-10">
-        Automate your savings with smart micro-transactions. Build wealth effortlessly while you live your life.
-      </p>
       
-      {/* Auth-aware CTAs */}
+      <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl relative z-10">
+        Join <span className="font-bold text-foreground">50,000+ savers</span> who automatically save <span className="font-bold text-foreground">$450/month</span> on average
+      </p>
+
+      {/* How It Works - 3 Steps */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl relative z-10 my-4">
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-card/50 border border-border">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+            <TrendingUp className="w-5 h-5 text-foreground" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-accent uppercase">Step 1</div>
+            <div className="text-sm font-medium text-foreground">Connect Card</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-card/50 border border-border">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+            <Zap className="w-5 h-5 text-foreground" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-accent uppercase">Step 2</div>
+            <div className="text-sm font-medium text-foreground">Auto Round-Up</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-card/50 border border-border">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-foreground" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-accent uppercase">Step 3</div>
+            <div className="text-sm font-medium text-foreground">Earn Rewards</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Unified CTAs */}
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto relative z-10">
         {loading ? (
-          // Loading skeletons
           <>
-            <Skeleton className="h-12 w-full sm:w-[240px] rounded-lg" />
-            <Skeleton className="h-12 w-full sm:w-[180px] rounded-lg" />
+            <Skeleton className="h-12 w-full sm:w-[200px] rounded-lg" />
+            <Skeleton className="h-12 w-full sm:w-[160px] rounded-lg" />
           </>
         ) : isAuthenticated ? (
-          // Authenticated user
           <Link to="/dashboard">
             <MagneticButton
               data-testid="welcome-cta"
               role="button"
-              aria-label="Launch dashboard"
-              variant="primary"
+              aria-label="Go to dashboard"
+              variant="default"
               strength={0.4}
               radius={80}
               className="text-lg px-8 py-4 group"
             >
-              Launch Dashboard
+              Dashboard
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </MagneticButton>
           </Link>
         ) : (
-          // Guest user
           <>
             <Link to="/onboarding">
               <MagneticButton
                 data-testid="welcome-cta"
                 role="button"
-                aria-label="Begin your journey"
-                variant="primary"
+                aria-label="Get started free"
+                variant="default"
                 strength={0.5}
                 radius={100}
                 className="text-lg px-8 py-4 group"
               >
-                <Sparkles className="mr-2 w-5 h-5" />
-                Begin Your Journey
+                Get Started Free
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </MagneticButton>
             </Link>
@@ -85,7 +109,7 @@ export const WelcomeHero = () => {
                 radius={70}
                 className="text-lg px-6 py-4"
               >
-                Explore Plans
+                View Pricing
               </MagneticButton>
             </Link>
           </>

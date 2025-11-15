@@ -3,6 +3,8 @@
  * World-class animation presets for $ave+ Goals
  */
 
+import { TIMING } from './motion-variants';
+
 export const card3D = {
   rest: {
     scale: 1,
@@ -10,7 +12,7 @@ export const card3D = {
     rotateY: 0,
     z: 0,
     transition: {
-      duration: 0.4,
+      duration: TIMING.normal / 1000,
       ease: [0.22, 1, 0.36, 1] as const
     }
   },
@@ -18,14 +20,14 @@ export const card3D = {
     scale: 1.03,
     z: 50,
     transition: {
-      duration: 0.4,
+      duration: TIMING.normal / 1000,
       ease: [0.22, 1, 0.36, 1] as const
     }
   },
   tap: {
     scale: 0.98,
     transition: {
-      duration: 0.15,
+      duration: TIMING.fast / 1000,
       ease: "easeOut" as const
     }
   }

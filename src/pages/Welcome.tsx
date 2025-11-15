@@ -42,11 +42,12 @@ import { LiveActivityFeed } from "@/components/welcome/advanced/LiveActivityFeed
 import { SavingsStreakWidget } from "@/components/welcome/advanced/SavingsStreakWidget";
 import { useAIPersonalization } from "@/hooks/welcome/useAIPersonalization";
 
-// Import section components
 import { WelcomeHeroSection } from "@/components/welcome/sections/WelcomeHeroSection";
 import { WelcomeFeaturesSection } from "@/components/welcome/sections/WelcomeFeaturesSection";
 import { WelcomeStatsSection } from "@/components/welcome/sections/WelcomeStatsSection";
 import { WelcomeCTASection } from "@/components/welcome/sections/WelcomeCTASection";
+import { WelcomeNavbar } from "@/components/welcome/WelcomeNavbar";
+import { EnhancedParticles } from "@/components/welcome/effects/EnhancedParticles";
 
 // Lazy load heavy components for better performance
 const LottieHero = lazy(() => import("@/components/welcome/LottieHero").then(m => ({ default: m.LottieHero })));
@@ -449,6 +450,9 @@ const Welcome = () => {
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-background overflow-hidden">
+      {/* Welcome Navbar */}
+      <WelcomeNavbar />
+      
       {/* Performance Monitoring Dashboard */}
       <PerformanceMonitoringDashboard />
       
@@ -457,16 +461,15 @@ const Welcome = () => {
       
       {/* Background layers container - forced behind all content */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
+        {/* Enhanced Particles with reduced density */}
         <ProgressiveLoader priority="low" delay={500}>
           <LazyErrorBoundary 
-            componentName="ScrollGradient" 
+            componentName="EnhancedParticles" 
             fallbackHeight="100vh" 
             background
             timeoutMs={10000}
-            onLoadStart={() => console.log('[Welcome] ScrollGradient loading started')}
-            onLoadComplete={() => console.log('[Welcome] ScrollGradient loaded')}
           >
-            <ScrollGradient />
+            <EnhancedParticles />
           </LazyErrorBoundary>
         </ProgressiveLoader>
         <ProgressiveLoader priority="low" delay={700}>
@@ -479,18 +482,6 @@ const Welcome = () => {
             onLoadComplete={() => console.log('[Welcome] ParallaxBackground loaded')}
           >
             <ParallaxBackground />
-          </LazyErrorBoundary>
-        </ProgressiveLoader>
-        <ProgressiveLoader priority="low" delay={900}>
-          <LazyErrorBoundary 
-            componentName="ParticleBackground" 
-            fallbackHeight="100vh" 
-            background
-            timeoutMs={10000}
-            onLoadStart={() => console.log('[Welcome] ParticleBackground loading started')}
-            onLoadComplete={() => console.log('[Welcome] ParticleBackground loaded')}
-          >
-            <ParticleBackground />
           </LazyErrorBoundary>
         </ProgressiveLoader>
         <ProgressiveLoader priority="low" delay={1100}>
@@ -545,44 +536,6 @@ const Welcome = () => {
         className="relative"
         style={{ zIndex: 'var(--z-content-base)' } as React.CSSProperties}
       >
-        {/* Header with neutral styling */}
-        <motion.header 
-          className="sticky top-0 backdrop-blur-xl bg-background/95 border-b border-[color:var(--color-border)]"
-          style={{ zIndex: 'var(--z-content-priority)' } as React.CSSProperties}
-          initial={prefersReducedMotion ? false : { y: -100 }}
-          animate={prefersReducedMotion ? false : { y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <motion.div
-                className="flex items-center gap-2"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400 }}
-              >
-                <Sparkles className="w-5 h-5 text-foreground animate-pulse" />
-                <h2 className="font-display font-bold text-2xl text-foreground">$ave+</h2>
-              </motion.div>
-              <motion.div
-                className="flex items-center gap-4"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <span className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  All systems operational
-                </span>
-                <Suspense fallback={<div className="w-10 h-10" />}>
-                  <LazyErrorBoundary componentName="MoodToggle" fallbackHeight="40px">
-                    <MoodToggle />
-                  </LazyErrorBoundary>
-                </Suspense>
-              </motion.div>
-            </div>
-          </div>
-        </motion.header>
-
         <main className="relative container mx-auto px-4 py-12 md:py-20 space-y-32" style={{ zIndex: 'var(--z-content-elevated)' } as React.CSSProperties}>
           {/* Hero Section with parallax - CRITICAL PRIORITY (Above-the-fold) */}
           <WelcomeHeroSection
@@ -610,26 +563,9 @@ const Welcome = () => {
             onDoubleClick={() => setShowClickerGame(true)}
           />
 
-          {/* Interactive Savings Playground - LOW PRIORITY (Below-the-fold) */}
-          <PriorityLoader priority="low" minHeight="600px">
-            <LazyLoad minHeight="600px" rootMargin="200px">
-            <motion.section
-              aria-label="Try savings calculator"
-              className="relative z-20"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5 }}
-            >
-              <LazyErrorBoundary componentName="SavingsPlayground" fallbackHeight="600px">
-                <SavingsPlayground />
-              </LazyErrorBoundary>
-            </motion.section>
-          </LazyLoad>
-          </PriorityLoader>
-
-          {/* Interactive Widgets Section - Phase 3 */}
+          {/* Interactive Savings Calculator - LOW PRIORITY (Simplified, Below-the-fold) */}
           <motion.section
+            id="how-it-works"
             className="space-y-12"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -643,48 +579,22 @@ const Welcome = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                Explore Your Savings Potential
+                Calculate Your Savings Potential
               </motion.h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Interactive tools to help you plan, track, and achieve your financial goals
+                See how your savings can grow with compound interest
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-              {/* Savings Calculator */}
-              <motion.div
-                className="lg:col-span-2"
-                initial={{ opacity: 0, x: -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-              >
-                <InteractiveSavingsCalculator />
-              </motion.div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                {/* Streak Widget */}
-                <motion.div
-                  initial={{ opacity: 0, x: 40 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <SavingsStreakWidget />
-                </motion.div>
-
-                {/* Live Activity Feed */}
-                <motion.div
-                  initial={{ opacity: 0, x: 40 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <LiveActivityFeed />
-                </motion.div>
-              </div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="max-w-4xl mx-auto"
+            >
+              <InteractiveSavingsCalculator />
+            </motion.div>
           </motion.section>
 
           {/* Secure Onboarding CTA - MEDIUM PRIORITY */}

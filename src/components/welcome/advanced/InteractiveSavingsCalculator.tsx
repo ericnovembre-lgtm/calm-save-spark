@@ -225,7 +225,7 @@ export const InteractiveSavingsCalculator = () => {
         {/* CTA */}
         <div className="mt-6">
           <MagneticButton
-            variant="primary"
+            variant="default"
             className="w-full"
             strength={0.3}
             radius={60}
