@@ -62,6 +62,7 @@ const Install = lazy(() => import("./pages/Install"));
 const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
 const Accounts = lazy(() => import("./pages/Accounts"));
 const Search = lazy(() => import("./pages/Search"));
+const AIAgents = lazy(() => import("./pages/AIAgents"));
 
 const queryClient = new QueryClient();
 
@@ -158,7 +159,8 @@ function AnimatedRoutes() {
         <Route path="/rewards" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         <Route path="/card" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
-        <Route path="/coach" element={<ProtectedRoute><PageTransition><Coach /></PageTransition></ProtectedRoute>} />
+                <Route path="/coach" element={<ProtectedRoute><PageTransition><Coach /></PageTransition></ProtectedRoute>} />
+                <Route path="/ai-agents" element={<ProtectedRoute><PageTransition><AIAgents /></PageTransition></ProtectedRoute>} />
         <Route path="/help" element={<ProtectedRoute><PageTransition><Help /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><PageTransition><Achievements /></PageTransition></ProtectedRoute>} />

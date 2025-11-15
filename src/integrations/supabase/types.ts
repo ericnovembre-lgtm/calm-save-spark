@@ -83,6 +83,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_agents: {
+        Row: {
+          agent_type: string
+          capabilities: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          system_prompt: string
+          updated_at: string | null
+        }
+        Insert: {
+          agent_type: string
+          capabilities?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          system_prompt: string
+          updated_at?: string | null
+        }
+        Update: {
+          agent_type?: string
+          capabilities?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          system_prompt?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ai_coaching_sessions: {
         Row: {
           conversation_history: Json | null
@@ -109,6 +145,45 @@ export type Database = {
           last_message_at?: string | null
           message_count?: number | null
           session_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_conversations: {
+        Row: {
+          agent_type: string
+          conversation_history: Json
+          created_at: string | null
+          id: string
+          last_message_at: string | null
+          message_count: number | null
+          metadata: Json | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          agent_type: string
+          conversation_history?: Json
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          metadata?: Json | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          agent_type?: string
+          conversation_history?: Json
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          metadata?: Json | null
+          title?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -866,6 +941,59 @@ export type Database = {
         }
         Relationships: []
       }
+      creditor_negotiations: {
+        Row: {
+          attempted_at: string | null
+          created_at: string | null
+          debt_id: string
+          final_terms: Json | null
+          id: string
+          negotiation_type: string
+          notes: string | null
+          original_terms: Json | null
+          requested_terms: Json | null
+          script_used: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          attempted_at?: string | null
+          created_at?: string | null
+          debt_id: string
+          final_terms?: Json | null
+          id?: string
+          negotiation_type: string
+          notes?: string | null
+          original_terms?: Json | null
+          requested_terms?: Json | null
+          script_used?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          attempted_at?: string | null
+          created_at?: string | null
+          debt_id?: string
+          final_terms?: Json | null
+          id?: string
+          negotiation_type?: string
+          notes?: string | null
+          original_terms?: Json | null
+          requested_terms?: Json | null
+          script_used?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creditor_negotiations_debt_id_fkey"
+            columns: ["debt_id"]
+            isOneToOne: false
+            referencedRelation: "debts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crypto_holdings: {
         Row: {
           created_at: string | null
@@ -1030,6 +1158,60 @@ export type Database = {
         }
         Relationships: []
       }
+      debt_payment_history: {
+        Row: {
+          amount: number
+          created_at: string | null
+          debt_id: string
+          id: string
+          interest_amount: number
+          notes: string | null
+          payment_date: string
+          principal_amount: number
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          debt_id: string
+          id?: string
+          interest_amount: number
+          notes?: string | null
+          payment_date: string
+          principal_amount: number
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          debt_id?: string
+          id?: string
+          interest_amount?: number
+          notes?: string | null
+          payment_date?: string
+          principal_amount?: number
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debt_payment_history_debt_id_fkey"
+            columns: ["debt_id"]
+            isOneToOne: false
+            referencedRelation: "debts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "debt_payment_history_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debt_payments: {
         Row: {
           amount: number
@@ -1070,6 +1252,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      debt_payoff_strategies: {
+        Row: {
+          created_at: string | null
+          debt_order: string[] | null
+          extra_payment: number | null
+          id: string
+          is_active: boolean | null
+          monthly_payment: number
+          name: string
+          projected_payoff_date: string | null
+          strategy_type: string
+          total_debt: number
+          total_interest_saved: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          debt_order?: string[] | null
+          extra_payment?: number | null
+          id?: string
+          is_active?: boolean | null
+          monthly_payment: number
+          name: string
+          projected_payoff_date?: string | null
+          strategy_type: string
+          total_debt: number
+          total_interest_saved?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          debt_order?: string[] | null
+          extra_payment?: number | null
+          id?: string
+          is_active?: boolean | null
+          monthly_payment?: number
+          name?: string
+          projected_payoff_date?: string | null
+          strategy_type?: string
+          total_debt?: number
+          total_interest_saved?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       debts: {
         Row: {
@@ -1643,6 +1873,60 @@ export type Database = {
         }
         Relationships: []
       }
+      insurance_policies: {
+        Row: {
+          beneficiaries: string[] | null
+          coverage_amount: number | null
+          created_at: string | null
+          effective_date: string
+          expiration_date: string | null
+          id: string
+          notes: string | null
+          policy_number: string | null
+          policy_type: string
+          premium_amount: number
+          premium_frequency: string
+          provider: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          beneficiaries?: string[] | null
+          coverage_amount?: number | null
+          created_at?: string | null
+          effective_date: string
+          expiration_date?: string | null
+          id?: string
+          notes?: string | null
+          policy_number?: string | null
+          policy_type: string
+          premium_amount: number
+          premium_frequency: string
+          provider: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          beneficiaries?: string[] | null
+          coverage_amount?: number | null
+          created_at?: string | null
+          effective_date?: string
+          expiration_date?: string | null
+          id?: string
+          notes?: string | null
+          policy_number?: string | null
+          policy_type?: string
+          premium_amount?: number
+          premium_frequency?: string
+          provider?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       integration_configs: {
         Row: {
           created_at: string | null
@@ -1724,6 +2008,60 @@ export type Database = {
         }
         Relationships: []
       }
+      investment_research_cache: {
+        Row: {
+          created_at: string | null
+          data: Json
+          expires_at: string
+          id: string
+          research_type: string
+          symbol: string
+        }
+        Insert: {
+          created_at?: string | null
+          data: Json
+          expires_at: string
+          id?: string
+          research_type: string
+          symbol: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json
+          expires_at?: string
+          id?: string
+          research_type?: string
+          symbol?: string
+        }
+        Relationships: []
+      }
+      investment_watchlist: {
+        Row: {
+          added_at: string | null
+          asset_type: string
+          id: string
+          notes: string | null
+          symbol: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string | null
+          asset_type: string
+          id?: string
+          notes?: string | null
+          symbol: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string | null
+          asset_type?: string
+          id?: string
+          notes?: string | null
+          symbol?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           amount: number
@@ -1796,6 +2134,51 @@ export type Database = {
           },
         ]
       }
+      kyc_verifications: {
+        Row: {
+          attempts: number | null
+          created_at: string | null
+          document_number: string | null
+          document_storage_path: string | null
+          document_type: string | null
+          failure_reason: string | null
+          id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+          verification_provider: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string | null
+          document_number?: string | null
+          document_storage_path?: string | null
+          document_type?: string | null
+          failure_reason?: string | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+          verification_provider?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string | null
+          document_number?: string | null
+          document_storage_path?: string | null
+          document_type?: string | null
+          failure_reason?: string | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+          verification_provider?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       leaderboards: {
         Row: {
           calculated_at: string | null
@@ -1825,6 +2208,204 @@ export type Database = {
           rank?: number
           score?: number
           time_period?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      life_event_checklists: {
+        Row: {
+          category: string | null
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          document_storage_path: string | null
+          due_date: string | null
+          id: string
+          is_completed: boolean | null
+          item_type: string
+          life_plan_id: string
+          reminder_date: string | null
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          document_storage_path?: string | null
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean | null
+          item_type: string
+          life_plan_id: string
+          reminder_date?: string | null
+          title: string
+        }
+        Update: {
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          document_storage_path?: string | null
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean | null
+          item_type?: string
+          life_plan_id?: string
+          reminder_date?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "life_event_checklists_life_plan_id_fkey"
+            columns: ["life_plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      life_event_costs: {
+        Row: {
+          actual_amount: number | null
+          cost_category: string
+          cost_name: string
+          cost_type: string
+          created_at: string | null
+          due_date: string | null
+          estimated_amount: number
+          frequency: string | null
+          id: string
+          is_paid: boolean | null
+          life_plan_id: string
+          notes: string | null
+        }
+        Insert: {
+          actual_amount?: number | null
+          cost_category: string
+          cost_name: string
+          cost_type: string
+          created_at?: string | null
+          due_date?: string | null
+          estimated_amount: number
+          frequency?: string | null
+          id?: string
+          is_paid?: boolean | null
+          life_plan_id: string
+          notes?: string | null
+        }
+        Update: {
+          actual_amount?: number | null
+          cost_category?: string
+          cost_name?: string
+          cost_type?: string
+          created_at?: string | null
+          due_date?: string | null
+          estimated_amount?: number
+          frequency?: string | null
+          id?: string
+          is_paid?: boolean | null
+          life_plan_id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "life_event_costs_life_plan_id_fkey"
+            columns: ["life_plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      life_event_scenarios: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_selected: boolean | null
+          life_plan_id: string
+          parameters: Json
+          projected_outcomes: Json
+          scenario_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_selected?: boolean | null
+          life_plan_id: string
+          parameters: Json
+          projected_outcomes: Json
+          scenario_name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_selected?: boolean | null
+          life_plan_id?: string
+          parameters?: Json
+          projected_outcomes?: Json
+          scenario_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "life_event_scenarios_life_plan_id_fkey"
+            columns: ["life_plan_id"]
+            isOneToOne: false
+            referencedRelation: "life_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      life_plans: {
+        Row: {
+          created_at: string | null
+          current_phase: string | null
+          description: string | null
+          event_type: string
+          id: string
+          linked_goal_ids: string[] | null
+          linked_pot_ids: string[] | null
+          status: string | null
+          target_date: string | null
+          title: string
+          total_estimated_cost: number | null
+          total_saved: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_phase?: string | null
+          description?: string | null
+          event_type: string
+          id?: string
+          linked_goal_ids?: string[] | null
+          linked_pot_ids?: string[] | null
+          status?: string | null
+          target_date?: string | null
+          title: string
+          total_estimated_cost?: number | null
+          total_saved?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_phase?: string | null
+          description?: string | null
+          event_type?: string
+          id?: string
+          linked_goal_ids?: string[] | null
+          linked_pot_ids?: string[] | null
+          status?: string | null
+          target_date?: string | null
+          title?: string
+          total_estimated_cost?: number | null
+          total_saved?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1951,6 +2532,45 @@ export type Database = {
           sent_at?: string | null
           status?: string | null
           subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      onboarding_progress: {
+        Row: {
+          completed_steps: string[] | null
+          created_at: string | null
+          current_step: string
+          demo_mode: boolean | null
+          draft_data: Json | null
+          id: string
+          incomplete_tasks: string[] | null
+          is_completed: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_steps?: string[] | null
+          created_at?: string | null
+          current_step?: string
+          demo_mode?: boolean | null
+          draft_data?: Json | null
+          id?: string
+          incomplete_tasks?: string[] | null
+          is_completed?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_steps?: string[] | null
+          created_at?: string | null
+          current_step?: string
+          demo_mode?: boolean | null
+          draft_data?: Json | null
+          id?: string
+          incomplete_tasks?: string[] | null
+          is_completed?: boolean | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -3123,6 +3743,48 @@ export type Database = {
         }
         Relationships: []
       }
+      tax_deductions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          deduction_type: string
+          description: string | null
+          document_ids: string[] | null
+          id: string
+          status: string | null
+          tax_year: number
+          transaction_ids: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          deduction_type: string
+          description?: string | null
+          document_ids?: string[] | null
+          id?: string
+          status?: string | null
+          tax_year: number
+          transaction_ids?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          deduction_type?: string
+          description?: string | null
+          document_ids?: string[] | null
+          id?: string
+          status?: string | null
+          tax_year?: number
+          transaction_ids?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tax_documents: {
         Row: {
           created_at: string | null
@@ -3452,6 +4114,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_consents: {
+        Row: {
+          accepted: boolean
+          accepted_at: string | null
+          consent_text: string
+          consent_type: string
+          consent_version: string
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted: boolean
+          accepted_at?: string | null
+          consent_text: string
+          consent_type: string
+          consent_version: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted?: boolean
+          accepted_at?: string | null
+          consent_text?: string
+          consent_type?: string
+          consent_version?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_course_progress: {
         Row: {
