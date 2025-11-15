@@ -1,5 +1,5 @@
 import { Check, X, Star } from "lucide-react";
-import { FREEMIUM_FEATURE_ORDER } from "@/lib/constants";
+import { FREEMIUM_FEATURE_ORDER, FREE_FEATURE_INDICES } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -75,8 +75,9 @@ export default function FeatureComparisonTable({
             </TableHeader>
             <TableBody>
               {FREEMIUM_FEATURE_ORDER.map((feature, index) => {
-                const unlockPrice = index + 1;
-                const isSelectedFeature = index < selectedAmount;
+                const isFreeFeature = (FREE_FEATURE_INDICES as readonly number[]).includes(index);
+                const unlockPrice = isFreeFeature ? 0 : index + 1;
+                const isSelectedFeature = selectedAmount >= unlockPrice;
                 
                 return (
                   <TableRow 
@@ -87,9 +88,9 @@ export default function FeatureComparisonTable({
                       <div className="flex items-center gap-2">
                         <Badge 
                           variant="outline" 
-                          className="text-xs font-normal"
+                          className={`text-xs font-normal ${isFreeFeature ? 'bg-primary/10' : ''}`}
                         >
-                          ${unlockPrice}
+                          {isFreeFeature ? 'FREE' : `$${unlockPrice}`}
                         </Badge>
                         <div>
                           <div className="font-medium text-sm">
@@ -102,7 +103,7 @@ export default function FeatureComparisonTable({
                       </div>
                     </TableCell>
                     {pricePoints.map((price) => {
-                      const isUnlocked = unlockPrice <= price;
+                      const isUnlocked = price >= unlockPrice;
                       const isSelected = selectedAmount === price;
                       
                       return (
