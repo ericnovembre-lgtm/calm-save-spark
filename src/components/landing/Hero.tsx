@@ -9,10 +9,8 @@ export const Hero = () => {
   return <section className="relative min-h-[90vh] flex items-center px-4 md:px-20 py-20">
       <div className="absolute inset-0 bg-background" />
       
-      <div className="container mx-auto relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 items-center">
-          {/* Left: Content */}
-          <motion.div initial={{
+      <div className="container mx-auto relative z-10 max-w-5xl">
+        <motion.div initial={{
           opacity: 0,
           y: 20
         }} animate={{
@@ -112,42 +110,49 @@ export const Hero = () => {
             <p className="text-sm text-muted-foreground">
               ✓ Free forever plan • ✓ No credit card required • ✓ Cancel anytime
             </p>
-          </motion.div>
-          
-          {/* Right: Interactive 3D Card */}
-          <motion.div initial={{
-          opacity: 0,
-          scale: 0.95
-        }} animate={{
-          opacity: 1,
-          scale: 1
-        }} transition={{
-          delay: 0.3,
-          duration: 0.6
-        }}>
-            <TiltCard3D>
-              <div className="p-8 rounded-2xl bg-card border border-border shadow-2xl backdrop-blur-sm">
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">Average monthly savings</p>
-                    <MorphingNumber value={450} prefix="$" suffix="/mo" className="text-5xl font-bold text-accent" duration={2.5} />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border">
+            
+            {/* Trust Indicator Stats Card */}
+            <motion.div 
+              initial={{
+                opacity: 0,
+                y: 20
+              }} 
+              animate={{
+                opacity: 1,
+                y: 0
+              }} 
+              transition={{
+                delay: 0.7,
+                duration: 0.5
+              }}
+              className="pt-8 max-w-2xl mx-auto"
+            >
+              <TiltCard3D>
+                <div className="p-6 rounded-2xl bg-card border border-border shadow-xl backdrop-blur-sm">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-1">Average monthly savings</p>
+                      <MorphingNumber value={450} prefix="$" suffix="/mo" className="text-3xl font-bold text-accent" duration={2.5} />
+                    </div>
+                    
+                    <div className="hidden sm:block w-px h-12 bg-border" />
+                    
                     <div className="text-center">
                       <MorphingNumber value={50000} suffix="+" className="text-2xl font-bold text-foreground" duration={2} delay={0.3} />
                       <p className="text-xs text-muted-foreground mt-1">Active users</p>
                     </div>
+                    
+                    <div className="hidden sm:block w-px h-12 bg-border" />
+                    
                     <div className="text-center">
                       <MorphingNumber value={4.25} suffix="%" decimals={2} className="text-2xl font-bold text-foreground" duration={2} delay={0.5} />
                       <p className="text-xs text-muted-foreground mt-1">Average APY</p>
                     </div>
                   </div>
                 </div>
-              </div>
-            </TiltCard3D>
+              </TiltCard3D>
+            </motion.div>
           </motion.div>
-        </div>
       </div>
     </section>;
 };
