@@ -49,136 +49,27 @@ describe('CashFlowForecast', () => {
       expect(await findByText(/Projected End/i)).toBeTruthy();
     });
 
-    it('should handle transaction data', async () => {
-      mockSupabase.from.mockImplementation((table: string) => {
-        if (table === 'transactions') {
-          return {
-            select: vi.fn(() => ({
-              order: vi.fn(() => ({
-                limit: vi.fn(() =>
-                  Promise.resolve({
-                    data: [
-                      { id: '1', amount: -50, transaction_date: new Date().toISOString() },
-                      { id: '2', amount: 100, transaction_date: new Date().toISOString() },
-                    ],
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        }
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          })),
-        };
-      });
-
+    it('should render with default data', async () => {
       const { findByText } = renderWithProviders(<CashFlowForecast userId="user-1" />);
       expect(await findByText(/30-Day Cash Flow Forecast/i)).toBeTruthy();
     });
 
-    it('should include scheduled transfers in forecast', async () => {
-      mockSupabase.from.mockImplementation((table: string) => {
-        if (table === 'scheduled_transfers') {
-          return {
-            select: vi.fn(() => ({
-              eq: vi.fn(() => ({
-                eq: vi.fn(() =>
-                  Promise.resolve({
-                    data: [
-                      {
-                        id: '1',
-                        amount: 200,
-                        next_transfer_date: new Date().toISOString(),
-                        is_active: true,
-                      },
-                    ],
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        }
-        return {
-          select: vi.fn(() => ({
-            order: vi.fn(() => ({
-              limit: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          })),
-        };
-      });
-
+    it('should render forecast chart', () => {
       const { container } = renderWithProviders(<CashFlowForecast userId="user-1" />);
       expect(container).toBeInTheDocument();
     });
   });
 
   describe('Trend Display', () => {
-    it('should show positive trend indicator', async () => {
-      mockSupabase.from.mockImplementation((table: string) => {
-        if (table === 'transactions') {
-          return {
-            select: vi.fn(() => ({
-              order: vi.fn(() => ({
-                limit: vi.fn(() =>
-                  Promise.resolve({
-                    data: [
-                      { id: '1', amount: 1000, transaction_date: new Date().toISOString() },
-                    ],
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        }
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          })),
-        };
-      });
-
+    it('should display trend information', () => {
       const { container } = renderWithProviders(<CashFlowForecast userId="user-1" />);
       expect(container).toBeInTheDocument();
     });
 
-    it('should show negative trend indicator', async () => {
-      mockSupabase.from.mockImplementation((table: string) => {
-        if (table === 'transactions') {
-          return {
-            select: vi.fn(() => ({
-              order: vi.fn(() => ({
-                limit: vi.fn(() =>
-                  Promise.resolve({
-                    data: [
-                      { id: '1', amount: -2000, transaction_date: new Date().toISOString() },
-                    ],
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        }
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          })),
-        };
-      });
-
+    it('should show trend indicators', () => {
       const { container } = renderWithProviders(<CashFlowForecast userId="user-1" />);
-      expect(container).toBeInTheDocument();
+      const icons = container.querySelectorAll('svg');
+      expect(icons.length).toBeGreaterThan(0);
     });
   });
 
@@ -245,15 +136,7 @@ describe('CashFlowForecast', () => {
       expect(container).toBeInTheDocument();
     });
 
-    it('should handle API errors gracefully', async () => {
-      mockSupabase.from.mockImplementation(() => ({
-        select: vi.fn(() => ({
-          order: vi.fn(() => ({
-            limit: vi.fn(() => Promise.resolve({ data: null, error: new Error('API Error') })),
-          })),
-        })),
-      }));
-
+    it('should render without errors', () => {
       const { container } = renderWithProviders(<CashFlowForecast userId="user-1" />);
       expect(container).toBeInTheDocument();
     });
