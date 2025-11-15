@@ -13,6 +13,11 @@ import { GoalCard } from "@/components/GoalCard";
 import { GoalSavingsOptimizer } from "@/components/goals/GoalSavingsOptimizer";
 import { AIGoalSuggestions } from "@/components/goals/AIGoalSuggestions";
 import { QuickGoalTemplates } from "@/components/goals/QuickGoalTemplates";
+import { GoalCard3D } from "@/components/goals/advanced/GoalCard3D";
+import { DynamicBackground } from "@/components/goals/ambient/DynamicBackground";
+import { FloatingParticles } from "@/components/goals/ambient/FloatingParticles";
+import { QuickActionMenu } from "@/components/goals/interactions/QuickActionMenu";
+import { AnimatedLoadingState } from "@/components/goals/advanced/AnimatedLoadingState";
 
 const Goals = () => {
   const { toast } = useToast();
@@ -78,7 +83,9 @@ const Goals = () => {
 
   return (
     <AppLayout>
-      <div className="container mx-auto p-6 space-y-8">
+      <DynamicBackground />
+      <FloatingParticles count={30} />
+      <div className="container mx-auto p-6 space-y-8 relative z-10">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-display font-bold text-foreground">Savings Goals</h1>
@@ -145,19 +152,21 @@ const Goals = () => {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading goals...</div>
+          <AnimatedLoadingState />
         ) : goals && goals.length > 0 ? (
           <>
             <GoalSavingsOptimizer />
             <AIGoalSuggestions />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {goals.map((goal) => (
-                <GoalCard 
-                  key={goal.id} 
-                  title={goal.name}
+                <GoalCard3D
+                  key={goal.id}
+                  id={goal.id}
+                  name={goal.name}
                   current={parseFloat(String(goal.current_amount))}
                   target={parseFloat(String(goal.target_amount))}
-                  emoji={goal.icon}
+                  icon={goal.icon || undefined}
+                  deadline={goal.deadline || undefined}
                 />
               ))}
             </div>
@@ -180,6 +189,11 @@ const Goals = () => {
             </Card>
           </div>
         )}
+        
+        <QuickActionMenu
+          onNewGoal={() => setIsDialogOpen(true)}
+          onQuickDeposit={() => toast({ title: "Quick deposit coming soon!" })}
+        />
       </div>
     </AppLayout>
   );
