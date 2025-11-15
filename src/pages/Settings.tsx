@@ -9,7 +9,12 @@ import { ProfilePictureUpload } from '@/components/settings/ProfilePictureUpload
 import { NotificationPreferences } from '@/components/settings/NotificationPreferences';
 import { ResetOnboarding } from '@/components/settings/ResetOnboarding';
 import { WeeklyDigestTrigger } from '@/components/settings/WeeklyDigestTrigger';
-import { CurrencyPreference } from '@/components/settings/CurrencyPreference';
+import { CurrencyPreference } from "@/components/settings/CurrencyPreference";
+import { useState } from "react";
+import { CurrencySelector } from "@/components/currency/CurrencySelector";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
 import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2 } from 'lucide-react';

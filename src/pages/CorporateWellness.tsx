@@ -8,6 +8,9 @@ import {
   Target, Clock, BarChart3, UserPlus, Download 
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { EmployeeOnboarding } from "@/components/corporate/EmployeeOnboarding";
+import { DepartmentAnalytics } from "@/components/corporate/DepartmentAnalytics";
+import { ROITracker } from "@/components/corporate/ROITracker";
 
 const employeeMetrics = {
   totalEmployees: 247,
@@ -328,6 +331,8 @@ export default function CorporateWellness() {
 
           {/* Configuration */}
           <TabsContent value="config" className="space-y-4 mt-6">
+            <ROITracker />
+            <EmployeeOnboarding />
             <Card>
               <CardHeader>
                 <CardTitle>Program Settings</CardTitle>
