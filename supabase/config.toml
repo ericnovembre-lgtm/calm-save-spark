@@ -102,3 +102,7 @@ verify_jwt = false
 [functions.send-monthly-digests-batch]
 verify_jwt = false
 
+[functions.ai-personalize]
+verify_jwt = false
+
+
