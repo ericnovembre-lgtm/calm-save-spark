@@ -25,6 +25,7 @@ const taglines = [
 const mainNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
   { name: "Features Hub", path: "/features-hub", icon: Sparkles },
+  { name: "AI Agents", path: "/ai-agents", icon: Brain },
   { name: "Accounts", path: "/accounts", icon: Wallet },
   { name: "Goals", path: "/goals", icon: Target },
   { name: "Pots", path: "/pots", icon: Wallet },
@@ -57,7 +58,7 @@ const mainNavLinks = [
 const bottomNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
   { name: "Goals", path: "/goals", icon: Target },
-  { name: "Pots", path: "/pots", icon: Wallet },
+  { name: "AI Agents", path: "/ai-agents", icon: Brain },
   { name: "Coach", path: "/coach", icon: Bot },
   { name: "Settings", path: "/settings", icon: Settings },
 ];
