@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Heart, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import Animated3DCard from './advanced/Animated3DCard';
 
 interface ValueEarnedCardProps {
   userId: string;
@@ -78,38 +79,40 @@ export default function ValueEarnedCard({
   }
 
   return (
-    <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Heart className="w-5 h-5 text-primary fill-primary" />
-            Your Impact
-          </CardTitle>
-          <Badge variant="secondary" className="gap-1">
-            <Sparkles className="w-3 h-3" />
-            {monthsActive} month{monthsActive === 1 ? '' : 's'}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <div>
-            <div className="text-3xl font-bold text-primary">
-              ${totalContributed}
+    <Animated3DCard intensity={0.5}>
+      <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 backdrop-blur-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Heart className="w-5 h-5 text-primary fill-primary" />
+              Your Impact
+            </CardTitle>
+            <Badge variant="secondary" className="gap-1">
+              <Sparkles className="w-3 h-3" />
+              {monthsActive} month{monthsActive === 1 ? '' : 's'}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div>
+              <div className="text-3xl font-bold text-primary">
+                ${totalContributed}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Total contributed to $ave+
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Total contributed to $ave+
-            </p>
+            
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-background/50">
+              <TrendingUp className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+              <p className="text-sm">
+                {getEncouragementMessage()}
+              </p>
+            </div>
           </div>
-          
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-background/50">
-            <TrendingUp className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-            <p className="text-sm">
-              {getEncouragementMessage()}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Animated3DCard>
   );
 }

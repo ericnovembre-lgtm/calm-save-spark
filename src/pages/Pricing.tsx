@@ -27,7 +27,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useStripeHealth } from "@/hooks/useStripeHealth";
-import AccessibleSlider from "@/components/pricing/AccessibleSlider";
+import EnhancedPricingSlider from "@/components/pricing/advanced/EnhancedPricingSlider";
 import FeatureItem from "@/components/pricing/FeatureItem";
 import ValueEarnedCard from "@/components/pricing/ValueEarnedCard";
 import ProjectedSavingsCard from "@/components/pricing/ProjectedSavingsCard";
@@ -425,7 +425,7 @@ export default function Pricing() {
                 </p>
               </div>
 
-              <AccessibleSlider
+              <EnhancedPricingSlider
                 value={selectedAmount}
                 onChange={handleSliderChange}
                 min={0}
