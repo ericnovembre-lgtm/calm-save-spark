@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 import { Card } from '@/components/ui/card';
@@ -7,6 +7,7 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 import confetti from 'canvas-confetti';
 import { MagneticButton } from './MagneticButton';
 import { MorphingNumber } from './MorphingNumber';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 
 interface CalculatorResult {
   total: number;
@@ -25,6 +26,22 @@ export const InteractiveSavingsCalculator = () => {
   const [apy, setApy] = useState(4.25);
   const [result, setResult] = useState<CalculatorResult>({ total: 0, interest: 0, milestone: null });
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showSavingsEmoji, setShowSavingsEmoji] = useState(false);
+  const [emojiKey, setEmojiKey] = useState(0);
+  const { playCoinSound } = useSoundEffects();
+  const lastSoundTimeRef = useRef(0);
+
+  const handleSliderSound = useCallback(() => {
+    const now = Date.now();
+    if (now - lastSoundTimeRef.current > 200) {
+      playCoinSound();
+      lastSoundTimeRef.current = now;
+      
+      setShowSavingsEmoji(true);
+      setEmojiKey(prev => prev + 1);
+      setTimeout(() => setShowSavingsEmoji(false), 800);
+    }
+  }, [playCoinSound]);
 
   const calculateSavings = () => {
     const months = years * 12;
@@ -98,7 +115,7 @@ export const InteractiveSavingsCalculator = () => {
         <div className="space-y-6 mb-8">
           {/* Monthly Amount */}
           <div>
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-between items-center mb-3 relative">
               <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <DollarSign className="w-4 h-4" />
                 Monthly Savings
@@ -109,10 +126,31 @@ export const InteractiveSavingsCalculator = () => {
                 className="text-lg font-bold text-accent"
                 duration={0.5}
               />
+              <AnimatePresence mode="wait">
+                {showSavingsEmoji && !prefersReducedMotion && (
+                  <motion.span
+                    key={emojiKey}
+                    initial={{ scale: 0, rotate: -180, y: 0 }}
+                    animate={{ scale: 1.5, rotate: 0, y: -20 }}
+                    exit={{ scale: 0, opacity: 0, y: -40 }}
+                    transition={{ 
+                      type: "spring", 
+                      damping: 12, 
+                      stiffness: 300 
+                    }}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-2xl"
+                  >
+                    💰
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </div>
             <Slider
               value={[monthlyAmount]}
-              onValueChange={([v]) => setMonthlyAmount(v)}
+              onValueChange={([v]) => {
+                setMonthlyAmount(v);
+                handleSliderSound();
+              }}
               min={25}
               max={1000}
               step={25}
