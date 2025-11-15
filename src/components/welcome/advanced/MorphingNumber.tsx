@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CountUp from 'react-countup';
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
@@ -87,15 +87,6 @@ export const MorphingNumber = ({
           suffix={suffix}
           separator={separator}
           useEasing={true}
-          easingFn={(t, b, c, d) => {
-            // Custom easing with overshoot for excitement
-            t /= d;
-            const overshoot = 1.1;
-            if (t < 0.5) {
-              return c * Math.pow(2 * t, 2) / 2 + b;
-            }
-            return c * (1 - Math.pow(-2 * (t - 1) + 2, 2) / 2) + b;
-          }}
         />
       ) : (
         <span>
@@ -105,6 +96,3 @@ export const MorphingNumber = ({
     </motion.div>
   );
 };
-
-// Add missing import
-import { useState } from 'react';
