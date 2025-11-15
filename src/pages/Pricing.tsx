@@ -508,7 +508,11 @@ export default function Pricing() {
                   <div className="mt-6">
                     <Button
                       onClick={handleInitiateCheckout}
-                      disabled={loading || selectedAmount === currentSubscription?.subscription_amount || isCheckoutDisabled || stripeLoading}
+                      disabled={
+                        loading || 
+                        (selectedAmount > 0 && (isCheckoutDisabled || stripeLoading)) ||
+                        (selectedAmount === 0 && currentSubscription?.subscription_amount === 0 && currentSubscription?.status === 'active')
+                      }
                       className="w-full py-4 rounded-xl font-semibold flex items-center justify-center space-x-2"
                       size="lg"
                     >
@@ -532,16 +536,23 @@ export default function Pricing() {
                     </Button>
 
                     <div className="mt-2 text-center" role="status" aria-live="polite">
-                      {stripeHealthy === false && (
+                      {selectedAmount === 0 && currentSubscription?.subscription_amount === 0 && currentSubscription?.status === 'active' ? (
+                        <p className="text-sm text-muted-foreground">
+                          ✓ You're on the Free Plan
+                        </p>
+                      ) : selectedAmount === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          Start with full access to the savings demo
+                        </p>
+                      ) : stripeHealthy === false ? (
                         <p className="text-sm text-destructive">
                           Billing unavailable. Awaiting Stripe configuration.
                         </p>
-                      )}
-                      {selectedAmount === currentSubscription?.subscription_amount && (
+                      ) : selectedAmount === currentSubscription?.subscription_amount ? (
                         <p className="text-sm text-muted-foreground">
                           This is your current plan
                         </p>
-                      )}
+                      ) : null}
                     </div>
 
                     <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
