@@ -14,7 +14,7 @@ export function ScenarioComparison({ lifePlanId }: ScenarioComparisonProps) {
     queryKey: ["scenarios", lifePlanId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("life_plan_scenarios")
+        .from("life_event_scenarios")
         .select("*")
         .eq("life_plan_id", lifePlanId);
 
@@ -31,11 +31,14 @@ export function ScenarioComparison({ lifePlanId }: ScenarioComparisonProps) {
     );
   }
 
-  const chartData = scenarios.map(s => ({
-    name: s.scenario_name,
-    cost: s.total_cost,
-    savings: s.monthly_savings_needed
-  }));
+  const chartData = scenarios.map(s => {
+    const outcomes = s.projected_outcomes as any;
+    return {
+      name: s.scenario_name,
+      cost: outcomes?.total_cost || 0,
+      savings: outcomes?.monthly_savings_needed || 0
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -53,66 +56,75 @@ export function ScenarioComparison({ lifePlanId }: ScenarioComparisonProps) {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {scenarios.map(scenario => (
-          <Card key={scenario.id} className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-foreground">{scenario.scenario_name}</h3>
-                {scenario.is_selected && (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+        {scenarios.map(scenario => {
+          const outcomes = scenario.projected_outcomes as any;
+          const params = scenario.parameters as any;
+          
+          return (
+            <Card key={scenario.id} className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-foreground">{scenario.scenario_name}</h3>
+                  {scenario.is_selected && (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  )}
+                </div>
+                
+                {scenario.description && (
+                  <p className="text-sm text-muted-foreground">{scenario.description}</p>
                 )}
-              </div>
-              
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total Cost</span>
-                  <span className="font-medium text-foreground">
-                    ${scenario.total_cost.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Monthly Savings</span>
-                  <span className="font-medium text-foreground">
-                    ${scenario.monthly_savings_needed.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Timeline</span>
-                  <span className="font-medium text-foreground">
-                    {scenario.timeline_months} months
-                  </span>
-                </div>
-              </div>
-
-              {scenario.pros_cons && (
-                <div className="pt-4 border-t border-border text-xs">
-                  <div className="space-y-2">
-                    <div>
-                      <span className="text-green-500 font-medium">Pros:</span>
-                      <p className="text-muted-foreground mt-1">
-                        {(scenario.pros_cons as any).pros}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-red-500 font-medium">Cons:</span>
-                      <p className="text-muted-foreground mt-1">
-                        {(scenario.pros_cons as any).cons}
-                      </p>
-                    </div>
+                
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total Cost</span>
+                    <span className="font-medium text-foreground">
+                      ${(outcomes?.total_cost || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Monthly Savings</span>
+                    <span className="font-medium text-foreground">
+                      ${(outcomes?.monthly_savings_needed || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Timeline</span>
+                    <span className="font-medium text-foreground">
+                      {outcomes?.timeline_months || params?.timeline_months || 'N/A'} months
+                    </span>
                   </div>
                 </div>
-              )}
 
-              <Button 
-                className="w-full" 
-                variant={scenario.is_selected ? "secondary" : "default"}
-                disabled={scenario.is_selected}
-              >
-                {scenario.is_selected ? "Selected" : "Select Scenario"}
-              </Button>
-            </div>
-          </Card>
-        ))}
+                {outcomes?.pros_cons && (
+                  <div className="pt-4 border-t border-border text-xs">
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-green-500 font-medium">Pros:</span>
+                        <p className="text-muted-foreground mt-1">
+                          {outcomes.pros_cons.pros}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-red-500 font-medium">Cons:</span>
+                        <p className="text-muted-foreground mt-1">
+                          {outcomes.pros_cons.cons}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <Button 
+                  className="w-full" 
+                  variant={scenario.is_selected ? "secondary" : "default"}
+                  disabled={scenario.is_selected}
+                >
+                  {scenario.is_selected ? "Selected" : "Select Scenario"}
+                </Button>
+              </div>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
