@@ -75,7 +75,17 @@ const AlternativesPortal = lazy(() => import("./pages/AlternativesPortal"));
 const FamilyOffice = lazy(() => import("./pages/FamilyOffice"));
 const CorporateWellness = lazy(() => import("./pages/CorporateWellness"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // 1 minute
+      gcTime: 5 * 60 * 1000, // 5 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => {
   // Initialize session management on app startup
