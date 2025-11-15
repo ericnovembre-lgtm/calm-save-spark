@@ -1,4 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout";
+import { BudgetErrorBoundary } from "@/components/budget/BudgetErrorBoundary";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, lazy, Suspense } from "react";
@@ -225,7 +226,8 @@ export default function Budget() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <BudgetErrorBoundary>
+        <div className="space-y-6">
         {/* Celebration Effects */}
         <CelebrationManager trigger={celebrationTrigger} type="milestone" />
 
@@ -346,6 +348,7 @@ export default function Budget() {
           />
         </Suspense>
       </div>
+      </BudgetErrorBoundary>
     </AppLayout>
   );
 }
