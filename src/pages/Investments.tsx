@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PortfolioAllocation } from "@/components/investments/PortfolioAllocation";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,14 @@ import { Plus, RefreshCw, TrendingUp, TrendingDown } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
 import { SyncStatusBadge } from "@/components/ui/SyncStatusBadge";
+import { EmotionDetectionBar } from "@/components/guardian/EmotionDetectionBar";
+import { InterventionModal } from "@/components/guardian/InterventionModal";
 
 export default function Investments() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [interventionData, setInterventionData] = useState<any>(null);
   const [newAccount, setNewAccount] = useState({
     account_name: '',
     account_type: 'brokerage',
@@ -67,6 +72,49 @@ export default function Investments() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Check for emotional trading before large investments
+      if (newAccount.total_value > 5000) {
+        const { data: sentimentData, error: sentimentError } = await supabase.functions.invoke(
+          'sentiment-analyzer',
+          {
+            body: {
+              context: { marketVolatility: 'normal' },
+              transactionData: {
+                proposedAmount: newAccount.total_value,
+                portfolioValue: totalValue,
+                asset: newAccount.account_name,
+                recentTransactions: accounts || [],
+              },
+            },
+          }
+        );
+
+        if (!sentimentError && sentimentData?.shouldIntervene) {
+          const { data: interventionResult } = await supabase.functions.invoke(
+            'guardian-intervene',
+            {
+              body: {
+                emotionId: sentimentData.emotionId,
+                transactionData: {
+                  proposedAmount: newAccount.total_value,
+                  asset: newAccount.account_name,
+                  emotion: sentimentData.emotion,
+                },
+              },
+            }
+          );
+
+          if (interventionResult?.intervention) {
+            setInterventionData({
+              ...interventionResult.intervention,
+              emotion: sentimentData.emotion,
+              confidence: sentimentData.confidence,
+            });
+            throw new Error('INTERVENTION_REQUIRED');
+          }
+        }
+      }
+
       const { error } = await supabase
         .from('investment_accounts')
         .insert([{
@@ -88,7 +136,37 @@ export default function Investments() {
       });
       toast.success('Investment account added');
     },
+    onError: (error: any) => {
+      if (error.message === 'INTERVENTION_REQUIRED') {
+        setIsAddDialogOpen(false);
+      } else {
+        toast.error('Failed to add account');
+      }
+    },
   });
+
+  useEffect(() => {
+    const checkCoolingOff = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: activeSession } = await supabase
+        .from('cooling_off_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .is('early_exit_requested', null)
+        .gt('end_time', new Date().toISOString())
+        .order('start_time', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (activeSession) {
+        navigate('/cooling-off');
+      }
+    };
+
+    checkCoolingOff();
+  }, [navigate]);
 
   const totalValue = accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.total_value)), 0) || 0;
   const totalCostBasis = accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.cost_basis || 0)), 0) || 0;
@@ -100,6 +178,23 @@ export default function Investments() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        <EmotionDetectionBar />
+
+        <InterventionModal
+          open={!!interventionData}
+          onOpenChange={(open) => !open && setInterventionData(null)}
+          emotion={interventionData?.emotion || ''}
+          confidence={interventionData?.confidence || 0}
+          arguments={interventionData?.arguments || []}
+          onPause={() => {
+            navigate('/cooling-off');
+            setInterventionData(null);
+          }}
+          onContinue={() => {
+            setInterventionData(null);
+            setIsAddDialogOpen(true);
+          }}
+        />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-display font-bold text-foreground mb-2">Investments</h1>
