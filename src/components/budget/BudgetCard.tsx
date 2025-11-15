@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { MoreVertical, Edit, Trash2, TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { BudgetProgress } from "./BudgetProgress";
+import { BudgetProgressLiquid } from "./BudgetProgressLiquid";
 import { CategoryIcon } from "./CategoryIcon";
 import { fadeInUp, cardHover } from "@/lib/motion-variants";
 import { AnimatedCounter } from "@/components/onboarding/AnimatedCounter";
@@ -86,7 +86,7 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete }:
 
         {/* Progress Ring */}
         <div className="flex items-center justify-center mb-6">
-          <BudgetProgress 
+          <BudgetProgressLiquid 
             percentage={percentage} 
             size={120}
             strokeWidth={8}

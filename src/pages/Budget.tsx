@@ -14,11 +14,13 @@ import { CreateBudgetModal } from "@/components/budget/CreateBudgetModal";
 import { RuleManager } from "@/components/budget/RuleManager";
 import { ExportDialog } from "@/components/budget/ExportDialog";
 import { BudgetOnboarding } from "@/components/budget/BudgetOnboarding";
-import { motion } from "framer-motion";
-import { staggerContainer, fadeInUp } from "@/lib/motion-variants";
+import { ScrollSection } from "@/components/animations/ScrollSection";
+import StaggeredContainer, { StaggeredItem } from "@/components/pricing/advanced/StaggeredContainer";
+import { CelebrationManager } from "@/components/effects/CelebrationManager";
+import { useBudgetMilestones } from "@/hooks/useBudgetMilestones";
 import { Card } from "@/components/ui/card";
 import { Target, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 
 export default function Budget() {
   const [activeView, setActiveView] = useState('overview');
@@ -28,6 +30,7 @@ export default function Budget() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const queryClient = useQueryClient();
   const calculateSpending = useCalculateBudgetSpending();
+  const { celebrationTrigger, checkMilestones } = useBudgetMilestones();
 
   // Fetch user
   const { data: user } = useQuery({
@@ -257,6 +260,9 @@ export default function Budget() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        {/* Celebration Effects */}
+        <CelebrationManager trigger={celebrationTrigger} type="milestone" />
+
         {/* Onboarding */}
         <BudgetOnboarding
           isOpen={showOnboarding}
@@ -276,7 +282,7 @@ export default function Budget() {
 
         {/* Overview Tab */}
         {activeView === 'overview' && (
-          <>
+          <ScrollSection>
             <BudgetOverview
               totalBudget={totalBudget}
               totalSpent={totalSpent}
@@ -286,44 +292,34 @@ export default function Budget() {
             />
 
             {budgets.length === 0 ? (
-              <motion.div
-                variants={fadeInUp}
-                initial="hidden"
-                animate="visible"
-              >
-                <Card className="p-12 text-center backdrop-blur-sm bg-card/80 border-border/50">
-                  <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 rounded-full bg-primary/10 border border-primary/20">
-                    <Target className="w-10 h-10 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No budgets yet</h3>
-                  <p className="text-muted-foreground mb-6">Create your first budget to start tracking your spending</p>
-                  <Button
-                    onClick={() => setShowCreateModal(true)}
-                    className="gap-2 bg-gradient-to-r from-primary to-purple-600"
-                  >
-                    <Plus className="w-5 h-5" />
-                    Create Your First Budget
-                  </Button>
-                </Card>
-              </motion.div>
+              <Card className="p-12 text-center backdrop-blur-sm bg-card/80 border-border/50">
+                <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 rounded-full bg-primary/10 border border-primary/20">
+                  <Target className="w-10 h-10 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">No budgets yet</h3>
+                <p className="text-muted-foreground mb-6">Create your first budget to start tracking your spending</p>
+                <MagneticButton
+                  onClick={() => setShowCreateModal(true)}
+                  className="gap-2 bg-gradient-to-r from-primary to-purple-600"
+                >
+                  <Plus className="w-5 h-5" />
+                  Create Your First Budget
+                </MagneticButton>
+              </Card>
             ) : (
-              <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-              >
+              <StaggeredContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {budgets.map((budget) => (
-                  <BudgetCard
-                    key={budget.id}
-                    budget={budget as any}
-                    spending={spending[budget.id]}
-                    categoryData={categories.find(c => c.code === Object.keys((budget.category_limits as any) || {})[0])}
-                  />
+                  <StaggeredItem key={budget.id}>
+                    <BudgetCard
+                      budget={budget as any}
+                      spending={spending[budget.id]}
+                      categoryData={categories.find(c => c.code === Object.keys((budget.category_limits as any) || {})[0])}
+                    />
+                  </StaggeredItem>
                 ))}
-              </motion.div>
+              </StaggeredContainer>
             )}
-          </>
+          </ScrollSection>
         )}
 
         {/* Analytics Tab */}

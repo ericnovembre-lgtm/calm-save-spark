@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Plus, Download, Settings, PieChart, BarChart3, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/motion-variants";
@@ -66,22 +67,27 @@ export function BudgetHeader({
             <Download className="w-4 h-4" />
             Export
           </Button>
-          <Button
+          <MagneticButton
             onClick={onCreateBudget}
             className="gap-2 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+            magneticRadius={100}
+            strength={0.4}
           >
             <Plus className="w-5 h-5" />
             New Budget
-          </Button>
+          </MagneticButton>
         </div>
       </div>
 
       {/* Tab Navigation */}
       <div className="flex space-x-2 border-b border-border">
         {tabs.map(tab => (
-          <button
+          <motion.button
             key={tab.id}
             onClick={() => onViewChange(tab.id)}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
             className={`px-4 py-2 flex items-center gap-2 border-b-2 transition-colors ${
               activeView === tab.id
                 ? 'border-primary text-primary'
@@ -90,7 +96,7 @@ export function BudgetHeader({
           >
             <tab.icon className="w-4 h-4" />
             <span className="font-medium">{tab.label}</span>
-          </button>
+          </motion.button>
         ))}
       </div>
     </motion.div>

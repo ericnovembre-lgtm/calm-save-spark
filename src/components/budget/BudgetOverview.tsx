@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
 import { AnimatedCounter } from "@/components/onboarding/AnimatedCounter";
-import { SpendingChart } from "./SpendingChart";
+import { SpendingChartAnimated } from "./SpendingChartAnimated";
 import { fadeInUp, staggerContainer } from "@/lib/motion-variants";
 
 interface BudgetOverviewProps {
@@ -102,7 +102,7 @@ export function BudgetOverview({
       {/* Spending Breakdown Chart */}
       {budgets.length > 0 && (
         <motion.div variants={fadeInUp}>
-          <SpendingChart
+          <SpendingChartAnimated
             budgets={budgets}
             spending={spending}
             categories={categories}
