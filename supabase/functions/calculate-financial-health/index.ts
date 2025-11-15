@@ -165,6 +165,31 @@ serve(async (req) => {
         recommendations: recommendations,
       });
 
+    // Save to history for tracking trends
+    try {
+      const { error: historyError } = await supabaseClient
+        .from('financial_health_history')
+        .insert({
+          user_id: user.id,
+          score: overallScore,
+          components: {
+            credit: creditComponent,
+            debt: debtComponent,
+            savings: savingsComponent,
+            goals: goalsComponent,
+            investment: investmentComponent,
+            emergency_fund: emergencyFundComponent,
+          },
+          recommendations,
+        });
+
+      if (historyError) {
+        console.error('Error saving to history:', historyError);
+      }
+    } catch (historyErr) {
+      console.error('History save failed:', historyErr);
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
