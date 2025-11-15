@@ -16,13 +16,13 @@ export function DocumentCenter({ executionId }: DocumentCenterProps) {
       if (!executionId) return [];
       
       const { data, error } = await supabase
-        .from('playbook_documents')
+        .from('playbook_documents' as any)
         .select('*')
-        .eq('execution_id', executionId)
+        .eq('playbook_id', executionId)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as any[];
     },
     enabled: !!executionId,
   });

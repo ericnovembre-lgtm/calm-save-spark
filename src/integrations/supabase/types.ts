@@ -3105,6 +3105,7 @@ export type Database = {
           event_date: string | null
           event_type: string
           id: string
+          is_active: boolean | null
           metadata: Json | null
           status: string | null
           updated_at: string | null
@@ -3116,6 +3117,7 @@ export type Database = {
           event_date?: string | null
           event_type: string
           id?: string
+          is_active?: boolean | null
           metadata?: Json | null
           status?: string | null
           updated_at?: string | null
@@ -3127,6 +3129,7 @@ export type Database = {
           event_date?: string | null
           event_type?: string
           id?: string
+          is_active?: boolean | null
           metadata?: Json | null
           status?: string | null
           updated_at?: string | null
@@ -3238,8 +3241,11 @@ export type Database = {
           life_events: Json | null
           scenario_id: string | null
           score: number | null
+          session_name: string | null
           started_at: string | null
+          starting_age: number | null
           status: string | null
+          target_age: number | null
           updated_at: string | null
           user_id: string
         }
@@ -3254,8 +3260,11 @@ export type Database = {
           life_events?: Json | null
           scenario_id?: string | null
           score?: number | null
+          session_name?: string | null
           started_at?: string | null
+          starting_age?: number | null
           status?: string | null
+          target_age?: number | null
           updated_at?: string | null
           user_id: string
         }
@@ -3270,8 +3279,11 @@ export type Database = {
           life_events?: Json | null
           scenario_id?: string | null
           score?: number | null
+          session_name?: string | null
           started_at?: string | null
+          starting_age?: number | null
           status?: string | null
+          target_age?: number | null
           updated_at?: string | null
           user_id?: string
         }
@@ -3506,6 +3518,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      market_loan_rates: {
+        Row: {
+          created_at: string | null
+          current_rate: number
+          id: string
+          loan_type: string
+          min_credit_score: number | null
+          previous_rate: number | null
+          rate_date: string
+          rate_type: string
+          source: string | null
+          term_years: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_rate: number
+          id?: string
+          loan_type: string
+          min_credit_score?: number | null
+          previous_rate?: number | null
+          rate_date?: string
+          rate_type?: string
+          source?: string | null
+          term_years?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_rate?: number
+          id?: string
+          loan_type?: string
+          min_credit_score?: number | null
+          previous_rate?: number | null
+          rate_date?: string
+          rate_type?: string
+          source?: string | null
+          term_years?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       notification_preferences: {
         Row: {
