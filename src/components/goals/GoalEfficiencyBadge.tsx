@@ -8,6 +8,15 @@ interface GoalEfficiencyBadgeProps {
   goalId: string;
 }
 
+interface GoalEfficiency {
+  goal_id: string;
+  efficiency_score: number;
+  expected_progress: number;
+  actual_progress: number;
+  badge: 'hot' | 'on_track' | 'behind' | 'frozen';
+  calculated_at: string;
+}
+
 const badgeConfig = {
   hot: {
     icon: Flame,
@@ -36,11 +45,11 @@ const badgeConfig = {
 };
 
 export const GoalEfficiencyBadge = ({ goalId }: GoalEfficiencyBadgeProps) => {
-  const { data: efficiency } = useQuery({
+  const { data: efficiency } = useQuery<GoalEfficiency | null>({
     queryKey: ['goal-efficiency', goalId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('goal_efficiency_scores')
+        .from('goal_efficiency_scores' as any)
         .select('*')
         .eq('goal_id', goalId)
         .order('calculated_at', { ascending: false })
@@ -48,7 +57,7 @@ export const GoalEfficiencyBadge = ({ goalId }: GoalEfficiencyBadgeProps) => {
         .single();
       
       if (error && error.code !== 'PGRST116') throw error;
-      return data;
+      return data as unknown as GoalEfficiency | null;
     },
     refetchInterval: 1000 * 60 * 60 // Refetch every hour
   });

@@ -7,6 +7,19 @@ import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { ANIMATION_DURATION, ANIMATION_EASING, STAGGER_DELAY } from "@/lib/animation-constants";
 
+interface GoalTemplate {
+  id: string;
+  template_name: string;
+  description: string;
+  icon: string;
+  target_amount: number;
+  suggested_timeline_months: number;
+  config: any;
+  success_rate: number;
+  usage_count: number;
+  category: string;
+}
+
 const iconMap: Record<string, any> = {
   shield: Shield,
   plane: Plane,
@@ -21,17 +34,17 @@ const iconMap: Record<string, any> = {
 export const QuickGoalTemplates = () => {
   const { toast } = useToast();
 
-  const { data: templates, isLoading } = useQuery({
+  const { data: templates, isLoading } = useQuery<GoalTemplate[]>({
     queryKey: ['goal-templates'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('goal_templates')
+        .from('goal_templates' as any)
         .select('*')
         .eq('is_active', true)
         .order('success_rate', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as unknown as GoalTemplate[];
     }
   });
 
@@ -57,7 +70,7 @@ export const QuickGoalTemplates = () => {
 
       // Increment usage count
       const { error: updateError } = await supabase
-        .from('goal_templates')
+        .from('goal_templates' as any)
         .update({ usage_count: (template.usage_count || 0) + 1 })
         .eq('id', template.id);
 
