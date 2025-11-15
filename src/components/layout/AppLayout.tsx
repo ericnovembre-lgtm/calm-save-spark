@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug, Heart, Search } from "lucide-react";
+import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug, Heart, Search, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -24,6 +24,7 @@ const taglines = [
 
 const mainNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
+  { name: "Features Hub", path: "/features-hub", icon: Sparkles },
   { name: "Accounts", path: "/accounts", icon: Wallet },
   { name: "Goals", path: "/goals", icon: Target },
   { name: "Pots", path: "/pots", icon: Wallet },
