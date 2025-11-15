@@ -56,7 +56,18 @@ export function useAgentChat({ agentType, conversationId, onMessageReceived }: U
       );
 
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        if (response.status === 429) {
+          toast.error('Rate limit exceeded. Please try again in a moment.');
+        } else if (response.status === 402) {
+          toast.error('AI credits depleted. Please contact support to add credits.');
+        } else {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(errorData.error || 'Failed to send message');
+        }
+        // Remove the user message on error
+        setMessages(prev => prev.slice(0, -1));
+        setIsLoading(false);
+        return;
       }
 
       // Handle streaming response
@@ -65,33 +76,59 @@ export function useAgentChat({ agentType, conversationId, onMessageReceived }: U
 
       let assistantMessage = '';
       const decoder = new TextDecoder();
+      let buffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        assistantMessage += chunk;
+        buffer += decoder.decode(value, { stream: true });
 
-        // Update the last message (assistant) with streaming content
-        setMessages(prev => {
-          const lastMessage = prev[prev.length - 1];
-          if (lastMessage?.role === 'assistant') {
-            return [
-              ...prev.slice(0, -1),
-              { ...lastMessage, content: assistantMessage },
-            ];
-          } else {
-            return [
-              ...prev,
-              {
-                role: 'assistant',
-                content: assistantMessage,
-                timestamp: new Date().toISOString(),
-              },
-            ];
+        // Process line by line
+        let newlineIndex: number;
+        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+          let line = buffer.slice(0, newlineIndex);
+          buffer = buffer.slice(newlineIndex + 1);
+
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantMessage += content;
+
+              // Update the last message (assistant) with streaming content
+              setMessages(prev => {
+                const lastMessage = prev[prev.length - 1];
+                if (lastMessage?.role === 'assistant') {
+                  return [
+                    ...prev.slice(0, -1),
+                    { ...lastMessage, content: assistantMessage },
+                  ];
+                } else {
+                  return [
+                    ...prev,
+                    {
+                      role: 'assistant',
+                      content: assistantMessage,
+                      timestamp: new Date().toISOString(),
+                    },
+                  ];
+                }
+              });
+            }
+          } catch {
+            // Incomplete JSON, buffer it
+            buffer = line + '\n' + buffer;
+            break;
           }
-        });
+        }
       }
 
       onMessageReceived?.(assistantMessage);

@@ -8,17 +8,22 @@ export async function streamAIResponse(
   conversationHistory: Message[],
   userMessage: string
 ): Promise<ReadableStream> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) {
+    throw new Error('LOVABLE_API_KEY is not configured');
+  }
+
   const messages = [
     { role: 'system' as const, content: systemPrompt },
     ...conversationHistory,
     { role: 'user' as const, content: userMessage },
   ];
 
-  const response = await fetch('https://api.lovable.app/v1/ai/generate', {
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY') || 'internal'}`,
+      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
     },
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
@@ -30,7 +35,15 @@ export async function streamAIResponse(
   });
 
   if (!response.ok) {
-    throw new Error(`AI API error: ${response.statusText}`);
+    if (response.status === 429) {
+      throw new Error('RATE_LIMIT_EXCEEDED');
+    }
+    if (response.status === 402) {
+      throw new Error('PAYMENT_REQUIRED');
+    }
+    const errorText = await response.text();
+    console.error('AI Gateway error:', response.status, errorText);
+    throw new Error(`AI Gateway error: ${response.statusText}`);
   }
 
   return response.body!;
