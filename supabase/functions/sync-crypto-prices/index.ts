@@ -26,6 +26,7 @@ serve(async (req) => {
       .neq('symbol', '');
 
     if (!holdings || holdings.length === 0) {
+      console.log('No crypto holdings found to sync');
       return new Response(
         JSON.stringify({ message: 'No crypto holdings to sync' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -33,41 +34,81 @@ serve(async (req) => {
     }
 
     const uniqueSymbols = [...new Set(holdings.map(h => h.symbol))];
+    console.log(`Syncing prices for ${uniqueSymbols.length} unique symbols`);
 
-    // Fetch prices from CoinGecko API (free tier)
-    const priceUpdates = [];
-    for (const symbol of uniqueSymbols) {
-      try {
-        const coinId = symbol.toLowerCase() === 'btc' ? 'bitcoin' : 
-                       symbol.toLowerCase() === 'eth' ? 'ethereum' :
-                       symbol.toLowerCase() === 'usdt' ? 'tether' :
-                       symbol.toLowerCase();
+    // Map symbols to CoinGecko coin IDs
+    const symbolToCoinId = (symbol: string) => {
+      const map: Record<string, string> = {
+        'btc': 'bitcoin',
+        'eth': 'ethereum',
+        'usdt': 'tether',
+        'usdc': 'usd-coin',
+        'bnb': 'binancecoin',
+        'ada': 'cardano',
+        'doge': 'dogecoin',
+        'xrp': 'ripple',
+        'sol': 'solana',
+        'dot': 'polkadot'
+      };
+      return map[symbol.toLowerCase()] || symbol.toLowerCase();
+    };
 
-        const response = await fetch(
-          `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_vol=true&include_24hr_change=true&include_market_cap=true`
-        );
+    // Create comma-separated list of all coin IDs for batch API call
+    const coinIds = uniqueSymbols.map(symbolToCoinId).join(',');
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data[coinId]) {
-            priceUpdates.push({
-              symbol: symbol.toUpperCase(),
-              price: data[coinId].usd,
-              volume_24h: data[coinId].usd_24h_vol,
-              market_cap: data[coinId].usd_market_cap,
-              percent_change_24h: data[coinId].usd_24h_change
-            });
+    // Declare arrays at function level for scope
+    const priceUpdates: any[] = [];
+    const updatePromises: PromiseLike<any>[] = [];
 
-            // Update user holdings with current price
-            await supabase
-              .from('crypto_holdings')
-              .update({ current_price: data[coinId].usd, updated_at: new Date().toISOString() } as any)
-              .eq('symbol', symbol.toUpperCase());
-          }
-        }
-      } catch (error) {
-        console.error(`Error fetching price for ${symbol}:`, error);
+    try {
+      // OPTIMIZATION: Single batch API call instead of loop
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_vol=true&include_24hr_change=true&include_market_cap=true`
+      );
+
+      if (!response.ok) {
+        throw new Error(`CoinGecko API error: ${response.status}`);
       }
+
+      const data = await response.json();
+
+      // Process all symbols from the batch response
+      for (const symbol of uniqueSymbols) {
+        const coinId = symbolToCoinId(symbol);
+        const priceData = data[coinId];
+
+        if (priceData && priceData.usd) {
+          priceUpdates.push({
+            symbol: symbol.toUpperCase(),
+            price: priceData.usd,
+            volume_24h: priceData.usd_24h_vol,
+            market_cap: priceData.usd_market_cap,
+            percent_change_24h: priceData.usd_24h_change
+          });
+
+          // Batch update user holdings (parallel)
+          updatePromises.push(
+            supabase
+              .from('crypto_holdings')
+              .update({ 
+                current_price: priceData.usd, 
+                updated_at: new Date().toISOString() 
+              } as any)
+              .eq('symbol', symbol.toUpperCase())
+              .then()
+          );
+        } else {
+          console.warn(`No price data found for ${symbol} (${coinId})`);
+        }
+      }
+
+      // Execute all updates in parallel
+      await Promise.all(updatePromises);
+      
+      console.log(`Successfully updated ${priceUpdates.length} crypto prices`);
+    } catch (error) {
+      console.error('Error fetching crypto prices:', error);
+      throw error;
     }
 
     // Store price history
@@ -78,7 +119,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         message: 'Crypto prices synced successfully',
-        updated: priceUpdates.length 
+        updated: priceUpdates.length,
+        symbols: uniqueSymbols.length
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -20,10 +20,30 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch pending notifications
+    // Early exit check: see if there are any pending notifications
+    const { count: pendingCount } = await supabaseClient
+      .from('notification_queue')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending');
+
+    if (!pendingCount || pendingCount === 0) {
+      console.log('No pending notifications to process');
+      return new Response(
+        JSON.stringify({ message: 'No pending notifications', sent_count: 0 }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Fetch pending notifications with profiles data
     const { data: notifications, error: fetchError } = await supabaseClient
       .from('notification_queue')
-      .select('*, profiles!inner(email, full_name)')
+      .select(`
+        *,
+        profiles!notification_queue_user_id_fkey (
+          email,
+          full_name
+        )
+      `)
       .eq('status', 'pending')
       .limit(50);
 

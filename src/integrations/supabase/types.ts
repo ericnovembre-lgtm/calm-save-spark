@@ -2930,7 +2930,22 @@ export type Database = {
           subject?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_queue_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "achievement_leaderboard"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "notification_queue_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       onboarding_progress: {
         Row: {
@@ -5353,6 +5368,7 @@ export type Database = {
       calculate_health_trend: { Args: { p_user_id: string }; Returns: number }
       cleanup_expired_ip_blocks: { Args: never; Returns: undefined }
       cleanup_expired_webauthn_challenges: { Args: never; Returns: undefined }
+      cleanup_old_analytics_events: { Args: never; Returns: undefined }
       cleanup_old_financial_health_history: { Args: never; Returns: undefined }
       cleanup_old_monitoring_data: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
