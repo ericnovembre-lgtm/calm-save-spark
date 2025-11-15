@@ -413,6 +413,35 @@ const Goals = () => {
               overlayColor: 'rgba(0, 0, 0, 0.4)',
               zIndex: 10000,
             },
+            buttonNext: {
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))',
+              fontSize: '14px',
+              fontWeight: '500',
+              borderRadius: '6px',
+              padding: '8px 16px',
+            },
+            buttonBack: {
+              color: 'hsl(var(--muted-foreground))',
+              fontSize: '14px',
+            },
+            buttonSkip: {
+              color: 'hsl(var(--muted-foreground))',
+              fontSize: '14px',
+            },
+            tooltip: {
+              borderRadius: '12px',
+              padding: '16px',
+            },
+            tooltipContent: {
+              padding: '0',
+            },
+          }}
+          locale={{
+            next: 'Next',
+            back: 'Back',
+            skip: 'Skip',
+            last: 'Done',
           }}
         />
       </div>
