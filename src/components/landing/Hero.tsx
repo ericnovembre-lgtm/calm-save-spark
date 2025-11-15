@@ -119,7 +119,7 @@ export const Hero = () => {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
                     <div className="text-center">
                       <p className="text-xs text-muted-foreground mb-1">Average monthly savings</p>
-                      <MorphingNumber value={450} prefix="$" suffix="/mo" className="text-3xl font-bold text-accent" duration={2.5} />
+                      <MorphingNumber value={Math.abs(450)} prefix="$" suffix="/mo" className="text-3xl font-bold text-accent" duration={2.5} />
                     </div>
                     
                     <div className="hidden sm:block w-px h-12 bg-border" />
