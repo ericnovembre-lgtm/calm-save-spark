@@ -1,25 +1,37 @@
 import { motion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export const SimpleBackground = () => {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
       {/* Animated gradient background */}
-      <motion.div
-        className="absolute inset-0"
-        animate={{
-          background: [
-            "radial-gradient(circle at 20% 50%, hsl(var(--accent) / 0.08) 0%, transparent 50%)",
-            "radial-gradient(circle at 80% 50%, hsl(var(--accent) / 0.08) 0%, transparent 50%)",
-            "radial-gradient(circle at 50% 80%, hsl(var(--accent) / 0.08) 0%, transparent 50%)",
-            "radial-gradient(circle at 20% 50%, hsl(var(--accent) / 0.08) 0%, transparent 50%)",
-          ],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
+      {!prefersReducedMotion ? (
+        <motion.div
+          className="absolute inset-0"
+          animate={{
+            background: [
+              "radial-gradient(circle at 20% 50%, hsl(var(--accent) / 0.08) 0%, transparent 50%)",
+              "radial-gradient(circle at 80% 50%, hsl(var(--accent) / 0.08) 0%, transparent 50%)",
+              "radial-gradient(circle at 50% 80%, hsl(var(--accent) / 0.08) 0%, transparent 50%)",
+              "radial-gradient(circle at 20% 50%, hsl(var(--accent) / 0.08) 0%, transparent 50%)",
+            ],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      ) : (
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: "radial-gradient(circle at 20% 50%, hsl(var(--accent) / 0.08) 0%, transparent 50%)",
+          }}
+        />
+      )}
       
       {/* Subtle grain texture */}
       <div className="absolute inset-0 opacity-[0.015] mix-blend-soft-light">
