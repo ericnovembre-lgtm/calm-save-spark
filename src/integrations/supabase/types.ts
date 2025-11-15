@@ -1750,6 +1750,78 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_health_benchmarks: {
+        Row: {
+          age_range: string
+          average_score: number
+          created_at: string
+          id: string
+          income_bracket: string
+          last_updated: string
+          percentile_25: number
+          percentile_50: number
+          percentile_75: number
+          percentile_90: number
+          sample_size: number
+        }
+        Insert: {
+          age_range: string
+          average_score: number
+          created_at?: string
+          id?: string
+          income_bracket: string
+          last_updated?: string
+          percentile_25: number
+          percentile_50: number
+          percentile_75: number
+          percentile_90: number
+          sample_size: number
+        }
+        Update: {
+          age_range?: string
+          average_score?: number
+          created_at?: string
+          id?: string
+          income_bracket?: string
+          last_updated?: string
+          percentile_25?: number
+          percentile_50?: number
+          percentile_75?: number
+          percentile_90?: number
+          sample_size?: number
+        }
+        Relationships: []
+      }
+      financial_health_history: {
+        Row: {
+          calculated_at: string
+          components: Json
+          created_at: string
+          id: string
+          recommendations: Json | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          calculated_at?: string
+          components: Json
+          created_at?: string
+          id?: string
+          recommendations?: Json | null
+          score: number
+          user_id: string
+        }
+        Update: {
+          calculated_at?: string
+          components?: Json
+          created_at?: string
+          id?: string
+          recommendations?: Json | null
+          score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       financial_health_scores: {
         Row: {
           calculated_at: string | null
@@ -4198,6 +4270,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_benchmark_preferences: {
+        Row: {
+          age_range: string | null
+          created_at: string
+          id: string
+          income_bracket: string | null
+          opted_in: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age_range?: string | null
+          created_at?: string
+          id?: string
+          income_bracket?: string | null
+          opted_in?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age_range?: string | null
+          created_at?: string
+          id?: string
+          income_bracket?: string | null
+          opted_in?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_benchmarks: {
         Row: {
           benchmark_type: string
@@ -4712,8 +4814,10 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_health_trend: { Args: { p_user_id: string }; Returns: number }
       cleanup_expired_ip_blocks: { Args: never; Returns: undefined }
       cleanup_expired_webauthn_challenges: { Args: never; Returns: undefined }
+      cleanup_old_financial_health_history: { Args: never; Returns: undefined }
       cleanup_old_monitoring_data: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_security_logs: { Args: never; Returns: undefined }

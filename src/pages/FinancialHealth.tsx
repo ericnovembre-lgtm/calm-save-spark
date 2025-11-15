@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { LoadingState } from "@/components/LoadingState";
 import { useFinancialHealth } from "@/hooks/useFinancialHealth";
-import { HealthScoreGauge } from "@/components/financial-health/HealthScoreGauge";
-import { MetricCard } from "@/components/financial-health/MetricCard";
+import { useFinancialHealthHistory, useFinancialHealthTrend } from "@/hooks/useFinancialHealthHistory";
+import { HolographicHealthGlobe } from "@/components/financial-health/HolographicHealthGlobe";
+import { LiquidMetricCard } from "@/components/financial-health/LiquidMetricCard";
+import { ContextualAIAdvisor } from "@/components/financial-health/ContextualAIAdvisor";
+import { PredictiveTimelineChart } from "@/components/financial-health/PredictiveTimelineChart";
+import { HealthRadarChart } from "@/components/financial-health/HealthRadarChart";
+import { ScenarioBuilder } from "@/components/financial-health/ScenarioBuilder";
+import { CelebrationEffect } from "@/components/financial-health/CelebrationEffect";
 import { RecommendationCard } from "@/components/financial-health/RecommendationCard";
 import { ActionTimeline } from "@/components/financial-health/ActionTimeline";
+import { BenchmarkComparison } from "@/components/analytics/BenchmarkComparison";
 import { Card } from "@/components/ui/card";
 import { 
   CreditCard, 
@@ -15,14 +22,35 @@ import {
   TrendingUp, 
   Shield 
 } from "lucide-react";
+import { ScrollSection } from "@/components/animations/ScrollSection";
 
 export default function FinancialHealth() {
   const { data: healthData, isLoading } = useFinancialHealth();
+  const { data: historyData } = useFinancialHealthHistory();
+  const { data: trend } = useFinancialHealthTrend();
   const [dismissedRecommendations, setDismissedRecommendations] = useState<string[]>([]);
+  const [showAIAdvisor, setShowAIAdvisor] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [prevScore, setPrevScore] = useState<number | null>(null);
 
   const handleDismissRecommendation = (id: string) => {
     setDismissedRecommendations([...dismissedRecommendations, id]);
   };
+
+  // Check for score improvements to trigger celebration
+  useEffect(() => {
+    if (healthData?.overallScore && prevScore !== null) {
+      const scoreDiff = healthData.overallScore - prevScore;
+      if (scoreDiff >= 5) {
+        setShowCelebration(true);
+      } else if (scoreDiff <= -5) {
+        setShowAIAdvisor(true);
+      }
+    }
+    if (healthData?.overallScore) {
+      setPrevScore(healthData.overallScore);
+    }
+  }, [healthData?.overallScore]);
 
   if (isLoading) return <LoadingState />;
 
@@ -57,26 +85,58 @@ export default function FinancialHealth() {
     },
   ];
 
+  // Prepare radar chart data
+  const radarMetrics = healthData?.components ? [
+    { label: 'Credit', value: healthData.components.credit || 0, target: 80 },
+    { label: 'Debt', value: healthData.components.debt || 0, target: 80 },
+    { label: 'Savings', value: healthData.components.savings || 0, target: 80 },
+    { label: 'Goals', value: healthData.components.goals || 0, target: 80 },
+    { label: 'Investment', value: healthData.components.investment || 0, target: 80 },
+    { label: 'Emergency', value: healthData.components.emergency_fund || 0, target: 80 },
+  ] : [];
+
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-8 space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-4xl font-display font-bold text-foreground mb-2">
-            Financial Health
-          </h1>
-          <p className="text-muted-foreground">
-            Your comprehensive financial wellness overview
-          </p>
-        </div>
-
-        {/* Hero Section - Health Score Gauge */}
-        <Card className="p-8">
-          <HealthScoreGauge 
-            score={healthData?.overallScore || 0} 
-            trend={0} // Calculate trend from historical data
+      <div className="container mx-auto px-4 py-8 space-y-12">
+        {/* Celebration Effect */}
+        {showCelebration && (
+          <CelebrationEffect
+            trigger="score_increase"
+            score={healthData?.overallScore}
           />
-        </Card>
+        )}
+
+        {/* AI Advisor */}
+        {showAIAdvisor && (
+          <ContextualAIAdvisor
+            trigger="score_drop"
+            context={`Your financial health score dropped to ${healthData?.overallScore}. Let's explore what's happening and how we can improve it together.`}
+            metric="overall score"
+            onDismiss={() => setShowAIAdvisor(false)}
+          />
+        )}
+
+        {/* Header */}
+        <ScrollSection>
+          <div className="text-center">
+            <h1 className="text-5xl font-display font-bold text-foreground mb-3 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+              Financial Health Dashboard
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Your comprehensive, AI-powered financial wellness center
+            </p>
+          </div>
+        </ScrollSection>
+
+        {/* Hero Section - 3D Holographic Globe */}
+        <ScrollSection>
+          <Card className="overflow-hidden border-2 border-primary/20">
+            <HolographicHealthGlobe 
+              score={healthData?.overallScore || 0} 
+              trend={trend || 0}
+            />
+          </Card>
+        </ScrollSection>
 
         {/* Breakdown Section - 6 Metric Cards */}
         <div>
