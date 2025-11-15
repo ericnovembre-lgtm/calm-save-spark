@@ -3,6 +3,7 @@ import { ArrowRight, CreditCard, TrendingUp, Award } from "lucide-react";
 import { MagneticButton } from "@/components/welcome/advanced/MagneticButton";
 import { TiltCard3D } from "@/components/welcome/advanced/TiltCard3D";
 import { MorphingNumber } from "@/components/welcome/advanced/MorphingNumber";
+import { TypewriterText } from "@/components/welcome/TypewriterText";
 import { motion } from "framer-motion";
 export const Hero = () => {
   return <section className="relative min-h-[90vh] flex items-center px-4 md:px-20 py-20">
@@ -20,7 +21,18 @@ export const Hero = () => {
         }} transition={{
           duration: 0.6
         }} className="space-y-8">
-            <h1 className="font-display font-bold text-5xl md:text-7xl text-foreground leading-tight">​Get Rewarded For Saving, Not Spending<br />
+            <h1 className="font-display font-bold text-5xl md:text-7xl text-foreground leading-tight">
+              Get Rewarded For{" "}
+              <TypewriterText 
+                phrases={[
+                  "Saving, Not Spending",
+                  "Owning, Not Loaning",
+                  "Growing, Not Owing",
+                  "Wealth, Not Poverty"
+                ]}
+                className="text-accent"
+              />
+              <br />
               <span className="text-accent">Stress Less</span>
             </h1>
             
