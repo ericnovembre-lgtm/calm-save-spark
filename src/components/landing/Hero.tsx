@@ -23,7 +23,7 @@ export const Hero = () => {
         }} className="space-y-8">
             <h1 className="font-display font-bold text-5xl md:text-7xl xl:text-8xl text-foreground leading-tight">
               Get Rewarded For{" "}
-              <span className="inline-block whitespace-nowrap">
+              <span className="inline-block whitespace-nowrap min-w-[20ch]">
                 <TypewriterText 
                   phrases={[
                     "Saving, Not Spending",
