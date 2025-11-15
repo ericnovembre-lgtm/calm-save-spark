@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SectionCard } from "@/components/features-hub/SectionCard";
 import { FeatureModal } from "@/components/features-hub/FeatureModal";
+import { FeatureStatusSummary } from "@/components/features-hub/FeatureStatusSummary";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { 
   TrendingUp, Shield, Zap, Target, Brain, Sparkles,
@@ -361,6 +362,16 @@ export default function FeaturesHub() {
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const prefersReducedMotion = useReducedMotion();
 
+  // Calculate feature status counts
+  const statusCount = useMemo(() => {
+    const allFeatures = sections.flatMap(section => section.features);
+    return {
+      available: allFeatures.filter(f => f.status === "available").length,
+      beta: allFeatures.filter(f => f.status === "beta").length,
+      comingSoon: allFeatures.filter(f => f.status === "coming-soon").length,
+    };
+  }, []);
+
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -369,16 +380,19 @@ export default function FeaturesHub() {
           initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             $ave+ Features Hub
           </h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
             Explore our comprehensive suite of financial tools, from core savings features 
             to next-generation AI-powered autonomous agents
           </p>
         </motion.div>
+
+        {/* Status Summary */}
+        <FeatureStatusSummary statusCount={statusCount} />
 
         {/* Sections Grid */}
         <div className="space-y-16">
