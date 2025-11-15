@@ -4,24 +4,23 @@ import { MagneticButton } from "@/components/welcome/advanced/MagneticButton";
 import { TiltCard3D } from "@/components/welcome/advanced/TiltCard3D";
 import { MorphingNumber } from "@/components/welcome/advanced/MorphingNumber";
 import { motion } from "framer-motion";
-
 export const Hero = () => {
-  return (
-    <section className="relative min-h-[90vh] flex items-center px-4 md:px-20 py-20">
+  return <section className="relative min-h-[90vh] flex items-center px-4 md:px-20 py-20">
       <div className="absolute inset-0 bg-background" />
       
       <div className="container mx-auto relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left: Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-8"
-          >
-            <h1 className="font-display font-bold text-5xl md:text-7xl text-foreground leading-tight">
-              Save More,
-              <br />
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.6
+        }} className="space-y-8">
+            <h1 className="font-display font-bold text-5xl md:text-7xl text-foreground leading-tight">​Get Rewarded For Saving, Not Spending<br />
               <span className="text-accent">Stress Less</span>
             </h1>
             
@@ -31,42 +30,58 @@ export const Hero = () => {
             
             {/* 3-Step Process */}
             <div className="flex flex-wrap gap-3">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2, duration: 0.4 }}
-                className="px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-sm font-semibold text-foreground flex items-center gap-2"
-              >
+              <motion.div initial={{
+              opacity: 0,
+              scale: 0.9
+            }} animate={{
+              opacity: 1,
+              scale: 1
+            }} transition={{
+              delay: 0.2,
+              duration: 0.4
+            }} className="px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-sm font-semibold text-foreground flex items-center gap-2">
                 <CreditCard className="w-4 h-4" />
                 Connect Bank Account
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3, duration: 0.4 }}
-                className="px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-sm font-semibold text-foreground flex items-center gap-2"
-              >
+              <motion.div initial={{
+              opacity: 0,
+              scale: 0.9
+            }} animate={{
+              opacity: 1,
+              scale: 1
+            }} transition={{
+              delay: 0.3,
+              duration: 0.4
+            }} className="px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-sm font-semibold text-foreground flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
                 Auto Save
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4, duration: 0.4 }}
-                className="px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-sm font-semibold text-foreground flex items-center gap-2"
-              >
+              <motion.div initial={{
+              opacity: 0,
+              scale: 0.9
+            }} animate={{
+              opacity: 1,
+              scale: 1
+            }} transition={{
+              delay: 0.4,
+              duration: 0.4
+            }} className="px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-sm font-semibold text-foreground flex items-center gap-2">
                 <Award className="w-4 h-4" />
                 Earn Rewards
               </motion.div>
             </div>
             
             {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="flex flex-col sm:flex-row gap-4"
-            >
+            <motion.div initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            delay: 0.5,
+            duration: 0.5
+          }} className="flex flex-col sm:flex-row gap-4">
               <Link to="/onboarding" className="inline-block">
                 <MagneticButton variant="default" className="group px-8 py-4 text-lg">
                   Get Started Free
@@ -86,45 +101,31 @@ export const Hero = () => {
           </motion.div>
           
           {/* Right: Interactive 3D Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
+          <motion.div initial={{
+          opacity: 0,
+          scale: 0.95
+        }} animate={{
+          opacity: 1,
+          scale: 1
+        }} transition={{
+          delay: 0.3,
+          duration: 0.6
+        }}>
             <TiltCard3D>
               <div className="p-8 rounded-2xl bg-card border border-border shadow-2xl backdrop-blur-sm">
                 <div className="space-y-6">
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground mb-2">Average monthly savings</p>
-                    <MorphingNumber
-                      value={450}
-                      prefix="$"
-                      suffix="/mo"
-                      className="text-5xl font-bold text-accent"
-                      duration={2.5}
-                    />
+                    <MorphingNumber value={450} prefix="$" suffix="/mo" className="text-5xl font-bold text-accent" duration={2.5} />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border">
                     <div className="text-center">
-                      <MorphingNumber
-                        value={50000}
-                        suffix="+"
-                        className="text-2xl font-bold text-foreground"
-                        duration={2}
-                        delay={0.3}
-                      />
+                      <MorphingNumber value={50000} suffix="+" className="text-2xl font-bold text-foreground" duration={2} delay={0.3} />
                       <p className="text-xs text-muted-foreground mt-1">Active users</p>
                     </div>
                     <div className="text-center">
-                      <MorphingNumber
-                        value={4.25}
-                        suffix="%"
-                        decimals={2}
-                        className="text-2xl font-bold text-foreground"
-                        duration={2}
-                        delay={0.5}
-                      />
+                      <MorphingNumber value={4.25} suffix="%" decimals={2} className="text-2xl font-bold text-foreground" duration={2} delay={0.5} />
                       <p className="text-xs text-muted-foreground mt-1">Average APY</p>
                     </div>
                   </div>
@@ -134,6 +135,5 @@ export const Hero = () => {
           </motion.div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
