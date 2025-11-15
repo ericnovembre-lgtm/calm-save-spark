@@ -25,8 +25,7 @@ export function SessionHistory({ sessions, onSelectSession, currentSessionId }: 
       completed: Trophy,
       failed: XCircle,
     };
-    const Icon = icons[status as keyof typeof icons] || Play;
-    return <Icon className="w-4 h-4" />;
+    return icons[status as keyof typeof icons] || Play;
   };
 
   return (
@@ -49,7 +48,7 @@ export function SessionHistory({ sessions, onSelectSession, currentSessionId }: 
                   <h3 className="text-lg font-semibold">{session.session_name}</h3>
                   <Badge className={statusConfig.className}>
                     <span className="flex items-center gap-1">
-                      <StatusIcon />
+                      <StatusIcon className="w-4 h-4" />
                       {statusConfig.label}
                     </span>
                   </Badge>

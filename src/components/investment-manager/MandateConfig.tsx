@@ -32,9 +32,12 @@ export function MandateConfig({ existingMandate }: MandateConfigProps) {
         auto_rebalance_enabled: autoRebalance,
       };
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       const { error } = await supabase
         .from('investment_mandates')
-        .upsert(mandateData);
+        .upsert({ ...mandateData, user_id: user.id });
 
       if (error) throw error;
     },

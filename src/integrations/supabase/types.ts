@@ -2743,6 +2743,45 @@ export type Database = {
         }
         Relationships: []
       }
+      investment_mandates: {
+        Row: {
+          auto_rebalance_enabled: boolean | null
+          created_at: string | null
+          id: string
+          min_harvest_amount: number | null
+          rebalancing_threshold: number | null
+          risk_tolerance: string
+          target_allocation: Json
+          tax_loss_harvest_enabled: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_rebalance_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          min_harvest_amount?: number | null
+          rebalancing_threshold?: number | null
+          risk_tolerance: string
+          target_allocation?: Json
+          tax_loss_harvest_enabled?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_rebalance_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          min_harvest_amount?: number | null
+          rebalancing_threshold?: number | null
+          risk_tolerance?: string
+          target_allocation?: Json
+          tax_loss_harvest_enabled?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       investment_research_cache: {
         Row: {
           created_at: string | null
@@ -3059,6 +3098,42 @@ export type Database = {
           },
         ]
       }
+      life_event_playbooks: {
+        Row: {
+          completion_percentage: number | null
+          created_at: string | null
+          event_date: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completion_percentage?: number | null
+          created_at?: string | null
+          event_date?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completion_percentage?: number | null
+          created_at?: string | null
+          event_date?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       life_event_scenarios: {
         Row: {
           created_at: string | null
@@ -3148,6 +3223,145 @@ export type Database = {
           total_saved?: number | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      lifesim_game_sessions: {
+        Row: {
+          behavioral_insights: Json | null
+          completed_at: string | null
+          created_at: string | null
+          current_age: number | null
+          current_year: number | null
+          financial_state: Json
+          id: string
+          life_events: Json | null
+          scenario_id: string | null
+          score: number | null
+          started_at: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          behavioral_insights?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_age?: number | null
+          current_year?: number | null
+          financial_state?: Json
+          id?: string
+          life_events?: Json | null
+          scenario_id?: string | null
+          score?: number | null
+          started_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          behavioral_insights?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_age?: number | null
+          current_year?: number | null
+          financial_state?: Json
+          id?: string
+          life_events?: Json | null
+          scenario_id?: string | null
+          score?: number | null
+          started_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lifesim_game_sessions_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "lifesim_scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lifesim_player_decisions: {
+        Row: {
+          created_at: string | null
+          decision_data: Json
+          decision_type: string
+          financial_impact: Json | null
+          game_year: number
+          id: string
+          risk_score: number | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          decision_data?: Json
+          decision_type: string
+          financial_impact?: Json | null
+          game_year: number
+          id?: string
+          risk_score?: number | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string | null
+          decision_data?: Json
+          decision_type?: string
+          financial_impact?: Json | null
+          game_year?: number
+          id?: string
+          risk_score?: number | null
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lifesim_player_decisions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "lifesim_game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lifesim_scenarios: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          difficulty: string | null
+          estimated_duration_minutes: number | null
+          events: Json
+          id: string
+          initial_conditions: Json
+          learning_objectives: string[] | null
+          scenario_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          estimated_duration_minutes?: number | null
+          events?: Json
+          id?: string
+          initial_conditions?: Json
+          learning_objectives?: string[] | null
+          scenario_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          estimated_duration_minutes?: number | null
+          events?: Json
+          id?: string
+          initial_conditions?: Json
+          learning_objectives?: string[] | null
+          scenario_name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -3666,6 +3880,112 @@ export type Database = {
         }
         Relationships: []
       }
+      playbook_documents: {
+        Row: {
+          created_at: string | null
+          document_name: string
+          document_type: string
+          download_url: string | null
+          generation_status: string | null
+          id: string
+          metadata: Json | null
+          playbook_id: string
+          provider: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          document_name: string
+          document_type: string
+          download_url?: string | null
+          generation_status?: string | null
+          id?: string
+          metadata?: Json | null
+          playbook_id: string
+          provider?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          document_name?: string
+          document_type?: string
+          download_url?: string | null
+          generation_status?: string | null
+          id?: string
+          metadata?: Json | null
+          playbook_id?: string
+          provider?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playbook_documents_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "life_event_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playbook_tasks: {
+        Row: {
+          assigned_agent: string | null
+          automation_status: string | null
+          completed_at: string | null
+          created_at: string | null
+          dependencies: string[] | null
+          description: string | null
+          due_date: string | null
+          id: string
+          playbook_id: string
+          status: string | null
+          task_category: string
+          task_name: string
+          task_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_agent?: string | null
+          automation_status?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          dependencies?: string[] | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          playbook_id: string
+          status?: string | null
+          task_category: string
+          task_name: string
+          task_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_agent?: string | null
+          automation_status?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          dependencies?: string[] | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          playbook_id?: string
+          status?: string | null
+          task_category?: string
+          task_name?: string
+          task_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playbook_tasks_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "life_event_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pots: {
         Row: {
           color: string | null
@@ -3869,6 +4189,59 @@ export type Database = {
           },
         ]
       }
+      rebalancing_actions: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          executed_at: string | null
+          id: string
+          mandate_id: string | null
+          price: number
+          quantity: number
+          reason: string
+          status: string | null
+          symbol: string
+          total_value: number
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          executed_at?: string | null
+          id?: string
+          mandate_id?: string | null
+          price: number
+          quantity: number
+          reason: string
+          status?: string | null
+          symbol: string
+          total_value: number
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          executed_at?: string | null
+          id?: string
+          mandate_id?: string | null
+          price?: number
+          quantity?: number
+          reason?: string
+          status?: string | null
+          symbol?: string
+          total_value?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rebalancing_actions_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "investment_mandates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referrals: {
         Row: {
           created_at: string | null
@@ -3908,6 +4281,110 @@ export type Database = {
           rewarded_at?: string | null
           signed_up_at?: string | null
           status?: string | null
+        }
+        Relationships: []
+      }
+      refinancing_applications: {
+        Row: {
+          actual_savings: number | null
+          application_status: string | null
+          created_at: string | null
+          estimated_closing_date: string | null
+          id: string
+          lender_name: string | null
+          metadata: Json | null
+          new_rate: number | null
+          new_term_months: number | null
+          opportunity_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          actual_savings?: number | null
+          application_status?: string | null
+          created_at?: string | null
+          estimated_closing_date?: string | null
+          id?: string
+          lender_name?: string | null
+          metadata?: Json | null
+          new_rate?: number | null
+          new_term_months?: number | null
+          opportunity_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          actual_savings?: number | null
+          application_status?: string | null
+          created_at?: string | null
+          estimated_closing_date?: string | null
+          id?: string
+          lender_name?: string | null
+          metadata?: Json | null
+          new_rate?: number | null
+          new_term_months?: number | null
+          opportunity_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refinancing_applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "refinancing_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      refinancing_opportunities: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          current_balance: number
+          current_payment: number
+          current_rate: number
+          detected_at: string | null
+          estimated_savings_monthly: number | null
+          estimated_savings_total: number | null
+          expires_at: string | null
+          id: string
+          liability_type: string
+          potential_new_rate: number
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          current_balance: number
+          current_payment: number
+          current_rate: number
+          detected_at?: string | null
+          estimated_savings_monthly?: number | null
+          estimated_savings_total?: number | null
+          expires_at?: string | null
+          id?: string
+          liability_type: string
+          potential_new_rate: number
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          current_balance?: number
+          current_payment?: number
+          current_rate?: number
+          detected_at?: string | null
+          estimated_savings_monthly?: number | null
+          estimated_savings_total?: number | null
+          expires_at?: string | null
+          id?: string
+          liability_type?: string
+          potential_new_rate?: number
+          status?: string | null
+          user_id?: string
         }
         Relationships: []
       }

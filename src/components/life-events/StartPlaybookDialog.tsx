@@ -32,6 +32,9 @@ export function StartPlaybookDialog({ playbook, children }: StartPlaybookDialogP
   const startPlaybook = useMutation({
     mutationFn: async () => {
       if (!eventDate) throw new Error('Event date required');
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
 
       // Calculate total tasks
       const financialTasks = Array.isArray(playbook.financial_checklist) ? playbook.financial_checklist.length : 0;
@@ -40,12 +43,16 @@ export function StartPlaybookDialog({ playbook, children }: StartPlaybookDialogP
       const totalTasks = financialTasks + legalTasks + adminTasks;
 
       const { data: execution, error: execError } = await supabase
-        .from('life_event_executions')
+        .from('life_event_playbooks')
         .insert({
-          playbook_id: playbook.id,
-          event_name: eventName || playbook.playbook_name,
+          user_id: user.id,
+          event_type: playbook.event_type || 'home_purchase',
           event_date: format(eventDate, 'yyyy-MM-dd'),
-          total_tasks: totalTasks,
+          status: 'active',
+          metadata: {
+            playbook_name: eventName || playbook.playbook_name,
+            total_tasks: totalTasks
+          }
         })
         .select()
         .single();
@@ -60,10 +67,10 @@ export function StartPlaybookDialog({ playbook, children }: StartPlaybookDialogP
       if (Array.isArray(playbook.financial_checklist)) {
         for (const task of playbook.financial_checklist) {
           tasks.push({
-            execution_id: execution.id,
+            playbook_id: execution.id,
             task_category: 'financial',
             task_name: task.task || task.name || 'Financial Task',
-            task_description: task.description,
+            description: task.description,
             task_order: taskOrder++,
           });
         }
@@ -73,10 +80,10 @@ export function StartPlaybookDialog({ playbook, children }: StartPlaybookDialogP
       if (Array.isArray(playbook.legal_checklist)) {
         for (const task of playbook.legal_checklist) {
           tasks.push({
-            execution_id: execution.id,
+            playbook_id: execution.id,
             task_category: 'legal',
             task_name: task.task || task.name || 'Legal Task',
-            task_description: task.description,
+            description: task.description,
             task_order: taskOrder++,
           });
         }
@@ -86,10 +93,10 @@ export function StartPlaybookDialog({ playbook, children }: StartPlaybookDialogP
       if (Array.isArray(playbook.administrative_checklist)) {
         for (const task of playbook.administrative_checklist) {
           tasks.push({
-            execution_id: execution.id,
+            playbook_id: execution.id,
             task_category: 'administrative',
             task_name: task.task || task.name || 'Administrative Task',
-            task_description: task.description,
+            description: task.description,
             task_order: taskOrder++,
           });
         }
@@ -106,7 +113,7 @@ export function StartPlaybookDialog({ playbook, children }: StartPlaybookDialogP
       return execution;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['life-event-executions'] });
+      queryClient.invalidateQueries({ queryKey: ['life-event-playbooks'] });
       toast.success('Life event playbook started!');
       setOpen(false);
       setEventName('');

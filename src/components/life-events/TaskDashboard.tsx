@@ -29,7 +29,7 @@ export function TaskDashboard({ executionId }: TaskDashboardProps) {
       const { data, error } = await supabase
         .from('playbook_tasks')
         .select('*')
-        .eq('execution_id', executionId)
+        .eq('playbook_id', executionId)
         .order('task_order');
       
       if (error) throw error;
@@ -43,25 +43,23 @@ export function TaskDashboard({ executionId }: TaskDashboardProps) {
       const { error } = await supabase
         .from('playbook_tasks')
         .update({
-          is_completed: completed,
+          status: completed ? 'completed' : 'pending',
           completed_at: completed ? new Date().toISOString() : null,
         })
         .eq('id', taskId);
 
       if (error) throw error;
 
-      // Update execution progress
+      // Update playbook progress
       if (executionId) {
-        const completedCount = (tasks?.filter(t => t.is_completed).length || 0) + (completed ? 1 : -1);
+        const completedCount = (tasks?.filter(t => t.status === 'completed').length || 0) + (completed ? 1 : -1);
         const totalTasks = tasks?.length || 1;
         const percentage = (completedCount / totalTasks) * 100;
 
         await supabase
-          .from('life_event_executions')
+          .from('life_event_playbooks')
           .update({
-            tasks_completed: completedCount,
             completion_percentage: percentage,
-            current_step: Math.min(completedCount + 1, totalTasks),
             updated_at: new Date().toISOString(),
           })
           .eq('id', executionId);
@@ -69,7 +67,7 @@ export function TaskDashboard({ executionId }: TaskDashboardProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['playbook-tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['life-event-executions'] });
+      queryClient.invalidateQueries({ queryKey: ['life-event-playbooks'] });
       toast.success('Task updated');
     },
   });
@@ -100,7 +98,7 @@ export function TaskDashboard({ executionId }: TaskDashboardProps) {
     <div className="space-y-6">
       {Object.entries(groupedTasks).map(([category, categoryTasks]: [string, any]) => {
         const Icon = CATEGORY_ICONS[category] || FileText;
-        const completed = categoryTasks.filter((t: any) => t.is_completed).length;
+        const completed = categoryTasks.filter((t: any) => t.status === 'completed').length;
         const total = categoryTasks.length;
 
         return (
