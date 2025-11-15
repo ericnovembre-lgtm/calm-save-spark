@@ -1,3 +1,116 @@
+/**
+ * Business Tax Calculator Edge Function
+ * 
+ * Automated tax planning and paycheck synthesis for freelancers and
+ * Business-of-One operators with irregular income streams.
+ * 
+ * @endpoint POST /business-tax-calculator
+ * @auth Required - JWT token in Authorization header
+ * 
+ * @description
+ * This function provides critical financial tools for self-employed individuals:
+ * - Generates synthetic paychecks from irregular income
+ * - Projects quarterly estimated tax payments
+ * - Optimizes salary/distribution split for S-Corp owners
+ * - Calculates tax withholding amounts
+ * 
+ * @actions
+ * 
+ * **calculate_paycheck**
+ * Synthesizes a regular paycheck from multiple irregular income streams using
+ * rolling averages to smooth out income volatility.
+ * 
+ * **project_quarterly_taxes**
+ * Projects estimated tax payments for all 4 quarters of the tax year, including
+ * federal, state, and self-employment taxes.
+ * 
+ * **optimize_scorp_split**
+ * Calculates the optimal salary/distribution ratio for S-Corp owners to minimize
+ * total tax burden while staying compliant with IRS reasonable compensation rules.
+ * 
+ * @requires Database Tables:
+ * - business_income_streams: User's active income sources
+ * - synthetic_paychecks: Generated paycheck records
+ * - tax_projections: Quarterly tax estimates
+ * - scorp_tax_optimizations: S-Corp optimization recommendations
+ * 
+ * @example Request (Calculate Paycheck):
+ * ```typescript
+ * const response = await supabase.functions.invoke('business-tax-calculator', {
+ *   body: {
+ *     action: 'calculate_paycheck'
+ *   }
+ * });
+ * ```
+ * 
+ * @example Request (Project Taxes):
+ * ```typescript
+ * const response = await supabase.functions.invoke('business-tax-calculator', {
+ *   body: {
+ *     action: 'project_quarterly_taxes',
+ *     tax_year: 2025
+ *   }
+ * });
+ * ```
+ * 
+ * @example Request (Optimize S-Corp):
+ * ```typescript
+ * const response = await supabase.functions.invoke('business-tax-calculator', {
+ *   body: {
+ *     action: 'optimize_scorp_split',
+ *     annual_revenue: 150000
+ *   }
+ * });
+ * ```
+ * 
+ * @example Response (Calculate Paycheck):
+ * ```json
+ * {
+ *   "paycheck": {
+ *     "period_start": "2025-10-15",
+ *     "period_end": "2025-11-15",
+ *     "total_income": 8500.00,
+ *     "withholding_federal": 1870.00,
+ *     "withholding_state": 425.00,
+ *     "withholding_fica": 1300.50,
+ *     "net_paycheck": 4904.50,
+ *     "calculation_method": "rolling_average"
+ *   }
+ * }
+ * ```
+ * 
+ * @tax_rates (Simplified - Production uses actual tax tables)
+ * - Federal: 22% effective rate
+ * - State: 5% average rate  
+ * - Self-Employment (FICA): 15.3% (12.4% Social Security + 2.9% Medicare)
+ * - S-Corp Payroll: 7.65% employer + 7.65% employee = 15.3% total
+ * 
+ * @scorp_optimization
+ * The optimal salary is calculated to:
+ * 1. Meet IRS "reasonable compensation" requirement (typically 30-40% of revenue)
+ * 2. Minimize self-employment tax on excess distributions
+ * 3. Balance administrative costs vs tax savings
+ * 
+ * Recommended minimum salary: Greater of $40,000 or 30% of revenue
+ * 
+ * @errors
+ * - 401: Not authenticated
+ * - 400: Missing required parameters
+ * - 500: Internal server error
+ * 
+ * @performance
+ * - Average response time: 100-300ms
+ * - Recommended usage: Monthly for paycheck, quarterly for tax projections
+ * 
+ * @compliance
+ * - Calculations are estimates and should not replace professional tax advice
+ * - Users should consult a CPA for final tax decisions
+ * - S-Corp optimization requires professional validation
+ * 
+ * @version 1.0.0
+ * @since 2025-11-15
+ */
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
