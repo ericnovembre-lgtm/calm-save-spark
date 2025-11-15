@@ -3,6 +3,15 @@
  * Orchestrated animation presets for premium UX
  */
 
+// Standardized timing constants (in milliseconds)
+export const TIMING = {
+  instant: 0,
+  fast: 150,
+  normal: 300,
+  slow: 500,
+  glacial: 1000
+} as const;
+
 export const fadeInUp = {
   hidden: { opacity: 0, y: 20, filter: "blur(10px)" },
   visible: { 
@@ -10,7 +19,7 @@ export const fadeInUp = {
     y: 0, 
     filter: "blur(0px)",
     transition: {
-      duration: 0.5,
+      duration: TIMING.slow / 1000,
       ease: [0.22, 1, 0.36, 1] as const
     }
   }
@@ -23,7 +32,7 @@ export const fadeInScale = {
     scale: 1, 
     filter: "blur(0px)",
     transition: {
-      duration: 0.5,
+      duration: TIMING.slow / 1000,
       ease: [0.22, 1, 0.36, 1] as const
     }
   }
@@ -47,7 +56,7 @@ export const cardHover = {
     rotateY: 0,
     z: 0,
     transition: {
-      duration: 0.3,
+      duration: TIMING.normal / 1000,
       ease: [0.22, 1, 0.36, 1] as const
     }
   },
@@ -55,7 +64,7 @@ export const cardHover = {
     scale: 1.02,
     z: 50,
     transition: {
-      duration: 0.3,
+      duration: TIMING.normal / 1000,
       ease: [0.22, 1, 0.36, 1] as const
     }
   }

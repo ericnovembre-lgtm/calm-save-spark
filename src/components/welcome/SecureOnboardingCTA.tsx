@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Shield, Lock, FileText, AlertTriangle, ChevronRight, CheckCircle, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Shield, Lock, FileText, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/analytics";
+import { MagneticButton } from "@/components/welcome/advanced/MagneticButton";
 
 const securityFeatures = [
   { icon: Shield, text: 'FDIC Insured up to $250,000', subtext: 'Your deposits are protected by federal insurance' },
@@ -38,24 +38,10 @@ export const SecureOnboardingCTA = () => {
   }, []);
 
   const handleGetStarted = async () => {
-    if (!acknowledgedRisks) {
-      setShowRiskDisclosure(true);
-      return;
-    }
-    
     setLoading(true);
     try {
       await trackEvent('onboarding_cta_clicked', { source: 'welcome_page' });
-      
-      if (isAuthenticated) {
-        navigate('/onboarding');
-      } else {
-        // Store return path and redirect to onboarding
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('auth_redirect', '/onboarding');
-        }
-        navigate('/onboarding');
-      }
+      navigate(isAuthenticated ? '/onboarding' : '/onboarding');
     } catch (e) {
       console.error('Error starting onboarding:', e);
     } finally {
@@ -67,29 +53,21 @@ export const SecureOnboardingCTA = () => {
     <>
       {/* Security Banner */}
       <section className="mb-6 overflow-hidden">
-        <button
-          onClick={() => setShowRiskDisclosure(true)}
-          className="w-full p-6 sm:p-8 text-left hover:opacity-95 transition-opacity group
-                     bg-background border border-[color:var(--color-border)]
-                     rounded-xl"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="rounded-full p-3 border border-[color:var(--color-border)]">
-                <Shield className="w-8 h-8 text-foreground" />
-              </div>
-              <div>
-                <h4 className="font-bold text-lg text-foreground">
-                  FDIC Insured & Bank-Level Security
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Your deposits are protected up to $250,000 per depositor
-                </p>
-              </div>
+        <div className="w-full p-6 sm:p-8 bg-background border border-[color:var(--color-border)] rounded-xl">
+          <div className="flex items-center space-x-4">
+            <div className="rounded-full p-3 border border-[color:var(--color-border)]">
+              <Shield className="w-8 h-8 text-foreground" />
             </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <div>
+              <h4 className="font-bold text-lg text-foreground">
+                FDIC Insured & Bank-Level Security
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Your deposits are protected up to $250,000 per depositor
+              </p>
+            </div>
           </div>
-        </button>
+        </div>
       </section>
 
       {/* Main CTA */}
@@ -98,190 +76,101 @@ export const SecureOnboardingCTA = () => {
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: false, amount: 0.3 }}
         transition={{ duration: 0.35 }}
-        className="p-6 sm:p-10 rounded-xl border border-[color:var(--color-border)]
-                   bg-[color:var(--color-accent)]/40 backdrop-blur-sm"
+        className="w-full max-w-4xl mx-auto"
       >
-        <div className="text-center mb-8">
-          <h3 className="mb-4 font-display font-bold text-2xl sm:text-3xl text-foreground">
-            Ready to Start Your <span className="text-[color:var(--color-accent)] animate-subtle-glow">Savings Journey</span>?
+        <div className="text-center space-y-6">
+          <h3 className="text-3xl md:text-4xl font-bold text-foreground">
+            {isAuthenticated ? 'Continue Your Journey' : 'Ready to Start Saving?'}
           </h3>
-          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-            Join thousands of users who have already transformed their financial lives with $ave+.
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            {isAuthenticated 
+              ? 'Complete your setup and start building wealth today' 
+              : 'Join 50,000+ savers building wealth through automated savings'}
           </p>
-        </div>
 
-        {/* Security Features Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          {securityFeatures.map((feature, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false }}
-              transition={{ delay: i * 0.1, duration: 0.3 }}
-              className="rounded-lg p-4 border border-[color:var(--color-border)]
-                         bg-background"
+          <div className="pt-4 flex flex-col items-center gap-4">
+            <MagneticButton
+              onClick={handleGetStarted}
+              disabled={loading}
+              variant="default"
+              className="text-lg px-10 py-6"
             >
-              <div className="flex items-start space-x-3">
-                <feature.icon className="w-5 h-5 text-foreground mt-0.5 shrink-0" />
-                <div>
-                  <div className="font-medium text-sm text-foreground">{feature.text}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{feature.subtext}</div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Risk Acknowledgment */}
-        <div className="rounded-lg mb-6 p-4 border border-[color:var(--color-border)]
-                        bg-[color:var(--color-accent)]/30">
-          <div className="flex items-start space-x-3">
-            <AlertTriangle className="w-5 h-5 text-foreground mt-0.5 shrink-0" />
-            <div className="flex-1">
-              <label className="flex items-start space-x-3 text-sm cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={acknowledgedRisks}
-                  onChange={(e) => setAcknowledgedRisks(e.target.checked)}
-                  className="mt-1 w-4 h-4 accent-foreground"
-                  aria-label="Acknowledge risk factors"
-                />
-                <span className="text-foreground">
-                  I acknowledge that I have read and understand the{' '}
-                  <button
-                    type="button"
-                    onClick={() => setShowRiskDisclosure(true)}
-                    className="underline hover:text-muted-foreground transition-colors"
-                  >
-                    risk factors and terms
-                  </button>{' '}
-                  associated with financial services.
-                </span>
-              </label>
-            </div>
+              {loading ? 'Processing...' : 'Get Started Free'}
+            </MagneticButton>
+            
+            {/* Inline Risk Disclosure Toggle */}
+            <button
+              onClick={() => setShowRiskDisclosure(!showRiskDisclosure)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+            >
+              Important disclosures
+              {showRiskDisclosure ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+            
+            <AnimatePresence>
+              {showRiskDisclosure && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="w-full max-w-2xl"
+                >
+                  <div className="p-4 bg-muted/30 rounded-lg border border-border text-left">
+                    <ul className="space-y-2 text-xs text-muted-foreground">
+                      {riskFactors.map((risk, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span className="text-accent">•</span>
+                          <span>{risk}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <label className="flex items-center gap-2 mt-4 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={acknowledgedRisks}
+                        onChange={(e) => setAcknowledgedRisks(e.target.checked)}
+                        className="w-4 h-4 accent-primary"
+                      />
+                      <span className="text-xs text-foreground">I acknowledge these risks</span>
+                    </label>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            <p className="text-sm text-muted-foreground">
+              No credit card required • Cancel anytime
+            </p>
           </div>
         </div>
 
-        {/* Main CTA Button */}
-        <Button
-          onClick={handleGetStarted}
-          disabled={loading || !acknowledgedRisks}
-          variant="primary"
-          size="lg"
-          animated
-          className="w-full text-lg h-14 bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent)]/90 text-foreground font-semibold"
-        >
-          {loading ? (
-            <div className="flex items-center justify-center space-x-2">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-[hsl(var(--primary-foreground))] border-t-transparent" />
-              <span>Getting Started...</span>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center space-x-2">
-              <span>Start Building Wealth Today</span>
-              <ChevronRight className="w-5 h-5" />
-            </div>
-          )}
-        </Button>
-
-        <p className="text-xs text-muted-foreground text-center mt-4">
-          By continuing, you agree to our Terms of Service and Privacy Policy.
-          Account opening subject to identity verification and eligibility requirements.
-        </p>
-      </motion.section>
-
-      {/* Risk Disclosure Modal */}
-      {showRiskDisclosure && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Important Risk Disclosures"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowRiskDisclosure(false);
-          }}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.2 }}
-            className="max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 rounded-xl border
-                       bg-background border-[color:var(--color-border)]
-                       shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-foreground">
-                Important Risk Disclosures
-              </h3>
-              <button
-                onClick={() => setShowRiskDisclosure(false)}
-                className="p-2 rounded-lg hover:bg-accent transition-colors"
-                aria-label="Close modal"
+        {/* Security Features Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
+          {securityFeatures.map((feature, idx) => {
+            const IconComponent = feature.icon;
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.4 }}
+                className="p-4 rounded-xl border border-[color:var(--color-border)] bg-card/50 hover:bg-card/80 transition-all"
               >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <div className="p-4 rounded-lg border border-[color:var(--color-border)] bg-card">
-                <h4 className="font-semibold mb-2 text-foreground">FDIC Insurance Coverage</h4>
-                <p className="text-sm text-muted-foreground">
-                  Deposits held at our partner banks are insured by the FDIC up to $250,000 per depositor,
-                  per insured bank, per ownership category. This insurance covers deposit accounts only and
-                  does not cover investment products or losses due to market fluctuations.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-lg border border-[color:var(--color-border)] bg-card">
-                <h4 className="font-semibold mb-2 text-foreground">General Risk Factors</h4>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  {riskFactors.map((risk, i) => (
-                    <li key={i} className="flex items-start space-x-2">
-                      <span className="text-foreground shrink-0">•</span>
-                      <span>{risk}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="p-4 rounded-lg border border-[color:var(--color-border)]
-                              bg-[color:var(--color-accent)]/40">
-                <h4 className="font-semibold mb-2 text-foreground">Regulatory Compliance</h4>
-                <p className="text-sm text-muted-foreground">
-                  $ave+ operates in partnership with FDIC-insured banks and is committed to maintaining
-                  the highest standards of financial compliance, including adherence to BSA/AML requirements,
-                  consumer protection regulations, and data security standards.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <Button
-                onClick={() => {
-                  setShowRiskDisclosure(false);
-                  setAcknowledgedRisks(true);
-                }}
-                variant="primary"
-                size="lg"
-                className="flex-1 bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent)]/90 text-foreground font-semibold"
-              >
-                I Understand & Accept
-              </Button>
-              <Button
-                onClick={() => setShowRiskDisclosure(false)}
-                variant="neutral"
-                size="lg"
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-            </div>
-          </motion.div>
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div className="p-3 rounded-full bg-accent/20">
+                    <IconComponent className="w-6 h-6 text-foreground" />
+                  </div>
+                  <div>
+                    <h5 className="font-semibold text-sm text-foreground">{feature.text}</h5>
+                    <p className="text-xs text-muted-foreground mt-1">{feature.subtext}</p>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
-      )}
+      </motion.section>
     </>
   );
 };

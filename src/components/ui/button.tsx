@@ -17,10 +17,6 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Neutral variants using design tokens
-        primary: "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90",
-        neutral: "bg-[hsl(var(--background))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]",
-        "neutral-ghost": "bg-transparent text-[hsl(var(--foreground))] border border-transparent hover:border-[hsl(var(--border))] hover:bg-[hsl(var(--background))]",
       },
       size: {
         default: "h-10 px-4 py-2",

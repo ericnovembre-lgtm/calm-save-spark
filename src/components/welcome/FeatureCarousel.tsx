@@ -26,7 +26,7 @@ export const FeatureCarousel = ({
   autoInterval = 5000 
 }: FeatureCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false); // Disabled by default
   const [reduceMotion, setReduceMotion] = useState(false);
   const timerRef = useRef<number | null>(null);
 
