@@ -32,10 +32,15 @@ import FeatureItem from "@/components/pricing/FeatureItem";
 import ValueEarnedCard from "@/components/pricing/ValueEarnedCard";
 import ProjectedSavingsCard from "@/components/pricing/ProjectedSavingsCard";
 import TierBadge, { getTierForAmount } from "@/components/pricing/TierBadge";
-import FeatureComparisonTable from "@/components/pricing/FeatureComparisonTable";
+import AnimatedFeatureTable from "@/components/pricing/advanced/AnimatedFeatureTable";
 import TierUpgradeModal from "@/components/pricing/TierUpgradeModal";
 import TierInfoModal from "@/components/pricing/TierInfoModal";
 import CheckoutConfirmationModal from "@/components/pricing/CheckoutConfirmationModal";
+import ParticleBackground from "@/components/pricing/advanced/ParticleBackground";
+import ScrollingTicker from "@/components/pricing/advanced/ScrollingTicker";
+import CelebrationSystem from "@/components/pricing/advanced/CelebrationSystem";
+import StaggeredContainer, { StaggeredItem } from "@/components/pricing/advanced/StaggeredContainer";
+import { motion } from "framer-motion";
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -46,6 +51,8 @@ export default function Pricing() {
   const [currentSubscription, setCurrentSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationType, setCelebrationType] = useState<'tier-unlock' | 'checkout' | 'success'>('success');
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [targetUpgradeAmount, setTargetUpgradeAmount] = useState(0);
   const [tierInfoModalOpen, setTierInfoModalOpen] = useState(false);
@@ -67,6 +74,8 @@ export default function Pricing() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
       setSuccess(true);
+      setCelebrationType('success');
+      setShowCelebration(true);
       const amount = urlParams.get('amount');
       if (amount) {
         setSelectedAmount(parseInt(amount));
@@ -136,6 +145,13 @@ export default function Pricing() {
     // Smart auto-scroll: only on tier boundary crosses
     const currentTier = getTierForAmount(value).name;
     const previousTier = previousTierRef.current || getTierForAmount(previousAmount).name;
+    
+    // Trigger celebration on tier upgrade
+    if (currentTier !== previousTier && value > previousAmount && previousTierRef.current !== null) {
+      setCelebrationType('tier-unlock');
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 3000);
+    }
     
     // Check if user has scrolled to features in this session
     const hasScrolled = sessionStorage.getItem('pricing_features_viewed');
@@ -236,6 +252,8 @@ export default function Pricing() {
         });
 
         setSuccess(true);
+        setCelebrationType('success');
+        setShowCelebration(true);
         await loadUserData();
 
         saveplus_audit_event('pricing_plan_confirmed', {
@@ -320,11 +338,24 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background relative">
+      {/* Particle Background */}
+      <ParticleBackground />
+      
+      {/* Celebration System */}
+      <CelebrationSystem
+        show={showCelebration}
+        type={celebrationType}
+        onComplete={() => setShowCelebration(false)}
+      />
+      
       {/* Sticky View Comparison Button */}
       {showStickyButton && (
-        <div className={`fixed bottom-6 right-6 z-50 ${
-          prefersReducedMotion ? '' : 'animate-fade-in'
-        }`}>
+        <motion.div
+          className="fixed bottom-6 right-6 z-50"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+        >
           <Button
             onClick={scrollToComparison}
             size="lg"
@@ -333,7 +364,7 @@ export default function Pricing() {
             <List className="w-4 h-4 mr-2" />
             View Full Comparison
           </Button>
-        </div>
+        </motion.div>
       )}
 
       <div className="container mx-auto px-4 py-16">
@@ -356,139 +387,182 @@ export default function Pricing() {
           )}
 
           {/* Header */}
-          <Card className={`text-center ${prefersReducedMotion ? '' : 'animate-fade-in'}`}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <h1 className="text-3xl font-bold">Pay What You Want</h1>
-                <button 
-                  onClick={() => handleTierBadgeClick(selectedAmount)}
-                  className={`focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg transition-transform duration-300 ${
-                    prefersReducedMotion ? '' : 'hover:scale-110'
-                  }`}
-                >
-                  <TierBadge amount={selectedAmount} size="lg" />
-                </button>
-              </div>
-              <p className="text-muted-foreground mb-2">
-                Support $ave+ and unlock features as you go. Every dollar unlocks one feature.
-              </p>
-              <TierBadge amount={selectedAmount} showDescription size="sm" />
-              {success && (
-                <div className="mt-4 p-3 bg-primary/10 border border-primary/20 text-primary rounded-lg">
-                  🎉 Plan updated successfully! Your new features are now available.
+          <motion.div
+            initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card className="text-center backdrop-blur-sm bg-background/95">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <motion.h1
+                    className="text-3xl font-bold"
+                    animate={!prefersReducedMotion ? {
+                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                    } : {}}
+                    transition={{ duration: 5, repeat: Infinity }}
+                    style={{
+                      background: 'linear-gradient(90deg, hsl(var(--foreground)), hsl(var(--primary)), hsl(var(--foreground)))',
+                      backgroundSize: '200% auto',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                  >
+                    Pay What You Want
+                  </motion.h1>
+                  <button 
+                    onClick={() => handleTierBadgeClick(selectedAmount)}
+                    className={`focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg transition-transform duration-300 ${
+                      prefersReducedMotion ? '' : 'hover:scale-110'
+                    }`}
+                  >
+                    <TierBadge amount={selectedAmount} size="lg" />
+                  </button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* VALUE CARDS */}
-          {currentSubscription && (
-            <ValueEarnedCard
-              userId={user.id}
-              currentMonthlyContribution={currentSubscription.subscription_amount || 0}
-              projectedTier={selectedAmount}
-            />
-          )}
-          
-          {/* PROJECTED SAVINGS CALCULATOR */}
-          <ProjectedSavingsCard selectedAmount={selectedAmount} />
-
-          {/* Current Plan */}
-          {currentSubscription && (
-            <Card className={`bg-primary/5 ${prefersReducedMotion ? '' : 'animate-fade-in'}`}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Zap className="w-5 h-5 text-primary" />
-                    <span className="font-medium">
-                      Current Plan: ${currentSubscription.subscription_amount}/month
-                    </span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {currentSubscription.subscription_amount} feature{currentSubscription.subscription_amount === 1 ? '' : 's'} unlocked
-                  </span>
-                </div>
+                <p className="text-muted-foreground mb-2">
+                  Support $ave+ and unlock features as you go. Every dollar unlocks one feature.
+                </p>
+                <TierBadge amount={selectedAmount} showDescription size="sm" />
+                {success && (
+                  <motion.div
+                    className="mt-4 p-3 bg-primary/10 border border-primary/20 text-primary rounded-lg"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                  >
+                    🎉 Plan updated successfully! Your new features are now available.
+                  </motion.div>
+                )}
               </CardContent>
             </Card>
-          )}
+          </motion.div>
 
-          {/* Slider */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold mb-2">
-                  Choose Your Monthly Support
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Move the slider to choose your monthly price. Each dollar unlocks one feature.
-                  Use arrow keys for precise control.
-                </p>
-              </div>
+          {/* Scrolling Stats Ticker */}
+          <ScrollingTicker />
 
-              <EnhancedPricingSlider
-                value={selectedAmount}
-                onChange={handleSliderChange}
-                min={0}
-                max={20}
-                step={1}
-              />
+          {/* VALUE CARDS */}
+          <StaggeredContainer className="space-y-6">
+            {currentSubscription && (
+              <StaggeredItem>
+                <ValueEarnedCard
+                  userId={user.id}
+                  currentMonthlyContribution={currentSubscription.subscription_amount || 0}
+                  projectedTier={selectedAmount}
+                />
+              </StaggeredItem>
+            )}
+            
+            {/* PROJECTED SAVINGS CALCULATOR */}
+            <StaggeredItem>
+              <ProjectedSavingsCard selectedAmount={selectedAmount} />
+            </StaggeredItem>
 
-              <div className="mt-6">
-                <Button
-                  onClick={handleInitiateCheckout}
-                  disabled={loading || selectedAmount === currentSubscription?.subscription_amount || isCheckoutDisabled || stripeLoading}
-                  className="w-full py-4 rounded-xl font-semibold flex items-center justify-center space-x-2"
-                  size="lg"
+            {/* Current Plan */}
+            {currentSubscription && (
+              <StaggeredItem>
+                <motion.div
+                  whileHover={!prefersReducedMotion ? { scale: 1.02 } : {}}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-background"></div>
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      {selectedAmount === 0 ? (
-                        <span>Confirm Free Plan</span>
+                  <Card className="bg-primary/5 backdrop-blur-sm">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Zap className="w-5 h-5 text-primary" />
+                          <span className="font-medium">
+                            Current Plan: ${currentSubscription.subscription_amount}/month
+                          </span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {currentSubscription.subscription_amount} feature{currentSubscription.subscription_amount === 1 ? '' : 's'} unlocked
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </StaggeredItem>
+            )}
+
+            {/* Slider */}
+            <StaggeredItem>
+              <Card className="backdrop-blur-sm bg-background/95">
+                <CardContent className="p-6">
+                  <div className="mb-6">
+                    <h2 className="text-lg font-semibold mb-2">
+                      Choose Your Monthly Support
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Move the slider to choose your monthly price. Each dollar unlocks one feature.
+                      Use arrow keys for precise control.
+                    </p>
+                  </div>
+
+                  <EnhancedPricingSlider
+                    value={selectedAmount}
+                    onChange={handleSliderChange}
+                    min={0}
+                    max={20}
+                    step={1}
+                  />
+
+                  <div className="mt-6">
+                    <Button
+                      onClick={handleInitiateCheckout}
+                      disabled={loading || selectedAmount === currentSubscription?.subscription_amount || isCheckoutDisabled || stripeLoading}
+                      className="w-full py-4 rounded-xl font-semibold flex items-center justify-center space-x-2"
+                      size="lg"
+                    >
+                      {loading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-background"></div>
+                          <span>Processing...</span>
+                        </>
                       ) : (
                         <>
-                          <CreditCard className="w-5 h-5" />
-                          <span>Subscribe for ${selectedAmount}/month</span>
+                          {selectedAmount === 0 ? (
+                            <span>Confirm Free Plan</span>
+                          ) : (
+                            <>
+                              <CreditCard className="w-5 h-5" />
+                              <span>Subscribe for ${selectedAmount}/month</span>
+                            </>
+                          )}
                         </>
                       )}
-                    </>
-                  )}
-                </Button>
+                    </Button>
 
-                <div className="mt-2 text-center" role="status" aria-live="polite">
-                  {stripeHealthy === false && (
-                    <p className="text-sm text-destructive">
-                      Billing unavailable. Awaiting Stripe configuration.
-                    </p>
-                  )}
-                  {selectedAmount === currentSubscription?.subscription_amount && (
-                    <p className="text-sm text-muted-foreground">
-                      This is your current plan
-                    </p>
-                  )}
-                </div>
+                    <div className="mt-2 text-center" role="status" aria-live="polite">
+                      {stripeHealthy === false && (
+                        <p className="text-sm text-destructive">
+                          Billing unavailable. Awaiting Stripe configuration.
+                        </p>
+                      )}
+                      {selectedAmount === currentSubscription?.subscription_amount && (
+                        <p className="text-sm text-muted-foreground">
+                          This is your current plan
+                        </p>
+                      )}
+                    </div>
 
-                <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Shield className="w-3 h-3" />
-                    14-day free trial
+                    <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Shield className="w-3 h-3" />
+                        14-day free trial
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Zap className="w-3 h-3" />
+                        Cancel anytime
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Zap className="w-3 h-3" />
-                    Cancel anytime
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </StaggeredItem>
+          </StaggeredContainer>
 
           {/* Feature Comparison Table - PRIMARY DISPLAY */}
-          <div ref={featureTableRef} className={prefersReducedMotion ? '' : 'animate-fade-in'}>
-            <FeatureComparisonTable selectedAmount={selectedAmount} />
+          <div ref={featureTableRef}>
+            <AnimatedFeatureTable selectedAmount={selectedAmount} />
           </div>
 
           {/* Quick Reference - Collapsible Compact View */}
