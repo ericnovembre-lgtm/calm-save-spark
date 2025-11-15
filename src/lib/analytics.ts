@@ -65,7 +65,7 @@ function ensurePostHog() {
 }
 
 /**
- * Core event tracking function
+ * Core event tracking function with batching
  */
 export const trackEvent = async (eventType: string, metadata: Record<string, any> = {}) => {
   try {
@@ -89,35 +89,18 @@ export const trackEvent = async (eventType: string, metadata: Record<string, any
       console.log('[Analytics]', eventType, payload.metadata);
     }
 
-    // Prefer PostHog
-    ensurePostHog();
-    if (phInit) {
-      posthog.capture(eventType, { 
-        ...payload.metadata, 
-        session_id: payload.session_id, 
-        user_id_hash: payload.user_id_hash 
-      });
-      if (userIdHash) posthog.identify(userIdHash);
-      return;
-    }
-
-    // Fallback to Supabase edge function
-    const { data, error: invokeError } = await supabase.functions.invoke('analytics', {
-      body: {
-        event: eventType,
-        properties: payload.metadata,
-        userId: userIdHash,
-        timestamp: payload.metadata.timestamp,
+    // Use analytics batching for better performance
+    const { analyticsBatcher } = await import('./analytics-batch');
+    analyticsBatcher.addEvent({
+      event: eventType,
+      properties: {
+        ...payload.metadata,
+        session_id: payload.session_id,
+        user_id_hash: payload.user_id_hash
       },
+      userId: userIdHash,
+      timestamp: payload.metadata.timestamp
     });
-    
-    // Log invoke errors but don't throw - analytics should never break the app
-    if (invokeError) {
-      console.warn('[Analytics] Edge function error (non-blocking):', invokeError);
-    }
-    if (data?.error) {
-      console.warn('[Analytics] Edge function returned error (non-blocking):', data.error);
-    }
   } catch (error) {
     // Analytics errors should never crash the app - log and continue
     if (import.meta.env.DEV) {

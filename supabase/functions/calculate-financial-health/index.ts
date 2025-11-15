@@ -33,122 +33,48 @@ serve(async (req) => {
       throw new Error('Not authenticated');
     }
 
-    // Fetch all relevant user data
-    const [creditScores, debts, goals, investments, subscriptions] = await Promise.all([
-      supabaseClient.from('credit_scores').select('*').eq('user_id', user.id).order('score_date', { ascending: false }).limit(1),
-      supabaseClient.from('debts').select('*').eq('user_id', user.id),
-      supabaseClient.from('goals').select('*').eq('user_id', user.id),
-      supabaseClient.from('investment_accounts').select('*').eq('user_id', user.id),
-      supabaseClient.from('detected_subscriptions').select('*').eq('user_id', user.id).eq('is_confirmed', true),
-    ]);
+    console.log('Calculating financial health for user:', user.id);
 
-    // Calculate component scores (0-100 each)
-    
-    // 1. Credit Score Component (25%)
-    const latestCredit = creditScores.data?.[0];
-    const creditComponent = latestCredit ? Math.round(((latestCredit.score - 300) / 550) * 100) : 50;
+    // Check cache first (1 hour TTL)
+    const cacheKey = `financial_health:${user.id}`;
+    const { data: cachedData } = await supabaseClient.rpc('get_cached_response', {
+      p_cache_key: cacheKey
+    });
 
-    // 2. Debt Component (20%)
-    const totalDebt = debts.data?.reduce((sum, d) => sum + parseFloat(String(d.current_balance)), 0) || 0;
-    const debtComponent = totalDebt === 0 ? 100 : Math.max(0, 100 - Math.min(100, (totalDebt / 50000) * 100));
+    if (cachedData) {
+      console.log('Returning cached financial health score');
+      return new Response(
+        JSON.stringify(cachedData),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'HIT' } }
+      );
+    }
 
-    // 3. Savings Component (20%)
-    const totalGoalProgress = goals.data?.reduce((sum, g) => {
-      const progress = (parseFloat(String(g.current_amount)) / parseFloat(String(g.target_amount))) * 100;
-      return sum + Math.min(100, progress);
-    }, 0) || 0;
-    const savingsComponent = goals.data?.length ? Math.round(totalGoalProgress / goals.data.length) : 50;
-
-    // 4. Goals Component (15%)
-    const completedGoals = goals.data?.filter(g => parseFloat(String(g.current_amount)) >= parseFloat(String(g.target_amount))).length || 0;
-    const goalsComponent = goals.data?.length ? Math.round((completedGoals / goals.data.length) * 100) : 50;
-
-    // 5. Investment Component (10%)
-    const totalInvestmentValue = investments.data?.reduce((sum, inv) => sum + parseFloat(String(inv.total_value)), 0) || 0;
-    const totalInvestmentGains = investments.data?.reduce((sum, inv) => sum + parseFloat(String(inv.gains_losses || 0)), 0) || 0;
-    const investmentComponent = totalInvestmentValue > 0 
-      ? Math.max(0, Math.min(100, 50 + (totalInvestmentGains / totalInvestmentValue) * 100))
-      : 50;
-
-    // 6. Emergency Fund Component (10%)
-    const monthlyExpenses = (subscriptions.data?.reduce((sum, s) => sum + parseFloat(String(s.amount)), 0) || 0) * 12 / 12;
-    const savingsBalance = goals.data?.reduce((sum, g) => sum + parseFloat(String(g.current_amount)), 0) || 0;
-    const monthsCovered = monthlyExpenses > 0 ? savingsBalance / monthlyExpenses : 0;
-    const emergencyFundComponent = Math.min(100, (monthsCovered / 6) * 100);
-
-    // Calculate weighted overall score
-    const overallScore = Math.round(
-      creditComponent * 0.25 +
-      debtComponent * 0.20 +
-      savingsComponent * 0.20 +
-      goalsComponent * 0.15 +
-      investmentComponent * 0.10 +
-      emergencyFundComponent * 0.10
+    // Use database function for calculation (optimized with indexes)
+    const { data: healthData, error: calcError } = await supabaseClient.rpc(
+      'calculate_financial_health_score',
+      { p_user_id: user.id }
     );
 
-    // Generate personalized recommendations
-    const recommendations = [];
-
-    if (creditComponent < 60 && latestCredit) {
-      recommendations.push({
-        id: 'improve-credit',
-        title: 'Improve Your Credit Score',
-        description: `Your credit score is ${latestCredit.score}. Focus on paying bills on time and reducing credit utilization below 30%.`,
-        priority: 'high',
-        impact: 15,
-        actionLabel: 'View Credit Details',
-        actionLink: '/credit',
-      });
+    if (calcError) {
+      console.error('Calculation error:', calcError);
+      throw calcError;
+    }
+    
+    if (!healthData || healthData.length === 0) {
+      throw new Error('Failed to calculate financial health score');
     }
 
-    if (debtComponent < 60 && totalDebt > 0) {
-      recommendations.push({
-        id: 'reduce-debt',
-        title: 'Create a Debt Payoff Plan',
-        description: `You have $${totalDebt.toFixed(2)} in debt. Consider using the avalanche or snowball method to pay it down faster.`,
-        priority: 'high',
-        impact: 12,
-        actionLabel: 'Manage Debts',
-        actionLink: '/debts',
-      });
-    }
+    const result = healthData[0];
+    const overallScore = result.overall_score;
+    const creditComponent = result.credit_component;
+    const debtComponent = result.debt_component;
+    const savingsComponent = result.savings_component;
+    const goalsComponent = result.goals_component;
+    const investmentComponent = result.investment_component;
+    const emergencyFundComponent = result.emergency_fund_component;
+    const recommendations = result.recommendations || [];
 
-    if (emergencyFundComponent < 40) {
-      recommendations.push({
-        id: 'emergency-fund',
-        title: 'Build Your Emergency Fund',
-        description: `You have ${monthsCovered.toFixed(1)} months of expenses saved. Aim for 3-6 months for financial security.`,
-        priority: 'high',
-        impact: 10,
-        actionLabel: 'Set Savings Goal',
-        actionLink: '/goals',
-      });
-    }
-
-    if (savingsComponent > 80) {
-      recommendations.push({
-        id: 'great-progress',
-        title: 'You\'re Doing Great!',
-        description: 'Your savings progress is excellent. Keep up the good work and consider increasing your goals.',
-        priority: 'low',
-        impact: 5,
-        actionLabel: 'Review Goals',
-        actionLink: '/goals',
-      });
-    }
-
-    if (subscriptions.data && subscriptions.data.length > 10) {
-      const totalSubscriptionCost = subscriptions.data.reduce((sum, s) => sum + parseFloat(String(s.amount)), 0);
-      recommendations.push({
-        id: 'review-subscriptions',
-        title: 'Review Your Subscriptions',
-        description: `You have ${subscriptions.data.length} active subscriptions costing $${totalSubscriptionCost.toFixed(2)}/month. Consider canceling unused ones.`,
-        priority: 'medium',
-        impact: 8,
-        actionLabel: 'Manage Subscriptions',
-        actionLink: '/subscriptions',
-      });
-    }
+    console.log('Calculated score:', overallScore);
 
     // Store health score in database
     await supabaseClient
@@ -166,46 +92,55 @@ serve(async (req) => {
       });
 
     // Save to history for tracking trends
-    try {
-      const { error: historyError } = await supabaseClient
-        .from('financial_health_history')
-        .insert({
-          user_id: user.id,
-          score: overallScore,
-          components: {
-            credit: creditComponent,
-            debt: debtComponent,
-            savings: savingsComponent,
-            goals: goalsComponent,
-            investment: investmentComponent,
-            emergency_fund: emergencyFundComponent,
-          },
-          recommendations,
-        });
-
-      if (historyError) {
-        console.error('Error saving to history:', historyError);
-      }
-    } catch (historyErr) {
-      console.error('History save failed:', historyErr);
-    }
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        overallScore,
+    const { error: historyError } = await supabaseClient
+      .from('financial_health_history')
+      .insert({
+        user_id: user.id,
+        score: overallScore,
         components: {
           credit: creditComponent,
           debt: debtComponent,
           savings: savingsComponent,
           goals: goalsComponent,
           investment: investmentComponent,
-          emergencyFund: emergencyFundComponent,
+          emergency_fund: emergencyFundComponent,
         },
-        recommendations,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        recommendations: recommendations,
+      });
+
+    if (historyError) {
+      console.error('Error saving health history:', historyError);
+    }
+
+    const responseData = {
+      score: overallScore,
+      components: {
+        credit: creditComponent,
+        debt: debtComponent,
+        savings: savingsComponent,
+        goals: goalsComponent,
+        investment: investmentComponent,
+        emergencyFund: emergencyFundComponent,
+      },
+      recommendations,
+    };
+
+    // Cache the response (1 hour TTL)
+    await supabaseClient.rpc('set_cached_response', {
+      p_cache_key: cacheKey,
+      p_cache_type: 'financial_health',
+      p_user_id: user.id,
+      p_response_data: responseData,
+      p_ttl_seconds: 3600 // 1 hour
+    });
+
+    console.log('Financial health calculation complete and cached');
+
+    return new Response(
+      JSON.stringify(responseData),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'MISS' } }
     );
+
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Financial Health Calculation Error:', errorMessage);
