@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Heart, Sparkles } from 'lucide-react';
+import { TrendingUp, Heart, Sparkles, ArrowUp, ArrowDown, Plus, Minus, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { FREE_FEATURE_INDICES, FREEMIUM_FEATURE_ORDER } from '@/lib/constants';
+import { AnimatedCounter } from '@/components/onboarding/AnimatedCounter';
 import Animated3DCard from './advanced/Animated3DCard';
 
 interface ValueEarnedCardProps {
@@ -19,10 +22,18 @@ export default function ValueEarnedCard({
   const [totalContributed, setTotalContributed] = useState(0);
   const [monthsActive, setMonthsActive] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showProjection, setShowProjection] = useState(false);
 
   useEffect(() => {
     calculateValue();
   }, [userId]);
+
+  useEffect(() => {
+    // Show projection when slider changes
+    setShowProjection(true);
+    const timer = setTimeout(() => setShowProjection(false), 3000);
+    return () => clearTimeout(timer);
+  }, [projectedTier]);
 
   const calculateValue = async () => {
     try {
@@ -53,17 +64,49 @@ export default function ValueEarnedCard({
     }
   };
 
-  const getEncouragementMessage = () => {
-    const increase = projectedTier - currentMonthlyContribution;
-    
-    if (increase > 0) {
-      return `Upgrading to $${projectedTier}/mo unlocks ${increase} more feature${increase === 1 ? '' : 's'}!`;
-    } else if (increase < 0) {
-      return `Adjusting to $${projectedTier}/mo. Your support means everything!`;
-    } else {
-      return 'Thank you for your continued support!';
-    }
+  const getFeatureCount = (amount: number): number => {
+    if (amount === 0) return FREE_FEATURE_INDICES.length; // 3 free features
+    return Math.min(amount, FREEMIUM_FEATURE_ORDER.length); // Cap at 20
   };
+
+  const getFeatureInsights = () => {
+    const currentFeatures = getFeatureCount(currentMonthlyContribution);
+    const projectedFeatures = getFeatureCount(projectedTier);
+    const featureDelta = projectedFeatures - currentFeatures;
+    const isUpgrade = featureDelta > 0;
+    const isDowngrade = featureDelta < 0;
+    const isUnchanged = featureDelta === 0;
+
+    return {
+      currentFeatures,
+      projectedFeatures,
+      featureDelta: Math.abs(featureDelta),
+      isUpgrade,
+      isDowngrade,
+      isUnchanged,
+      message: isUpgrade
+        ? `Moving to $${projectedTier}/mo gives you ${projectedFeatures} total features — that's ${Math.abs(featureDelta)} more than your current plan!`
+        : isDowngrade
+        ? `Adjusting to $${projectedTier}/mo gives you ${projectedFeatures} features. You'll lose access to ${Math.abs(featureDelta)} feature${Math.abs(featureDelta) === 1 ? '' : 's'}.`
+        : `You're currently on the $${projectedTier}/mo plan with ${currentFeatures} feature${currentFeatures === 1 ? '' : 's'}. Thank you for your support!`
+    };
+  };
+
+  const getContributionProjection = () => {
+    const futureMonths = 6; // Project 6 months ahead
+    const projectedMonthly = projectedTier;
+    const futureTotal = totalContributed + (projectedMonthly * futureMonths);
+    
+    return {
+      futureMonths,
+      projectedMonthly,
+      futureTotal,
+      additionalContribution: projectedMonthly * futureMonths
+    };
+  };
+
+  const featureInsights = getFeatureInsights();
+  const projection = getContributionProjection();
 
   if (loading) {
     return (
@@ -94,21 +137,110 @@ export default function ValueEarnedCard({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="space-y-4">
+            {/* Current Contribution Display */}
             <div>
               <div className="text-3xl font-bold text-primary">
-                ${totalContributed}
+                <AnimatedCounter value={totalContributed} prefix="$" duration={1} />
               </div>
               <p className="text-sm text-muted-foreground">
-                Total contributed to $ave+
+                Total contributed to $ave+ over {monthsActive} month{monthsActive === 1 ? '' : 's'}
               </p>
             </div>
-            
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-background/50">
-              <TrendingUp className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-              <p className="text-sm">
-                {getEncouragementMessage()}
-              </p>
+
+            {/* Feature Count Insights with Visual Delta */}
+            <div className="space-y-2">
+              <div className={`flex items-start gap-2 p-3 rounded-lg ${
+                featureInsights.isUpgrade ? 'bg-primary/10 border border-primary/20' :
+                featureInsights.isDowngrade ? 'bg-destructive/10 border border-destructive/20' :
+                'bg-background/50'
+              }`}>
+                {featureInsights.isUpgrade && (
+                  <ArrowUp className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                )}
+                {featureInsights.isDowngrade && (
+                  <ArrowDown className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                )}
+                {featureInsights.isUnchanged && (
+                  <TrendingUp className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                )}
+                <div className="flex-1">
+                  <p className="text-sm font-medium">
+                    {featureInsights.message}
+                  </p>
+                  
+                  {/* Visual Feature Delta Indicator */}
+                  {!featureInsights.isUnchanged && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-1 text-xs">
+                        <span className="font-medium">{featureInsights.currentFeatures}</span>
+                        <span className="text-muted-foreground">current</span>
+                      </div>
+                      {featureInsights.isUpgrade ? (
+                        <Plus className="w-3 h-3 text-primary" />
+                      ) : (
+                        <Minus className="w-3 h-3 text-destructive" />
+                      )}
+                      <div className="flex items-center gap-1 text-xs font-semibold">
+                        <AnimatedCounter 
+                          value={featureInsights.featureDelta} 
+                          duration={0.5}
+                        />
+                        <span className={featureInsights.isUpgrade ? 'text-primary' : 'text-destructive'}>
+                          {featureInsights.isUpgrade ? 'gained' : 'lost'}
+                        </span>
+                      </div>
+                      <div className="flex-1 h-px bg-border" />
+                      <div className="flex items-center gap-1 text-xs font-bold">
+                        <AnimatedCounter 
+                          value={featureInsights.projectedFeatures} 
+                          duration={0.5}
+                        />
+                        <span className="text-muted-foreground">total</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Real-Time Contribution Projection */}
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ 
+                  opacity: showProjection ? 1 : 0, 
+                  height: showProjection ? 'auto' : 0 
+                }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20">
+                  <Calendar className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground mb-1">
+                      6-month projection at ${projectedTier}/mo
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xl font-bold text-primary">
+                        <AnimatedCounter 
+                          value={projection.futureTotal} 
+                          prefix="$" 
+                          duration={1}
+                        />
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        total contributed
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <AnimatedCounter 
+                        value={projection.additionalContribution} 
+                        prefix="+$" 
+                        duration={0.8}
+                      /> in the next 6 months
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </CardContent>
