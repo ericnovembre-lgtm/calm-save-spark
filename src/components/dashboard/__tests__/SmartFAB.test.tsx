@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderWithProviders, userEvent } from '@/test/utils';
 import { SmartFAB } from '../SmartFAB';
 import { BrowserRouter } from 'react-router-dom';
