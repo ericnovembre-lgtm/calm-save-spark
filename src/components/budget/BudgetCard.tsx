@@ -8,6 +8,8 @@ import { BudgetProgressLiquid } from "./BudgetProgressLiquid";
 import { CategoryIcon } from "./CategoryIcon";
 import { fadeInUp, cardHover } from "@/lib/motion-variants";
 import { AnimatedCounter } from "@/components/onboarding/AnimatedCounter";
+import { ScanLineOverlay } from "./advanced/ScanLineOverlay";
+import { soundEffects } from "@/lib/sound-effects";
 
 interface BudgetCardProps {
   budget: {
@@ -48,7 +50,9 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete }:
       initial="initial"
       animate="animate"
     >
-      <Card className="relative p-6 hover:shadow-lg transition-all duration-300 border-border/50 backdrop-blur-sm bg-card/80">
+      <Card className="relative p-6 hover:shadow-lg transition-all duration-300 border-border/50 backdrop-blur-sm bg-card/80 overflow-hidden group">
+        <ScanLineOverlay intensity="low" />
+        
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -71,11 +75,17 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete }:
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onEdit}>
+                <DropdownMenuItem onClick={() => {
+                  soundEffects.click();
+                  onEdit?.();
+                }}>
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Budget
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                <DropdownMenuItem onClick={() => {
+                  soundEffects.warning();
+                  onDelete?.();
+                }} className="text-destructive">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Budget
                 </DropdownMenuItem>
