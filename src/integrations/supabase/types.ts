@@ -5071,6 +5071,203 @@ export type Database = {
           },
         ]
       }
+      wallet_allowances: {
+        Row: {
+          agent_id: string
+          allowed_tokens: string[]
+          created_at: string
+          daily_limit: number
+          daily_spent: number
+          id: string
+          is_active: boolean
+          last_reset_date: string
+          max_amount_per_tx: number
+          updated_at: string
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          agent_id: string
+          allowed_tokens?: string[]
+          created_at?: string
+          daily_limit?: number
+          daily_spent?: number
+          id?: string
+          is_active?: boolean
+          last_reset_date?: string
+          max_amount_per_tx?: number
+          updated_at?: string
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          agent_id?: string
+          allowed_tokens?: string[]
+          created_at?: string
+          daily_limit?: number
+          daily_spent?: number
+          id?: string
+          is_active?: boolean
+          last_reset_date?: string
+          max_amount_per_tx?: number
+          updated_at?: string
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_allowances_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "autonomous_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_allowances_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallet_tokens: {
+        Row: {
+          chain: string
+          contract_address: string | null
+          created_at: string
+          decimals: number
+          id: string
+          is_active: boolean
+          is_native: boolean
+          logo_url: string | null
+          name: string
+          symbol: string
+        }
+        Insert: {
+          chain?: string
+          contract_address?: string | null
+          created_at?: string
+          decimals?: number
+          id?: string
+          is_active?: boolean
+          is_native?: boolean
+          logo_url?: string | null
+          name: string
+          symbol: string
+        }
+        Update: {
+          chain?: string
+          contract_address?: string | null
+          created_at?: string
+          decimals?: number
+          id?: string
+          is_active?: boolean
+          is_native?: boolean
+          logo_url?: string | null
+          name?: string
+          symbol?: string
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          block_number: number | null
+          created_at: string
+          from_address: string
+          gas_price: number | null
+          gas_used: number | null
+          hash: string
+          id: string
+          metadata: Json | null
+          nonce: number | null
+          status: string
+          to_address: string
+          token_address: string | null
+          token_symbol: string
+          transaction_type: string
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          block_number?: number | null
+          created_at?: string
+          from_address: string
+          gas_price?: number | null
+          gas_used?: number | null
+          hash: string
+          id?: string
+          metadata?: Json | null
+          nonce?: number | null
+          status?: string
+          to_address: string
+          token_address?: string | null
+          token_symbol?: string
+          transaction_type?: string
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          block_number?: number | null
+          created_at?: string
+          from_address?: string
+          gas_price?: number | null
+          gas_used?: number | null
+          hash?: string
+          id?: string
+          metadata?: Json | null
+          nonce?: number | null
+          status?: string
+          to_address?: string
+          token_address?: string | null
+          token_symbol?: string
+          transaction_type?: string
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          address: string
+          chain: string
+          created_at: string
+          encrypted_key_share: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          chain?: string
+          created_at?: string
+          encrypted_key_share?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          chain?: string
+          created_at?: string
+          encrypted_key_share?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       webauthn_challenges: {
         Row: {
           challenge: string
@@ -5179,6 +5376,7 @@ export type Database = {
         Returns: undefined
       }
       is_ip_blocked: { Args: { ip: string }; Returns: boolean }
+      reset_daily_wallet_allowances: { Args: never; Returns: undefined }
       reset_inactive_streaks: { Args: never; Returns: undefined }
       update_platform_stats: { Args: never; Returns: undefined }
       user_family_group_ids: {
