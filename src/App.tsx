@@ -71,6 +71,9 @@ const AgentHub = lazy(() => import("./pages/AgentHub"));
 const BehavioralGuardian = lazy(() => import("./pages/BehavioralGuardian"));
 const CoolingOff = lazy(() => import("./pages/CoolingOff"));
 const Wallet = lazy(() => import("./pages/Wallet"));
+const AlternativesPortal = lazy(() => import("./pages/AlternativesPortal"));
+const FamilyOffice = lazy(() => import("./pages/FamilyOffice"));
+const CorporateWellness = lazy(() => import("./pages/CorporateWellness"));
 
 const queryClient = new QueryClient();
 
@@ -192,6 +195,11 @@ function AnimatedRoutes() {
         <Route path="/admin-monitoring" element={<ProtectedRoute><PageTransition><AdminRoute><AdminMonitoring /></AdminRoute></PageTransition></ProtectedRoute>} />
         <Route path="/admin-agents" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         <Route path="/admin-functions" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
+        
+        {/* Premium Solutions */}
+        <Route path="/alternatives-portal" element={<ProtectedRoute><PageTransition><AlternativesPortal /></PageTransition></ProtectedRoute>} />
+        <Route path="/family-office" element={<ProtectedRoute><PageTransition><FamilyOffice /></PageTransition></ProtectedRoute>} />
+        <Route path="/corporate-wellness" element={<ProtectedRoute><PageTransition><CorporateWellness /></PageTransition></ProtectedRoute>} />
         
         {/* Next-Gen Features */}
         <Route path="/digital-twin" element={<ProtectedRoute><PageTransition><DigitalTwin /></PageTransition></ProtectedRoute>} />
