@@ -30,7 +30,12 @@ ${contextString}
 
 Guide the user through their next steps based on their current progress.`;
 
-  const aiStream = await streamAIResponse(enhancedPrompt, history, message);
+  const aiStream = await streamAIResponse(
+    enhancedPrompt, 
+    history, 
+    message,
+    'google/gemini-2.5-flash'
+  );
 
   let fullResponse = '';
   

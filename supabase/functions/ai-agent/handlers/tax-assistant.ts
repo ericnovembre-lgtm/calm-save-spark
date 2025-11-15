@@ -30,7 +30,12 @@ ${contextString}
 
 Analyze transactions for potential deductions and provide tax-saving recommendations.`;
 
-  const aiStream = await streamAIResponse(enhancedPrompt, history, message);
+  const aiStream = await streamAIResponse(
+    enhancedPrompt, 
+    history, 
+    message,
+    'google/gemini-2.5-pro'
+  );
 
   let fullResponse = '';
   
