@@ -21,6 +21,9 @@ import { Card } from "@/components/ui/card";
 import { Target, Plus } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { PageLoadingSkeleton } from "@/components/ui/page-loading-skeleton";
+import { NeuralBackground } from "@/components/budget/advanced/NeuralBackground";
+import { HolographicCard } from "@/components/budget/advanced/HolographicCard";
+import { GestureCard } from "@/components/budget/advanced/GestureCard";
 
 // Lazy load heavy components
 const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
@@ -227,7 +230,8 @@ export default function Budget() {
   return (
     <AppLayout>
       <BudgetErrorBoundary>
-        <div className="space-y-6">
+        <div className="space-y-6 relative overflow-hidden">
+        <NeuralBackground />
         {/* Celebration Effects */}
         <CelebrationManager trigger={celebrationTrigger} type="milestone" />
 
@@ -253,19 +257,27 @@ export default function Budget() {
         {/* Overview Tab */}
         {activeView === 'overview' && (
           <ScrollSection>
-            <BudgetOverview
-              totalBudget={totalBudget}
-              totalSpent={totalSpent}
-              budgets={budgets}
-              spending={spending}
-              categories={categories}
-            />
+            <HolographicCard intensity="high" className="mb-6">
+              <BudgetOverview
+                totalBudget={totalBudget}
+                totalSpent={totalSpent}
+                budgets={budgets}
+                spending={spending}
+                categories={categories}
+              />
+            </HolographicCard>
 
             {/* Smart Features Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-              <AICoachPanel budgets={budgets} spending={spending} />
-              <BudgetGoalTracker budgets={budgets} spending={spending} />
-              <SavingsOpportunities budgets={budgets} spending={spending} />
+              <HolographicCard intensity="medium">
+                <AICoachPanel budgets={budgets} spending={spending} />
+              </HolographicCard>
+              <HolographicCard intensity="medium">
+                <BudgetGoalTracker budgets={budgets} spending={spending} />
+              </HolographicCard>
+              <HolographicCard intensity="medium">
+                <SavingsOpportunities budgets={budgets} spending={spending} />
+              </HolographicCard>
             </div>
 
             {budgets.length === 0 ? (
@@ -293,15 +305,24 @@ export default function Budget() {
                 {budgets.map((budget, index) => (
                   <motion.div
                     key={budget.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                      delay: index * 0.05,
+                      type: 'spring',
+                      stiffness: 100
+                    }}
+                    whileHover={{ scale: 1.02, y: -4 }}
                   >
-                    <BudgetCard
-                      budget={budget as any}
-                      spending={spending[budget.id]}
-                      categoryData={categories.find(c => c.code === Object.keys((budget.category_limits as any) || {})[0])}
-                    />
+                    <GestureCard>
+                      <HolographicCard intensity="low">
+                        <BudgetCard
+                          budget={budget as any}
+                          spending={spending[budget.id]}
+                          categoryData={categories.find(c => c.code === Object.keys((budget.category_limits as any) || {})[0])}
+                        />
+                      </HolographicCard>
+                    </GestureCard>
                   </motion.div>
                 ))}
               </motion.div>
