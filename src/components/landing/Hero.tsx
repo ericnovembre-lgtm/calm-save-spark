@@ -129,9 +129,9 @@ export const Hero = () => {
                 )}
               </MagneticButton>
             </Link>
-            <Link to="/pricing" className="inline-block">
+            <Link to="/auth" className="inline-block">
               <MagneticButton variant="outline" className="px-8 py-4 text-lg group">
-                View Pricing
+                Explore AI Agents
                 <Sparkles className="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
               </MagneticButton>
             </Link>

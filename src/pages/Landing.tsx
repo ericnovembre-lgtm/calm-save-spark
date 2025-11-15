@@ -2,6 +2,7 @@ import { WelcomeNavbar } from "@/components/welcome/WelcomeNavbar";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { Hero } from "@/components/landing/Hero";
 import { Features } from "@/components/landing/Features";
+import { AIAgentsPreview } from "@/components/landing/AIAgentsPreview";
 import { Stats } from "@/components/landing/Stats";
 import { Calculator } from "@/components/landing/Calculator";
 import { CTA } from "@/components/landing/CTA";
@@ -19,6 +20,7 @@ export default function Landing() {
         <Hero />
         <SocialProofTicker />
         <Features />
+        <AIAgentsPreview />
         <Stats />
         <Testimonials />
         <Calculator />

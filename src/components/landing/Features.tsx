@@ -2,6 +2,8 @@ import { TrendingUp, Shield, Zap, Target, Brain, Sparkles } from "lucide-react";
 import { TiltCard3D } from "@/components/welcome/advanced/TiltCard3D";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const features = [
   {
@@ -13,8 +15,9 @@ const features = [
   {
     id: 2,
     icon: <Brain className="w-6 h-6 text-accent" />,
-    title: "AI Insights",
-    description: "Get personalized financial advice and spending insights powered by advanced AI.",
+    title: "6 AI Specialists",
+    description: "Financial Coach, Tax Assistant, Investment Research, Debt Advisor, Life Planner & Onboarding Guide",
+    route: "/ai-agents",
   },
   {
     id: 3,
@@ -44,6 +47,21 @@ const features = [
 
 export const Features = () => {
   const prefersReducedMotion = useReducedMotion();
+  const navigate = useNavigate();
+
+  const handleFeatureClick = async (route?: string) => {
+    if (!route) return;
+    
+    // Check if user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+      navigate(route);
+    } else {
+      // Redirect to auth page if not authenticated
+      navigate("/auth");
+    }
+  };
 
   return (
     <section className="py-20 px-4 md:px-20" id="features">
@@ -71,9 +89,11 @@ export const Features = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              onClick={() => handleFeatureClick((feature as any).route)}
+              className={(feature as any).route ? "cursor-pointer" : ""}
             >
               <TiltCard3D>
-                <motion.div 
+                <motion.div
                   className="p-6 rounded-xl bg-card border border-border hover:border-accent transition-colors h-full backdrop-blur-sm"
                   whileHover={!prefersReducedMotion ? {
                     boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
