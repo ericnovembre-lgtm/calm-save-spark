@@ -193,6 +193,12 @@ export const FREEMIUM_FEATURE_ORDER: readonly FreemiumFeature[] = [
   },
 ] as const;
 
+/**
+ * Free Features Configuration
+ * Defines which features are included in the free tier (indices from FREEMIUM_FEATURE_ORDER)
+ */
+export const FREE_FEATURE_INDICES = [0, 1, 2] as const; // Basic Savings, Smart Pots, Automated Savings
+
 // =============================================================================
 // LIMITS & QUOTAS
 // =============================================================================

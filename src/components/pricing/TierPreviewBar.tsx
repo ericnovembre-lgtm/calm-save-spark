@@ -8,7 +8,7 @@ interface TierPreviewBarProps {
 
 export default function TierPreviewBar({ selectedAmount }: TierPreviewBarProps) {
   const tiers = [
-    { price: 0, label: "Free", features: 0, color: "text-muted-foreground" },
+    { price: 0, label: "Free", features: 3, color: "text-muted-foreground" },
     { price: 5, label: "Starter", features: 5, color: "text-primary" },
     { price: 10, label: "Pro", features: 10, color: "text-primary" },
     { price: 15, label: "Advanced", features: 15, color: "text-primary" },

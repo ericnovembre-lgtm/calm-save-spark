@@ -236,6 +236,16 @@ export default function Pricing() {
   }, []);
 
   const handleInitiateCheckout = () => {
+    console.log('[Pricing] Button clicked:', { 
+      selectedAmount, 
+      user: !!user, 
+      loading, 
+      dataLoading,
+      currentSubscription,
+      isCheckoutDisabled,
+      stripeLoading
+    });
+    
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -535,13 +545,18 @@ export default function Pricing() {
                   <div className="mt-6">
                     <Button
                       onClick={handleInitiateCheckout}
-                      disabled={
-                        loading || 
-                        (selectedAmount > 0 && (isCheckoutDisabled || stripeLoading)) ||
-                        (selectedAmount === 0 && currentSubscription?.subscription_amount === 0 && currentSubscription?.status === 'active')
-                      }
-                      className="w-full py-4 rounded-xl font-semibold flex items-center justify-center space-x-2"
-                      size="lg"
+            disabled={
+              loading || 
+              dataLoading ||
+              (selectedAmount > 0 && (isCheckoutDisabled || stripeLoading)) ||
+              (selectedAmount === 0 && currentSubscription?.subscription_amount === 0 && currentSubscription?.status === 'active')
+            }
+            className={`w-full py-4 rounded-xl font-semibold flex items-center justify-center space-x-2 ${
+              !loading && !dataLoading && selectedAmount === 0 
+                ? 'cursor-pointer hover:opacity-90' 
+                : ''
+            }`}
+            size="lg"
                     >
                       {loading ? (
                         <>
