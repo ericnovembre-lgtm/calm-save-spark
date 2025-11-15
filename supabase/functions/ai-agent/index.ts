@@ -1,0 +1,101 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { financialCoachHandler } from "./handlers/financial-coach.ts";
+import { onboardingGuideHandler } from "./handlers/onboarding-guide.ts";
+import { taxAssistantHandler } from "./handlers/tax-assistant.ts";
+import { investmentResearchHandler } from "./handlers/investment-research.ts";
+import { debtAdvisorHandler } from "./handlers/debt-advisor.ts";
+import { lifePlannerHandler } from "./handlers/life-planner.ts";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface AgentRequest {
+  agent_type: string;
+  message: string;
+  conversation_id?: string;
+  metadata?: Record<string, any>;
+}
+
+const AGENT_HANDLERS = {
+  financial_coach: financialCoachHandler,
+  onboarding_guide: onboardingGuideHandler,
+  tax_assistant: taxAssistantHandler,
+  investment_research: investmentResearchHandler,
+  debt_advisor: debtAdvisorHandler,
+  life_planner: lifePlannerHandler,
+};
+
+serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    // Initialize Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    );
+
+    // Verify user is authenticated
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error('Unauthorized');
+    }
+
+    // Parse request body
+    const { agent_type, message, conversation_id, metadata }: AgentRequest = await req.json();
+
+    if (!agent_type || !message) {
+      throw new Error('Missing required fields: agent_type and message');
+    }
+
+    // Get agent handler
+    const handler = AGENT_HANDLERS[agent_type as keyof typeof AGENT_HANDLERS];
+    if (!handler) {
+      throw new Error(`Unknown agent type: ${agent_type}`);
+    }
+
+    // Execute agent handler with streaming response
+    const stream = await handler({
+      supabase: supabaseClient,
+      userId: user.id,
+      message,
+      conversationId: conversation_id,
+      metadata: metadata || {},
+    });
+
+    // Return streaming response
+    return new Response(stream, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
+  } catch (error) {
+    console.error('Error in ai-agent function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+});
