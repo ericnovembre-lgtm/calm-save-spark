@@ -544,19 +544,19 @@ export default function Pricing() {
 
                   <div className="mt-6">
                     <Button
+                      type="button"
                       onClick={handleInitiateCheckout}
-            disabled={
-              loading || 
-              dataLoading ||
-              (selectedAmount > 0 && (isCheckoutDisabled || stripeLoading)) ||
-              (selectedAmount === 0 && currentSubscription?.subscription_amount === 0 && currentSubscription?.status === 'active')
-            }
-            className={`w-full py-4 rounded-xl font-semibold flex items-center justify-center space-x-2 ${
-              !loading && !dataLoading && selectedAmount === 0 
-                ? 'cursor-pointer hover:opacity-90' 
-                : ''
-            }`}
-            size="lg"
+                      disabled={
+                        selectedAmount === 0 
+                          ? (loading || dataLoading)
+                          : (loading || dataLoading || isCheckoutDisabled || stripeLoading)
+                      }
+                      className={`relative z-10 w-full py-4 rounded-xl font-semibold flex items-center justify-center space-x-2 ${
+                        !loading && !dataLoading && selectedAmount === 0 
+                          ? 'cursor-pointer hover:opacity-90' 
+                          : ''
+                      }`}
+                      size="lg"
                     >
                       {loading ? (
                         <>

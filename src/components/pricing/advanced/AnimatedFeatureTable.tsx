@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, Star } from 'lucide-react';
-import { FREEMIUM_FEATURE_ORDER } from '@/lib/constants';
+import { FREEMIUM_FEATURE_ORDER, FREE_FEATURE_INDICES } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -114,8 +114,9 @@ export default function AnimatedFeatureTable({
               </TableHeader>
               <TableBody>
                 {FREEMIUM_FEATURE_ORDER.map((feature, index) => {
-                  const unlockPrice = index + 1;
-                  const isSelectedFeature = index < selectedAmount;
+                  const isFreeFeature = (FREE_FEATURE_INDICES as readonly number[]).includes(index);
+                  const unlockPrice = isFreeFeature ? 0 : index + 1;
+                  const isSelectedFeature = selectedAmount >= unlockPrice;
 
                   return (
                     <motion.tr
@@ -131,8 +132,11 @@ export default function AnimatedFeatureTable({
                     >
                       <TableCell className="sticky left-0 bg-background font-medium">
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs font-normal">
-                            ${unlockPrice}
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs font-normal ${isFreeFeature ? 'bg-primary/10' : ''}`}
+                          >
+                            {isFreeFeature ? 'FREE' : `$${unlockPrice}`}
                           </Badge>
                           <div>
                             <div className="font-medium text-sm">{feature.name}</div>
