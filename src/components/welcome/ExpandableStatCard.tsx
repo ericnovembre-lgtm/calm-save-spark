@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ChevronDown, TrendingUp, Users, DollarSign } from "lucide-react";
-import { AnimatedCounter } from "@/components/onboarding/AnimatedCounter";
+import { MorphingNumber } from "@/components/welcome/advanced/MorphingNumber";
 import { Stat } from "@/components/welcome/types";
 
 type ExpandableStatCardProps = Stat;
@@ -148,13 +148,14 @@ export const ExpandableStatCard = ({
               whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <AnimatedCounter value={value} duration={1.5} />
+              <MorphingNumber 
+                value={value} 
+                duration={2} 
+                suffix={suffix}
+                delay={delay}
+                className="inline-block"
+              />
             </motion.div>
-            {suffix && (
-              <span className="text-2xl md:text-3xl font-display font-bold text-foreground">
-                {suffix}
-              </span>
-            )}
           </div>
 
           <p className="text-xs md:text-sm text-muted-foreground font-medium mb-2">

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getClientUser } from "@/lib/user";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { TypewriterText } from "./TypewriterText";
+import { MagneticButton } from "@/components/welcome/advanced/MagneticButton";
 export const WelcomeHero = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -37,34 +38,58 @@ export const WelcomeHero = () => {
       
       {/* Auth-aware CTAs */}
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto relative z-10">
-        {loading ?
-      // Loading skeletons
-      <>
+        {loading ? (
+          // Loading skeletons
+          <>
             <Skeleton className="h-12 w-full sm:w-[240px] rounded-lg" />
             <Skeleton className="h-12 w-full sm:w-[180px] rounded-lg" />
-          </> : isAuthenticated ?
-      // Authenticated user
-      <Link to="/dashboard">
-            <Button data-testid="welcome-cta" role="button" aria-label="Launch dashboard" variant="primary" size="lg" animated className="w-full sm:w-auto group">
+          </>
+        ) : isAuthenticated ? (
+          // Authenticated user
+          <Link to="/dashboard">
+            <MagneticButton
+              data-testid="welcome-cta"
+              role="button"
+              aria-label="Launch dashboard"
+              variant="primary"
+              strength={0.4}
+              radius={80}
+              className="text-lg px-8 py-4 group"
+            >
               Launch Dashboard
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link> :
-      // Guest user
-      <>
+            </MagneticButton>
+          </Link>
+        ) : (
+          // Guest user
+          <>
             <Link to="/onboarding">
-              <Button data-testid="welcome-cta" role="button" aria-label="Begin your journey" variant="primary" size="lg" animated className="w-full sm:w-auto group">
+              <MagneticButton
+                data-testid="welcome-cta"
+                role="button"
+                aria-label="Begin your journey"
+                variant="primary"
+                strength={0.5}
+                radius={100}
+                className="text-lg px-8 py-4 group"
+              >
                 <Sparkles className="mr-2 w-5 h-5" />
                 Begin Your Journey
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              </MagneticButton>
             </Link>
             <Link to="/pricing">
-              <Button variant="neutral" size="lg" animated className="w-full sm:w-auto">
+              <MagneticButton
+                variant="outline"
+                strength={0.3}
+                radius={70}
+                className="text-lg px-6 py-4"
+              >
                 Explore Plans
-              </Button>
+              </MagneticButton>
             </Link>
-          </>}
+          </>
+        )}
       </div>
     </div>;
 };
