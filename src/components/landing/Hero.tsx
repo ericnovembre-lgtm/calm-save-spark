@@ -10,7 +10,7 @@ export const Hero = () => {
       <div className="absolute inset-0 bg-background" />
       
       <div className="container mx-auto relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 items-center">
           {/* Left: Content */}
           <motion.div initial={{
           opacity: 0,
@@ -21,17 +21,19 @@ export const Hero = () => {
         }} transition={{
           duration: 0.6
         }} className="space-y-8">
-            <h1 className="font-display font-bold text-5xl md:text-7xl text-foreground leading-tight">
+            <h1 className="font-display font-bold text-5xl md:text-7xl xl:text-8xl text-foreground leading-tight">
               Get Rewarded For{" "}
-              <TypewriterText 
-                phrases={[
-                  "Saving, Not Spending",
-                  "Owning, Not Loaning",
-                  "Growing, Not Owing",
-                  "Wealth, Not Poverty"
-                ]}
-                className="text-accent"
-              />
+              <span className="inline-block whitespace-nowrap">
+                <TypewriterText 
+                  phrases={[
+                    "Saving, Not Spending",
+                    "Owning, Not Loaning",
+                    "Growing, Not Owing",
+                    "Wealth, Not Poverty"
+                  ]}
+                  className="text-accent"
+                />
+              </span>
               <br />
               <span className="text-accent">Stress Less</span>
             </h1>
