@@ -1,6 +1,7 @@
 import { TrendingUp, Shield, Zap, Target, Brain, Sparkles } from "lucide-react";
 import { TiltCard3D } from "@/components/welcome/advanced/TiltCard3D";
 import { motion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const features = [
   {
@@ -42,11 +43,13 @@ const features = [
 ];
 
 export const Features = () => {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <section className="py-20 px-4 md:px-20" id="features">
       <div className="container mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
@@ -64,19 +67,31 @@ export const Features = () => {
           {features.map((feature, index) => (
             <motion.div
               key={feature.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <TiltCard3D>
-                <div className="p-6 rounded-xl bg-card border border-border hover:border-accent transition-colors h-full">
-                  <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mb-4">
+                <motion.div 
+                  className="p-6 rounded-xl bg-card border border-border hover:border-accent transition-colors h-full backdrop-blur-sm"
+                  whileHover={!prefersReducedMotion ? {
+                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+                  } : {}}
+                >
+                  <motion.div 
+                    className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mb-4"
+                    whileHover={!prefersReducedMotion ? {
+                      scale: 1.1,
+                      rotate: 360,
+                    } : {}}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  >
                     {feature.icon}
-                  </div>
+                  </motion.div>
                   <h3 className="font-bold text-xl mb-2 text-foreground">{feature.title}</h3>
                   <p className="text-muted-foreground">{feature.description}</p>
-                </div>
+                </motion.div>
               </TiltCard3D>
             </motion.div>
           ))}
