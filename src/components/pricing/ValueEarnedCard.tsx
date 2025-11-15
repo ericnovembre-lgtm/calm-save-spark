@@ -138,15 +138,40 @@ export default function ValueEarnedCard({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* Current Contribution Display */}
-            <div>
-              <div className="text-3xl font-bold text-primary">
-                <AnimatedCounter value={totalContributed} prefix="$" duration={1} />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Total contributed to $ave+ over {monthsActive} month{monthsActive === 1 ? '' : 's'}
-              </p>
-            </div>
+    {/* Current Contribution Display */}
+    <div>
+      <div className="text-xs text-muted-foreground mb-1">
+        Your Contribution History
+      </div>
+      <div className="text-3xl font-bold text-primary">
+        <AnimatedCounter value={totalContributed} prefix="$" duration={1} />
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Total contributed to $ave+ over {monthsActive} month{monthsActive === 1 ? '' : 's'}
+      </p>
+    </div>
+
+    {/* Preview after signup (only show if projectedTier differs) */}
+    {projectedTier !== currentMonthlyContribution && (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10"
+      >
+        <ArrowUp className="w-4 h-4 text-primary" />
+        <div className="flex-1">
+          <p className="text-xs text-muted-foreground">
+            After your first payment
+          </p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold text-primary">
+              ${totalContributed + projectedTier}
+            </span>
+            <span className="text-xs text-muted-foreground">total contributed</span>
+          </div>
+        </div>
+      </motion.div>
+    )}
 
             {/* Feature Count Insights with Visual Delta */}
             <div className="space-y-2">
