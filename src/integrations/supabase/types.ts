@@ -1512,6 +1512,98 @@ export type Database = {
         }
         Relationships: []
       }
+      goal_achievement_unlocks: {
+        Row: {
+          achievement_id: string
+          animation_viewed: boolean | null
+          id: string
+          metadata: Json | null
+          unlocked_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          achievement_id: string
+          animation_viewed?: boolean | null
+          id?: string
+          metadata?: Json | null
+          unlocked_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          achievement_id?: string
+          animation_viewed?: boolean | null
+          id?: string
+          metadata?: Json | null
+          unlocked_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      goal_milestones: {
+        Row: {
+          celebration_type: string | null
+          created_at: string | null
+          goal_id: string | null
+          id: string
+          milestone_percentage: number
+          user_id: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          celebration_type?: string | null
+          created_at?: string | null
+          goal_id?: string | null
+          id?: string
+          milestone_percentage: number
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          celebration_type?: string | null
+          created_at?: string | null
+          goal_id?: string | null
+          id?: string
+          milestone_percentage?: number
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_milestones_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_preferences: {
+        Row: {
+          animation_intensity: string | null
+          created_at: string | null
+          display_order: string[] | null
+          updated_at: string | null
+          user_id: string
+          view_mode: string | null
+        }
+        Insert: {
+          animation_intensity?: string | null
+          created_at?: string | null
+          display_order?: string[] | null
+          updated_at?: string | null
+          user_id: string
+          view_mode?: string | null
+        }
+        Update: {
+          animation_intensity?: string | null
+          created_at?: string | null
+          display_order?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          view_mode?: string | null
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           created_at: string | null
