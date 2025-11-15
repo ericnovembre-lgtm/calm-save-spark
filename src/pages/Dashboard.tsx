@@ -64,6 +64,7 @@ import { DashboardTutorialOverlay } from "@/components/onboarding/DashboardTutor
 import { useKonamiCode } from "@/hooks/useKonamiCode";
 import { DashboardErrorBoundary } from "@/components/error/DashboardErrorBoundary";
 import { PersonalImpactCard } from "@/components/dashboard/PersonalImpactCard";
+import { AIAgentsCard } from "@/components/dashboard/AIAgentsCard";
 import { HelpButton } from "@/components/dashboard/HelpButton";
 import { SecretTheme } from "@/components/effects/SecretTheme";
 import { HolidayEffect } from "@/components/effects/HolidayEffect";
@@ -268,6 +269,11 @@ export default function Dashboard() {
         <PersonalImpactCard userId={userId} />
       </DashboardErrorBoundary>
     ) : null,
+    'ai-agents': (
+      <DashboardErrorBoundary key="ai-agents" sectionName="AI Agents">
+        <AIAgentsCard />
+      </DashboardErrorBoundary>
+    ),
     'coach-widget': (
       <CollapsibleSection
         key="coach-widget"

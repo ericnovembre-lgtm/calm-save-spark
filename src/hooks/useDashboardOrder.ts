@@ -3,6 +3,7 @@ import { useState } from 'react';
 // Core sections shown to new users (smart defaults)
 const CORE_SECTIONS = [
   'personal-impact',  // Show impact first
+  'ai-agents',
   'balance',
   'goals',
   'manual-transfer',
@@ -13,6 +14,7 @@ const CORE_SECTIONS = [
 const ALL_SECTIONS = [
   'balance',
   'ai-insights',
+  'ai-agents',
   'goals',
   'challenges',
   'predictive',
