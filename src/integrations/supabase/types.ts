@@ -741,6 +741,204 @@ export type Database = {
           },
         ]
       }
+      budget_analytics: {
+        Row: {
+          budget_id: string
+          budgeted: number
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          period: string
+          period_date: string
+          spent: number | null
+          user_id: string
+          variance: number | null
+        }
+        Insert: {
+          budget_id: string
+          budgeted: number
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          period: string
+          period_date: string
+          spent?: number | null
+          user_id: string
+          variance?: number | null
+        }
+        Update: {
+          budget_id?: string
+          budgeted?: number
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          period?: string
+          period_date?: string
+          spent?: number | null
+          user_id?: string
+          variance?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_analytics_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_categories: {
+        Row: {
+          code: string
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          is_custom: boolean | null
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          code: string
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_custom?: boolean | null
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          code?: string
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_custom?: boolean | null
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      budget_onboarding: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          first_budget_created: boolean | null
+          first_category_added: boolean | null
+          id: string
+          skipped: boolean | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          first_budget_created?: boolean | null
+          first_category_added?: boolean | null
+          id?: string
+          skipped?: boolean | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          first_budget_created?: boolean | null
+          first_category_added?: boolean | null
+          id?: string
+          skipped?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      budget_rules: {
+        Row: {
+          budget_id: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          pattern: string
+          priority: number | null
+          rule_type: string
+          user_id: string
+        }
+        Insert: {
+          budget_id: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          pattern: string
+          priority?: number | null
+          rule_type: string
+          user_id: string
+        }
+        Update: {
+          budget_id?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          pattern?: string
+          priority?: number | null
+          rule_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_rules_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_spending: {
+        Row: {
+          budget_id: string
+          created_at: string | null
+          id: string
+          last_updated: string | null
+          period_end: string
+          period_start: string
+          spent_amount: number | null
+          transaction_count: number | null
+          user_id: string
+        }
+        Insert: {
+          budget_id: string
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          period_end: string
+          period_start: string
+          spent_amount?: number | null
+          transaction_count?: number | null
+          user_id: string
+        }
+        Update: {
+          budget_id?: string
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          period_end?: string
+          period_start?: string
+          spent_amount?: number | null
+          transaction_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_spending_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_templates: {
         Row: {
           category_percentages: Json
