@@ -4,6 +4,7 @@ import { DollarSign, TrendingUp, TrendingDown, AlertCircle } from "lucide-react"
 import { AnimatedCounter } from "@/components/onboarding/AnimatedCounter";
 import { SpendingChartAnimated } from "./SpendingChartAnimated";
 import { fadeInUp, staggerContainer } from "@/lib/motion-variants";
+import { WaveformChart } from "./advanced/WaveformChart";
 
 interface BudgetOverviewProps {
   totalBudget: number;
@@ -98,6 +99,26 @@ export function BudgetOverview({
           </motion.div>
         ))}
       </div>
+
+      {/* Spending Activity Waveform */}
+      {budgets.length > 0 && (
+        <motion.div variants={fadeInUp}>
+          <Card className="p-6 backdrop-blur-sm bg-card/80 border-border/50">
+            <h3 className="text-sm font-medium text-muted-foreground mb-4">Spending Activity</h3>
+            <WaveformChart
+              data={budgets.map(b => {
+                const spent = spending[b.id]?.spent_amount || 0;
+                const limit = parseFloat(String(b.total_limit));
+                return (spent / limit) * 100;
+              })}
+              height={80}
+              barWidth={6}
+              gap={3}
+              color="hsl(var(--primary))"
+            />
+          </Card>
+        </motion.div>
+      )}
 
       {/* Spending Breakdown Chart */}
       {budgets.length > 0 && (

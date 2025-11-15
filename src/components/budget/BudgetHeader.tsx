@@ -3,6 +3,7 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Plus, Download, Settings, PieChart, BarChart3, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/motion-variants";
+import { soundEffects } from "@/lib/sound-effects";
 
 interface BudgetHeaderProps {
   activeView: string;
@@ -52,7 +53,10 @@ export function BudgetHeader({
           <Button
             variant="outline"
             size="sm"
-            onClick={onManageRules}
+            onClick={() => {
+              soundEffects.click();
+              onManageRules();
+            }}
             className="gap-2"
           >
             <Settings className="w-4 h-4" />
@@ -61,14 +65,20 @@ export function BudgetHeader({
           <Button
             variant="outline"
             size="sm"
-            onClick={onExport}
+            onClick={() => {
+              soundEffects.click();
+              onExport();
+            }}
             className="gap-2"
           >
             <Download className="w-4 h-4" />
             Export
           </Button>
           <MagneticButton
-            onClick={onCreateBudget}
+            onClick={() => {
+              soundEffects.success();
+              onCreateBudget();
+            }}
             className="gap-2 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
             magneticRadius={100}
             strength={0.4}

@@ -24,6 +24,13 @@ import { PageLoadingSkeleton } from "@/components/ui/page-loading-skeleton";
 import { NeuralBackground } from "@/components/budget/advanced/NeuralBackground";
 import { HolographicCard } from "@/components/budget/advanced/HolographicCard";
 import { GestureCard } from "@/components/budget/advanced/GestureCard";
+import { MoodTheming } from "@/components/budget/advanced/MoodTheming";
+import { AIAssistantAvatar } from "@/components/budget/advanced/AIAssistantAvatar";
+import { ScanLineOverlay } from "@/components/budget/advanced/ScanLineOverlay";
+import { VideoBackground } from "@/components/budget/advanced/VideoBackground";
+import { useBudgetHealth } from "@/hooks/useBudgetHealth";
+import { soundEffects } from "@/lib/sound-effects";
+import { ParticleSystem } from "@/components/budget/advanced/ParticleSystem";
 
 // Lazy load heavy components
 const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
@@ -39,6 +46,8 @@ export default function Budget() {
   const [showRuleManager, setShowRuleManager] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [aiMessage, setAiMessage] = useState<string>();
+  const [showParticles, setShowParticles] = useState(false);
   const queryClient = useQueryClient();
   const calculateSpendingMutation = useCalculateBudgetSpending();
   const { celebrationTrigger, checkMilestones } = useBudgetMilestones();
@@ -211,6 +220,14 @@ export default function Budget() {
   // Calculate totals
   const totalBudget = budgets.reduce((sum, b) => sum + parseFloat(String(b.total_limit)), 0);
   const totalSpent = Object.values(spending).reduce((sum: number, s: any) => sum + (s.spent_amount || 0), 0);
+  
+  // Budget health for mood theming
+  const budgetHealth = useBudgetHealth(budgets, spending);
+  
+  // Video background state based on budget health
+  const videoState = budgetHealth === 'critical' ? 'error' : 
+                     budgetHealth === 'warning' ? 'warning' :
+                     budgetHealth === 'excellent' ? 'success' : 'neutral';
 
   if (budgetsLoading) {
     return (
@@ -230,10 +247,24 @@ export default function Budget() {
   return (
     <AppLayout>
       <BudgetErrorBoundary>
-        <div className="space-y-6 relative overflow-hidden">
-        <NeuralBackground />
-        {/* Celebration Effects */}
-        <CelebrationManager trigger={celebrationTrigger} type="milestone" />
+        <MoodTheming budgetHealth={budgetHealth}>
+          <div className="space-y-6 relative overflow-hidden">
+          <NeuralBackground />
+          <VideoBackground state={videoState} />
+          <ParticleSystem trigger={showParticles} count={30} />
+          
+          {/* AI Assistant */}
+          <AIAssistantAvatar
+            message={aiMessage}
+            onClick={() => {
+              soundEffects.click();
+              setAiMessage("I'm analyzing your budget patterns...");
+              setTimeout(() => setAiMessage(undefined), 3000);
+            }}
+          />
+          
+          {/* Celebration Effects */}
+          <CelebrationManager trigger={celebrationTrigger} type="milestone" />
 
         {/* Onboarding */}
         <Suspense fallback={null}>
@@ -369,6 +400,7 @@ export default function Budget() {
           />
         </Suspense>
       </div>
+      </MoodTheming>
       </BudgetErrorBoundary>
     </AppLayout>
   );
