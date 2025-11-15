@@ -146,32 +146,32 @@ export function BookkeepingIntegration() {
                 {connected && integration ? (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Last Sync</p>
-                        <p className="font-medium">
-                          {integration.last_sync_at
-                            ? new Date(integration.last_sync_at).toLocaleString()
-                            : "Never"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Sync Frequency</p>
-                        <p className="font-medium capitalize">{integration.sync_frequency}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => syncNow.mutate(integration.id)}
-                        disabled={syncNow.isPending}
-                      >
-                        Sync Now
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => disconnectProvider.mutate(integration.id)}
+                  <div>
+                    <p className="text-muted-foreground">Last Sync</p>
+                    <p className="font-medium">
+                      {(integration as any).last_sync_at
+                        ? new Date((integration as any).last_sync_at).toLocaleString()
+                        : "Never"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Sync Frequency</p>
+                    <p className="font-medium capitalize">{(integration as any).sync_frequency}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => syncNow.mutate((integration as any).id)}
+                    disabled={syncNow.isPending}
+                  >
+                    Sync Now
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => disconnectProvider.mutate((integration as any).id)}
                         disabled={disconnectProvider.isPending}
                       >
                         Disconnect

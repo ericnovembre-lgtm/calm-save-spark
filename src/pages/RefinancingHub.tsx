@@ -27,9 +27,9 @@ export default function RefinancingHub() {
     queryKey: ['market-loan-rates'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('market_loan_rates')
+        .from('market_loan_rates' as any)
         .select('*')
-        .order('fetched_at', { ascending: false })
+        .order('rate_date', { ascending: false })
         .limit(50);
       
       if (error) throw error;
