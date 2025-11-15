@@ -4,6 +4,7 @@ import { LottieGoalIcon } from './LottieGoalIcon';
 import { MultiRingProgress } from '../visualization/MultiRingProgress';
 import { card3D } from '@/lib/motion-variants-advanced';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { GoalActionsMenu } from '../GoalActionsMenu';
 
 interface GoalCard3DProps {
   id: string;
@@ -13,6 +14,11 @@ interface GoalCard3DProps {
   icon?: string;
   deadline?: string;
   onClick?: () => void;
+  onContribute?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onTogglePause?: () => void;
+  isPaused?: boolean;
 }
 
 /**
@@ -25,7 +31,12 @@ export const GoalCard3D = ({
   target,
   icon,
   deadline,
-  onClick
+  onClick,
+  onContribute,
+  onEdit,
+  onDelete,
+  onTogglePause,
+  isPaused = false
 }: GoalCard3DProps) => {
   const prefersReducedMotion = useReducedMotion();
   const { tiltStyle, handleMouseMove, handleMouseLeave } = use3DTilt({
@@ -77,11 +88,24 @@ export const GoalCard3D = ({
               )}
             </div>
             
-            <LottieGoalIcon 
-              goalType={icon}
-              size={56}
-              animate={false}
-            />
+            <div className="flex items-start gap-2">
+              <LottieGoalIcon 
+                goalType={icon}
+                size={56}
+                animate={false}
+              />
+              {(onContribute || onEdit || onDelete || onTogglePause) && (
+                <GoalActionsMenu
+                  goalId={id}
+                  goalName={name}
+                  isPaused={isPaused}
+                  onContribute={onContribute || (() => {})}
+                  onEdit={onEdit || (() => {})}
+                  onDelete={onDelete || (() => {})}
+                  onTogglePause={onTogglePause || (() => {})}
+                />
+              )}
+            </div>
           </div>
 
           {/* Progress Ring */}

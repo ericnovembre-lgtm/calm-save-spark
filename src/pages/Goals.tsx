@@ -2,10 +2,11 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Target } from "lucide-react";
+import { Plus, Target, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +19,9 @@ import { DynamicBackground } from "@/components/goals/ambient/DynamicBackground"
 import { FloatingParticles } from "@/components/goals/ambient/FloatingParticles";
 import { QuickActionMenu } from "@/components/goals/interactions/QuickActionMenu";
 import { AnimatedLoadingState } from "@/components/goals/advanced/AnimatedLoadingState";
+import { ContributeDialog } from "@/components/goals/ContributeDialog";
+import { EditGoalDialog } from "@/components/goals/EditGoalDialog";
+import { goalSchema, GoalFormData } from "@/lib/validations/goal-schemas";
 
 const Goals = () => {
   const { toast } = useToast();
@@ -28,6 +32,10 @@ const Goals = () => {
     target_amount: "",
     deadline: ""
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [selectedGoal, setSelectedGoal] = useState<any>(null);
+  const [contributeDialogOpen, setContributeDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const { data: goals, isLoading } = useQuery({
     queryKey: ['goals'],
@@ -73,11 +81,70 @@ const Goals = () => {
     }
   });
 
+  const deleteGoalMutation = useMutation({
+    mutationFn: async (goalId: string) => {
+      const { error } = await supabase
+        .from('goals')
+        .delete()
+        .eq('id', goalId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['goals'] });
+      toast({ title: "Goal deleted successfully" });
+    },
+    onError: (error) => {
+      toast({ 
+        title: "Failed to delete goal", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const updateGoalMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<GoalFormData> }) => {
+      const { error } = await supabase
+        .from('goals')
+        .update(data)
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['goals'] });
+      toast({ title: "Goal updated successfully!" });
+      setEditDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({ 
+        title: "Failed to update goal", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  });
+
   const handleCreateGoal = () => {
-    if (!newGoal.name || !newGoal.target_amount) {
-      toast({ title: "Please fill in all required fields", variant: "destructive" });
+    const result = goalSchema.safeParse({
+      name: newGoal.name,
+      target_amount: parseFloat(newGoal.target_amount),
+      deadline: newGoal.deadline || undefined
+    });
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        fieldErrors[String(issue.path[0])] = issue.message;
+      });
+      setFormErrors(fieldErrors);
+      toast({ 
+        title: "Please fix the errors below", 
+        variant: "destructive" 
+      });
       return;
     }
+
+    setFormErrors({});
     createGoalMutation.mutate(newGoal);
   };
 
@@ -109,24 +176,38 @@ const Goals = () => {
               
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="goal-name">Goal Name</Label>
+                  <Label htmlFor="goal-name">Goal Name *</Label>
                   <Input
                     id="goal-name"
                     placeholder="Emergency Fund"
                     value={newGoal.name}
-                    onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
+                    onChange={(e) => {
+                      setNewGoal({ ...newGoal, name: e.target.value });
+                      setFormErrors({ ...formErrors, name: "" });
+                    }}
+                    className={formErrors.name ? "border-destructive" : ""}
                   />
+                  {formErrors.name && (
+                    <p className="text-sm text-destructive mt-1">{formErrors.name}</p>
+                  )}
                 </div>
                 
                 <div>
-                  <Label htmlFor="target-amount">Target Amount ($)</Label>
+                  <Label htmlFor="target-amount">Target Amount ($) *</Label>
                   <Input
                     id="target-amount"
                     type="number"
                     placeholder="5000"
                     value={newGoal.target_amount}
-                    onChange={(e) => setNewGoal({ ...newGoal, target_amount: e.target.value })}
+                    onChange={(e) => {
+                      setNewGoal({ ...newGoal, target_amount: e.target.value });
+                      setFormErrors({ ...formErrors, target_amount: "" });
+                    }}
+                    className={formErrors.target_amount ? "border-destructive" : ""}
                   />
+                  {formErrors.target_amount && (
+                    <p className="text-sm text-destructive mt-1">{formErrors.target_amount}</p>
+                  )}
                 </div>
                 
                 <div>
@@ -135,8 +216,15 @@ const Goals = () => {
                     id="deadline"
                     type="date"
                     value={newGoal.deadline}
-                    onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
+                    onChange={(e) => {
+                      setNewGoal({ ...newGoal, deadline: e.target.value });
+                      setFormErrors({ ...formErrors, deadline: "" });
+                    }}
+                    className={formErrors.deadline ? "border-destructive" : ""}
                   />
+                  {formErrors.deadline && (
+                    <p className="text-sm text-destructive mt-1">{formErrors.deadline}</p>
+                  )}
                 </div>
                 
                 <Button 
@@ -155,8 +243,21 @@ const Goals = () => {
           <AnimatedLoadingState />
         ) : goals && goals.length > 0 ? (
           <>
-            <GoalSavingsOptimizer />
-            <AIGoalSuggestions />
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="ai-insights" className="border rounded-lg px-4">
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    <span className="font-semibold">AI Insights & Recommendations</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="space-y-6 pt-4">
+                  <GoalSavingsOptimizer />
+                  <AIGoalSuggestions />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {goals.map((goal) => (
                 <GoalCard3D
@@ -167,6 +268,16 @@ const Goals = () => {
                   target={parseFloat(String(goal.target_amount))}
                   icon={goal.icon || undefined}
                   deadline={goal.deadline || undefined}
+                  onContribute={() => {
+                    setSelectedGoal(goal);
+                    setContributeDialogOpen(true);
+                  }}
+                  onEdit={() => {
+                    setSelectedGoal(goal);
+                    setEditDialogOpen(true);
+                  }}
+                  onDelete={() => deleteGoalMutation.mutate(goal.id)}
+                  onTogglePause={() => toast({ title: "Pause/Resume coming soon!" })}
                 />
               ))}
             </div>
@@ -193,6 +304,24 @@ const Goals = () => {
         <QuickActionMenu
           onNewGoal={() => setIsDialogOpen(true)}
           onQuickDeposit={() => toast({ title: "Quick deposit coming soon!" })}
+        />
+
+        <ContributeDialog
+          open={contributeDialogOpen}
+          onOpenChange={setContributeDialogOpen}
+          goalId={selectedGoal?.id || ""}
+          goalName={selectedGoal?.name || ""}
+          currentAmount={parseFloat(String(selectedGoal?.current_amount || 0))}
+          targetAmount={parseFloat(String(selectedGoal?.target_amount || 0))}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ['goals'] })}
+        />
+
+        <EditGoalDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          goal={selectedGoal}
+          onSubmit={(id, data) => updateGoalMutation.mutate({ id, data })}
+          isSubmitting={updateGoalMutation.isPending}
         />
       </div>
     </AppLayout>
