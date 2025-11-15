@@ -23,7 +23,7 @@ export function SyntheticPaycheck() {
         .limit(6);
 
       if (error) throw error;
-      return data;
+      return data as any[];
     },
   });
 
