@@ -676,6 +676,71 @@ export type Database = {
         }
         Relationships: []
       }
+      bookkeeping_integrations: {
+        Row: {
+          access_token_encrypted: string | null
+          business_profile_id: string | null
+          created_at: string | null
+          id: string
+          last_sync_at: string | null
+          metadata: Json | null
+          provider: string
+          realm_id: string | null
+          refresh_token_encrypted: string | null
+          scopes: string[] | null
+          sync_enabled: boolean | null
+          sync_frequency: string | null
+          sync_status: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          business_profile_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_sync_at?: string | null
+          metadata?: Json | null
+          provider: string
+          realm_id?: string | null
+          refresh_token_encrypted?: string | null
+          scopes?: string[] | null
+          sync_enabled?: boolean | null
+          sync_frequency?: string | null
+          sync_status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          business_profile_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_sync_at?: string | null
+          metadata?: Json | null
+          provider?: string
+          realm_id?: string | null
+          refresh_token_encrypted?: string | null
+          scopes?: string[] | null
+          sync_enabled?: boolean | null
+          sync_frequency?: string | null
+          sync_status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeping_integrations_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_templates: {
         Row: {
           category_percentages: Json
@@ -769,6 +834,75 @@ export type Database = {
           },
         ]
       }
+      business_income_streams: {
+        Row: {
+          average_monthly_revenue: number | null
+          business_profile_id: string | null
+          created_at: string | null
+          id: string
+          integration_id: string | null
+          is_active: boolean | null
+          notes: string | null
+          payment_terms: string | null
+          platform: string | null
+          revenue_volatility: number | null
+          seasonality_pattern: Json | null
+          stream_name: string
+          stream_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          average_monthly_revenue?: number | null
+          business_profile_id?: string | null
+          created_at?: string | null
+          id?: string
+          integration_id?: string | null
+          is_active?: boolean | null
+          notes?: string | null
+          payment_terms?: string | null
+          platform?: string | null
+          revenue_volatility?: number | null
+          seasonality_pattern?: Json | null
+          stream_name: string
+          stream_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          average_monthly_revenue?: number | null
+          business_profile_id?: string | null
+          created_at?: string | null
+          id?: string
+          integration_id?: string | null
+          is_active?: boolean | null
+          notes?: string | null
+          payment_terms?: string | null
+          platform?: string | null
+          revenue_volatility?: number | null
+          seasonality_pattern?: Json | null
+          stream_name?: string
+          stream_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_income_streams_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_income_streams_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeping_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_profiles: {
         Row: {
           address: string | null
@@ -807,6 +941,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      business_registrations: {
+        Row: {
+          annual_revenue_estimate: number | null
+          atlas_application_id: string | null
+          business_profile_id: string | null
+          created_at: string | null
+          ein: string | null
+          entity_type: string
+          id: string
+          incorporation_date: string | null
+          metadata: Json | null
+          provider: string | null
+          registration_status: string
+          state: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          annual_revenue_estimate?: number | null
+          atlas_application_id?: string | null
+          business_profile_id?: string | null
+          created_at?: string | null
+          ein?: string | null
+          entity_type: string
+          id?: string
+          incorporation_date?: string | null
+          metadata?: Json | null
+          provider?: string | null
+          registration_status?: string
+          state: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          annual_revenue_estimate?: number | null
+          atlas_application_id?: string | null
+          business_profile_id?: string | null
+          created_at?: string | null
+          ein?: string | null
+          entity_type?: string
+          id?: string
+          incorporation_date?: string | null
+          metadata?: Json | null
+          provider?: string | null
+          registration_status?: string
+          state?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_registrations_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       carbon_footprint_logs: {
         Row: {
@@ -1589,6 +1782,158 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      defi_positions: {
+        Row: {
+          apy: number | null
+          asset_address: string | null
+          asset_symbol: string
+          auto_managed: boolean | null
+          chain: string
+          created_at: string | null
+          current_price: number | null
+          current_value_usd: number | null
+          entry_price: number | null
+          health_factor: number | null
+          id: string
+          last_rebalanced_at: string | null
+          position_metadata: Json | null
+          position_type: string
+          protocol: string
+          protocol_version: string | null
+          quantity: number
+          updated_at: string | null
+          user_id: string
+          wallet_id: string | null
+        }
+        Insert: {
+          apy?: number | null
+          asset_address?: string | null
+          asset_symbol: string
+          auto_managed?: boolean | null
+          chain?: string
+          created_at?: string | null
+          current_price?: number | null
+          current_value_usd?: number | null
+          entry_price?: number | null
+          health_factor?: number | null
+          id?: string
+          last_rebalanced_at?: string | null
+          position_metadata?: Json | null
+          position_type: string
+          protocol: string
+          protocol_version?: string | null
+          quantity: number
+          updated_at?: string | null
+          user_id: string
+          wallet_id?: string | null
+        }
+        Update: {
+          apy?: number | null
+          asset_address?: string | null
+          asset_symbol?: string
+          auto_managed?: boolean | null
+          chain?: string
+          created_at?: string | null
+          current_price?: number | null
+          current_value_usd?: number | null
+          entry_price?: number | null
+          health_factor?: number | null
+          id?: string
+          last_rebalanced_at?: string | null
+          position_metadata?: Json | null
+          position_type?: string
+          protocol?: string
+          protocol_version?: string | null
+          quantity?: number
+          updated_at?: string | null
+          user_id?: string
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "defi_positions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      defi_transactions: {
+        Row: {
+          chain: string
+          created_at: string | null
+          executed_by: string | null
+          from_amount: number | null
+          from_asset: string | null
+          gas_fee_usd: number | null
+          id: string
+          metadata: Json | null
+          protocol: string
+          status: string
+          strategy_id: string | null
+          to_amount: number | null
+          to_asset: string | null
+          transaction_hash: string
+          transaction_type: string
+          user_id: string
+          wallet_id: string | null
+        }
+        Insert: {
+          chain?: string
+          created_at?: string | null
+          executed_by?: string | null
+          from_amount?: number | null
+          from_asset?: string | null
+          gas_fee_usd?: number | null
+          id?: string
+          metadata?: Json | null
+          protocol: string
+          status?: string
+          strategy_id?: string | null
+          to_amount?: number | null
+          to_asset?: string | null
+          transaction_hash: string
+          transaction_type: string
+          user_id: string
+          wallet_id?: string | null
+        }
+        Update: {
+          chain?: string
+          created_at?: string | null
+          executed_by?: string | null
+          from_amount?: number | null
+          from_asset?: string | null
+          gas_fee_usd?: number | null
+          id?: string
+          metadata?: Json | null
+          protocol?: string
+          status?: string
+          strategy_id?: string | null
+          to_amount?: number | null
+          to_asset?: string | null
+          transaction_hash?: string
+          transaction_type?: string
+          user_id?: string
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "defi_transactions_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "yield_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "defi_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       detected_subscriptions: {
         Row: {
@@ -3453,6 +3798,77 @@ export type Database = {
         }
         Relationships: []
       }
+      quarterly_tax_projections: {
+        Row: {
+          amount_paid: number | null
+          business_profile_id: string | null
+          confidence_score: number | null
+          created_at: string | null
+          due_date: string
+          estimated_tax_federal: number
+          estimated_tax_self_employment: number
+          estimated_tax_state: number
+          id: string
+          methodology: string | null
+          payment_status: string | null
+          projected_expenses: number
+          projected_income: number
+          quarter: number
+          tax_year: number
+          total_estimated_tax: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number | null
+          business_profile_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          due_date: string
+          estimated_tax_federal: number
+          estimated_tax_self_employment: number
+          estimated_tax_state: number
+          id?: string
+          methodology?: string | null
+          payment_status?: string | null
+          projected_expenses: number
+          projected_income: number
+          quarter: number
+          tax_year: number
+          total_estimated_tax: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number | null
+          business_profile_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          due_date?: string
+          estimated_tax_federal?: number
+          estimated_tax_self_employment?: number
+          estimated_tax_state?: number
+          id?: string
+          methodology?: string | null
+          payment_status?: string | null
+          projected_expenses?: number
+          projected_income?: number
+          quarter?: number
+          tax_year?: number
+          total_estimated_tax?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quarterly_tax_projections_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referrals: {
         Row: {
           created_at: string | null
@@ -3524,6 +3940,83 @@ export type Database = {
           template_name?: string
         }
         Relationships: []
+      }
+      rwa_holdings: {
+        Row: {
+          asset_name: string
+          asset_type: string
+          chain: string
+          created_at: string | null
+          current_price: number | null
+          current_value_usd: number | null
+          id: string
+          issuer: string
+          liquidity_rating: string | null
+          maturity_date: string | null
+          minimum_hold_period: number | null
+          purchase_price: number
+          quantity: number
+          token_address: string
+          token_symbol: string
+          underlying_asset_info: Json | null
+          updated_at: string | null
+          user_id: string
+          wallet_id: string | null
+          yield_rate: number | null
+        }
+        Insert: {
+          asset_name: string
+          asset_type: string
+          chain?: string
+          created_at?: string | null
+          current_price?: number | null
+          current_value_usd?: number | null
+          id?: string
+          issuer: string
+          liquidity_rating?: string | null
+          maturity_date?: string | null
+          minimum_hold_period?: number | null
+          purchase_price: number
+          quantity: number
+          token_address: string
+          token_symbol: string
+          underlying_asset_info?: Json | null
+          updated_at?: string | null
+          user_id: string
+          wallet_id?: string | null
+          yield_rate?: number | null
+        }
+        Update: {
+          asset_name?: string
+          asset_type?: string
+          chain?: string
+          created_at?: string | null
+          current_price?: number | null
+          current_value_usd?: number | null
+          id?: string
+          issuer?: string
+          liquidity_rating?: string | null
+          maturity_date?: string | null
+          minimum_hold_period?: number | null
+          purchase_price?: number
+          quantity?: number
+          token_address?: string
+          token_symbol?: string
+          underlying_asset_info?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          wallet_id?: string | null
+          yield_rate?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rwa_holdings_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduled_transfers: {
         Row: {
@@ -4231,6 +4724,71 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      synthetic_paychecks: {
+        Row: {
+          business_profile_id: string | null
+          calculated_paycheck: number
+          calculation_method: string | null
+          created_at: string | null
+          id: string
+          income_sources: Json | null
+          net_paycheck: number
+          notes: string | null
+          period_end: string
+          period_start: string
+          status: string | null
+          total_income: number
+          user_id: string
+          withholding_federal: number
+          withholding_fica: number
+          withholding_state: number
+        }
+        Insert: {
+          business_profile_id?: string | null
+          calculated_paycheck: number
+          calculation_method?: string | null
+          created_at?: string | null
+          id?: string
+          income_sources?: Json | null
+          net_paycheck: number
+          notes?: string | null
+          period_end: string
+          period_start: string
+          status?: string | null
+          total_income: number
+          user_id: string
+          withholding_federal: number
+          withholding_fica: number
+          withholding_state: number
+        }
+        Update: {
+          business_profile_id?: string | null
+          calculated_paycheck?: number
+          calculation_method?: string | null
+          created_at?: string | null
+          id?: string
+          income_sources?: Json | null
+          net_paycheck?: number
+          notes?: string | null
+          period_end?: string
+          period_start?: string
+          status?: string | null
+          total_income?: number
+          user_id?: string
+          withholding_federal?: number
+          withholding_fica?: number
+          withholding_state?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "synthetic_paychecks_business_profile_id_fkey"
+            columns: ["business_profile_id"]
+            isOneToOne: false
+            referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tax_deductions: {
         Row: {
@@ -5345,6 +5903,60 @@ export type Database = {
           last_used_at?: string | null
           public_key?: string
           transports?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      yield_strategies: {
+        Row: {
+          auto_execute: boolean | null
+          constraints: Json | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          max_allocation_percent: number | null
+          performance_tracking: Json | null
+          rebalance_threshold: number | null
+          risk_level: string
+          strategy_name: string
+          strategy_type: string
+          target_apy_min: number
+          target_protocols: string[]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_execute?: boolean | null
+          constraints?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_allocation_percent?: number | null
+          performance_tracking?: Json | null
+          rebalance_threshold?: number | null
+          risk_level?: string
+          strategy_name: string
+          strategy_type: string
+          target_apy_min: number
+          target_protocols: string[]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_execute?: boolean | null
+          constraints?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_allocation_percent?: number | null
+          performance_tracking?: Json | null
+          rebalance_threshold?: number | null
+          risk_level?: string
+          strategy_name?: string
+          strategy_type?: string
+          target_apy_min?: number
+          target_protocols?: string[]
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
