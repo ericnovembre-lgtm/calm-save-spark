@@ -45,6 +45,10 @@ export const FloatingParticles = ({
     setSize();
     window.addEventListener('resize', setSize);
 
+    // Get computed color from CSS variable
+    const computedStyle = getComputedStyle(document.documentElement);
+    const accentHSL = computedStyle.getPropertyValue('--accent').trim() || '38 45% 68%';
+
     // Initialize particles
     particlesRef.current = Array.from({ length: count }, () => ({
       x: Math.random() * canvas.width,
@@ -52,7 +56,7 @@ export const FloatingParticles = ({
       vx: (Math.random() - 0.5) * 0.5,
       vy: (Math.random() - 0.5) * 0.5,
       radius: Math.random() * 3 + 1,
-      color: `hsl(var(--primary))`,
+      color: accentHSL,
       alpha: Math.random() * 0.3 + 0.1
     }));
 
@@ -75,7 +79,7 @@ export const FloatingParticles = ({
         // Draw particle
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(var(--primary-hsl), ${particle.alpha})`;
+        ctx.fillStyle = `hsla(${particle.color}, ${particle.alpha})`;
         ctx.fill();
 
         // Draw glow
@@ -83,7 +87,7 @@ export const FloatingParticles = ({
           particle.x, particle.y, 0,
           particle.x, particle.y, particle.radius * 3
         );
-        gradient.addColorStop(0, `hsla(var(--primary-hsl), ${particle.alpha * 0.5})`);
+        gradient.addColorStop(0, `hsla(${particle.color}, ${particle.alpha * 0.5})`);
         gradient.addColorStop(1, 'transparent');
         ctx.fillStyle = gradient;
         ctx.fill();
