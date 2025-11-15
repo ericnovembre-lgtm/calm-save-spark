@@ -28,7 +28,7 @@ const STEP_LABELS = ['Demo', 'Welcome', 'Profile', 'Goals', 'Automate', 'Preview
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<Step>('welcome');
+  const [currentStep, setCurrentStep] = useState<Step>('demo');
   const [userId, setUserId] = useState<string | null>(null);
   const [isResuming, setIsResuming] = useState(false);
   const [onboardingStartTime] = useState(Date.now());
