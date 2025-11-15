@@ -24,10 +24,10 @@ export function StatsPanel({ sessionId }: StatsPanelProps) {
   });
 
   const { data: decisions } = useQuery({
-    queryKey: ['lifesim-decisions', sessionId],
+    queryKey: ['lifesim-player-decisions', sessionId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('lifesim_decisions')
+        .from('lifesim_player_decisions')
         .select('*')
         .eq('session_id', sessionId)
         .order('turn_number');
@@ -54,7 +54,7 @@ export function StatsPanel({ sessionId }: StatsPanelProps) {
   })) || [];
 
   const categoryBreakdown = decisions?.reduce((acc: any, d) => {
-    acc[d.decision_category] = (acc[d.decision_category] || 0) + 1;
+    acc[d.decision_type] = (acc[d.decision_type] || 0) + 1;
     return acc;
   }, {});
 
@@ -95,10 +95,10 @@ export function StatsPanel({ sessionId }: StatsPanelProps) {
             <div key={decision.id} className="p-4 bg-accent/30 rounded-lg">
               <div className="flex items-center justify-between">
                 <span className="font-medium capitalize">{decision.decision_type.replace('_', ' ')}</span>
-                <span className="text-sm text-muted-foreground">Turn {decision.turn_number}</span>
+                <span className="text-sm text-muted-foreground">Year {decision.game_year}</span>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
-                Category: <span className="capitalize">{decision.decision_category}</span>
+                Risk Score: <span className="font-medium">{decision.risk_score}</span>
               </p>
             </div>
           ))}

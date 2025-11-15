@@ -13,12 +13,12 @@ export default function LifeEvents() {
   const [selectedExecution, setSelectedExecution] = useState<string | null>(null);
 
   const { data: executions, isLoading } = useQuery({
-    queryKey: ['life-event-executions'],
+    queryKey: ['life-event-playbooks'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('life_event_executions')
-        .select('*, life_event_playbooks(*)')
-        .order('event_date', { ascending: true });
+      const { data, error} = await supabase
+        .from('life_event_playbooks')
+        .select('*')
+        .order('created_at', { ascending: true });
       
       if (error) throw error;
       return data;
@@ -47,8 +47,8 @@ export default function LifeEvents() {
     );
   }
 
-  const activeExecutions = executions?.filter(e => e.status !== 'completed' && e.status !== 'cancelled') || [];
-  const completedCount = executions?.filter(e => e.status === 'completed').length || 0;
+  const activeExecutions = executions?.filter(e => e.is_active) || [];
+  const completedCount = executions?.filter(e => !e.is_active).length || 0;
 
   return (
     <div className="container mx-auto p-6 space-y-6">

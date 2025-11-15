@@ -3365,6 +3365,56 @@ export type Database = {
         }
         Relationships: []
       }
+      lifesim_turns: {
+        Row: {
+          age: number
+          created_at: string | null
+          debt: number
+          financial_state: Json | null
+          id: string
+          income: number
+          investments: number
+          net_worth: number
+          session_id: string
+          turn_number: number
+          user_id: string
+        }
+        Insert: {
+          age: number
+          created_at?: string | null
+          debt?: number
+          financial_state?: Json | null
+          id?: string
+          income?: number
+          investments?: number
+          net_worth?: number
+          session_id: string
+          turn_number: number
+          user_id: string
+        }
+        Update: {
+          age?: number
+          created_at?: string | null
+          debt?: number
+          financial_state?: Json | null
+          id?: string
+          income?: number
+          investments?: number
+          net_worth?: number
+          session_id?: string
+          turn_number?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lifesim_turns_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "lifesim_game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       literacy_courses: {
         Row: {
           category: string
@@ -3409,6 +3459,53 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      loan_rate_alerts: {
+        Row: {
+          alert_threshold: number
+          created_at: string | null
+          current_rate: number
+          debt_id: string | null
+          id: string
+          is_active: boolean | null
+          last_checked_at: string | null
+          loan_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_threshold: number
+          created_at?: string | null
+          current_rate: number
+          debt_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_checked_at?: string | null
+          loan_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_threshold?: number
+          created_at?: string | null
+          current_rate?: number
+          debt_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_checked_at?: string | null
+          loan_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_rate_alerts_debt_id_fkey"
+            columns: ["debt_id"]
+            isOneToOne: false
+            referencedRelation: "debts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_preferences: {
         Row: {
@@ -3986,6 +4083,45 @@ export type Database = {
           },
         ]
       }
+      portfolio_holdings: {
+        Row: {
+          asset_type: string
+          cost_basis: number
+          created_at: string | null
+          id: string
+          last_updated: string | null
+          market_value: number
+          quantity: number
+          symbol: string
+          unrealized_gain_loss: number
+          user_id: string
+        }
+        Insert: {
+          asset_type?: string
+          cost_basis?: number
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          market_value?: number
+          quantity?: number
+          symbol: string
+          unrealized_gain_loss?: number
+          user_id: string
+        }
+        Update: {
+          asset_type?: string
+          cost_basis?: number
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          market_value?: number
+          quantity?: number
+          symbol?: string
+          unrealized_gain_loss?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       pots: {
         Row: {
           color: string | null
@@ -4339,6 +4475,7 @@ export type Database = {
       }
       refinancing_opportunities: {
         Row: {
+          available_rate: number | null
           confidence_score: number | null
           created_at: string | null
           current_balance: number
@@ -4350,11 +4487,15 @@ export type Database = {
           expires_at: string | null
           id: string
           liability_type: string
+          loan_type: string | null
+          net_savings: number | null
+          notes: string | null
           potential_new_rate: number
           status: string | null
           user_id: string
         }
         Insert: {
+          available_rate?: number | null
           confidence_score?: number | null
           created_at?: string | null
           current_balance: number
@@ -4366,11 +4507,15 @@ export type Database = {
           expires_at?: string | null
           id?: string
           liability_type: string
+          loan_type?: string | null
+          net_savings?: number | null
+          notes?: string | null
           potential_new_rate: number
           status?: string | null
           user_id: string
         }
         Update: {
+          available_rate?: number | null
           confidence_score?: number | null
           created_at?: string | null
           current_balance?: number
@@ -4382,6 +4527,9 @@ export type Database = {
           expires_at?: string | null
           id?: string
           liability_type?: string
+          loan_type?: string | null
+          net_savings?: number | null
+          notes?: string | null
           potential_new_rate?: number
           status?: string | null
           user_id?: string
@@ -5356,6 +5504,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      tax_loss_harvest_opportunities: {
+        Row: {
+          created_at: string | null
+          current_loss: number
+          expires_at: string | null
+          holding_id: string | null
+          id: string
+          potential_tax_savings: number
+          replacement_symbol: string | null
+          status: string | null
+          symbol: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_loss: number
+          expires_at?: string | null
+          holding_id?: string | null
+          id?: string
+          potential_tax_savings: number
+          replacement_symbol?: string | null
+          status?: string | null
+          symbol: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_loss?: number
+          expires_at?: string | null
+          holding_id?: string | null
+          id?: string
+          potential_tax_savings?: number
+          replacement_symbol?: string | null
+          status?: string | null
+          symbol?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_loss_harvest_opportunities_holding_id_fkey"
+            columns: ["holding_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_holdings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       trading_emotions: {
         Row: {
