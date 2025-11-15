@@ -28,7 +28,7 @@ export const NavItem = ({ name, path, icon: Icon, onClick }: NavItemProps) => {
       aria-current={isActive ? 'page' : undefined}
     >
       {Icon && <Icon className="w-5 h-5" />}
-      <span>{name}</span>
+      <span className="text-sm">{name}</span>
       {isActive && (
         <motion.div
           layoutId="activeNav"
