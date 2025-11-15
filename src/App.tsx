@@ -29,7 +29,7 @@ const Budget = lazy(() => import("./pages/Budget"));
 const Debts = lazy(() => import("./pages/Debts"));
 const Investments = lazy(() => import("./pages/Investments"));
 const Credit = lazy(() => import("./pages/Credit"));
-const Welcome = lazy(() => import("./pages/Welcome"));
+const Landing = lazy(() => import("./pages/Landing"));
 const IconDemo = lazy(() => import("./pages/IconDemo"));
 const Coach = lazy(() => import("./pages/Coach"));
 const Help = lazy(() => import("./pages/Help"));
@@ -126,7 +126,7 @@ function AnimatedRoutes() {
           element={
             <AuthRedirect>
               <PageTransition>
-                <Welcome />
+                <Landing />
               </PageTransition>
             </AuthRedirect>
           } 
