@@ -6,7 +6,10 @@ import { PortfolioOverview } from '@/components/investment-manager/PortfolioOver
 import { TaxLossHarvesting } from '@/components/investment-manager/TaxLossHarvesting';
 import { RebalancingActions } from '@/components/investment-manager/RebalancingActions';
 import { MandateConfig } from '@/components/investment-manager/MandateConfig';
-import { Loader2, TrendingUp, Scale, Receipt, Settings } from 'lucide-react';
+import { TrendingUp, Scale, Receipt, Settings, Target, Zap, Shield, BarChart3 } from 'lucide-react';
+import { PageLoadingSkeleton } from '@/components/ui/page-loading-skeleton';
+import { FeatureEmptyState } from '@/components/ui/feature-empty-state';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function InvestmentManager() {
   const { data: mandate, isLoading } = useQuery({
@@ -50,19 +53,18 @@ export default function InvestmentManager() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoadingSkeleton variant="dashboard" />;
   }
+
+  const hasPortfolio = portfolio && portfolio.length > 0;
 
   const totalValue = portfolio?.reduce((sum, h) => sum + (Number(h.market_value) || 0), 0) || 0;
   const totalGainLoss = portfolio?.reduce((sum, h) => sum + (Number(h.unrealized_gain_loss) || 0), 0) || 0;
   const potentialTaxSavings = tlhOpportunities?.reduce((sum, o) => sum + Number(o.potential_tax_savings), 0) || 0;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <ErrorBoundary>
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Autonomous Investment Manager</h1>
@@ -72,8 +74,23 @@ export default function InvestmentManager() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="p-6">
+      {!hasPortfolio ? (
+        <FeatureEmptyState
+          icon={TrendingUp}
+          title="Start Your Investment Journey"
+          description="Set up your investment mandate and connect your brokerage accounts to enable 24/7 autonomous portfolio management."
+          actionLabel="Configure Mandate"
+          features={[
+            { icon: Target, label: 'Set your risk tolerance & goals' },
+            { icon: Zap, label: 'Automatic tax-loss harvesting' },
+            { icon: Shield, label: 'Continuous rebalancing' },
+            { icon: BarChart3, label: 'Performance tracking' },
+          ]}
+        />
+      ) : (
+        <>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total Portfolio Value</p>
@@ -133,7 +150,10 @@ export default function InvestmentManager() {
         <TabsContent value="mandate">
           <MandateConfig existingMandate={mandate} />
         </TabsContent>
-      </Tabs>
-    </div>
+          </Tabs>
+        </>
+      )}
+      </div>
+    </ErrorBoundary>
   );
 }

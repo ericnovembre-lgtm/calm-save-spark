@@ -7,7 +7,9 @@ import { PlaybookLibrary } from '@/components/life-events/PlaybookLibrary';
 import { ActiveExecutions } from '@/components/life-events/ActiveExecutions';
 import { TaskDashboard } from '@/components/life-events/TaskDashboard';
 import { DocumentCenter } from '@/components/life-events/DocumentCenter';
-import { Loader2, Heart, CheckCircle2, FileText } from 'lucide-react';
+import { Heart, CheckCircle2, FileText } from 'lucide-react';
+import { PageLoadingSkeleton } from '@/components/ui/page-loading-skeleton';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function LifeEvents() {
   const [selectedExecution, setSelectedExecution] = useState<string | null>(null);
@@ -39,18 +41,15 @@ export default function LifeEvents() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoadingSkeleton variant="dashboard" />;
   }
 
   const activeExecutions = executions?.filter((e: any) => e.status === 'active' || e.status === 'in_progress') || [];
   const completedCount = executions?.filter((e: any) => e.status === 'completed').length || 0;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <ErrorBoundary>
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Life Event Orchestrator</h1>
@@ -60,7 +59,7 @@ export default function LifeEvents() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -119,6 +118,7 @@ export default function LifeEvents() {
           <DocumentCenter executionId={selectedExecution} />
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

@@ -4,11 +4,13 @@ import { EmotionDetectionBar } from "@/components/guardian/EmotionDetectionBar";
 import { BehaviorJournal } from "@/components/guardian/BehaviorJournal";
 import { GuardrailSettings } from "@/components/guardian/GuardrailSettings";
 import { Shield, Brain, TrendingUp } from "lucide-react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function BehavioralGuardian() {
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <ErrorBoundary>
+        <div className="space-y-6 p-4 sm:p-0">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-display font-bold text-foreground mb-2">
@@ -23,7 +25,7 @@ export default function BehavioralGuardian() {
 
         <EmotionDetectionBar />
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <Brain className="w-5 h-5 text-primary" />
@@ -83,9 +85,10 @@ export default function BehavioralGuardian() {
           </Card>
         </div>
 
-        <GuardrailSettings />
-        <BehaviorJournal />
-      </div>
+          <GuardrailSettings />
+          <BehaviorJournal />
+        </div>
+      </ErrorBoundary>
     </AppLayout>
   );
 }

@@ -11,7 +11,9 @@ import { StatsPanel } from '@/components/lifesim/StatsPanel';
 import { SessionHistory } from '@/components/lifesim/SessionHistory';
 import { NewGameDialog } from '@/components/lifesim/NewGameDialog';
 import { toast } from 'sonner';
-import { Loader2, Play, Trophy } from 'lucide-react';
+import { Play, Trophy } from 'lucide-react';
+import { PageLoadingSkeleton } from '@/components/ui/page-loading-skeleton';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function LifeSim() {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -60,15 +62,12 @@ export default function LifeSim() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoadingSkeleton variant="tabs" />;
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <ErrorBoundary>
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">LifeSim Financial Simulator</h1>
@@ -147,6 +146,7 @@ export default function LifeSim() {
           </TabsContent>
         </Tabs>
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

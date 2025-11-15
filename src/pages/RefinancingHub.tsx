@@ -6,7 +6,10 @@ import { OpportunityCard } from '@/components/refinancing/OpportunityCard';
 import { RateMonitor } from '@/components/refinancing/RateMonitor';
 import { RefinancingHistory } from '@/components/refinancing/RefinancingHistory';
 import { LoanRateAlerts } from '@/components/refinancing/LoanRateAlerts';
-import { Loader2, TrendingDown, DollarSign, Clock } from 'lucide-react';
+import { TrendingDown, DollarSign, Clock, Bell, Search, Zap } from 'lucide-react';
+import { PageLoadingSkeleton } from '@/components/ui/page-loading-skeleton';
+import { FeatureEmptyState } from '@/components/ui/feature-empty-state';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function RefinancingHub() {
   const { data: opportunities, isLoading } = useQuery({
@@ -38,18 +41,17 @@ export default function RefinancingHub() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoadingSkeleton variant="dashboard" />;
   }
+
+  const hasOpportunities = opportunities && opportunities.length > 0;
 
   const totalSavings = opportunities?.reduce((sum, o) => sum + Number(o.net_savings), 0) || 0;
   const avgSavings = opportunities && opportunities.length > 0 ? totalSavings / opportunities.length : 0;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <ErrorBoundary>
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Proactive Liability Agent</h1>
@@ -59,8 +61,23 @@ export default function RefinancingHub() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="p-6">
+      {!hasOpportunities ? (
+        <FeatureEmptyState
+          icon={TrendingDown}
+          title="No Refinancing Opportunities Yet"
+          description="Connect your loans and we'll monitor market rates 24/7 to automatically identify refinancing opportunities that save you money."
+          actionLabel="Connect Your Loans"
+          features={[
+            { icon: Search, label: '24/7 rate monitoring' },
+            { icon: Bell, label: 'Instant alerts on savings' },
+            { icon: Zap, label: 'Automated opportunity detection' },
+            { icon: DollarSign, label: 'Calculate potential savings' },
+          ]}
+        />
+      ) : (
+        <>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Active Opportunities</p>
@@ -132,7 +149,10 @@ export default function RefinancingHub() {
         <TabsContent value="history">
           <RefinancingHistory />
         </TabsContent>
-      </Tabs>
-    </div>
+          </Tabs>
+        </>
+      )}
+      </div>
+    </ErrorBoundary>
   );
 }

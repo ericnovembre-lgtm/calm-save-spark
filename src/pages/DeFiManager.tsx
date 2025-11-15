@@ -4,13 +4,14 @@ import { YieldOptimizer } from "@/components/defi/YieldOptimizer";
 import { RWAPortfolio } from "@/components/defi/RWAPortfolio";
 import { ProtocolConnector } from "@/components/defi/ProtocolConnector";
 import { TransactionHistory } from "@/components/defi/TransactionHistory";
-import { Wallet, TrendingUp, Landmark, Link, History } from "lucide-react";
+import { Wallet, TrendingUp, Landmark, Link, History, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function DeFiManager() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <ErrorBoundary>
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">DeFi & RWA Manager</h1>
         <p className="text-muted-foreground">
@@ -25,8 +26,8 @@ export default function DeFiManager() {
         </AlertDescription>
       </Alert>
 
-      <Tabs defaultValue="positions" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <Tabs defaultValue="positions" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           <TabsTrigger value="positions">
             <Wallet className="mr-2 h-4 w-4" />
             Positions
@@ -68,7 +69,8 @@ export default function DeFiManager() {
         <TabsContent value="history" className="mt-6">
           <TransactionHistory />
         </TabsContent>
-      </Tabs>
-    </div>
+        </Tabs>
+      </div>
+    </ErrorBoundary>
   );
 }

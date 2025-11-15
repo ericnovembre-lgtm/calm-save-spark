@@ -57,6 +57,7 @@ import { ChatSidebar } from "@/components/dashboard/ChatSidebar";
 import { useChatSidebar } from "@/hooks/useChatSidebar";
 import { cn } from "@/lib/utils";
 import { InteractiveWizard, hasCompletedWizard } from "@/components/onboarding/InteractiveWizard";
+import { NextGenFeaturesCard } from "@/components/dashboard/NextGenFeaturesCard";
 import { DASHBOARD_WIZARD_STEPS, type WizardStepWithIcon } from "@/lib/wizard-steps";
 import type { WizardStep } from "@/components/onboarding/InteractiveWizard";
 import { createElement } from "react";
@@ -530,8 +531,22 @@ export default function Dashboard() {
         defaultOpen={!collapsedSections['theme-customizer']}
         onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
       >
-        <ThemeCustomizer />
+      <ThemeCustomizer />
       </CollapsibleSection>
+    ),
+    'next-gen-features': (
+      <DashboardErrorBoundary key="next-gen-features" sectionName="Next-Gen Features">
+        <CollapsibleSection
+          key="next-gen-features"
+          id="next-gen-features"
+          title="Next-Gen Features"
+          description="Explore cutting-edge tools"
+          defaultOpen={!collapsedSections['next-gen-features']}
+          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
+        >
+          <NextGenFeaturesCard />
+        </CollapsibleSection>
+      </DashboardErrorBoundary>
     ),
   };
 

@@ -5,10 +5,12 @@ import { SyntheticPaycheck } from "@/components/business-os/SyntheticPaycheck";
 import { TaxProjections } from "@/components/business-os/TaxProjections";
 import { IncomeStreams } from "@/components/business-os/IncomeStreams";
 import { Building2, Calculator, DollarSign, FileText, TrendingUp } from "lucide-react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function BusinessOS() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <ErrorBoundary>
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Business-of-One OS</h1>
         <p className="text-muted-foreground">
@@ -16,8 +18,8 @@ export default function BusinessOS() {
         </p>
       </div>
 
-      <Tabs defaultValue="paycheck" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <Tabs defaultValue="paycheck" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           <TabsTrigger value="paycheck">
             <DollarSign className="mr-2 h-4 w-4" />
             Paycheck
@@ -59,7 +61,8 @@ export default function BusinessOS() {
         <TabsContent value="setup" className="mt-6">
           <SCorpSetup />
         </TabsContent>
-      </Tabs>
-    </div>
+        </Tabs>
+      </div>
+    </ErrorBoundary>
   );
 }
