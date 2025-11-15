@@ -29,6 +29,7 @@ const ALL_SECTIONS = [
   'skill-tree',
   'peer-insights',
   'goal-timeline',
+  'next-gen-features',
   'layout-manager',
   'theme-customizer',
 ];

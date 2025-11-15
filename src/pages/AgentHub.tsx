@@ -5,7 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AgentCard } from "@/components/agent-hub/AgentCard";
 import { ActivityFeed } from "@/components/agent-hub/ActivityFeed";
 import { AgentPerformanceChart } from "@/components/agent-hub/AgentPerformanceChart";
-import { Loader2 } from "lucide-react";
+import { Bot, Zap, Shield, Clock } from "lucide-react";
+import { PageLoadingSkeleton } from "@/components/ui/page-loading-skeleton";
+import { FeatureEmptyState } from "@/components/ui/feature-empty-state";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function AgentHub() {
   const { data: agents, isLoading } = useQuery({
@@ -36,15 +39,14 @@ export default function AgentHub() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoadingSkeleton variant="cards" />;
   }
 
+  const hasAgents = agents && agents.length > 0;
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <ErrorBoundary>
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Autonomous Agent Hub</h1>
@@ -54,8 +56,22 @@ export default function AgentHub() {
         </div>
       </div>
 
-      <Tabs defaultValue="agents" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+      {!hasAgents ? (
+        <FeatureEmptyState
+          icon={Bot}
+          title="No Active Agents Yet"
+          description="Delegate financial tasks to AI agents that work 24/7 on your behalf. From portfolio management to bill negotiation."
+          actionLabel="Browse Available Agents"
+          features={[
+            { icon: Zap, label: '24/7 autonomous operation' },
+            { icon: Shield, label: 'Secure & transparent actions' },
+            { icon: Clock, label: 'Real-time activity tracking' },
+            { icon: Bot, label: 'Multiple specialized agents' },
+          ]}
+        />
+      ) : (
+        <Tabs defaultValue="agents" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="agents">My Agents</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
@@ -83,7 +99,9 @@ export default function AgentHub() {
         <TabsContent value="performance" className="space-y-6">
           <AgentPerformanceChart />
         </TabsContent>
-      </Tabs>
-    </div>
+        </Tabs>
+      )}
+      </div>
+    </ErrorBoundary>
   );
 }
