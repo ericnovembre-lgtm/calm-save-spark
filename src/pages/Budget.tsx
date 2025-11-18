@@ -37,7 +37,7 @@ const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedB
 const EnhancedCategoryManager = lazy(() => import("@/components/budget/EnhancedCategoryManager").then(m => ({ default: m.EnhancedCategoryManager })));
 const CreateBudgetWizard = lazy(() => import("@/components/budget/CreateBudgetWizard").then(m => ({ default: m.CreateBudgetWizard })));
 const RuleManager = lazy(() => import("@/components/budget/RuleManager").then(m => ({ default: m.RuleManager })));
-const ExportDialog = lazy(() => import("@/components/budget/ExportDialog").then(m => ({ default: m.ExportDialog })));
+const ExportDataManager = lazy(() => import("@/components/budget/ExportDataManager").then(m => ({ default: m.ExportDataManager })));
 const InteractiveBudgetOnboarding = lazy(() => import("@/components/budget/InteractiveBudgetOnboarding").then(m => ({ default: m.InteractiveBudgetOnboarding })));
 
 export default function Budget() {
@@ -392,11 +392,13 @@ export default function Budget() {
             onClose={() => setShowRuleManager(false)}
           />
 
-          <ExportDialog
+          <ExportDataManager
             isOpen={showExportDialog}
             onClose={() => setShowExportDialog(false)}
             budgets={budgets}
             spending={spending}
+            transactions={[]}
+            categories={categories}
           />
         </Suspense>
       </div>
