@@ -407,14 +407,62 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_execution_log: {
+        Row: {
+          amount_transferred: number | null
+          automation_rule_id: string
+          error_message: string | null
+          executed_at: string | null
+          id: string
+          metadata: Json | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_transferred?: number | null
+          automation_rule_id: string
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_transferred?: number | null
+          automation_rule_id?: string
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_execution_log_automation_rule_id_fkey"
+            columns: ["automation_rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_rules: {
         Row: {
           action_config: Json | null
           created_at: string | null
+          frequency: string | null
           id: string
           is_active: boolean | null
+          last_run_date: string | null
+          metadata: Json | null
+          next_run_date: string | null
+          notes: string | null
           rule_name: string
           rule_type: string
+          run_count: number | null
+          start_date: string | null
           trigger_condition: Json | null
           updated_at: string | null
           user_id: string
@@ -422,10 +470,17 @@ export type Database = {
         Insert: {
           action_config?: Json | null
           created_at?: string | null
+          frequency?: string | null
           id?: string
           is_active?: boolean | null
+          last_run_date?: string | null
+          metadata?: Json | null
+          next_run_date?: string | null
+          notes?: string | null
           rule_name: string
           rule_type: string
+          run_count?: number | null
+          start_date?: string | null
           trigger_condition?: Json | null
           updated_at?: string | null
           user_id: string
@@ -433,10 +488,17 @@ export type Database = {
         Update: {
           action_config?: Json | null
           created_at?: string | null
+          frequency?: string | null
           id?: string
           is_active?: boolean | null
+          last_run_date?: string | null
+          metadata?: Json | null
+          next_run_date?: string | null
+          notes?: string | null
           rule_name?: string
           rule_type?: string
+          run_count?: number | null
+          start_date?: string | null
           trigger_condition?: Json | null
           updated_at?: string | null
           user_id?: string

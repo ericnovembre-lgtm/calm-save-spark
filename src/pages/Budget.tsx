@@ -312,6 +312,28 @@ export default function Budget() {
         </div>
 
         {/* Overview Tab */}
+        {/* Automation Promotion */}
+        {budgets.length > 0 && (
+          <ScrollSection animation="fade-up">
+            <Card className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CalendarCheck className="w-6 h-6 text-green-600" />
+                  <div>
+                    <h3 className="text-lg font-semibold">Automate Budget Transfers</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Schedule automatic savings based on your budget surplus
+                    </p>
+                  </div>
+                </div>
+                <Button onClick={() => window.location.href = '/automations'} variant="ghost">
+                  Configure
+                </Button>
+              </div>
+            </Card>
+          </ScrollSection>
+        )}
+
         {activeView === 'overview' && (
           <ScrollSection>
             <HolographicCard intensity="high" className="mb-6">

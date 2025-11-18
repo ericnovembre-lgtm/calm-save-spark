@@ -346,6 +346,28 @@ const Pots = () => {
           )}
         </AnimatePresence>
 
+        {/* Automation Card */}
+        {pots && pots.length > 0 && (
+          <motion.div variants={prefersReducedMotion ? {} : fadeInUp}>
+            <Card className="p-6 border border-primary/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Repeat className="w-6 h-6 text-primary" />
+                  <div>
+                    <h3 className="text-lg font-semibold">Fill Pots Automatically</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Set recurring deposits to grow your savings pots
+                    </p>
+                  </div>
+                </div>
+                <Button onClick={() => window.location.href = '/automations'} variant="outline">
+                  Automate Savings
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
         {isLoading ? (
           <motion.div 
             initial={prefersReducedMotion ? false : "hidden"}

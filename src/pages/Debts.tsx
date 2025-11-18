@@ -164,6 +164,26 @@ export default function Debts() {
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <>
+            {/* Automation Card */}
+            <Card className="p-6 border-2 border-primary/20 hover:border-primary/40 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-xl bg-primary/10">
+                    <Timer className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Automate Payments</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Schedule recurring debt payments
+                    </p>
+                  </div>
+                </div>
+                <Button onClick={() => navigate('/automations')} variant="outline" size="sm">
+                  Set Up
+                </Button>
+              </div>
+            </Card>
+
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card className="p-6">
