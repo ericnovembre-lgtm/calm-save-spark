@@ -132,6 +132,7 @@ export default function Dashboard() {
   useOnboardingStatus(true);
   
   const { cardOrder, updateOrder, collapsedSections, toggleCollapsed } = useDashboardOrder(userId);
+  const isMobile = useIsMobile();
   
   // Check if wizard should be shown to first-time users
   useEffect(() => {
@@ -554,8 +555,6 @@ export default function Dashboard() {
   };
 
   if (accountsLoading) return <LoadingState />;
-
-  const isMobile = useIsMobile();
 
   return (
     <AppLayout>
