@@ -46,6 +46,9 @@ import { LayoutManager } from "@/components/dashboard/LayoutManager";
 import { AdvancedAnalyticsDashboard } from "@/components/analytics/AdvancedAnalyticsDashboard";
 import { ThemeCustomizer } from "@/components/dashboard/ThemeCustomizer";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
+import { BudgetWidget } from "@/components/mobile/BudgetWidget";
+import { QuickActionsWidget } from "@/components/mobile/QuickActionsWidget";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useDashboardOrder } from "@/hooks/useDashboardOrder";
 import { Reorder, motion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -552,6 +555,8 @@ export default function Dashboard() {
 
   if (accountsLoading) return <LoadingState />;
 
+  const isMobile = useIsMobile();
+
   return (
     <AppLayout>
       <WelcomeBackBanner />
@@ -610,6 +615,14 @@ export default function Dashboard() {
           <div className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
             <DynamicWelcome />
           </div>
+
+          {/* Mobile Widgets */}
+          {isMobile && (
+            <div className="space-y-4">
+              <QuickActionsWidget />
+              <BudgetWidget />
+            </div>
+          )}
 
           {/* Reorderable Cards */}
           <motion.div
