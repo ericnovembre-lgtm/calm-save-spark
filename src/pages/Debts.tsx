@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Plus, TrendingDown, DollarSign, Calendar, AlertCircle, CheckCircle, Info, Zap } from 'lucide-react';
+import { Plus, TrendingDown, DollarSign, Calendar, AlertCircle, CheckCircle, Info, Zap, Timer } from 'lucide-react';
 import { LoadingState } from '@/components/LoadingState';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDebts } from '@/hooks/useDebts';
