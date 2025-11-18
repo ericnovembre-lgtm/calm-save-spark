@@ -107,6 +107,37 @@ const Accounts = () => {
           <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
         </div>
 
+        {/* Credit Card Section */}
+        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <path d="M2 10h20"/>
+                  </svg>
+                  $ave+ Credit Card
+                </CardTitle>
+                <CardDescription>Build credit while you spend</CardDescription>
+              </div>
+              <Button asChild variant="outline">
+                <a href="/card">
+                  Manage Cards
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Apply for a secured credit card and start building your credit history today.
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
