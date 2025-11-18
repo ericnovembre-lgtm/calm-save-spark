@@ -4598,7 +4598,9 @@ export type Database = {
           id: string
           is_active: boolean | null
           name: string
+          notes: string | null
           target_amount: number
+          target_date: string | null
           updated_at: string | null
           user_id: string
         }
@@ -4611,7 +4613,9 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name: string
+          notes?: string | null
           target_amount: number
+          target_date?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -4624,7 +4628,9 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          notes?: string | null
           target_amount?: number
+          target_date?: string | null
           updated_at?: string | null
           user_id?: string
         }
