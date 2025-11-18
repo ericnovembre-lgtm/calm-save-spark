@@ -48,6 +48,41 @@ serve(async (req) => {
 
     const detectedSubs = [];
 
+    // Calculate confidence helper function
+    const calculateConfidence = (txCount: number, amountVariance: number, freqConsistency: number): number => {
+      let confidence = 0.5; // Base confidence
+      
+      // More transactions = higher confidence
+      if (txCount >= 5) confidence += 0.3;
+      else if (txCount >= 3) confidence += 0.2;
+      else confidence += 0.1;
+      
+      // Low amount variance = higher confidence
+      if (amountVariance < 0.05) confidence += 0.15;
+      else if (amountVariance < 0.1) confidence += 0.1;
+      
+      // Consistent frequency = higher confidence
+      if (freqConsistency > 0.9) confidence += 0.15;
+      else if (freqConsistency > 0.7) confidence += 0.1;
+      
+      return Math.min(confidence, 1.0);
+    };
+
+    const calculateFrequencyConsistency = (dates: Date[]): number => {
+      if (dates.length < 3) return 0.5;
+      
+      const intervals = [];
+      for (let i = 1; i < dates.length; i++) {
+        const days = (dates[i].getTime() - dates[i - 1].getTime()) / (1000 * 60 * 60 * 24);
+        intervals.push(days);
+      }
+      
+      const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      const variance = intervals.reduce((sum, val) => sum + Math.abs(val - avgInterval), 0) / intervals.length;
+      
+      return Math.max(0, 1 - (variance / avgInterval));
+    };
+
     // Detect subscriptions: merchants with 2+ transactions of similar amounts
     for (const [merchant, txs] of Object.entries(merchantGroups)) {
       if (txs.length < 2) continue;
@@ -55,6 +90,7 @@ serve(async (req) => {
       // Check if amounts are similar (within 10% variance)
       const amounts = txs.map(t => parseFloat(t.amount));
       const avgAmount = amounts.reduce((a, b) => a + b, 0) / amounts.length;
+      const amountVarianceValue = amounts.reduce((sum, amt) => sum + Math.abs(amt - avgAmount), 0) / (amounts.length * avgAmount);
       const variance = amounts.every(amt => Math.abs(amt - avgAmount) / avgAmount < 0.1);
 
       if (variance) {
@@ -67,6 +103,10 @@ serve(async (req) => {
         let frequency = 'monthly';
         if (daysBetween < 10) frequency = 'weekly';
         else if (daysBetween > 300) frequency = 'annual';
+
+        // Calculate confidence score
+        const freqConsistency = calculateFrequencyConsistency(dates);
+        const confidence = calculateConfidence(txs.length, amountVarianceValue, freqConsistency);
 
         // Check if already detected
         const { data: existing } = await supabaseClient
@@ -89,6 +129,9 @@ serve(async (req) => {
             last_charge_date: lastCharge.toISOString(),
             next_expected_date: nextExpected.toISOString(),
             category: txs[0].category,
+            confidence: confidence,
+            status: 'active',
+            confirmed: false,
           });
         }
       }

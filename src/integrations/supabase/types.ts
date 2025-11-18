@@ -2618,6 +2618,7 @@ export type Database = {
         Row: {
           amount: number
           category: string | null
+          confidence: number | null
           created_at: string | null
           frequency: string | null
           id: string
@@ -2625,12 +2626,16 @@ export type Database = {
           last_charge_date: string | null
           merchant: string
           next_expected_date: string | null
+          paused_at: string | null
+          paused_reason: string | null
+          status: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           amount: number
           category?: string | null
+          confidence?: number | null
           created_at?: string | null
           frequency?: string | null
           id?: string
@@ -2638,12 +2643,16 @@ export type Database = {
           last_charge_date?: string | null
           merchant: string
           next_expected_date?: string | null
+          paused_at?: string | null
+          paused_reason?: string | null
+          status?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           amount?: number
           category?: string | null
+          confidence?: number | null
           created_at?: string | null
           frequency?: string | null
           id?: string
@@ -2651,6 +2660,9 @@ export type Database = {
           last_charge_date?: string | null
           merchant?: string
           next_expected_date?: string | null
+          paused_at?: string | null
+          paused_reason?: string | null
+          status?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -6241,6 +6253,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      subscription_events: {
+        Row: {
+          amount_cents: number | null
+          created_at: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          notes: string | null
+          subscription_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          created_at?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          subscription_id: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          subscription_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_events_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "detected_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscription_history: {
         Row: {
