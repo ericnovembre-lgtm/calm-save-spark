@@ -219,6 +219,31 @@ export default function Debts() {
               </Card>
             </div>
 
+            {/* Bills & Subscriptions Card */}
+            <Card className="p-6 border-2 border-accent/50">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-accent/10">
+                    <Calendar className="w-6 h-6 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground">Bills & Subscriptions</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Track recurring payments to reduce expenses and optimize your budget
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => navigate('/subscriptions')} 
+                  variant="outline"
+                  className="gap-2 whitespace-nowrap"
+                >
+                  View Bills
+                  <TrendingDown className="w-4 h-4" />
+                </Button>
+              </div>
+            </Card>
+
             {/* Debt Cards */}
             {debts.length === 0 ? (
               <Card className="p-12 text-center">
