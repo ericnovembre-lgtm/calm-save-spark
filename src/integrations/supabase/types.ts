@@ -741,6 +741,41 @@ export type Database = {
           },
         ]
       }
+      budget_activity_log: {
+        Row: {
+          action_data: Json | null
+          action_type: string
+          budget_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action_data?: Json | null
+          action_type: string
+          budget_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action_data?: Json | null
+          action_type?: string
+          budget_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_activity_log_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_analytics: {
         Row: {
           budget_id: string
@@ -821,6 +856,54 @@ export type Database = {
         }
         Relationships: []
       }
+      budget_comments: {
+        Row: {
+          budget_id: string
+          comment_text: string
+          created_at: string
+          id: string
+          is_edited: boolean | null
+          parent_comment_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_id: string
+          comment_text: string
+          created_at?: string
+          id?: string
+          is_edited?: boolean | null
+          parent_comment_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_id?: string
+          comment_text?: string
+          created_at?: string
+          id?: string
+          is_edited?: boolean | null
+          parent_comment_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_comments_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "budget_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_onboarding: {
         Row: {
           completed: boolean | null
@@ -888,6 +971,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "budget_rules_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_shares: {
+        Row: {
+          accepted_at: string | null
+          budget_id: string
+          created_at: string
+          id: string
+          invited_by: string
+          permission_level: string
+          shared_with_user_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          budget_id: string
+          created_at?: string
+          id?: string
+          invited_by: string
+          permission_level: string
+          shared_with_user_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          budget_id?: string
+          created_at?: string
+          id?: string
+          invited_by?: string
+          permission_level?: string
+          shared_with_user_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_shares_budget_id_fkey"
             columns: ["budget_id"]
             isOneToOne: false
             referencedRelation: "user_budgets"
@@ -5203,6 +5330,39 @@ export type Database = {
           ip_address?: string | null
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      shared_category_templates: {
+        Row: {
+          categories: Json
+          created_at: string
+          created_by: string
+          id: string
+          is_public: boolean | null
+          template_name: string
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          categories?: Json
+          created_at?: string
+          created_by: string
+          id?: string
+          is_public?: boolean | null
+          template_name: string
+          template_type?: string
+          updated_at?: string
+        }
+        Update: {
+          categories?: Json
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_public?: boolean | null
+          template_name?: string
+          template_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
