@@ -19,7 +19,7 @@ import { CelebrationManager } from "@/components/effects/CelebrationManager";
 import { useBudgetMilestones } from "@/hooks/useBudgetMilestones";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Target, Plus, BookOpen, RefreshCw } from "lucide-react";
+import { Target, Plus, BookOpen, RefreshCw, CalendarCheck } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { PageLoadingSkeleton } from "@/components/ui/page-loading-skeleton";
 import { NeuralBackground } from "@/components/budget/advanced/NeuralBackground";
@@ -314,7 +314,7 @@ export default function Budget() {
         {/* Overview Tab */}
         {/* Automation Promotion */}
         {budgets.length > 0 && (
-          <ScrollSection animation="fade-up">
+          <ScrollSection>
             <Card className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
