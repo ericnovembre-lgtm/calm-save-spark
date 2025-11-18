@@ -74,6 +74,8 @@ const Wallet = lazy(() => import("./pages/Wallet"));
 const AlternativesPortal = lazy(() => import("./pages/AlternativesPortal"));
 const FamilyOffice = lazy(() => import("./pages/FamilyOffice"));
 const CorporateWellness = lazy(() => import("./pages/CorporateWellness"));
+const Card = lazy(() => import("./pages/Card"));
+const CardApply = lazy(() => import("./pages/CardApply"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -182,7 +184,8 @@ function AnimatedRoutes() {
         <Route path="/automations" element={<ProtectedRoute><PageTransition><Automations /></PageTransition></ProtectedRoute>} />
         <Route path="/rewards" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
-        <Route path="/card" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Card - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
+        <Route path="/card" element={<ProtectedRoute><PageTransition><Card /></PageTransition></ProtectedRoute>} />
+        <Route path="/card/apply" element={<ProtectedRoute><PageTransition><CardApply /></PageTransition></ProtectedRoute>} />
         <Route path="/coach" element={<ProtectedRoute><PageTransition><Coach /></PageTransition></ProtectedRoute>} />
         <Route path="/ai-agents" element={<ProtectedRoute><PageTransition><AIAgents /></PageTransition></ProtectedRoute>} />
         <Route path="/features-hub" element={<ProtectedRoute><PageTransition><FeaturesHub /></PageTransition></ProtectedRoute>} />

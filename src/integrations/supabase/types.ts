@@ -1370,6 +1370,303 @@ export type Database = {
           },
         ]
       }
+      card_accounts: {
+        Row: {
+          account_number: string | null
+          account_type: string
+          apr_bps: number | null
+          available_cents: number
+          closed_at: string | null
+          created_at: string | null
+          credit_limit_cents: number
+          current_balance_cents: number | null
+          id: string
+          opened_at: string | null
+          routing_number: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_number?: string | null
+          account_type: string
+          apr_bps?: number | null
+          available_cents?: number
+          closed_at?: string | null
+          created_at?: string | null
+          credit_limit_cents?: number
+          current_balance_cents?: number | null
+          id?: string
+          opened_at?: string | null
+          routing_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_number?: string | null
+          account_type?: string
+          apr_bps?: number | null
+          available_cents?: number
+          closed_at?: string | null
+          created_at?: string | null
+          credit_limit_cents?: number
+          current_balance_cents?: number | null
+          id?: string
+          opened_at?: string | null
+          routing_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      card_collateral: {
+        Row: {
+          account_id: string
+          collateral_cents: number
+          created_at: string | null
+          id: string
+          pledged_at: string | null
+          released_at: string | null
+          source_account_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          collateral_cents: number
+          created_at?: string | null
+          id?: string
+          pledged_at?: string | null
+          released_at?: string | null
+          source_account_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          collateral_cents?: number
+          created_at?: string | null
+          id?: string
+          pledged_at?: string | null
+          released_at?: string | null
+          source_account_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_collateral_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "card_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_controls: {
+        Row: {
+          account_id: string
+          allowed_merchant_categories: string[] | null
+          atm_enabled: boolean | null
+          blocked_merchant_categories: string[] | null
+          contactless_enabled: boolean | null
+          created_at: string | null
+          daily_spend_limit_cents: number | null
+          id: string
+          international_enabled: boolean | null
+          monthly_spend_limit_cents: number | null
+          online_enabled: boolean | null
+          single_transaction_limit_cents: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          allowed_merchant_categories?: string[] | null
+          atm_enabled?: boolean | null
+          blocked_merchant_categories?: string[] | null
+          contactless_enabled?: boolean | null
+          created_at?: string | null
+          daily_spend_limit_cents?: number | null
+          id?: string
+          international_enabled?: boolean | null
+          monthly_spend_limit_cents?: number | null
+          online_enabled?: boolean | null
+          single_transaction_limit_cents?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          allowed_merchant_categories?: string[] | null
+          atm_enabled?: boolean | null
+          blocked_merchant_categories?: string[] | null
+          contactless_enabled?: boolean | null
+          created_at?: string | null
+          daily_spend_limit_cents?: number | null
+          id?: string
+          international_enabled?: boolean | null
+          monthly_spend_limit_cents?: number | null
+          online_enabled?: boolean | null
+          single_transaction_limit_cents?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_controls_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "card_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_transactions: {
+        Row: {
+          account_id: string
+          amount_cents: number
+          card_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          merchant_category: string | null
+          merchant_name: string | null
+          metadata: Json | null
+          posted_date: string | null
+          status: string | null
+          transaction_date: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          amount_cents: number
+          card_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          merchant_category?: string | null
+          merchant_name?: string | null
+          metadata?: Json | null
+          posted_date?: string | null
+          status?: string | null
+          transaction_date?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          amount_cents?: number
+          card_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          merchant_category?: string | null
+          merchant_name?: string | null
+          metadata?: Json | null
+          posted_date?: string | null
+          status?: string | null
+          transaction_date?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "card_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_transactions_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cards: {
+        Row: {
+          account_id: string
+          activated_at: string | null
+          billing_address: Json | null
+          brand: string | null
+          card_type: string
+          cardholder_name: string
+          created_at: string | null
+          cvv_encrypted: string | null
+          exp_month: number
+          exp_year: number
+          frozen_at: string | null
+          id: string
+          issued_at: string | null
+          last4: string
+          network: string | null
+          pan_encrypted: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          activated_at?: string | null
+          billing_address?: Json | null
+          brand?: string | null
+          card_type: string
+          cardholder_name: string
+          created_at?: string | null
+          cvv_encrypted?: string | null
+          exp_month: number
+          exp_year: number
+          frozen_at?: string | null
+          id?: string
+          issued_at?: string | null
+          last4: string
+          network?: string | null
+          pan_encrypted?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          activated_at?: string | null
+          billing_address?: Json | null
+          brand?: string | null
+          card_type?: string
+          cardholder_name?: string
+          created_at?: string | null
+          cvv_encrypted?: string | null
+          exp_month?: number
+          exp_year?: number
+          frozen_at?: string | null
+          id?: string
+          issued_at?: string | null
+          last4?: string
+          network?: string | null
+          pan_encrypted?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cards_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "card_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       category_suggestions: {
         Row: {
           amount_range: string | null
