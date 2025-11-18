@@ -1,19 +1,39 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { DebtPayoffChart } from "@/components/debt/DebtPayoffChart";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Calculator, Trash2 } from "lucide-react";
-import { LoadingState } from "@/components/LoadingState";
-import { toast } from "sonner";
+import { useState } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Plus, TrendingDown, DollarSign, Calendar, AlertCircle, CheckCircle, Info, Zap } from 'lucide-react';
+import { LoadingState } from '@/components/LoadingState';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useDebts } from '@/hooks/useDebts';
+import { useDebtPayments } from '@/hooks/useDebtPayments';
+import DebtCard from '@/components/debt/DebtCard';
+import CreateDebtModal from '@/components/debt/CreateDebtModal';
+import PayoffSimulator from '@/components/debt/PayoffSimulator';
+import DebtAnalytics from '@/components/debt/DebtAnalytics';
+import PayoffTimeline from '@/components/debt/PayoffTimeline';
+import ContextualCoachTip from '@/components/debt/ContextualCoachTip';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 export default function Debts() {
+  const navigate = useNavigate();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingDebt, setEditingDebt] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'simulator' | 'analytics' | 'timeline'>('overview');
+  const [showHelp, setShowHelp] = useState(false);
+
+  const { debts, isLoading, addDebt, updateDebt, deleteDebt } = useDebts();
+  const { payments } = useDebtPayments();
+
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    },
+  });
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [strategy, setStrategy] = useState<'avalanche' | 'snowball'>('avalanche');

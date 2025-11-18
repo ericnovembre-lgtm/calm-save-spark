@@ -2107,6 +2107,7 @@ export type Database = {
       }
       debts: {
         Row: {
+          actual_payment: number | null
           created_at: string | null
           currency: string | null
           current_balance: number
@@ -2115,14 +2116,17 @@ export type Database = {
           id: string
           interest_rate: number
           minimum_payment: number | null
+          original_balance: number | null
           payment_due_date: number | null
           payoff_strategy: string | null
           principal_amount: number
+          status: string | null
           target_payoff_date: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          actual_payment?: number | null
           created_at?: string | null
           currency?: string | null
           current_balance: number
@@ -2131,14 +2135,17 @@ export type Database = {
           id?: string
           interest_rate: number
           minimum_payment?: number | null
+          original_balance?: number | null
           payment_due_date?: number | null
           payoff_strategy?: string | null
           principal_amount: number
+          status?: string | null
           target_payoff_date?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          actual_payment?: number | null
           created_at?: string | null
           currency?: string | null
           current_balance?: number
@@ -2147,9 +2154,11 @@ export type Database = {
           id?: string
           interest_rate?: number
           minimum_payment?: number | null
+          original_balance?: number | null
           payment_due_date?: number | null
           payoff_strategy?: string | null
           principal_amount?: number
+          status?: string | null
           target_payoff_date?: string | null
           updated_at?: string | null
           user_id?: string
