@@ -5,6 +5,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useNavigate } from "react-router-dom";
 
 interface AIInsight {
   id: string;
@@ -16,13 +17,14 @@ interface AIInsight {
 }
 
 export function AIInsightsCard() {
+  const navigate = useNavigate();
   const [insights, setInsights] = useState<AIInsight[]>([
     {
       id: "1",
       text: "Based on your spending patterns, you could save an extra $150/month by reducing dining out expenses by 25%.",
       action: {
         label: "Create Budget",
-        onClick: () => toast.success("Opening budget planner...")
+        onClick: () => navigate("/budget")
       }
     },
     {
@@ -30,7 +32,7 @@ export function AIInsightsCard() {
       text: "Your vacation goal is 65% complete! At your current rate, you'll reach it 2 months early. Consider increasing your emergency fund instead.",
       action: {
         label: "Adjust Goals",
-        onClick: () => toast.success("Redirecting to goals...")
+        onClick: () => navigate("/goals")
       }
     }
   ]);

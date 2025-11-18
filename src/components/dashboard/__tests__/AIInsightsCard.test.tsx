@@ -97,6 +97,7 @@ describe('AIInsightsCard', () => {
       const actionButton = getByRole('button', { name: /Create Budget|Adjust Goals/i });
       await user.click(actionButton);
       
+      // Navigation would occur in real app
       expect(actionButton).toBeInTheDocument();
     });
   });
