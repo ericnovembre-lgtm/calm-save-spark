@@ -1026,6 +1026,7 @@ export type Database = {
         Row: {
           budget_id: string
           created_at: string | null
+          currency: string | null
           id: string
           last_updated: string | null
           period_end: string
@@ -1037,6 +1038,7 @@ export type Database = {
         Insert: {
           budget_id: string
           created_at?: string | null
+          currency?: string | null
           id?: string
           last_updated?: string | null
           period_end: string
@@ -1048,6 +1050,7 @@ export type Database = {
         Update: {
           budget_id?: string
           created_at?: string | null
+          currency?: string | null
           id?: string
           last_updated?: string | null
           period_end?: string
@@ -1366,6 +1369,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      category_suggestions: {
+        Row: {
+          amount_range: string | null
+          confidence_score: number | null
+          created_at: string | null
+          id: string
+          merchant_name: string
+          suggested_category_code: string
+          times_used: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_range?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          merchant_name: string
+          suggested_category_code: string
+          times_used?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_range?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          merchant_name?: string
+          suggested_category_code?: string
+          times_used?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       challenge_participants: {
         Row: {
@@ -4757,6 +4796,59 @@ export type Database = {
           },
         ]
       }
+      recurring_budget_configs: {
+        Row: {
+          budget_name_template: string
+          category_limits: Json
+          created_at: string | null
+          currency: string | null
+          frequency: string
+          id: string
+          is_active: boolean | null
+          next_creation_date: string
+          template_id: string | null
+          total_limit: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          budget_name_template: string
+          category_limits: Json
+          created_at?: string | null
+          currency?: string | null
+          frequency: string
+          id?: string
+          is_active?: boolean | null
+          next_creation_date: string
+          template_id?: string | null
+          total_limit: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          budget_name_template?: string
+          category_limits?: Json
+          created_at?: string | null
+          currency?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          next_creation_date?: string
+          template_id?: string | null
+          total_limit?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_budget_configs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "budget_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referrals: {
         Row: {
           created_at: string | null
@@ -5467,6 +5559,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      spending_predictions: {
+        Row: {
+          budget_id: string | null
+          category_code: string | null
+          confidence_level: string | null
+          created_at: string | null
+          factors: Json | null
+          id: string
+          predicted_amount: number
+          prediction_period: string
+          user_id: string
+          valid_until: string
+        }
+        Insert: {
+          budget_id?: string | null
+          category_code?: string | null
+          confidence_level?: string | null
+          created_at?: string | null
+          factors?: Json | null
+          id?: string
+          predicted_amount: number
+          prediction_period: string
+          user_id: string
+          valid_until: string
+        }
+        Update: {
+          budget_id?: string | null
+          category_code?: string | null
+          confidence_level?: string | null
+          created_at?: string | null
+          factors?: Json | null
+          id?: string
+          predicted_amount?: number
+          prediction_period?: string
+          user_id?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spending_predictions_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       streak_freeze_inventory: {
         Row: {
@@ -6336,6 +6475,7 @@ export type Database = {
         Row: {
           category_limits: Json | null
           created_at: string | null
+          currency: string | null
           id: string
           is_active: boolean | null
           name: string
@@ -6347,6 +6487,7 @@ export type Database = {
         Insert: {
           category_limits?: Json | null
           created_at?: string | null
+          currency?: string | null
           id?: string
           is_active?: boolean | null
           name: string
@@ -6358,6 +6499,7 @@ export type Database = {
         Update: {
           category_limits?: Json | null
           created_at?: string | null
+          currency?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
