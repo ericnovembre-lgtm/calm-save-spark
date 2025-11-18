@@ -1410,9 +1410,12 @@ export type Database = {
         Row: {
           challenge_id: string
           completed_at: string | null
+          current_streak: number | null
+          days_active: number | null
           id: string
           is_completed: boolean | null
           joined_at: string | null
+          milestones_reached: Json | null
           progress: number | null
           rank: number | null
           user_id: string
@@ -1420,9 +1423,12 @@ export type Database = {
         Insert: {
           challenge_id: string
           completed_at?: string | null
+          current_streak?: number | null
+          days_active?: number | null
           id?: string
           is_completed?: boolean | null
           joined_at?: string | null
+          milestones_reached?: Json | null
           progress?: number | null
           rank?: number | null
           user_id: string
@@ -1430,9 +1436,12 @@ export type Database = {
         Update: {
           challenge_id?: string
           completed_at?: string | null
+          current_streak?: number | null
+          days_active?: number | null
           id?: string
           is_completed?: boolean | null
           joined_at?: string | null
+          milestones_reached?: Json | null
           progress?: number | null
           rank?: number | null
           user_id?: string
@@ -3317,6 +3326,45 @@ export type Database = {
         }
         Relationships: []
       }
+      leaderboard_entries: {
+        Row: {
+          created_at: string | null
+          display_name: string | null
+          id: string
+          is_visible: boolean | null
+          leaderboard_type: string
+          period: string
+          rank: number | null
+          score: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          is_visible?: boolean | null
+          leaderboard_type: string
+          period: string
+          rank?: number | null
+          score: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          is_visible?: boolean | null
+          leaderboard_type?: string
+          period?: string
+          rank?: number | null
+          score?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       leaderboards: {
         Row: {
           calculated_at: string | null
@@ -4591,6 +4639,7 @@ export type Database = {
           full_name: string | null
           id: string
           last_activity_date: string | null
+          longest_streak: number | null
           milestones_reached: Json | null
           onboarding_completed: boolean | null
           onboarding_draft_data: Json | null
@@ -4599,6 +4648,8 @@ export type Database = {
           onboarding_step: string | null
           preferred_currency: string | null
           show_dashboard_tutorial: boolean | null
+          streak_freeze_available: number | null
+          total_check_ins: number | null
           updated_at: string | null
         }
         Insert: {
@@ -4609,6 +4660,7 @@ export type Database = {
           full_name?: string | null
           id: string
           last_activity_date?: string | null
+          longest_streak?: number | null
           milestones_reached?: Json | null
           onboarding_completed?: boolean | null
           onboarding_draft_data?: Json | null
@@ -4617,6 +4669,8 @@ export type Database = {
           onboarding_step?: string | null
           preferred_currency?: string | null
           show_dashboard_tutorial?: boolean | null
+          streak_freeze_available?: number | null
+          total_check_ins?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -4627,6 +4681,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           last_activity_date?: string | null
+          longest_streak?: number | null
           milestones_reached?: Json | null
           onboarding_completed?: boolean | null
           onboarding_draft_data?: Json | null
@@ -4635,6 +4690,8 @@ export type Database = {
           onboarding_step?: string | null
           preferred_currency?: string | null
           show_dashboard_tutorial?: boolean | null
+          streak_freeze_available?: number | null
+          total_check_ins?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -5110,6 +5167,47 @@ export type Database = {
             columns: ["wallet_id"]
             isOneToOne: false
             referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      savings_milestones: {
+        Row: {
+          created_at: string | null
+          goal_id: string | null
+          id: string
+          is_celebrated: boolean | null
+          milestone_amount: number
+          milestone_percentage: number
+          reached_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          goal_id?: string | null
+          id?: string
+          is_celebrated?: boolean | null
+          milestone_amount: number
+          milestone_percentage: number
+          reached_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          goal_id?: string | null
+          id?: string
+          is_celebrated?: boolean | null
+          milestone_amount?: number
+          milestone_percentage?: number
+          reached_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "savings_milestones_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
             referencedColumns: ["id"]
           },
         ]
@@ -7133,6 +7231,51 @@ export type Database = {
           public_key?: string
           transports?: string[] | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_insights: {
+        Row: {
+          budget_adherence_score: number | null
+          created_at: string | null
+          id: string
+          insights: Json | null
+          sent_at: string | null
+          top_category: string | null
+          total_saved: number | null
+          total_spent: number | null
+          user_id: string
+          viewed_at: string | null
+          week_end: string
+          week_start: string
+        }
+        Insert: {
+          budget_adherence_score?: number | null
+          created_at?: string | null
+          id?: string
+          insights?: Json | null
+          sent_at?: string | null
+          top_category?: string | null
+          total_saved?: number | null
+          total_spent?: number | null
+          user_id: string
+          viewed_at?: string | null
+          week_end: string
+          week_start: string
+        }
+        Update: {
+          budget_adherence_score?: number | null
+          created_at?: string | null
+          id?: string
+          insights?: Json | null
+          sent_at?: string | null
+          top_category?: string | null
+          total_saved?: number | null
+          total_spent?: number | null
+          user_id?: string
+          viewed_at?: string | null
+          week_end?: string
+          week_start?: string
         }
         Relationships: []
       }
