@@ -18,7 +18,8 @@ import { motion } from "framer-motion";
 import { CelebrationManager } from "@/components/effects/CelebrationManager";
 import { useBudgetMilestones } from "@/hooks/useBudgetMilestones";
 import { Card } from "@/components/ui/card";
-import { Target, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Target, Plus, BookOpen, RefreshCw } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { PageLoadingSkeleton } from "@/components/ui/page-loading-skeleton";
 import { NeuralBackground } from "@/components/budget/advanced/NeuralBackground";
@@ -31,6 +32,9 @@ import { VideoBackground } from "@/components/budget/advanced/VideoBackground";
 import { useBudgetHealth } from "@/hooks/useBudgetHealth";
 import { soundEffects } from "@/lib/sound-effects";
 import { ParticleSystem } from "@/components/budget/advanced/ParticleSystem";
+import { BudgetTemplatesLibrary } from "@/components/budget/BudgetTemplatesLibrary";
+import { RecurringBudgetManager } from "@/components/budget/RecurringBudgetManager";
+import { PredictiveBudgetingPanel } from "@/components/budget/PredictiveBudgetingPanel";
 
 // Lazy load heavy components
 const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
@@ -48,6 +52,8 @@ export default function Budget() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [aiMessage, setAiMessage] = useState<string>();
   const [showParticles, setShowParticles] = useState(false);
+  const [showTemplatesLibrary, setShowTemplatesLibrary] = useState(false);
+  const [showRecurringManager, setShowRecurringManager] = useState(false);
   const queryClient = useQueryClient();
   const calculateSpendingMutation = useCalculateBudgetSpending();
   const { celebrationTrigger, checkMilestones } = useBudgetMilestones();
@@ -285,6 +291,26 @@ export default function Budget() {
           budgetCount={budgets.length}
         />
 
+        {/* Quick Actions for Advanced Features */}
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => setShowTemplatesLibrary(true)}
+            className="gap-2"
+          >
+            <BookOpen className="w-4 h-4" />
+            Templates
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowRecurringManager(true)}
+            className="gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Recurring
+          </Button>
+        </div>
+
         {/* Overview Tab */}
         {activeView === 'overview' && (
           <ScrollSection>
@@ -310,6 +336,13 @@ export default function Budget() {
                 <SavingsOpportunities budgets={budgets} spending={spending} />
               </HolographicCard>
             </div>
+
+            {/* Predictive Budgeting */}
+            {budgets.length > 0 && (
+              <div className="mt-6">
+                <PredictiveBudgetingPanel budgetId={budgets[0].id} />
+              </div>
+            )}
 
             {budgets.length === 0 ? (
               <Card className="p-12 text-center backdrop-blur-sm bg-card/80 border-border/50 mt-6">
@@ -399,6 +432,20 @@ export default function Budget() {
             spending={spending}
             transactions={[]}
             categories={categories}
+          />
+
+          <BudgetTemplatesLibrary
+            isOpen={showTemplatesLibrary}
+            onClose={() => setShowTemplatesLibrary(false)}
+            onSelect={(template) => {
+              // Pre-fill create budget dialog with template data
+              setShowCreateModal(true);
+            }}
+          />
+
+          <RecurringBudgetManager
+            isOpen={showRecurringManager}
+            onClose={() => setShowRecurringManager(false)}
           />
         </Suspense>
       </div>
