@@ -200,25 +200,45 @@ const Pots = () => {
             <p className="text-muted-foreground">Organize your savings into flexible containers</p>
           </div>
           
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            if (!open) resetForm();
-            setIsDialogOpen(open);
-          }}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="w-4 h-4" />
-                New Pot
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>{editingPot ? 'Edit Pot' : 'Create New Pot'}</DialogTitle>
-                <DialogDescription>
-                  {editingPot ? 'Update your savings pot details' : 'Create a flexible savings container for any purpose'}
-                </DialogDescription>
-              </DialogHeader>
+          <Button 
+            onClick={() => {
+              setEditingPot(null);
+              setPotForm({ name: "", target_amount: "", target_date: "", notes: "", color: "blue" });
+              setFormErrors({});
+              setIsDialogOpen(true);
+            }}
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Pot
+          </Button>
+        </div>
+
+        {/* Create/Edit Pot Modal - Full Screen Overlay */}
+        {isDialogOpen && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-background rounded-2xl shadow-xl max-w-md w-full animate-scale-in">
+              <div className="flex justify-between items-center p-6 border-b">
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">
+                    {editingPot ? 'Edit Pot' : 'Create a New Pot'}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {editingPot ? 'Update your savings pot details' : 'Create a flexible savings container for any purpose'}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={resetForm}
+                  className="rounded-full"
+                  aria-label="Close dialog"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
               
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 <div>
                   <Label htmlFor="pot-name">
                     Pot Name <span className="text-destructive">*</span>
@@ -230,6 +250,7 @@ const Pots = () => {
                     value={potForm.name}
                     onChange={handleInputChange}
                     className={formErrors.name ? "border-destructive" : ""}
+                    autoFocus
                   />
                   {formErrors.name && (
                     <p className="text-xs text-destructive mt-1">{formErrors.name}</p>
@@ -274,19 +295,21 @@ const Pots = () => {
                   />
                 </div>
                 
-                <Button 
-                  type="submit"
-                  className="w-full"
-                  disabled={createPotMutation.isPending || updatePotMutation.isPending}
-                >
-                  {createPotMutation.isPending || updatePotMutation.isPending 
-                    ? 'Saving...' 
-                    : editingPot ? 'Update Pot' : 'Create Pot'}
-                </Button>
+                <div className="flex justify-end pt-4">
+                  <Button 
+                    type="submit"
+                    className="w-full"
+                    disabled={createPotMutation.isPending || updatePotMutation.isPending}
+                  >
+                    {createPotMutation.isPending || updatePotMutation.isPending 
+                      ? 'Saving...' 
+                      : editingPot ? 'Update Pot' : 'Create Pot'}
+                  </Button>
+                </div>
               </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+            </div>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">Loading pots...</div>
