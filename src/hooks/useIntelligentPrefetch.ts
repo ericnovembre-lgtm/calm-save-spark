@@ -9,12 +9,19 @@ const ROUTE_PATTERNS: Record<string, string[]> = {
   '/': ['/auth', '/onboarding'],
   '/auth': ['/onboarding', '/dashboard'],
   '/onboarding': ['/dashboard'],
-  '/dashboard': ['/goals', '/transactions', '/insights', '/pots'],
-  '/goals': ['/dashboard', '/pots', '/transactions'],
-  '/pots': ['/goals', '/dashboard', '/transactions'],
-  '/transactions': ['/insights', '/dashboard'],
+  '/dashboard': ['/hubs/manage-money', '/hubs/grow-wealth', '/goals'],
+  '/hubs/manage-money': ['/budget', '/transactions', '/automations'],
+  '/hubs/grow-wealth': ['/goals', '/investments', '/credit'],
+  '/hubs/ai-insights': ['/coach', '/ai-agents', '/insights'],
+  '/hubs/lifestyle': ['/family', '/student', '/business'],
+  '/hubs/premium': ['/alternatives-portal', '/investment-manager', '/lifesim'],
+  '/goals': ['/dashboard', '/hubs/grow-wealth', '/pots'],
+  '/transactions': ['/dashboard', '/budget', '/hubs/manage-money'],
+  '/budget': ['/transactions', '/insights', '/automations'],
   '/insights': ['/dashboard', '/analytics', '/budget'],
   '/analytics': ['/insights', '/dashboard'],
+  '/coach': ['/ai-agents', '/insights', '/hubs/ai-insights'],
+  '/pots': ['/goals', '/dashboard', '/transactions'],
 };
 
 /**

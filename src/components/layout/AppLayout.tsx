@@ -14,6 +14,8 @@ import { MobileDrawer } from "./MobileDrawer";
 import { getClientUser, AppUser } from "@/lib/session";
 import { FEATURE_FLAGS } from "@/lib/flags";
 import { supabase } from "@/integrations/supabase/client";
+import { Breadcrumbs } from "./Breadcrumbs";
+import { FABMenu } from "@/components/navigation/FABMenu";
 
 const taglines = [
   "Navigate Your Financial Universe",
@@ -24,50 +26,26 @@ const taglines = [
 
 const mainNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
-  { name: "Features Hub", path: "/features-hub", icon: Sparkles },
-  { name: "AI Agents", path: "/ai-agents", icon: Brain },
-  { name: "Accounts", path: "/accounts", icon: Wallet },
+  { name: "Manage Money", path: "/hubs/manage-money", icon: Wallet },
+  { name: "Grow Wealth", path: "/hubs/grow-wealth", icon: TrendingUp },
+  { name: "AI & Insights", path: "/hubs/ai-insights", icon: Brain },
+  { name: "Lifestyle", path: "/hubs/lifestyle", icon: Heart },
+  { name: "Premium", path: "/hubs/premium", icon: Sparkles },
+];
+
+const quickAccessLinks = [
   { name: "Goals", path: "/goals", icon: Target },
-  { name: "Pots", path: "/pots", icon: Wallet },
-  { name: "Financial Health", path: "/financial-health", icon: Heart },
-  { name: "Transactions", path: "/transactions", icon: DollarSign },
-  { name: "Subscriptions", path: "/subscriptions", icon: Shield },
-  { name: "Insights", path: "/insights", icon: Lightbulb },
   { name: "Budget", path: "/budget", icon: BarChart3 },
-  { name: "Debts", path: "/debts", icon: CreditCard },
-  { name: "Investments", path: "/investments", icon: TrendingUp },
-  { name: "Credit", path: "/credit", icon: BadgeDollarSign },
   { name: "Coach", path: "/coach", icon: Bot },
-  { name: "Achievements", path: "/achievements", icon: Trophy },
-  { name: "Leaderboard", path: "/leaderboard", icon: Trophy },
-  { name: "Bill Negotiation", path: "/bill-negotiation", icon: Receipt },
-  { name: "Family", path: "/family", icon: UsersRound },
-  { name: "Student", path: "/student", icon: GraduationCap },
-  { name: "Business", path: "/business", icon: Building2 },
-  { name: "White-Label", path: "/whitelabel", icon: Briefcase },
-  { name: "Learn", path: "/literacy", icon: BookOpen },
-  { name: "Sustainability", path: "/sustainability", icon: Leaf },
-  { name: "Analytics", path: "/analytics", icon: BarChart3 },
-  { name: "Social", path: "/social", icon: Trophy },
-  { name: "Integrations", path: "/integrations", icon: Plug },
-  // Next-Gen Features Section
-  { name: "Digital Twin", path: "/digital-twin", icon: Brain },
-  { name: "Agent Hub", path: "/agent-hub", icon: Bot },
-  { name: "Guardian", path: "/guardian", icon: Shield },
-  { name: "LifeSim", path: "/lifesim", icon: Gamepad2 },
-  { name: "Investment Manager", path: "/investment-manager", icon: TrendingUp },
-  { name: "Refinancing Hub", path: "/refinancing-hub", icon: RefreshCw },
-  { name: "Life Events", path: "/life-events", icon: MapPin },
-  { name: "Business OS", path: "/business-os", icon: Briefcase },
-  { name: "DeFi Manager", path: "/defi-manager", icon: Coins },
+  { name: "Accounts", path: "/accounts", icon: Wallet },
 ];
 
 const bottomNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
-  { name: "Goals", path: "/goals", icon: Target },
-  { name: "AI Agents", path: "/ai-agents", icon: Brain },
-  { name: "Coach", path: "/coach", icon: Bot },
-  { name: "Settings", path: "/settings", icon: Settings },
+  { name: "Money", path: "/hubs/manage-money", icon: Wallet },
+  { name: "Wealth", path: "/hubs/grow-wealth", icon: TrendingUp },
+  { name: "AI", path: "/hubs/ai-insights", icon: Brain },
+  { name: "More", path: "/features-hub", icon: Sparkles },
 ];
 
 const adminNavLinks = [
@@ -121,6 +99,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
   const allNavLinks = [
     ...mainNavLinks,
+    ...quickAccessLinks,
     { name: "Settings", path: "/settings", icon: Settings },
     { name: "Subscription", path: "/subscription", icon: CreditCard },
     ...(isAdmin && FEATURE_FLAGS.ADMIN_FEATURES_ENABLED ? adminNavLinks : []),
@@ -220,8 +199,14 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <main className="flex-1 pb-20 lg:pb-0">
+        <div className="container mx-auto px-4 py-4">
+          <Breadcrumbs />
+        </div>
         {children}
       </main>
+
+      {/* FAB Menu */}
+      <FABMenu />
 
       {/* Bottom Navigation (mobile) */}
       <nav
