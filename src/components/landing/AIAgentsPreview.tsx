@@ -60,10 +60,10 @@ export const AIAgentsPreview = () => {
           className="text-center mb-16"
         >
           <h2 className="font-display font-bold text-4xl md:text-5xl text-foreground mb-4">
-            Meet Your 6 AI Financial Advisors
+            Meet Your 7+ AI Financial Specialists
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Each specialized in different aspects of your financial journey, available 24/7
+            From coaching to forecasting—each AI agent is specialized for your financial success
           </p>
         </motion.div>
 

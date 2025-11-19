@@ -60,11 +60,11 @@ export const CTA = () => {
                 backgroundClip: 'text',
               }}
             >
-              Ready to Start Saving?
+              Ready to Transform Your Finances?
             </motion.h2>
 
             <p className="text-xl text-muted-foreground">
-              Join thousands of smart savers. No credit card required.
+              Join 250,000+ users accessing 63+ tools across money management, wealth building, AI insights, and premium features
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
