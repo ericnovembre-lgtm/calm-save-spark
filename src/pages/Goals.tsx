@@ -3,7 +3,8 @@ import Joyride from 'react-joyride';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Target, Sparkles } from "lucide-react";
+import { Plus, Target, Sparkles, ArrowRight, Zap } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
@@ -296,6 +297,31 @@ const Goals = () => {
           </Dialog>
           </div>
         </div>
+
+        {/* Automation Promotion */}
+        {memoizedGoals && memoizedGoals.length > 0 && (
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Zap className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">Automate Your Savings</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Set up automatic transfers to reach your goals faster
+                  </p>
+                </div>
+              </div>
+              <Link to="/automations">
+                <Button>
+                  Set Up Automations
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        )}
 
         {isLoading ? (
           <AnimatedLoadingState />
