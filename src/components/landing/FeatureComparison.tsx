@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Check, X, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { memo, useCallback, useMemo } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const tiers = [
@@ -62,9 +63,79 @@ const tiers = [
   }
 ];
 
-export const FeatureComparison = () => {
+export const FeatureComparison = memo(() => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
+
+  const handleNavigate = useCallback(() => {
+    navigate('/pricing');
+  }, [navigate]);
+
+  const tierCards = useMemo(() => 
+    tiers.map((tier, index) => (
+      <motion.div
+        key={tier.name}
+        initial={prefersReducedMotion ? {} : { opacity: 0, y: 30 }}
+        whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: index * 0.1 }}
+        className="relative"
+      >
+        <div
+          className={`relative p-8 rounded-3xl h-full transition-all ${
+            tier.popular
+              ? "bg-gradient-to-br from-primary/10 to-accent/10 border-2 border-primary shadow-xl scale-105"
+              : "bg-muted/50 border border-border hover:border-primary/50"
+          }`}
+        >
+          {tier.popular && (
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-bold shadow-lg">
+                <Star className="w-4 h-4 fill-current" />
+                Most Popular
+              </div>
+            </div>
+          )}
+
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
+            <p className="text-muted-foreground text-sm mb-4">{tier.description}</p>
+            <div className="flex items-baseline justify-center gap-1">
+              <span className="text-4xl font-bold">{tier.price}</span>
+              {tier.period && <span className="text-muted-foreground">{tier.period}</span>}
+            </div>
+          </div>
+
+          <ul className="space-y-4 mb-8">
+            {tier.features.map((feature, idx) => (
+              <li key={idx} className="flex items-start gap-3">
+                {feature.included ? (
+                  <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                ) : (
+                  <X className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                )}
+                <span className={feature.included ? "text-foreground" : "text-muted-foreground"}>
+                  {feature.name}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <button
+            onClick={handleNavigate}
+            className={`w-full py-4 rounded-full font-semibold transition-all ${
+              tier.popular
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+                : "bg-background border border-border hover:border-primary hover:bg-primary/5"
+            }`}
+          >
+            {tier.price === "$0" ? "Start Free" : "Get Started"}
+          </button>
+        </div>
+      </motion.div>
+    )),
+    [prefersReducedMotion, handleNavigate]
+  );
 
   return (
     <section className="py-24 bg-background relative overflow-hidden">
@@ -84,78 +155,7 @@ export const FeatureComparison = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {tiers.map((tier, index) => (
-            <motion.div
-              key={tier.name}
-              initial={prefersReducedMotion ? {} : { opacity: 0, y: 30 }}
-              whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="relative"
-            >
-              <div
-                className={`relative p-8 rounded-3xl h-full transition-all ${
-                  tier.popular
-                    ? "bg-gradient-to-br from-primary/10 to-accent/10 border-2 border-primary shadow-xl scale-105"
-                    : "bg-muted/50 border border-border hover:border-primary/50"
-                }`}
-              >
-                {/* Popular Badge */}
-                {tier.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="flex items-center gap-1 px-4 py-1.5 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm font-bold shadow-lg">
-                      <Star className="w-3 h-3 fill-current" />
-                      Most Popular
-                    </div>
-                  </div>
-                )}
-
-                {/* Header */}
-                <div className="mb-8">
-                  <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">{tier.price}</span>
-                    {tier.period && (
-                      <span className="text-muted-foreground">{tier.period}</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Features */}
-                <ul className="space-y-3 mb-8">
-                  {tier.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <div className={`p-0.5 rounded-full mt-0.5 ${
-                        feature.included ? "bg-primary/20" : "bg-muted"
-                      }`}>
-                        {feature.included ? (
-                          <Check className="w-4 h-4 text-primary" />
-                        ) : (
-                          <X className="w-4 h-4 text-muted-foreground" />
-                        )}
-                      </div>
-                      <span className={feature.included ? "" : "text-muted-foreground"}>
-                        {feature.name}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA Button */}
-                <button
-                  onClick={() => navigate("/onboarding")}
-                  className={`w-full py-3 rounded-full font-semibold transition-all ${
-                    tier.popular
-                      ? "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:shadow-lg"
-                      : "bg-background border border-border hover:border-primary text-foreground"
-                  }`}
-                >
-                  Get Started
-                </button>
-              </div>
-            </motion.div>
-          ))}
+          {tierCards}
         </div>
 
         <motion.div
@@ -171,4 +171,4 @@ export const FeatureComparison = () => {
       </div>
     </section>
   );
-};
+});
