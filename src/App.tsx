@@ -82,13 +82,14 @@ const CardApply = lazy(() => import("./pages/CardApply"));
 
 const queryClient = new QueryClient(queryConfig);
 
-const App = () => {
-  // Phase 7: Performance monitoring
+// Performance hooks wrapper - must be inside Router context
+const PerformanceMonitoring = () => {
   useWebVitals(true);
-  
-  // Phase 4: Intelligent prefetching
   useIntelligentPrefetch();
+  return null;
+};
 
+const App = () => {
   // Initialize session management on app startup
   useEffect(() => {
     initializeSessionManagement();
@@ -145,8 +146,10 @@ function AnimatedRoutes() {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+    <>
+      <PerformanceMonitoring />
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
         {/* Public routes without layout */}
         <Route 
           path="/" 
@@ -229,6 +232,7 @@ function AnimatedRoutes() {
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
+    </>
   );
 }
 
