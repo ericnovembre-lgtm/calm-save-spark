@@ -137,11 +137,71 @@ serve(async (req) => {
       throw new Error('Invalid target type');
     }
 
+    // Calculate next run date for scheduled transfers
+    let nextRunDate = null;
+    if (rule.rule_type === 'scheduled_transfer' && rule.frequency) {
+      const currentDate = new Date(rule.next_run_date || new Date());
+      switch (rule.frequency) {
+        case 'daily':
+          nextRunDate = new Date(currentDate.setDate(currentDate.getDate() + 1));
+          break;
+        case 'weekly':
+          nextRunDate = new Date(currentDate.setDate(currentDate.getDate() + 7));
+          break;
+        case 'bi-weekly':
+          nextRunDate = new Date(currentDate.setDate(currentDate.getDate() + 14));
+          break;
+        case 'monthly':
+          nextRunDate = new Date(currentDate.setMonth(currentDate.getMonth() + 1));
+          break;
+      }
+    }
+
+    // Update automation rule with execution metadata
+    const updateData: any = {
+      last_run_date: new Date().toISOString(),
+      run_count: (rule.run_count || 0) + 1,
+    };
+    
+    if (nextRunDate) {
+      updateData.next_run_date = nextRunDate.toISOString();
+    }
+
+    const { error: updateError } = await supabaseClient
+      .from('automation_rules')
+      .update(updateData)
+      .eq('id', validated.ruleId);
+
+    if (updateError) {
+      console.error('Failed to update automation rule:', updateError);
+    }
+
+    // Log execution to automation_execution_log
+    const { error: logError } = await supabaseClient
+      .from('automation_execution_log')
+      .insert({
+        automation_rule_id: validated.ruleId,
+        user_id: user.id,
+        status: 'success',
+        amount_transferred: amountToSave,
+        metadata: {
+          rule_type: rule.rule_type,
+          transaction_amount: validated.transactionAmount,
+          target_type: targetType,
+          target_id: targetId,
+        },
+      });
+
+    if (logError) {
+      console.error('Failed to log execution:', logError);
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true,
         amount_saved: amountToSave,
-        rule_type: rule.rule_type
+        rule_type: rule.rule_type,
+        next_run_date: nextRunDate?.toISOString(),
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
