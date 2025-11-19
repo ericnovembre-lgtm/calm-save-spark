@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
-import { useState } from "react";
+import { useState, memo, useCallback, useMemo } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const faqs = [
@@ -62,19 +62,72 @@ const faqs = [
   }
 ];
 
-export const FAQ = () => {
+export const FAQ = memo(() => {
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
   const prefersReducedMotion = useReducedMotion();
 
-  const toggleItem = (id: string) => {
-    const newOpenItems = new Set(openItems);
-    if (newOpenItems.has(id)) {
-      newOpenItems.delete(id);
-    } else {
-      newOpenItems.add(id);
-    }
-    setOpenItems(newOpenItems);
-  };
+  const toggleItem = useCallback((id: string) => {
+    setOpenItems(prev => {
+      const newOpenItems = new Set(prev);
+      if (newOpenItems.has(id)) {
+        newOpenItems.delete(id);
+      } else {
+        newOpenItems.add(id);
+      }
+      return newOpenItems;
+    });
+  }, []);
+
+  const faqContent = useMemo(() => 
+    faqs.map((category, categoryIndex) => (
+      <motion.div
+        key={category.category}
+        initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+        whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: categoryIndex * 0.1 }}
+        className="space-y-4"
+      >
+        <h3 className="text-xl font-bold text-foreground mb-4">{category.category}</h3>
+        {category.questions.map((item, index) => {
+          const itemId = `${category.category}-${index}`;
+          const isOpen = openItems.has(itemId);
+          
+          return (
+            <div
+              key={itemId}
+              className="border border-border rounded-2xl overflow-hidden bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-colors"
+            >
+              <button
+                onClick={() => toggleItem(itemId)}
+                className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
+              >
+                <span className="font-semibold text-foreground pr-4">{item.q}</span>
+                {isOpen ? (
+                  <Minus className="w-5 h-5 text-primary flex-shrink-0" />
+                ) : (
+                  <Plus className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                )}
+              </button>
+              
+              {isOpen && (
+                <motion.div
+                  initial={prefersReducedMotion ? {} : { height: 0, opacity: 0 }}
+                  animate={prefersReducedMotion ? {} : { height: "auto", opacity: 1 }}
+                  exit={prefersReducedMotion ? {} : { height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="px-6 pb-5 text-muted-foreground"
+                >
+                  <p>{item.a}</p>
+                </motion.div>
+              )}
+            </div>
+          );
+        })}
+      </motion.div>
+    )),
+    [openItems, prefersReducedMotion, toggleItem]
+  );
 
   return (
     <section className="py-24 bg-muted/30">
@@ -94,57 +147,7 @@ export const FAQ = () => {
         </motion.div>
 
         <div className="max-w-4xl mx-auto space-y-8">
-          {faqs.map((section, sectionIndex) => (
-            <motion.div
-              key={section.category}
-              initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
-              whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: sectionIndex * 0.1 }}
-            >
-              <h3 className="text-xl font-bold mb-4 text-primary">{section.category}</h3>
-              <div className="space-y-4">
-                {section.questions.map((item, itemIndex) => {
-                  const itemId = `${sectionIndex}-${itemIndex}`;
-                  const isOpen = openItems.has(itemId);
-
-                  return (
-                    <div
-                      key={itemId}
-                      className="rounded-2xl bg-background border border-border overflow-hidden transition-all hover:border-primary/50"
-                    >
-                      <button
-                        onClick={() => toggleItem(itemId)}
-                        className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-muted/30 transition-colors"
-                      >
-                        <span className="font-semibold pr-4">{item.q}</span>
-                        <div className="flex-shrink-0 p-1 rounded-full bg-primary/10">
-                          {isOpen ? (
-                            <Minus className="w-4 h-4 text-primary" />
-                          ) : (
-                            <Plus className="w-4 h-4 text-primary" />
-                          )}
-                        </div>
-                      </button>
-
-                      {isOpen && (
-                        <motion.div
-                          initial={prefersReducedMotion ? {} : { height: 0, opacity: 0 }}
-                          animate={prefersReducedMotion ? {} : { height: "auto", opacity: 1 }}
-                          exit={prefersReducedMotion ? {} : { height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <div className="px-6 pb-5 text-muted-foreground leading-relaxed">
-                            {item.a}
-                          </div>
-                        </motion.div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          ))}
+          {faqContent}
         </div>
 
         <motion.div
@@ -166,4 +169,4 @@ export const FAQ = () => {
       </div>
     </section>
   );
-};
+});

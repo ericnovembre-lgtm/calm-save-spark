@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { memo, useCallback, useMemo } from "react";
 import { 
   Wallet, 
   TrendingUp, 
@@ -63,9 +64,64 @@ const hubs = [
   }
 ];
 
-export const FeatureHubs = () => {
+export const FeatureHubs = memo(() => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
+
+  const handleNavigate = useCallback((path: string) => {
+    navigate(path);
+  }, [navigate]);
+
+  const hubCards = useMemo(() => 
+    hubs.map((hub, index) => {
+      const Icon = hub.icon;
+      return (
+        <motion.div
+          key={hub.id}
+          initial={prefersReducedMotion ? {} : { opacity: 0, y: 30 }}
+          whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          whileHover={prefersReducedMotion ? {} : { y: -8 }}
+          onClick={() => handleNavigate(hub.path)}
+          className="group cursor-pointer"
+        >
+          <div className={`relative p-8 rounded-3xl bg-gradient-to-br ${hub.color} border border-border/50 backdrop-blur-sm h-full transition-all duration-300 hover:border-primary/50 hover:shadow-xl`}>
+            <div className="flex items-start justify-between mb-6">
+              <div className="p-3 rounded-2xl bg-background/80 backdrop-blur">
+                <Icon className="w-8 h-8 text-primary" />
+              </div>
+              <span className="px-3 py-1 rounded-full bg-primary/20 text-sm font-semibold text-primary">
+                {hub.featureCount} tools
+              </span>
+            </div>
+            
+            <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
+              {hub.title}
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              {hub.description}
+            </p>
+            
+            <ul className="space-y-2 mb-6">
+              {hub.features.map((feature, idx) => (
+                <li key={idx} className="flex items-center gap-2 text-sm">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            
+            <div className="flex items-center gap-2 text-primary font-semibold group-hover:gap-4 transition-all">
+              Explore {hub.title}
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </div>
+        </motion.div>
+      );
+    }),
+    [prefersReducedMotion, handleNavigate]
+  );
 
   return (
     <section className="py-24 bg-background relative overflow-hidden">
@@ -89,51 +145,9 @@ export const FeatureHubs = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {hubs.map((hub, index) => {
-            const Icon = hub.icon;
-            return (
-              <motion.div
-                key={hub.id}
-                initial={prefersReducedMotion ? {} : { opacity: 0, y: 30 }}
-                whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={prefersReducedMotion ? {} : { y: -8 }}
-                onClick={() => navigate(hub.path)}
-                className="group cursor-pointer"
-              >
-                <div className={`relative p-8 rounded-3xl bg-gradient-to-br ${hub.color} border border-border/50 backdrop-blur-sm h-full transition-all duration-300 hover:border-primary/50 hover:shadow-xl`}>
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="p-3 rounded-2xl bg-background/80 backdrop-blur">
-                      <Icon className="w-8 h-8 text-primary" />
-                    </div>
-                    <span className="text-sm font-semibold px-3 py-1 rounded-full bg-background/60 backdrop-blur text-foreground">
-                      {hub.featureCount} tools
-                    </span>
-                  </div>
-
-                  <h3 className="text-2xl font-bold mb-2">{hub.title}</h3>
-                  <p className="text-muted-foreground mb-6">{hub.description}</p>
-
-                  <div className="space-y-2 mb-6">
-                    {hub.features.map((feature, i) => (
-                      <div key={i} className="flex items-center text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary mr-2" />
-                        <span>{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center text-primary font-semibold group-hover:gap-2 transition-all">
-                    Explore hub
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+          {hubCards}
         </div>
       </div>
     </section>
   );
-};
+});

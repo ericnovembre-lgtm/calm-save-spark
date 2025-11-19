@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 import { Card } from '@/components/ui/card';
@@ -43,7 +43,8 @@ export const InteractiveSavingsCalculator = () => {
     }
   }, [playCoinSound]);
 
-  const calculateSavings = () => {
+  // Memoize expensive calculation
+  const calculateSavings = useMemo(() => {
     const months = years * 12;
     const monthlyRate = apy / 100 / 12;
     
@@ -60,14 +61,29 @@ export const InteractiveSavingsCalculator = () => {
     else if (futureValue >= 10000) milestone = "💪 5-Figure Club!";
     
     return { total: futureValue, interest, milestone };
-  };
+  }, [monthlyAmount, years, apy]);
+
+  // Memoize slider change handlers
+  const handleMonthlyChange = useCallback((value: number[]) => {
+    setMonthlyAmount(value[0]);
+    handleSliderSound();
+  }, [handleSliderSound]);
+
+  const handleYearsChange = useCallback((value: number[]) => {
+    setYears(value[0]);
+    handleSliderSound();
+  }, [handleSliderSound]);
+
+  const handleApyChange = useCallback((value: number[]) => {
+    setApy(value[0]);
+    handleSliderSound();
+  }, [handleSliderSound]);
 
   useEffect(() => {
-    const newResult = calculateSavings();
-    setResult(newResult);
+    setResult(calculateSavings);
     
     // Trigger celebration on milestone
-    if (newResult.milestone && !prefersReducedMotion) {
+    if (calculateSavings.milestone && !prefersReducedMotion) {
       setShowCelebration(true);
       confetti({
         particleCount: 50,
@@ -77,7 +93,7 @@ export const InteractiveSavingsCalculator = () => {
       });
       setTimeout(() => setShowCelebration(false), 2000);
     }
-  }, [monthlyAmount, years, apy, prefersReducedMotion]);
+  }, [calculateSavings, prefersReducedMotion]);
 
   return (
     <Card className="p-6 md:p-8 bg-card/80 backdrop-blur-sm border-border/50 relative overflow-hidden">
