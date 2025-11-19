@@ -6,25 +6,32 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 const stats = [
   {
     id: 1,
-    value: 50000,
+    value: 250000,
     suffix: "+",
     label: "Active Savers",
     className: "text-foreground",
   },
   {
     id: 2,
-    value: 2100000,
+    value: 127000000,
     prefix: "$",
     label: "Total Saved",
     className: "text-accent",
   },
   {
     id: 3,
-    value: 4.25,
-    suffix: "%",
-    decimals: 2,
-    label: "Average APY",
+    value: 63,
+    suffix: "+",
+    label: "Financial Tools",
     className: "text-foreground",
+  },
+  {
+    id: 4,
+    value: 4.9,
+    suffix: "/5",
+    decimals: 1,
+    label: "User Rating",
+    className: "text-accent",
   },
 ];
 
