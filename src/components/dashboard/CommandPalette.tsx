@@ -25,27 +25,160 @@ export function CommandPalette() {
   const prefersReducedMotion = useReducedMotion();
 
   const allActions: Action[] = [
+    // Main Hubs
+    {
+      id: "hub-manage-money",
+      label: "Manage Money Hub",
+      icon: <Target className="w-4 h-4" />,
+      action: () => navigate("/hubs/manage-money"),
+      category: "navigation"
+    },
+    {
+      id: "hub-grow-wealth",
+      label: "Grow Wealth Hub",
+      icon: <TrendingUp className="w-4 h-4" />,
+      action: () => navigate("/hubs/grow-wealth"),
+      category: "navigation"
+    },
+    {
+      id: "hub-ai-insights",
+      label: "AI & Insights Hub",
+      icon: <PieChart className="w-4 h-4" />,
+      action: () => navigate("/hubs/ai-insights"),
+      category: "navigation"
+    },
+    {
+      id: "hub-lifestyle",
+      label: "Lifestyle Hub",
+      icon: <Users className="w-4 h-4" />,
+      action: () => navigate("/hubs/lifestyle"),
+      category: "navigation"
+    },
+    {
+      id: "hub-premium",
+      label: "Premium Hub",
+      icon: <Settings className="w-4 h-4" />,
+      action: () => navigate("/hubs/premium"),
+      category: "navigation"
+    },
+    // Money Management
+    {
+      id: "view-budget",
+      label: "Budget",
+      icon: <PieChart className="w-4 h-4" />,
+      shortcut: "B",
+      action: () => navigate("/budget"),
+      category: "navigation"
+    },
+    {
+      id: "view-transactions",
+      label: "Transactions",
+      icon: <CreditCard className="w-4 h-4" />,
+      shortcut: "T",
+      action: () => navigate("/transactions"),
+      category: "navigation"
+    },
+    {
+      id: "view-subscriptions",
+      label: "Subscriptions",
+      icon: <CreditCard className="w-4 h-4" />,
+      action: () => navigate("/subscriptions"),
+      category: "navigation"
+    },
+    {
+      id: "view-debts",
+      label: "Debts",
+      icon: <CreditCard className="w-4 h-4" />,
+      action: () => navigate("/debts"),
+      category: "navigation"
+    },
+    {
+      id: "view-pots",
+      label: "Pots",
+      icon: <Target className="w-4 h-4" />,
+      action: () => navigate("/pots"),
+      category: "navigation"
+    },
+    {
+      id: "view-automations",
+      label: "Automations",
+      icon: <DollarSign className="w-4 h-4" />,
+      action: () => navigate("/automations"),
+      category: "navigation"
+    },
+    // Wealth Building
     {
       id: "view-goals",
-      label: "View Goals",
+      label: "Goals",
       icon: <Target className="w-4 h-4" />,
       shortcut: "G",
       action: () => navigate("/goals"),
       category: "navigation"
     },
     {
+      id: "view-investments",
+      label: "Investments",
+      icon: <TrendingUp className="w-4 h-4" />,
+      action: () => navigate("/investments"),
+      category: "navigation"
+    },
+    {
+      id: "view-credit",
+      label: "Credit Score",
+      icon: <CreditCard className="w-4 h-4" />,
+      action: () => navigate("/credit"),
+      category: "navigation"
+    },
+    {
+      id: "view-wallet",
+      label: "Wallet",
+      icon: <DollarSign className="w-4 h-4" />,
+      action: () => navigate("/wallet"),
+      category: "navigation"
+    },
+    {
+      id: "view-card",
+      label: "Card",
+      icon: <CreditCard className="w-4 h-4" />,
+      action: () => navigate("/card"),
+      category: "navigation"
+    },
+    // AI & Insights
+    {
+      id: "view-coach",
+      label: "AI Coach",
+      icon: <Users className="w-4 h-4" />,
+      shortcut: "C",
+      action: () => navigate("/coach"),
+      category: "navigation"
+    },
+    {
+      id: "view-ai-agents",
+      label: "AI Agents",
+      icon: <Users className="w-4 h-4" />,
+      action: () => navigate("/ai-agents"),
+      category: "navigation"
+    },
+    {
+      id: "view-insights",
+      label: "Insights",
+      icon: <PieChart className="w-4 h-4" />,
+      action: () => navigate("/insights"),
+      category: "navigation"
+    },
+    {
       id: "view-analytics",
-      label: "View Analytics",
+      label: "Analytics",
       icon: <PieChart className="w-4 h-4" />,
       shortcut: "A",
       action: () => navigate("/analytics"),
       category: "navigation"
     },
+    // Quick Actions
     {
       id: "quick-transfer",
       label: "Quick Transfer",
       icon: <DollarSign className="w-4 h-4" />,
-      shortcut: "T",
       action: () => toast.info("Opening quick transfer..."),
       category: "actions"
     },
@@ -53,28 +186,14 @@ export function CommandPalette() {
       id: "check-balance",
       label: "Check Balance",
       icon: <TrendingUp className="w-4 h-4" />,
-      shortcut: "B",
       action: () => toast.info("Balance: $3,247.85"),
       category: "actions"
-    },
-    {
-      id: "view-transactions",
-      label: "View Transactions",
-      icon: <CreditCard className="w-4 h-4" />,
-      action: () => navigate("/transactions"),
-      category: "navigation"
-    },
-    {
-      id: "view-social",
-      label: "View Community",
-      icon: <Users className="w-4 h-4" />,
-      action: () => navigate("/social"),
-      category: "navigation"
     },
     {
       id: "settings",
       label: "Settings",
       icon: <Settings className="w-4 h-4" />,
+      shortcut: "S",
       action: () => navigate("/settings"),
       category: "navigation"
     }

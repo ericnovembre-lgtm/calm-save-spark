@@ -11,22 +11,70 @@ export interface RouteSuggestion {
 }
 
 const validRoutes = [
+  // Main hubs
   { path: '/dashboard', label: 'Dashboard', description: 'View your financial overview', keywords: ['dash', 'home', 'main', 'overview'] },
-  { path: '/goals', label: 'Goals', description: 'Manage your savings goals', keywords: ['goal', 'target', 'objective', 'saving'] },
+  { path: '/hubs/manage-money', label: 'Manage Money Hub', description: 'All money management tools', keywords: ['money', 'manage', 'hub', 'spending'] },
+  { path: '/hubs/grow-wealth', label: 'Grow Wealth Hub', description: 'Build your financial future', keywords: ['wealth', 'grow', 'hub', 'investment'] },
+  { path: '/hubs/ai-insights', label: 'AI & Insights Hub', description: 'AI-powered financial guidance', keywords: ['ai', 'insight', 'hub', 'intelligent'] },
+  { path: '/hubs/lifestyle', label: 'Lifestyle Hub', description: 'Life stage financial tools', keywords: ['lifestyle', 'hub', 'family', 'student'] },
+  { path: '/hubs/premium', label: 'Premium Hub', description: 'Advanced financial solutions', keywords: ['premium', 'hub', 'advanced', 'pro'] },
+  
+  // Money management
+  { path: '/budget', label: 'Budget', description: 'Track your budget and spending', keywords: ['budget', 'spend', 'expense', 'category'] },
   { path: '/transactions', label: 'Transactions', description: 'View your transaction history', keywords: ['transaction', 'transfer', 'payment', 'history'] },
-  { path: '/budget', label: 'Budget', description: 'Track your budget and spending', keywords: ['budget', 'spend', 'expense'] },
-  { path: '/insights', label: 'Insights', description: 'Get financial insights and analytics', keywords: ['insight', 'analytic', 'report'] },
+  { path: '/subscriptions', label: 'Subscriptions', description: 'Manage your subscriptions', keywords: ['subscription', 'recurring', 'membership'] },
+  { path: '/debts', label: 'Debts', description: 'Manage your debts', keywords: ['debt', 'loan', 'payoff', 'owe'] },
+  { path: '/pots', label: 'Pots', description: 'Organize savings in pots', keywords: ['pot', 'jar', 'envelope', 'save'] },
+  { path: '/automations', label: 'Automations', description: 'Set up automated savings rules', keywords: ['automation', 'rule', 'automatic', 'schedule'] },
+  { path: '/bill-negotiation', label: 'Bill Negotiation', description: 'Save money on recurring bills', keywords: ['bill', 'negotiate', 'save', 'reduce'] },
+  { path: '/accounts', label: 'Accounts', description: 'Connect and manage accounts', keywords: ['account', 'bank', 'connect', 'link'] },
+  
+  // Wealth building
+  { path: '/goals', label: 'Goals', description: 'Manage your savings goals', keywords: ['goal', 'target', 'objective', 'saving'] },
+  { path: '/investments', label: 'Investments', description: 'Track your investments', keywords: ['invest', 'stock', 'portfolio', 'market'] },
+  { path: '/credit', label: 'Credit Score', description: 'Monitor your credit score', keywords: ['credit', 'score', 'rating', 'report'] },
+  { path: '/wallet', label: 'Wallet', description: 'Manage your digital wallet', keywords: ['wallet', 'digital', 'money', 'balance'] },
+  { path: '/card', label: 'Card', description: 'Your $ave+ secured credit card', keywords: ['card', 'credit', 'debit', 'secured'] },
+  { path: '/achievements', label: 'Achievements', description: 'View your achievements and badges', keywords: ['achievement', 'badge', 'reward', 'trophy'] },
+  
+  // AI & Insights
+  { path: '/coach', label: 'AI Coach', description: 'Chat with your financial coach', keywords: ['coach', 'chat', 'ai', 'assistant', 'help'] },
+  { path: '/ai-agents', label: 'AI Agents', description: 'Autonomous financial assistants', keywords: ['agent', 'ai', 'autonomous', 'assistant'] },
+  { path: '/digital-twin', label: 'Digital Twin', description: 'Your financial simulation', keywords: ['twin', 'digital', 'simulate', 'forecast'] },
+  { path: '/agent-hub', label: 'Agent Hub', description: 'Manage all your AI agents', keywords: ['agent', 'hub', 'manage', 'ai'] },
+  { path: '/insights', label: 'Insights', description: 'Get financial insights and analytics', keywords: ['insight', 'analytic', 'report', 'data'] },
+  { path: '/analytics', label: 'Analytics', description: 'Advanced financial analytics', keywords: ['analytic', 'metric', 'stat', 'report'] },
+  { path: '/guardian', label: 'Guardian', description: 'Behavioral spending protection', keywords: ['guardian', 'protect', 'behavior', 'control'] },
+  
+  // Lifestyle
+  { path: '/family', label: 'Family', description: 'Family savings and allowances', keywords: ['family', 'allowance', 'kids', 'children'] },
+  { path: '/student', label: 'Student', description: 'Student budgeting and loans', keywords: ['student', 'college', 'loan', 'education'] },
+  { path: '/business', label: 'Business', description: 'Small business financial tools', keywords: ['business', 'small', 'entrepreneur', 'company'] },
+  { path: '/business-os', label: 'Business OS', description: 'Freelancer financial management', keywords: ['business', 'freelance', 'self-employed', 'os'] },
+  { path: '/literacy', label: 'Financial Literacy', description: 'Learn about personal finance', keywords: ['learn', 'literacy', 'education', 'course'] },
+  { path: '/sustainability', label: 'Sustainability', description: 'Track carbon footprint', keywords: ['sustainability', 'carbon', 'green', 'eco'] },
+  { path: '/financial-health', label: 'Financial Health', description: 'Overall financial wellness score', keywords: ['health', 'wellness', 'score', 'overall'] },
+  { path: '/life-events', label: 'Life Events', description: 'Plan for major life changes', keywords: ['life', 'event', 'milestone', 'change'] },
+  
+  // Premium features
+  { path: '/alternatives-portal', label: 'Alternatives Portal', description: 'Alternative investments access', keywords: ['alternative', 'investment', 'premium', 'advanced'] },
+  { path: '/family-office', label: 'Family Office', description: 'High-net-worth financial management', keywords: ['family', 'office', 'wealth', 'premium'] },
+  { path: '/corporate-wellness', label: 'Corporate Wellness', description: 'Employee financial wellness programs', keywords: ['corporate', 'wellness', 'employee', 'company'] },
+  { path: '/investment-manager', label: 'Investment Manager', description: 'Advanced portfolio management', keywords: ['investment', 'manager', 'portfolio', 'advanced'] },
+  { path: '/lifesim', label: 'LifeSim', description: 'Simulate future financial scenarios', keywords: ['life', 'sim', 'simulate', 'scenario'] },
+  { path: '/life-planner', label: 'Life Planner', description: 'Long-term financial planning', keywords: ['life', 'planner', 'plan', 'long-term'] },
+  { path: '/refinancing-hub', label: 'Refinancing Hub', description: 'Debt refinancing opportunities', keywords: ['refinance', 'refi', 'debt', 'loan'] },
+  { path: '/defi-manager', label: 'DeFi Manager', description: 'Decentralized finance management', keywords: ['defi', 'crypto', 'blockchain', 'decentralized'] },
+  { path: '/tax-documents', label: 'Tax Documents', description: 'Tax preparation and filing', keywords: ['tax', 'document', 'filing', 'return'] },
+  { path: '/gamification', label: 'Gamification', description: 'Financial challenges and rewards', keywords: ['game', 'challenge', 'reward', 'fun'] },
+  
+  // Other features
+  { path: '/features-hub', label: 'Features Hub', description: 'Explore all features', keywords: ['feature', 'hub', 'all', 'explore'] },
+  { path: '/leaderboard', label: 'Leaderboard', description: 'Compare with other savers', keywords: ['leaderboard', 'rank', 'compare', 'compete'] },
+  { path: '/social', label: 'Social', description: 'Connect with other users', keywords: ['social', 'community', 'connect', 'share'] },
+  { path: '/integrations', label: 'Integrations', description: 'Connect external services', keywords: ['integration', 'connect', 'service', 'api'] },
   { path: '/settings', label: 'Settings', description: 'Manage your account settings', keywords: ['setting', 'config', 'preference', 'account'] },
   { path: '/help', label: 'Help Center', description: 'Get help and support', keywords: ['help', 'support', 'faq', 'question'] },
-  { path: '/coach', label: 'AI Coach', description: 'Chat with your financial coach', keywords: ['coach', 'chat', 'ai', 'assistant'] },
-  { path: '/automations', label: 'Automations', description: 'Set up automated savings rules', keywords: ['automation', 'rule', 'automatic'] },
-  { path: '/pots', label: 'Pots', description: 'Organize savings in pots', keywords: ['pot', 'jar', 'envelope'] },
-  { path: '/achievements', label: 'Achievements', description: 'View your achievements and badges', keywords: ['achievement', 'badge', 'reward', 'trophy'] },
-  { path: '/analytics', label: 'Analytics', description: 'Advanced financial analytics', keywords: ['analytic', 'metric', 'stat'] },
-  { path: '/credit', label: 'Credit Score', description: 'Monitor your credit score', keywords: ['credit', 'score', 'rating'] },
-  { path: '/investments', label: 'Investments', description: 'Track your investments', keywords: ['invest', 'stock', 'portfolio'] },
-  { path: '/debts', label: 'Debts', description: 'Manage your debts', keywords: ['debt', 'loan', 'payoff'] },
-  { path: '/subscriptions', label: 'Subscriptions', description: 'Manage your subscriptions', keywords: ['subscription', 'recurring', 'membership'] },
 ];
 
 /**

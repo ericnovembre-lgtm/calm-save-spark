@@ -79,6 +79,22 @@ const FamilyOffice = lazy(() => import("./pages/FamilyOffice"));
 const CorporateWellness = lazy(() => import("./pages/CorporateWellness"));
 const Card = lazy(() => import("./pages/Card"));
 const CardApply = lazy(() => import("./pages/CardApply"));
+const LifeSim = lazy(() => import("./pages/LifeSim"));
+const LifePlanner = lazy(() => import("./pages/LifePlanner"));
+const Gamification = lazy(() => import("./pages/Gamification"));
+const TaxDocuments = lazy(() => import("./pages/TaxDocuments"));
+const InvestmentManager = lazy(() => import("./pages/InvestmentManager"));
+const RefinancingHub = lazy(() => import("./pages/RefinancingHub"));
+const LifeEvents = lazy(() => import("./pages/LifeEvents"));
+const BusinessOS = lazy(() => import("./pages/BusinessOS"));
+const DeFiManager = lazy(() => import("./pages/DeFiManager"));
+
+// Hub pages
+const ManageMoneyHub = lazy(() => import("./pages/hubs/ManageMoneyHub"));
+const GrowWealthHub = lazy(() => import("./pages/hubs/GrowWealthHub"));
+const AIInsightsHub = lazy(() => import("./pages/hubs/AIInsightsHub"));
+const LifestyleHub = lazy(() => import("./pages/hubs/LifestyleHub"));
+const PremiumHub = lazy(() => import("./pages/hubs/PremiumHub"));
 
 const queryClient = new QueryClient(queryConfig);
 
@@ -216,11 +232,27 @@ function AnimatedRoutes() {
         <Route path="/family-office" element={<ProtectedRoute><PageTransition><FamilyOffice /></PageTransition></ProtectedRoute>} />
         <Route path="/corporate-wellness" element={<ProtectedRoute><PageTransition><CorporateWellness /></PageTransition></ProtectedRoute>} />
         
+        {/* Feature Hubs */}
+        <Route path="/hubs/manage-money" element={<ProtectedRoute><PageTransition><ManageMoneyHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/hubs/grow-wealth" element={<ProtectedRoute><PageTransition><GrowWealthHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/hubs/ai-insights" element={<ProtectedRoute><PageTransition><AIInsightsHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/hubs/lifestyle" element={<ProtectedRoute><PageTransition><LifestyleHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/hubs/premium" element={<ProtectedRoute><PageTransition><PremiumHub /></PageTransition></ProtectedRoute>} />
+        
         {/* Next-Gen Features */}
         <Route path="/digital-twin" element={<ProtectedRoute><PageTransition><DigitalTwin /></PageTransition></ProtectedRoute>} />
         <Route path="/agent-hub" element={<ProtectedRoute><PageTransition><AgentHub /></PageTransition></ProtectedRoute>} />
         <Route path="/guardian" element={<ProtectedRoute><PageTransition><BehavioralGuardian /></PageTransition></ProtectedRoute>} />
         <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />
+        <Route path="/lifesim" element={<ProtectedRoute><PageTransition><LifeSim /></PageTransition></ProtectedRoute>} />
+        <Route path="/life-planner" element={<ProtectedRoute><PageTransition><LifePlanner /></PageTransition></ProtectedRoute>} />
+        <Route path="/gamification" element={<ProtectedRoute><PageTransition><Gamification /></PageTransition></ProtectedRoute>} />
+        <Route path="/tax-documents" element={<ProtectedRoute><PageTransition><TaxDocuments /></PageTransition></ProtectedRoute>} />
+        <Route path="/investment-manager" element={<ProtectedRoute><PageTransition><InvestmentManager /></PageTransition></ProtectedRoute>} />
+        <Route path="/refinancing-hub" element={<ProtectedRoute><PageTransition><RefinancingHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/life-events" element={<ProtectedRoute><PageTransition><LifeEvents /></PageTransition></ProtectedRoute>} />
+        <Route path="/business-os" element={<ProtectedRoute><PageTransition><BusinessOS /></PageTransition></ProtectedRoute>} />
+        <Route path="/defi-manager" element={<ProtectedRoute><PageTransition><DeFiManager /></PageTransition></ProtectedRoute>} />
         
         {/* Icon System Demo */}
         <Route path="/icon-demo" element={<PageTransition><IconDemo /></PageTransition>} />

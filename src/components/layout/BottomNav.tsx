@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { name: "Home", path: "/dashboard", icon: Home },
-  { name: "Budget", path: "/budget", icon: PieChart },
-  { name: "Goals", path: "/goals", icon: Target },
-  { name: "Insights", path: "/insights", icon: TrendingUp },
-  { name: "Settings", path: "/settings", icon: Settings },
+  { name: "Money", path: "/hubs/manage-money", icon: PieChart },
+  { name: "Wealth", path: "/hubs/grow-wealth", icon: TrendingUp },
+  { name: "AI", path: "/hubs/ai-insights", icon: Target },
+  { name: "More", path: "/features-hub", icon: Settings },
 ];
 
 export const BottomNav = () => {
