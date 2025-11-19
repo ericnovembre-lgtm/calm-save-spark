@@ -1,3 +1,7 @@
+/**
+ * Vite Configuration - Phase 2: Bundle & Render Optimization
+ * Optimized for maximum performance with code splitting and compression
+ */
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -193,7 +197,30 @@ export default defineConfig(({ mode }) => ({
     })
   ].filter(Boolean),
   build: {
+    // Phase 2: Advanced code splitting and optimization
     rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks - group by library type
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-query': ['@tanstack/react-query'],
+          'vendor-ui': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip',
+          ],
+          'vendor-charts': ['recharts', 'd3'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          // Separate heavy features
+          'feature-ai': ['@/pages/Coach', '@/pages/AIAgents'],
+          'feature-analytics': ['@/pages/Analytics', '@/pages/Insights'],
+        },
+      },
       plugins: [
         visualizer({
           filename: './dist/stats.html',
@@ -203,6 +230,22 @@ export default defineConfig(({ mode }) => ({
         }) as any,
       ],
     },
+    // Advanced minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.log in production
+        drop_debugger: true,
+        pure_funcs: ['console.info', 'console.debug', 'console.warn'],
+      },
+      mangle: {
+        safari10: true, // Fix Safari 10 issues
+      },
+    },
+    // Optimize chunk size
+    chunkSizeWarningLimit: 1000, // 1MB warning
+    cssCodeSplit: true, // Split CSS into smaller chunks
+    sourcemap: false, // Disable sourcemaps in production for smaller builds
   },
   resolve: {
     alias: {

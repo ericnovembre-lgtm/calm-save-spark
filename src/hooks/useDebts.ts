@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/query-config';
+import { useMemo } from 'react';
 import type { Database } from '@/integrations/supabase/types';
 
 type Debt = Database['public']['Tables']['debts']['Row'];
@@ -11,7 +13,7 @@ export function useDebts() {
   const queryClient = useQueryClient();
 
   const { data: debts, isLoading, error } = useQuery({
-    queryKey: ['debts'],
+    queryKey: queryKeys.debts(),
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -26,7 +28,21 @@ export function useDebts() {
       if (error) throw error;
       return data as Debt[];
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    select: (data) => data || [], // Transform at query level
   });
+
+  // Memoize computed values
+  const totalDebt = useMemo(() => {
+    return debts?.reduce((sum, debt) => sum + debt.current_balance, 0) || 0;
+  }, [debts]);
+
+  const averageInterestRate = useMemo(() => {
+    if (!debts || debts.length === 0) return 0;
+    const sum = debts.reduce((total, debt) => total + debt.interest_rate, 0);
+    return sum / debts.length;
+  }, [debts]);
 
   const addDebtMutation = useMutation({
     mutationFn: async (debtData: Omit<DebtInsert, 'user_id'>) => {
@@ -42,12 +58,28 @@ export function useDebts() {
       if (error) throw error;
       return data;
     },
+    onMutate: async (newDebt) => {
+      // Optimistic update
+      await queryClient.cancelQueries({ queryKey: queryKeys.debts() });
+      const previous = queryClient.getQueryData(queryKeys.debts());
+      
+      queryClient.setQueryData(queryKeys.debts(), (old: Debt[] = []) => [
+        ...old,
+        { ...newDebt, id: 'temp-id', user_id: 'temp' } as Debt,
+      ]);
+      
+      return { previous };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['debts'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.debts() });
       queryClient.invalidateQueries({ queryKey: ['debt_simulation'] });
       toast.success('Debt added successfully');
     },
-    onError: (error) => {
+    onError: (error, _newDebt, context) => {
+      // Rollback on error
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.debts(), context.previous);
+      }
       console.error('Error adding debt:', error);
       toast.error('Failed to add debt');
     },
@@ -65,12 +97,27 @@ export function useDebts() {
       if (error) throw error;
       return data;
     },
+    onMutate: async ({ id, updates }) => {
+      // Optimistic update
+      await queryClient.cancelQueries({ queryKey: queryKeys.debts() });
+      const previous = queryClient.getQueryData(queryKeys.debts());
+      
+      queryClient.setQueryData(queryKeys.debts(), (old: Debt[] = []) =>
+        old.map(debt => debt.id === id ? { ...debt, ...updates } : debt)
+      );
+      
+      return { previous };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['debts'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.debts() });
       queryClient.invalidateQueries({ queryKey: ['debt_simulation'] });
       toast.success('Debt updated successfully');
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      // Rollback on error
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.debts(), context.previous);
+      }
       console.error('Error updating debt:', error);
       toast.error('Failed to update debt');
     },
@@ -85,12 +132,27 @@ export function useDebts() {
 
       if (error) throw error;
     },
+    onMutate: async (id) => {
+      // Optimistic update
+      await queryClient.cancelQueries({ queryKey: queryKeys.debts() });
+      const previous = queryClient.getQueryData(queryKeys.debts());
+      
+      queryClient.setQueryData(queryKeys.debts(), (old: Debt[] = []) =>
+        old.filter(debt => debt.id !== id)
+      );
+      
+      return { previous };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['debts'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.debts() });
       queryClient.invalidateQueries({ queryKey: ['debt_simulation'] });
       toast.success('Debt removed successfully');
     },
-    onError: (error) => {
+    onError: (error, _id, context) => {
+      // Rollback on error
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.debts(), context.previous);
+      }
       console.error('Error deleting debt:', error);
       toast.error('Failed to delete debt');
     },
@@ -98,6 +160,8 @@ export function useDebts() {
 
   return {
     debts: debts || [],
+    totalDebt,
+    averageInterestRate,
     isLoading,
     error,
     addDebt: addDebtMutation.mutate,

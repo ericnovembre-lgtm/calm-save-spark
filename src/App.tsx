@@ -19,6 +19,9 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { LoadingState } from "./components/LoadingState";
+import { useIntelligentPrefetch } from "@/hooks/useIntelligentPrefetch";
+import { useWebVitals } from "@/hooks/useWebVitals";
+import { queryConfig } from "@/lib/query-config";
 import "@/styles/accessibility.css";
 
 // Lazy load all pages for optimal code splitting
@@ -77,19 +80,15 @@ const CorporateWellness = lazy(() => import("./pages/CorporateWellness"));
 const Card = lazy(() => import("./pages/Card"));
 const CardApply = lazy(() => import("./pages/CardApply"));
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000, // 1 minute
-      gcTime: 5 * 60 * 1000, // 5 minutes (formerly cacheTime)
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
-      retry: 1,
-    },
-  },
-});
+const queryClient = new QueryClient(queryConfig);
 
 const App = () => {
+  // Phase 7: Performance monitoring
+  useWebVitals(true);
+  
+  // Phase 4: Intelligent prefetching
+  useIntelligentPrefetch();
+
   // Initialize session management on app startup
   useEffect(() => {
     initializeSessionManagement();
