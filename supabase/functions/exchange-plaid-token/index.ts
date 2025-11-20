@@ -85,11 +85,34 @@ serve(async (req) => {
     const institutionName = institutionData.institution?.name || 'Unknown Bank';
     const institutionLogo = institutionData.institution?.logo || null;
 
-    // Store connected accounts
+    // Store Plaid item (one per connection)
+    const { data: plaidItem, error: itemError } = await supabaseClient
+      .from('plaid_items')
+      .insert({
+        user_id: user.id,
+        item_id: item_id,
+        access_token: access_token,
+        institution_id: institution,
+        institution_name: institutionName,
+        institution_logo: institutionLogo,
+        status: 'active',
+      })
+      .select()
+      .single();
+
+    if (itemError) {
+      console.error('Error storing Plaid item:', itemError);
+      throw new Error('Failed to store Plaid item');
+    }
+
+    console.log('Stored Plaid item:', plaidItem.id);
+
+    // Store connected accounts (one per account under the item)
     const accountsToInsert = accountsData.accounts.map((account: any) => ({
       user_id: user.id,
-      plaid_access_token: access_token,
-      plaid_item_id: item_id,
+      plaid_item_table_id: plaidItem.id,
+      plaid_access_token: access_token, // Keep for backward compatibility
+      plaid_item_id: item_id, // Keep for backward compatibility
       plaid_account_id: account.account_id,
       institution_name: institutionName,
       institution_id: institution,
@@ -108,7 +131,10 @@ serve(async (req) => {
       .from('connected_accounts')
       .insert(accountsToInsert);
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error('Error storing accounts:', insertError);
+      throw insertError;
+    }
 
     console.log(`Successfully connected ${accountsToInsert.length} accounts`);
 
