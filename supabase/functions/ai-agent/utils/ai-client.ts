@@ -1,6 +1,17 @@
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
+}
+
+interface ToolCall {
+  id: string;
+  type: string;
+  function: {
+    name: string;
+    arguments: string;
+  };
 }
 
 export async function streamAIResponse(
@@ -8,7 +19,10 @@ export async function streamAIResponse(
   conversationHistory: Message[],
   userMessage: string,
   model: string = 'google/gemini-2.5-flash',
-  tools?: any[]
+  tools?: any[],
+  supabase?: SupabaseClient,
+  conversationId?: string,
+  userId?: string
 ): Promise<ReadableStream> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   if (!LOVABLE_API_KEY) {
@@ -53,7 +67,38 @@ export async function streamAIResponse(
     throw new Error(`AI Gateway error: ${response.statusText}`);
   }
 
+  // Log tool execution if tools were provided
+  if (tools && tools.length > 0 && supabase && conversationId && userId) {
+    logToolExecution(response.body!, supabase, conversationId, userId, tools);
+  }
+
   return response.body!;
+}
+
+async function logToolExecution(
+  stream: ReadableStream,
+  supabase: SupabaseClient,
+  conversationId: string,
+  userId: string,
+  availableTools: any[]
+): Promise<void> {
+  // This will be called when tool calls are detected in the stream
+  // For now, we'll implement basic logging structure
+  const startTime = Date.now();
+  
+  // Note: Full tool call logging would require parsing the stream
+  // This is a simplified version that logs tool availability
+  try {
+    await supabase.from('tool_execution_logs').insert({
+      conversation_id: conversationId,
+      tool_name: 'ui_tools_available',
+      input_params: { tools: availableTools.map(t => t.function?.name) },
+      execution_time_ms: Date.now() - startTime,
+      success: true
+    });
+  } catch (error) {
+    console.error('Error logging tool execution:', error);
+  }
 }
 
 export function formatContextForAI(context: Record<string, any>): string {

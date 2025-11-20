@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { motion } from 'framer-motion';
@@ -14,6 +14,8 @@ import { VoiceModeButton } from '@/components/voice/VoiceModeButton';
 import { VoiceModeInterface } from '@/components/voice/VoiceModeInterface';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { DocumentUpload } from './DocumentUpload';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface AgentChatProps {
   agentType: string;
@@ -32,6 +34,7 @@ export function AgentChat({
 }: AgentChatProps) {
   const [input, setInput] = useState('');
   const [voiceModeActive, setVoiceModeActive] = useState(false);
+  const [showDocumentUpload, setShowDocumentUpload] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
@@ -162,46 +165,71 @@ export function AgentChat({
       </ScrollArea>
 
       <div className="border-t border-border/50 p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative">
-          <VoiceModeInterface
-            isActive={voiceModeActive}
-            state={voiceMode.state}
-            transcript={voiceMode.transcript}
-            audioData={voiceMode.audioData}
-            onStop={handleVoiceModeToggle}
-            onSubmit={voiceMode.submitTranscript}
-          />
-          
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit();
-              }
-            }}
-            placeholder={placeholder}
-            className="min-h-[60px] max-h-[200px] resize-none pr-24"
-            disabled={isLoading || voiceModeActive}
-          />
-          
-          <div className="absolute right-2 bottom-2 flex gap-1">
-            <VoiceModeButton
+        <div className="max-w-3xl mx-auto space-y-3">
+          <Collapsible open={showDocumentUpload} onOpenChange={setShowDocumentUpload}>
+            <CollapsibleContent>
+              <DocumentUpload 
+                conversationId={conversationId}
+                onUploadComplete={(docId) => {
+                  sendMessage(`I've uploaded a document (ID: ${docId}). Can you analyze it?`, initialContext);
+                  setShowDocumentUpload(false);
+                }}
+              />
+            </CollapsibleContent>
+          </Collapsible>
+
+          <form onSubmit={handleSubmit} className="relative">
+            <VoiceModeInterface
               isActive={voiceModeActive}
-              onToggle={handleVoiceModeToggle}
-              disabled={isLoading}
+              state={voiceMode.state}
+              transcript={voiceMode.transcript}
+              audioData={voiceMode.audioData}
+              onStop={handleVoiceModeToggle}
+              onSubmit={voiceMode.submitTranscript}
             />
             
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!input.trim() || isLoading || voiceModeActive}
-            >
-              <Send className="h-5 w-5" />
-            </Button>
-          </div>
-        </form>
+            <Textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
+              placeholder={placeholder}
+              className="min-h-[60px] max-h-[200px] resize-none pr-32"
+              disabled={isLoading || voiceModeActive}
+            />
+            
+            <div className="absolute right-2 bottom-2 flex gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowDocumentUpload(!showDocumentUpload)}
+                disabled={isLoading}
+                title="Upload document"
+              >
+                <Paperclip className="h-5 w-5" />
+              </Button>
+              
+              <VoiceModeButton
+                isActive={voiceModeActive}
+                onToggle={handleVoiceModeToggle}
+                disabled={isLoading}
+              />
+              
+              <Button
+                type="submit"
+                size="icon"
+                disabled={!input.trim() || isLoading || voiceModeActive}
+              >
+                <Send className="h-5 w-5" />
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

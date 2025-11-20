@@ -58,6 +58,7 @@ import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
 import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { ChatSidebar } from "@/components/dashboard/ChatSidebar";
 import { useChatSidebar } from "@/hooks/useChatSidebar";
+import { ProactiveNudgesBanner } from "@/components/dashboard/ProactiveNudgesBanner";
 import { cn } from "@/lib/utils";
 import { InteractiveWizard, hasCompletedWizard } from "@/components/onboarding/InteractiveWizard";
 import { NextGenFeaturesCard } from "@/components/dashboard/NextGenFeaturesCard";
@@ -562,6 +563,7 @@ export default function Dashboard() {
   return (
     <AppLayout>
       <WelcomeBackBanner />
+      <ProactiveNudgesBanner />
       <SkipLinks />
       {easterEggsEnabled && (
         <>
