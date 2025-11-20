@@ -21,7 +21,7 @@ export function useAgentChat({ agentType, conversationId, onMessageReceived }: U
   const [isLoading, setIsLoading] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(conversationId);
 
-  const sendMessage = useCallback(async (content: string, metadata?: Record<string, any>) => {
+  const sendMessage = useCallback(async (content: string, metadata?: Record<string, any>, retryCount = 0) => {
     if (!content.trim()) return;
 
     const userMessage: Message = {
@@ -32,6 +32,9 @@ export function useAgentChat({ agentType, conversationId, onMessageReceived }: U
 
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
+
+    const MAX_RETRIES = 2;
+    const RETRY_DELAY = 1000;
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -59,9 +62,19 @@ export function useAgentChat({ agentType, conversationId, onMessageReceived }: U
 
       if (!response.ok) {
         if (response.status === 429) {
-          toast.error('Rate limit exceeded. Please try again in a moment.');
+          if (retryCount < MAX_RETRIES) {
+            toast.info(`Rate limited. Retrying in ${RETRY_DELAY / 1000}s...`);
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (retryCount + 1)));
+            return sendMessage(content, metadata, retryCount + 1);
+          }
+          toast.error('Rate limit exceeded. Please try again later.');
         } else if (response.status === 402) {
           toast.error('AI credits depleted. Please contact support to add credits.');
+        } else if (response.status >= 500 && retryCount < MAX_RETRIES) {
+          // Retry on server errors
+          toast.info(`Server error. Retrying... (${retryCount + 1}/${MAX_RETRIES})`);
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (retryCount + 1)));
+          return sendMessage(content, metadata, retryCount + 1);
         } else {
           const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
           throw new Error(errorData.error || 'Failed to send message');

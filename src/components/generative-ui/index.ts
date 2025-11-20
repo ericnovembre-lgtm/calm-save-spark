@@ -10,4 +10,5 @@ export { AIInsightsCarousel } from './AIInsightsCarousel';
 export { PredictiveSpendingForecast } from './PredictiveSpendingForecast';
 export { EmotionAwareResponse } from './EmotionAwareResponse';
 export { ComponentRenderer } from './ComponentRenderer';
+export { LoadingSkeleton } from './LoadingSkeleton';
 export * from './types';

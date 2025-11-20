@@ -91,10 +91,19 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in ai-agent function:', error);
+    
+    // Log error details for debugging
+    console.error('Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
+    
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
     // Handle specific error cases
-    if (errorMessage === 'RATE_LIMIT_EXCEEDED') {
+    if (errorMessage === 'RATE_LIMIT_EXCEEDED' || errorMessage.includes('rate limit')) {
       return new Response(
         JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
         {
@@ -104,7 +113,7 @@ serve(async (req) => {
       );
     }
     
-    if (errorMessage === 'PAYMENT_REQUIRED') {
+    if (errorMessage === 'PAYMENT_REQUIRED' || errorMessage.includes('credits')) {
       return new Response(
         JSON.stringify({ error: 'AI credits depleted. Please add credits to continue.' }),
         {
@@ -114,10 +123,24 @@ serve(async (req) => {
       );
     }
     
+    if (errorMessage === 'Unauthorized') {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
+    // Generic error response
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: errorMessage,
+        timestamp: new Date().toISOString()
+      }),
       {
-        status: 400,
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
