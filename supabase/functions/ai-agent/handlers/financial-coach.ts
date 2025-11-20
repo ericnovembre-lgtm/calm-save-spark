@@ -6,6 +6,7 @@ import { determineSubscriptionTier, getSubscriptionMessage } from "../utils/subs
 import { UI_TOOLS } from "../utils/ui-tools.ts";
 import { retrieveMemories, formatMemoriesForContext } from "../utils/memory-manager.ts";
 import { getUserDocuments, formatDocumentsForContext } from "../utils/document-processor.ts";
+import { consultAgent, shouldConsultAgent } from "../utils/agent-orchestrator.ts";
 
 interface HandlerParams {
   supabase: SupabaseClient;
@@ -47,6 +48,30 @@ export async function financialCoachHandler(params: HandlerParams): Promise<Read
   // Get agent system prompt
   const systemPrompt = await getAgentSystemPrompt(supabase, 'financial_coach');
 
+  // Determine if we need to consult other agents
+  const consultationCheck = await shouldConsultAgent(message, 'financial_coach');
+
+  let collaborationContext = '';
+  if (consultationCheck.shouldConsult && consultationCheck.targetAgent) {
+    try {
+      const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+      if (!lovableApiKey) {
+        console.error('LOVABLE_API_KEY not found');
+      } else {
+        const consultation = await consultAgent(supabase, {
+          requestingAgent: 'financial_coach',
+          consultingAgent: consultationCheck.targetAgent,
+          query: message,
+          conversationId
+        }, lovableApiKey);
+        
+        collaborationContext = `\n\n**Expert Consultation from ${consultationCheck.targetAgent}:**\n${consultation.response}`;
+      }
+    } catch (error) {
+      console.error('Consultation error:', error);
+    }
+  }
+
   // Enhance system prompt with current context
   const enhancedPrompt = `${systemPrompt}
 
@@ -59,6 +84,8 @@ ${documentsString}
 **Current User Financial Context:**
 ${contextString}
 
+${collaborationContext}
+
 **GENERATIVE UI CAPABILITIES:**
 You can render interactive UI components! Use these when appropriate:
 - render_spending_chart: Show spending trends over time
@@ -70,6 +97,14 @@ You can render interactive UI components! Use these when appropriate:
 - render_net_worth_timeline: Show wealth progression
 - render_financial_health_score: Display gamified health score
 - render_ai_insights_carousel: Show swipeable insights
+- render_predictive_forecast: Show ML-powered spending predictions with confidence bands
+- render_emotion_aware_response: Provide empathetic response when detecting stress/anxiety
+
+**EMOTION DETECTION:**
+Analyze user message tone. If detecting financial stress, anxiety, or frustration:
+1. Use render_emotion_aware_response with appropriate emotion
+2. Include supportive resources
+3. Adjust response tone to be more empathetic
 
 Remember user preferences from memory. If documents were uploaded, analyze and reference them.
 Use this context to provide personalized advice. Reference specific data points when relevant.`;

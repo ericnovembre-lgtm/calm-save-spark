@@ -16,6 +16,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { DocumentUpload } from './DocumentUpload';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useRealtimeData } from '@/hooks/useRealtimeData';
+import { useEmotionDetection } from '@/hooks/useEmotionDetection';
 
 interface AgentChatProps {
   agentType: string;
@@ -37,6 +39,9 @@ export function AgentChat({
   const [showDocumentUpload, setShowDocumentUpload] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
+
+  // Emotion detection
+  const { detectEmotion } = useEmotionDetection();
 
   const { messages, isLoading, sendMessage } = useAgentChat({
     agentType,
@@ -67,9 +72,17 @@ export function AgentChat({
     const text = messageText || input;
     if (!text.trim() || isLoading) return;
 
+    // Detect emotion from user input
+    const emotionResult = detectEmotion(text);
+
     const message = text;
     setInput('');
-    await sendMessage(message, initialContext);
+    
+    // Send message with emotion context
+    await sendMessage(message, {
+      ...initialContext,
+      emotion: emotionResult
+    });
   };
 
   const handleVoiceModeToggle = () => {

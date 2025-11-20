@@ -112,6 +112,8 @@ export function useAgentChat({ agentType, conversationId, onMessageReceived }: U
                 // Map function name to component type
                 const componentTypeMap: Record<string, ComponentMessage['type']> = {
                   'render_spending_chart': 'spending_chart',
+                  'render_predictive_forecast': 'predictive_forecast',
+                  'render_emotion_aware_response': 'emotion_aware_response',
                   'render_budget_alert': 'budget_alert',
                   'render_subscription_list': 'subscription_list',
                   'render_action_card': 'action_card',
