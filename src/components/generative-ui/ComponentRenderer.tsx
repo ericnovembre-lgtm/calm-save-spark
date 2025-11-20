@@ -132,6 +132,12 @@ export function ComponentRenderer({ componentData, onAction }: ComponentRenderer
           />
         );
       
+      case 'predictive_forecast':
+        return <PredictiveSpendingForecast {...props} />;
+      
+      case 'emotion_aware_response':
+        return <EmotionAwareResponse {...props} />;
+      
       default:
         return (
           <div className="text-muted-foreground italic text-sm">
