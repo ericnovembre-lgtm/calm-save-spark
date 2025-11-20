@@ -22,7 +22,12 @@ export function useInsightStream(userId: string | undefined) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      console.log('[Insight Stream] No user ID, skipping subscription');
+      return;
+    }
+
+    console.log(`[Insight Stream] Setting up realtime subscription for user ${userId}`);
 
     const channel = supabase
       .channel('proactive_insights_changes')
@@ -35,7 +40,7 @@ export function useInsightStream(userId: string | undefined) {
           filter: `user_id=eq.${userId}`
         },
         (payload) => {
-          console.log('New insight received:', payload.new);
+          console.log('[Insight Stream] New insight received:', payload.new);
           const insight = payload.new as ProactiveInsight;
           
           // Set new insight for animation
@@ -55,9 +60,17 @@ export function useInsightStream(userId: string | undefined) {
           queryClient.invalidateQueries({ queryKey: ['proactive_insights', userId] });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[Insight Stream] Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('[Insight Stream] Successfully subscribed to realtime updates');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[Insight Stream] Failed to subscribe to realtime updates');
+        }
+      });
 
     return () => {
+      console.log('[Insight Stream] Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [userId, queryClient]);

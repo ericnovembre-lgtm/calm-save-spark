@@ -7,6 +7,7 @@ import { InsightFlashCard } from './InsightFlashCard';
 import { useInsightStream } from '@/hooks/useInsightStream';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface InsightStreamPanelProps {
   userId: string;
@@ -19,9 +20,10 @@ export function InsightStreamPanel({ userId }: InsightStreamPanelProps) {
   const { newInsight, clearNewInsight } = useInsightStream(userId);
 
   // Fetch existing unresolved insights
-  const { data: insights, refetch } = useQuery({
+  const { data: insights, refetch, error: queryError } = useQuery({
     queryKey: ['proactive_insights', userId],
     queryFn: async () => {
+      console.log(`[Insight Panel] Fetching insights for user ${userId}`);
       const { data, error } = await supabase
         .from('proactive_insights')
         .select('*')
@@ -31,7 +33,12 @@ export function InsightStreamPanel({ userId }: InsightStreamPanelProps) {
         .order('created_at', { ascending: false })
         .limit(5);
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Insight Panel] Query error:', error);
+        throw error;
+      }
+      
+      console.log(`[Insight Panel] Found ${data?.length || 0} insights`);
       return data as Array<{
         id: string;
         insight_type: string;
@@ -45,6 +52,12 @@ export function InsightStreamPanel({ userId }: InsightStreamPanelProps) {
       }>;
     },
   });
+
+  useEffect(() => {
+    if (queryError) {
+      console.error('[Insight Panel] Failed to load insights:', queryError);
+    }
+  }, [queryError]);
 
   // Show new insight animation
   useEffect(() => {
@@ -62,11 +75,19 @@ export function InsightStreamPanel({ userId }: InsightStreamPanelProps) {
   }, [newInsight, clearNewInsight, refetch]);
 
   const handleDismiss = async (insightId: string) => {
+    console.log(`[Insight Panel] Dismissing insight ${insightId}`);
+    
     // Mark as dismissed in database
-    await supabase
+    const { error } = await supabase
       .from('proactive_insights')
       .update({ dismissed_at: new Date().toISOString() })
       .eq('id', insightId);
+
+    if (error) {
+      console.error('[Insight Panel] Failed to dismiss insight:', error);
+      toast.error('Failed to dismiss insight');
+      return;
+    }
 
     setDismissedIds(prev => new Set(prev).add(insightId));
     refetch();
