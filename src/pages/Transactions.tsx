@@ -3,8 +3,9 @@ import { TransactionList } from "@/components/transactions/TransactionList";
 import { Button } from "@/components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { toast } from "sonner";
+import { withPageMemo } from "@/lib/performance-utils";
 
-export default function Transactions() {
+export default withPageMemo(function Transactions() {
   const handleAddTransaction = () => {
     toast.info('Manual transaction entry coming soon!');
   };
@@ -37,4 +38,4 @@ export default function Transactions() {
       </div>
     </AppLayout>
   );
-}
+}, 'Transactions');

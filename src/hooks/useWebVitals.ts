@@ -38,27 +38,55 @@ interface CustomMetrics {
   bundleSize: number;
 }
 
+interface PageMetrics {
+  [page: string]: {
+    LCP: number[];
+    INP: number[];
+    CLS: number[];
+    loadTime: number[];
+  };
+}
+
 export const useWebVitals = (enabled: boolean = true) => {
   const [customMetrics] = useState<CustomMetrics>({
     queryTime: [],
     renderTime: [],
     bundleSize: 0,
   });
+  const [pageMetrics] = useState<PageMetrics>({});
 
   useEffect(() => {
     if (!enabled) return;
 
+    const currentPage = window.location.pathname;
+
     const reportMetric = (metric: Metric) => {
       const isOverBudget = checkPerformanceBudget(metric);
       
-      // Send to analytics
+      // Track per-page metrics
+      if (!pageMetrics[currentPage]) {
+        pageMetrics[currentPage] = {
+          LCP: [],
+          INP: [],
+          CLS: [],
+          loadTime: [],
+        };
+      }
+      
+      // Store metric value for page
+      const metricName = metric.name as keyof typeof pageMetrics[typeof currentPage];
+      if (pageMetrics[currentPage][metricName]) {
+        pageMetrics[currentPage][metricName].push(metric.value);
+      }
+      
+      // Send to analytics with page context
       trackEvent('web_vitals', {
         metric_name: metric.name,
         metric_value: metric.value,
         metric_rating: metric.rating,
         metric_id: metric.id,
         metric_delta: metric.delta,
-        page_url: window.location.pathname,
+        page_url: currentPage,
         over_budget: isOverBudget,
         budget: PERFORMANCE_BUDGETS[metric.name as keyof PerformanceBudget],
       });
@@ -137,9 +165,28 @@ export const useWebVitals = (enabled: boolean = true) => {
 
   return {
     customMetrics,
+    pageMetrics,
     budgets: PERFORMANCE_BUDGETS,
   };
 };
+
+/**
+ * Get performance metrics for a specific page
+ */
+export function getPageMetrics(page: string, pageMetrics: PageMetrics) {
+  const metrics = pageMetrics[page];
+  if (!metrics) return null;
+
+  const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+
+  return {
+    avgLCP: avg(metrics.LCP),
+    avgINP: avg(metrics.INP),
+    avgCLS: avg(metrics.CLS),
+    avgLoadTime: avg(metrics.loadTime),
+    samples: metrics.LCP.length,
+  };
+}
 
 /**
  * Check if metric exceeds performance budget

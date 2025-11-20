@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,90 +18,109 @@ import { AuthRedirect } from "@/components/auth/AuthRedirect";
 import { AppLayout } from "./components/layout/AppLayout";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/animations/PageTransition";
-import { LoadingState } from "./components/LoadingState";
 import { useIntelligentPrefetch } from "@/hooks/useIntelligentPrefetch";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { queryConfig } from "@/lib/query-config";
+import { createPageLoader } from "@/components/performance/PageLazyLoader";
 import "@/styles/accessibility.css";
 
-// Lazy load all pages for optimal code splitting
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Transactions = lazy(() => import("./pages/Transactions"));
-const Subscriptions = lazy(() => import("./pages/Subscriptions"));
-const Insights = lazy(() => import("./pages/Insights"));
-const Budget = lazy(() => import("./pages/Budget"));
-const Debts = lazy(() => import("./pages/Debts"));
-const Investments = lazy(() => import("./pages/Investments"));
-const Credit = lazy(() => import("./pages/Credit"));
-const Landing = lazy(() => import("./pages/Landing"));
-const IconDemo = lazy(() => import("./pages/IconDemo"));
-const Coach = lazy(() => import("./pages/Coach"));
-const Help = lazy(() => import("./pages/Help"));
-const Pricing = lazy(() => import("./pages/Pricing"));
-const Onboarding = lazy(() => import("./pages/Onboarding"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Checkout = lazy(() => import("./pages/Checkout"));
-const SubscriptionManagement = lazy(() => import("./pages/SubscriptionManagement"));
-const Goals = lazy(() => import("./pages/Goals"));
-const Pots = lazy(() => import("./pages/Pots"));
-const Automations = lazy(() => import("./pages/Automations"));
-const Settings = lazy(() => import("./pages/Settings"));
-const Auth = lazy(() => import("./pages/Auth"));
-const Maintenance = lazy(() => import("./pages/Maintenance"));
-const Achievements = lazy(() => import("./pages/Achievements"));
-const BillNegotiation = lazy(() => import("./pages/BillNegotiation"));
-const Family = lazy(() => import("./pages/Family"));
-const Student = lazy(() => import("./pages/Student"));
-const Business = lazy(() => import("./pages/Business"));
-const WhiteLabel = lazy(() => import("./pages/WhiteLabel"));
-const FinancialLiteracy = lazy(() => import("./pages/FinancialLiteracy"));
-const Sustainability = lazy(() => import("./pages/Sustainability"));
-const Analytics = lazy(() => import("./pages/Analytics"));
-const Social = lazy(() => import("./pages/Social"));
-const Integrations = lazy(() => import("./pages/Integrations"));
-const Admin = lazy(() => import("./pages/Admin"));
-const FinancialHealth = lazy(() => import("./pages/FinancialHealth"));
-const Leaderboard = lazy(() => import("./pages/Leaderboard"));
-const Install = lazy(() => import("./pages/Install"));
-const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
-const AdminMonitoring = lazy(() => import("./pages/AdminMonitoring"));
-const Accounts = lazy(() => import("./pages/Accounts"));
-const Search = lazy(() => import("./pages/Search"));
-const AIAgents = lazy(() => import("./pages/AIAgents"));
-const FeaturesHub = lazy(() => import("./pages/FeaturesHub"));
-const DigitalTwin = lazy(() => import("./pages/DigitalTwin"));
-const AgentHub = lazy(() => import("./pages/AgentHub"));
-const BehavioralGuardian = lazy(() => import("./pages/BehavioralGuardian"));
-const CoolingOff = lazy(() => import("./pages/CoolingOff"));
-const Wallet = lazy(() => import("./pages/Wallet"));
-const AlternativesPortal = lazy(() => import("./pages/AlternativesPortal"));
-const FamilyOffice = lazy(() => import("./pages/FamilyOffice"));
-const CorporateWellness = lazy(() => import("./pages/CorporateWellness"));
-const Card = lazy(() => import("./pages/Card"));
-const CardApply = lazy(() => import("./pages/CardApply"));
-const LifeSim = lazy(() => import("./pages/LifeSim"));
-const LifePlanner = lazy(() => import("./pages/LifePlanner"));
-const Gamification = lazy(() => import("./pages/Gamification"));
-const TaxDocuments = lazy(() => import("./pages/TaxDocuments"));
-const InvestmentManager = lazy(() => import("./pages/InvestmentManager"));
-const RefinancingHub = lazy(() => import("./pages/RefinancingHub"));
-const LifeEvents = lazy(() => import("./pages/LifeEvents"));
-const BusinessOS = lazy(() => import("./pages/BusinessOS"));
-const DeFiManager = lazy(() => import("./pages/DeFiManager"));
+// ============================================================
+// Performance-optimized page loading with category-aware skeletons
+// Heavy: Dashboard, Analytics, Charts, 3D components (18 pages)
+// Medium: Lists, Forms, Feature pages (25 pages)
+// Light: Auth, Static content, Simple pages (20 pages)
+// ============================================================
 
-// Hub pages
-const ManageMoneyHub = lazy(() => import("./pages/hubs/ManageMoneyHub"));
-const GrowWealthHub = lazy(() => import("./pages/hubs/GrowWealthHub"));
-const AIInsightsHub = lazy(() => import("./pages/hubs/AIInsightsHub"));
-const LifestyleHub = lazy(() => import("./pages/hubs/LifestyleHub"));
-const PremiumHub = lazy(() => import("./pages/hubs/PremiumHub"));
+// HEAVY PAGES - Complex UI, charts, 3D, heavy calculations
+const Dashboard = createPageLoader(() => import("./pages/Dashboard"), 'heavy');
+const Analytics = createPageLoader(() => import("./pages/Analytics"), 'heavy');
+const Budget = createPageLoader(() => import("./pages/Budget"), 'heavy');
+const Goals = createPageLoader(() => import("./pages/Goals"), 'heavy');
+const Insights = createPageLoader(() => import("./pages/Insights"), 'heavy');
+const Pricing = createPageLoader(() => import("./pages/Pricing"), 'heavy');
+const Coach = createPageLoader(() => import("./pages/Coach"), 'heavy');
+const DigitalTwin = createPageLoader(() => import("./pages/DigitalTwin"), 'heavy');
+const LifeSim = createPageLoader(() => import("./pages/LifeSim"), 'heavy');
+const LifePlanner = createPageLoader(() => import("./pages/LifePlanner"), 'heavy');
+const InvestmentManager = createPageLoader(() => import("./pages/InvestmentManager"), 'heavy');
+const DeFiManager = createPageLoader(() => import("./pages/DeFiManager"), 'heavy');
+const BusinessOS = createPageLoader(() => import("./pages/BusinessOS"), 'heavy');
+const FamilyOffice = createPageLoader(() => import("./pages/FamilyOffice"), 'heavy');
+const Admin = createPageLoader(() => import("./pages/Admin"), 'heavy');
+const AdminMonitoring = createPageLoader(() => import("./pages/AdminMonitoring"), 'heavy');
+const SecurityMonitoring = createPageLoader(() => import("./pages/SecurityMonitoring"), 'heavy');
+const FinancialHealth = createPageLoader(() => import("./pages/FinancialHealth"), 'heavy');
+
+// MEDIUM PAGES - Lists, transactions, moderate complexity
+const Transactions = createPageLoader(() => import("./pages/Transactions"), 'medium');
+const Subscriptions = createPageLoader(() => import("./pages/Subscriptions"), 'medium');
+const Debts = createPageLoader(() => import("./pages/Debts"), 'medium');
+const Investments = createPageLoader(() => import("./pages/Investments"), 'medium');
+const Credit = createPageLoader(() => import("./pages/Credit"), 'medium');
+const Pots = createPageLoader(() => import("./pages/Pots"), 'medium');
+const Automations = createPageLoader(() => import("./pages/Automations"), 'medium');
+const Settings = createPageLoader(() => import("./pages/Settings"), 'medium');
+const Achievements = createPageLoader(() => import("./pages/Achievements"), 'medium');
+const BillNegotiation = createPageLoader(() => import("./pages/BillNegotiation"), 'medium');
+const Family = createPageLoader(() => import("./pages/Family"), 'medium');
+const Student = createPageLoader(() => import("./pages/Student"), 'medium');
+const Business = createPageLoader(() => import("./pages/Business"), 'medium');
+const WhiteLabel = createPageLoader(() => import("./pages/WhiteLabel"), 'medium');
+const FinancialLiteracy = createPageLoader(() => import("./pages/FinancialLiteracy"), 'medium');
+const Sustainability = createPageLoader(() => import("./pages/Sustainability"), 'medium');
+const Social = createPageLoader(() => import("./pages/Social"), 'medium');
+const Integrations = createPageLoader(() => import("./pages/Integrations"), 'medium');
+const Accounts = createPageLoader(() => import("./pages/Accounts"), 'medium');
+const Leaderboard = createPageLoader(() => import("./pages/Leaderboard"), 'medium');
+const Wallet = createPageLoader(() => import("./pages/Wallet"), 'medium');
+const Card = createPageLoader(() => import("./pages/Card"), 'medium');
+const TaxDocuments = createPageLoader(() => import("./pages/TaxDocuments"), 'medium');
+const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
+const Gamification = createPageLoader(() => import("./pages/Gamification"), 'medium');
+
+// Hub pages (Medium complexity)
+const ManageMoneyHub = createPageLoader(() => import("./pages/hubs/ManageMoneyHub"), 'medium');
+const GrowWealthHub = createPageLoader(() => import("./pages/hubs/GrowWealthHub"), 'medium');
+const AIInsightsHub = createPageLoader(() => import("./pages/hubs/AIInsightsHub"), 'medium');
+const LifestyleHub = createPageLoader(() => import("./pages/hubs/LifestyleHub"), 'medium');
+const PremiumHub = createPageLoader(() => import("./pages/hubs/PremiumHub"), 'medium');
+const FeaturesHub = createPageLoader(() => import("./pages/FeaturesHub"), 'medium');
+const AgentHub = createPageLoader(() => import("./pages/AgentHub"), 'medium');
+const RefinancingHub = createPageLoader(() => import("./pages/RefinancingHub"), 'medium');
+
+// LIGHT PAGES - Auth, static content, simple UI
+const Landing = createPageLoader(() => import("./pages/Landing"), 'light');
+const Auth = createPageLoader(() => import("./pages/Auth"), 'light');
+const Help = createPageLoader(() => import("./pages/Help"), 'light');
+const NotFound = createPageLoader(() => import("./pages/NotFound"), 'light');
+const Maintenance = createPageLoader(() => import("./pages/Maintenance"), 'light');
+const Search = createPageLoader(() => import("./pages/Search"), 'light');
+const Install = createPageLoader(() => import("./pages/Install"), 'light');
+const IconDemo = createPageLoader(() => import("./pages/IconDemo"), 'light');
+const Onboarding = createPageLoader(() => import("./pages/Onboarding"), 'light');
+const Checkout = createPageLoader(() => import("./pages/Checkout"), 'light');
+const SubscriptionManagement = createPageLoader(() => import("./pages/SubscriptionManagement"), 'light');
+const BehavioralGuardian = createPageLoader(() => import("./pages/BehavioralGuardian"), 'light');
+const CoolingOff = createPageLoader(() => import("./pages/CoolingOff"), 'light');
+const AlternativesPortal = createPageLoader(() => import("./pages/AlternativesPortal"), 'light');
+const CorporateWellness = createPageLoader(() => import("./pages/CorporateWellness"), 'light');
+const CardApply = createPageLoader(() => import("./pages/CardApply"), 'light');
+const LifeEvents = createPageLoader(() => import("./pages/LifeEvents"), 'light');
 
 const queryClient = new QueryClient(queryConfig);
 
-// Performance hooks wrapper - must be inside Router context
+// Performance monitoring with per-page tracking
 const PerformanceMonitoring = () => {
-  useWebVitals(true);
+  const { pageMetrics } = useWebVitals(true);
   useIntelligentPrefetch();
+  
+  // Log page metrics in development
+  useEffect(() => {
+    if (import.meta.env.DEV && Object.keys(pageMetrics).length > 0) {
+      console.log('[Performance] Page metrics:', pageMetrics);
+    }
+  }, [pageMetrics]);
+  
   return null;
 };
 
@@ -121,9 +140,7 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <TooltipProvider>
-              <Suspense fallback={<LoadingState />}>
-                <Maintenance />
-              </Suspense>
+              <Maintenance />
             </TooltipProvider>
           </ThemeProvider>
         </QueryClientProvider>

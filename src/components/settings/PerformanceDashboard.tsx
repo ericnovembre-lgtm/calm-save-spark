@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Activity, Cpu, Zap, AlertTriangle, CheckCircle2, TrendingUp, Clock, Eye, Package } from "lucide-react";
 import { useMotionPreferences } from "@/hooks/useMotionPreferences";
+import { useWebVitals } from "@/hooks/useWebVitals";
 import { toast } from "sonner";
 
 interface WebVitals {
@@ -42,6 +43,24 @@ export const PerformanceDashboard = () => {
   const frameCountRef = useRef(0);
   const lastTimeRef = useRef(performance.now());
   const { preferences, disableAll } = useMotionPreferences();
+  const [pageMetrics, setPageMetrics] = useState<Record<string, { avgLCP: number; avgINP: number; avgCLS: number; samples: number }>>({});
+  const { pageMetrics: rawPageMetrics } = useWebVitals(true);
+
+  useEffect(() => {
+    // Calculate average metrics for each page
+    const calculated: Record<string, any> = {};
+    Object.keys(rawPageMetrics).forEach(page => {
+      const metrics = rawPageMetrics[page];
+      const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+      calculated[page] = {
+        avgLCP: avg(metrics.LCP),
+        avgINP: avg(metrics.INP),
+        avgCLS: avg(metrics.CLS),
+        samples: metrics.LCP.length,
+      };
+    });
+    setPageMetrics(calculated);
+  }, [rawPageMetrics]);
 
   // Track FPS and memory
   useEffect(() => {
@@ -142,6 +161,41 @@ export const PerformanceDashboard = () => {
             </div>
           </div>
         </div>
+      </Card>
+
+      {/* Per-Page Performance */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Eye className="h-5 w-5 text-primary" />
+          Per-Page Performance
+        </h3>
+        {Object.keys(pageMetrics).length === 0 ? (
+          <p className="text-sm text-muted-foreground">Visit pages to see performance metrics</p>
+        ) : (
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {Object.entries(pageMetrics)
+              .sort(([, a], [, b]) => b.avgLCP - a.avgLCP)
+              .slice(0, 10)
+              .map(([page, metrics]) => (
+                <div key={page} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">{page}</span>
+                    <div className="flex gap-4 mt-1">
+                      <span className={`text-xs ${metrics.avgLCP < 2500 ? 'text-green-500' : 'text-yellow-500'}`}>
+                        LCP: {metrics.avgLCP.toFixed(0)}ms
+                      </span>
+                      <span className={`text-xs ${metrics.avgINP < 200 ? 'text-green-500' : 'text-yellow-500'}`}>
+                        INP: {metrics.avgINP.toFixed(0)}ms
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {metrics.samples} sample{metrics.samples !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
       </Card>
 
       <Card className="p-6">

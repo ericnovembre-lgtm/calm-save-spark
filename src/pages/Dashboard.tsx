@@ -80,6 +80,8 @@ import { FloatingCoins } from "@/components/effects/FloatingCoins";
 import { CursorSpotlight } from "@/components/effects/CursorSpotlight";
 import { TimeOfDayTheme } from "@/components/effects/TimeOfDayTheme";
 
+import { withPageMemo } from "@/lib/performance-utils";
+
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
   const { currentAchievement, handleDismiss: handleAchievementDismiss } = useEnhancedAchievements();
