@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Send, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,8 +16,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { DocumentUpload } from './DocumentUpload';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { useRealtimeData } from '@/hooks/useRealtimeData';
 import { useEmotionDetection } from '@/hooks/useEmotionDetection';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
+import { LoadingSkeleton } from '@/components/generative-ui/LoadingSkeleton';
 
 interface AgentChatProps {
   agentType: string;
@@ -127,55 +128,62 @@ export function AgentChat({
   };
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
-      <ScrollArea ref={scrollRef} className="flex-1 p-4">
-        <div className="space-y-4 max-w-3xl mx-auto">
-          {messages.map((message, index) => (
-            <motion.div
-              key={`${message.timestamp}-${index}`}
-              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-              className={cn(
-                'flex w-full',
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              )}
-            >
-              <div
+    <ErrorBoundary>
+      <div className={cn('flex flex-col h-full', className)}>
+        <ScrollArea ref={scrollRef} className="flex-1 p-4">
+          <div className="space-y-4 max-w-3xl mx-auto">
+            {messages.map((message, index) => (
+              <motion.div
+                key={`${message.timestamp}-${index}`}
+                initial={prefersReducedMotion ? undefined : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
                 className={cn(
-                  'max-w-[80%] rounded-2xl px-4 py-3',
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted/50 text-foreground border border-border/50'
+                  'flex w-full',
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
                 )}
               >
-                {message.componentData ? (
-                  <ComponentRenderer 
-                    componentData={message.componentData}
-                    onAction={handleComponentAction}
-                  />
-                ) : (
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {message.content}
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          ))}
+                <div
+                  className={cn(
+                    'max-w-[80%] rounded-2xl px-4 py-3',
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted/50 text-foreground border border-border/50'
+                  )}
+                >
+                  {message.componentData ? (
+                    <ErrorBoundary fallback={
+                      <div className="text-sm text-destructive">
+                        Failed to render component
+                      </div>
+                    }>
+                      <ComponentRenderer 
+                        componentData={message.componentData}
+                        onAction={handleComponentAction}
+                      />
+                    </ErrorBoundary>
+                  ) : (
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {message.content}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            ))}
 
-          {isLoading && (
-            <motion.div
-              initial={prefersReducedMotion ? undefined : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-start"
-            >
-              <div className="bg-muted/50 rounded-2xl px-4 py-3 border border-border/50">
-                <div className="w-4 h-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </ScrollArea>
+            {isLoading && (
+              <motion.div
+                initial={prefersReducedMotion ? undefined : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex justify-start"
+              >
+                <div className="bg-muted/50 rounded-2xl px-4 py-3 border border-border/50 max-w-[80%]">
+                  <LoadingSkeleton variant="text" />
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </ScrollArea>
 
       <div className="border-t border-border/50 p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="max-w-3xl mx-auto space-y-3">
@@ -245,5 +253,6 @@ export function AgentChat({
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }
