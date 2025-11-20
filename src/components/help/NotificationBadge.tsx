@@ -1,0 +1,42 @@
+import { motion } from 'framer-motion';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+
+interface NotificationBadgeProps {
+  count: number;
+  className?: string;
+}
+
+export function NotificationBadge({ count, className = '' }: NotificationBadgeProps) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (count <= 0) return null;
+
+  return (
+    <motion.div
+      initial={prefersReducedMotion ? false : { scale: 0 }}
+      animate={{ scale: 1 }}
+      exit={{ scale: 0 }}
+      className={`absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center ${className}`}
+      style={{
+        boxShadow: '0 0 10px rgba(var(--destructive) / 0.5)',
+      }}
+    >
+      <motion.span
+        animate={
+          prefersReducedMotion
+            ? {}
+            : {
+                scale: [1, 1.1, 1],
+              }
+        }
+        transition={{
+          duration: 0.6,
+          repeat: Infinity,
+          repeatDelay: 2,
+        }}
+      >
+        {count > 9 ? '9+' : count}
+      </motion.span>
+    </motion.div>
+  );
+}
