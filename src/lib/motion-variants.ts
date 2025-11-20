@@ -117,3 +117,68 @@ export const ripple = {
     }
   }
 };
+
+export const floatContinuous = {
+  animate: {
+    y: [0, -12, 0],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
+
+export const breathe = {
+  animate: {
+    scale: [1, 1.05, 1],
+    opacity: [0.8, 1, 0.8],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
+
+export const elasticSpring = {
+  type: "spring" as const,
+  damping: 20,
+  stiffness: 300,
+  mass: 0.8
+};
+
+export const slideInFromRight = {
+  initial: { x: 400, opacity: 0 },
+  animate: { 
+    x: 0, 
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      damping: 25,
+      stiffness: 200
+    }
+  },
+  exit: { 
+    x: 400, 
+    opacity: 0,
+    transition: {
+      duration: TIMING.normal / 1000
+    }
+  }
+};
+
+export const glowPulse = {
+  animate: {
+    boxShadow: [
+      "0 0 20px rgba(var(--primary), 0.2)",
+      "0 0 30px rgba(var(--primary), 0.4)",
+      "0 0 20px rgba(var(--primary), 0.2)"
+    ],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
