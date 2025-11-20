@@ -19,18 +19,26 @@ export async function observerAgentHandler(params: HandlerParams): Promise<Insig
   const insights: InsightDetection[] = [];
 
   // 1. Check for subscription price hikes
-  const { data: subscriptions } = await supabase
+  console.log(`[Observer Agent] Checking subscriptions for user ${userId}...`);
+  const { data: subscriptions, error: subError } = await supabase
     .from('detected_subscriptions')
     .select('*')
     .eq('user_id', userId)
     .eq('confirmed', true);
 
+  if (subError) {
+    console.error('[Observer Agent] Subscription query error:', subError);
+  } else {
+    console.log(`[Observer Agent] Found ${subscriptions?.length || 0} subscriptions`);
+  }
+
   for (const sub of subscriptions || []) {
     // Compare current amount to last charge if available
-    const currentAmount = parseFloat(sub.amount);
+    const currentAmount = parseFloat(sub.amount) || 0;
     const lastChargeAmount = sub.last_charge_amount ? parseFloat(sub.last_charge_amount) : currentAmount;
     
     if (lastChargeAmount > currentAmount * 1.1) { // 10% increase
+      console.log(`[Observer Agent] Price hike detected for ${sub.merchant}`);
       insights.push({
         insight_type: 'subscription_price_hike',
         severity: 'urgent',
@@ -45,13 +53,20 @@ export async function observerAgentHandler(params: HandlerParams): Promise<Insig
   }
 
   // 2. Detect spending spikes (30% above 30-day average)
+  console.log(`[Observer Agent] Checking spending patterns for user ${userId}...`);
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: recentTransactions } = await supabase
+  const { data: recentTransactions, error: txnError } = await supabase
     .from('transactions')
     .select('*')
     .eq('user_id', userId)
     .gte('transaction_date', thirtyDaysAgo)
     .order('transaction_date', { ascending: false });
+
+  if (txnError) {
+    console.error('[Observer Agent] Transaction query error:', txnError);
+  } else {
+    console.log(`[Observer Agent] Found ${recentTransactions?.length || 0} recent transactions`);
+  }
 
   if (recentTransactions && recentTransactions.length > 10) {
     const amounts = recentTransactions
@@ -64,6 +79,7 @@ export async function observerAgentHandler(params: HandlerParams): Promise<Insig
       const recentAvg = last7Days.reduce((a: number, b: number) => a + b, 0) / last7Days.length;
 
       if (recentAvg > avg * 1.3) { // 30% spike
+        console.log(`[Observer Agent] Spending spike detected: ${Math.round(((recentAvg - avg) / avg) * 100)}% increase`);
         insights.push({
           insight_type: 'spending_spike',
           severity: 'warning',
@@ -77,13 +93,21 @@ export async function observerAgentHandler(params: HandlerParams): Promise<Insig
   }
 
   // 3. Check budget overruns
-  const { data: budgets } = await supabase
+  console.log(`[Observer Agent] Checking budgets for user ${userId}...`);
+  const { data: budgets, error: budgetError } = await supabase
     .from('user_budgets')
     .select(`
       *,
       budget_spending!inner(spent_amount)
     `)
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .eq('is_active', true);
+
+  if (budgetError) {
+    console.error('[Observer Agent] Budget query error:', budgetError);
+  } else {
+    console.log(`[Observer Agent] Found ${budgets?.length || 0} budgets`);
+  }
 
   for (const budget of budgets || []) {
     const spent = budget.budget_spending?.[0]?.spent_amount || 0;
@@ -91,6 +115,7 @@ export async function observerAgentHandler(params: HandlerParams): Promise<Insig
     const percentage = (spent / limit) * 100;
 
     if (percentage > 90 && percentage < 100) {
+      console.log(`[Observer Agent] Budget alert for ${budget.category}: ${Math.round(percentage)}% used`);
       insights.push({
         insight_type: 'budget_overrun',
         severity: 'warning',
@@ -117,6 +142,7 @@ export async function observerAgentHandler(params: HandlerParams): Promise<Insig
 
   if (smallCharges && smallCharges.length > 10) {
     const total = smallCharges.reduce((sum: number, t: any) => sum + Math.abs(parseFloat(t.amount)), 0);
+    console.log(`[Observer Agent] Coffee savings opportunity: $${total.toFixed(2)} across ${smallCharges.length} purchases`);
     insights.push({
       insight_type: 'savings_opportunity',
       severity: 'info',
@@ -130,5 +156,6 @@ export async function observerAgentHandler(params: HandlerParams): Promise<Insig
     });
   }
 
+  console.log(`[Observer Agent] Completed analysis for user ${userId}: ${insights.length} insights found`);
   return insights;
 }

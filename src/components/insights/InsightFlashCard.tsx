@@ -56,6 +56,7 @@ export function InsightFlashCard({ insight, onDismiss, onResolved }: InsightFlas
       return;
     }
 
+    console.log(`[Insight Card] Attempting to resolve insight ${insight.id} with action ${insight.resolution_action}`);
     setIsResolving(true);
 
     try {
@@ -63,6 +64,7 @@ export function InsightFlashCard({ insight, onDismiss, onResolved }: InsightFlas
       if (!session) throw new Error('Not authenticated');
 
       // Call resolution handler
+      console.log('[Insight Card] Invoking handle-insight-resolution function...');
       const { data, error } = await supabase.functions.invoke('handle-insight-resolution', {
         body: {
           insightId: insight.id,
@@ -71,7 +73,12 @@ export function InsightFlashCard({ insight, onDismiss, onResolved }: InsightFlas
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Insight Card] Resolution function error:', error);
+        throw error;
+      }
+
+      console.log('[Insight Card] Resolution successful:', data);
 
       // Mark as resolved in database
       await supabase
@@ -86,8 +93,12 @@ export function InsightFlashCard({ insight, onDismiss, onResolved }: InsightFlas
       setTimeout(() => onResolved(), 2000);
 
     } catch (error) {
-      console.error('Resolution error:', error);
-      toast.error('Failed to resolve. Please try again.');
+      console.error('[Insight Card] Resolution error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to resolve. Please try again.';
+      toast.error(errorMessage, {
+        description: 'Check the console for more details.',
+        duration: 5000,
+      });
     } finally {
       setIsResolving(false);
     }
