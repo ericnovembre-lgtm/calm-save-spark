@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Brain, GraduationCap, Receipt, TrendingUp, CreditCard, Heart } from 'lucide-react';
+import { Brain, GraduationCap, Receipt, TrendingUp, CreditCard, Heart, HelpCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
@@ -55,6 +55,13 @@ const AGENTS: Agent[] = [
     description: 'Holistic life planning advisor for major milestones and big decisions',
     icon: Heart,
     color: 'hsl(280 65% 60%)',
+  },
+  {
+    type: 'help_agent',
+    name: '$ave+ Help',
+    description: 'Your personal guide for navigating $ave+ and getting instant support',
+    icon: HelpCircle,
+    color: 'hsl(262 83% 58%)',
   },
 ];
 

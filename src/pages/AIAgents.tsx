@@ -45,6 +45,7 @@ export default function AIAgents() {
       investment_research: 'Investment Research',
       debt_advisor: 'Debt Advisor',
       life_planner: 'Life Planner',
+      help_agent: '$ave+ Help',
     };
     return names[type] || type;
   };
