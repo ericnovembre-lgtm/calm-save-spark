@@ -5115,6 +5115,66 @@ export type Database = {
         }
         Relationships: []
       }
+      proactive_insights: {
+        Row: {
+          created_at: string | null
+          dismissed_at: string | null
+          expires_at: string | null
+          id: string
+          insight_type: string
+          is_resolved: boolean | null
+          message: string
+          metadata: Json | null
+          related_entity_id: string | null
+          related_entity_type: string | null
+          resolution_action: string | null
+          resolution_data: Json | null
+          resolved_at: string | null
+          severity: string
+          title: string
+          user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          insight_type: string
+          is_resolved?: boolean | null
+          message: string
+          metadata?: Json | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          resolution_action?: string | null
+          resolution_data?: Json | null
+          resolved_at?: string | null
+          severity: string
+          title: string
+          user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          insight_type?: string
+          is_resolved?: boolean | null
+          message?: string
+          metadata?: Json | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          resolution_action?: string | null
+          resolution_data?: Json | null
+          resolved_at?: string | null
+          severity?: string
+          title?: string
+          user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
