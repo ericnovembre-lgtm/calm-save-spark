@@ -2,6 +2,11 @@ import { SpendingChart } from './SpendingChart';
 import { BudgetAlertCard } from './BudgetAlertCard';
 import { SubscriptionList } from './SubscriptionList';
 import { ActionCard } from './ActionCard';
+import { InteractiveGoalBuilder } from './InteractiveGoalBuilder';
+import { CashFlowSankey } from './CashFlowSankey';
+import { NetWorthTimeline } from './NetWorthTimeline';
+import { FinancialHealthScore } from './FinancialHealthScore';
+import { AIInsightsCarousel } from './AIInsightsCarousel';
 import { ComponentMessage } from './types';
 import { useNavigate } from 'react-router-dom';
 
@@ -58,6 +63,72 @@ export function ComponentRenderer({ componentData, onAction }: ComponentRenderer
                 await onAction(props.actionType, data);
               }
             }}
+          />
+        );
+      
+      case 'interactive_goal_builder':
+        return (
+          <InteractiveGoalBuilder
+            suggestedAmount={props.suggestedAmount}
+            suggestedDate={props.suggestedDate}
+            goalType={props.goalType}
+            onCreateGoal={async (data: any) => {
+              if (onAction) {
+                await onAction('create_goal', data);
+              }
+            }}
+          />
+        );
+      
+      case 'cash_flow_sankey':
+        return (
+          <CashFlowSankey
+            income={props.income}
+            expenses={props.expenses}
+            savings={props.savings}
+            title={props.title}
+          />
+        );
+      
+      case 'net_worth_timeline':
+        return (
+          <NetWorthTimeline
+            historicalData={props.historicalData}
+            projectedData={props.projectedData}
+            title={props.title}
+            currentNetWorth={props.currentNetWorth}
+          />
+        );
+      
+      case 'financial_health_score':
+        return (
+          <FinancialHealthScore
+            overallScore={props.overallScore}
+            categories={props.categories}
+            onViewDetails={() => navigate('/financial-health')}
+            onImprove={async (category: string) => {
+              if (onAction) {
+                await onAction('improve_category', { category });
+              }
+            }}
+          />
+        );
+      
+      case 'ai_insights_carousel':
+        return (
+          <AIInsightsCarousel
+            insights={props.insights.map((insight: any) => ({
+              ...insight,
+              action: insight.action ? {
+                ...insight.action,
+                onClick: async () => {
+                  if (onAction) {
+                    await onAction('insight_action', { insightId: insight.id });
+                  }
+                }
+              } : undefined
+            }))}
+            title={props.title}
           />
         );
       

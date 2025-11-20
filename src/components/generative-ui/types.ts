@@ -1,4 +1,13 @@
-export type ComponentType = 'spending_chart' | 'budget_alert' | 'subscription_list' | 'action_card';
+export type ComponentType = 
+  | 'spending_chart' 
+  | 'budget_alert' 
+  | 'subscription_list' 
+  | 'action_card'
+  | 'interactive_goal_builder'
+  | 'cash_flow_sankey'
+  | 'net_worth_timeline'
+  | 'financial_health_score'
+  | 'ai_insights_carousel';
 
 export interface ComponentMessage {
   type: ComponentType;
