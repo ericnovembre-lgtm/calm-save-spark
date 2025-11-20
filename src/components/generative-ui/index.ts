@@ -7,5 +7,7 @@ export { CashFlowSankey } from './CashFlowSankey';
 export { NetWorthTimeline } from './NetWorthTimeline';
 export { FinancialHealthScore } from './FinancialHealthScore';
 export { AIInsightsCarousel } from './AIInsightsCarousel';
+export { PredictiveSpendingForecast } from './PredictiveSpendingForecast';
+export { EmotionAwareResponse } from './EmotionAwareResponse';
 export { ComponentRenderer } from './ComponentRenderer';
 export * from './types';

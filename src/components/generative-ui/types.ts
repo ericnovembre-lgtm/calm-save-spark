@@ -7,7 +7,9 @@ export type ComponentType =
   | 'cash_flow_sankey'
   | 'net_worth_timeline'
   | 'financial_health_score'
-  | 'ai_insights_carousel';
+  | 'ai_insights_carousel'
+  | 'predictive_forecast'
+  | 'emotion_aware_response';
 
 export interface ComponentMessage {
   type: ComponentType;

@@ -3,7 +3,7 @@ export const UI_TOOLS = [
     type: "function",
     function: {
       name: "render_spending_chart",
-      description: "Display an interactive spending chart showing user's expenses over time. Use when user asks about spending patterns, trends, or wants to visualize expenses.",
+      description: "Display a visual chart of spending patterns over time",
       parameters: {
         type: "object",
         properties: {
@@ -12,19 +12,15 @@ export const UI_TOOLS = [
             items: {
               type: "object",
               properties: {
-                date: { type: "string", description: "ISO date string" },
-                amount: { type: "number", description: "Amount in dollars" },
-                category: { type: "string", description: "Optional category name" }
-              },
-              required: ["date", "amount"]
-            },
-            description: "Array of spending data points"
+                category: { type: "string" },
+                amount: { type: "number" },
+                month: { type: "string" }
+              }
+            }
           },
-          color: { type: "string", description: "Optional color for chart (CSS color value)" },
-          title: { type: "string", description: "Chart title" }
+          timeRange: { type: "string", enum: ["week", "month", "year"] }
         },
-        required: ["data"],
-        additionalProperties: false
+        required: ["data"]
       }
     }
   },
@@ -32,17 +28,16 @@ export const UI_TOOLS = [
     type: "function",
     function: {
       name: "render_budget_alert",
-      description: "Show a budget warning card when user is approaching or exceeding a budget limit. Use when detecting overspending or when user asks about budget status.",
+      description: "Show a budget warning or alert when spending is high",
       parameters: {
         type: "object",
         properties: {
-          category: { type: "string", description: "Budget category name (e.g., 'Groceries', 'Dining')" },
-          limit: { type: "number", description: "Budget limit in dollars" },
-          current: { type: "number", description: "Current spending in dollars" },
-          warningMessage: { type: "string", description: "Friendly warning message to display" }
+          category: { type: "string" },
+          spent: { type: "number" },
+          limit: { type: "number" },
+          severity: { type: "string", enum: ["warning", "danger", "info"] }
         },
-        required: ["category", "limit", "current", "warningMessage"],
-        additionalProperties: false
+        required: ["category", "spent", "limit"]
       }
     }
   },
@@ -50,7 +45,7 @@ export const UI_TOOLS = [
     type: "function",
     function: {
       name: "render_subscription_list",
-      description: "Display a list of active subscriptions with cancel options. Use when user asks about subscriptions, recurring charges, or wants to manage subscriptions.",
+      description: "Display active subscriptions with costs",
       parameters: {
         type: "object",
         properties: {
@@ -59,19 +54,15 @@ export const UI_TOOLS = [
             items: {
               type: "object",
               properties: {
-                id: { type: "string" },
                 name: { type: "string" },
                 amount: { type: "number" },
-                frequency: { type: "string", enum: ["monthly", "yearly"] },
-                nextBilling: { type: "string", description: "ISO date string" },
-                category: { type: "string" }
-              },
-              required: ["id", "name", "amount", "frequency", "nextBilling"]
+                frequency: { type: "string" },
+                nextBillDate: { type: "string" }
+              }
             }
           }
         },
-        required: ["subscriptions"],
-        additionalProperties: false
+        required: ["subscriptions"]
       }
     }
   },
@@ -79,31 +70,16 @@ export const UI_TOOLS = [
     type: "function",
     function: {
       name: "render_action_card",
-      description: "Display an interactive card with a primary action button. Use for suggesting actions like transfers, payments, goal creation, etc.",
+      description: "Suggest an actionable step the user can take",
       parameters: {
         type: "object",
         properties: {
-          title: { type: "string", description: "Action card title" },
-          description: { type: "string", description: "Explanation of the action" },
-          actionLabel: { type: "string", description: "Button text (e.g., 'Transfer $50', 'Freeze Card')" },
-          actionType: { 
-            type: "string", 
-            enum: ["transfer", "freeze_card", "pay_bill", "create_goal", "custom"],
-            description: "Type of action to perform"
-          },
-          actionData: { 
-            type: "object", 
-            description: "Data needed to execute the action",
-            additionalProperties: true
-          },
-          variant: { 
-            type: "string", 
-            enum: ["default", "destructive", "success"],
-            description: "Visual style of the card"
-          }
+          title: { type: "string" },
+          description: { type: "string" },
+          actionType: { type: "string", enum: ["transfer", "create_goal", "adjust_budget", "review"] },
+          actionData: { type: "object" }
         },
-        required: ["title", "description", "actionLabel", "actionType"],
-        additionalProperties: false
+        required: ["title", "description", "actionType"]
       }
     }
   },
@@ -111,15 +87,22 @@ export const UI_TOOLS = [
     type: "function",
     function: {
       name: "render_interactive_goal_builder",
-      description: "Show an interactive goal creation wizard with sliders and date picker. Use when user wants to create a new savings goal or explore goal scenarios.",
+      description: "Interactive wizard to create a financial goal with sliders and date pickers",
       parameters: {
         type: "object",
         properties: {
-          suggestedAmount: { type: "number", description: "Suggested target amount in dollars" },
-          suggestedDate: { type: "string", description: "Suggested target date (ISO string)" },
-          goalType: { type: "string", description: "Type of goal (e.g., 'emergency fund', 'vacation')" }
-        },
-        additionalProperties: false
+          suggestedGoals: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                targetAmount: { type: "number" },
+                timeframe: { type: "string" }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -127,7 +110,7 @@ export const UI_TOOLS = [
     type: "function",
     function: {
       name: "render_cash_flow_sankey",
-      description: "Display a Sankey diagram showing money flow from income to expenses and savings. Use when user asks about cash flow, where money goes, or wants to visualize their financial flow.",
+      description: "Sankey diagram showing money flow between income, expenses, and savings",
       parameters: {
         type: "object",
         properties: {
@@ -136,41 +119,24 @@ export const UI_TOOLS = [
             items: {
               type: "object",
               properties: {
-                name: { type: "string" },
+                source: { type: "string" },
                 amount: { type: "number" }
-              },
-              required: ["name", "amount"]
-            },
-            description: "Income sources"
+              }
+            }
           },
           expenses: {
             type: "array",
             items: {
               type: "object",
               properties: {
-                name: { type: "string" },
+                category: { type: "string" },
                 amount: { type: "number" }
-              },
-              required: ["name", "amount"]
-            },
-            description: "Expense categories"
+              }
+            }
           },
-          savings: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                amount: { type: "number" }
-              },
-              required: ["name", "amount"]
-            },
-            description: "Savings allocations"
-          },
-          title: { type: "string", description: "Chart title" }
+          savings: { type: "number" }
         },
-        required: ["income", "expenses", "savings"],
-        additionalProperties: false
+        required: ["income", "expenses", "savings"]
       }
     }
   },
@@ -178,41 +144,33 @@ export const UI_TOOLS = [
     type: "function",
     function: {
       name: "render_net_worth_timeline",
-      description: "Show historical net worth progression and future projections. Use when user asks about net worth growth, wealth building progress, or wants to see financial trajectory.",
+      description: "Animated timeline showing historical and projected net worth",
       parameters: {
         type: "object",
         properties: {
-          historicalData: {
+          historical: {
             type: "array",
             items: {
               type: "object",
               properties: {
                 date: { type: "string" },
-                actual: { type: "number" },
-                milestone: { type: "string" }
-              },
-              required: ["date"]
-            },
-            description: "Historical net worth data points"
+                assets: { type: "number" },
+                liabilities: { type: "number" }
+              }
+            }
           },
-          projectedData: {
+          projected: {
             type: "array",
             items: {
               type: "object",
               properties: {
                 date: { type: "string" },
-                projected: { type: "number" },
-                milestone: { type: "string" }
-              },
-              required: ["date"]
-            },
-            description: "Projected future net worth"
-          },
-          title: { type: "string", description: "Chart title" },
-          currentNetWorth: { type: "number", description: "Current net worth value" }
+                netWorth: { type: "number" }
+              }
+            }
+          }
         },
-        required: ["historicalData", "projectedData"],
-        additionalProperties: false
+        required: ["historical"]
       }
     }
   },
@@ -220,11 +178,11 @@ export const UI_TOOLS = [
     type: "function",
     function: {
       name: "render_financial_health_score",
-      description: "Display a gamified financial health score with category breakdown. Use when user asks about financial health, overall wellness, or wants to see improvement areas.",
+      description: "Gamified financial health score with category breakdown",
       parameters: {
         type: "object",
         properties: {
-          overallScore: { type: "number", description: "Overall score out of 100" },
+          totalScore: { type: "number" },
           categories: {
             type: "array",
             items: {
@@ -233,16 +191,12 @@ export const UI_TOOLS = [
                 name: { type: "string" },
                 score: { type: "number" },
                 maxScore: { type: "number" },
-                status: { type: "string", enum: ["excellent", "good", "fair", "poor"] },
-                suggestion: { type: "string" }
-              },
-              required: ["name", "score", "maxScore", "status"]
-            },
-            description: "Score breakdown by category"
+                tips: { type: "array", items: { type: "string" } }
+              }
+            }
           }
         },
-        required: ["overallScore", "categories"],
-        additionalProperties: false
+        required: ["totalScore", "categories"]
       }
     }
   },
@@ -250,7 +204,7 @@ export const UI_TOOLS = [
     type: "function",
     function: {
       name: "render_ai_insights_carousel",
-      description: "Show swipeable carousel of AI-generated financial insights. Use when presenting multiple insights, tips, or recommendations to the user.",
+      description: "Swipeable cards showing personalized AI insights",
       parameters: {
         type: "object",
         properties: {
@@ -259,26 +213,95 @@ export const UI_TOOLS = [
             items: {
               type: "object",
               properties: {
-                id: { type: "string" },
-                type: { type: "string", enum: ["opportunity", "warning", "tip", "achievement"] },
                 title: { type: "string" },
                 description: { type: "string" },
-                impact: { type: "string", enum: ["high", "medium", "low"] },
-                category: { type: "string" },
-                action: {
-                  type: "object",
-                  properties: {
-                    label: { type: "string" }
-                  }
-                }
-              },
-              required: ["id", "type", "title", "description"]
+                impact: { type: "string", enum: ["low", "medium", "high"] },
+                actionable: { type: "boolean" }
+              }
+            }
+          }
+        },
+        required: ["insights"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "render_predictive_forecast",
+      description: "ML-powered spending forecast with confidence intervals",
+      parameters: {
+        type: "object",
+        properties: {
+          category: { type: "string" },
+          historicalData: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                month: { type: "string" },
+                actual: { type: "number" }
+              }
             }
           },
-          title: { type: "string", description: "Carousel title" }
+          predictions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                month: { type: "string" },
+                predicted: { type: "number" },
+                confidence: {
+                  type: "object",
+                  properties: {
+                    lower: { type: "number" },
+                    upper: { type: "number" }
+                  }
+                }
+              }
+            }
+          },
+          insights: {
+            type: "object",
+            properties: {
+              trend: { type: "string", enum: ["increasing", "decreasing", "stable"] },
+              volatility: { type: "string", enum: ["low", "medium", "high"] },
+              anomalies: { type: "array", items: { type: "string" } },
+              recommendations: { type: "array", items: { type: "string" } }
+            }
+          }
         },
-        required: ["insights"],
-        additionalProperties: false
+        required: ["category", "historicalData", "predictions", "insights"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "render_emotion_aware_response",
+      description: "Display response with emotional intelligence and support resources",
+      parameters: {
+        type: "object",
+        properties: {
+          detectedEmotion: {
+            type: "string",
+            enum: ["stressed", "anxious", "excited", "frustrated", "neutral", "hopeful"]
+          },
+          confidence: { type: "number" },
+          response: { type: "string" },
+          supportResources: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" },
+                url: { type: "string" }
+              }
+            }
+          }
+        },
+        required: ["detectedEmotion", "confidence", "response"]
       }
     }
   }
