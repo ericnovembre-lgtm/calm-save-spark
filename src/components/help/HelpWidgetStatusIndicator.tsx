@@ -29,22 +29,7 @@ export function HelpWidgetStatusIndicator({ status }: HelpWidgetStatusIndicatorP
 
   return (
     <div className="flex items-center gap-2">
-      <motion.div
-        className={`w-2 h-2 rounded-full ${config.color}`}
-        animate={
-          prefersReducedMotion
-            ? {}
-            : {
-                scale: [1, 1.2, 1],
-                opacity: [1, 0.6, 1],
-              }
-        }
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
+      <div className={`w-2 h-2 rounded-full ${config.color}`} />
       <span className="text-xs text-muted-foreground">{config.text}</span>
     </div>
   );

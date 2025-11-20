@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileQuestion, Sparkles, Settings, MessageCircle } from 'lucide-react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { haptics } from '@/lib/haptics';
 
 interface QuickAction {
   icon: React.ComponentType<{ className?: string }>;
@@ -21,39 +20,24 @@ export function QuickActionsMenu({ isOpen, onClose }: QuickActionsMenuProps) {
     {
       icon: MessageCircle,
       label: 'Ask Question',
-      onClick: () => {
-        haptics.buttonPress();
-        onClose();
-      },
+      onClick: onClose,
     },
     {
       icon: Sparkles,
       label: 'Quick Tips',
-      onClick: () => {
-        haptics.buttonPress();
-        onClose();
-      },
+      onClick: onClose,
     },
     {
       icon: FileQuestion,
       label: 'FAQ',
-      onClick: () => {
-        haptics.buttonPress();
-        onClose();
-      },
+      onClick: onClose,
     },
     {
       icon: Settings,
       label: 'Settings',
-      onClick: () => {
-        haptics.buttonPress();
-        onClose();
-      },
+      onClick: onClose,
     },
   ];
-
-  const radius = 80;
-  const angleStep = 360 / actions.length;
 
   return (
     <AnimatePresence>
@@ -64,39 +48,33 @@ export function QuickActionsMenu({ isOpen, onClose }: QuickActionsMenuProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
             className="fixed inset-0 z-40"
           />
 
           {/* Action Items */}
-          <div className="fixed bottom-6 right-6 z-50">
-            {actions.map((action, index) => {
-              const angle = (angleStep * index - 90) * (Math.PI / 180);
-              const x = Math.cos(angle) * radius;
-              const y = Math.sin(angle) * radius;
-
-              return (
-                <motion.button
-                  key={action.label}
-                  initial={prefersReducedMotion ? false : { scale: 0, x: 0, y: 0 }}
-                  animate={{ scale: 1, x, y }}
-                  exit={{ scale: 0, x: 0, y: 0 }}
-                  transition={{
-                    type: 'spring',
-                    damping: 20,
-                    stiffness: 300,
-                    delay: index * 0.05,
-                  }}
-                  onClick={action.onClick}
-                  className="absolute bottom-0 right-0 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
-                  aria-label={action.label}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <action.icon className="w-5 h-5" />
-                </motion.button>
-              );
-            })}
+          <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+            {actions.map((action, index) => (
+              <motion.button
+                key={action.label}
+                initial={prefersReducedMotion ? false : { scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{
+                  duration: 0.2,
+                  ease: [0.22, 1, 0.36, 1],
+                  delay: index * 0.05,
+                }}
+                onClick={action.onClick}
+                className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center transition-transform"
+                aria-label={action.label}
+                whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <action.icon className="w-5 h-5" />
+              </motion.button>
+            ))}
           </div>
         </>
       )}

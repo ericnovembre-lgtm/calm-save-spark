@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { PanInfo } from 'framer-motion';
-import { haptics } from '@/lib/haptics';
 
 type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
@@ -28,7 +27,6 @@ export function useHelpWidgetDrag() {
     
     setPosition(newPosition);
     setDragPosition({ x: 0, y: 0 });
-    haptics.vibrate('light');
   }, []);
 
   const handleDragEnd = useCallback(
