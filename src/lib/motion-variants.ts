@@ -182,3 +182,47 @@ export const glowPulse = {
     }
   }
 };
+
+// Calm Help Widget Variants
+export const calmHover = {
+  rest: { scale: 1 },
+  hover: { 
+    scale: 1.05,
+    transition: {
+      duration: TIMING.normal / 1000,
+      ease: [0.22, 1, 0.36, 1] as const
+    }
+  }
+};
+
+export const gentleSlide = {
+  initial: { x: 320, opacity: 0 },
+  animate: { 
+    x: 0, 
+    opacity: 1,
+    transition: {
+      duration: TIMING.slow / 1000,
+      ease: [0.22, 1, 0.36, 1] as const
+    }
+  },
+  exit: { 
+    x: 320, 
+    opacity: 0,
+    transition: {
+      duration: TIMING.normal / 1000,
+      ease: [0.22, 1, 0.36, 1] as const
+    }
+  }
+};
+
+export const subtleFadeIn = {
+  initial: { opacity: 0, y: 8 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: TIMING.normal / 1000,
+      ease: [0.22, 1, 0.36, 1] as const
+    }
+  }
+};

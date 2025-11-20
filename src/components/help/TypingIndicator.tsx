@@ -6,7 +6,7 @@ export function TypingIndicator() {
 
   const dotVariants = {
     initial: { y: 0 },
-    animate: { y: -8 },
+    animate: { y: -4 },
   };
 
   return (
