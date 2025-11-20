@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { ComponentRenderer } from '@/components/generative-ui';
 
 interface AgentChatProps {
   agentType: string;
@@ -99,6 +100,37 @@ export function AgentChat({
     setAutoSpeak(!autoSpeak);
   };
 
+  const handleComponentAction = async (actionType: string, data: any) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/handle-ui-action`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ actionType, actionData: data })
+        }
+      );
+
+      if (!response.ok) throw new Error('Action failed');
+
+      const result = await response.json();
+      toast.success('Action completed successfully!');
+      
+      // Send confirmation to AI
+      await sendMessage(`Action completed: ${actionType}`, initialContext);
+
+    } catch (error) {
+      console.error('Action error:', error);
+      toast.error('Action failed. Please try again.');
+    }
+  };
+
   return (
     <div className={cn('flex flex-col h-full', className)}>
       <ScrollArea ref={scrollRef} className="flex-1 p-4">
@@ -124,9 +156,16 @@ export function AgentChat({
                       : 'bg-muted/50 text-foreground border border-border/50'
                   )}
                 >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {message.content}
-                  </p>
+                  {message.componentData ? (
+                    <ComponentRenderer 
+                      componentData={message.componentData}
+                      onAction={handleComponentAction}
+                    />
+                  ) : (
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {message.content}
+                    </p>
+                  )}
                 </div>
               </motion.div>
             ))}

@@ -3,6 +3,7 @@ import { buildHelpContext } from "../utils/context-builder.ts";
 import { streamAIResponse, formatContextForAI } from "../utils/ai-client.ts";
 import { loadConversation, saveConversation, getAgentSystemPrompt } from "../utils/conversation-manager.ts";
 import { SAVEPLUS_FEATURES } from "../knowledge/saveplus-features.ts";
+import { UI_TOOLS } from "../utils/ui-tools.ts";
 
 interface HandlerParams {
   supabase: SupabaseClient;
@@ -51,7 +52,8 @@ Provide helpful, context-aware assistance based on their current location and su
     enhancedPrompt, 
     history, 
     message,
-    'openai/gpt-5-nano'
+    'openai/gpt-5-nano',
+    UI_TOOLS
   );
 
   let fullResponse = '';

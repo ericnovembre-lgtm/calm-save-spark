@@ -3,6 +3,7 @@ import { buildFinancialContext } from "../utils/context-builder.ts";
 import { streamAIResponse, formatContextForAI } from "../utils/ai-client.ts";
 import { loadConversation, saveConversation, getAgentSystemPrompt } from "../utils/conversation-manager.ts";
 import { determineSubscriptionTier, getSubscriptionMessage } from "../utils/subscription-utils.ts";
+import { UI_TOOLS } from "../utils/ui-tools.ts";
 
 interface HandlerParams {
   supabase: SupabaseClient;
@@ -46,14 +47,22 @@ export async function financialCoachHandler(params: HandlerParams): Promise<Read
 **Current User Financial Context:**
 ${contextString}
 
+**GENERATIVE UI CAPABILITIES:**
+You can render interactive UI components! Use these when appropriate:
+- render_spending_chart: Show spending trends over time
+- render_budget_alert: Warn about budget overruns (use when spending > 70% of limit)
+- render_subscription_list: Display active subscriptions
+- render_action_card: Suggest actionable steps (transfers, goal creation, etc.)
+
 Use this context to provide personalized advice. Reference specific data points when relevant.`;
 
-  // Stream AI response
+  // Stream AI response with UI tools
   const aiStream = await streamAIResponse(
     enhancedPrompt, 
     history, 
     message,
-    'openai/gpt-5-mini'
+    'openai/gpt-5-mini',
+    UI_TOOLS
   );
 
   // Create a transform stream to capture the full response
