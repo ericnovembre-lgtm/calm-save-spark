@@ -2012,6 +2012,7 @@ export type Database = {
           plaid_access_token: string | null
           plaid_account_id: string | null
           plaid_item_id: string | null
+          plaid_item_table_id: string | null
           sync_status: string | null
           updated_at: string | null
           user_id: string
@@ -2032,6 +2033,7 @@ export type Database = {
           plaid_access_token?: string | null
           plaid_account_id?: string | null
           plaid_item_id?: string | null
+          plaid_item_table_id?: string | null
           sync_status?: string | null
           updated_at?: string | null
           user_id: string
@@ -2052,11 +2054,20 @@ export type Database = {
           plaid_access_token?: string | null
           plaid_account_id?: string | null
           plaid_item_id?: string | null
+          plaid_item_table_id?: string | null
           sync_status?: string | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "connected_accounts_plaid_item_table_id_fkey"
+            columns: ["plaid_item_table_id"]
+            isOneToOne: false
+            referencedRelation: "plaid_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cooling_off_sessions: {
         Row: {
@@ -4871,6 +4882,57 @@ export type Database = {
         }
         Relationships: []
       }
+      plaid_items: {
+        Row: {
+          access_token: string
+          consent_expiration_time: string | null
+          created_at: string | null
+          error_code: string | null
+          id: string
+          institution_id: string | null
+          institution_logo: string | null
+          institution_name: string | null
+          item_id: string
+          status: string | null
+          update_type: string | null
+          updated_at: string | null
+          user_id: string
+          webhook_url: string | null
+        }
+        Insert: {
+          access_token: string
+          consent_expiration_time?: string | null
+          created_at?: string | null
+          error_code?: string | null
+          id?: string
+          institution_id?: string | null
+          institution_logo?: string | null
+          institution_name?: string | null
+          item_id: string
+          status?: string | null
+          update_type?: string | null
+          updated_at?: string | null
+          user_id: string
+          webhook_url?: string | null
+        }
+        Update: {
+          access_token?: string
+          consent_expiration_time?: string | null
+          created_at?: string | null
+          error_code?: string | null
+          id?: string
+          institution_id?: string | null
+          institution_logo?: string | null
+          institution_name?: string | null
+          item_id?: string
+          status?: string | null
+          update_type?: string | null
+          updated_at?: string | null
+          user_id?: string
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       plaid_link_tokens: {
         Row: {
           created_at: string | null
@@ -6836,6 +6898,7 @@ export type Database = {
           merchant: string | null
           original_amount: number | null
           original_currency: string | null
+          plaid_transaction_id: string | null
           recurring_frequency: string | null
           tags: string[] | null
           transaction_date: string
@@ -6854,6 +6917,7 @@ export type Database = {
           merchant?: string | null
           original_amount?: number | null
           original_currency?: string | null
+          plaid_transaction_id?: string | null
           recurring_frequency?: string | null
           tags?: string[] | null
           transaction_date: string
@@ -6872,6 +6936,7 @@ export type Database = {
           merchant?: string | null
           original_amount?: number | null
           original_currency?: string | null
+          plaid_transaction_id?: string | null
           recurring_frequency?: string | null
           tags?: string[] | null
           transaction_date?: string
