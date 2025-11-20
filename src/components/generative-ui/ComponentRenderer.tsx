@@ -7,6 +7,8 @@ import { CashFlowSankey } from './CashFlowSankey';
 import { NetWorthTimeline } from './NetWorthTimeline';
 import { FinancialHealthScore } from './FinancialHealthScore';
 import { AIInsightsCarousel } from './AIInsightsCarousel';
+import { PredictiveSpendingForecast } from './PredictiveSpendingForecast';
+import { EmotionAwareResponse } from './EmotionAwareResponse';
 import { ComponentMessage } from './types';
 import { useNavigate } from 'react-router-dom';
 
