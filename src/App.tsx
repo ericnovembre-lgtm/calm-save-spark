@@ -22,6 +22,7 @@ import { useIntelligentPrefetch } from "@/hooks/useIntelligentPrefetch";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { queryConfig } from "@/lib/query-config";
 import { createPageLoader } from "@/components/performance/PageLazyLoader";
+import { FloatingHelpButton } from "@/components/help/FloatingHelpButton";
 import "@/styles/accessibility.css";
 
 // ============================================================
@@ -162,6 +163,7 @@ const App = () => {
                   <PageTracker />
                   <InstallPrompt />
                   <AnimatedRoutes />
+                  <FloatingHelpButton />
                 </BrowserRouter>
               </TooltipProvider>
             </AuthProvider>

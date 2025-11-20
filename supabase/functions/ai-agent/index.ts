@@ -6,6 +6,7 @@ import { taxAssistantHandler } from "./handlers/tax-assistant.ts";
 import { investmentResearchHandler } from "./handlers/investment-research.ts";
 import { debtAdvisorHandler } from "./handlers/debt-advisor.ts";
 import { lifePlannerHandler } from "./handlers/life-planner.ts";
+import { helpAgentHandler } from "./handlers/help-agent.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,6 +27,7 @@ const AGENT_HANDLERS = {
   investment_research: investmentResearchHandler,
   debt_advisor: debtAdvisorHandler,
   life_planner: lifePlannerHandler,
+  help_agent: helpAgentHandler,
 };
 
 serve(async (req) => {

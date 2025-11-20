@@ -172,3 +172,50 @@ export async function buildLifePlanContext(supabase: SupabaseClient, userId: str
     insurancePolicies: insurance.data || [],
   };
 }
+
+export async function buildHelpContext(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<Record<string, any>> {
+  // Fetch user subscription
+  const { data: subscription } = await supabase
+    .from('user_subscriptions')
+    .select('subscription_amount, status')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .single();
+
+  // Fetch user profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('first_name, email, created_at, onboarding_completed')
+    .eq('id', userId)
+    .single();
+
+  // Determine subscription tier
+  let tier = 'Free';
+  if (subscription) {
+    const amount = parseFloat(subscription.subscription_amount || 0);
+    if (amount >= 99) tier = 'Enterprise';
+    else if (amount >= 49) tier = 'Business';
+    else if (amount >= 19) tier = 'Premium';
+  }
+
+  // Check for active features
+  const [goalsCount, budgetsCount, accountsCount] = await Promise.all([
+    supabase.from('goals').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase.from('user_budgets').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase.from('connected_accounts').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+  ]);
+
+  return {
+    subscriptionTier: tier,
+    subscriptionStatus: subscription?.status || 'free',
+    userName: profile?.first_name || 'User',
+    accountCreated: profile?.created_at,
+    onboardingComplete: profile?.onboarding_completed || false,
+    hasActiveGoals: (goalsCount.count || 0) > 0,
+    hasBudget: (budgetsCount.count || 0) > 0,
+    linkedBanks: accountsCount.count || 0,
+  };
+}

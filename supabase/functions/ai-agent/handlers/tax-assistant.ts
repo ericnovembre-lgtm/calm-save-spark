@@ -2,6 +2,7 @@ import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildTaxContext } from "../utils/context-builder.ts";
 import { streamAIResponse, formatContextForAI } from "../utils/ai-client.ts";
 import { loadConversation, saveConversation, getAgentSystemPrompt } from "../utils/conversation-manager.ts";
+import { determineSubscriptionTier, getSubscriptionMessage } from "../utils/subscription-utils.ts";
 
 interface HandlerParams {
   supabase: SupabaseClient;
@@ -21,9 +22,22 @@ export async function taxAssistantHandler(params: HandlerParams): Promise<Readab
   const context = await buildTaxContext(supabase, userId);
   const contextString = formatContextForAI(context);
 
+  // Get subscription info
+  const { data: subscription } = await supabase
+    .from('user_subscriptions')
+    .select('subscription_amount, status')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .single();
+
+  const tier = determineSubscriptionTier(subscription);
+  const subscriptionMsg = getSubscriptionMessage(tier, tier === 'Free');
+
   const systemPrompt = await getAgentSystemPrompt(supabase, 'tax_assistant');
 
   const enhancedPrompt = `${systemPrompt}
+
+**User Subscription Tier:** ${tier}${subscriptionMsg}
 
 **Current Tax Year Context (${context.taxYear}):**
 ${contextString}
