@@ -79,6 +79,7 @@ import { useMilestoneDetector } from "@/hooks/useMilestoneDetector";
 import { FloatingCoins } from "@/components/effects/FloatingCoins";
 import { CursorSpotlight } from "@/components/effects/CursorSpotlight";
 import { TimeOfDayTheme } from "@/components/effects/TimeOfDayTheme";
+import { InsightStreamPanel } from "@/components/insights/InsightStreamPanel";
 
 import { withPageMemo } from "@/lib/performance-utils";
 
@@ -612,6 +613,9 @@ export default function Dashboard() {
       </div>
 
       <StreakRecoveryBanner />
+
+      {/* Proactive Insight Stream */}
+      {userId && <InsightStreamPanel userId={userId} />}
 
           <div className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
             <DynamicWelcome />
