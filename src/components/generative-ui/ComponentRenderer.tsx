@@ -135,10 +135,24 @@ export function ComponentRenderer({ componentData, onAction }: ComponentRenderer
         );
       
       case 'predictive_forecast':
-        return <PredictiveSpendingForecast {...props} />;
+        return (
+          <PredictiveSpendingForecast
+            category={props.category}
+            historicalData={props.historicalData}
+            predictions={props.predictions}
+            insights={props.insights}
+          />
+        );
       
       case 'emotion_aware_response':
-        return <EmotionAwareResponse {...props} />;
+        return (
+          <EmotionAwareResponse
+            detectedEmotion={props.detectedEmotion}
+            confidence={props.confidence}
+            response={props.response}
+            supportResources={props.supportResources}
+          />
+        );
       
       default:
         return (
