@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ComponentMessage } from '@/components/generative-ui';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  componentData?: ComponentMessage;
 }
 
 interface UseAgentChatOptions {
@@ -99,6 +101,45 @@ export function useAgentChat({ agentType, conversationId, onMessageReceived }: U
 
           try {
             const parsed = JSON.parse(jsonStr);
+            
+            // Check for tool call (component rendering)
+            const toolCall = parsed.choices?.[0]?.delta?.tool_calls?.[0];
+            if (toolCall && toolCall.function) {
+              try {
+                const functionName = toolCall.function.name;
+                const functionArgs = JSON.parse(toolCall.function.arguments || '{}');
+                
+                // Map function name to component type
+                const componentTypeMap: Record<string, ComponentMessage['type']> = {
+                  'render_spending_chart': 'spending_chart',
+                  'render_budget_alert': 'budget_alert',
+                  'render_subscription_list': 'subscription_list',
+                  'render_action_card': 'action_card',
+                };
+                
+                const componentType = componentTypeMap[functionName];
+                if (componentType) {
+                  // Create component message
+                  const componentMessage: Message = {
+                    role: 'assistant',
+                    content: '',
+                    timestamp: new Date().toISOString(),
+                    componentData: {
+                      type: componentType,
+                      props: functionArgs,
+                      fallbackText: `[${componentType} component]`
+                    }
+                  };
+                  
+                  setMessages(prev => [...prev, componentMessage]);
+                  continue;
+                }
+              } catch (e) {
+                console.error('Error processing tool call:', e);
+              }
+            }
+            
+            // Regular text content
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantMessage += content;
@@ -106,7 +147,7 @@ export function useAgentChat({ agentType, conversationId, onMessageReceived }: U
               // Update the last message (assistant) with streaming content
               setMessages(prev => {
                 const lastMessage = prev[prev.length - 1];
-                if (lastMessage?.role === 'assistant') {
+                if (lastMessage?.role === 'assistant' && !lastMessage.componentData) {
                   return [
                     ...prev.slice(0, -1),
                     { ...lastMessage, content: assistantMessage },

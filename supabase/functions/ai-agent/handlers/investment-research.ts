@@ -3,6 +3,7 @@ import { buildInvestmentContext } from "../utils/context-builder.ts";
 import { streamAIResponse, formatContextForAI } from "../utils/ai-client.ts";
 import { loadConversation, saveConversation, getAgentSystemPrompt } from "../utils/conversation-manager.ts";
 import { determineSubscriptionTier, getSubscriptionMessage } from "../utils/subscription-utils.ts";
+import { UI_TOOLS } from "../utils/ui-tools.ts";
 
 async function fetchMarketData(query: string): Promise<string> {
   const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
@@ -103,7 +104,8 @@ Provide objective analysis and educational insights. Always emphasize this is no
     enhancedPrompt, 
     history, 
     message,
-    'google/gemini-2.5-pro'
+    'google/gemini-2.5-pro',
+    UI_TOOLS
   );
 
   let fullResponse = '';

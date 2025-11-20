@@ -3,6 +3,7 @@ import { buildLifePlanContext } from "../utils/context-builder.ts";
 import { streamAIResponse, formatContextForAI } from "../utils/ai-client.ts";
 import { loadConversation, saveConversation, getAgentSystemPrompt } from "../utils/conversation-manager.ts";
 import { determineSubscriptionTier, getSubscriptionMessage } from "../utils/subscription-utils.ts";
+import { UI_TOOLS } from "../utils/ui-tools.ts";
 
 interface HandlerParams {
   supabase: SupabaseClient;
@@ -48,7 +49,8 @@ Help plan for major life events with realistic timelines and comprehensive check
     enhancedPrompt, 
     history, 
     message,
-    'google/gemini-2.5-pro'
+    'google/gemini-2.5-pro',
+    UI_TOOLS
   );
 
   let fullResponse = '';

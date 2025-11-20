@@ -141,4 +141,7 @@ verify_jwt = true
 [functions.guardian-intervene]
 verify_jwt = true
 
+[functions.handle-ui-action]
+verify_jwt = true
+
 

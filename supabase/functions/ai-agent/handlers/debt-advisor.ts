@@ -3,6 +3,7 @@ import { buildDebtContext } from "../utils/context-builder.ts";
 import { streamAIResponse, formatContextForAI } from "../utils/ai-client.ts";
 import { loadConversation, saveConversation, getAgentSystemPrompt } from "../utils/conversation-manager.ts";
 import { determineSubscriptionTier, getSubscriptionMessage } from "../utils/subscription-utils.ts";
+import { UI_TOOLS } from "../utils/ui-tools.ts";
 
 interface HandlerParams {
   supabase: SupabaseClient;
@@ -48,7 +49,8 @@ Provide strategic, empathetic debt management guidance. Focus on actionable step
     enhancedPrompt, 
     history, 
     message,
-    'google/gemini-2.5-flash'
+    'google/gemini-2.5-flash',
+    UI_TOOLS
   );
 
   let fullResponse = '';

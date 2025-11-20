@@ -7,7 +7,8 @@ export async function streamAIResponse(
   systemPrompt: string,
   conversationHistory: Message[],
   userMessage: string,
-  model: string = 'google/gemini-2.5-flash'
+  model: string = 'google/gemini-2.5-flash',
+  tools?: any[]
 ): Promise<ReadableStream> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   if (!LOVABLE_API_KEY) {
@@ -20,18 +21,24 @@ export async function streamAIResponse(
     { role: 'user' as const, content: userMessage },
   ];
 
+  const requestBody: any = {
+    model,
+    messages,
+    stream: true,
+    max_completion_tokens: 3000,
+  };
+
+  if (tools && tools.length > 0) {
+    requestBody.tools = tools;
+  }
+
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${LOVABLE_API_KEY}`,
     },
-    body: JSON.stringify({
-      model,
-      messages,
-      stream: true,
-      max_completion_tokens: 3000,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
