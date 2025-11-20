@@ -333,6 +333,105 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_model_ab_tests: {
+        Row: {
+          agent_type: string
+          created_at: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          model_a: string
+          model_b: string
+          start_date: string | null
+          test_name: string
+          traffic_split: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_type: string
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          model_a: string
+          model_b: string
+          start_date?: string | null
+          test_name: string
+          traffic_split?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_type?: string
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          model_a?: string
+          model_b?: string
+          start_date?: string | null
+          test_name?: string
+          traffic_split?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ai_model_test_results: {
+        Row: {
+          agent_type: string
+          conversation_id: string | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          model_used: string
+          response_time_ms: number | null
+          test_id: string | null
+          token_count: number | null
+          user_feedback: number | null
+          user_id: string
+        }
+        Insert: {
+          agent_type: string
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          model_used: string
+          response_time_ms?: number | null
+          test_id?: string | null
+          token_count?: number | null
+          user_feedback?: number | null
+          user_id: string
+        }
+        Update: {
+          agent_type?: string
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          model_used?: string
+          response_time_ms?: number | null
+          test_id?: string | null
+          token_count?: number | null
+          user_feedback?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_model_test_results_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_model_test_results_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "ai_model_ab_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       allowances: {
         Row: {
           amount: number

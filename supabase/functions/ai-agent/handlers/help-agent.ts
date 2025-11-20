@@ -46,12 +46,12 @@ ${context.subscriptionTier === 'Enterprise' ? '✅ Has full access to all featur
 
 Provide helpful, context-aware assistance based on their current location and subscription tier. Reference their current page when relevant.`;
 
-  // Use Gemini Flash for fast, efficient support responses
+  // Use GPT-5 Nano for ultra-fast, cost-efficient support responses
   const aiStream = await streamAIResponse(
     enhancedPrompt, 
     history, 
     message,
-    'google/gemini-2.5-flash'
+    'openai/gpt-5-nano'
   );
 
   let fullResponse = '';
