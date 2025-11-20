@@ -44,6 +44,8 @@ const RuleManager = lazy(() => import("@/components/budget/RuleManager").then(m 
 const ExportDataManager = lazy(() => import("@/components/budget/ExportDataManager").then(m => ({ default: m.ExportDataManager })));
 const InteractiveBudgetOnboarding = lazy(() => import("@/components/budget/InteractiveBudgetOnboarding").then(m => ({ default: m.InteractiveBudgetOnboarding })));
 
+import { withPageMemo } from "@/lib/performance-utils";
+
 export default function Budget() {
   const [activeView, setActiveView] = useState('overview');
   const [showCreateModal, setShowCreateModal] = useState(false);

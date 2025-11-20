@@ -33,6 +33,8 @@ import { goalSchema, GoalFormData } from "@/lib/validations/goal-schemas";
 import { useGoalTour } from "@/hooks/useGoalTour";
 import { useGoalKeyboardShortcuts } from "@/hooks/useGoalKeyboardShortcuts";
 
+import { withPageMemo } from "@/lib/performance-utils";
+
 const Goals = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -475,4 +477,4 @@ const Goals = () => {
   );
 };
 
-export default Goals;
+export default withPageMemo(Goals, 'Goals');
