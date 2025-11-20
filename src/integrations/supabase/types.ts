@@ -177,6 +177,44 @@ export type Database = {
           },
         ]
       }
+      agent_consultations: {
+        Row: {
+          consulting_agent: string
+          conversation_id: string | null
+          created_at: string
+          id: string
+          query: string
+          requesting_agent: string
+          response: string | null
+        }
+        Insert: {
+          consulting_agent: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          query: string
+          requesting_agent: string
+          response?: string | null
+        }
+        Update: {
+          consulting_agent?: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          query?: string
+          requesting_agent?: string
+          response?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_consultations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_delegations: {
         Row: {
           agent_id: string | null
@@ -227,6 +265,140 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      agent_documents: {
+        Row: {
+          analysis_result: Json | null
+          analysis_status: string | null
+          analyzed_at: string | null
+          conversation_id: string | null
+          created_at: string
+          file_name: string
+          file_size_bytes: number
+          file_type: string
+          id: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          analysis_result?: Json | null
+          analysis_status?: string | null
+          analyzed_at?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          file_name: string
+          file_size_bytes: number
+          file_type: string
+          id?: string
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json | null
+          analysis_status?: string | null
+          analyzed_at?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          file_name?: string
+          file_size_bytes?: number
+          file_type?: string
+          id?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_documents_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_memory: {
+        Row: {
+          agent_type: string
+          confidence_score: number | null
+          created_at: string
+          id: string
+          key: string
+          memory_type: string
+          updated_at: string
+          user_id: string
+          value: Json
+        }
+        Insert: {
+          agent_type: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          key: string
+          memory_type: string
+          updated_at?: string
+          user_id: string
+          value: Json
+        }
+        Update: {
+          agent_type?: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          key?: string
+          memory_type?: string
+          updated_at?: string
+          user_id?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      agent_nudges: {
+        Row: {
+          acted_on_at: string | null
+          action_url: string | null
+          agent_type: string
+          created_at: string
+          dismissed_at: string | null
+          expires_at: string | null
+          id: string
+          message: string
+          nudge_type: string
+          priority: number | null
+          sent_at: string | null
+          trigger_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          acted_on_at?: string | null
+          action_url?: string | null
+          agent_type: string
+          created_at?: string
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          message: string
+          nudge_type: string
+          priority?: number | null
+          sent_at?: string | null
+          trigger_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          acted_on_at?: string | null
+          action_url?: string | null
+          agent_type?: string
+          created_at?: string
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          message?: string
+          nudge_type?: string
+          priority?: number | null
+          sent_at?: string | null
+          trigger_data?: Json | null
+          user_id?: string
+        }
+        Relationships: []
       }
       ai_agents: {
         Row: {
@@ -6852,6 +7024,50 @@ export type Database = {
           },
         ]
       }
+      tool_execution_logs: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          error_message: string | null
+          execution_time_ms: number | null
+          id: string
+          input_params: Json | null
+          output_data: Json | null
+          success: boolean
+          tool_name: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          input_params?: Json | null
+          output_data?: Json | null
+          success?: boolean
+          tool_name: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          input_params?: Json | null
+          output_data?: Json | null
+          success?: boolean
+          tool_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_execution_logs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trading_emotions: {
         Row: {
           confidence_score: number | null
@@ -8002,6 +8218,7 @@ export type Database = {
     Functions: {
       calculate_health_trend: { Args: { p_user_id: string }; Returns: number }
       cleanup_expired_ip_blocks: { Args: never; Returns: undefined }
+      cleanup_expired_nudges: { Args: never; Returns: undefined }
       cleanup_expired_webauthn_challenges: { Args: never; Returns: undefined }
       cleanup_old_analytics_events: { Args: never; Returns: undefined }
       cleanup_old_financial_health_history: { Args: never; Returns: undefined }
@@ -8009,6 +8226,18 @@ export type Database = {
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_security_logs: { Args: never; Returns: undefined }
       compute_user_features: { Args: { sub_amount: number }; Returns: Json }
+      get_active_nudges: {
+        Args: { p_user_id: string }
+        Returns: {
+          action_url: string
+          agent_type: string
+          created_at: string
+          id: string
+          message: string
+          nudge_type: string
+          priority: number
+        }[]
+      }
       grant_freeze_day_reward: {
         Args: { p_freeze_days: number; p_user_id: string }
         Returns: undefined

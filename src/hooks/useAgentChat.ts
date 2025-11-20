@@ -115,6 +115,11 @@ export function useAgentChat({ agentType, conversationId, onMessageReceived }: U
                   'render_budget_alert': 'budget_alert',
                   'render_subscription_list': 'subscription_list',
                   'render_action_card': 'action_card',
+                  'render_interactive_goal_builder': 'interactive_goal_builder',
+                  'render_cash_flow_sankey': 'cash_flow_sankey',
+                  'render_net_worth_timeline': 'net_worth_timeline',
+                  'render_financial_health_score': 'financial_health_score',
+                  'render_ai_insights_carousel': 'ai_insights_carousel',
                 };
                 
                 const componentType = componentTypeMap[functionName];
