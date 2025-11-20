@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import { HelpCircle, X, Minimize2, Maximize2, Sparkles } from 'lucide-react';
+import { X, Minimize2, Maximize2, Sparkles } from 'lucide-react';
+import { AnimatedEmojiIcon } from './AnimatedEmojiIcon';
 import { Button } from '@/components/ui/button';
 import { AgentChat } from '@/components/ai-agents/AgentChat';
 import { motion, AnimatePresence, useDragControls, PanInfo } from 'framer-motion';
@@ -135,7 +136,7 @@ export function FloatingHelpButton() {
                   background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%)',
                 }}
               >
-                <HelpCircle className="w-6 h-6" />
+                <AnimatedEmojiIcon size="lg" />
               </Button>
               <NotificationBadge count={count} />
             </motion.div>
@@ -186,9 +187,9 @@ export function FloatingHelpButton() {
                 className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm cursor-grab active:cursor-grabbing"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center relative">
-                    <HelpCircle className="w-5 h-5 text-primary" />
-                  </div>
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center relative overflow-hidden">
+                <AnimatedEmojiIcon size="md" />
+              </div>
                   <div>
                     <h3 className="font-semibold text-foreground flex items-center gap-2">
                       $ave+ Help

@@ -226,3 +226,18 @@ export const subtleFadeIn = {
     }
   }
 };
+
+export const emojiHover = {
+  rest: { 
+    scale: 1,
+    rotate: 0
+  },
+  hover: { 
+    scale: 1.1,
+    rotate: [0, -5, 5, 0],
+    transition: {
+      duration: TIMING.normal / 1000,
+      ease: [0.22, 1, 0.36, 1] as const
+    }
+  }
+};
