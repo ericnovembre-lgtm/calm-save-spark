@@ -47,7 +47,7 @@ export function MoneyFlowParticles() {
       }
     }
 
-    const particles: Particle[] = Array.from({ length: 100 }, () => new Particle());
+    const particles: Particle[] = Array.from({ length: 50 }, () => new Particle());
 
     const animate = () => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
@@ -76,7 +76,7 @@ export function MoneyFlowParticles() {
     <motion.canvas
       ref={canvasRef}
       initial={{ opacity: 0 }}
-      animate={{ opacity: 0.4 }}
+      animate={{ opacity: 0.25 }}
       transition={{ duration: 2 }}
       className="fixed inset-0 -z-10 pointer-events-none"
     />
