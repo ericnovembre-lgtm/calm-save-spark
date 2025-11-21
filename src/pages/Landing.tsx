@@ -28,6 +28,16 @@ import {
   LazyFloatingParticles,
 } from "@/components/landing/LazyComponents";
 
+// Advanced generative components
+import {
+  LazyAISavingsSimulator,
+  LazyNeuralNetworkBackground,
+  LazyMagneticCursor,
+  LazyLiveSocialProofStream,
+  LazyCoinParticleSystem,
+  LazyInteractiveTimeline,
+} from "@/components/landing/LazyComponentsAdvanced";
+
 // Skeleton loaders
 import { PremiumShowcaseSkeleton } from "@/components/landing/skeletons/PremiumShowcaseSkeleton";
 import { TestimonialsSkeleton } from "@/components/landing/skeletons/TestimonialsSkeleton";
@@ -76,6 +86,9 @@ export default function Landing() {
           
           {/* Medium priority - Load when approaching viewport */}
           <PriorityLoader priority="medium">
+            <Suspense fallback={<div className="h-96" />}>
+              <LazyAISavingsSimulator />
+            </Suspense>
             <Features />
             <SolutionsShowcase />
             <AIAgentsPreview />
@@ -117,6 +130,10 @@ export default function Landing() {
             <Suspense fallback={<FAQSkeleton />}>
               <LazyFAQ />
             </Suspense>
+            
+            <Suspense fallback={<div className="h-96" />}>
+              <LazyInteractiveTimeline />
+            </Suspense>
           </PriorityLoader>
           
           <CTA />
@@ -130,6 +147,23 @@ export default function Landing() {
         
         <Suspense fallback={null}>
           <LazyFloatingParticles />
+        </Suspense>
+        
+        {/* Advanced Effects */}
+        <Suspense fallback={null}>
+          <LazyNeuralNetworkBackground />
+        </Suspense>
+        
+        <Suspense fallback={null}>
+          <LazyMagneticCursor />
+        </Suspense>
+        
+        <Suspense fallback={null}>
+          <LazyLiveSocialProofStream />
+        </Suspense>
+        
+        <Suspense fallback={null}>
+          <LazyCoinParticleSystem />
         </Suspense>
       </div>
     </>

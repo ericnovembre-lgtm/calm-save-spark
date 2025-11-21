@@ -1,9 +1,20 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, CreditCard, TrendingUp, Award, Sparkles } from "lucide-react";
-import { MagneticButton } from "@/components/welcome/advanced/MagneticButton";
 import { TypewriterText } from "@/components/welcome/TypewriterText";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { HolographicButton } from "./hero/HolographicButton";
+import { Suspense, lazy } from "react";
+
+const Financial3DUniverse = lazy(() => 
+  import('./hero/Financial3DUniverse').then(m => ({ default: m.Financial3DUniverse }))
+);
+const AIPersonalizedHero = lazy(() => 
+  import('./hero/AIPersonalizedHero').then(m => ({ default: m.AIPersonalizedHero }))
+);
+const LiveDashboardPreview = lazy(() => 
+  import('./hero/LiveDashboardPreview').then(m => ({ default: m.LiveDashboardPreview }))
+);
 
 export const Hero = () => {
   const prefersReducedMotion = useReducedMotion();
@@ -11,6 +22,11 @@ export const Hero = () => {
   return (
     <section className="relative min-h-[90vh] flex items-center px-4 md:px-20 py-20">
       <div className="absolute inset-0 bg-background" />
+      
+      {/* 3D Financial Universe */}
+      <Suspense fallback={null}>
+        <Financial3DUniverse />
+      </Suspense>
       
       {/* Animated gradient orb */}
       {!prefersReducedMotion && (
@@ -39,6 +55,10 @@ export const Hero = () => {
           transition={{ duration: 0.6 }}
           className="space-y-8"
         >
+          {/* AI Personalized Hero */}
+          <Suspense fallback={null}>
+            <AIPersonalizedHero />
+          </Suspense>
           <h1 className="font-display font-bold text-5xl md:text-7xl xl:text-8xl text-foreground leading-tight">
             Get Rewarded For{" "}
             <span className="inline-block whitespace-nowrap min-w-[20ch]">
@@ -106,7 +126,7 @@ export const Hero = () => {
             })}
           </div>
           
-          {/* CTAs */}
+          {/* CTAs with Holographic Buttons */}
           <motion.div
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -114,28 +134,27 @@ export const Hero = () => {
             className="flex flex-col sm:flex-row gap-4"
           >
             <Link to="/onboarding" className="inline-block">
-              <MagneticButton variant="default" className="group px-8 py-4 text-lg relative overflow-hidden">
-                <span className="relative z-10 flex items-center">
+              <HolographicButton className="px-8 py-4 text-lg">
+                <span className="flex items-center">
                   Get Started Free
-                  <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="ml-2 w-5 h-5" />
                 </span>
-                {!prefersReducedMotion && (
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-20"
-                    initial={false}
-                    animate={{ x: ['-100%', '100%'] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  />
-                )}
-              </MagneticButton>
+              </HolographicButton>
             </Link>
             <Link to="/auth" className="inline-block">
-              <MagneticButton variant="outline" className="px-8 py-4 text-lg group">
-                Explore AI Agents
-                <Sparkles className="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </MagneticButton>
+              <HolographicButton variant="outline" className="px-8 py-4 text-lg">
+                <span className="flex items-center">
+                  Explore AI Agents
+                  <Sparkles className="ml-2 w-4 h-4" />
+                </span>
+              </HolographicButton>
             </Link>
           </motion.div>
+          
+          {/* Live Dashboard Preview */}
+          <Suspense fallback={<div className="h-48 rounded-lg bg-muted/20 animate-pulse" />}>
+            <LiveDashboardPreview />
+          </Suspense>
           
           <p className="text-sm text-muted-foreground">
             ✓ Free forever plan • ✓ No credit card required • ✓ Cancel anytime
