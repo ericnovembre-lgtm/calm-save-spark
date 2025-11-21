@@ -97,13 +97,51 @@ export default function ManageMoneyHub() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-            <Wallet className="w-10 h-10 text-primary" />
-            Manage Money
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            AI-powered financial control center
-          </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 5, -5, 0],
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{ 
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <Wallet className="w-10 h-10 text-primary" />
+                </motion.div>
+                Manage Money
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                AI-powered financial control center
+              </p>
+            </div>
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex gap-2"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 backdrop-blur-sm"
+              >
+                <div className="text-xs text-muted-foreground">Total Accounts</div>
+                <div className="text-lg font-bold text-primary">8</div>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="px-4 py-2 rounded-lg bg-accent/10 border border-accent/20 backdrop-blur-sm"
+              >
+                <div className="text-xs text-muted-foreground">Active Features</div>
+                <div className="text-lg font-bold text-accent">{features.length}</div>
+              </motion.div>
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* AI Command Center - Compact */}
@@ -133,10 +171,31 @@ export default function ManageMoneyHub() {
               }>
                 <LazyLiquidCardMorph>
                   <Link to={feature.path}>
-                    <Card className="p-6 hover:shadow-lg transition-all cursor-pointer h-full">
-                      <feature.icon className={`w-12 h-12 mb-4 ${feature.color}`} />
-                      <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                      <p className="text-muted-foreground text-sm">{feature.description}</p>
+                    <Card className="p-6 hover:shadow-xl transition-all cursor-pointer h-full group overflow-hidden relative border-2 hover:border-primary/30">
+                      {/* Gradient background on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
+                      <div className="relative z-10">
+                        <motion.div
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                          <feature.icon className={`w-12 h-12 mb-4 ${feature.color} transition-all group-hover:drop-shadow-lg`} />
+                        </motion.div>
+                        <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">{feature.title}</h3>
+                        <p className="text-muted-foreground text-sm">{feature.description}</p>
+                        
+                        {/* Hover indicator */}
+                        <motion.div
+                          className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100"
+                          initial={{ x: -10 }}
+                          whileHover={{ x: 0 }}
+                        >
+                          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                            <span className="text-primary text-xs">→</span>
+                          </div>
+                        </motion.div>
+                      </div>
                     </Card>
                   </Link>
                 </LazyLiquidCardMorph>
