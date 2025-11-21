@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
@@ -21,29 +21,41 @@ export const AnimatedEmojiIcon = ({
 }: AnimatedEmojiIconProps) => {
   const prefersReducedMotion = useReducedMotion();
   const [isWaving, setIsWaving] = useState(false);
+  const timeoutIdsRef = useRef<NodeJS.Timeout[]>([]);
 
   // Schedule periodic waves every 30-45 seconds
   useEffect(() => {
     if (prefersReducedMotion) return;
     
-    const scheduleWave = (): NodeJS.Timeout => {
-      // Random interval between 30-45 seconds
-      const randomDelay = 30000 + Math.random() * 15000;
+    const scheduleWave = (isFirstWave = false): void => {
+      // First wave: 3-5 seconds, subsequent: 30-45 seconds
+      const randomDelay = isFirstWave 
+        ? 3000 + Math.random() * 2000 
+        : 30000 + Math.random() * 15000;
       
-      return setTimeout(() => {
+      const waveTimeoutId = setTimeout(() => {
         setIsWaving(true);
         
         // Wave duration: 1.2 seconds
-        setTimeout(() => {
+        const resetTimeoutId = setTimeout(() => {
           setIsWaving(false);
+          scheduleWave(false); // Schedule next wave
         }, 1200);
+        
+        timeoutIdsRef.current.push(resetTimeoutId);
       }, randomDelay);
+      
+      timeoutIdsRef.current.push(waveTimeoutId);
     };
     
-    const timeoutId = scheduleWave();
+    scheduleWave(true); // Start with first wave (short delay)
     
-    return () => clearTimeout(timeoutId);
-  }, [prefersReducedMotion, isWaving]);
+    return () => {
+      // Clear all scheduled timeouts
+      timeoutIdsRef.current.forEach(id => clearTimeout(id));
+      timeoutIdsRef.current = [];
+    };
+  }, [prefersReducedMotion]);
 
   const emojiHover = {
     rest: { 
