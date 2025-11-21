@@ -40,6 +40,7 @@
     "@react-three/fiber": "^8.18.0",
     "@supabase/supabase-js": "^2.76.1",
     "@tanstack/react-query": "^5.83.0",
+    "@tensorflow/tfjs": "^4.22.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -76,6 +77,7 @@
     "react-joyride": "^2.9.3",
     "react-plaid-link": "^4.1.1",
     "react-router-dom": "^6.30.1",
+    "react-speech-recognition": "^4.0.1",
     "react-window": "^2.2.3",
     "recharts": "^2.15.4",
     "rollup-plugin-visualizer": "^6.0.5",
@@ -89,6 +91,7 @@
     "vaul": "^0.9.9",
     "vite-plugin-pwa": "^1.1.0",
     "vitest": "^4.0.8",
+    "wavesurfer.js": "^7.11.1",
     "web-vitals": "^5.1.0",
     "zod": "^3.25.76"
   },

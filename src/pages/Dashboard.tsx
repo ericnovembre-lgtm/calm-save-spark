@@ -83,6 +83,21 @@ import { TimeOfDayTheme } from "@/components/effects/TimeOfDayTheme";
 import { InsightStreamPanel } from "@/components/insights/InsightStreamPanel";
 
 import { withPageMemo } from "@/lib/performance-utils";
+import { Suspense } from "react";
+import {
+  LazyIntelligentLayoutEngine,
+  LazyNeuralBalanceForecast,
+  LazyContextualAIAssistant,
+  LazySmartWidgetRecommender,
+  LazyBalanceSphere,
+  LazyFinancialUniverse,
+  LazyDynamicParticleSystem,
+  LazyGenerativeBackground,
+  LazyLiveActivityFeed,
+  LazyDailyQuestSystem,
+  LazyCompetitiveLeaderboards,
+  LazyVoiceCommandSystem
+} from "@/components/dashboard/LazyDashboardAdvanced";
 
 export default function Dashboard() {
   const { newAchievements, dismissAchievements } = useAchievementNotifications();
@@ -577,6 +592,27 @@ export default function Dashboard() {
       )}
       <LiveRegionAnnouncer message={balanceAnnouncement} priority="polite" />
       
+      {/* Advanced Dashboard Effects */}
+      <Suspense fallback={null}>
+        <LazyGenerativeBackground mood="calm" balanceChange={monthlyChange} />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <LazyDynamicParticleSystem intensity="medium" enabled />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <LazyLiveActivityFeed />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <LazyContextualAIAssistant />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <LazyVoiceCommandSystem />
+      </Suspense>
+
       <PullToRefresh onRefresh={handleRefresh}>
         <AchievementNotification 
           achievements={newAchievements}
