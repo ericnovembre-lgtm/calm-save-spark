@@ -101,7 +101,7 @@ export function SaveplusCoachWidget() {
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-3 py-2 bg-primary/70 text-primary-foreground rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 backdrop-blur-sm opacity-75 hover:opacity-95"
+        className="fixed bottom-6 left-6 z-40 flex items-center gap-2 px-3 py-2 bg-primary/70 text-primary-foreground rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 backdrop-blur-sm opacity-75 hover:opacity-95"
         aria-label="Open coach widget"
       >
         <Sparkles className="w-4 h-4" />
@@ -114,7 +114,7 @@ export function SaveplusCoachWidget() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-6 right-6 z-40 w-full max-w-[280px]"
+      className="fixed bottom-6 left-6 z-40 w-full max-w-[280px]"
     >
       <Card className="shadow-md border border-primary/10 bg-background/75 backdrop-blur-md">
         <CardHeader className="pb-2">
