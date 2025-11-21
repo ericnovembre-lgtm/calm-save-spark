@@ -50,7 +50,7 @@ export function ProceduralHubBackground() {
     <motion.canvas
       ref={canvasRef}
       initial={{ opacity: 0 }}
-      animate={{ opacity: 0.3 }}
+      animate={{ opacity: 0.15 }}
       transition={{ duration: 2 }}
       className="fixed inset-0 -z-10 pointer-events-none"
     />
