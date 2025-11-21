@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,22 @@ import ScrollingTicker from "@/components/pricing/advanced/ScrollingTicker";
 import CelebrationSystem from "@/components/pricing/advanced/CelebrationSystem";
 import StaggeredContainer, { StaggeredItem } from "@/components/pricing/advanced/StaggeredContainer";
 import { motion } from "framer-motion";
+
+// Advanced pricing components (lazy loaded)
+import {
+  LazyAIPriceRecommender,
+  LazyPricing3DDisc,
+  LazyHolographicValueCard,
+  LazyLiveSavingsCounter,
+  LazyAIROICalculator,
+  LazyFeatureComparisonMatrix,
+  LazyTierJourneyMap,
+  LazyGamifiedSavingsSimulator,
+  LazyPricingConstellation,
+  LazyPricingChatbot,
+  LazyAchievementBadges,
+  LazyRealTimeActivityFeed,
+} from "@/components/pricing/LazyPricingAdvanced";
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -375,12 +391,27 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background relative">
+      {/* Animated Background Constellation */}
+      <Suspense fallback={null}>
+        <LazyPricingConstellation />
+      </Suspense>
+
       {/* Celebration System */}
       <CelebrationSystem
         show={showCelebration}
         type={celebrationType}
         onComplete={() => setShowCelebration(false)}
       />
+
+      {/* AI Pricing Chatbot */}
+      <Suspense fallback={null}>
+        <LazyPricingChatbot />
+      </Suspense>
+
+      {/* Real-Time Activity Feed */}
+      <Suspense fallback={null}>
+        <LazyRealTimeActivityFeed />
+      </Suspense>
       
       {/* Sticky View Comparison Button */}
       {showStickyButton && (
@@ -473,6 +504,39 @@ export default function Pricing() {
 
           {/* Scrolling Stats Ticker */}
           <ScrollingTicker />
+
+          {/* AI Price Recommender */}
+          <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+            <LazyAIPriceRecommender
+              currentAmount={selectedAmount}
+              onApplyRecommendation={(amount) => {
+                setSelectedAmount(amount);
+                saveplus_audit_event('ai_recommendation_applied', {
+                  previous_amount: selectedAmount,
+                  recommended_amount: amount,
+                  route: location.pathname,
+                });
+              }}
+            />
+          </Suspense>
+
+          {/* 3D Interactive Disc & Holographic Value Card */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+              <LazyPricing3DDisc
+                selectedAmount={selectedAmount}
+                onSelectAmount={handleSliderChange}
+              />
+            </Suspense>
+            <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+              <LazyHolographicValueCard selectedAmount={selectedAmount} />
+            </Suspense>
+          </div>
+
+          {/* Live Savings Counter */}
+          <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+            <LazyLiveSavingsCounter />
+          </Suspense>
 
           {/* VALUE CARDS */}
           <StaggeredContainer className="space-y-6">
