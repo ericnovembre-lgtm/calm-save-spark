@@ -164,7 +164,7 @@ const App = () => {
                   <PageTracker />
                   <InstallPrompt />
                   <AnimatedRoutes />
-                  <FloatingHelpButton />
+                  <ConditionalHelpButton />
                 </BrowserRouter>
               </TooltipProvider>
             </AuthProvider>
@@ -174,6 +174,20 @@ const App = () => {
     </ErrorBoundary>
   );
 };
+
+/**
+ * ConditionalHelpButton - Only show help widget on authenticated pages
+ */
+function ConditionalHelpButton() {
+  const location = useLocation();
+  
+  // Hide on landing page
+  if (location.pathname === '/') {
+    return null;
+  }
+  
+  return <FloatingHelpButton />;
+}
 
 /**
  * AnimatedRoutes - Routes wrapper with AnimatePresence for page transitions

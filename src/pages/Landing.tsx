@@ -19,8 +19,6 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { BrandedProgressLoader, BrandedSkeletonCard } from "@/components/landing/BrandedLoader";
-import { PerformanceBudgetMonitor } from "@/components/performance/PerformanceBudgetMonitor";
-import { AccessibilityTestPanel } from "@/components/performance/AccessibilityTestPanel";
 import { SkipToContent } from "@/components/accessibility/SkipToContent";
 
 // Lazy load heavy components for better performance
@@ -101,12 +99,6 @@ export default function Landing() {
       <SkipToContent />
 
       <div className="min-h-screen bg-background">
-        {/* Performance Monitor (Dev Only) */}
-        <PerformanceBudgetMonitor />
-        
-        {/* Accessibility Test Panel (Dev Only) */}
-        <AccessibilityTestPanel />
-        
         {/* Tier 1: Critical - Loads Immediately */}
         <WelcomeNavbar />
         <StickyCTA />
