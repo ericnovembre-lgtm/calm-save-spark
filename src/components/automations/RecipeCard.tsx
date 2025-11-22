@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { AutomationTemplate } from "@/hooks/useTemplates";
 import { ActivateRecipeDialog } from "./ActivateRecipeDialog";
 import { cn } from "@/lib/utils";
+import { haptics } from "@/lib/haptics";
+import { useAutomationSounds } from "@/hooks/useAutomationSounds";
 
 interface RecipeCardProps {
   template: AutomationTemplate;
@@ -14,6 +16,13 @@ interface RecipeCardProps {
 
 export function RecipeCard({ template }: RecipeCardProps) {
   const [showActivate, setShowActivate] = useState(false);
+  const sounds = useAutomationSounds();
+  
+  const handleActivate = () => {
+    haptics.select();
+    sounds.playRecipeActivated();
+    setShowActivate(true);
+  };
   
   // Get icon component dynamically
   const IconComponent = template.icon ? (LucideIcons as any)[template.icon] : LucideIcons.Sparkles;
@@ -64,7 +73,7 @@ export function RecipeCard({ template }: RecipeCardProps) {
 
           <Button 
             className="w-full" 
-            onClick={() => setShowActivate(true)}
+            onClick={handleActivate}
           >
             Activate Recipe
           </Button>

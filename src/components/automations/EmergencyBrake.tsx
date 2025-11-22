@@ -5,11 +5,14 @@ import { useAutomations } from "@/hooks/useAutomations";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { haptics } from "@/lib/haptics";
+import { useAutomationSounds } from "@/hooks/useAutomationSounds";
 
 export function EmergencyBrake() {
   const { automations } = useAutomations();
   const [isToggling, setIsToggling] = useState(false);
   const queryClient = useQueryClient();
+  const sounds = useAutomationSounds();
 
   const activeCount = automations?.filter(a => a.is_active).length || 0;
   const totalCount = automations?.length || 0;
@@ -20,6 +23,15 @@ export function EmergencyBrake() {
 
     setIsToggling(true);
     const newState = !allPaused;
+
+    // Haptic and sound feedback
+    if (newState) {
+      haptics.achievementUnlocked();
+      sounds.playEmergencyBrake();
+    } else {
+      haptics.notificationReceived();
+      sounds.playEmergencyBrake();
+    }
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -41,6 +53,7 @@ export function EmergencyBrake() {
           : `⏸️ ${totalCount} automations paused`
       );
     } catch (error) {
+      haptics.validationError();
       console.error('Toggle all error:', error);
       toast.error('Failed to toggle automations');
     } finally {

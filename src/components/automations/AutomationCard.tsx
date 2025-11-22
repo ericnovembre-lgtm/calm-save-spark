@@ -6,6 +6,10 @@ import { Edit2, Trash2, Power, PowerOff, DollarSign, Calendar, Repeat, ArrowRigh
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useDrag } from '@use-gesture/react';
+import { haptics } from '@/lib/haptics';
+import { useAutomationSounds } from '@/hooks/useAutomationSounds';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 
 interface AutomationCardProps {
   automation: {
@@ -27,6 +31,11 @@ interface AutomationCardProps {
 
 export function AutomationCard({ automation, onEdit, onDelete, onToggle }: AutomationCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const isMobile = useIsMobile();
+  const sounds = useAutomationSounds();
+
+  const SWIPE_THRESHOLD = 100;
 
   const frequencyLabel = {
     'weekly': 'Weekly',
@@ -36,17 +45,108 @@ export function AutomationCard({ automation, onEdit, onDelete, onToggle }: Autom
 
   const nextDate = automation.next_run_date || automation.start_date;
 
+  const handleToggle = () => {
+    haptics.toggle(!automation.is_active);
+    sounds.playToggle(!automation.is_active);
+    onToggle(automation.id, automation.is_active);
+  };
+
+  const handleEdit = () => {
+    haptics.buttonPress();
+    sounds.playBlockConnected();
+    onEdit(automation);
+  };
+
+  const handleDelete = () => {
+    haptics.buttonPress();
+    sounds.playDelete();
+    onDelete(automation);
+  };
+
+  // Swipe gesture for mobile
+  const bind = useDrag(({ movement: [mx], velocity: [vx], active, cancel }) => {
+    if (!isMobile) return;
+    
+    // Right swipe (toggle)
+    if (mx > SWIPE_THRESHOLD && vx > 0.5 && !active) {
+      haptics.swipe();
+      sounds.playSwipe();
+      handleToggle();
+      cancel?.();
+      setSwipeOffset(0);
+      return;
+    }
+    
+    // Left swipe (delete)
+    if (mx < -SWIPE_THRESHOLD && vx > 0.5 && !active) {
+      haptics.swipe();
+      sounds.playSwipe();
+      if (confirm('Delete this automation?')) {
+        handleDelete();
+      }
+      cancel?.();
+      setSwipeOffset(0);
+      return;
+    }
+    
+    // Update visual state during drag
+    setSwipeOffset(active ? mx : 0);
+  }, {
+    axis: 'x',
+    filterTaps: true,
+  });
+
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+    <div
+      {...(isMobile ? bind() : {})}
+      style={{ transform: `translateX(${swipeOffset}px)`, transition: swipeOffset === 0 ? 'transform 0.2s' : 'none' }}
+      className="relative"
     >
-      <Card className={cn(
-        "p-4 transition-all duration-200 relative glass-panel",
-        automation.is_active && "shadow-lg shadow-emerald-500/20 border-emerald-500/30"
-      )}>
+      {/* Swipe Actions Background (Mobile Only) */}
+      {isMobile && (
+        <>
+          {/* Right Swipe Background (Toggle) */}
+          <motion.div
+            className="absolute inset-0 rounded-lg flex items-center justify-start px-6"
+            style={{
+              backgroundColor: automation.is_active ? 'hsl(var(--destructive) / 0.2)' : 'hsl(var(--green-500) / 0.2)',
+              opacity: Math.min(Math.abs(swipeOffset) / SWIPE_THRESHOLD, 1),
+            }}
+          >
+            {swipeOffset > 0 && (
+              <motion.div animate={{ x: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 1 }}>
+                {automation.is_active ? <PowerOff className="w-6 h-6 text-destructive" /> : <Power className="w-6 h-6 text-green-500" />}
+              </motion.div>
+            )}
+          </motion.div>
+          
+          {/* Left Swipe Background (Delete) */}
+          <motion.div
+            className="absolute inset-0 rounded-lg flex items-center justify-end px-6"
+            style={{
+              backgroundColor: 'hsl(var(--destructive) / 0.2)',
+              opacity: Math.min(Math.abs(swipeOffset) / SWIPE_THRESHOLD, 1),
+            }}
+          >
+            {swipeOffset < 0 && (
+              <motion.div animate={{ x: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 1 }}>
+                <Trash2 className="w-6 h-6 text-destructive" />
+              </motion.div>
+            )}
+          </motion.div>
+        </>
+      )}
+
+      <motion.div
+        whileHover={!isMobile ? { y: -2 } : undefined}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+      >
+        <Card className={cn(
+          "p-4 transition-all duration-200 relative glass-panel",
+          automation.is_active && "shadow-lg shadow-emerald-500/20 border-emerald-500/30"
+        )}>
         {/* LED Indicator */}
         <div className={cn(
           "led-indicator absolute top-4 left-4 w-2 h-2 rounded-full",
@@ -109,7 +209,7 @@ export function AutomationCard({ automation, onEdit, onDelete, onToggle }: Autom
           <div className="flex items-center gap-2 shrink-0">
             {/* Mechanical Toggle */}
             <button
-              onClick={() => onToggle(automation.id, automation.is_active)}
+              onClick={handleToggle}
               className={cn("mechanical-toggle", automation.is_active && "active")}
               aria-label={automation.is_active ? 'Pause automation' : 'Resume automation'}
             />
@@ -118,7 +218,7 @@ export function AutomationCard({ automation, onEdit, onDelete, onToggle }: Autom
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => onEdit(automation)}
+                onClick={handleEdit}
                 className="rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10"
                 aria-label="Edit automation"
               >
@@ -130,7 +230,7 @@ export function AutomationCard({ automation, onEdit, onDelete, onToggle }: Autom
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => onDelete(automation)}
+                onClick={handleDelete}
                 className="rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                 aria-label="Delete automation"
               >
@@ -139,7 +239,8 @@ export function AutomationCard({ automation, onEdit, onDelete, onToggle }: Autom
             </motion.div>
           </div>
         </div>
-      </Card>
-    </motion.div>
+        </Card>
+      </motion.div>
+    </div>
   );
 }
