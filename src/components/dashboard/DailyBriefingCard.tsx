@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { TypewriterText } from '@/components/ui/typewriter-text';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { BriefingSkeleton } from './skeletons/BriefingSkeleton';
 
 export function DailyBriefingCard() {
   const todayDateString = new Date().toISOString().split('T')[0];
@@ -19,6 +19,10 @@ export function DailyBriefingCard() {
     staleTime: 1000 * 60 * 15, // Cache for 15 minutes
     retry: 1
   });
+
+  if (isLoading) {
+    return <BriefingSkeleton />;
+  }
 
   return (
     <motion.div
@@ -44,12 +48,7 @@ export function DailyBriefingCard() {
           </span>
         </div>
         
-        {isLoading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-4/5" />
-          </div>
-        ) : briefing?.message ? (
+        {briefing?.message ? (
           <TypewriterText 
             text={briefing.message} 
             speed={20}
