@@ -46,8 +46,6 @@ import { TestimonialsSkeleton } from "@/components/landing/skeletons/Testimonial
 import { CalculatorSkeleton } from "@/components/landing/skeletons/CalculatorSkeleton";
 import { InteractiveDemoSkeleton } from "@/components/landing/skeletons/InteractiveDemoSkeleton";
 import { FAQSkeleton } from "@/components/landing/skeletons/FAQSkeleton";
-import { FeatureComparisonSkeleton } from "@/components/landing/skeletons/FeatureComparisonSkeleton";
-import { IntegrationsSkeleton } from "@/components/landing/skeletons/IntegrationsSkeleton";
 
 export default function Landing() {
   useWebVitals(true);
