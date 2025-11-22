@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { VirtualizedTransactionList } from "@/components/transactions/VirtualizedTransactionList";
 import { Button } from "@/components/ui/button";
@@ -6,9 +7,12 @@ import { toast } from "sonner";
 import { withPageMemo } from "@/lib/performance-utils";
 import { SyncAccountsButton } from "@/components/accounts/SyncAccountsButton";
 import { useQueryClient } from "@tanstack/react-query";
+import { SmartSearchBar } from "@/components/search/SmartSearchBar";
+import { ActiveFiltersDisplay } from "@/components/transactions/ActiveFiltersDisplay";
 
 export default withPageMemo(function Transactions() {
   const queryClient = useQueryClient();
+  const [filters, setFilters] = useState<any>({});
 
   const handleAddTransaction = () => {
     toast.info('Manual transaction entry coming soon!');
@@ -20,6 +24,22 @@ export default withPageMemo(function Transactions() {
 
   const handleSyncComplete = () => {
     queryClient.invalidateQueries({ queryKey: ['transactions'] });
+  };
+
+  const handleSearch = (newFilters: any) => {
+    setFilters(newFilters);
+  };
+
+  const handleRemoveFilter = (key: string) => {
+    setFilters((prev: any) => {
+      const updated = { ...prev };
+      delete updated[key];
+      return updated;
+    });
+  };
+
+  const handleClearAllFilters = () => {
+    setFilters({});
   };
 
   return (
@@ -43,7 +63,15 @@ export default withPageMemo(function Transactions() {
           </div>
         </div>
 
-        <VirtualizedTransactionList />
+        <SmartSearchBar onSearch={handleSearch} />
+        
+        <ActiveFiltersDisplay
+          filters={filters}
+          onRemoveFilter={handleRemoveFilter}
+          onClearAll={handleClearAllFilters}
+        />
+
+        <VirtualizedTransactionList filters={filters} />
       </div>
     </AppLayout>
   );
