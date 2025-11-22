@@ -180,6 +180,15 @@ verify_jwt = true
 [functions.generate-goal-visual]
 verify_jwt = true
 
+[functions.enrich-merchant-logo]
+verify_jwt = true
+
+[functions.generate-negotiation-script]
+verify_jwt = true
+
+[functions.analyze-subscription-usage]
+verify_jwt = false
+
 [functions.calculate-time-to-goal]
 verify_jwt = true
 
