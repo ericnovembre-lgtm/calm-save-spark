@@ -6,9 +6,10 @@ import { LiveTickerTape } from "./LiveTickerTape";
 import { PerformanceChart } from "./PerformanceChart";
 import { AIInsightsCard } from "./AIInsightsCard";
 import { SmartRebalancingPanel } from "./SmartRebalancingPanel";
+import { PlaidInvestmentLink } from "./PlaidInvestmentLink";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { RefreshCw, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { RefreshCw, TrendingUp, TrendingDown, BarChart3, Sparkles, Shield } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
 
@@ -234,11 +235,64 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
       </div>
 
       {accounts?.length === 0 && (
-        <Card className="p-12 text-center">
-          <p className="text-muted-foreground mb-2">No investment accounts yet</p>
-          <p className="text-sm text-muted-foreground">
-            Add your first account to start tracking
-          </p>
+        <Card className="border-2 border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+              <TrendingUp className="w-10 h-10 text-primary" />
+            </div>
+            
+            <h3 className="text-2xl font-semibold mb-3">
+              Start Building Your Portfolio
+            </h3>
+            
+            <p className="text-muted-foreground text-center max-w-md mb-8">
+              Connect your brokerage account to track investments, get AI-powered insights, 
+              and optimize your portfolio with real-time market data.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-2xl w-full">
+              <div className="flex flex-col items-center text-center p-4">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                  <BarChart3 className="w-6 h-6 text-primary" />
+                </div>
+                <h4 className="font-medium mb-1">Real-Time Tracking</h4>
+                <p className="text-sm text-muted-foreground">
+                  Monitor holdings with live market data
+                </p>
+              </div>
+
+              <div className="flex flex-col items-center text-center p-4">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                  <Sparkles className="w-6 h-6 text-primary" />
+                </div>
+                <h4 className="font-medium mb-1">AI Insights</h4>
+                <p className="text-sm text-muted-foreground">
+                  Get personalized portfolio recommendations
+                </p>
+              </div>
+
+              <div className="flex flex-col items-center text-center p-4">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                  <Shield className="w-6 h-6 text-primary" />
+                </div>
+                <h4 className="font-medium mb-1">Secure Connection</h4>
+                <p className="text-sm text-muted-foreground">
+                  Bank-level encryption via Plaid
+                </p>
+              </div>
+            </div>
+
+            <PlaidInvestmentLink 
+              onSuccess={() => {
+                queryClient.invalidateQueries({ queryKey: ['investment_accounts'] });
+                queryClient.invalidateQueries({ queryKey: ['portfolio_holdings'] });
+              }} 
+            />
+
+            <p className="text-xs text-muted-foreground mt-6">
+              Supports all major brokerages including Fidelity, Schwab, E*TRADE, and more
+            </p>
+          </CardContent>
         </Card>
       )}
     </div>
