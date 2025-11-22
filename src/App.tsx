@@ -99,6 +99,7 @@ const Search = createPageLoader(() => import("./pages/Search"), 'light');
 const Install = createPageLoader(() => import("./pages/Install"), 'light');
 const IconDemo = createPageLoader(() => import("./pages/IconDemo"), 'light');
 const Onboarding = createPageLoader(() => import("./pages/Onboarding"), 'light');
+const ConversationalWelcome = createPageLoader(() => import("./pages/ConversationalWelcome"), 'light');
 const Checkout = createPageLoader(() => import("./pages/Checkout"), 'light');
 const SubscriptionManagement = createPageLoader(() => import("./pages/SubscriptionManagement"), 'light');
 const BehavioralGuardian = createPageLoader(() => import("./pages/BehavioralGuardian"), 'light');
@@ -199,6 +200,7 @@ function AnimatedRoutes() {
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
+        <Route path="/welcome" element={<PageTransition><ConversationalWelcome /></PageTransition>} />
         <Route path="/onboarding" element={<PageTransition><Onboarding /></PageTransition>} />
         <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
         <Route path="/subscription" element={<PageTransition><SubscriptionManagement /></PageTransition>} />

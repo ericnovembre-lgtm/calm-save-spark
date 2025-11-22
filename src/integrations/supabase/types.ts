@@ -4922,6 +4922,36 @@ export type Database = {
           },
         ]
       }
+      onboarding_conversations: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          id: string
+          messages: Json
+          persona: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          messages?: Json
+          persona?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          messages?: Json
+          persona?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       onboarding_progress: {
         Row: {
           completed_steps: string[] | null
@@ -5613,6 +5643,7 @@ export type Database = {
           milestones_reached: Json | null
           onboarding_completed: boolean | null
           onboarding_draft_data: Json | null
+          onboarding_persona: Json | null
           onboarding_progress: Json | null
           onboarding_quiz: Json | null
           onboarding_step: string | null
@@ -5634,6 +5665,7 @@ export type Database = {
           milestones_reached?: Json | null
           onboarding_completed?: boolean | null
           onboarding_draft_data?: Json | null
+          onboarding_persona?: Json | null
           onboarding_progress?: Json | null
           onboarding_quiz?: Json | null
           onboarding_step?: string | null
@@ -5655,6 +5687,7 @@ export type Database = {
           milestones_reached?: Json | null
           onboarding_completed?: boolean | null
           onboarding_draft_data?: Json | null
+          onboarding_persona?: Json | null
           onboarding_progress?: Json | null
           onboarding_quiz?: Json | null
           onboarding_step?: string | null

@@ -120,7 +120,7 @@ export default function Auth() {
           description: "Let's get you set up...",
         });
         // Auto-login after signup
-        setTimeout(() => navigate('/onboarding'), 1000);
+        setTimeout(() => navigate('/welcome'), 1000);
       }
     } catch (error) {
       toast({
