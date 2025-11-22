@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 
 interface Node {
   x: number;
@@ -11,6 +12,7 @@ interface Node {
 export function NeuralNetworkBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (prefersReducedMotion) return;
@@ -27,7 +29,8 @@ export function NeuralNetworkBackground() {
     };
     setCanvasSize();
 
-    const nodeCount = 25;
+    // Node configuration - reduced by 80% on mobile (25 -> 5)
+    const nodeCount = isMobile ? 5 : 25;
     const nodes: Node[] = Array.from({ length: nodeCount }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
@@ -120,7 +123,7 @@ export function NeuralNetworkBackground() {
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, isMobile]);
 
   if (prefersReducedMotion) return null;
 

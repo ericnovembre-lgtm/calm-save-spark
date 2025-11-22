@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 
 interface Particle {
   x: number;
@@ -16,6 +17,7 @@ interface Particle {
 export function CoinParticleSystem() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
   const particlesRef = useRef<Particle[]>([]);
 
   useEffect(() => {
@@ -48,7 +50,8 @@ export function CoinParticleSystem() {
     };
 
     const handleClick = (e: MouseEvent) => {
-      const particleCount = 5;
+      // Reduce burst by 80% on mobile (5 -> 1)
+      const particleCount = isMobile ? 1 : 5;
       for (let i = 0; i < particleCount; i++) {
         particlesRef.current.push(createParticle(e.clientX, e.clientY));
       }
@@ -114,7 +117,7 @@ export function CoinParticleSystem() {
       window.removeEventListener('resize', setCanvasSize);
       canvas.removeEventListener('click', handleClick);
     };
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, isMobile]);
 
   if (prefersReducedMotion) return null;
 

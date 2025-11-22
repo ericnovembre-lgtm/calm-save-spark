@@ -14,8 +14,10 @@ import { CTA } from "@/components/landing/CTA";
 import { SimpleBackground } from "@/components/landing/SimpleBackground";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useWebVitals } from "@/hooks/useWebVitals";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { BrandedProgressLoader, BrandedSkeletonCard } from "@/components/landing/BrandedLoader";
 import { PerformanceBudgetMonitor } from "@/components/performance/PerformanceBudgetMonitor";
+import { SkipToContent } from "@/components/accessibility/SkipToContent";
 
 // Lazy load heavy components for better performance
 import {
@@ -53,15 +55,18 @@ import { IntegrationsSkeleton } from "@/components/landing/skeletons/Integration
 
 export default function Landing() {
   useWebVitals(true);
+  const prefersReducedMotion = useReducedMotion();
   const [loadEffects, setLoadEffects] = useState(false);
 
-  // Defer effects loading until after critical content
+  // Defer effects loading until after critical content - only if motion not reduced
   useEffect(() => {
+    if (prefersReducedMotion) return;
+    
     const timer = setTimeout(() => {
       setLoadEffects(true);
     }, 2000); // Wait 2s after mount
     return () => clearTimeout(timer);
-  }, []);
+  }, [prefersReducedMotion]);
   
   return (
     <>
@@ -96,6 +101,9 @@ export default function Landing() {
         <link rel="canonical" href="https://saveplus.app" />
       </Helmet>
 
+      {/* Skip to content link for keyboard navigation */}
+      <SkipToContent />
+
       <div className="min-h-screen bg-background">
         {/* Performance Monitor (Dev Only) */}
         <PerformanceBudgetMonitor />
@@ -103,7 +111,8 @@ export default function Landing() {
         {/* Tier 1: Critical - Loads Immediately */}
         <WelcomeNavbar />
         
-        <main className="relative z-10">
+        {/* Main content with proper landmark and focus management */}
+        <main id="main-content" tabIndex={-1} className="relative z-10 focus:outline-none">
           {/* Tier 1: Critical Above-the-Fold Content */}
           <Hero />
           <SocialProofTicker />
@@ -200,14 +209,22 @@ export default function Landing() {
         
         <SimpleBackground />
         
-        {/* Tier 5: Effects - Load Last After All Content */}
-        {loadEffects && (
+        {/* Tier 5: Effects - Load Last After All Content, Only if Motion Allowed */}
+        {loadEffects && !prefersReducedMotion && (
           <ErrorBoundary>
             <Suspense fallback={null}>
               <LazyFloatingParticles />
+            </Suspense>
+            <Suspense fallback={null}>
               <LazyNeuralNetworkBackground />
+            </Suspense>
+            <Suspense fallback={null}>
               <LazyMagneticCursor />
+            </Suspense>
+            <Suspense fallback={null}>
               <LazyLiveSocialProofStream />
+            </Suspense>
+            <Suspense fallback={null}>
               <LazyCoinParticleSystem />
             </Suspense>
           </ErrorBoundary>
