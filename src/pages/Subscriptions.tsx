@@ -1,10 +1,14 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BillCard } from "@/components/subscriptions/BillCard";
 import { CalendarExport } from "@/components/subscriptions/CalendarExport";
 import { UpcomingBillsSection } from "@/components/subscriptions/UpcomingBillsSection";
+import { BillCalendarHeatmap } from "@/components/subscriptions/BillCalendarHeatmap";
+import { SubscriptionSwipeMode } from "@/components/subscriptions/SubscriptionSwipeMode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RefreshCw, Calendar, DollarSign, Pause } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RefreshCw, Calendar, DollarSign, Pause, Ghost, Layers } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,15 +18,19 @@ import { Link } from "react-router-dom";
 
 export default function Subscriptions() {
   const queryClient = useQueryClient();
+  const [isSwipeMode, setIsSwipeMode] = useState(false);
+  
   const {
     subscriptions,
     activeBills,
     pausedBills,
+    zombieBills,
     upcomingBills,
     monthlyTotal,
     isLoading,
     togglePause,
     deleteSubscription,
+    markForCancellation,
   } = useSubscriptions();
 
   const detectMutation = useMutation({
@@ -63,149 +71,122 @@ export default function Subscriptions() {
     );
   }
 
+  if (isSwipeMode) {
+    return (
+      <SubscriptionSwipeMode
+        subscriptions={activeBills}
+        onKeep={(id) => {}}
+        onMarkForCancellation={markForCancellation}
+        onExit={() => setIsSwipeMode(false)}
+      />
+    );
+  }
+
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-4xl font-display font-bold text-foreground mb-2">
               Bills & Subscriptions
             </h1>
-            <p className="text-muted-foreground">Track and manage your recurring payments</p>
+            <p className="text-muted-foreground">Track recurring payments and zombie subscriptions</p>
           </div>
           <div className="flex items-center gap-3">
+            <Button onClick={() => setIsSwipeMode(true)} variant="outline">
+              <Layers className="w-4 h-4 mr-2" />
+              Swipe Mode
+            </Button>
             <CalendarExport subscriptions={activeBills} />
-            <Button
-              onClick={() => detectMutation.mutate()}
-              disabled={detectMutation.isPending}
-              variant="default"
-            >
+            <Button onClick={() => detectMutation.mutate()} disabled={detectMutation.isPending}>
               <RefreshCw className={`w-4 h-4 mr-2 ${detectMutation.isPending ? 'animate-spin' : ''}`} />
-              Scan for Bills
+              Scan
             </Button>
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Bills</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{activeBills.length}</div>
-            </CardContent>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Active Bills</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-primary">{activeBills.length}</div></CardContent>
           </Card>
-
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Due This Week</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                {upcomingBills.length}
-              </div>
-            </CardContent>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Due This Week</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{upcomingBills.length}</div></CardContent>
           </Card>
-
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Monthly Total</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                ${monthlyTotal.toFixed(2)}
-              </div>
-            </CardContent>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Zombie Bills</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-red-600 dark:text-red-400">{zombieBills.length}</div></CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Monthly Total</CardTitle></CardHeader>
+            <CardContent><div className="text-2xl font-bold text-green-600 dark:text-green-400">${monthlyTotal.toFixed(2)}</div></CardContent>
           </Card>
         </div>
 
-        {/* Upcoming Bills Section */}
-        {upcomingBills.length > 0 && (
-          <UpcomingBillsSection
-            bills={upcomingBills}
-            onTogglePause={togglePause}
-            onDelete={deleteSubscription}
-          />
+        <BillCalendarHeatmap subscriptions={activeBills} />
+
+        {zombieBills.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Ghost className="h-5 w-5 text-red-600" />
+                <CardTitle>Zombie Subscriptions</CardTitle>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">Subscriptions you're paying for but not using</p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <AnimatePresence>
+                {zombieBills.map(bill => (
+                  <BillCard key={bill.id} subscription={bill} onTogglePause={togglePause} onDelete={deleteSubscription} />
+                ))}
+              </AnimatePresence>
+            </CardContent>
+          </Card>
         )}
 
-        {/* All Active Bills */}
+        {upcomingBills.length > 0 && (
+          <UpcomingBillsSection bills={upcomingBills} onTogglePause={togglePause} onDelete={deleteSubscription} />
+        )}
+
         {activeBills.length > 0 && (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Active Bills</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {activeBills.length} active {activeBills.length === 1 ? 'subscription' : 'subscriptions'}
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">{activeBills.length} subscriptions</p>
               </div>
-              <Link to="/goals">
-                <Button variant="outline" size="sm">
-                  Create Savings Goal
-                </Button>
-              </Link>
+              <Link to="/goals"><Button variant="outline" size="sm">Create Savings Goal</Button></Link>
             </CardHeader>
             <CardContent className="space-y-3">
               <AnimatePresence>
                 {activeBills.map(bill => (
-                  <BillCard
-                    key={bill.id}
-                    subscription={bill}
-                    onTogglePause={togglePause}
-                    onDelete={deleteSubscription}
-                  />
+                  <BillCard key={bill.id} subscription={bill} onTogglePause={togglePause} onDelete={deleteSubscription} />
                 ))}
               </AnimatePresence>
             </CardContent>
           </Card>
         )}
 
-        {/* Paused Bills */}
         {pausedBills.length > 0 && (
           <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Pause className="h-5 w-5 text-muted-foreground" />
-                <CardTitle>Paused Bills</CardTitle>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                {pausedBills.length} paused {pausedBills.length === 1 ? 'subscription' : 'subscriptions'}
-              </p>
-            </CardHeader>
+            <CardHeader><div className="flex items-center gap-2"><Pause className="h-5 w-5" /><CardTitle>Paused Bills</CardTitle></div></CardHeader>
             <CardContent className="space-y-3">
               <AnimatePresence>
                 {pausedBills.map(bill => (
-                  <BillCard
-                    key={bill.id}
-                    subscription={bill}
-                    onTogglePause={togglePause}
-                    onDelete={deleteSubscription}
-                  />
+                  <BillCard key={bill.id} subscription={bill} onTogglePause={togglePause} onDelete={deleteSubscription} />
                 ))}
               </AnimatePresence>
             </CardContent>
           </Card>
         )}
 
-        {/* Empty State */}
         {subscriptions.length === 0 && (
           <Card className="p-12 text-center">
             <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">
-              No bills detected yet
-            </h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Click "Scan for Bills" to automatically detect your recurring payments from transaction history
-            </p>
-            <Button
-              onClick={() => detectMutation.mutate()}
-              disabled={detectMutation.isPending}
-              size="lg"
-            >
+            <h3 className="text-lg font-semibold mb-2">No bills detected yet</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">Scan to detect recurring payments</p>
+            <Button onClick={() => detectMutation.mutate()} disabled={detectMutation.isPending} size="lg">
               <RefreshCw className={`w-4 h-4 mr-2 ${detectMutation.isPending ? 'animate-spin' : ''}`} />
               {detectMutation.isPending ? 'Scanning...' : 'Scan for Bills'}
             </Button>

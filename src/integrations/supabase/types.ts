@@ -2995,13 +2995,19 @@ export type Database = {
           id: string
           is_confirmed: boolean | null
           last_charge_date: string | null
+          last_usage_date: string | null
+          marked_for_cancellation: boolean | null
+          marked_for_cancellation_at: string | null
           merchant: string
           next_expected_date: string | null
           paused_at: string | null
           paused_reason: string | null
           status: string | null
           updated_at: string | null
+          usage_count_last_30_days: number | null
           user_id: string
+          zombie_flagged_at: string | null
+          zombie_score: number | null
         }
         Insert: {
           amount: number
@@ -3012,13 +3018,19 @@ export type Database = {
           id?: string
           is_confirmed?: boolean | null
           last_charge_date?: string | null
+          last_usage_date?: string | null
+          marked_for_cancellation?: boolean | null
+          marked_for_cancellation_at?: string | null
           merchant: string
           next_expected_date?: string | null
           paused_at?: string | null
           paused_reason?: string | null
           status?: string | null
           updated_at?: string | null
+          usage_count_last_30_days?: number | null
           user_id: string
+          zombie_flagged_at?: string | null
+          zombie_score?: number | null
         }
         Update: {
           amount?: number
@@ -3029,13 +3041,19 @@ export type Database = {
           id?: string
           is_confirmed?: boolean | null
           last_charge_date?: string | null
+          last_usage_date?: string | null
+          marked_for_cancellation?: boolean | null
+          marked_for_cancellation_at?: string | null
           merchant?: string
           next_expected_date?: string | null
           paused_at?: string | null
           paused_reason?: string | null
           status?: string | null
           updated_at?: string | null
+          usage_count_last_30_days?: number | null
           user_id?: string
+          zombie_flagged_at?: string | null
+          zombie_score?: number | null
         }
         Relationships: []
       }
@@ -7258,6 +7276,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      subscription_usage_events: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          event_type: string
+          id: string
+          merchant: string
+          subscription_id: string | null
+          transaction_date: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          event_type: string
+          id?: string
+          merchant: string
+          subscription_id?: string | null
+          transaction_date: string
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          merchant?: string
+          subscription_id?: string | null
+          transaction_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_usage_events_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "detected_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sustainable_goals: {
         Row: {
