@@ -198,11 +198,13 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
       />
 
       {/* Main Content */}
-      <main className="flex-1 pb-20 lg:pb-0">
+      <main className="flex-1 pb-20 lg:pb-6">
         <div className="container mx-auto px-4 py-4">
           <Breadcrumbs />
         </div>
-        {children}
+        <div className="container mx-auto px-4">
+          {children}
+        </div>
       </main>
 
       {/* FAB Menu */}

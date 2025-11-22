@@ -39,12 +39,12 @@ export function BillCalendarHeatmap({ subscriptions, className = '' }: BillCalen
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Bill Calendar</CardTitle>
+        <CardTitle className="text-xl font-display">Bill Calendar</CardTitle>
         <p className="text-sm text-muted-foreground">
           Visual overview of when your bills are due this month
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-auto">
         <TooltipProvider>
           <div className="relative">
             <HeatMap

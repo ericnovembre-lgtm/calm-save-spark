@@ -79,8 +79,25 @@ export default function Subscriptions() {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-muted-foreground">Loading subscriptions...</div>
+        <div className="max-w-7xl mx-auto space-y-8 pb-8">
+          <div className="space-y-4">
+            <div className="h-8 w-64 bg-muted animate-pulse rounded-lg" />
+            <div className="h-4 w-96 bg-muted animate-pulse rounded-lg" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <div className="h-20 bg-muted animate-pulse rounded" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Card>
+            <CardContent className="p-6">
+              <div className="h-64 bg-muted animate-pulse rounded" />
+            </CardContent>
+          </Card>
         </div>
       </AppLayout>
     );
@@ -99,7 +116,7 @@ export default function Subscriptions() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="max-w-7xl mx-auto space-y-8 pb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-4xl font-display font-bold text-foreground mb-2">
@@ -205,15 +222,49 @@ export default function Subscriptions() {
         )}
 
         {subscriptions.length === 0 && (
-          <Card className="p-12 text-center">
-            <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No bills detected yet</h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">Scan to detect recurring payments</p>
-            <Button onClick={() => detectMutation.mutate()} disabled={detectMutation.isPending} size="lg">
-              <RefreshCw className={`w-4 h-4 mr-2 ${detectMutation.isPending ? 'animate-spin' : ''}`} />
-              {detectMutation.isPending ? 'Scanning...' : 'Scan for Bills'}
-            </Button>
-          </Card>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="border-2 border-dashed border-border">
+              <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+                <motion.div
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <Calendar className="h-16 w-16 text-muted-foreground/50 mb-6" />
+                </motion.div>
+                <h3 className="text-2xl font-display font-bold text-foreground mb-3">
+                  No bills detected yet
+                </h3>
+                <p className="text-muted-foreground mb-8 max-w-md text-center text-base">
+                  Connect your accounts or scan your transactions to automatically detect recurring payments and subscriptions
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    onClick={() => detectMutation.mutate()} 
+                    disabled={detectMutation.isPending} 
+                    size="lg"
+                    className="min-w-[200px]"
+                  >
+                    <RefreshCw className={`w-5 h-5 mr-2 ${detectMutation.isPending ? 'animate-spin' : ''}`} />
+                    {detectMutation.isPending ? 'Scanning...' : 'Scan for Bills'}
+                  </Button>
+                  <Button variant="outline" size="lg" asChild>
+                    <Link to="/accounts">Connect Account</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
       </div>
     </AppLayout>
