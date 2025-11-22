@@ -81,6 +81,10 @@ import { FloatingCoins } from "@/components/effects/FloatingCoins";
 import { CursorSpotlight } from "@/components/effects/CursorSpotlight";
 import { TimeOfDayTheme } from "@/components/effects/TimeOfDayTheme";
 import { InsightStreamPanel } from "@/components/insights/InsightStreamPanel";
+import { DynamicHeroOrchestrator } from "@/components/dashboard/DynamicHeroOrchestrator";
+import { SentimentBackground } from "@/components/dashboard/SentimentBackground";
+import { SentimentIndicator } from "@/components/dashboard/SentimentIndicator";
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 
 import { withPageMemo } from "@/lib/performance-utils";
 import { Suspense } from "react";
@@ -241,6 +245,9 @@ export default function Dashboard() {
   const monthlyChange = transactions
     ?.filter(tx => new Date(tx.transaction_date) >= thisMonth)
     .reduce((sum, tx) => sum + parseFloat(String(tx.amount)), 0) || 0;
+
+  // Calculate net worth change percentage for sentiment UI
+  const netWorthChangePercent = totalBalance > 0 ? (monthlyChange / totalBalance) * 100 : 0;
 
   // Calculate savings velocity (0-100) based on recent activity
   const savingsVelocity = Math.min(100, Math.max(0, 
@@ -573,10 +580,13 @@ export default function Dashboard() {
     ),
   };
 
-  if (accountsLoading) return <LoadingState />;
+  if (accountsLoading) return <DashboardSkeleton />;
 
   return (
     <AppLayout>
+      {/* Sentiment-driven background gradient */}
+      <SentimentBackground netWorthChangePercent={netWorthChangePercent} />
+      
       <WelcomeBackBanner />
       <ProactiveNudgesBanner />
       <SkipLinks />
@@ -642,6 +652,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-4">
           <StreakTrackerHeader />
           <LevelSystem />
+          <SentimentIndicator netWorthChangePercent={netWorthChangePercent} />
           <SyncIndicator 
             status={syncStatus}
             lastSynced={lastSynced}
@@ -651,6 +662,11 @@ export default function Dashboard() {
       </div>
 
       <StreakRecoveryBanner />
+
+      {/* Dynamic Hero Section - Context-aware financial insights */}
+      <div data-wizard="hero-section">
+        <DynamicHeroOrchestrator />
+      </div>
 
       {/* Proactive Insight Stream */}
       {userId && <InsightStreamPanel userId={userId} />}
