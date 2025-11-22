@@ -27,11 +27,27 @@ export default function Insights() {
   const { data: aggregatedData, isLoading: aggregatedLoading } = useQuery({
     queryKey: ['insights_aggregated'],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('aggregate-insights-data', {
-        body: { timeframe: '6months' }
-      });
-      if (error) throw error;
-      return data;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/aggregate-insights-data`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ timeframe: '6months' })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch insights');
+      }
+
+      return response.json();
     },
   });
 
