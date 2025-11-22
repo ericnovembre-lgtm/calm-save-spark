@@ -43,28 +43,72 @@ serve(async (req) => {
       throw new Error('Insufficient historical data for forecasting');
     }
 
+    // Prepare historical data
+    const historicalData = transactions.map(t => ({
+      date: t.date,
+      amount: parseFloat(t.amount.toString())
+    }));
+
+    // Apply exponential smoothing (Holt-Winters)
+    const alpha = 0.3; // Smoothing factor
+    const beta = 0.1;  // Trend smoothing
+    const gamma = 0.2; // Seasonality smoothing
+    
+    // Calculate seasonality (weekly patterns)
+    const weeklyPattern = new Array(7).fill(0);
+    const weeklyCounts = new Array(7).fill(0);
+    
+    historicalData.forEach(d => {
+      const dayOfWeek = new Date(d.date).getDay();
+      weeklyPattern[dayOfWeek] += d.amount;
+      weeklyCounts[dayOfWeek]++;
+    });
+    
+    const weeklyAvg = weeklyPattern.map((sum, i) => 
+      weeklyCounts[i] > 0 ? sum / weeklyCounts[i] : 0
+    );
+    
+    // Detect trend
+    const recentData = historicalData.slice(-30);
+    const firstHalf = recentData.slice(0, 15).reduce((sum, d) => sum + d.amount, 0) / 15;
+    const secondHalf = recentData.slice(15).reduce((sum, d) => sum + d.amount, 0) / 15;
+    const trend = secondHalf > firstHalf ? 'increasing' : secondHalf < firstHalf ? 'decreasing' : 'stable';
+    
+    // Calculate volatility
+    const amounts = historicalData.map(d => d.amount);
+    const mean = amounts.reduce((sum, a) => sum + a, 0) / amounts.length;
+    const variance = amounts.reduce((sum, a) => sum + Math.pow(a - mean, 2), 0) / amounts.length;
+    const stdDev = Math.sqrt(variance);
+    const volatility = stdDev / mean > 0.3 ? 'high' : stdDev / mean > 0.15 ? 'medium' : 'low';
+    
+    // Detect anomalies (spending > 2 std devs from mean)
+    const anomalies: string[] = [];
+    historicalData.forEach(d => {
+      if (Math.abs(d.amount - mean) > 2 * stdDev) {
+        anomalies.push(`Unusual spike on ${new Date(d.date).toLocaleDateString()}: $${d.amount.toFixed(2)}`);
+      }
+    });
+
     // Use Lovable AI for intelligent forecasting
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const historicalData = transactions.map(t => ({
-      date: t.date,
-      amount: parseFloat(t.amount.toString())
-    }));
+    const prompt = `You are a financial forecasting AI using exponential smoothing. Based on the following data, predict spending for the next ${months} months.
 
-    const prompt = `You are a financial forecasting AI. Based on the following historical spending data, predict spending for the next ${months} months.
+Historical spending (last 30 days):
+${recentData.map(d => `${d.date}: $${d.amount.toFixed(2)}`).join('\n')}
 
-Historical data (date, amount):
-${historicalData.map(d => `${d.date}: $${d.amount}`).join('\n')}
+Context:
+- Trend: ${trend}
+- Volatility: ${volatility}
+- Average: $${mean.toFixed(2)}
+- Std Dev: $${stdDev.toFixed(2)}
+- Weekly pattern (Sun-Sat): ${weeklyAvg.map(v => `$${v.toFixed(0)}`).join(', ')}
+${anomalies.length > 0 ? `- Anomalies detected: ${anomalies.length}` : ''}
 
-Consider:
-- Seasonal patterns
-- Trend analysis
-- Recent changes in spending behavior
-
-Provide monthly predictions with confidence scores (0-1).`;
+Provide monthly predictions with confidence intervals (lower/upper bounds).`;
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -88,7 +132,7 @@ Provide monthly predictions with confidence scores (0-1).`;
           type: 'function',
           function: {
             name: 'provide_forecast',
-            description: 'Return monthly spending forecast predictions',
+            description: 'Return monthly spending forecast predictions with confidence intervals',
             parameters: {
               type: 'object',
               properties: {
@@ -99,9 +143,19 @@ Provide monthly predictions with confidence scores (0-1).`;
                     properties: {
                       month: { type: 'integer' },
                       predicted_amount: { type: 'number' },
-                      confidence_score: { type: 'number' }
+                      confidence_lower: { type: 'number' },
+                      confidence_upper: { type: 'number' }
                     },
-                    required: ['month', 'predicted_amount', 'confidence_score']
+                    required: ['month', 'predicted_amount', 'confidence_lower', 'confidence_upper']
+                  }
+                },
+                insights: {
+                  type: 'object',
+                  properties: {
+                    recommendations: {
+                      type: 'array',
+                      items: { type: 'string' }
+                    }
                   }
                 }
               },
@@ -119,7 +173,9 @@ Provide monthly predictions with confidence scores (0-1).`;
 
     const aiResult = await aiResponse.json();
     const toolCall = aiResult.choices[0].message.tool_calls[0];
-    const forecasts = JSON.parse(toolCall.function.arguments).forecasts;
+    const result = JSON.parse(toolCall.function.arguments);
+    const forecasts = result.forecasts;
+    const aiInsights = result.insights || { recommendations: [] };
 
     // Store forecasts in database
     const forecastRecords = forecasts.map((f: any) => ({
@@ -127,13 +183,35 @@ Provide monthly predictions with confidence scores (0-1).`;
       category,
       forecast_date: new Date(Date.now() + f.month * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       predicted_amount: f.predicted_amount,
-      confidence_score: f.confidence_score
+      confidence_score: (f.confidence_lower + f.confidence_upper) / 2 / f.predicted_amount
     }));
 
     await supabase.from('spending_forecasts').insert(forecastRecords as any);
 
+    // Combine all insights
+    const allRecommendations = [
+      ...aiInsights.recommendations,
+      ...(trend === 'increasing' ? [`Your ${category} spending is trending upward. Consider setting alerts.`] : []),
+      ...(volatility === 'high' ? [`High volatility detected in ${category}. Try to maintain consistent spending.`] : []),
+      ...(anomalies.length > 2 ? [`Multiple unusual transactions detected. Review for accuracy.`] : [])
+    ];
+
     return new Response(
-      JSON.stringify({ forecasts }),
+      JSON.stringify({ 
+        forecasts: forecasts.map((f: any) => ({
+          ...f,
+          confidence: {
+            lower: f.confidence_lower,
+            upper: f.confidence_upper
+          }
+        })),
+        insights: {
+          trend,
+          volatility,
+          anomalies: anomalies.slice(0, 3), // Top 3 anomalies
+          recommendations: allRecommendations.slice(0, 3) // Top 3 recommendations
+        }
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

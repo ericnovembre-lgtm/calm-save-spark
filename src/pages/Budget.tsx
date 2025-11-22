@@ -38,6 +38,7 @@ import { PredictiveBudgetingPanel } from "@/components/budget/PredictiveBudgetin
 import { ConversationalBudgetPanel } from "@/components/budget/ConversationalBudgetPanel";
 import { useGenerativeComponents } from "@/hooks/useGenerativeComponents";
 import { ComponentRenderer } from "@/components/generative-ui/ComponentRenderer";
+import { AdaptiveGrid } from "@/components/budget/AdaptiveGrid";
 
 // Lazy load heavy components
 const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
@@ -431,36 +432,43 @@ export default function Budget() {
                 </MagneticButton>
               </Card>
             ) : (
-              <motion.div 
-                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                {budgets.map((budget, index) => (
-                  <motion.div
-                    key={budget.id}
-                    initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ 
-                      delay: index * 0.05,
-                      type: 'spring',
-                      stiffness: 100
-                    }}
-                    whileHover={{ scale: 1.02, y: -4 }}
-                  >
+              <div className="mt-6">
+                <AdaptiveGrid
+                  items={budgets}
+                  getPriority={(budget) => {
+                    const spendingData = spending[budget.id];
+                    if (!spendingData) return 'normal';
+                    
+                    const utilization = spendingData.spent_amount / budget.total_limit;
+                    
+                    // Critical: Over 90% utilization
+                    if (utilization >= 0.9) return 'hero';
+                    
+                    // Warning: Over 75% utilization
+                    if (utilization >= 0.75) return 'large';
+                    
+                    return 'normal';
+                  }}
+                >
+                  {(budget, size) => (
                     <GestureCard>
-                      <HolographicCard intensity="low">
+                      <HolographicCard intensity={size === 'hero' ? 'high' : 'low'}>
                         <BudgetCard
                           budget={budget as any}
+                          size={size}
                           spending={spending[budget.id]}
                           categoryData={categories.find(c => c.code === Object.keys((budget.category_limits as any) || {})[0])}
+                          onEdit={() => {}}
+                          onDelete={async () => {
+                            await supabase.from('user_budgets').delete().eq('id', budget.id);
+                            queryClient.invalidateQueries({ queryKey: ['user_budgets'] });
+                          }}
                         />
                       </HolographicCard>
                     </GestureCard>
-                  </motion.div>
-                ))}
-              </motion.div>
+                  )}
+                </AdaptiveGrid>
+              </div>
             )}
           </ScrollSection>
         )}

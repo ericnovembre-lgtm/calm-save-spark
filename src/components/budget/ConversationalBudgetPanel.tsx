@@ -10,11 +10,21 @@ import { ComponentMessage } from '@/components/generative-ui/types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
+interface BudgetIntent {
+  amount: number;
+  category: string;
+  timeframe: 'monthly' | 'weekly' | 'yearly';
+  isRecurring: boolean;
+  notes?: string;
+}
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   components?: ComponentMessage[];
   timestamp: Date;
+  budgetIntent?: BudgetIntent;
+  awaitingConfirmation?: boolean;
 }
 
 interface ConversationalBudgetPanelProps {
@@ -25,7 +35,7 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hi! I'm your AI Budget Assistant. Ask me anything about your spending, budgets, or savings goals. I can show you visualizations and help you optimize your finances.",
+      content: "Hi! I'm your AI Budget Assistant. Ask me anything about your spending, budgets, or savings goals. Try saying 'Create a $500 budget for Tokyo trip'!",
       timestamp: new Date()
     }
   ]);
@@ -33,6 +43,7 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
   const [isLoading, setIsLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [conversationId, setConversationId] = useState<string>();
+  const [pendingBudgetIntent, setPendingBudgetIntent] = useState<BudgetIntent | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -145,6 +156,24 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
                 return prev;
               });
             }
+
+            // Check for budget intent extraction
+            if (parsed.type === 'budget_intent') {
+              const intent = parsed.intent as BudgetIntent;
+              setPendingBudgetIntent(intent);
+              
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                if (last?.role === 'assistant') {
+                  return prev.map((m, i) => 
+                    i === prev.length - 1 
+                      ? { ...m, budgetIntent: intent, awaitingConfirmation: true }
+                      : m
+                  );
+                }
+                return prev;
+              });
+            }
           } catch (e) {
             // Ignore parse errors
           }
@@ -162,6 +191,54 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
       }]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleBudgetConfirm = async (intent: BudgetIntent) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Get or create category
+      const { data: category } = await supabase
+        .from('budget_categories')
+        .select('code')
+        .ilike('name', intent.category)
+        .limit(1)
+        .single();
+
+      const categoryCode = category?.code || 'OTHER';
+
+      // Create budget optimistically
+      const budgetData = {
+        user_id: user.id,
+        name: `${intent.category} Budget`,
+        category_code: categoryCode,
+        total_limit: intent.amount,
+        period: intent.timeframe,
+        is_active: true,
+        notes: intent.notes || '',
+        category_limits: { [categoryCode]: intent.amount }
+      };
+
+      const { error } = await supabase
+        .from('user_budgets')
+        .insert([budgetData]);
+
+      if (error) throw error;
+
+      toast.success(`✨ Budget created: $${intent.amount} for ${intent.category}!`);
+      
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `Perfect! I've created your $${intent.amount} ${intent.timeframe} budget for ${intent.category}. You can view it in your budget list above.`,
+        timestamp: new Date()
+      }]);
+
+      setPendingBudgetIntent(null);
+    } catch (error) {
+      console.error('Error creating budget:', error);
+      toast.error('Failed to create budget');
     }
   };
 
@@ -238,6 +315,42 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    
+                    {/* Budget confirmation UI */}
+                    {message.awaitingConfirmation && message.budgetIntent && (
+                      <div className="mt-4 p-4 rounded-lg bg-primary/10 border border-primary/20 space-y-3">
+                        <div className="space-y-1">
+                          <p className="font-semibold">{message.budgetIntent.category}</p>
+                          <p className="text-2xl font-bold">${message.budgetIntent.amount}</p>
+                          <p className="text-sm text-muted-foreground capitalize">
+                            {message.budgetIntent.timeframe} • {message.budgetIntent.isRecurring ? 'Recurring' : 'One-time'}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => handleBudgetConfirm(message.budgetIntent!)}
+                            className="flex-1"
+                            size="sm"
+                          >
+                            Confirm & Create
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setPendingBudgetIntent(null);
+                              setMessages(prev => prev.map(m => 
+                                m.timestamp === message.timestamp 
+                                  ? { ...m, awaitingConfirmation: false }
+                                  : m
+                              ));
+                            }}
+                            variant="outline"
+                            size="sm"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                     
                     {/* Render components */}
                     {message.components && message.components.length > 0 && (

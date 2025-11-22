@@ -6,6 +6,24 @@ const UI_TOOLS = [
   {
     type: "function",
     function: {
+      name: "extract_budget_intent",
+      description: "Extract structured budget creation parameters from natural language",
+      parameters: {
+        type: "object",
+        properties: {
+          amount: { type: "number", description: "Budget amount" },
+          category: { type: "string", description: "Budget category (e.g., Travel, Dining, Entertainment)" },
+          timeframe: { type: "string", enum: ["monthly", "weekly", "yearly"], description: "Budget recurrence" },
+          isRecurring: { type: "boolean", description: "Whether this budget repeats" },
+          notes: { type: "string", description: "Any additional context or notes" }
+        },
+        required: ["amount", "category", "timeframe"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
       name: "render_spending_chart",
       description: "Display a visual chart of spending patterns over time",
       parameters: {
@@ -476,7 +494,25 @@ ${UI_TOOLS.map(t => `- ${t.function.name}: ${t.function.description}`).join('\n'
                 }
 
                 if (delta?.tool_calls) {
-                  toolCalls.push(...delta.tool_calls);
+                  for (const tc of delta.tool_calls) {
+                    // Find existing tool call or create new
+                    const existing = toolCalls.find(t => t.index === tc.index);
+                    if (existing) {
+                      if (tc.function?.arguments) {
+                        existing.function.arguments = (existing.function.arguments || '') + tc.function.arguments;
+                      }
+                    } else {
+                      toolCalls.push({
+                        index: tc.index,
+                        id: tc.id,
+                        type: tc.type,
+                        function: {
+                          name: tc.function?.name || '',
+                          arguments: tc.function?.arguments || ''
+                        }
+                      });
+                    }
+                  }
                 }
               } catch (e) {
                 // Ignore parse errors
@@ -484,13 +520,19 @@ ${UI_TOOLS.map(t => `- ${t.function.name}: ${t.function.description}`).join('\n'
             }
           }
 
-          // Process tool calls to generate components
+          // Process tool calls to generate components or extract intents
           if (toolCalls.length > 0) {
             for (const toolCall of toolCalls) {
               const functionName = toolCall.function?.name;
               const functionArgs = JSON.parse(toolCall.function?.arguments || '{}');
 
-              if (functionName) {
+              if (functionName === 'extract_budget_intent') {
+                // Send budget intent to client for confirmation
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                  type: 'budget_intent',
+                  intent: functionArgs
+                })}\n\n`));
+              } else if (functionName) {
                 const componentType = functionName.replace('render_', '');
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({
                   type: 'component',

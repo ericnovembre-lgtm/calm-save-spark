@@ -34,8 +34,9 @@ export function PredictiveSpendingForecast({
   const [showConfidence, setShowConfidence] = useState(true);
 
   const allData = [...historicalData, ...predictions];
-  const maxValue = Math.max(...allData.map(d => d.predicted));
+  const maxValue = Math.max(...allData.flatMap(d => [d.predicted, d.confidence?.upper || 0]));
   const avgPredicted = predictions.reduce((sum, d) => sum + d.predicted, 0) / predictions.length;
+  const [hoveredPoint, setHoveredPoint] = useState<ForecastData | null>(null);
 
   return (
     <Card className="p-6 space-y-6">
@@ -60,35 +61,85 @@ export function PredictiveSpendingForecast({
       </div>
 
       {/* Forecast Chart */}
-      <div className="h-[300px]">
+      <div className="h-[400px] relative">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={allData}>
+          <AreaChart 
+            data={allData}
+            onMouseMove={(e: any) => {
+              if (e && e.activePayload) {
+                setHoveredPoint(e.activePayload[0]?.payload);
+              }
+            }}
+            onMouseLeave={() => setHoveredPoint(null)}
+          >
             <defs>
               <linearGradient id="colorPredicted" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
                 <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
               </linearGradient>
+              <linearGradient id="colorConfidence" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.15} />
+                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+              </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-            <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-            <YAxis stroke="hsl(var(--muted-foreground))" />
+            <XAxis 
+              dataKey="month" 
+              stroke="hsl(var(--muted-foreground))"
+              fontSize={12}
+            />
+            <YAxis 
+              stroke="hsl(var(--muted-foreground))"
+              fontSize={12}
+              tickFormatter={(value) => `$${value}`}
+            />
             <Tooltip
-              contentStyle={{
-                backgroundColor: 'hsl(var(--background))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px'
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const data = payload[0].payload;
+                return (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg"
+                  >
+                    <p className="font-semibold text-sm mb-2">{data.month}</p>
+                    {data.actual && (
+                      <p className="text-xs text-muted-foreground">
+                        Actual: <span className="font-bold text-foreground">${data.actual.toFixed(2)}</span>
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Predicted: <span className="font-bold text-primary">${data.predicted.toFixed(2)}</span>
+                    </p>
+                    {showConfidence && data.confidence && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Range: ${data.confidence.lower.toFixed(0)} - ${data.confidence.upper.toFixed(0)}
+                      </p>
+                    )}
+                  </motion.div>
+                );
               }}
             />
             
             {/* Confidence band */}
             {showConfidence && (
-              <Area
-                type="monotone"
-                dataKey="confidence.upper"
-                stroke="none"
-                fill="hsl(var(--primary))"
-                fillOpacity={0.1}
-              />
+              <>
+                <Area
+                  type="monotone"
+                  dataKey="confidence.upper"
+                  stroke="none"
+                  fill="url(#colorConfidence)"
+                  fillOpacity={1}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="confidence.lower"
+                  stroke="none"
+                  fill="hsl(var(--background))"
+                  fillOpacity={1}
+                />
+              </>
             )}
             
             {/* Actual historical data */}
@@ -98,6 +149,7 @@ export function PredictiveSpendingForecast({
               stroke="hsl(var(--muted-foreground))"
               strokeWidth={2}
               dot={{ fill: 'hsl(var(--muted-foreground))', r: 4 }}
+              activeDot={{ r: 6, fill: 'hsl(var(--muted-foreground))', strokeWidth: 2, stroke: 'hsl(var(--background))' }}
             />
             
             {/* Predicted data */}
@@ -108,9 +160,21 @@ export function PredictiveSpendingForecast({
               strokeWidth={3}
               strokeDasharray="5 5"
               dot={{ fill: 'hsl(var(--primary))', r: 5 }}
+              activeDot={{ r: 7, fill: 'hsl(var(--primary))', strokeWidth: 2, stroke: 'hsl(var(--background))' }}
             />
           </AreaChart>
         </ResponsiveContainer>
+        
+        {/* Hover Info Overlay */}
+        {hoveredPoint && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute top-4 right-4 bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-lg p-3"
+          >
+            <p className="text-xs font-semibold text-primary">Click to explore details</p>
+          </motion.div>
+        )}
       </div>
 
       {/* Key Metrics */}
