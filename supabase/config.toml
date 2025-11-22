@@ -240,5 +240,17 @@ verify_jwt = true
 [functions.detect-budget-inflation]
 verify_jwt = false
 
+[functions.get-automation-analytics]
+verify_jwt = true
+
+[functions.parse-automation-rule]
+verify_jwt = true
+
+[functions.process-transaction-automations]
+verify_jwt = true
+
+[functions.check-balance-thresholds]
+verify_jwt = true
+
 
 
