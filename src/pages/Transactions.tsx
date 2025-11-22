@@ -87,7 +87,10 @@ export default withPageMemo(function Transactions() {
 
         {/* Progressive load: Transaction list (after critical UI) */}
         <ProgressiveLoader priority="medium" delay={100}>
-          <VirtualizedTransactionList filters={filters} />
+          <VirtualizedTransactionList 
+            filters={filters}
+            onClearFilters={handleClearAllFilters}
+          />
         </ProgressiveLoader>
       </div>
     </AppLayout>

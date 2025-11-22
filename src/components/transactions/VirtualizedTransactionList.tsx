@@ -1,11 +1,16 @@
 import { useRef, useEffect, useMemo, memo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useOptimizedTransactions } from "@/hooks/useOptimizedTransactions";
 import { TransactionCard } from "./TransactionCard";
 import { LoadingState } from "@/components/LoadingState";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Filter } from "lucide-react";
 import { useMerchantLogoPreload } from "@/hooks/useMerchantLogoPreload";
 import { usePageMemo } from "@/lib/performance-utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { ANIMATION_DURATION, STAGGER_DELAY } from "@/lib/animation-constants";
 
 interface VirtualizedTransactionListProps {
   filters?: {
@@ -16,6 +21,7 @@ interface VirtualizedTransactionListProps {
     dateRange?: { start: string; end: string };
     searchQuery?: string;
   };
+  onClearFilters?: () => void;
 }
 
 // Memoized transaction card for better re-render performance
@@ -24,8 +30,10 @@ const MemoizedTransactionCard = memo(TransactionCard, (prev, next) => {
 });
 
 export const VirtualizedTransactionList = memo(function VirtualizedTransactionList({ 
-  filters 
+  filters,
+  onClearFilters
 }: VirtualizedTransactionListProps) {
+  const prefersReducedMotion = useReducedMotion();
   const {
     data,
     fetchNextPage,
@@ -87,12 +95,39 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
     return <LoadingState />;
   }
 
+  // Check if filters are applied
+  const hasFilters = filters && (
+    filters.category || 
+    filters.merchant || 
+    filters.amountMin !== undefined || 
+    filters.amountMax !== undefined || 
+    filters.dateRange || 
+    filters.searchQuery
+  );
+
   if (allTransactions.length === 0) {
+    if (hasFilters) {
+      // No results with filters applied
+      return (
+        <EmptyState
+          icon={Filter}
+          title="No transactions match your filters"
+          description="Try adjusting your search criteria or clear all filters to see your transactions."
+          actionLabel={onClearFilters ? "Clear All Filters" : undefined}
+          onAction={onClearFilters}
+          variant="transactions"
+        />
+      );
+    }
+    
+    // No transactions at all
     return (
-      <div className="text-center py-12">
-        <DollarSign className="w-12 h-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
-        <p className="text-muted-foreground">No transactions found</p>
-      </div>
+      <EmptyState
+        icon={DollarSign}
+        title="No transactions yet"
+        description="Connect your bank account or manually add transactions to get started tracking your spending."
+        variant="transactions"
+      />
     );
   }
 
@@ -109,34 +144,58 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
           position: 'relative',
         }}
       >
-        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-          const isLoaderRow = virtualRow.index > allTransactions.length - 1;
-          const transaction = allTransactions[virtualRow.index];
+          <AnimatePresence mode="popLayout">
+            {rowVirtualizer.getVirtualItems().map((virtualRow, index) => {
+              const isLoaderRow = virtualRow.index > allTransactions.length - 1;
+              const transaction = allTransactions[virtualRow.index];
 
-          return (
-            <div
-              key={virtualRow.key}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: `${virtualRow.size}px`,
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
-            >
-              {isLoaderRow ? (
-                hasNextPage ? (
-                  <div className="p-4 text-center text-sm text-muted-foreground">
-                    Loading more...
-                  </div>
-                ) : null
-              ) : (
-                <MemoizedTransactionCard transaction={transaction} />
-              )}
-            </div>
-          );
-        })}
+              return (
+                <motion.div
+                  key={virtualRow.key}
+                  initial={prefersReducedMotion ? undefined : { 
+                    opacity: 0, 
+                    y: 20 
+                  }}
+                  animate={{ 
+                    opacity: 1, 
+                    y: 0 
+                  }}
+                  exit={prefersReducedMotion ? undefined : { 
+                    opacity: 0, 
+                    scale: 0.95 
+                  }}
+                  transition={{
+                    duration: ANIMATION_DURATION.normal / 1000,
+                    delay: prefersReducedMotion ? 0 : Math.min(index * (STAGGER_DELAY.list / 1000), 0.3),
+                    ease: [0.22, 1, 0.36, 1]
+                  }}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualRow.size}px`,
+                    transform: `translateY(${virtualRow.start}px)`,
+                  }}
+                >
+                  {isLoaderRow ? (
+                    hasNextPage ? (
+                      <motion.div 
+                        className="p-4 text-center text-sm text-muted-foreground"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        Loading more...
+                      </motion.div>
+                    ) : null
+                  ) : (
+                    <MemoizedTransactionCard transaction={transaction} />
+                  )}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
       </div>
     </div>
   );
