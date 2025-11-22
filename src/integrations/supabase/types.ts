@@ -3557,6 +3557,65 @@ export type Database = {
         }
         Relationships: []
       }
+      goal_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          goal_id: string | null
+          id: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          goal_id?: string | null
+          id?: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          goal_id?: string | null
+          id?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_transactions_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_visuals: {
+        Row: {
+          created_at: string | null
+          goal_name: string
+          id: string
+          image_url: string
+          prompt_used: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          goal_name: string
+          id?: string
+          image_url: string
+          prompt_used?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          goal_name?: string
+          id?: string
+          image_url?: string
+          prompt_used?: string | null
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           created_at: string | null
@@ -3567,8 +3626,11 @@ export type Database = {
           id: string
           name: string
           target_amount: number
+          time_to_goal_suggestions: Json | null
           updated_at: string | null
           user_id: string
+          visual_prompt: string | null
+          visual_url: string | null
         }
         Insert: {
           created_at?: string | null
@@ -3579,8 +3641,11 @@ export type Database = {
           id?: string
           name: string
           target_amount: number
+          time_to_goal_suggestions?: Json | null
           updated_at?: string | null
           user_id: string
+          visual_prompt?: string | null
+          visual_url?: string | null
         }
         Update: {
           created_at?: string | null
@@ -3591,8 +3656,11 @@ export type Database = {
           id?: string
           name?: string
           target_amount?: number
+          time_to_goal_suggestions?: Json | null
           updated_at?: string | null
           user_id?: string
+          visual_prompt?: string | null
+          visual_url?: string | null
         }
         Relationships: []
       }
@@ -8589,6 +8657,18 @@ export type Database = {
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_security_logs: { Args: never; Returns: undefined }
       compute_user_features: { Args: { sub_amount: number }; Returns: Json }
+      contribute_to_goal: {
+        Args: {
+          p_amount: number
+          p_goal_id: string
+          p_note: string
+          p_user_id: string
+        }
+        Returns: {
+          is_completed: boolean
+          new_amount: number
+        }[]
+      }
       get_active_nudges: {
         Args: { p_user_id: string }
         Returns: {

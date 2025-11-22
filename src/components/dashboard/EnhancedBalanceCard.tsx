@@ -14,20 +14,28 @@ import { useCelebrationSounds } from "@/hooks/useCelebrationSounds";
 import { haptics } from "@/lib/haptics";
 import { toast } from "sonner";
 import { useState } from "react";
+import { DraggableCoin } from "./DraggableCoin";
+import { useDragToSave } from "@/hooks/useDragToSave";
 
 interface EnhancedBalanceCardProps {
   balance: number;
   monthlyGrowth?: number;
-  savingsVelocity?: number; // 0-100
-  weeklyTrend?: number[]; // 7-day balance history
+  savingsVelocity?: number;
+  weeklyTrend?: number[];
+  onDragToGoal?: (goalId: string, amount: number) => Promise<void>;
 }
 
 export const EnhancedBalanceCard = ({ 
   balance, 
   monthlyGrowth = 0,
   savingsVelocity = 50,
-  weeklyTrend = [2800, 2950, 3100, 3050, 3200, 3180, 3247]
+  weeklyTrend = [2800, 2950, 3100, 3050, 3200, 3180, 3247],
+  onDragToGoal
 }: EnhancedBalanceCardProps) => {
+  const { isDragging, getDragHandlers } = useDragToSave({
+    onDrop: onDragToGoal || (async () => {}),
+    defaultAmount: 100
+  });
   const { convertedAmount, targetCurrency } = useCurrencyConversion(balance);
   const prefersReducedMotion = useReducedMotion();
   const isPositive = monthlyGrowth >= 0;
@@ -56,6 +64,15 @@ export const EnhancedBalanceCard = ({
   return (
     <GlassCard enableTilt glowOnHover className="p-6 md:p-8 overflow-hidden relative">
       <NeutralConfetti show={showConfetti} duration={2500} count={35} />
+      
+      {/* Draggable coin for drag-to-save */}
+      {onDragToGoal && (
+        <DraggableCoin 
+          amount={100}
+          dragHandlers={getDragHandlers()}
+          isDragging={isDragging}
+        />
+      )}
       
       <motion.div
         variants={!prefersReducedMotion ? fadeInUp : undefined}

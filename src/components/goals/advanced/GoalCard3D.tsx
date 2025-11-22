@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import { use3DTilt } from '@/hooks/use3DTilt';
 import { LottieGoalIcon } from './LottieGoalIcon';
-import { MultiRingProgress } from '../visualization/MultiRingProgress';
+import { FluidProgressRing } from '../visualization/FluidProgressRing';
+import { DragToSaveZone } from '../DragToSaveZone';
 import { card3D } from '@/lib/motion-variants-advanced';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { GoalActionsMenu } from '../GoalActionsMenu';
+import { useGoalVisual } from '@/hooks/useGoalVisual';
 
 interface GoalCard3DProps {
   id: string;
@@ -19,6 +21,9 @@ interface GoalCard3DProps {
   onDelete?: () => void;
   onTogglePause?: () => void;
   isPaused?: boolean;
+  isDragHovered?: boolean;
+  onRegisterDropZone?: (id: string, element: HTMLElement) => void;
+  onUnregisterDropZone?: (id: string) => void;
 }
 
 /**
@@ -36,13 +41,17 @@ export const GoalCard3D = ({
   onEdit,
   onDelete,
   onTogglePause,
-  isPaused = false
+  isPaused = false,
+  isDragHovered = false,
+  onRegisterDropZone,
+  onUnregisterDropZone
 }: GoalCard3DProps) => {
   const prefersReducedMotion = useReducedMotion();
   const { tiltStyle, handleMouseMove, handleMouseLeave } = use3DTilt({
     maxTilt: 10,
     scale: 1.03
   });
+  const { imageUrl, isLoading: visualLoading } = useGoalVisual({ goalName: name, enabled: true });
 
   const progress = Math.min((current / target) * 100, 100);
 
@@ -66,12 +75,36 @@ export const GoalCard3D = ({
         shadow-lg hover:shadow-2xl
         transition-shadow duration-500
       ">
+        {/* AI-generated background visual */}
+        {imageUrl && (
+          <div className="absolute inset-0 opacity-20">
+            <img 
+              src={imageUrl} 
+              alt="" 
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+          </div>
+        )}
+
         {/* Background glow */}
         <div className="
           absolute inset-0 opacity-0 group-hover:opacity-100
           transition-opacity duration-500
           bg-gradient-to-br from-primary/10 to-transparent
         " />
+
+        {/* Drag-to-save drop zone */}
+        {onRegisterDropZone && onUnregisterDropZone && (
+          <DragToSaveZone
+            goalId={id}
+            goalName={name}
+            isHovered={isDragHovered}
+            onRegister={onRegisterDropZone}
+            onUnregister={onUnregisterDropZone}
+          />
+        )}
 
         {/* Content */}
         <div className="relative p-6 space-y-6">
@@ -108,12 +141,12 @@ export const GoalCard3D = ({
             </div>
           </div>
 
-          {/* Progress Ring */}
+          {/* Fluid Progress Ring */}
           <div className="flex justify-center">
-            <MultiRingProgress
-              current={current}
-              target={target}
+            <FluidProgressRing
+              progress={progress}
               size={160}
+              strokeWidth={12}
             />
           </div>
 

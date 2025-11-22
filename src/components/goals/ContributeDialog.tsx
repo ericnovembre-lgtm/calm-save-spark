@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { contributionSchema, ContributionFormData } from "@/lib/validations/goal-schemas";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useOptimisticGoalUpdate } from "@/hooks/useOptimisticGoalUpdate";
 
 interface ContributeDialogProps {
   open: boolean;
@@ -28,6 +28,7 @@ export const ContributeDialog = ({
   onSuccess
 }: ContributeDialogProps) => {
   const { toast } = useToast();
+  const { contribute } = useOptimisticGoalUpdate(goalId);
   const [formData, setFormData] = useState<ContributionFormData>({
     amount: 0,
     date: new Date().toISOString().split('T')[0],
@@ -51,27 +52,19 @@ export const ContributeDialog = ({
 
     setIsSubmitting(true);
     try {
-      const newAmount = Math.min(currentAmount + result.data.amount, targetAmount);
-      
-      const { error } = await supabase
-        .from('goals')
-        .update({ 
-          current_amount: newAmount,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', goalId);
+      const response = await contribute(result.data.amount, result.data.note);
 
-      if (error) throw error;
+      if (response.success) {
+        toast({
+          title: "Funds Added! 💰",
+          description: `Added $${result.data.amount.toLocaleString()} to ${goalName}`,
+        });
 
-      toast({
-        title: "Funds Added! 💰",
-        description: `Added $${result.data.amount.toLocaleString()} to ${goalName}`,
-      });
-
-      onSuccess();
-      onOpenChange(false);
-      setFormData({ amount: 0, date: new Date().toISOString().split('T')[0], note: "" });
-      setErrors({});
+        onSuccess();
+        onOpenChange(false);
+        setFormData({ amount: 0, date: new Date().toISOString().split('T')[0], note: "" });
+        setErrors({});
+      }
     } catch (error: any) {
       toast({
         title: "Failed to add funds",
