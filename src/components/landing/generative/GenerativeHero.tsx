@@ -92,16 +92,19 @@ export const GenerativeHero = () => {
                 Experience $ave+ Live
               </motion.div>
               
-              <h1 className="font-extrabold text-6xl md:text-7xl lg:text-8xl text-foreground leading-[0.9] tracking-tighter mb-6">
+              <h1 className="font-display font-black text-6xl md:text-7xl lg:text-8xl text-foreground leading-[0.9] tracking-tighter mb-6">
                 See Your{' '}
-                <span className="bg-gradient-to-r from-accent via-primary to-accent bg-[length:200%_auto] animate-gradient bg-clip-text text-transparent">
-                  Future
+                <span className="relative inline-block">
+                  <span className="bg-gradient-to-r from-accent via-primary to-accent bg-[length:200%_auto] animate-gradient-shift bg-clip-text text-transparent">
+                    Future
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-accent via-primary to-accent bg-[length:200%_auto] blur-2xl opacity-20 animate-gradient-shift" />
                 </span>
                 <br />
                 Instantly
               </h1>
               
-              <p className="text-xl text-muted-foreground leading-relaxed mb-8">
+              <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed mb-8 font-light">
                 Type what you want to save for and watch $ave+ create a personalized savings plan in real-time.
               </p>
             </div>
@@ -120,10 +123,15 @@ export const GenerativeHero = () => {
                 { value: '$2.1M+', label: 'Total Saved' },
                 { value: '4.9★', label: 'User Rating' },
               ].map((stat, i) => (
-                <div key={i}>
-                  <div className="text-2xl font-bold text-accent">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </div>
+                <motion.div
+                  key={i}
+                  initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 + i * 0.1 }}
+                >
+                  <div className="text-2xl md:text-3xl font-display font-black text-accent">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
+                </motion.div>
               ))}
             </motion.div>
           </motion.div>
