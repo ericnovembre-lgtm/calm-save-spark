@@ -38,6 +38,7 @@ import { PredictiveBudgetingPanel } from "@/components/budget/PredictiveBudgetin
 import { ConversationalBudgetPanel } from "@/components/budget/ConversationalBudgetPanel";
 import { useGenerativeComponents } from "@/hooks/useGenerativeComponents";
 import { ComponentRenderer } from "@/components/generative-ui/ComponentRenderer";
+import { useBudgetOptimistic } from "@/hooks/usePageOptimisticActions";
 import { AdaptiveGrid } from "@/components/budget/AdaptiveGrid";
 import { SmartInsightsSidebar } from "@/components/budget/SmartInsightsSidebar";
 
@@ -64,6 +65,7 @@ export default function Budget() {
   const queryClient = useQueryClient();
   const calculateSpendingMutation = useCalculateBudgetSpending();
   const { celebrationTrigger, checkMilestones } = useBudgetMilestones();
+  const { updateBudgetOptimistic, createBudgetOptimistic, deleteBudgetOptimistic, isPending } = useBudgetOptimistic();
 
   // Fetch user with optimized cache
   const { data: user } = useQuery({
@@ -175,29 +177,94 @@ export default function Budget() {
     }
   }, [onboarding]);
 
-  // Create budget mutation
-  const createBudgetMutation = useMutation({
-    mutationFn: async (budgetData: any) => {
-      if (!user) throw new Error('No user');
-      
-      const { data, error } = await supabase
-        .from('user_budgets')
-        .insert([{ ...budgetData, user_id: user.id }])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user_budgets'] });
-      toast.success('Budget created successfully! 🎯');
-    },
-    onError: (error) => {
-      console.error('Error creating budget:', error);
-      toast.error('Failed to create budget');
+  // Create budget with optimistic UI
+  const handleCreateBudget = async (budgetData: any) => {
+    if (!user) {
+      toast.error('Please sign in to create a budget');
+      return;
     }
-  });
+
+    // Generate optimistic ID
+    const optimisticId = crypto.randomUUID();
+    const optimisticBudget = {
+      ...budgetData,
+      id: optimisticId,
+      user_id: user.id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      is_active: true
+    };
+
+    await createBudgetOptimistic(
+      optimisticBudget,
+      async () => {
+        const { data, error } = await supabase
+          .from('user_budgets')
+          .insert([{ ...budgetData, user_id: user.id }])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Replace optimistic with real data
+        queryClient.setQueryData(['user_budgets', user.id], (old: any[] = []) =>
+          old.map(b => b.id === optimisticId ? data : b)
+        );
+
+        toast.success('Budget created successfully! 🎯');
+        setShowParticles(true);
+        setTimeout(() => setShowParticles(false), 3000);
+        
+        return data;
+      }
+    );
+  };
+
+  // Update budget with optimistic UI
+  const handleUpdateBudget = async (budgetId: string, updates: any) => {
+    await updateBudgetOptimistic(
+      budgetId,
+      updates,
+      async () => {
+        const { data, error } = await supabase
+          .from('user_budgets')
+          .update(updates)
+          .eq('id', budgetId)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        queryClient.setQueryData(['user_budgets', user?.id], (old: any[] = []) =>
+          old.map(b => b.id === budgetId ? data : b)
+        );
+
+        toast.success('Budget updated! ✨');
+        return data;
+      }
+    );
+  };
+
+  // Delete budget with optimistic UI
+  const handleDeleteBudget = async (budgetId: string) => {
+    await deleteBudgetOptimistic(
+      budgetId,
+      async () => {
+        const { error } = await supabase
+          .from('user_budgets')
+          .delete()
+          .eq('id', budgetId);
+
+        if (error) throw error;
+
+        queryClient.setQueryData(['user_budgets', user?.id], (old: any[] = []) =>
+          old.filter(b => b.id !== budgetId)
+        );
+
+        toast.success('Budget deleted');
+      }
+    );
+  };
 
   // Complete onboarding
   const handleOnboardingComplete = async () => {
@@ -466,11 +533,9 @@ export default function Budget() {
                           size={size}
                           spending={spending[budget.id]}
                           categoryData={categories.find(c => c.code === Object.keys((budget.category_limits as any) || {})[0])}
-                          onEdit={() => {}}
-                          onDelete={async () => {
-                            await supabase.from('user_budgets').delete().eq('id', budget.id);
-                            queryClient.invalidateQueries({ queryKey: ['user_budgets'] });
-                          }}
+                          onEdit={(updates) => handleUpdateBudget(budget.id, updates)}
+                          onDelete={() => handleDeleteBudget(budget.id)}
+                          isOptimistic={isPending}
                         />
                       </HolographicCard>
                     </GestureCard>
@@ -503,7 +568,7 @@ export default function Budget() {
           <CreateBudgetWizard
             isOpen={showCreateModal}
             onClose={() => setShowCreateModal(false)}
-            onSave={async (data) => { await createBudgetMutation.mutateAsync(data); }}
+            onSave={handleCreateBudget}
             categories={categories}
           />
 

@@ -32,12 +32,13 @@ interface BudgetCardProps {
     icon: string;
     color: string;
   };
-  onEdit?: () => void;
-  onDelete?: () => void;
+  onEdit?: (updates?: any) => void;
+  onDelete?: () => Promise<void>;
   size?: Priority;
+  isOptimistic?: boolean;
 }
 
-export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, size = 'normal' }: BudgetCardProps) {
+export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, size = 'normal', isOptimistic = false }: BudgetCardProps) {
   const spentAmount = spending?.spent_amount || 0;
   const totalLimit = parseFloat(String(budget.total_limit));
   const percentage = totalLimit > 0 ? (spentAmount / totalLimit) * 100 : 0;
@@ -59,6 +60,7 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, s
         relative p-6 hover:shadow-lg transition-all duration-300 border-border/50 backdrop-blur-sm bg-card/80 overflow-hidden group
         ${size === 'hero' ? 'border-2 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.3)]' : ''}
         ${size === 'large' ? 'border-2 border-yellow-500/50' : ''}
+        ${isOptimistic ? 'opacity-60 pointer-events-none' : ''}
       `}>
         {size === 'hero' && (
           <motion.div 
@@ -71,6 +73,25 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, s
           </motion.div>
         )}
         <ScanLineOverlay intensity={size === 'hero' ? 'high' : 'low'} />
+        
+        {/* Optimistic Loading Indicator */}
+        {isOptimistic && (
+          <motion.div 
+            className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center z-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full"
+              />
+              Processing...
+            </div>
+          </motion.div>
+        )}
         
         {/* Header */}
         <div className="flex items-start justify-between mb-4">

@@ -48,6 +48,19 @@ export function useGoalsOptimistic() {
 export function useBudgetOptimistic() {
   const { executeAction, isPending } = useOptimisticAction();
 
+  const createBudgetOptimistic = useCallback(async (
+    budgetData: any,
+    createAction: () => Promise<any>
+  ) => {
+    return executeAction(
+      createAction,
+      {
+        successMessage: '',
+        errorMessage: 'Failed to create budget',
+      }
+    );
+  }, [executeAction]);
+
   const updateBudgetOptimistic = useCallback(async (
     budgetId: string,
     updates: any,
@@ -56,8 +69,21 @@ export function useBudgetOptimistic() {
     return executeAction(
       updateAction,
       {
-        successMessage: '💰 Budget updated!',
+        successMessage: '',
         errorMessage: 'Failed to update budget',
+      }
+    );
+  }, [executeAction]);
+
+  const deleteBudgetOptimistic = useCallback(async (
+    budgetId: string,
+    deleteAction: () => Promise<any>
+  ) => {
+    return executeAction(
+      deleteAction,
+      {
+        successMessage: '',
+        errorMessage: 'Failed to delete budget',
       }
     );
   }, [executeAction]);
@@ -76,7 +102,9 @@ export function useBudgetOptimistic() {
   }, [executeAction]);
 
   return {
+    createBudgetOptimistic,
     updateBudgetOptimistic,
+    deleteBudgetOptimistic,
     createCategoryOptimistic,
     isPending,
   };
