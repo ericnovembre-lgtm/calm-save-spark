@@ -2,6 +2,7 @@ import { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Sparkles, OrbitControls } from '@react-three/drei';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 import * as THREE from 'three';
 
 function FloatingCoin({ position }: { position: [number, number, number] }) {
@@ -112,8 +113,10 @@ function Scene() {
 
 export function Financial3DUniverse() {
   const prefersReducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
 
-  if (prefersReducedMotion) return null;
+  // Disable 3D effects entirely on mobile or if reduced motion is preferred
+  if (prefersReducedMotion || isMobile) return null;
 
   return (
     <div className="absolute inset-0 opacity-10 pointer-events-none">
