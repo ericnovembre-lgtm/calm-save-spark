@@ -57,7 +57,7 @@ function DollarSign({ position }: { position: [number, number, number] }) {
 
 function Scene() {
   const coins = useMemo(() => {
-    return Array.from({ length: 8 }, (_, i) => ({
+    return Array.from({ length: 4 }, (_, i) => ({
       id: i,
       position: [
         (Math.random() - 0.5) * 10,
@@ -68,7 +68,7 @@ function Scene() {
   }, []);
 
   const dollars = useMemo(() => {
-    return Array.from({ length: 5 }, (_, i) => ({
+    return Array.from({ length: 3 }, (_, i) => ({
       id: i,
       position: [
         (Math.random() - 0.5) * 8,
@@ -85,10 +85,10 @@ function Scene() {
       <pointLight position={[-10, -10, -5]} intensity={0.5} color="hsl(var(--accent))" />
       
       <Sparkles 
-        count={100} 
+        count={50} 
         scale={15} 
-        size={2} 
-        speed={0.3}
+        size={1.5} 
+        speed={0.2}
         color="hsl(var(--primary))"
       />
       
@@ -116,7 +116,7 @@ export function Financial3DUniverse() {
   if (prefersReducedMotion) return null;
 
   return (
-    <div className="absolute inset-0 opacity-20 pointer-events-none">
+    <div className="absolute inset-0 opacity-10 pointer-events-none">
       <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
         <Scene />
       </Canvas>

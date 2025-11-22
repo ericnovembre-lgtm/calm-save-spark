@@ -29,7 +29,7 @@ export const TypewriterText = ({ phrases, className = "" }: TypewriterTextProps)
           setDisplayedText(currentPhrase.slice(0, displayedText.length + 1));
         } else {
           // Finished typing, wait then start deleting
-          setTimeout(() => setIsDeleting(true), 3000);
+          setTimeout(() => setIsDeleting(true), 5000);
         }
       } else {
         // Deleting

@@ -12,6 +12,8 @@ import { AIAgentsPreview } from "@/components/landing/AIAgentsPreview";
 import { Stats } from "@/components/landing/Stats";
 import { CTA } from "@/components/landing/CTA";
 import { SimpleBackground } from "@/components/landing/SimpleBackground";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { useWebVitals } from "@/hooks/useWebVitals";
 
 // Lazy load heavy components for better performance
 import {
@@ -48,10 +50,14 @@ import { FeatureComparisonSkeleton } from "@/components/landing/skeletons/Featur
 import { IntegrationsSkeleton } from "@/components/landing/skeletons/IntegrationsSkeleton";
 
 export default function Landing() {
+  useWebVitals(true);
+  
   return (
     <>
       <Helmet>
         <title>$ave+ | 63+ Tools to Save Smarter, Grow Wealth & Automate Finances</title>
+        <link rel="preload" as="script" href="/src/components/landing/Hero.tsx" />
+        <link rel="prefetch" as="script" href="/src/components/landing/LazyComponents.tsx" />
         <meta
           name="description"
           content="All-in-one financial platform with 63+ tools across 5 hubs: Money Management, Wealth Building, AI Insights, Lifestyle Solutions, and Premium Features. Join 250K+ users saving smarter."
@@ -86,9 +92,11 @@ export default function Landing() {
           
           {/* Medium priority - Load when approaching viewport */}
           <PriorityLoader priority="medium">
-            <Suspense fallback={<div className="h-96" />}>
-              <LazyAISavingsSimulator />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<div className="h-96 bg-muted/10 animate-pulse rounded-lg" />}>
+                <LazyAISavingsSimulator />
+              </Suspense>
+            </ErrorBoundary>
             <Features />
             <SolutionsShowcase />
             <AIAgentsPreview />
@@ -96,75 +104,75 @@ export default function Landing() {
           
           {/* Low priority - Load when entering viewport */}
           <PriorityLoader priority="low">
-            <Suspense fallback={<PremiumShowcaseSkeleton />}>
-              <LazyPremiumShowcase />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<PremiumShowcaseSkeleton />}>
+                <LazyPremiumShowcase />
+              </Suspense>
+            </ErrorBoundary>
             
             <Stats />
             
-            <Suspense fallback={<TestimonialsSkeleton />}>
-              <LazyUseCases />
-              <LazyTestimonials />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<TestimonialsSkeleton />}>
+                <LazyUseCases />
+                <LazyTestimonials />
+              </Suspense>
+            </ErrorBoundary>
             
-            <Suspense fallback={<div className="h-96" />}>
-              <LazyPlatformOverview />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<div className="h-96 bg-muted/10 animate-pulse rounded-lg" />}>
+                <LazyPlatformOverview />
+                <LazyFeatureComparison />
+                <LazyIntegrations />
+              </Suspense>
+            </ErrorBoundary>
             
-            <Suspense fallback={<FeatureComparisonSkeleton />}>
-              <LazyFeatureComparison />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<CalculatorSkeleton />}>
+                <LazyCalculator />
+              </Suspense>
+            </ErrorBoundary>
             
-            <Suspense fallback={<IntegrationsSkeleton />}>
-              <LazyIntegrations />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<InteractiveDemoSkeleton />}>
+                <LazyInteractiveDemo />
+              </Suspense>
+            </ErrorBoundary>
             
-            <Suspense fallback={<CalculatorSkeleton />}>
-              <LazyCalculator />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<FAQSkeleton />}>
+                <LazyFAQ />
+              </Suspense>
+            </ErrorBoundary>
             
-            <Suspense fallback={<InteractiveDemoSkeleton />}>
-              <LazyInteractiveDemo />
-            </Suspense>
-            
-            <Suspense fallback={<FAQSkeleton />}>
-              <LazyFAQ />
-            </Suspense>
-            
-            <Suspense fallback={<div className="h-96" />}>
-              <LazyInteractiveTimeline />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<div className="h-96 bg-muted/10 animate-pulse rounded-lg" />}>
+                <LazyInteractiveTimeline />
+              </Suspense>
+            </ErrorBoundary>
           </PriorityLoader>
           
           <CTA />
         </main>
         
-        <Suspense fallback={null}>
-          <LazySaveplusCoachWidget />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <LazySaveplusCoachWidget />
+          </Suspense>
+        </ErrorBoundary>
         
         <SimpleBackground />
         
-        <Suspense fallback={null}>
-          <LazyFloatingParticles />
-        </Suspense>
-        
-        {/* Advanced Effects */}
-        <Suspense fallback={null}>
-          <LazyNeuralNetworkBackground />
-        </Suspense>
-        
-        <Suspense fallback={null}>
-          <LazyMagneticCursor />
-        </Suspense>
-        
-        <Suspense fallback={null}>
-          <LazyLiveSocialProofStream />
-        </Suspense>
-        
-        <Suspense fallback={null}>
-          <LazyCoinParticleSystem />
-        </Suspense>
+        {/* Advanced Effects - Load last, low priority */}
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <LazyFloatingParticles />
+            <LazyNeuralNetworkBackground />
+            <LazyMagneticCursor />
+            <LazyLiveSocialProofStream />
+            <LazyCoinParticleSystem />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </>
   );
