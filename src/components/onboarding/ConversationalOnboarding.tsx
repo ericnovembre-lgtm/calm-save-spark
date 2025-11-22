@@ -330,34 +330,52 @@ export function ConversationalOnboarding({ userId }: ConversationalOnboardingPro
       metadata: { skipResponse: true }
     });
 
-    // Create first goal
-    await supabase.from('goals').insert({
-      user_id: userId,
-      name: userData.goalType === 'home' ? 'Home Down Payment' : 
-            userData.goalType === 'vacation' ? 'Dream Vacation' :
-            userData.goalType === 'emergency' ? 'Emergency Fund' : 'Savings Goal',
-      target_amount: Number(userData.goalAmount) || 5000,
-      current_amount: 0,
-      icon: 'target'
-    });
-
-    // Update profile
-    await supabase
-      .from('profiles')
-      .update({
-        full_name: userData.name,
-        onboarding_step: 'complete',
-        onboarding_quiz: {
-          saving_goal: userData.goalType,
-          biggest_challenge: userData.challenges,
-          automation_preference: userData.automationPref
-        }
-      })
-      .eq('id', userId);
-
-    // Prefetch dashboard (instant transition)
     setIsTransitioning(true);
-    await delay(2000);
+
+    // Execute everything in parallel for instant transition
+    await Promise.all([
+      // Save data optimistically
+      supabase.from('goals').insert({
+        user_id: userId,
+        name: userData.goalType === 'home' ? 'Home Down Payment' : 
+              userData.goalType === 'vacation' ? 'Dream Vacation' :
+              userData.goalType === 'emergency' ? 'Emergency Fund' : 'Savings Goal',
+        target_amount: Number(userData.goalAmount) || 5000,
+        current_amount: 0,
+        icon: 'target'
+      }),
+      
+      // Update profile
+      supabase
+        .from('profiles')
+        .update({
+          full_name: userData.name,
+          onboarding_step: 'complete',
+          onboarding_quiz: {
+            saving_goal: userData.goalType,
+            biggest_challenge: userData.challenges,
+            automation_preference: userData.automationPref
+          }
+        })
+        .eq('id', userId),
+      
+      // Prefetch dashboard route chunk
+      import('../../pages/Dashboard').catch(() => null),
+      
+      // Pre-warm goals query
+      supabase.from('goals').select('*').eq('user_id', userId),
+      
+      // Pre-warm transactions query
+      supabase.from('transactions').select('*').eq('user_id', userId).limit(50),
+      
+      // Pre-warm pots query
+      supabase.from('pots').select('*').eq('user_id', userId),
+    ]);
+
+    console.log('[Prefetch] Dashboard fully pre-loaded, navigating...');
+
+    // Instant navigation (data is already cached)
+    await delay(1500);
     navigate('/dashboard');
   };
 
