@@ -72,15 +72,31 @@ serve(async (req) => {
     });
 
     if (!aiResponse.ok) {
-      console.error('AI API error:', aiResponse.status, await aiResponse.text());
-      throw new Error('Failed to generate image');
+      const errorText = await aiResponse.text();
+      console.error('AI API error:', {
+        status: aiResponse.status,
+        statusText: aiResponse.statusText,
+        body: errorText
+      });
+      
+      // Return friendly error based on status
+      if (aiResponse.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again in a moment.');
+      } else if (aiResponse.status === 402) {
+        throw new Error('AI credits depleted. Please add credits to continue.');
+      } else {
+        throw new Error(`AI service error: ${aiResponse.status} - ${errorText.substring(0, 100)}`);
+      }
     }
 
     const aiData = await aiResponse.json();
+    console.log('AI response structure:', JSON.stringify(aiData, null, 2));
+    
     const imageBase64 = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
     if (!imageBase64) {
-      throw new Error('No image generated');
+      console.error('No image in response. Full response:', aiData);
+      throw new Error('No image generated - response missing image data');
     }
 
     // Upload to Supabase Storage

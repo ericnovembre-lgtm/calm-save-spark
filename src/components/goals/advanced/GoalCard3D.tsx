@@ -51,7 +51,7 @@ export const GoalCard3D = ({
     maxTilt: 10,
     scale: 1.03
   });
-  const { imageUrl, isLoading: visualLoading } = useGoalVisual({ goalName: name, enabled: false });
+  const { imageUrl, isLoading: visualLoading } = useGoalVisual({ goalName: name, enabled: true });
 
   const progress = Math.min((current / target) * 100, 100);
 
