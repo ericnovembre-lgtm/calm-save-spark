@@ -11,9 +11,8 @@ import { AnimatedCounter } from "@/components/onboarding/AnimatedCounter";
 import { ScanLineOverlay } from "./advanced/ScanLineOverlay";
 import { soundEffects } from "@/lib/sound-effects";
 import { DailyPaceCalculator } from "./DailyPaceCalculator";
-import { useDrag } from '@use-gesture/react';
 import { haptics } from "@/lib/haptics";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type Priority = 'hero' | 'large' | 'normal';
 
@@ -40,11 +39,36 @@ interface BudgetCardProps {
   onDelete?: () => Promise<void>;
   size?: Priority;
   isOptimistic?: boolean;
+  dragState?: {
+    sourceBudgetId: string;
+    isDragging: boolean;
+  } | null;
+  dropZoneState?: {
+    isHovered: boolean;
+    isValid: boolean;
+  };
+  onDragStart?: (element: HTMLElement) => void;
+  onDragMove?: (x: number, y: number, cursorX: number, cursorY: number) => void;
+  onDragEnd?: (cursorX: number, cursorY: number) => void;
 }
 
-export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, size = 'normal', isOptimistic = false }: BudgetCardProps) {
-  const [isDragging, setIsDragging] = useState(false);
+export function BudgetCard({ 
+  budget, 
+  spending, 
+  categoryData, 
+  onEdit, 
+  onDelete, 
+  size = 'normal', 
+  isOptimistic = false,
+  dragState,
+  dropZoneState,
+  onDragStart,
+  onDragMove,
+  onDragEnd
+}: BudgetCardProps) {
   const [showCoverOptions, setShowCoverOptions] = useState(false);
+  const [cardElement, setCardElement] = useState<HTMLElement | null>(null);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   
   const spentAmount = spending?.spent_amount || 0;
   const totalLimit = parseFloat(String(budget.total_limit));
@@ -55,6 +79,10 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, s
   const isNearLimit = percentage >= 80;
   const isSafe = percentage < 80;
   const isPriority = size === 'hero' || size === 'large';
+  
+  const isDraggingThis = dragState?.sourceBudgetId === budget.id;
+  const isBeingDraggedOver = dropZoneState?.isHovered && dragState?.sourceBudgetId !== budget.id;
+  const isValidDropTarget = dropZoneState?.isValid && isBeingDraggedOver;
 
   // Elastic spring animation for progress
   const springPercentage = useSpring(percentage, {
@@ -71,26 +99,89 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, s
   );
 
   // Haptic feedback on threshold cross
-  if (percentage >= 80 && percentage < 81) {
-    haptics.vibrate('medium');
-  }
-
-  // Drag handlers for rebalancing
-  const dragHandlers = useDrag(({ down, offset: [ox, oy] }) => {
-    if (remaining > 0) {
-      setIsDragging(down);
-      // Could implement visual drag preview here
+  useEffect(() => {
+    if (percentage >= 80 && percentage < 81) {
+      haptics.vibrate('medium');
     }
-  });
+  }, [percentage]);
+
+  // Mouse drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (remaining <= 0 || !onDragStart || !cardElement) return;
+    e.preventDefault();
+    onDragStart(cardElement);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!dragState?.isDragging || !onDragMove) return;
+    onDragMove(e.clientX, e.clientY, e.clientX, e.clientY);
+  };
+
+  const handleMouseUp = (e: MouseEvent) => {
+    if (!dragState?.isDragging || !onDragEnd) return;
+    onDragEnd(e.clientX, e.clientY);
+  };
+
+  // Touch drag handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (remaining <= 0 || !onDragStart || !cardElement) return;
+    
+    const timer = setTimeout(() => {
+      haptics.buttonPress();
+      onDragStart(cardElement);
+    }, 500); // Long press
+    
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!dragState?.isDragging || !onDragMove) return;
+    const touch = e.touches[0];
+    onDragMove(touch.clientX, touch.clientY, touch.clientX, touch.clientY);
+  };
+
+  const handleTouchEnd = (e: TouchEvent) => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    
+    if (!dragState?.isDragging || !onDragEnd) return;
+    const touch = e.changedTouches[0];
+    onDragEnd(touch.clientX, touch.clientY);
+  };
+
+  // Event listeners
+  useEffect(() => {
+    if (dragState?.isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('touchmove', handleTouchMove);
+      window.addEventListener('touchend', handleTouchEnd);
+      
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener('touchmove', handleTouchMove);
+        window.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+  }, [dragState?.isDragging]);
 
   // Determine card state styling
-  const cardStateClass = isOverBudget
+  const cardStateClass = isValidDropTarget
+    ? 'bg-emerald-500/20 border-emerald-500/50'
+    : isBeingDraggedOver && !dropZoneState?.isValid
+    ? 'bg-rose-500/20 border-rose-500/50'
+    : isOverBudget
     ? 'bg-rose-500/10 border-rose-500/30'
     : isNearLimit
     ? 'bg-amber-500/10 border-amber-500/30'
     : 'bg-emerald-500/10 border-emerald-500/30';
 
-  const glowClass = isOverBudget
+  const glowClass = isValidDropTarget
+    ? 'drop-shadow-[0_0_30px_rgba(16,185,129,0.8)]'
+    : isOverBudget
     ? 'drop-shadow-[0_0_20px_rgba(248,113,113,0.6)]'
     : isNearLimit
     ? 'drop-shadow-[0_0_12px_rgba(251,146,60,0.4)]'
@@ -98,16 +189,29 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, s
 
   return (
     <motion.div
+      id={`budget-card-${budget.id}`}
+      ref={setCardElement}
       variants={fadeInUp}
       whileHover="hover"
       initial="initial"
       animate="animate"
       layout
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: remaining > 0 ? 'none' : 'auto' }}
+      onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
     >
       <motion.div
-        animate={isOverBudget ? { scale: [1, 1.02, 1] } : {}}
-        transition={{ repeat: isOverBudget ? Infinity : 0, duration: 2 }}
+        animate={
+          isBeingDraggedOver && !dropZoneState?.isValid
+            ? { x: [-5, 5, -5, 5, 0], rotate: [-2, 2, -2, 2, 0] }
+            : isOverBudget 
+            ? { scale: [1, 1.02, 1] } 
+            : {}
+        }
+        transition={{ 
+          repeat: isOverBudget ? Infinity : 0, 
+          duration: isBeingDraggedOver ? 0.3 : 2 
+        }}
       >
       <Card className={`
         relative p-6 hover:shadow-lg transition-all duration-500 backdrop-blur-sm overflow-hidden group
@@ -115,7 +219,9 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, s
         ${size === 'hero' ? 'border-2 shadow-[0_0_30px_rgba(239,68,68,0.3)]' : 'border'}
         ${size === 'large' ? 'border-2' : ''}
         ${isOptimistic ? 'opacity-60 pointer-events-none' : ''}
-        ${isDragging ? 'opacity-50 cursor-grabbing' : 'cursor-grab'}
+        ${isDraggingThis ? 'opacity-30' : ''}
+        ${remaining > 0 && !dragState ? 'cursor-grab' : ''}
+        ${isDraggingThis ? 'cursor-grabbing' : ''}
         ${glowClass}
       `}>
         {size === 'hero' && (
