@@ -4635,6 +4635,66 @@ export type Database = {
         }
         Relationships: []
       }
+      merchant_enrichment: {
+        Row: {
+          cleaned_name: string
+          confidence_score: number
+          created_at: string | null
+          id: string
+          logo_url: string | null
+          raw_merchant: string
+          suggested_category: string | null
+          times_used: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          cleaned_name: string
+          confidence_score: number
+          created_at?: string | null
+          id?: string
+          logo_url?: string | null
+          raw_merchant: string
+          suggested_category?: string | null
+          times_used?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          cleaned_name?: string
+          confidence_score?: number
+          created_at?: string | null
+          id?: string
+          logo_url?: string | null
+          raw_merchant?: string
+          suggested_category?: string | null
+          times_used?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      merchant_logos: {
+        Row: {
+          created_at: string | null
+          id: string
+          logo_url: string
+          merchant_name: string
+          source: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          logo_url: string
+          merchant_name: string
+          source: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          logo_url?: string
+          merchant_name?: string
+          source?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           budget_alerts: boolean | null
@@ -7101,6 +7161,33 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_filter_presets: {
+        Row: {
+          created_at: string | null
+          filters: Json
+          id: string
+          name: string
+          query: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          filters?: Json
+          id?: string
+          name: string
+          query: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          filters?: Json
+          id?: string
+          name?: string
+          query?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           account_id: string | null
@@ -7109,6 +7196,7 @@ export type Database = {
           created_at: string | null
           currency: string | null
           description: string | null
+          enrichment_metadata: Json | null
           id: string
           is_recurring: boolean | null
           merchant: string | null
@@ -7128,6 +7216,7 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          enrichment_metadata?: Json | null
           id?: string
           is_recurring?: boolean | null
           merchant?: string | null
@@ -7147,6 +7236,7 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          enrichment_metadata?: Json | null
           id?: string
           is_recurring?: boolean | null
           merchant?: string | null

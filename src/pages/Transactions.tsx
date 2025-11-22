@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { TransactionList } from "@/components/transactions/TransactionList";
+import { VirtualizedTransactionList } from "@/components/transactions/VirtualizedTransactionList";
 import { Button } from "@/components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { toast } from "sonner";
@@ -28,7 +28,7 @@ export default withPageMemo(function Transactions() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-display font-bold text-foreground mb-2">Transactions</h1>
-            <p className="text-muted-foreground">Track and manage all your expenses</p>
+            <p className="text-muted-foreground">AI-enhanced transaction tracking with smart insights</p>
           </div>
           <div className="flex gap-2">
             <SyncAccountsButton onSyncComplete={handleSyncComplete} />
@@ -43,7 +43,7 @@ export default withPageMemo(function Transactions() {
           </div>
         </div>
 
-        <TransactionList />
+        <VirtualizedTransactionList />
       </div>
     </AppLayout>
   );
