@@ -141,9 +141,23 @@ export function useTransactionsOptimistic() {
     );
   }, [executeAction]);
 
+  const enrichTransactionOptimistic = useCallback(async (
+    transactionId: string,
+    enrichAction: () => Promise<any>
+  ) => {
+    return executeAction(
+      enrichAction,
+      {
+        successMessage: '✨ Transaction enriched!',
+        errorMessage: 'Failed to enrich transaction',
+      }
+    );
+  }, [executeAction]);
+
   return {
     addTransactionOptimistic,
     categorizeTransactionOptimistic,
+    enrichTransactionOptimistic,
     isPending,
   };
 }

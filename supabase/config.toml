@@ -165,4 +165,10 @@ verify_jwt = false
 [functions.process-document]
 verify_jwt = true
 
+[functions.enrich-transaction]
+verify_jwt = true
+
+[functions.batch-enrich-transactions]
+verify_jwt = false
+
 

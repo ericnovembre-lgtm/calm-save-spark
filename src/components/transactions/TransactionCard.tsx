@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar, Sparkles } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { MerchantLogo } from "./MerchantLogo";
+import { AIConfidenceIndicator } from "./AIConfidenceIndicator";
+import { EnrichmentReviewDialog } from "./EnrichmentReviewDialog";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Badge } from "@/components/ui/badge";
 
@@ -22,28 +25,35 @@ interface TransactionCardProps {
 }
 
 export function TransactionCard({ transaction }: TransactionCardProps) {
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
   const amount = parseFloat(String(transaction.amount));
   const metadata = transaction.enrichment_metadata as { ai_cleaned?: boolean; confidence?: number; original_merchant?: string } | undefined;
   const isAIEnriched = metadata?.ai_cleaned;
   const confidence = metadata?.confidence || 0;
 
   return (
-    <GlassCard className="mb-2 p-4 hover:scale-[1.01] transition-transform">
-      <div className="flex items-start gap-3">
-        <MerchantLogo merchant={transaction.merchant || 'Unknown'} size="md" />
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <p className="font-semibold text-foreground truncate">
-              {transaction.merchant || 'Unknown Merchant'}
-            </p>
-            {isAIEnriched && confidence > 0.8 && (
-              <Sparkles className="w-4 h-4 text-accent shrink-0" />
-            )}
-            <Badge variant="secondary" className="text-xs shrink-0">
-              {transaction.category}
-            </Badge>
-          </div>
+    <>
+      <GlassCard className="mb-2 p-4 hover:scale-[1.01] transition-transform">
+        <div className="flex items-start gap-3">
+          <MerchantLogo merchant={transaction.merchant || 'Unknown'} size="md" />
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <p className="font-semibold text-foreground truncate">
+                {transaction.merchant || 'Unknown Merchant'}
+              </p>
+              {isAIEnriched && confidence > 0.7 && (
+                <AIConfidenceIndicator
+                  confidence={confidence}
+                  originalMerchant={metadata?.original_merchant}
+                  cleanedName={transaction.merchant || 'Unknown'}
+                  onReview={() => setShowReviewDialog(true)}
+                />
+              )}
+              <Badge variant="secondary" className="text-xs shrink-0">
+                {transaction.category}
+              </Badge>
+            </div>
           
           {transaction.description && (
             <p className="text-sm text-muted-foreground mb-2 truncate">
@@ -71,5 +81,12 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
         </div>
       </div>
     </GlassCard>
+
+    <EnrichmentReviewDialog
+      open={showReviewDialog}
+      onOpenChange={setShowReviewDialog}
+      transaction={transaction}
+    />
+    </>
   );
 }
