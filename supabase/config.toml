@@ -189,4 +189,15 @@ verify_jwt = true
 [functions.aggregate-insights-data]
 verify_jwt = true
 
+[functions.generate-onboarding-persona]
+verify_jwt = true
+
+[functions.plaid-create-link-token]
+verify_jwt = true
+
+[functions.plaid-exchange-token]
+verify_jwt = true
+
+
+
 
