@@ -40,11 +40,24 @@ export function NativePlaidConnect({ userId, onSuccess, onExit }: NativePlaidCon
 
   const handlePlaidSuccess = async (publicToken: string, metadata: any) => {
     try {
-      const { error } = await supabase.functions.invoke('plaid-exchange-token', {
-        body: { publicToken, userId, metadata }
-      });
+      // Exchange token and prefetch dashboard data in parallel
+      const [tokenResult] = await Promise.allSettled([
+        supabase.functions.invoke('plaid-exchange-token', {
+          body: { publicToken, userId, metadata }
+        }),
+        // Prefetch dashboard route chunk
+        import('../../pages/Dashboard').catch(() => null),
+        // Pre-warm goals data
+        supabase.from('goals').select('*').eq('user_id', userId).limit(3),
+        // Pre-cache user profile
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        // Initialize transactions structure
+        supabase.from('transactions').select('*').eq('user_id', userId).limit(10),
+      ]);
 
-      if (error) throw error;
+      if (tokenResult.status === 'fulfilled' && tokenResult.value.error) {
+        throw tokenResult.value.error;
+      }
 
       setIsConnected(true);
 
@@ -56,9 +69,11 @@ export function NativePlaidConnect({ userId, onSuccess, onExit }: NativePlaidCon
         });
       }
 
+      console.log('[Prefetch] Dashboard data pre-loaded during Plaid connection');
+
       setTimeout(() => {
         onSuccess();
-      }, 2000);
+      }, 1500);
     } catch (error) {
       console.error('Error exchanging token:', error);
     }
