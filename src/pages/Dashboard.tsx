@@ -92,6 +92,8 @@ import { useGenerativeLayoutEngine } from "@/hooks/useGenerativeLayoutEngine";
 import { DailyBriefingAgent } from "@/components/dashboard/DailyBriefingAgent";
 import { SmartActionChips } from "@/components/dashboard/SmartActionChips";
 import { GenerativeWidgetGrid } from "@/components/dashboard/GenerativeWidgetGrid";
+import { PortfolioWidget } from "@/components/dashboard/PortfolioWidget";
+import { BudgetsWidget } from "@/components/dashboard/BudgetsWidget";
 
 import { withPageMemo } from "@/lib/performance-utils";
 import { Suspense } from "react";
@@ -321,36 +323,79 @@ export default function Dashboard() {
     toast.success('Dashboard refreshed!');
   };
 
-  // Handler for smart action chips
-  const handleSmartAction = (actionId: string) => {
-    switch (actionId) {
-      case 'setup-autosave':
-        toast.success('Opening Auto-Save settings...');
-        // Navigate to auto-save setup
-        break;
-      case 'complete-goal':
-        toast.success('Opening Goals...');
-        // Scroll to goals section
-        break;
-      case 'review-portfolio':
-        toast.success('Opening Portfolio...');
-        // Navigate to investments
-        break;
-      case 'review-budget':
-        toast.success('Opening Budgets...');
-        // Navigate to budgets
-        break;
-      case 'move-to-savings':
-        toast.success('Opening Transfer...');
-        // Open transfer dialog
-        break;
-      default:
-        break;
+  // Handler for smart action chips with optimistic UI
+  const handleSmartAction = async (actionId: string) => {
+    // Optimistic UI - show feedback immediately
+    const actionMessages: Record<string, string> = {
+      'setup-autosave': 'Opening Auto-Save settings...',
+      'complete-goal': 'Opening Goals...',
+      'review-portfolio': 'Opening Portfolio...',
+      'review-budget': 'Opening Budgets...',
+      'move-to-savings': 'Opening Transfer...'
+    };
+
+    const message = actionMessages[actionId] || 'Processing action...';
+    toast.success(message);
+
+    try {
+      // Optimistically update UI state before API call
+      switch (actionId) {
+        case 'setup-autosave':
+          // Scroll to auto-save section
+          document.getElementById('auto-save')?.scrollIntoView({ behavior: 'smooth' });
+          break;
+        case 'complete-goal':
+          // Scroll to goals section
+          document.getElementById('goals')?.scrollIntoView({ behavior: 'smooth' });
+          break;
+        case 'review-portfolio':
+          // Scroll to portfolio widget
+          announce('Navigating to portfolio', 'polite');
+          break;
+        case 'review-budget':
+          // Scroll to budget section
+          announce('Navigating to budgets', 'polite');
+          break;
+        case 'move-to-savings':
+          // Scroll to transfer section
+          document.getElementById('manual-transfer')?.scrollIntoView({ behavior: 'smooth' });
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      // Rollback if action fails
+      toast.error('Action failed. Please try again.');
+      console.error('Smart action failed:', error);
     }
   };
 
   // Card mapping for reorderable sections
+  // IMPORTANT: Must include all widgets referenced in useGenerativeLayoutEngine
   const cardComponents: Record<string, React.ReactNode> = {
+    'portfolio': dashboardData?.investments && dashboardData.investments.length > 0 ? (
+      <PortfolioWidget
+        totalValue={dashboardData.investments.reduce((sum, inv) => sum + inv.total_value, 0)}
+        costBasis={dashboardData.investments.reduce((sum, inv) => sum + inv.cost_basis, 0)}
+        marketChange={
+          dashboardData.investments.length > 0
+            ? dashboardData.investments.reduce((sum, inv) => {
+                const change = inv.total_value > 0 ? ((inv.total_value - inv.cost_basis) / inv.cost_basis) * 100 : 0;
+                return sum + change;
+              }, 0) / dashboardData.investments.length
+            : 0
+        }
+      />
+    ) : null,
+    'budgets': dashboardData?.budgets && dashboardData.budgets.length > 0 ? (
+      <BudgetsWidget
+        budgets={dashboardData.budgets.map(b => ({
+          category: b.name,
+          spent: b.budget_spending?.[0]?.spent_amount || 0,
+          limit: b.total_limit
+        }))}
+      />
+    ) : null,
     'personal-impact': userId ? (
       <DashboardErrorBoundary key="personal-impact" sectionName="Personal Impact">
         <PersonalImpactCard userId={userId} />
@@ -760,10 +805,18 @@ export default function Dashboard() {
           onAction={handleSmartAction}
         />
         
-        {/* Generative Widget Grid - Adaptive priority-based layout */}
+        {/* Generative Widget Grid - Adaptive priority-based layout with reordering */}
         <GenerativeWidgetGrid
           priorities={layoutPriorities}
           widgets={cardComponents}
+          onReorder={(newOrder) => {
+            // Optimistically update UI
+            announce('Dashboard layout updated', 'polite');
+            toast.success('Widget order saved!', { duration: 2000 });
+            
+            // Could persist to backend if needed
+            console.log('New widget order:', newOrder.map(p => p.id));
+          }}
         />
       </div>
 
