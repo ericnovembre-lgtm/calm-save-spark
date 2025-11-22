@@ -77,6 +77,7 @@ export default function Dashboard() {
 
   const userId = session?.user?.id;
   
+  // Accounts still queried separately (not yet in dashboardData aggregation)
   const { data: accounts, isLoading: accountsLoading } = useQuery({
     queryKey: ['connected_accounts'],
     queryFn: async () => {
@@ -90,27 +91,18 @@ export default function Dashboard() {
     },
   });
 
-  const { data: transactions } = useQuery({
-    queryKey: ['transactions'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*');
-      
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const totalBalance = accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.balance)), 0) || 0;
   
   const { milestone, dismissMilestone } = useMilestoneDetector(totalBalance);
   
-  // Unified dashboard data aggregation
+  // Unified dashboard data aggregation (includes transactions, goals, pots, budgets, etc.)
   const { 
     data: dashboardData, 
     isLoading: dashboardDataLoading,
   } = useDashboardData();
+  
+  // Use transactions from dashboardData instead of separate query
+  const transactions = dashboardData?.transactions || [];
   
   // Announce balance changes to screen readers
   useEffect(() => {
