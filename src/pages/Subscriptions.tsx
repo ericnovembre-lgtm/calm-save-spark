@@ -3,7 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { BillCard } from "@/components/subscriptions/BillCard";
 import { CalendarExport } from "@/components/subscriptions/CalendarExport";
 import { UpcomingBillsSection } from "@/components/subscriptions/UpcomingBillsSection";
-import { BillCalendarHeatmap } from "@/components/subscriptions/BillCalendarHeatmap";
+import { CustomBillCalendar } from "@/components/subscriptions/CustomBillCalendar";
 import { SubscriptionSwipeMode } from "@/components/subscriptions/SubscriptionSwipeMode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -174,7 +174,7 @@ export default function Subscriptions() {
           </Card>
         </div>
 
-        <BillCalendarHeatmap subscriptions={activeBills} onMarkForCancellation={markForCancellation} />
+        <CustomBillCalendar bills={activeBills} onMarkForCancellation={markForCancellation} />
 
         {zombieBills.length > 0 && (
           <Card>
