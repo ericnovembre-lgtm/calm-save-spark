@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Subscription } from '@/hooks/useSubscriptions';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Copy, Mail, Loader2, Sparkles } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
 interface NegotiationScriptModalProps {
-  subscription: Subscription;
+  subscription: {
+    id: string;
+    merchant: string;
+    amount: number;
+    frequency: string;
+    category?: string;
+  };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

@@ -61,6 +61,21 @@ export default function Subscriptions() {
     },
   });
 
+  const analyzeUsageMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('analyze-subscription-usage');
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      toast.success(`Analyzed ${data.totalAnalyzed} subscriptions. Found ${data.newZombies} zombie subscriptions.`);
+    },
+    onError: (error) => {
+      toast.error('Failed to analyze subscriptions: ' + (error as Error).message);
+    }
+  });
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -96,6 +111,14 @@ export default function Subscriptions() {
             <Button onClick={() => setIsSwipeMode(true)} variant="outline">
               <Layers className="w-4 h-4 mr-2" />
               Swipe Mode
+            </Button>
+            <Button 
+              onClick={() => analyzeUsageMutation.mutate()} 
+              variant="outline"
+              disabled={analyzeUsageMutation.isPending}
+            >
+              <Ghost className="w-4 h-4 mr-2" />
+              {analyzeUsageMutation.isPending ? 'Scanning...' : 'Scan Zombies'}
             </Button>
             <CalendarExport subscriptions={activeBills} />
             <Button onClick={() => detectMutation.mutate()} disabled={detectMutation.isPending}>

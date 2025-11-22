@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DollarSign, Pause, Play, Settings, AlertTriangle, MoreVertical, Trash2 } from "lucide-react";
+import { DollarSign, Pause, Play, Settings, AlertTriangle, MoreVertical, Trash2, Sparkles } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MerchantLogo } from './MerchantLogo';
+import { ZombieBadge } from './ZombieBadge';
+import { NegotiationScriptModal } from './NegotiationScriptModal';
 
 interface BillCardProps {
   subscription: {
@@ -23,6 +26,9 @@ interface BillCardProps {
     status?: string;
     confidence?: number;
     confirmed?: boolean;
+    zombie_score?: number;
+    last_usage_date?: string;
+    user_id?: string;
   };
   onTogglePause: (id: string) => void;
   onDelete: (id: string) => void;
@@ -30,6 +36,7 @@ interface BillCardProps {
 
 export function BillCard({ subscription, onTogglePause, onDelete }: BillCardProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [showNegotiationModal, setShowNegotiationModal] = useState(false);
   
   const isOverdue = new Date(subscription.next_expected_date) < new Date();
   const isPaused = subscription.status === 'paused';
@@ -53,19 +60,22 @@ export function BillCard({ subscription, onTogglePause, onDelete }: BillCardProp
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3 flex-1">
-          <div className={`rounded-lg p-2 ${isOverdue ? 'bg-destructive/10' : isPaused ? 'bg-muted' : 'bg-primary/10'}`}>
-            {isOverdue ? (
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-            ) : (
-              <DollarSign className="h-5 w-5 text-primary" />
-            )}
-          </div>
+          <MerchantLogo merchant={subscription.merchant} size="md" />
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-foreground truncate">
                 {subscription.merchant}
               </h3>
+              {subscription.zombie_score && subscription.zombie_score > 70 && (
+                <ZombieBadge 
+                  zombieScore={subscription.zombie_score} 
+                  daysSinceLastUsage={subscription.last_usage_date 
+                    ? Math.floor((Date.now() - new Date(subscription.last_usage_date).getTime()) / (1000 * 60 * 60 * 24))
+                    : undefined
+                  }
+                />
+              )}
               {isPaused && (
                 <Badge variant="secondary" className="text-xs">Paused</Badge>
               )}
@@ -93,6 +103,18 @@ export function BillCard({ subscription, onTogglePause, onDelete }: BillCardProp
         </div>
 
         <div className="flex items-center gap-2">
+          {Number(subscription.amount) > 50 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowNegotiationModal(true)}
+              className="h-8 px-2"
+            >
+              <Sparkles className="h-4 w-4 mr-1" />
+              Negotiate
+            </Button>
+          )}
+
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
@@ -141,6 +163,12 @@ export function BillCard({ subscription, onTogglePause, onDelete }: BillCardProp
           </motion.div>
         )}
       </AnimatePresence>
+
+      <NegotiationScriptModal
+        subscription={subscription}
+        open={showNegotiationModal}
+        onOpenChange={setShowNegotiationModal}
+      />
     </motion.div>
   );
 }
