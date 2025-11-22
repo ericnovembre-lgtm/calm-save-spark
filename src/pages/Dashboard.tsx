@@ -349,6 +349,28 @@ export default function Dashboard() {
               monthlyGrowth={monthlyChange}
               savingsVelocity={savingsVelocity}
               weeklyTrend={weeklyTrend}
+              onDragToGoal={async (goalId: string, amount: number) => {
+                try {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (!user) throw new Error('Not authenticated');
+
+                  const { error } = await supabase.rpc('contribute_to_goal', {
+                    p_goal_id: goalId,
+                    p_amount: amount,
+                    p_user_id: user.id,
+                    p_note: 'Drag-to-save contribution'
+                  });
+
+                  if (error) throw error;
+
+                  queryClient.invalidateQueries({ queryKey: ['goals'] });
+                  toast.success(`Added $${amount} to goal!`);
+                } catch (error: any) {
+                  toast.error('Failed to contribute', {
+                    description: error.message
+                  });
+                }
+              }}
             />
           </div>
         </CollapsibleSection>
