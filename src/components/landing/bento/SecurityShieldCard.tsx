@@ -29,21 +29,49 @@ export const SecurityShieldCard = () => {
       {/* Floating Certification Badges */}
       <FloatingBadges />
 
-      <div className="relative z-10 flex flex-col h-full">
-        <div className="flex items-start gap-3 mb-6">
-          <div className="p-2 rounded-xl bg-green-500/10 text-green-500">
-            <Shield className="w-7 h-7" />
-          </div>
+      <div className="relative z-10 flex flex-col md:flex-row gap-6 h-full">
+        {/* Left Column - Content */}
+        <div className="flex-1 flex flex-col justify-between min-w-0">
           <div>
-            <h3 className="font-bold text-xl text-foreground">Bank-Level Security</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Your money is always protected
-            </p>
+            <div className="flex items-start gap-3 mb-6">
+              <div className="p-2 rounded-xl bg-green-500/10 text-green-500 flex-shrink-0">
+                <Shield className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="font-bold text-xl text-foreground">Bank-Level Security</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Your money is always protected
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {['256-bit Encryption', 'Two-Factor Auth', 'FDIC Insured'].map((feature, i) => (
+                <motion.div
+                  key={feature}
+                  initial={prefersReducedMotion ? {} : { opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.6 + i * 0.1 }}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  <span className="text-muted-foreground">{feature}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Threats Counter - Positioned at bottom left */}
+          <div className="mt-6 md:mt-0">
+            <ThreatsCounter />
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center relative">
+        {/* Right Column - Shield Visualization */}
+        <div className="flex-1 flex items-center justify-center relative min-h-[300px] md:min-h-0">
           <motion.div
+            className="relative"
             initial={{ scale: 0, rotate: -180 }}
             whileInView={{ scale: 1, rotate: 0 }}
             viewport={{ once: true }}
@@ -78,27 +106,6 @@ export const SecurityShieldCard = () => {
               }}
             />
           </motion.div>
-
-          {/* Threats Counter - Positioned at bottom right of shield area */}
-          <div className="absolute bottom-0 right-0">
-            <ThreatsCounter />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          {['256-bit Encryption', 'Two-Factor Auth', 'FDIC Insured'].map((feature, i) => (
-            <motion.div
-              key={feature}
-              initial={prefersReducedMotion ? {} : { opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6 + i * 0.1 }}
-              className="flex items-center gap-2 text-sm"
-            >
-              <Check className="w-4 h-4 text-green-500" />
-              <span className="text-muted-foreground">{feature}</span>
-            </motion.div>
-          ))}
         </div>
       </div>
     </motion.div>
