@@ -24,6 +24,39 @@ const UI_TOOLS = [
   {
     type: "function",
     function: {
+      name: "transfer_budget_funds",
+      description: "Transfer surplus funds from one budget category to another to cover shortages",
+      parameters: {
+        type: "object",
+        properties: {
+          fromCategory: { type: "string", description: "Source budget category name" },
+          toCategory: { type: "string", description: "Destination budget category name" },
+          amount: { type: "number", description: "Amount to transfer" },
+          reason: { type: "string", description: "Reason for the transfer" }
+        },
+        required: ["fromCategory", "toCategory", "amount"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "adjust_budget_limit",
+      description: "Increase or decrease a budget limit by a specific amount or percentage",
+      parameters: {
+        type: "object",
+        properties: {
+          category: { type: "string", description: "Budget category to adjust" },
+          adjustment: { type: "number", description: "Amount to adjust (positive for increase, negative for decrease)" },
+          isPercentage: { type: "boolean", description: "Whether adjustment is a percentage (true) or fixed amount (false)" }
+        },
+        required: ["category", "adjustment"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
       name: "render_spending_chart",
       description: "Display a visual chart of spending patterns over time",
       parameters: {
@@ -532,6 +565,75 @@ ${UI_TOOLS.map(t => `- ${t.function.name}: ${t.function.description}`).join('\n'
                   type: 'budget_intent',
                   intent: functionArgs
                 })}\n\n`));
+              } else if (functionName === 'transfer_budget_funds') {
+                // Handle budget transfer action
+                try {
+                  const { data: fromBudget } = await supabaseClient
+                    .from('user_budgets')
+                    .select('id, budget_name')
+                    .eq('user_id', user.id)
+                    .ilike('budget_name', `%${functionArgs.fromCategory}%`)
+                    .single();
+
+                  const { data: toBudget } = await supabaseClient
+                    .from('user_budgets')
+                    .select('id, budget_name')
+                    .eq('user_id', user.id)
+                    .ilike('budget_name', `%${functionArgs.toCategory}%`)
+                    .single();
+
+                  if (fromBudget && toBudget) {
+                    const transferResponse = await supabaseClient.functions.invoke('transfer-budget-funds', {
+                      body: {
+                        from_budget_id: fromBudget.id,
+                        to_budget_id: toBudget.id,
+                        amount: functionArgs.amount,
+                        reason: functionArgs.reason || 'AI-suggested rebalancing'
+                      }
+                    });
+
+                    if (!transferResponse.error) {
+                      controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                        type: 'action_success',
+                        action: 'transfer',
+                        message: `✨ Transferred $${functionArgs.amount.toFixed(2)} from ${fromBudget.budget_name} to ${toBudget.budget_name}`
+                      })}\n\n`));
+                    }
+                  }
+                } catch (e) {
+                  console.error('Transfer error:', e);
+                }
+              } else if (functionName === 'adjust_budget_limit') {
+                // Handle budget adjustment action
+                try {
+                  const { data: budget } = await supabaseClient
+                    .from('user_budgets')
+                    .select('id, budget_name, total_limit')
+                    .eq('user_id', user.id)
+                    .ilike('budget_name', `%${functionArgs.category}%`)
+                    .single();
+
+                  if (budget) {
+                    const currentLimit = parseFloat(String(budget.total_limit));
+                    const adjustment = functionArgs.isPercentage 
+                      ? currentLimit * (functionArgs.adjustment / 100)
+                      : functionArgs.adjustment;
+                    const newLimit = currentLimit + adjustment;
+
+                    await supabaseClient
+                      .from('user_budgets')
+                      .update({ total_limit: newLimit })
+                      .eq('id', budget.id);
+
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                      type: 'action_success',
+                      action: 'adjust',
+                      message: `✅ Updated ${budget.budget_name} budget from $${currentLimit.toFixed(2)} to $${newLimit.toFixed(2)}`
+                    })}\n\n`));
+                  }
+                } catch (e) {
+                  console.error('Adjustment error:', e);
+                }
               } else if (functionName) {
                 const componentType = functionName.replace('render_', '');
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({

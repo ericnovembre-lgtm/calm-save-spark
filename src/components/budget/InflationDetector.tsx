@@ -112,11 +112,11 @@ export function InflationDetector() {
                     <div className="flex items-center gap-6 text-sm">
                       <div>
                         <span className="text-muted-foreground">Current budget:</span>
-                        <span className="ml-2 font-semibold">${alert.old_budget.toFixed(2)}</span>
+                        <span className="ml-2 font-semibold font-mono tabular-nums">${alert.old_budget.toFixed(2)}</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Suggested:</span>
-                        <span className="ml-2 font-semibold text-amber-500">
+                        <span className="ml-2 font-semibold text-amber-500 font-mono tabular-nums">
                           ${alert.suggested_budget.toFixed(2)}
                         </span>
                       </div>
@@ -127,7 +127,7 @@ export function InflationDetector() {
                       {Array.isArray(alert.evidence) && alert.evidence.map((ev: any, idx: number) => (
                         <div key={idx} className="flex items-center justify-between text-xs">
                           <span className="text-muted-foreground">{ev.month}</span>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 font-mono tabular-nums">
                             <span>${ev.amount.toFixed(2)}</span>
                             <span className="text-amber-500">
                               ({ev.overage > 0 ? '+' : ''}{ev.overage.toFixed(0)}%)

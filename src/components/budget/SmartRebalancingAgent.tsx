@@ -117,7 +117,7 @@ export function SmartRebalancingAgent() {
               <div className="flex-1 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                 <p className="text-xs text-muted-foreground mb-1">From</p>
                 <p className="font-semibold">{suggestion.from.name}</p>
-                <p className="text-sm text-emerald-500 mt-1">
+                <p className="text-sm text-emerald-500 mt-1 font-mono tabular-nums">
                   ${suggestion.from.surplus.toFixed(2)} surplus
                 </p>
               </div>
@@ -127,7 +127,7 @@ export function SmartRebalancingAgent() {
               <div className="flex-1 p-4 rounded-lg bg-rose-500/10 border border-rose-500/20">
                 <p className="text-xs text-muted-foreground mb-1">To</p>
                 <p className="font-semibold">{suggestion.to.name}</p>
-                <p className="text-sm text-rose-500 mt-1">
+                <p className="text-sm text-rose-500 mt-1 font-mono tabular-nums">
                   ${suggestion.to.shortage.toFixed(2)} short
                 </p>
               </div>
@@ -136,7 +136,7 @@ export function SmartRebalancingAgent() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Transfer amount</p>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-2xl font-bold text-primary font-mono tabular-nums">
                   ${suggestion.amount.toFixed(2)}
                 </p>
               </div>
