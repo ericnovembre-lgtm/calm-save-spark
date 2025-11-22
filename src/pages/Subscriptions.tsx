@@ -174,7 +174,7 @@ export default function Subscriptions() {
           </Card>
         </div>
 
-        <BillCalendarHeatmap subscriptions={activeBills} />
+        <BillCalendarHeatmap subscriptions={activeBills} onMarkForCancellation={markForCancellation} />
 
         {zombieBills.length > 0 && (
           <Card>
