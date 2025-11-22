@@ -32,22 +32,39 @@ export const useGoalVisual = ({ goalName, enabled = true }: UseGoalVisualOptions
     setError(null);
 
     try {
+      console.log(`📸 Generating visual for goal: "${goalName}"`);
+      
       const { data, error: fnError } = await supabase.functions.invoke('generate-goal-visual', {
         body: { goalName }
       });
 
-      if (fnError) throw fnError;
+      if (fnError) {
+        console.error('Edge function error:', fnError);
+        throw fnError;
+      }
+
+      console.log('✅ Visual generated:', { 
+        cached: data.cached, 
+        hasUrl: !!data.imageUrl,
+        urlPreview: data.imageUrl?.substring(0, 50) 
+      });
 
       setImageUrl(data.imageUrl);
       setPrompt(data.prompt);
 
+      // Only show toast for newly generated images, not cached ones
       if (!data.cached) {
         toast.success('Goal visual generated! ✨');
       }
     } catch (err: any) {
-      console.error('Failed to generate goal visual:', err);
-      setError(err.message || 'Failed to generate visual');
-      toast.error('Could not generate goal visual');
+      const errorMsg = err.message || 'Failed to generate visual';
+      console.error('❌ Failed to generate goal visual:', errorMsg, err);
+      setError(errorMsg);
+      
+      // Don't show toast for every error - only for non-rate-limit errors
+      if (!errorMsg.includes('Rate limit') && !errorMsg.includes('credits')) {
+        toast.error('Could not generate goal visual');
+      }
     } finally {
       setIsLoading(false);
     }
