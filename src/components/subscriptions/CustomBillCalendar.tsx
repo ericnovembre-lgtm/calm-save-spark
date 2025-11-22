@@ -9,6 +9,11 @@ import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { MerchantLogo } from "./MerchantLogo";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AIBillInsights } from "./AIBillInsights";
+import { SmartReminders } from "./SmartReminders";
+import { BillAssistantChat } from "./BillAssistantChat";
+import { useBillGroups } from "@/hooks/useBillGroups";
+import { useAnomalyDetection } from "@/hooks/useAnomalyDetection";
 
 interface Bill {
   id: string;
@@ -26,7 +31,7 @@ interface CustomBillCalendarProps {
 }
 
 type ViewMode = "month" | "week";
-type FilterType = "all" | "high-value" | "due-soon" | "zombies";
+type FilterType = "all" | "high-value" | "due-soon" | "zombies" | string;
 
 export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillCalendarProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -34,6 +39,30 @@ export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillC
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [filter, setFilter] = useState<FilterType>("all");
+
+  // AI-powered features
+  const { groups, loading: groupsLoading } = useBillGroups(bills);
+  const { anomalies } = useAnomalyDetection(
+    bills,
+    bills // In a real app, pass historical bills here
+  );
+
+  // Transform bills for AI components
+  const transformedBills = bills.map(bill => ({
+    id: bill.id,
+    name: bill.merchant,
+    amount: bill.amount,
+    nextBilling: bill.billing_cycle_end || new Date().toISOString()
+  }));
+
+  // Get upcoming bills for reminders (within next 7 days)
+  const upcomingBills = transformedBills.filter(bill => {
+    const billDate = new Date(bill.nextBilling);
+    const today = new Date();
+    const weekFromNow = new Date();
+    weekFromNow.setDate(today.getDate() + 7);
+    return billDate >= today && billDate <= weekFromNow;
+  });
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -44,7 +73,7 @@ export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillC
   const weekStart = startOfWeek(currentMonth);
   const weekDays = eachDayOfInterval({ start: weekStart, end: addDays(weekStart, 6) });
 
-  // Filter bills based on active filter
+  // Filter bills based on active filter (including AI-generated groups)
   const getFilteredBills = () => {
     return bills.filter(bill => {
       if (filter === "high-value") return bill.amount > 100;
@@ -60,6 +89,15 @@ export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillC
   };
 
   const filteredBills = getFilteredBills();
+
+  // Check if a bill has anomalies
+  const hasAnomaly = (billId: string) => {
+    return anomalies.some(a => a.billId === billId);
+  };
+
+  const getAnomaly = (billId: string) => {
+    return anomalies.find(a => a.billId === billId);
+  };
 
   // Get bills for a specific date
   const getBillsForDate = (date: Date) => {
@@ -105,6 +143,7 @@ export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillC
   const selectedTotal = selectedBills.reduce((sum, bill) => sum + bill.amount, 0);
 
   return (
+    <>
     <Card className="col-span-full">
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-4">
@@ -250,7 +289,7 @@ export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillC
                                   ${total.toFixed(0)}
                                 </span>
                               )}
-                              {hasHighValue && (
+                               {hasHighValue && (
                                 <motion.div
                                   animate={!prefersReducedMotion ? {
                                     scale: [1, 1.3, 1],
@@ -259,6 +298,12 @@ export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillC
                                   transition={{ duration: 2, repeat: Infinity }}
                                   className="absolute top-1 right-1 w-2 h-2 rounded-full bg-orange-500"
                                 />
+                              )}
+                              {/* Anomaly indicator */}
+                              {dayBills.some(bill => hasAnomaly(bill.id)) && (
+                                <div className="absolute top-1 left-1">
+                                  <AlertCircle className="w-3 h-3 text-orange-500" />
+                                </div>
                               )}
                             </motion.button>
                           </TooltipTrigger>
@@ -270,13 +315,17 @@ export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillC
                                   <Badge variant="secondary">${total.toFixed(2)}</Badge>
                                 </div>
                                 <div className="space-y-2">
-                                  {dayBills.slice(0, 3).map((bill) => (
-                                    <div key={bill.id} className="flex items-center gap-2">
-                                      <MerchantLogo merchant={bill.merchant} size="sm" />
-                                      <span className="flex-1 text-sm truncate">{bill.merchant}</span>
-                                      <span className="text-sm font-medium">${bill.amount.toFixed(2)}</span>
-                                    </div>
-                                  ))}
+                                   {dayBills.slice(0, 3).map((bill) => {
+                                    const anomaly = getAnomaly(bill.id);
+                                    return (
+                                      <div key={bill.id} className="flex items-center gap-2">
+                                        <MerchantLogo merchant={bill.merchant} size="sm" />
+                                        <span className="flex-1 text-sm truncate">{bill.merchant}</span>
+                                        {anomaly && <AlertCircle className="w-3 h-3 text-orange-500 shrink-0" />}
+                                        <span className="text-sm font-medium">${bill.amount.toFixed(2)}</span>
+                                      </div>
+                                    );
+                                  })}
                                   {dayBills.length > 3 && (
                                     <p className="text-xs text-muted-foreground">
                                       +{dayBills.length - 3} more bills
@@ -423,42 +472,76 @@ export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillC
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {selectedBills.map((bill) => (
-                      <motion.div
-                        key={bill.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-3 rounded-lg border space-y-3"
-                      >
-                        <div className="flex items-center gap-3">
-                          <MerchantLogo merchant={bill.merchant} size="md" />
-                          <div className="flex-1">
-                            <p className="font-medium">{bill.merchant}</p>
-                            <p className="text-sm text-muted-foreground">
-                              ${bill.amount.toFixed(2)}
-                            </p>
-                          </div>
-                          {bill.zombie_score && bill.zombie_score > 70 && (
-                            <Badge variant="destructive" className="text-xs">
-                              Zombie
-                            </Badge>
+                    {/* AI Insights for selected bills */}
+                    {selectedBills.length > 0 && (
+                      <AIBillInsights
+                        bills={selectedBills.map(bill => ({
+                          id: bill.id,
+                          name: bill.merchant,
+                          amount: bill.amount,
+                          nextBilling: bill.billing_cycle_end || new Date().toISOString()
+                        }))}
+                        selectedDate={format(selectedDate, "yyyy-MM-dd")}
+                      />
+                    )}
+
+                    {selectedBills.map((bill) => {
+                      const anomaly = getAnomaly(bill.id);
+                      return (
+                        <motion.div
+                          key={bill.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={cn(
+                            "p-3 rounded-lg border space-y-3",
+                            anomaly && "border-orange-500/50 bg-orange-50/50 dark:bg-orange-950/20"
                           )}
-                        </div>
-                        
-                        {onMarkForCancellation && (
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => onMarkForCancellation(bill.id)}
-                            >
-                              Cancel
-                            </Button>
+                        >
+                          <div className="flex items-center gap-3">
+                            <MerchantLogo merchant={bill.merchant} size="md" />
+                            <div className="flex-1">
+                              <p className="font-medium">{bill.merchant}</p>
+                              <p className="text-sm text-muted-foreground">
+                                ${bill.amount.toFixed(2)}
+                              </p>
+                            </div>
+                            {bill.zombie_score && bill.zombie_score > 70 && (
+                              <Badge variant="destructive" className="text-xs">
+                                Zombie
+                              </Badge>
+                            )}
+                            {anomaly && (
+                              <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">
+                                {anomaly.severity}
+                              </Badge>
+                            )}
                           </div>
-                        )}
-                      </motion.div>
-                    ))}
+
+                          {anomaly && (
+                            <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
+                              <p className="flex items-start gap-2">
+                                <AlertCircle className="w-3 h-3 mt-0.5 text-orange-500 shrink-0" />
+                                <span>{anomaly.reason}</span>
+                              </p>
+                              <p className="text-accent font-medium">{anomaly.action}</p>
+                            </div>
+                          )}
+                          
+                          {onMarkForCancellation && (
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1"
+                                onClick={() => onMarkForCancellation(bill.id)}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          )}
+                        </motion.div>
+                      );
+                    })}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -467,5 +550,9 @@ export function CustomBillCalendar({ bills, onMarkForCancellation }: CustomBillC
         </div>
       </CardContent>
     </Card>
+
+    {/* Floating Bill Assistant Chat */}
+    <BillAssistantChat bills={transformedBills} />
+  </>
   );
 }
