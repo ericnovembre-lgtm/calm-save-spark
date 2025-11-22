@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -14,6 +13,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { ActionsSkeleton } from './skeletons/ActionsSkeleton';
 
 interface SmartAction {
   id: string;
@@ -75,13 +75,7 @@ export function SmartActionsRow() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-        {[1, 2, 3].map(i => (
-          <Skeleton key={i} className="h-16 w-56 rounded-xl flex-shrink-0" />
-        ))}
-      </div>
-    );
+    return <ActionsSkeleton />;
   }
 
   if (!data?.actions || data.actions.length === 0) {

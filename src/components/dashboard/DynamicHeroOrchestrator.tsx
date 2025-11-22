@@ -6,7 +6,7 @@ import { SavingsHighHero } from "./hero/SavingsHighHero";
 import { OverspendingHero } from "./hero/OverspendingHero";
 import { GoalNearHero } from "./hero/GoalNearHero";
 import { DefaultHero } from "./hero/DefaultHero";
-import { Skeleton } from "@/components/ui/skeleton";
+import { HeroSkeleton } from "./skeletons/HeroSkeleton";
 
 export interface HeroContext {
   type: 'bills_due' | 'savings_high' | 'overspending' | 'goal_near' | 'default';
@@ -27,19 +27,7 @@ export function DynamicHeroOrchestrator() {
   });
 
   if (isLoading) {
-    return (
-      <div className="p-8 space-y-4 bg-card/70 backdrop-blur-xl border border-border/40 rounded-2xl">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-6 w-24 rounded-full" />
-        </div>
-        <Skeleton className="h-32 w-full rounded-2xl" />
-        <div className="flex gap-2">
-          <Skeleton className="h-10 w-32" />
-          <Skeleton className="h-10 w-32" />
-        </div>
-      </div>
-    );
+    return <HeroSkeleton />;
   }
 
   const renderHero = () => {
