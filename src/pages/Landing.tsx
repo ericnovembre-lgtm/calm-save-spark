@@ -2,16 +2,17 @@ import { Helmet } from "react-helmet";
 import { Suspense, useEffect, useState } from "react";
 import { WelcomeNavbar } from "@/components/welcome/WelcomeNavbar";
 import { PriorityLoader } from "@/components/performance/PriorityLoader";
-import { Hero } from "@/components/landing/Hero";
+import { GenerativeHero } from "@/components/landing/generative/GenerativeHero";
+import { BentoFeatures } from "@/components/landing/bento/BentoFeatures";
+import { ROICalculator } from "@/components/landing/ROICalculator";
+import { StickyCTA } from "@/components/landing/StickyCTA";
 import { SocialProofTicker } from "@/components/landing/advanced/SocialProofTicker";
 import { FeatureHubs } from "@/components/landing/FeatureHubs";
 import { HowItWorks } from "@/components/landing/HowItWorks";
-import { Features } from "@/components/landing/Features";
 import { SolutionsShowcase } from "@/components/landing/SolutionsShowcase";
 import { AIAgentsPreview } from "@/components/landing/AIAgentsPreview";
 import { Stats } from "@/components/landing/Stats";
 import { CTA } from "@/components/landing/CTA";
-import { SimpleBackground } from "@/components/landing/SimpleBackground";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -20,9 +21,8 @@ import { PerformanceBudgetMonitor } from "@/components/performance/PerformanceBu
 import { AccessibilityTestPanel } from "@/components/performance/AccessibilityTestPanel";
 import { SkipToContent } from "@/components/accessibility/SkipToContent";
 
-// Lazy load heavy components for better performance - Phase 6 Optimization: Reduced from 15+ to 8
+// Lazy load heavy components for better performance
 import {
-  LazyCalculator,
   LazyInteractiveDemo,
   LazyFAQ,
   LazyTestimonials,
@@ -107,18 +107,19 @@ export default function Landing() {
         
         {/* Tier 1: Critical - Loads Immediately */}
         <WelcomeNavbar />
+        <StickyCTA />
         
         {/* Main content with proper landmark and focus management */}
         <main id="main-content" tabIndex={-1} className="relative z-10 focus:outline-none">
-          {/* Tier 1: Critical Above-the-Fold Content */}
-          <Hero />
+          {/* Tier 1: Generative Hero Section */}
+          <GenerativeHero />
           <SocialProofTicker />
           
           {/* Tier 2: High Priority - Load After Initial Paint */}
           <PriorityLoader priority="high">
+            <BentoFeatures />
             <FeatureHubs />
             <HowItWorks />
-            <Features />
           </PriorityLoader>
           
           {/* Tier 3: Medium Priority - Load on Scroll Approach */}
@@ -149,11 +150,7 @@ export default function Landing() {
               </Suspense>
             </ErrorBoundary>
             
-            <ErrorBoundary>
-              <Suspense fallback={<CalculatorSkeleton />}>
-                <LazyCalculator />
-              </Suspense>
-            </ErrorBoundary>
+            <ROICalculator />
             
             <ErrorBoundary>
               <Suspense fallback={<InteractiveDemoSkeleton />}>
