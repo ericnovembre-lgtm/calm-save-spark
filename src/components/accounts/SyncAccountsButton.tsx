@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { PlaidLink } from "./PlaidLink";
 
 interface SyncAccountsButtonProps {
   accountId?: string;
@@ -11,6 +13,22 @@ interface SyncAccountsButtonProps {
 
 export function SyncAccountsButton({ accountId, onSyncComplete }: SyncAccountsButtonProps) {
   const [isSyncing, setIsSyncing] = useState(false);
+
+  // Check if user has any connected accounts
+  const { data: accounts, isLoading } = useQuery({
+    queryKey: ['connected-accounts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('connected_accounts')
+        .select('id')
+        .eq('sync_status', 'active');
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const hasAccounts = accounts && accounts.length > 0;
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -35,10 +53,15 @@ export function SyncAccountsButton({ accountId, onSyncComplete }: SyncAccountsBu
     }
   };
 
+  // Show PlaidLink if no accounts connected
+  if (!isLoading && !hasAccounts) {
+    return <PlaidLink onSuccess={onSyncComplete} />;
+  }
+
   return (
     <Button
       onClick={handleSync}
-      disabled={isSyncing}
+      disabled={isSyncing || isLoading}
       variant="outline"
       size="sm"
     >
