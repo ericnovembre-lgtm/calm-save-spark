@@ -81,7 +81,7 @@ serve(async (req) => {
       .map(([cat, data]) => `${cat}: $${data.total.toFixed(2)} (${data.count} transactions)`)
       .join('\n');
 
-    const prompt = `You are a financial advisor. Analyze this user's spending and suggest 3 realistic, actionable savings strategies to help them reach their goal faster.
+    const prompt = `Analyze this user's spending and suggest 3 realistic, actionable savings strategies to help them reach their goal faster.
 
 Goal: $${remaining.toFixed(2)} remaining to save
 Deadline: ${goal.deadline || 'No deadline set'}
@@ -89,20 +89,7 @@ Deadline: ${goal.deadline || 'No deadline set'}
 Recent spending (last 90 days):
 ${spendingSummary}
 
-Return exactly 3 suggestions in this JSON format:
-{
-  "suggestions": [
-    {
-      "id": "unique_id",
-      "action": "Specific action to take",
-      "savings": 50,
-      "category": "category_name",
-      "difficulty": "easy|medium|hard"
-    }
-  ]
-}
-
-Focus on the top spending categories. Make suggestions practical and specific.`;
+Focus on the top spending categories. Make suggestions practical and specific with monthly savings amounts.`;
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -114,29 +101,62 @@ Focus on the top spending categories. Make suggestions practical and specific.`;
         model: 'google/gemini-2.5-flash',
         messages: [
           {
-            role: 'system',
-            content: 'You are a financial advisor. Always return valid JSON only, no markdown or extra text.'
-          },
-          {
             role: 'user',
             content: prompt
           }
-        ]
+        ],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'generate_savings_suggestions',
+              description: 'Generate 3 savings suggestions to help reach a financial goal faster',
+              parameters: {
+                type: 'object',
+                properties: {
+                  suggestions: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', description: 'Unique identifier' },
+                        action: { type: 'string', description: 'Specific action to take' },
+                        savings: { type: 'number', description: 'Monthly savings amount' },
+                        category: { type: 'string', description: 'Spending category' },
+                        difficulty: { type: 'string', enum: ['easy', 'medium', 'hard'] }
+                      },
+                      required: ['id', 'action', 'savings', 'category', 'difficulty']
+                    },
+                    minItems: 3,
+                    maxItems: 3
+                  }
+                },
+                required: ['suggestions']
+              }
+            }
+          }
+        ],
+        tool_choice: { type: 'function', function: { name: 'generate_savings_suggestions' } }
       })
     });
 
     if (!aiResponse.ok) {
-      console.error('AI API error:', aiResponse.status);
-      throw new Error('Failed to generate suggestions');
+      const errorText = await aiResponse.text();
+      console.error('AI API error:', aiResponse.status, errorText);
+      throw new Error(`AI service error: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
-    let aiContent = aiData.choices?.[0]?.message?.content || '{}';
+    console.log('AI response structure:', JSON.stringify(aiData, null, 2));
     
-    // Clean up potential markdown formatting
-    aiContent = aiContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
     
-    const parsed = JSON.parse(aiContent);
+    if (!toolCall || !toolCall.function?.arguments) {
+      console.error('No tool call in response:', aiData);
+      throw new Error('AI did not return structured suggestions');
+    }
+    
+    const parsed = JSON.parse(toolCall.function.arguments);
     const aiSuggestions = parsed.suggestions || [];
 
     // Calculate projections
