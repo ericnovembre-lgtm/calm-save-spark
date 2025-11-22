@@ -86,7 +86,19 @@ Output ONLY valid JSON:
       }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Lovable API error:', response.status, errorText);
+      throw new Error(`AI service error: ${response.status} - ${errorText.slice(0, 200)}`);
+    }
+
     const data = await response.json();
+    
+    if (!data.choices?.[0]?.message?.content) {
+      console.error('Invalid AI response structure:', data);
+      throw new Error('Invalid response from AI service');
+    }
+
     const aiResponse = data.choices[0].message.content;
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
