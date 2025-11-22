@@ -12,6 +12,11 @@ serve(async (req) => {
   }
 
   try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
     const { portfolioData } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
@@ -24,16 +29,36 @@ serve(async (req) => {
     const totalGains = portfolioData.totalGains || 0;
     const changePercent = totalValue > 0 ? (totalGains / totalValue) * 100 : 0;
 
+    // Fetch relevant market news
+    const accountNames = portfolioData.accounts?.map((a: any) => a.name).filter(Boolean) || [];
+    const symbolQuery = accountNames.length > 0 
+      ? `symbol.eq.MARKET,symbol.in.(${accountNames.join(',')})` 
+      : 'symbol.eq.MARKET';
+
+    const { data: news } = await supabaseClient
+      .from('market_news_cache')
+      .select('*')
+      .or(symbolQuery)
+      .order('published_at', { ascending: false })
+      .limit(10);
+
+    const newsContext = news?.length 
+      ? news.map(n => `- ${n.headline} (${n.source}, ${n.sentiment})`).join('\n')
+      : 'No recent market news available.';
+
     // Build context for AI
     const contextPrompt = `Analyze this investment portfolio:
 - Total Value: $${totalValue.toFixed(2)}
 - Total Gains/Losses: $${totalGains.toFixed(2)} (${changePercent.toFixed(2)}%)
 - Holdings: ${JSON.stringify(portfolioData.accounts || [])}
 
+Recent Market News:
+${newsContext}
+
 Provide:
-1. A brief summary explaining why the portfolio is moving today (1-2 sentences)
-2. 3-4 key factors affecting the portfolio
-3. One actionable recommendation
+1. A brief summary explaining why the portfolio is moving today - correlate with news when relevant (1-2 sentences)
+2. 3-4 key factors affecting the portfolio - reference specific news when applicable
+3. One actionable recommendation based on current market conditions
 
 Focus on real market context and be specific about which holdings are driving changes.`;
 

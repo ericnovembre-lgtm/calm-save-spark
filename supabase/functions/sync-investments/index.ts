@@ -54,32 +54,140 @@ serve(async (req) => {
       accounts = data;
     }
 
-    // TODO: Integrate with Plaid Investments API
-    // For now, simulate syncing by updating last_synced timestamp
+    // Get Plaid credentials
+    const PLAID_CLIENT_ID = Deno.env.get('PLAID_CLIENT_ID');
+    const PLAID_SECRET = Deno.env.get('PLAID_SECRET');
+    const PLAID_ENV = Deno.env.get('PLAID_ENV') || 'sandbox';
+
+    if (!PLAID_CLIENT_ID || !PLAID_SECRET) {
+      throw new Error('Plaid credentials not configured');
+    }
+
+    const plaidUrl = PLAID_ENV === 'production' 
+      ? 'https://production.plaid.com'
+      : 'https://sandbox.plaid.com';
+
     const updates = [];
+    
     for (const account of accounts || []) {
-      // Simulate portfolio gains/losses (random between -2% and +3%)
-      const oldValue = parseFloat(String(account.total_value));
-      const changePercent = (Math.random() * 5) - 2; // -2 to +3
-      const newValue = oldValue * (1 + changePercent / 100);
-      const costBasis = parseFloat(String(account.cost_basis)) || oldValue;
-      const gainsLosses = newValue - costBasis;
+      try {
+        // Get Plaid item for this account
+        const { data: plaidItems } = await supabaseClient
+          .from('plaid_items')
+          .select('access_token')
+          .eq('user_id', account.user_id)
+          .limit(1);
 
-      updates.push({
-        id: account.id,
-        total_value: newValue,
-        gains_losses: gainsLosses,
-        last_synced: new Date().toISOString()
-      });
+        if (!plaidItems || plaidItems.length === 0) {
+          console.log(`No Plaid item found for account ${account.id}, using simulation`);
+          
+          // Fallback to simulation if no Plaid connection
+          const oldValue = parseFloat(String(account.total_value));
+          const changePercent = (Math.random() * 5) - 2;
+          const newValue = oldValue * (1 + changePercent / 100);
+          const costBasis = parseFloat(String(account.cost_basis)) || oldValue;
+          const gainsLosses = newValue - costBasis;
 
-      await supabaseClient
-        .from('investment_accounts')
-        .update({
-          total_value: newValue,
+          await supabaseClient
+            .from('investment_accounts')
+            .update({
+              total_value: newValue,
+              gains_losses: gainsLosses,
+              last_synced: new Date().toISOString()
+            })
+            .eq('id', account.id);
+
+          updates.push({ id: account.id, total_value: newValue, gains_losses: gainsLosses });
+          continue;
+        }
+
+        const accessToken = plaidItems[0].access_token;
+
+        // Fetch holdings from Plaid
+        const holdingsResponse = await fetch(`${plaidUrl}/investments/holdings/get`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'PLAID-CLIENT-ID': PLAID_CLIENT_ID,
+            'PLAID-SECRET': PLAID_SECRET,
+          },
+          body: JSON.stringify({ access_token: accessToken }),
+        });
+
+        const holdingsData = await holdingsResponse.json();
+
+        if (holdingsData.error_code) {
+          console.error(`Plaid error for account ${account.id}:`, holdingsData);
+          continue;
+        }
+
+        // Calculate totals from holdings
+        let totalValue = 0;
+        let totalCostBasis = 0;
+
+        for (const holding of holdingsData.holdings || []) {
+          const quantity = holding.quantity || 0;
+          const price = holding.institution_price || 0;
+          const costBasis = holding.cost_basis || (quantity * price);
+
+          totalValue += quantity * price;
+          totalCostBasis += costBasis;
+
+          // Upsert portfolio holding
+          await supabaseClient
+            .from('portfolio_holdings')
+            .upsert({
+              user_id: account.user_id,
+              account_id: account.id,
+              symbol: holding.security?.ticker_symbol || 'UNKNOWN',
+              name: holding.security?.name || 'Unknown Security',
+              asset_type: holding.security?.type || 'unknown',
+              quantity,
+              average_cost: costBasis / quantity,
+              current_price: price,
+              market_value: quantity * price,
+              unrealized_gain_loss: (quantity * price) - costBasis,
+              unrealized_gain_loss_percent: ((quantity * price) - costBasis) / costBasis * 100,
+            }, {
+              onConflict: 'user_id,account_id,symbol'
+            });
+        }
+
+        const gainsLosses = totalValue - totalCostBasis;
+
+        // Update investment account
+        await supabaseClient
+          .from('investment_accounts')
+          .update({
+            total_value: totalValue,
+            cost_basis: totalCostBasis,
+            gains_losses: gainsLosses,
+            last_synced: new Date().toISOString()
+          })
+          .eq('id', account.id);
+
+        // Create snapshot for performance tracking
+        await supabaseClient
+          .from('portfolio_snapshots')
+          .insert({
+            user_id: account.user_id,
+            total_value: totalValue,
+            gains_losses: gainsLosses,
+            snapshot_date: new Date().toISOString().split('T')[0],
+          });
+
+        updates.push({
+          id: account.id,
+          total_value: totalValue,
           gains_losses: gainsLosses,
-          last_synced: new Date().toISOString()
-        })
-        .eq('id', account.id);
+          holdings_count: holdingsData.holdings?.length || 0
+        });
+
+        console.log(`Synced account ${account.id}: $${totalValue.toFixed(2)}`);
+
+      } catch (error) {
+        console.error(`Error syncing account ${account.id}:`, error);
+      }
     }
 
     return new Response(
