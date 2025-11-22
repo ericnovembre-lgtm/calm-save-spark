@@ -171,4 +171,7 @@ verify_jwt = true
 [functions.batch-enrich-transactions]
 verify_jwt = false
 
+[functions.parse-search-query]
+verify_jwt = true
+
 

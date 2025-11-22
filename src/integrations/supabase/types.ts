@@ -7188,6 +7188,30 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_search_history: {
+        Row: {
+          id: string
+          parsed_filters: Json
+          query: string
+          searched_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          parsed_filters: Json
+          query: string
+          searched_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          parsed_filters?: Json
+          query?: string
+          searched_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           account_id: string | null
