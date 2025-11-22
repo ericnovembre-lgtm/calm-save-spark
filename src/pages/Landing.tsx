@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { WelcomeNavbar } from "@/components/welcome/WelcomeNavbar";
 import { PriorityLoader } from "@/components/performance/PriorityLoader";
 import { Hero } from "@/components/landing/Hero";
@@ -15,6 +15,7 @@ import { SimpleBackground } from "@/components/landing/SimpleBackground";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { BrandedProgressLoader, BrandedSkeletonCard } from "@/components/landing/BrandedLoader";
+import { PerformanceBudgetMonitor } from "@/components/performance/PerformanceBudgetMonitor";
 
 // Lazy load heavy components for better performance
 import {
@@ -52,13 +53,31 @@ import { IntegrationsSkeleton } from "@/components/landing/skeletons/Integration
 
 export default function Landing() {
   useWebVitals(true);
+  const [loadEffects, setLoadEffects] = useState(false);
+
+  // Defer effects loading until after critical content
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadEffects(true);
+    }, 2000); // Wait 2s after mount
+    return () => clearTimeout(timer);
+  }, []);
   
   return (
     <>
       <Helmet>
         <title>$ave+ | 63+ Tools to Save Smarter, Grow Wealth & Automate Finances</title>
-        <link rel="preload" as="script" href="/src/components/landing/Hero.tsx" />
-        <link rel="prefetch" as="script" href="/src/components/landing/LazyComponents.tsx" />
+        
+        {/* Critical Resource Hints */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        
+        {/* Preload Critical Assets */}
+        <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        
+        {/* Prefetch Below-Fold Components */}
+        <link rel="prefetch" as="script" href="/src/components/landing/Stats.tsx" />
+        <link rel="prefetch" as="script" href="/src/components/landing/Features.tsx" />
         <meta
           name="description"
           content="All-in-one financial platform with 63+ tools across 5 hubs: Money Management, Wealth Building, AI Insights, Lifestyle Solutions, and Premium Features. Join 250K+ users saving smarter."
@@ -78,40 +97,45 @@ export default function Landing() {
       </Helmet>
 
       <div className="min-h-screen bg-background">
+        {/* Performance Monitor (Dev Only) */}
+        <PerformanceBudgetMonitor />
+        
+        {/* Tier 1: Critical - Loads Immediately */}
         <WelcomeNavbar />
         
         <main className="relative z-10">
-          {/* Critical - Load immediately (above the fold) */}
+          {/* Tier 1: Critical Above-the-Fold Content */}
           <Hero />
           <SocialProofTicker />
           
-          {/* High priority - Load immediately */}
+          {/* Tier 2: High Priority - Load After Initial Paint */}
           <PriorityLoader priority="high">
             <FeatureHubs />
             <HowItWorks />
+            <Features />
           </PriorityLoader>
           
-          {/* Medium priority - Load when approaching viewport */}
+          {/* Tier 3: Medium Priority - Load on Scroll Approach */}
           <PriorityLoader priority="medium">
+            <SolutionsShowcase />
+            <AIAgentsPreview />
+            
             <ErrorBoundary>
               <Suspense fallback={<BrandedProgressLoader message="Loading AI Simulator..." />}>
                 <LazyAISavingsSimulator />
               </Suspense>
             </ErrorBoundary>
-            <Features />
-            <SolutionsShowcase />
-            <AIAgentsPreview />
+            
+            <Stats />
           </PriorityLoader>
           
-          {/* Low priority - Load when entering viewport */}
+          {/* Tier 4: Low Priority - Load on Viewport Entry */}
           <PriorityLoader priority="low">
             <ErrorBoundary>
               <Suspense fallback={<PremiumShowcaseSkeleton />}>
                 <LazyPremiumShowcase />
               </Suspense>
             </ErrorBoundary>
-            
-            <Stats />
             
             <ErrorBoundary>
               <Suspense fallback={<TestimonialsSkeleton />}>
@@ -123,7 +147,17 @@ export default function Landing() {
             <ErrorBoundary>
               <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8"><BrandedSkeletonCard /><BrandedSkeletonCard /><BrandedSkeletonCard /></div>}>
                 <LazyPlatformOverview />
+              </Suspense>
+            </ErrorBoundary>
+            
+            <ErrorBoundary>
+              <Suspense fallback={<FeatureComparisonSkeleton />}>
                 <LazyFeatureComparison />
+              </Suspense>
+            </ErrorBoundary>
+            
+            <ErrorBoundary>
+              <Suspense fallback={<IntegrationsSkeleton />}>
                 <LazyIntegrations />
               </Suspense>
             </ErrorBoundary>
@@ -153,9 +187,11 @@ export default function Landing() {
             </ErrorBoundary>
           </PriorityLoader>
           
+          {/* Final CTA */}
           <CTA />
         </main>
         
+        {/* Coach Widget - Independent Load */}
         <ErrorBoundary>
           <Suspense fallback={null}>
             <LazySaveplusCoachWidget />
@@ -164,16 +200,18 @@ export default function Landing() {
         
         <SimpleBackground />
         
-        {/* Advanced Effects - Load last, low priority */}
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <LazyFloatingParticles />
-            <LazyNeuralNetworkBackground />
-            <LazyMagneticCursor />
-            <LazyLiveSocialProofStream />
-            <LazyCoinParticleSystem />
-          </Suspense>
-        </ErrorBoundary>
+        {/* Tier 5: Effects - Load Last After All Content */}
+        {loadEffects && (
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <LazyFloatingParticles />
+              <LazyNeuralNetworkBackground />
+              <LazyMagneticCursor />
+              <LazyLiveSocialProofStream />
+              <LazyCoinParticleSystem />
+            </Suspense>
+          </ErrorBoundary>
+        )}
       </div>
     </>
   );
