@@ -87,6 +87,7 @@ import { SentimentIndicator } from "@/components/dashboard/SentimentIndicator";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { DailyBriefingCard } from "@/components/dashboard/DailyBriefingCard";
 import { SmartActionsRow } from "@/components/dashboard/SmartActionsRow";
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 import { withPageMemo } from "@/lib/performance-utils";
 import { Suspense } from "react";
@@ -229,6 +230,13 @@ export default function Dashboard() {
   const totalBalance = accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.balance)), 0) || 0;
   
   const { milestone, dismissMilestone } = useMilestoneDetector(totalBalance);
+  
+  // Unified dashboard data aggregation (Phase 6)
+  const { 
+    data: dashboardData, 
+    isLoading: dashboardDataLoading,
+    error: dashboardDataError 
+  } = useDashboardData();
   
   // Announce balance changes to screen readers
   useEffect(() => {
@@ -582,7 +590,8 @@ export default function Dashboard() {
     ),
   };
 
-  if (accountsLoading) return <DashboardSkeleton />;
+  // Show skeleton while loading unified data
+  if (accountsLoading || dashboardDataLoading) return <DashboardSkeleton />;
 
   return (
     <AppLayout>
@@ -666,6 +675,7 @@ export default function Dashboard() {
       <StreakRecoveryBanner />
 
       {/* Dynamic Hero Section - Context-aware financial insights */}
+      {/* Phase 6: Unified Data - All dashboard data available via dashboardData */}
       <div data-wizard="hero-section">
         <DynamicHeroOrchestrator />
       </div>
