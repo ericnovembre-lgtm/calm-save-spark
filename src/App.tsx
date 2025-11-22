@@ -50,6 +50,7 @@ const FamilyOffice = createPageLoader(() => import("./pages/FamilyOffice"), 'hea
 const Admin = createPageLoader(() => import("./pages/Admin"), 'heavy');
 const AdminMonitoring = createPageLoader(() => import("./pages/AdminMonitoring"), 'heavy');
 const SecurityMonitoring = createPageLoader(() => import("./pages/SecurityMonitoring"), 'heavy');
+const Security = createPageLoader(() => import("./pages/Security"), 'heavy');
 const FinancialHealth = createPageLoader(() => import("./pages/FinancialHealth"), 'heavy');
 
 // MEDIUM PAGES - Lists, transactions, moderate complexity
@@ -244,6 +245,7 @@ function AnimatedRoutes() {
         <Route path="/features-hub" element={<ProtectedRoute><PageTransition><FeaturesHub /></PageTransition></ProtectedRoute>} />
         <Route path="/help" element={<ProtectedRoute><PageTransition><Help /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
+        <Route path="/security" element={<ProtectedRoute><PageTransition><Security /></PageTransition></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><PageTransition><Achievements /></PageTransition></ProtectedRoute>} />
         <Route path="/bill-negotiation" element={<ProtectedRoute><PageTransition><BillNegotiation /></PageTransition></ProtectedRoute>} />
         <Route path="/family" element={<ProtectedRoute><PageTransition><Family /></PageTransition></ProtectedRoute>} />
