@@ -48,7 +48,7 @@ export function CoinParticleSystem() {
     };
 
     const handleClick = (e: MouseEvent) => {
-      const particleCount = 8;
+      const particleCount = 5;
       for (let i = 0; i < particleCount; i++) {
         particlesRef.current.push(createParticle(e.clientX, e.clientY));
       }

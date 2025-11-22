@@ -14,6 +14,7 @@ import { CTA } from "@/components/landing/CTA";
 import { SimpleBackground } from "@/components/landing/SimpleBackground";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useWebVitals } from "@/hooks/useWebVitals";
+import { BrandedProgressLoader, BrandedSkeletonCard } from "@/components/landing/BrandedLoader";
 
 // Lazy load heavy components for better performance
 import {
@@ -93,7 +94,7 @@ export default function Landing() {
           {/* Medium priority - Load when approaching viewport */}
           <PriorityLoader priority="medium">
             <ErrorBoundary>
-              <Suspense fallback={<div className="h-96 bg-muted/10 animate-pulse rounded-lg" />}>
+              <Suspense fallback={<BrandedProgressLoader message="Loading AI Simulator..." />}>
                 <LazyAISavingsSimulator />
               </Suspense>
             </ErrorBoundary>
@@ -120,7 +121,7 @@ export default function Landing() {
             </ErrorBoundary>
             
             <ErrorBoundary>
-              <Suspense fallback={<div className="h-96 bg-muted/10 animate-pulse rounded-lg" />}>
+              <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8"><BrandedSkeletonCard /><BrandedSkeletonCard /><BrandedSkeletonCard /></div>}>
                 <LazyPlatformOverview />
                 <LazyFeatureComparison />
                 <LazyIntegrations />
@@ -146,7 +147,7 @@ export default function Landing() {
             </ErrorBoundary>
             
             <ErrorBoundary>
-              <Suspense fallback={<div className="h-96 bg-muted/10 animate-pulse rounded-lg" />}>
+              <Suspense fallback={<BrandedProgressLoader message="Loading Timeline..." />}>
                 <LazyInteractiveTimeline />
               </Suspense>
             </ErrorBoundary>

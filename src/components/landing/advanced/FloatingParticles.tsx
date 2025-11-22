@@ -6,14 +6,14 @@ export function FloatingParticles() {
 
   if (prefersReducedMotion) return null;
 
-  const particles = Array.from({ length: 30 }, (_, i) => ({
+  const particles = Array.from({ length: 15 }, (_, i) => ({
     id: i,
-    size: Math.random() * 6 + 2,
+    size: Math.random() * 4 + 1,
     x: Math.random() * 100,
     y: Math.random() * 100,
     duration: Math.random() * 20 + 15,
     delay: Math.random() * 5,
-    opacity: Math.random() * 0.3 + 0.1,
+    opacity: Math.random() * 0.15 + 0.05,
   }));
 
   return (
