@@ -78,15 +78,21 @@ All colors MUST be HSL.
     --glass-blur-subtle: blur(8px);
 
     /* Gradients and effects */
-    --gradient-subtle: linear-gradient(135deg, #F8F6F0, #E9DFCE);
-    --gradient-premium: linear-gradient(135deg, #FFFFFF, #F8F6F0, #E9DFCE);
+    --gradient-subtle: linear-gradient(135deg, hsl(40 25% 96%), hsl(40 35% 85%));
+    --gradient-premium: linear-gradient(135deg, hsl(0 0% 100%), hsl(40 25% 96%), hsl(40 35% 85%));
+    --gradient-accent: linear-gradient(135deg, hsl(38 45% 68%), hsl(42 50% 60%));
+    --gradient-text: linear-gradient(135deg, hsl(38 45% 68%), hsl(42 50% 60%), hsl(38 45% 68%));
+    
     --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.08);
     --shadow-card: 0 4px 16px -4px hsl(0 0% 0% / 0.1);
-    --shadow-premium: 0 8px 32px -8px hsl(0 0% 0% / 0.15);
+    --shadow-premium: 0 8px 32px -8px hsl(0 0% 0% / 0.12);
+    --shadow-elevated: 0 12px 48px -12px hsl(0 0% 0% / 0.15);
+    --shadow-glow: 0 0 40px hsl(38 45% 68% / 0.2);
     
     /* Animation */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-spring: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     /* Z-Index Scale for consistent stacking */
     --z-background: -10;
@@ -138,6 +144,16 @@ All colors MUST be HSL.
       opacity: 1;
       text-shadow: 0 0 20px hsl(var(--accent) / 0.3);
     }
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes scale-in {
+    0% { transform: scale(0.95); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
   }
 
   @media (prefers-reduced-motion: no-preference) {

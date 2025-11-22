@@ -14,28 +14,28 @@ export const BentoCard = ({ title, description, icon, children }: BentoCardProps
 
   return (
     <motion.div
-      className="h-full p-6 rounded-3xl bg-card border border-border backdrop-blur-xl overflow-hidden relative group"
+      className="h-full p-6 rounded-3xl bg-card/80 border border-border backdrop-blur-xl overflow-hidden relative group shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-premium)] transition-all duration-300"
       whileHover={prefersReducedMotion ? {} : {
-        y: -4,
-        boxShadow: '0 20px 40px -10px hsl(var(--accent) / 0.2)',
+        y: -6,
+        scale: 1.02,
       }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
     >
       {/* Gradient Glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex items-start gap-3">
           <motion.div
-            className="p-2 rounded-xl bg-accent/10 text-accent"
-            whileHover={prefersReducedMotion ? {} : { rotate: 360 }}
-            transition={{ duration: 0.5 }}
+            className="p-2.5 rounded-xl bg-accent/10 text-accent ring-1 ring-accent/20"
+            whileHover={prefersReducedMotion ? {} : { rotate: 360, scale: 1.1 }}
+            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
           >
             {icon}
           </motion.div>
           <div className="flex-1">
-            <h3 className="font-bold text-lg text-foreground">{title}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{description}</p>
+            <h3 className="font-display font-bold text-lg text-foreground">{title}</h3>
+            <p className="text-sm text-muted-foreground mt-1 font-light">{description}</p>
           </div>
         </div>
         

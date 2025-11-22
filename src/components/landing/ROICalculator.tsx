@@ -34,12 +34,12 @@ export const ROICalculator = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-extrabold text-foreground mb-4 tracking-tight">
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-display font-black text-foreground mb-6 tracking-tighter">
             Your Financial Future
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light leading-relaxed">
             See how much wealth you could build with $ave+ helping you save consistently
           </p>
         </motion.div>
@@ -52,7 +52,7 @@ export const ROICalculator = () => {
           className="grid lg:grid-cols-2 gap-12 items-center"
         >
           {/* Left: Controls */}
-          <div className="space-y-8 p-8 rounded-3xl bg-card border border-border backdrop-blur-xl">
+          <div className="space-y-8 p-8 rounded-3xl bg-card/80 border border-border backdrop-blur-xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow duration-300">
             <div className="space-y-3">
               <div className="flex justify-between items-baseline">
                 <label className="text-sm font-semibold text-muted-foreground">Monthly Income</label>
@@ -113,17 +113,17 @@ export const ROICalculator = () => {
           {/* Right: Results */}
           <div className="space-y-6">
             <motion.div
-              className="p-8 rounded-3xl bg-gradient-to-br from-accent/20 via-primary/10 to-accent/20 border border-accent/30 backdrop-blur-xl"
-              whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
-              transition={{ duration: 0.3 }}
+              className="p-8 rounded-3xl bg-gradient-to-br from-accent/20 via-primary/10 to-accent/20 border border-accent/30 backdrop-blur-xl shadow-[var(--shadow-premium)] hover:shadow-[var(--shadow-elevated)] transition-all duration-300"
+              whileHover={prefersReducedMotion ? {} : { scale: 1.02, y: -4 }}
+              transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
             >
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 rounded-xl bg-accent/20">
                   <TrendingUp className="w-8 h-8 text-accent" />
                 </div>
                 <div>
-                  <div className="text-sm text-muted-foreground">Projected Net Worth at {retirementAge}</div>
-                  <div className="text-5xl font-extrabold text-accent tracking-tight">
+                  <div className="text-sm text-muted-foreground font-medium">Projected Net Worth at {retirementAge}</div>
+                  <div className="text-5xl md:text-6xl font-display font-black text-accent tracking-tighter">
                     $<CountUp end={futureValue} duration={2} separator="," decimals={0} />
                   </div>
                 </div>
@@ -190,9 +190,9 @@ export const ROICalculator = () => {
 
             <motion.a
               href="/onboarding"
-              whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+              whileHover={prefersReducedMotion ? {} : { scale: 1.02, y: -2 }}
               whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
-              className="block w-full py-4 px-8 rounded-xl bg-accent hover:bg-accent/90 text-white text-center font-semibold text-lg shadow-lg transition-colors"
+              className="block w-full py-5 px-8 rounded-xl bg-foreground hover:bg-foreground/90 text-background text-center font-display font-bold text-lg shadow-[var(--shadow-premium)] hover:shadow-[var(--shadow-elevated)] transition-all duration-300"
             >
               Start Building Wealth Today
             </motion.a>

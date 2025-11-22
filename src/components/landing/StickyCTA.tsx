@@ -18,9 +18,9 @@ export const StickyCTA = () => {
     >
       <Link to="/onboarding">
         <motion.button
-          whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+          whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -2 }}
           whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
-          className="px-6 py-3 rounded-full bg-accent hover:bg-accent/90 text-white font-semibold text-sm shadow-lg shadow-accent/30 backdrop-blur-xl flex items-center gap-2 transition-colors"
+          className="px-6 py-3.5 rounded-full bg-foreground hover:bg-foreground/90 text-background font-display font-bold text-sm shadow-[var(--shadow-premium)] hover:shadow-[var(--shadow-elevated)] backdrop-blur-xl flex items-center gap-2 transition-all duration-300"
         >
           Get Started Free
           <ArrowRight className="w-4 h-4" />

@@ -17,18 +17,18 @@ export const BentoFeatures = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-extrabold text-foreground mb-4 tracking-tight">
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-display font-black text-foreground mb-6 tracking-tighter">
             Everything You Need
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light leading-relaxed">
             Powerful features designed to transform your financial future
           </p>
         </motion.div>
 
         {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[300px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
           {/* Large Card: AI Insight */}
           <motion.div
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
