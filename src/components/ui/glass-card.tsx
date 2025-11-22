@@ -77,35 +77,32 @@ export function GlassCard({
         perspective: 1000
       } : undefined}
       onClick={onClick}
-      className={cn(
-        // Glass morphism base
-        "relative rounded-2xl",
-        "bg-card/80 backdrop-blur-xl",
-        "border border-border/50",
-        
-        // Shadow system
-        "shadow-[var(--shadow-card)]",
-        
-        // Hover effects
-        "transition-all duration-300",
-        "hover:shadow-[var(--shadow-soft)]",
-        "hover:border-primary/20",
-        
-        // Gradient border on hover
-        "before:absolute before:inset-0 before:rounded-2xl before:p-[1px]",
-        "before:bg-gradient-to-br before:from-primary/20 before:via-transparent before:to-accent/20",
-        "before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
-        "before:-z-10",
-        
-        // Glow effect
-        glowOnHover && "hover:shadow-[0_0_30px_hsl(var(--primary)/0.15)]",
-        
-        // Cursor
-        onClick && "cursor-pointer",
-        
-        className
-      )}
-    >
+  className={cn(
+    // Phase 7: Enhanced glassmorphism
+    "relative rounded-2xl",
+    "bg-glass border border-glass-border",
+    "backdrop-blur-glass shadow-glass",
+    
+    // Hover effects with depth
+    "transition-all duration-300",
+    "hover:shadow-glass-elevated hover:bg-glass-hover",
+    "hover:border-glass-border-hover",
+    
+    // Gradient border shimmer
+    "before:absolute before:inset-0 before:rounded-2xl before:p-[1px]",
+    "before:bg-gradient-to-br before:from-primary/20 before:via-transparent before:to-accent/20",
+    "before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
+    "before:-z-10",
+    
+    // Glow effect
+    glowOnHover && "hover:shadow-[0_0_30px_hsla(var(--primary),0.15)]",
+    
+    // Cursor
+    onClick && "cursor-pointer active:scale-[0.98]",
+    
+    className
+  )}
+>
       {/* Shimmer overlay on hover */}
       <motion.div
         className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
