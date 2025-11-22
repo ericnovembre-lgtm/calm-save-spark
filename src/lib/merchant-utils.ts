@@ -36,30 +36,61 @@ export function generateMerchantAvatar(merchant: string) {
 }
 
 /**
- * Get Clearbit logo URL for merchant
+ * Extract domain from merchant name with enhanced patterns
  */
-export function getClearbitLogoUrl(merchant: string): string {
-  // Extract domain from merchant name (basic heuristic)
-  const cleanName = merchant.toLowerCase().replace(/[^a-z0-9]/g, '');
-  return `https://logo.clearbit.com/${cleanName}.com`;
-}
+export function extractDomain(merchant: string): string {
+  const lower = merchant.toLowerCase();
+  
+  // Known merchant mappings
+  const knownDomains: Record<string, string> = {
+    'amazon': 'amazon.com',
+    'walmart': 'walmart.com',
+    'target': 'target.com',
+    'starbucks': 'starbucks.com',
+    'mcdonalds': 'mcdonalds.com',
+    'uber': 'uber.com',
+    'lyft': 'lyft.com',
+    'spotify': 'spotify.com',
+    'netflix': 'netflix.com',
+    'apple': 'apple.com',
+    'google': 'google.com',
+    'microsoft': 'microsoft.com',
+  };
 
-/**
- * Extract domain from merchant name
- */
-export function extractDomain(merchant: string): string | null {
-  // Common patterns for merchant names
-  const patterns = [
-    /([a-z0-9-]+)\.(com|net|org|io)/i, // domain.com
-    /([a-z0-9]+)(?:\s|$)/i, // first word
-  ];
-
-  for (const pattern of patterns) {
-    const match = merchant.match(pattern);
-    if (match) {
-      return match[1].toLowerCase();
+  // Check for known merchants
+  for (const [key, domain] of Object.entries(knownDomains)) {
+    if (lower.includes(key)) {
+      return domain;
     }
   }
 
-  return merchant.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+  // Try to extract domain pattern
+  const domainMatch = lower.match(/([a-z0-9-]+)\.(com|net|org|io|co)/i);
+  if (domainMatch) {
+    return domainMatch[0];
+  }
+
+  // Clean name and add .com
+  const cleanName = lower.replace(/[^a-z0-9]/g, '').slice(0, 20);
+  return `${cleanName}.com`;
+}
+
+/**
+ * Get Clearbit logo URL for merchant
+ */
+export function getClearbitLogoUrl(merchant: string): string {
+  const domain = extractDomain(merchant);
+  return `https://logo.clearbit.com/${domain}`;
+}
+
+/**
+ * Check if logo URL is accessible
+ */
+export async function checkLogoUrl(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
