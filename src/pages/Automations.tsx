@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Wrench, Zap, Loader2 } from "lucide-react";
+import { Wrench, Zap, Loader2, Blocks } from "lucide-react";
 import { useAutomations } from "@/hooks/useAutomations";
 import { AutomationCard } from "@/components/automations/AutomationCard";
 import { AutomationFormModal } from "@/components/automations/AutomationFormModal";
@@ -11,6 +11,7 @@ import { ConversationalRuleBuilder } from "@/components/automations/Conversation
 import { SmartRecipes } from "@/components/automations/SmartRecipes";
 import { EmergencyBrake } from "@/components/automations/EmergencyBrake";
 import { AutomationActivityFeed } from "@/components/automations/AutomationActivityFeed";
+import { LogicBlockBuilder } from "@/components/automations/logic-builder/LogicBlockBuilder";
 import { trackEvent } from "@/lib/analytics";
 import { useQueryClient } from "@tanstack/react-query";
 import "@/styles/automation-circuit-theme.css";
@@ -19,6 +20,7 @@ export default function Automations() {
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [editingAutomation, setEditingAutomation] = useState<any>(null);
+  const [showLogicBuilder, setShowLogicBuilder] = useState(false);
   
   const {
     automations,
@@ -94,6 +96,29 @@ export default function Automations() {
 
         {/* Smart Recipes */}
         <SmartRecipes />
+
+        {/* Advanced Logic Builder */}
+        <Card className="glass-panel-subtle p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold mb-1 flex items-center gap-2">
+                <Blocks className="w-5 h-5 text-primary" />
+                Advanced Logic Builder
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Build complex multi-condition automation rules visually with drag-and-drop blocks
+              </p>
+            </div>
+            <Button
+              onClick={() => setShowLogicBuilder(true)}
+              variant="outline"
+              className="gap-2"
+            >
+              <Blocks className="w-4 h-4" />
+              Open Builder
+            </Button>
+          </div>
+        </Card>
 
         {/* Stats */}
         {automations && automations.length > 0 && (
@@ -223,6 +248,12 @@ export default function Automations() {
         initialData={editingAutomation}
         onSubmit={handleSubmit}
         onClose={handleCloseModal}
+      />
+
+      <LogicBlockBuilder
+        open={showLogicBuilder}
+        onOpenChange={setShowLogicBuilder}
+        onSave={() => queryClient.invalidateQueries({ queryKey: ['automations'] })}
       />
     </AppLayout>
   );
