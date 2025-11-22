@@ -17,12 +17,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
-import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2 } from 'lucide-react';
+import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain } from 'lucide-react';
 import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
 import { SoundSettings } from '@/components/settings/SoundSettings';
 import { PerformanceDashboard } from '@/components/settings/PerformanceDashboard';
 import { HighContrastMode } from '@/components/settings/HighContrastMode';
 import { EasterEggsSettings } from '@/components/settings/EasterEggsSettings';
+import { NaturalLanguageNotifications } from '@/components/settings/NaturalLanguageNotifications';
+import { SecurityHealthGauge } from '@/components/settings/SecurityHealthGauge';
+import { SpendingPersona } from '@/components/settings/SpendingPersona';
+import { SupportConcierge } from '@/components/settings/SupportConcierge';
+import { LiveThemePreview } from '@/components/settings/LiveThemePreview';
 
 export default function Settings() {
   return (
@@ -36,6 +41,30 @@ export default function Settings() {
         </div>
 
         <Separator />
+
+        {/* AI Control Center Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-primary" />
+              AI Control Center
+            </CardTitle>
+            <CardDescription>
+              Smart, personalized settings powered by AI
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <SpendingPersona />
+            <Separator />
+            <SecurityHealthGauge />
+            <Separator />
+            <NaturalLanguageNotifications />
+            <Separator />
+            <LiveThemePreview />
+            <Separator />
+            <SupportConcierge />
+          </CardContent>
+        </Card>
 
         {/* Security Section */}
         <Card>
