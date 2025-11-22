@@ -244,6 +244,11 @@
   @apply text-xs opacity-80 space-y-1;
 }
 
+/* Glass Panel Subtle Variant */
+.glass-panel-subtle {
+  @apply bg-background/30 backdrop-blur-sm;
+}
+
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .led-indicator,

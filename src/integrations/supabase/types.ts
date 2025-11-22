@@ -809,6 +809,45 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_templates: {
+        Row: {
+          action_config: Json
+          category: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_premium: boolean | null
+          name: string
+          popularity_score: number | null
+          trigger_config: Json
+        }
+        Insert: {
+          action_config: Json
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          name: string
+          popularity_score?: number | null
+          trigger_config: Json
+        }
+        Update: {
+          action_config?: Json
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          name?: string
+          popularity_score?: number | null
+          trigger_config?: Json
+        }
+        Relationships: []
+      }
       autonomous_agents: {
         Row: {
           agent_name: string
