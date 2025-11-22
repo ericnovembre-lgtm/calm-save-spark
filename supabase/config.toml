@@ -48,6 +48,9 @@ verify_jwt = false
 [functions.budget-ai-coach]
 verify_jwt = true
 
+[functions.budget-orchestrator]
+verify_jwt = true
+
 [functions.cashflow-forecast]
 verify_jwt = false
 

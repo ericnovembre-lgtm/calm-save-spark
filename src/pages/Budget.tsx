@@ -19,7 +19,7 @@ import { CelebrationManager } from "@/components/effects/CelebrationManager";
 import { useBudgetMilestones } from "@/hooks/useBudgetMilestones";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Target, Plus, BookOpen, RefreshCw, CalendarCheck } from "lucide-react";
+import { Target, Plus, BookOpen, RefreshCw, CalendarCheck, Sparkles } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { PageLoadingSkeleton } from "@/components/ui/page-loading-skeleton";
 import { NeuralBackground } from "@/components/budget/advanced/NeuralBackground";
@@ -35,6 +35,9 @@ import { ParticleSystem } from "@/components/budget/advanced/ParticleSystem";
 import { BudgetTemplatesLibrary } from "@/components/budget/BudgetTemplatesLibrary";
 import { RecurringBudgetManager } from "@/components/budget/RecurringBudgetManager";
 import { PredictiveBudgetingPanel } from "@/components/budget/PredictiveBudgetingPanel";
+import { ConversationalBudgetPanel } from "@/components/budget/ConversationalBudgetPanel";
+import { useGenerativeComponents } from "@/hooks/useGenerativeComponents";
+import { ComponentRenderer } from "@/components/generative-ui/ComponentRenderer";
 
 // Lazy load heavy components
 const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
@@ -237,6 +240,21 @@ export default function Budget() {
                      budgetHealth === 'warning' ? 'warning' :
                      budgetHealth === 'excellent' ? 'success' : 'neutral';
 
+  // Generative components based on context
+  const now = new Date();
+  const dayOfMonth = now.getDate();
+  const timeInMonth = dayOfMonth <= 10 ? 'beginning' : dayOfMonth <= 20 ? 'middle' : 'end';
+  
+  const { components: generativeComponents } = useGenerativeComponents({
+    budgets,
+    spending,
+    userContext: {
+      timeInMonth,
+      budgetHealth: budgetHealth as any,
+      recentActivity: []
+    }
+  });
+
   if (budgetsLoading) {
     return (
       <AppLayout>
@@ -312,6 +330,35 @@ export default function Budget() {
             Recurring
           </Button>
         </div>
+
+        {/* Conversational AI Panel */}
+        <ScrollSection>
+          <ConversationalBudgetPanel className="mb-6" />
+        </ScrollSection>
+
+        {/* Context-Aware Generative Components */}
+        {generativeComponents.length > 0 && (
+          <ScrollSection>
+            <div className="space-y-4 mb-6">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                AI-Generated Insights
+              </h3>
+              <div className="grid gap-4">
+                {generativeComponents.map((component, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <ComponentRenderer componentData={component} />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </ScrollSection>
+        )}
 
         {/* Overview Tab */}
         {/* Automation Promotion */}
