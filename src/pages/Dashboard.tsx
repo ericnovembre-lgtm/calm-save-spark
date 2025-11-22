@@ -88,6 +88,10 @@ import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { DailyBriefingCard } from "@/components/dashboard/DailyBriefingCard";
 import { SmartActionsRow } from "@/components/dashboard/SmartActionsRow";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useGenerativeLayoutEngine } from "@/hooks/useGenerativeLayoutEngine";
+import { DailyBriefingAgent } from "@/components/dashboard/DailyBriefingAgent";
+import { SmartActionChips } from "@/components/dashboard/SmartActionChips";
+import { GenerativeWidgetGrid } from "@/components/dashboard/GenerativeWidgetGrid";
 
 import { withPageMemo } from "@/lib/performance-utils";
 import { Suspense } from "react";
@@ -259,6 +263,14 @@ export default function Dashboard() {
   // Calculate net worth change percentage for sentiment UI
   const netWorthChangePercent = totalBalance > 0 ? (monthlyChange / totalBalance) * 100 : 0;
 
+  // Generative Layout Engine - analyzes urgency and assigns priority scores
+  const layoutPriorities = useGenerativeLayoutEngine({
+    dashboardData,
+    totalBalance,
+    monthlyChange,
+    hasAccounts: (accounts?.length || 0) > 0
+  });
+
   // Calculate savings velocity (0-100) based on recent activity
   const savingsVelocity = Math.min(100, Math.max(0, 
     Math.abs(monthlyChange) / (totalBalance || 1) * 100 * 5 // Scale up for visibility
@@ -307,6 +319,34 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: ['achievements'] }),
     ]);
     toast.success('Dashboard refreshed!');
+  };
+
+  // Handler for smart action chips
+  const handleSmartAction = (actionId: string) => {
+    switch (actionId) {
+      case 'setup-autosave':
+        toast.success('Opening Auto-Save settings...');
+        // Navigate to auto-save setup
+        break;
+      case 'complete-goal':
+        toast.success('Opening Goals...');
+        // Scroll to goals section
+        break;
+      case 'review-portfolio':
+        toast.success('Opening Portfolio...');
+        // Navigate to investments
+        break;
+      case 'review-budget':
+        toast.success('Opening Budgets...');
+        // Navigate to budgets
+        break;
+      case 'move-to-savings':
+        toast.success('Opening Transfer...');
+        // Open transfer dialog
+        break;
+      default:
+        break;
+    }
   };
 
   // Card mapping for reorderable sections
@@ -702,11 +742,30 @@ export default function Dashboard() {
         <DynamicHeroOrchestrator />
       </div>
 
-      {/* Daily Briefing - AI-generated financial summary */}
-      <DailyBriefingCard />
-
-      {/* Smart Actions Row - Context-aware action buttons */}
-      <SmartActionsRow />
+      {/* Sentiment Background Effect - subtle gradient shift based on net worth */}
+      <SentimentBackground netWorthChangePercent={netWorthChangePercent} />
+      
+      {/* Generative Dashboard Layout */}
+      <div className="space-y-6">
+        {/* Daily Briefing Agent - Natural language summary */}
+        <DailyBriefingAgent
+          totalBalance={totalBalance}
+          monthlyChange={monthlyChange}
+          topPriorities={layoutPriorities.slice(0, 3)}
+        />
+        
+        {/* Smart Action Chips - Context-aware quick actions */}
+        <SmartActionChips
+          priorities={layoutPriorities}
+          onAction={handleSmartAction}
+        />
+        
+        {/* Generative Widget Grid - Adaptive priority-based layout */}
+        <GenerativeWidgetGrid
+          priorities={layoutPriorities}
+          widgets={cardComponents}
+        />
+      </div>
 
       {/* Proactive Insight Stream */}
       {userId && <InsightStreamPanel userId={userId} />}
