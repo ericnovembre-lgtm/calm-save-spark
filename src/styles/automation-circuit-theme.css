@@ -208,6 +208,42 @@
   text-shadow: 0 0 8px hsl(var(--circuit-line) / 0.5);
 }
 
+/* Conversational Logic Blocks */
+.logic-block {
+  @apply rounded-xl p-4 border-2 flex gap-3 items-start;
+  @apply backdrop-blur-sm transition-all duration-300;
+}
+
+.logic-block-trigger {
+  @apply bg-green-950/30 border-green-500/50;
+  @apply hover:border-green-400 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)];
+}
+
+.logic-block-action {
+  @apply bg-blue-950/30 border-blue-500/50;
+  @apply hover:border-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)];
+}
+
+.logic-block-icon {
+  @apply text-2xl flex-shrink-0;
+}
+
+.logic-block-content {
+  @apply flex-1 min-w-0;
+}
+
+.logic-block-label {
+  @apply text-xs font-mono tracking-wider opacity-60 uppercase mb-1;
+}
+
+.logic-block-title {
+  @apply font-semibold text-sm mb-2;
+}
+
+.logic-block-details {
+  @apply text-xs opacity-80 space-y-1;
+}
+
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .led-indicator,
