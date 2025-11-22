@@ -5,8 +5,10 @@ import { MessageBubble } from './MessageBubble';
 import { UserResponseCard } from './UserResponseCard';
 import { EnhancedTypewriter } from './EnhancedTypewriter';
 import { NativePlaidConnect } from './NativePlaidConnect';
+import { RetryIndicator } from './RetryIndicator';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useHapticFeedback } from '@/hooks/useHapticFeedback';
+import { useEdgeFunctionCall } from '@/hooks/useEdgeFunctionCall';
 import { toast } from 'sonner';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -38,6 +40,11 @@ export function ConversationalOnboarding({ userId }: ConversationalOnboardingPro
   const [persona, setPersona] = useState<any>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showPlaid, setShowPlaid] = useState(false);
+  const [retryAttempt, setRetryAttempt] = useState(0);
+
+  // Edge function hook with retry logic
+  const { invoke: generatePersonaEdge, loading: personaLoading } = 
+    useEdgeFunctionCall<{ persona: any; fallbackPersona?: any; retryable?: boolean }>('generate-onboarding-persona');
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -199,32 +206,117 @@ export function ConversationalOnboarding({ userId }: ConversationalOnboardingPro
 
   const generatePersona = async (data: Record<string, any>) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      setIsTyping(true);
+      setRetryAttempt(1);
+      
+      // Show personalization message
+      const tempMsgId = crypto.randomUUID();
+      setMessages(prev => [...prev, {
+        id: tempMsgId,
+        type: 'system',
+        content: 'Personalizing your experience...',
+        timestamp: Date.now(),
+        metadata: { skipResponse: true, isTemporary: true }
+      }]);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-onboarding-persona`,
+      const result = await generatePersonaEdge(
         {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            goalType: data.goalType,
-            userName: data.name,
-            challenges: data.challenges
-          })
+          goalType: data.goalType,
+          userName: data.name,
+          challenges: data.challenges
+        },
+        {
+          retries: 3,
+          showSuccessToast: false
         }
       );
 
-      if (response.ok) {
-        const { persona: newPersona } = await response.json();
-        setPersona(newPersona);
+      // Remove temporary message
+      setMessages(prev => prev.filter(m => m.id !== tempMsgId));
+
+      if (result?.persona) {
+        setPersona(result.persona);
+      } else if (result?.fallbackPersona) {
+        // Use fallback persona from edge function
+        setPersona(result.fallbackPersona);
+        toast.info('Using smart defaults for your goal', {
+          description: 'Your experience will adapt as you use $ave+',
+          duration: 3000
+        });
+      } else {
+        // Client-side fallback
+        const clientFallback = getClientFallbackPersona(data.goalType, data.name);
+        setPersona(clientFallback);
+        toast.info('Getting you started quickly...', {
+          duration: 2000
+        });
       }
     } catch (error) {
-      console.error('Error generating persona:', error);
+      console.error('Persona generation failed:', error);
+      
+      // Use client-side fallback
+      const clientFallback = getClientFallbackPersona(data.goalType, data.name);
+      setPersona(clientFallback);
+      
+      // Silent fallback
+      toast.info('Getting you started quickly...', {
+        duration: 2000
+      });
+    } finally {
+      setIsTyping(false);
+      setRetryAttempt(0);
     }
+  };
+
+  const getClientFallbackPersona = (goalType: string, userName: string) => {
+    const fallbacks: Record<string, any> = {
+      home: {
+        goalType: 'home',
+        visualTheme: { primaryIcon: '🏠', accentColor: '#d6c8a2' },
+        copyVariations: {
+          welcomeMessage: `Great choice, ${userName}! Let's build your home savings plan.`,
+          goalAmountQuestion: 'How much do you need for your down payment?',
+          automationPitch: 'Automate your savings so you can focus on finding your dream home.',
+          completionMessage: '🎉 You\'re on your way to homeownership!',
+          goalSuggestions: ['Save 3.5% for FHA', 'Build closing cost fund', 'Track monthly progress']
+        }
+      },
+      vacation: {
+        goalType: 'vacation',
+        visualTheme: { primaryIcon: '✈️', accentColor: '#d6c8a2' },
+        copyVariations: {
+          welcomeMessage: `Perfect, ${userName}! Let's make your travel dreams come true.`,
+          goalAmountQuestion: 'How much do you want to save for your trip?',
+          automationPitch: 'Set automatic savings and watch your travel fund grow.',
+          completionMessage: '🎉 Your adventure awaits!',
+          goalSuggestions: ['Save $200/month', 'Research destinations', 'Track progress weekly']
+        }
+      },
+      emergency: {
+        goalType: 'emergency',
+        visualTheme: { primaryIcon: '🛡️', accentColor: '#d6c8a2' },
+        copyVariations: {
+          welcomeMessage: `Smart move, ${userName}! Let's build your financial safety net.`,
+          goalAmountQuestion: 'How much do you want in your emergency fund?',
+          automationPitch: 'Automate small transfers to build your security fund effortlessly.',
+          completionMessage: '🎉 You\'re building financial security!',
+          goalSuggestions: ['Aim for 3-6 months expenses', 'Start with $1000', 'Build gradually']
+        }
+      },
+      general: {
+        goalType: 'general',
+        visualTheme: { primaryIcon: '💰', accentColor: '#d6c8a2' },
+        copyVariations: {
+          welcomeMessage: `Great choice, ${userName}! Let's build your savings plan.`,
+          goalAmountQuestion: 'How much do you want to save?',
+          automationPitch: 'Automated savings help you reach your goals faster without thinking about it.',
+          completionMessage: '🎉 Your account is all set! Time to start saving.',
+          goalSuggestions: ['Start small with $50/month', 'Set up automatic transfers', 'Track your progress weekly']
+        }
+      }
+    };
+    
+    return fallbacks[goalType] || fallbacks.general;
   };
 
   const handlePlaidSuccess = async () => {
@@ -430,7 +522,11 @@ export function ConversationalOnboarding({ userId }: ConversationalOnboardingPro
               </motion.div>
             ))}
 
-            {isTyping && (
+            {isTyping && retryAttempt > 0 && (
+              <RetryIndicator attempt={retryAttempt} maxAttempts={3} />
+            )}
+
+            {isTyping && retryAttempt === 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
