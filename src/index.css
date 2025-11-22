@@ -72,6 +72,10 @@ All colors MUST be HSL.
     --glass-shadow-subtle: 0 4px 16px 0 hsla(0, 0%, 0%, 0.08);
     --glass-shadow-elevated: 0 16px 64px 0 hsla(0, 0%, 0%, 0.15);
     --glass-shadow-elevated-hover: 0 20px 80px 0 hsla(0, 0%, 0%, 0.2);
+    
+    --glass-blur: blur(12px);
+    --glass-blur-strong: blur(20px);
+    --glass-blur-subtle: blur(8px);
 
     /* Gradients and effects */
     --gradient-subtle: linear-gradient(135deg, #F8F6F0, #E9DFCE);
@@ -92,12 +96,6 @@ All colors MUST be HSL.
     --z-modal: 40;
     --z-notification: 50;
     --z-debug: 9999;
-
-    /* Glass effects */
-    --glass-bg: rgba(248, 246, 240, 0.7);
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --glass-blur: blur(12px);
-    --glass-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.12);
 
     /* Financial Health specific tokens */
     --health-excellent: 142 76% 36%; /* Green */
@@ -198,12 +196,31 @@ All colors MUST be HSL.
     --input: 0 0% 16%;
     --ring: 40 25% 96%;
 
+    /* Phase 7: Enhanced Glassmorphism Tokens - Dark Mode */
+    --glass-bg: hsla(var(--background), 0.7);
+    --glass-bg-strong: hsla(var(--background), 0.85);
+    --glass-bg-subtle: hsla(var(--background), 0.5);
+    --glass-bg-hover: hsla(var(--background), 0.75);
+    
+    --glass-border: hsla(var(--foreground), 0.1);
+    --glass-border-strong: hsla(var(--foreground), 0.15);
+    --glass-border-subtle: hsla(var(--foreground), 0.05);
+    --glass-border-hover: hsla(var(--foreground), 0.12);
+    
+    --glass-shadow: 0 8px 32px 0 hsla(0, 0%, 100%, 0.08);
+    --glass-shadow-strong: 0 12px 48px 0 hsla(0, 0%, 100%, 0.12);
+    --glass-shadow-subtle: 0 4px 16px 0 hsla(0, 0%, 100%, 0.05);
+    --glass-shadow-elevated: 0 16px 64px 0 hsla(0, 0%, 100%, 0.1);
+    --glass-shadow-elevated-hover: 0 20px 80px 0 hsla(0, 0%, 100%, 0.15);
+    
+    --glass-blur: blur(12px);
+    --glass-blur-strong: blur(20px);
+    --glass-blur-subtle: blur(8px);
+    
     /* Dark mode effects */
     --gradient-subtle: linear-gradient(135deg, #000000, #0F0F0F);
     --shadow-soft: 0 2px 8px -2px hsl(0 0% 100% / 0.05);
     --shadow-card: 0 4px 16px -4px hsl(0 0% 100% / 0.08);
-    --glass-bg: rgba(15, 15, 15, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
 
     /* Backward-compat: orbital vars for dark mode */
     --orbital-space: var(--color-bg);

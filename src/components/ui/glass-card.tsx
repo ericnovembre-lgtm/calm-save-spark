@@ -79,7 +79,7 @@ export function GlassCard({
       onClick={onClick}
   className={cn(
     // Phase 7: Enhanced glassmorphism
-    "relative rounded-2xl",
+    "relative rounded-2xl overflow-hidden",
     "bg-glass border border-glass-border",
     "backdrop-blur-glass shadow-glass",
     
@@ -87,12 +87,6 @@ export function GlassCard({
     "transition-all duration-300",
     "hover:shadow-glass-elevated hover:bg-glass-hover",
     "hover:border-glass-border-hover",
-    
-    // Gradient border shimmer
-    "before:absolute before:inset-0 before:rounded-2xl before:p-[1px]",
-    "before:bg-gradient-to-br before:from-primary/20 before:via-transparent before:to-accent/20",
-    "before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
-    "before:-z-10",
     
     // Glow effect
     glowOnHover && "hover:shadow-[0_0_30px_hsla(var(--primary),0.15)]",
@@ -103,22 +97,24 @@ export function GlassCard({
     className
   )}
 >
-      {/* Shimmer overlay on hover */}
-      <motion.div
-        className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-        style={{
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)",
-          backgroundSize: "200% 100%"
-        }}
-        animate={{
-          backgroundPosition: ["0% 0%", "200% 0%"]
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
+      {/* Subtle shimmer overlay on hover */}
+      {!prefersReducedMotion && (
+        <motion.div
+          className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          style={{
+            background: "linear-gradient(90deg, transparent, hsla(var(--accent), 0.1), transparent)",
+            backgroundSize: "200% 100%"
+          }}
+          animate={{
+            backgroundPosition: ["0% 0%", "200% 0%"]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+      )}
       
       {/* Content */}
       <div className="relative z-10">

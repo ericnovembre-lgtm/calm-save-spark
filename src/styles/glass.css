@@ -13,11 +13,24 @@
   box-shadow: var(--glass-shadow);
 }
 
-/* Dark mode glass effects */
-.dark .bg-glass {
-  background: rgba(0, 0, 0, 0.7);
+/* Glass hover states */
+.bg-glass:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
 }
 
-.dark .border-glass-border {
-  border-color: rgba(248, 246, 240, 0.1);
+/* Backdrop blur variants */
+.backdrop-blur-glass {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.backdrop-blur-glass-strong {
+  backdrop-filter: var(--glass-blur-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+}
+
+.backdrop-blur-glass-subtle {
+  backdrop-filter: var(--glass-blur-subtle);
+  -webkit-backdrop-filter: var(--glass-blur-subtle);
 }

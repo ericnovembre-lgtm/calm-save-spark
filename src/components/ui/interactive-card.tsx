@@ -51,8 +51,9 @@ export const InteractiveCard = forwardRef<HTMLDivElement, InteractiveCardProps>(
     <motion.div
       ref={ref}
       className={cn(
-        'bg-card rounded-lg shadow-[var(--shadow-card)]',
-        'border border-transparent transition-colors duration-300',
+        'bg-glass border border-glass-border rounded-2xl',
+        'backdrop-blur-glass shadow-glass',
+        'transition-all duration-300',
         'cursor-pointer',
         className
       )}
@@ -60,8 +61,9 @@ export const InteractiveCard = forwardRef<HTMLDivElement, InteractiveCardProps>(
       whileHover={prefersReducedMotion ? {} : { 
         scale: scaleOnHover,
         y: -4,
-        borderColor: 'hsl(var(--primary) / 0.2)',
-        boxShadow: 'var(--shadow-soft)'
+        borderColor: 'var(--glass-border-hover)',
+        backgroundColor: 'var(--glass-bg-hover)',
+        boxShadow: 'var(--glass-shadow-elevated)'
       }}
       whileTap={prefersReducedMotion ? {} : { 
         scale: scaleOnPress 

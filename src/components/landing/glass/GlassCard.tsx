@@ -32,22 +32,25 @@ export function GlassCard({
     >
       <Card
         className={cn(
-          'relative overflow-hidden border-primary/10',
+          'relative overflow-hidden',
+          'bg-glass border-glass-border backdrop-blur-glass',
+          'shadow-glass hover:shadow-glass-elevated',
+          'transition-all duration-300',
           intensityClasses[intensity],
           className
         )}
         {...props}
       >
-        {/* Gradient border effect */}
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none" />
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
         
         {/* Subtle shimmer on hover */}
         {!prefersReducedMotion && (
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent"
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent"
             initial={{ x: '-100%' }}
             whileHover={{ x: '100%' }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
           />
         )}
         
