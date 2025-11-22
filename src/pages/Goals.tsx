@@ -351,6 +351,55 @@ const Goals = () => {
           <>
             <GoalAnalytics goals={memoizedGoals} />
 
+            {/* Debug: Test Visual Generation */}
+            <Card className="bg-yellow-50 border-yellow-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-yellow-800">Debug: Test Goal Visual Generation</h3>
+                    <p className="text-sm text-yellow-600">Click to test the edge function with proper error logging</p>
+                  </div>
+                  <Button 
+                    onClick={async () => {
+                      console.log('🧪 Testing generate-goal-visual edge function...');
+                      try {
+                        const { data, error } = await supabase.functions.invoke('generate-goal-visual', {
+                          body: { goalName: 'Paris Vacation' }
+                        });
+                        
+                        if (error) {
+                          console.error('❌ Edge function error:', error);
+                          toast({
+                            title: "Edge Function Error",
+                            description: error.message || JSON.stringify(error),
+                            variant: "destructive"
+                          });
+                        } else {
+                          console.log('✅ Success! Data:', data);
+                          toast({
+                            title: "Visual Generated!",
+                            description: `Cached: ${data.cached}, URL: ${data.imageUrl?.substring(0, 50)}...`
+                          });
+                        }
+                      } catch (err: any) {
+                        console.error('❌ Caught error:', err);
+                        toast({
+                          title: "Test Failed",
+                          description: err.message || 'Unknown error',
+                          variant: "destructive"
+                        });
+                      }
+                    }}
+                    variant="outline"
+                    className="border-yellow-300"
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    Test Function
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             <Accordion type="single" collapsible className="w-full" data-tour="ai-insights">
               <AccordionItem value="ai-insights" className="border rounded-lg px-4">
                 <AccordionTrigger className="hover:no-underline">
