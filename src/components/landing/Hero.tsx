@@ -4,7 +4,7 @@ import { TypewriterText } from "@/components/welcome/TypewriterText";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { HolographicButton } from "./hero/HolographicButton";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState } from "react";
 
 const Financial3DUniverse = lazy(() => 
   import('./hero/Financial3DUniverse').then(m => ({ default: m.Financial3DUniverse }))
@@ -16,17 +16,24 @@ const LiveDashboardPreview = lazy(() =>
   import('./hero/LiveDashboardPreview').then(m => ({ default: m.LiveDashboardPreview }))
 );
 
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+
 export const Hero = () => {
   const prefersReducedMotion = useReducedMotion();
+  const [show3D, setShow3D] = useState(false);
 
   return (
     <section className="relative min-h-[90vh] flex items-center px-4 md:px-20 py-20">
       <div className="absolute inset-0 bg-background" />
       
-      {/* 3D Financial Universe */}
-      <Suspense fallback={null}>
-        <Financial3DUniverse />
-      </Suspense>
+      {/* 3D Financial Universe - Load on demand */}
+      {show3D && !prefersReducedMotion && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <Financial3DUniverse />
+          </Suspense>
+        </ErrorBoundary>
+      )}
       
       {/* Animated gradient orb */}
       {!prefersReducedMotion && (
@@ -56,9 +63,11 @@ export const Hero = () => {
           className="space-y-8"
         >
           {/* AI Personalized Hero */}
-          <Suspense fallback={null}>
-            <AIPersonalizedHero />
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <AIPersonalizedHero />
+            </Suspense>
+          </ErrorBoundary>
           <h1 className="font-display font-bold text-5xl md:text-7xl xl:text-8xl text-foreground leading-tight">
             Get Rewarded For{" "}
             <span className="inline-block whitespace-nowrap min-w-[20ch]">
@@ -141,20 +150,37 @@ export const Hero = () => {
                 </span>
               </HolographicButton>
             </Link>
-            <Link to="/auth" className="inline-block">
-              <HolographicButton variant="outline" className="px-8 py-4 text-lg">
-                <span className="flex items-center">
-                  Explore AI Agents
-                  <Sparkles className="ml-2 w-4 h-4" />
-                </span>
-              </HolographicButton>
-            </Link>
+            {!show3D && !prefersReducedMotion && (
+              <button 
+                onClick={() => setShow3D(true)}
+                className="inline-block"
+              >
+                <HolographicButton variant="outline" className="px-8 py-4 text-lg">
+                  <span className="flex items-center">
+                    View 3D Experience
+                    <Sparkles className="ml-2 w-4 h-4" />
+                  </span>
+                </HolographicButton>
+              </button>
+            )}
+            {show3D && (
+              <Link to="/auth" className="inline-block">
+                <HolographicButton variant="outline" className="px-8 py-4 text-lg">
+                  <span className="flex items-center">
+                    Explore AI Agents
+                    <Sparkles className="ml-2 w-4 h-4" />
+                  </span>
+                </HolographicButton>
+              </Link>
+            )}
           </motion.div>
           
           {/* Live Dashboard Preview */}
-          <Suspense fallback={<div className="h-48 rounded-lg bg-muted/20 animate-pulse" />}>
-            <LiveDashboardPreview />
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<div className="h-48 rounded-lg bg-muted/20 animate-pulse" />}>
+              <LiveDashboardPreview />
+            </Suspense>
+          </ErrorBoundary>
           
           <p className="text-sm text-muted-foreground">
             ✓ Free forever plan • ✓ No credit card required • ✓ Cancel anytime
