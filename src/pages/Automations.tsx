@@ -18,6 +18,7 @@ import { KeyboardShortcutsHelp } from "@/components/automations/KeyboardShortcut
 import { useAutomationKeyboardShortcuts } from "@/hooks/useAutomationKeyboardShortcuts";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { trackEvent } from "@/lib/analytics";
+import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import "@/styles/automation-circuit-theme.css";
 
