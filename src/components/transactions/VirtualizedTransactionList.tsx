@@ -4,6 +4,7 @@ import { useVirtualTransactions } from "@/hooks/useVirtualTransactions";
 import { TransactionCard } from "./TransactionCard";
 import { LoadingState } from "@/components/LoadingState";
 import { DollarSign } from "lucide-react";
+import { useMerchantLogoPreload } from "@/hooks/useMerchantLogoPreload";
 
 interface VirtualizedTransactionListProps {
   filters?: {
@@ -30,6 +31,14 @@ export function VirtualizedTransactionList({ filters }: VirtualizedTransactionLi
 
   // Flatten all pages into single array
   const allTransactions = data?.pages.flatMap(page => page.transactions) ?? [];
+
+  // Preload merchant logos for first 50 visible transactions
+  const visibleMerchants = allTransactions
+    .slice(0, 50)
+    .map(t => t.merchant)
+    .filter(Boolean) as string[];
+  
+  useMerchantLogoPreload(visibleMerchants);
 
   const rowVirtualizer = useVirtualizer({
     count: hasNextPage ? allTransactions.length + 1 : allTransactions.length,
