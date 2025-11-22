@@ -198,6 +198,24 @@ verify_jwt = true
 [functions.plaid-exchange-token]
 verify_jwt = true
 
+[functions.portfolio-insights]
+verify_jwt = true
+
+[functions.smart-rebalance]
+verify_jwt = true
+
+[functions.realtime-market-data]
+verify_jwt = false
+
+[functions.fetch-market-data]
+verify_jwt = false
+
+[functions.fetch-market-news]
+verify_jwt = false
+
+[functions.fetch-benchmark-data]
+verify_jwt = false
+
 
 
 

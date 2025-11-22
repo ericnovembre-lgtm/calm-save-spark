@@ -46,6 +46,67 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
     },
   });
 
+  // Initial data load effect - populate benchmark and market data if empty
+  useEffect(() => {
+    const checkAndLoadInitialData = async () => {
+      try {
+        // Check if benchmark data exists
+        const { data: benchmarkData } = await supabase
+          .from('benchmark_data')
+          .select('*')
+          .limit(1);
+
+        if (!benchmarkData || benchmarkData.length === 0) {
+          console.log('Loading initial benchmark data...');
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          // Trigger initial benchmark data load (30 days historical)
+          await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-benchmark-data`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ initial: true }),
+            }
+          );
+          
+          toast.success('Loading market benchmarks...');
+        }
+
+        // Check if holdings exist and trigger market data fetch
+        if (holdings && holdings.length > 0) {
+          const { data: marketData } = await supabase
+            .from('market_data_cache')
+            .select('*')
+            .limit(1);
+
+          if (!marketData || marketData.length === 0) {
+            console.log('Loading initial market data...');
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-market-data`,
+              {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      }
+    };
+
+    checkAndLoadInitialData();
+  }, [holdings]);
+
   const syncMutation = useMutation({
     mutationFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();

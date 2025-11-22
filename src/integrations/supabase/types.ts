@@ -4787,6 +4787,48 @@ export type Database = {
         }
         Relationships: []
       }
+      market_news_cache: {
+        Row: {
+          cached_at: string | null
+          created_at: string | null
+          expires_at: string | null
+          headline: string
+          id: string
+          published_at: string | null
+          relevance_score: number | null
+          sentiment: string | null
+          source: string | null
+          symbol: string
+          url: string | null
+        }
+        Insert: {
+          cached_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          headline: string
+          id?: string
+          published_at?: string | null
+          relevance_score?: number | null
+          sentiment?: string | null
+          source?: string | null
+          symbol: string
+          url?: string | null
+        }
+        Update: {
+          cached_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          headline?: string
+          id?: string
+          published_at?: string | null
+          relevance_score?: number | null
+          sentiment?: string | null
+          source?: string | null
+          symbol?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       merchant_category_mappings: {
         Row: {
           category: string
@@ -8821,6 +8863,7 @@ export type Database = {
       calculate_health_trend: { Args: { p_user_id: string }; Returns: number }
       clean_expired_insights_cache: { Args: never; Returns: undefined }
       cleanup_expired_ip_blocks: { Args: never; Returns: undefined }
+      cleanup_expired_news_cache: { Args: never; Returns: undefined }
       cleanup_expired_nudges: { Args: never; Returns: undefined }
       cleanup_expired_webauthn_challenges: { Args: never; Returns: undefined }
       cleanup_old_analytics_events: { Args: never; Returns: undefined }
