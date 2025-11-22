@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, CreditCard, TrendingUp, Award, Sparkles } from "lucide-react";
-import { TypewriterText } from "@/components/welcome/TypewriterText";
+import { TypewriterTextFade } from "@/components/welcome/TypewriterTextFade";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { HolographicButton } from "./hero/HolographicButton";
@@ -71,7 +71,7 @@ export const Hero = () => {
           <h1 className="font-display font-bold text-5xl md:text-7xl xl:text-8xl text-foreground leading-tight">
             Get Rewarded For{" "}
             <span className="inline-block whitespace-nowrap min-w-[20ch]">
-              <TypewriterText
+              <TypewriterTextFade
                 phrases={[
                   "Saving, Not Spending",
                   "Owning, Not Loaning",

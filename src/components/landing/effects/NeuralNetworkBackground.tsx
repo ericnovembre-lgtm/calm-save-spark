@@ -27,12 +27,12 @@ export function NeuralNetworkBackground() {
     };
     setCanvasSize();
 
-    const nodeCount = 50;
+    const nodeCount = 25;
     const nodes: Node[] = Array.from({ length: nodeCount }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
     }));
 
     const maxDistance = 150;
@@ -127,7 +127,7 @@ export function NeuralNetworkBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none opacity-30 -z-10"
+      className="fixed inset-0 pointer-events-none opacity-10 -z-10"
       style={{ mixBlendMode: 'multiply' }}
     />
   );
