@@ -33,18 +33,21 @@ export function GenerativeWidgetGrid({
   };
 
   return (
-    <motion.div
-      layout
+    <Reorder.Group
+      axis="y"
+      values={priorities}
+      onReorder={(newOrder) => onReorder?.(newOrder)}
       className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      as="div"
     >
       {priorities.map((priority, index) => {
         const widget = widgets[priority.id];
         if (!widget) return null;
 
         return (
-          <motion.div
+          <Reorder.Item
             key={priority.id}
-            layout
+            value={priority}
             layoutId={priority.id}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -58,7 +61,9 @@ export function GenerativeWidgetGrid({
               opacity: { duration: 0.3 },
               delay: index * 0.05
             }}
-            className={getGridClass(priority.size)}
+            className={`${getGridClass(priority.size)} cursor-grab active:cursor-grabbing hover:scale-[1.01] transition-transform`}
+            drag="y"
+            as="div"
           >
             {/* Priority indicator badge */}
             {priority.score > 80 && (
@@ -77,12 +82,12 @@ export function GenerativeWidgetGrid({
             )}
             
             {/* Widget wrapper with glassmorphic styling */}
-            <div className="h-full">
+            <div className="h-full backdrop-blur-lg bg-background/5 border border-border/10 rounded-xl">
               {widget}
             </div>
-          </motion.div>
+          </Reorder.Item>
         );
       })}
-    </motion.div>
+    </Reorder.Group>
   );
 }
