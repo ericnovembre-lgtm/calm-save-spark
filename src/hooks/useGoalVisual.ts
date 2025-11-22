@@ -54,7 +54,9 @@ export const useGoalVisual = ({ goalName, enabled = true }: UseGoalVisualOptions
   };
 
   useEffect(() => {
-    generateVisual();
+    if (enabled) {
+      generateVisual();
+    }
   }, [goalName, enabled]);
 
   const regenerate = async () => {
