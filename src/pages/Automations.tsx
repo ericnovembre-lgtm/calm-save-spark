@@ -10,11 +10,13 @@ import { AutomationFormModal } from "@/components/automations/AutomationFormModa
 import { RoundUpsCard } from "@/components/automations/RoundUpsCard";
 import { SafetyRulesCard } from "@/components/automations/SafetyRulesCard";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { MoneyFlowGraph } from "@/components/automations/MoneyFlowGraph";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { LoadingState } from "@/components/LoadingState";
+import "@/styles/automation-circuit-theme.css";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -222,12 +224,48 @@ export default function Automations() {
           </Card>
         </motion.div>
 
+        {/* Money Flow Visualizer */}
+        {scheduledAutomations.length > 0 && (
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ delay: 0.1 }}
+          >
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle>Money Flow Circuit</CardTitle>
+                    <CardDescription>
+                      Visualize how your automations route funds
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <MoneyFlowGraph 
+                  automations={scheduledAutomations.map(auto => ({
+                    id: auto.id,
+                    rule_name: auto.rule_name,
+                    is_active: auto.is_active,
+                    action_config: auto.action_config as { amount?: number },
+                  }))} 
+                />
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Round-ups Card */}
         <motion.div
           variants={fadeInUp}
           initial="initial"
           animate="animate"
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.2 }}
         >
           <RoundUpsCard
             enabled={roundUpsEnabled}
@@ -240,7 +278,7 @@ export default function Automations() {
           variants={fadeInUp}
           initial="initial"
           animate="animate"
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.3 }}
         >
           <Card>
             <CardHeader>
@@ -320,7 +358,7 @@ export default function Automations() {
           variants={fadeInUp}
           initial="initial"
           animate="animate"
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.4 }}
         >
           <SafetyRulesCard
             minBalance={safetyMinBalance}
@@ -334,7 +372,7 @@ export default function Automations() {
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.5 }}
           >
             <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200 dark:border-blue-900">
               <div className="flex items-start gap-3">
