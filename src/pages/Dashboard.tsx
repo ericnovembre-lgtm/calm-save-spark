@@ -1,92 +1,36 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { BalanceCard } from "@/components/BalanceCard";
 import { EnhancedBalanceCard } from "@/components/dashboard/EnhancedBalanceCard";
-import { SwipeableGoalCard } from "@/components/dashboard/SwipeableGoalCard";
-import { CommandPalette } from "@/components/dashboard/CommandPalette";
-import { UnifiedFAB } from "@/components/dashboard/UnifiedFAB";
-import { AIInsightsCard } from "@/components/dashboard/AIInsightsCard";
-import { PredictiveAnalytics } from "@/components/dashboard/PredictiveAnalytics";
-import { KeyboardHints } from "@/components/dashboard/KeyboardHints";
-import { AutoSaveBanner } from "@/components/dashboard/AutoSaveBanner";
-import { EmailVerificationBanner } from "@/components/dashboard/EmailVerificationBanner";
 import { GoalsSection } from "@/components/dashboard/GoalsSection";
 import { ManualTransferCard } from "@/components/dashboard/ManualTransferCard";
-import { ScheduledTransferDialog } from "@/components/dashboard/ScheduledTransferDialog";
-import { ScheduledTransfersList } from "@/components/dashboard/ScheduledTransfersList";
-import { TransferHistory } from "@/components/dashboard/TransferHistory";
 import JourneyMilestones from "@/components/dashboard/JourneyMilestones";
-import { OnboardingProgress } from "@/components/dashboard/OnboardingProgress";
 import { ConnectAccountCard } from "@/components/dashboard/ConnectAccountCard";
-import { LoadingState } from "@/components/LoadingState";
-import { AchievementNotification } from "@/components/gamification/AchievementNotification";
-import { useAchievementNotifications } from "@/hooks/useAchievementNotifications";
-import ProactiveRecommendations from "@/components/dashboard/ProactiveRecommendations";
-import CashFlowForecast from "@/components/dashboard/CashFlowForecast";
-import SkillTreeProgress from "@/components/dashboard/SkillTreeProgress";
-import PeerInsights from "@/components/dashboard/PeerInsights";
-import { DynamicWelcome } from "@/components/dashboard/DynamicWelcome";
-import { GoalTimeline } from "@/components/dashboard/GoalTimeline";
-import { StreakRecoveryBanner } from "@/components/dashboard/StreakRecoveryBanner";
-import { StreakTrackerHeader } from "@/components/gamification/StreakTrackerHeader";
-import { LevelSystem } from "@/components/gamification/LevelSystem";
-import { EnhancedAchievementToast } from "@/components/gamification/EnhancedAchievementToast";
-import { GoalCompletionCelebration } from "@/components/gamification/GoalCompletionCelebration";
 import { ChallengeCard } from "@/components/gamification/ChallengeCard";
-import { useEnhancedAchievements } from "@/hooks/useEnhancedAchievements";
+import CashFlowForecast from "@/components/dashboard/CashFlowForecast";
+import { UnifiedAIInsights } from "@/components/dashboard/UnifiedAIInsights";
+import { CommandPalette } from "@/components/dashboard/CommandPalette";
+import { UnifiedFAB } from "@/components/dashboard/UnifiedFAB";
+import { EmailVerificationBanner } from "@/components/dashboard/EmailVerificationBanner";
+import { KeyboardHints } from "@/components/dashboard/KeyboardHints";
 import { SkipLinks } from "@/components/accessibility/SkipLinks";
 import { LiveRegionAnnouncer, useAnnounce } from "@/components/accessibility/LiveRegionAnnouncer";
-import { useProgressiveSections } from "@/hooks/useProgressiveLoad";
-import { SkeletonCard } from "@/components/ui/skeleton-card";
-import { useKeyboardShortcuts, defaultDashboardShortcuts, useShortcutsHelp } from "@/hooks/useKeyboardShortcuts";
 import { SyncIndicator } from "@/components/ui/sync-indicator";
 import { useSyncStatus } from "@/hooks/useSyncStatus";
-import { LayoutManager } from "@/components/dashboard/LayoutManager";
-import { AdvancedAnalyticsDashboard } from "@/components/analytics/AdvancedAnalyticsDashboard";
-import { ThemeCustomizer } from "@/components/dashboard/ThemeCustomizer";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
-import { BudgetWidget } from "@/components/mobile/BudgetWidget";
 import { QuickActionsWidget } from "@/components/mobile/QuickActionsWidget";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useDashboardOrder } from "@/hooks/useDashboardOrder";
-import { Reorder, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { staggerContainer } from "@/lib/motion-variants";
-import { CollapsibleSection } from "@/components/dashboard/CollapsibleSection";
-import { SaveplusCoachWidget } from "@/components/coach/SaveplusCoachWidget";
 import { ChatSidebar } from "@/components/dashboard/ChatSidebar";
 import { useChatSidebar } from "@/hooks/useChatSidebar";
-import { ProactiveNudgesBanner } from "@/components/dashboard/ProactiveNudgesBanner";
 import { cn } from "@/lib/utils";
-import { InteractiveWizard, hasCompletedWizard } from "@/components/onboarding/InteractiveWizard";
-import { NextGenFeaturesCard } from "@/components/dashboard/NextGenFeaturesCard";
-import { DASHBOARD_WIZARD_STEPS, type WizardStepWithIcon } from "@/lib/wizard-steps";
-import type { WizardStep } from "@/components/onboarding/InteractiveWizard";
-import { createElement } from "react";
-import { DashboardTutorialOverlay } from "@/components/onboarding/DashboardTutorialOverlay";
-import { useKonamiCode } from "@/hooks/useKonamiCode";
 import { DashboardErrorBoundary } from "@/components/error/DashboardErrorBoundary";
-import { PersonalImpactCard } from "@/components/dashboard/PersonalImpactCard";
-import { AIAgentsCard } from "@/components/dashboard/AIAgentsCard";
-import { HelpButton } from "@/components/dashboard/HelpButton";
-import { SecretTheme } from "@/components/effects/SecretTheme";
-import { HolidayEffect } from "@/components/effects/HolidayEffect";
-import { WelcomeBackBanner } from "@/components/auth/WelcomeBackBanner";
-import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { MilestoneCelebration } from "@/components/effects/MilestoneCelebration";
 import { useMilestoneDetector } from "@/hooks/useMilestoneDetector";
-import { FloatingCoins } from "@/components/effects/FloatingCoins";
-import { CursorSpotlight } from "@/components/effects/CursorSpotlight";
-import { TimeOfDayTheme } from "@/components/effects/TimeOfDayTheme";
-import { InsightStreamPanel } from "@/components/insights/InsightStreamPanel";
-import { DynamicHeroOrchestrator } from "@/components/dashboard/DynamicHeroOrchestrator";
 import { SentimentBackground } from "@/components/dashboard/SentimentBackground";
 import { SentimentIndicator } from "@/components/dashboard/SentimentIndicator";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
-import { DailyBriefingCard } from "@/components/dashboard/DailyBriefingCard";
-import { SmartActionsRow } from "@/components/dashboard/SmartActionsRow";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useGenerativeLayoutEngine } from "@/hooks/useGenerativeLayoutEngine";
 import { DailyBriefingAgent } from "@/components/dashboard/DailyBriefingAgent";
@@ -94,46 +38,19 @@ import { SmartActionChips } from "@/components/dashboard/SmartActionChips";
 import { GenerativeWidgetGrid } from "@/components/dashboard/GenerativeWidgetGrid";
 import { PortfolioWidget } from "@/components/dashboard/PortfolioWidget";
 import { BudgetsWidget } from "@/components/dashboard/BudgetsWidget";
-
-import { withPageMemo } from "@/lib/performance-utils";
-import { Suspense } from "react";
-import {
-  LazyIntelligentLayoutEngine,
-  LazyNeuralBalanceForecast,
-  LazyContextualAIAssistant,
-  LazySmartWidgetRecommender,
-  LazyBalanceSphere,
-  LazyFinancialUniverse,
-  LazyDynamicParticleSystem,
-  LazyGenerativeBackground,
-  LazyLiveActivityFeed,
-  LazyDailyQuestSystem,
-  LazyCompetitiveLeaderboards,
-  LazyVoiceCommandSystem
-} from "@/components/dashboard/LazyDashboardAdvanced";
+import { SmartBanner } from "@/components/dashboard/SmartBanner";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+import { useKeyboardShortcuts, defaultDashboardShortcuts, useShortcutsHelp } from "@/hooks/useKeyboardShortcuts";
 
 export default function Dashboard() {
-  const { newAchievements, dismissAchievements } = useAchievementNotifications();
-  const { currentAchievement, handleDismiss: handleAchievementDismiss } = useEnhancedAchievements();
-  const [completedGoal, setCompletedGoal] = useState<any>(null);
   const queryClient = useQueryClient();
-  const [isReordering, setIsReordering] = useState(false);
   const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
-  const [showWizard, setShowWizard] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
-  
-  // Easter eggs
-  const [easterEggsEnabled] = useState(() => localStorage.getItem('easter-eggs-enabled') !== 'false');
-  const { success: konamiActive, reset: resetKonami } = useKonamiCode(() => {
-    if (easterEggsEnabled) toast.success("🎮 Developer Mode Activated!", { duration: 3000 });
-  });
-  
-  // Progressive loading
-  const { isSectionLoaded } = useProgressiveSections();
-  
-  // Accessibility
   const { announce } = useAnnounce();
   const [balanceAnnouncement, setBalanceAnnouncement] = useState('');
+  const isMobile = useIsMobile();
+  
+  // Check onboarding status
+  useOnboardingStatus(true);
   
   // Keyboard shortcuts
   const shortcuts = useKeyboardShortcuts([
@@ -159,54 +76,6 @@ export default function Dashboard() {
   });
 
   const userId = session?.user?.id;
-  
-  // Check onboarding status and redirect if not completed
-  useOnboardingStatus(true);
-  
-  const { cardOrder, updateOrder, collapsedSections, toggleCollapsed } = useDashboardOrder(userId);
-  const isMobile = useIsMobile();
-  
-  // Check if wizard should be shown to first-time users
-  useEffect(() => {
-    const checkWizardStatus = async () => {
-      if (!userId) return;
-      
-      // Check if wizard has been completed
-      if (hasCompletedWizard()) {
-        setShowWizard(false);
-        return;
-      }
-      
-      // Check if user has completed onboarding and should see tutorial
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('onboarding_completed, show_dashboard_tutorial')
-        .eq('id', userId)
-        .single();
-      
-      // Show tutorial if flag is set (from post-onboarding)
-      if (profile?.show_dashboard_tutorial) {
-        setShowTutorial(true);
-        // Clear the flag so it doesn't show again
-        await supabase
-          .from('profiles')
-          .update({ show_dashboard_tutorial: false })
-          .eq('id', userId);
-      }
-      // Otherwise show wizard after initial onboarding
-      else if (profile?.onboarding_completed) {
-        setShowWizard(true);
-      }
-    };
-    
-    checkWizardStatus();
-  }, [userId]);
-  
-  // Convert icon components to React elements
-  const wizardSteps: WizardStep[] = DASHBOARD_WIZARD_STEPS.map(step => ({
-    ...step,
-    icon: step.iconComponent ? createElement(step.iconComponent, { className: "w-5 h-5" }) : undefined
-  }));
   
   const { data: accounts, isLoading: accountsLoading } = useQuery({
     queryKey: ['connected_accounts'],
@@ -237,11 +106,10 @@ export default function Dashboard() {
   
   const { milestone, dismissMilestone } = useMilestoneDetector(totalBalance);
   
-  // Unified dashboard data aggregation (Phase 6)
+  // Unified dashboard data aggregation
   const { 
     data: dashboardData, 
     isLoading: dashboardDataLoading,
-    error: dashboardDataError 
   } = useDashboardData();
   
   // Announce balance changes to screen readers
@@ -275,7 +143,7 @@ export default function Dashboard() {
 
   // Calculate savings velocity (0-100) based on recent activity
   const savingsVelocity = Math.min(100, Math.max(0, 
-    Math.abs(monthlyChange) / (totalBalance || 1) * 100 * 5 // Scale up for visibility
+    Math.abs(monthlyChange) / (totalBalance || 1) * 100 * 5
   ));
 
   // Generate 7-day trend data
@@ -311,7 +179,6 @@ export default function Dashboard() {
     }
   ];
 
-
   // Pull to refresh handler
   const handleRefresh = async () => {
     await Promise.all([
@@ -325,7 +192,6 @@ export default function Dashboard() {
 
   // Handler for smart action chips with optimistic UI
   const handleSmartAction = async (actionId: string) => {
-    // Optimistic UI - show feedback immediately
     const actionMessages: Record<string, string> = {
       'setup-autosave': 'Opening Auto-Save settings...',
       'complete-goal': 'Opening Goals...',
@@ -338,41 +204,71 @@ export default function Dashboard() {
     toast.success(message);
 
     try {
-      // Optimistically update UI state before API call
       switch (actionId) {
         case 'setup-autosave':
-          // Scroll to auto-save section
           document.getElementById('auto-save')?.scrollIntoView({ behavior: 'smooth' });
           break;
         case 'complete-goal':
-          // Scroll to goals section
           document.getElementById('goals')?.scrollIntoView({ behavior: 'smooth' });
           break;
         case 'review-portfolio':
-          // Scroll to portfolio widget
           announce('Navigating to portfolio', 'polite');
           break;
         case 'review-budget':
-          // Scroll to budget section
           announce('Navigating to budgets', 'polite');
           break;
         case 'move-to-savings':
-          // Scroll to transfer section
           document.getElementById('manual-transfer')?.scrollIntoView({ behavior: 'smooth' });
           break;
         default:
           break;
       }
     } catch (error) {
-      // Rollback if action fails
       toast.error('Action failed. Please try again.');
       console.error('Smart action failed:', error);
     }
   };
 
-  // Card mapping for reorderable sections
-  // IMPORTANT: Must include all widgets referenced in useGenerativeLayoutEngine
-  const cardComponents: Record<string, React.ReactNode> = {
+  // Core 10 Generative Widgets
+  const coreWidgets: Record<string, React.ReactNode> = {
+    'balance': (
+      <DashboardErrorBoundary key="balance" sectionName="Account Balance">
+        <EnhancedBalanceCard 
+          balance={totalBalance} 
+          monthlyGrowth={monthlyChange}
+          savingsVelocity={savingsVelocity}
+          weeklyTrend={weeklyTrend}
+          onDragToGoal={async (goalId: string, amount: number) => {
+            try {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (!user) throw new Error('Not authenticated');
+
+              const { error } = await supabase.rpc('contribute_to_goal', {
+                p_goal_id: goalId,
+                p_amount: amount,
+                p_user_id: user.id,
+                p_note: 'Drag-to-save contribution'
+              });
+
+              if (error) throw error;
+
+              queryClient.invalidateQueries({ queryKey: ['goals'] });
+              toast.success(`Added $${amount} to goal!`);
+            } catch (error: any) {
+              toast.error('Failed to contribute', {
+                description: error.message
+              });
+            }
+          }}
+        />
+      </DashboardErrorBoundary>
+    ),
+    'connect-account': <ConnectAccountCard key="connect-account" />,
+    'goals': (
+      <DashboardErrorBoundary key="goals" sectionName="Savings Goals">
+        <GoalsSection />
+      </DashboardErrorBoundary>
+    ),
     'portfolio': dashboardData?.investments && dashboardData.investments.length > 0 ? (
       <PortfolioWidget
         totalValue={dashboardData.investments.reduce((sum, inv) => sum + inv.total_value, 0)}
@@ -396,482 +292,95 @@ export default function Dashboard() {
         }))}
       />
     ) : null,
-    'personal-impact': userId ? (
-      <DashboardErrorBoundary key="personal-impact" sectionName="Personal Impact">
-        <PersonalImpactCard userId={userId} />
+    'ai-insights': userId ? (
+      <DashboardErrorBoundary key="ai-insights" sectionName="AI Insights">
+        <UnifiedAIInsights userId={userId} />
       </DashboardErrorBoundary>
     ) : null,
-    'ai-agents': (
-      <DashboardErrorBoundary key="ai-agents" sectionName="AI Agents">
-        <AIAgentsCard />
-      </DashboardErrorBoundary>
-    ),
-    'coach-widget': (
-      <CollapsibleSection
-        key="coach-widget"
-        id="coach-widget"
-        title="AI Coach Insights"
-        description="Personalized financial guidance and tips"
-        defaultOpen={!collapsedSections['coach-widget']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <SaveplusCoachWidget />
-      </CollapsibleSection>
-    ),
-    'balance': (
-      <DashboardErrorBoundary key="balance" sectionName="Account Balance">
-        <CollapsibleSection
-          key="balance"
-          id="balance"
-          title="Account Balance"
-          description="Your total savings across all accounts"
-          defaultOpen={!collapsedSections['balance']}
-          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-        >
-          <div data-wizard="balance-card">
-            <EnhancedBalanceCard 
-              balance={totalBalance} 
-              monthlyGrowth={monthlyChange}
-              savingsVelocity={savingsVelocity}
-              weeklyTrend={weeklyTrend}
-              onDragToGoal={async (goalId: string, amount: number) => {
-                try {
-                  const { data: { user } } = await supabase.auth.getUser();
-                  if (!user) throw new Error('Not authenticated');
-
-                  const { error } = await supabase.rpc('contribute_to_goal', {
-                    p_goal_id: goalId,
-                    p_amount: amount,
-                    p_user_id: user.id,
-                    p_note: 'Drag-to-save contribution'
-                  });
-
-                  if (error) throw error;
-
-                  queryClient.invalidateQueries({ queryKey: ['goals'] });
-                  toast.success(`Added $${amount} to goal!`);
-                } catch (error: any) {
-                  toast.error('Failed to contribute', {
-                    description: error.message
-                  });
-                }
-              }}
-            />
-          </div>
-        </CollapsibleSection>
-      </DashboardErrorBoundary>
-    ),
-    'connect-account': <ConnectAccountCard key="connect-account" />,
-    'auto-save': <AutoSaveBanner key="auto-save" />,
-    'onboarding': <OnboardingProgress key="onboarding" />,
     'milestones': (
-      <CollapsibleSection
-        key="milestones"
-        id="milestones"
-        title="Journey Milestones"
-        description="Track your savings journey"
-        defaultOpen={!collapsedSections['milestones']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <div data-wizard="milestones">
-          <JourneyMilestones />
-        </div>
-      </CollapsibleSection>
+      <JourneyMilestones />
     ),
-    'ai-insights': (
-      <DashboardErrorBoundary key="ai-insights" sectionName="AI-Powered Insights">
-        <CollapsibleSection
-          key="ai-insights"
-          id="ai-insights"
-          title="AI-Powered Insights"
-          description="Smart recommendations just for you"
-          defaultOpen={!collapsedSections['ai-insights']}
-          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-        >
-          <AIInsightsCard />
-        </CollapsibleSection>
-      </DashboardErrorBoundary>
-    ),
-    'recommendations': userId ? (
-      <CollapsibleSection
-        key="recommendations"
-        id="recommendations"
-        title="Smart Recommendations"
-        description="Personalized insights for your goals"
-        defaultOpen={!collapsedSections['recommendations']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <div data-wizard="insights">
-          <ProactiveRecommendations userId={userId} />
-        </div>
-      </CollapsibleSection>
-    ) : null,
-    'skill-tree': userId ? (
-      <CollapsibleSection
-        key="skill-tree"
-        id="skill-tree"
-        title="Skill Progress"
-        description="Level up your financial skills"
-        defaultOpen={!collapsedSections['skill-tree']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <SkillTreeProgress userId={userId} />
-      </CollapsibleSection>
-    ) : null,
     'cashflow': userId ? (
-      <CollapsibleSection
-        key="cashflow"
-        id="cashflow"
-        title="Cash Flow Forecast"
-        description="Predict your future balance"
-        defaultOpen={!collapsedSections['cashflow']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <CashFlowForecast userId={userId} />
-      </CollapsibleSection>
+      <CashFlowForecast userId={userId} />
     ) : null,
     'challenges': (
-      <CollapsibleSection
-        key="challenges"
-        id="challenges"
-        title="Active Challenges"
-        description="Join community challenges and earn rewards"
-        defaultOpen={!collapsedSections['challenges']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <div className="space-y-4">
-          {mockChallenges.map((challenge) => (
-            <ChallengeCard
-              key={challenge.id}
-              challenge={challenge}
-              onJoin={() => toast.info(`Joined ${challenge.name}!`)}
-            />
-          ))}
-        </div>
-      </CollapsibleSection>
-    ),
-    'peer-insights': userId ? (
-      <CollapsibleSection
-        key="peer-insights"
-        id="peer-insights"
-        title="Peer Insights"
-        description="Compare with similar savers"
-        defaultOpen={!collapsedSections['peer-insights']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <PeerInsights userId={userId} />
-      </CollapsibleSection>
-    ) : null,
-    'timeline': userId ? (
-      <CollapsibleSection
-        key="timeline"
-        id="timeline"
-        title="Goal Timeline"
-        description="Visualize your progress"
-        defaultOpen={!collapsedSections['timeline']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <GoalTimeline userId={userId} />
-      </CollapsibleSection>
-    ) : null,
-    'predictive': (
-      <CollapsibleSection
-        key="predictive"
-        id="predictive"
-        title="Predictive Analytics"
-        description="Explore different savings scenarios"
-        defaultOpen={!collapsedSections['predictive']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <PredictiveAnalytics
-          currentSavingsRate={250}
-          goalAmount={10000}
-          currentAmount={2500}
-        />
-      </CollapsibleSection>
-    ),
-    'goals': (
-      <DashboardErrorBoundary key="goals" sectionName="Savings Goals">
-        <CollapsibleSection
-          key="goals"
-          id="goals"
-          title="Savings Goals"
-          description="Your active savings targets"
-          defaultOpen={!collapsedSections['goals']}
-          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-        >
-          <div data-wizard="goals-section">
-            <GoalsSection />
-          </div>
-        </CollapsibleSection>
-      </DashboardErrorBoundary>
-    ),
-    'scheduled': (
-      <CollapsibleSection
-        key="scheduled"
-        id="scheduled"
-        title="Transfer Options"
-        description="Move money to your savings goals"
-        defaultOpen={!collapsedSections['scheduled']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <ScheduledTransferDialog />
-        </div>
-        <ScheduledTransfersList />
-      </CollapsibleSection>
+      <div className="space-y-4">
+        {mockChallenges.map((challenge) => (
+          <ChallengeCard
+            key={challenge.id}
+            challenge={challenge}
+            onJoin={() => toast.info(`Joined ${challenge.name}!`)}
+          />
+        ))}
+      </div>
     ),
     'manual-transfer': (
       <DashboardErrorBoundary key="manual-transfer" sectionName="Manual Transfer">
-        <div data-wizard="manual-transfer" key="manual-transfer">
-          <ManualTransferCard />
-        </div>
-      </DashboardErrorBoundary>
-    ),
-    'history': (
-      <CollapsibleSection
-        key="history"
-        id="history"
-        title="Transfer History"
-        description="Recent transactions"
-        defaultOpen={!collapsedSections['history']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <TransferHistory />
-      </CollapsibleSection>
-    ),
-    'analytics-dashboard': (
-      <DashboardErrorBoundary key="analytics-dashboard" sectionName="Analytics Dashboard">
-        <CollapsibleSection
-          key="analytics-dashboard"
-          id="analytics-dashboard"
-          title="Analytics Dashboard"
-          description="Key performance metrics"
-          defaultOpen={!collapsedSections['analytics-dashboard']}
-          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-        >
-          <AdvancedAnalyticsDashboard />
-        </CollapsibleSection>
-      </DashboardErrorBoundary>
-    ),
-    'layout-manager': (
-      <CollapsibleSection
-        key="layout-manager"
-        id="layout-manager"
-        title="Layout Manager"
-        description="Save and manage custom layouts"
-        defaultOpen={!collapsedSections['layout-manager']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-        <LayoutManager 
-          currentLayout={cardOrder}
-          onLayoutChange={updateOrder}
-        />
-      </CollapsibleSection>
-    ),
-    'theme-customizer': (
-      <CollapsibleSection
-        key="theme-customizer"
-        id="theme-customizer"
-        title="Theme Customizer"
-        description="Personalize your experience"
-        defaultOpen={!collapsedSections['theme-customizer']}
-        onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-      >
-      <ThemeCustomizer />
-      </CollapsibleSection>
-    ),
-    'next-gen-features': (
-      <DashboardErrorBoundary key="next-gen-features" sectionName="Next-Gen Features">
-        <CollapsibleSection
-          key="next-gen-features"
-          id="next-gen-features"
-          title="Next-Gen Features"
-          description="Explore cutting-edge tools"
-          defaultOpen={!collapsedSections['next-gen-features']}
-          onToggle={(id, isOpen) => toggleCollapsed(id, !isOpen)}
-        >
-          <NextGenFeaturesCard />
-        </CollapsibleSection>
+        <ManualTransferCard />
       </DashboardErrorBoundary>
     ),
   };
 
-  // Show skeleton while loading unified data
+  // Show skeleton while loading
   if (accountsLoading || dashboardDataLoading) return <DashboardSkeleton />;
 
   return (
     <AppLayout>
-      {/* Sentiment-driven background gradient */}
+      {/* Essential Effects */}
       <SentimentBackground netWorthChangePercent={netWorthChangePercent} />
+      <MilestoneCelebration milestone={milestone} onDismiss={dismissMilestone} />
       
-      <WelcomeBackBanner />
-      <ProactiveNudgesBanner />
+      {/* Accessibility */}
       <SkipLinks />
-      {easterEggsEnabled && (
-        <>
-          <SecretTheme active={konamiActive} onExit={resetKonami} />
-          <HolidayEffect />
-          <MilestoneCelebration milestone={milestone} onDismiss={dismissMilestone} />
-          {totalBalance > 1000 && <FloatingCoins density="low" elements="coins" />}
-          <CursorSpotlight />
-          <TimeOfDayTheme enabled />
-        </>
-      )}
       <LiveRegionAnnouncer message={balanceAnnouncement} priority="polite" />
       
-      {/* Advanced Dashboard Effects */}
-      <Suspense fallback={null}>
-        <LazyGenerativeBackground mood="calm" balanceChange={monthlyChange} />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <LazyDynamicParticleSystem intensity="medium" enabled />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <LazyLiveActivityFeed />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <LazyContextualAIAssistant />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <LazyVoiceCommandSystem />
-      </Suspense>
-
       <PullToRefresh onRefresh={handleRefresh}>
-        <AchievementNotification 
-          achievements={newAchievements}
-          onDismiss={dismissAchievements}
-        />
-        
         <div className={cn(
           "max-w-7xl mx-auto space-y-6 pb-20 transition-all duration-300 px-4 sm:px-6 lg:px-8",
           isChatOpen && "lg:pr-[420px]"
         )}>
+          {/* Critical Banners */}
           <EmailVerificationBanner />
-      <EnhancedAchievementToast 
-        achievement={currentAchievement} 
-        onDismiss={handleAchievementDismiss} 
-      />
-      
-      <GoalCompletionCelebration 
-        goal={completedGoal}
-        onDismiss={() => setCompletedGoal(null)}
-        onNextGoal={() => {
-          setCompletedGoal(null);
-          // Navigate to goals or open goal creation
-        }}
-      />
+          <SmartBanner />
 
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <StreakTrackerHeader />
-          <LevelSystem />
-          <SentimentIndicator netWorthChangePercent={netWorthChangePercent} />
-          <SyncIndicator 
-            status={syncStatus}
-            lastSynced={lastSynced}
-            onRefresh={forceRefresh}
-          />
-        </div>
-      </div>
-
-      <StreakRecoveryBanner />
-
-      {/* Dynamic Hero Section - Context-aware financial insights */}
-      {/* Phase 6: Unified Data - All dashboard data available via dashboardData */}
-      <div data-wizard="hero-section">
-        <DynamicHeroOrchestrator />
-      </div>
-
-      {/* Sentiment Background Effect - subtle gradient shift based on net worth */}
-      <SentimentBackground netWorthChangePercent={netWorthChangePercent} />
-      
-      {/* Generative Dashboard Layout */}
-      <div className="space-y-6">
-        {/* Daily Briefing Agent - Natural language summary */}
-        <DailyBriefingAgent
-          totalBalance={totalBalance}
-          monthlyChange={monthlyChange}
-          topPriorities={layoutPriorities.slice(0, 3)}
-        />
-        
-        {/* Smart Action Chips - Context-aware quick actions */}
-        <SmartActionChips
-          priorities={layoutPriorities}
-          onAction={handleSmartAction}
-        />
-        
-        {/* Generative Widget Grid - Adaptive priority-based layout with reordering */}
-        <GenerativeWidgetGrid
-          priorities={layoutPriorities}
-          widgets={cardComponents}
-          onReorder={(newOrder) => {
-            // Optimistically update UI
-            announce('Dashboard layout updated', 'polite');
-            toast.success('Widget order saved!', { duration: 2000 });
-            
-            // Could persist to backend if needed
-            console.log('New widget order:', newOrder.map(p => p.id));
-          }}
-        />
-      </div>
-
-      {/* Proactive Insight Stream */}
-      {userId && <InsightStreamPanel userId={userId} />}
-
-          <div className="bg-card rounded-lg p-8 shadow-[var(--shadow-card)]">
-            <DynamicWelcome />
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <SentimentIndicator netWorthChangePercent={netWorthChangePercent} />
+            <SyncIndicator 
+              status={syncStatus}
+              lastSynced={lastSynced}
+              onRefresh={forceRefresh}
+            />
           </div>
 
-          {/* Mobile Widgets */}
-          {isMobile && (
-            <div className="space-y-4">
-              <QuickActionsWidget />
-              <BudgetWidget />
-            </div>
-          )}
+          {/* Mobile Quick Actions */}
+          {isMobile && <QuickActionsWidget />}
 
-          {/* Reorderable Cards */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-          >
-            <Reorder.Group
-              axis="y"
-              values={cardOrder}
+          {/* Generative Dashboard Layout */}
+          <div className="space-y-6">
+            <DailyBriefingAgent
+              totalBalance={totalBalance}
+              monthlyChange={monthlyChange}
+              topPriorities={layoutPriorities.slice(0, 3)}
+            />
+            
+            <SmartActionChips
+              priorities={layoutPriorities}
+              onAction={handleSmartAction}
+            />
+            
+            <GenerativeWidgetGrid
+              priorities={layoutPriorities}
+              widgets={coreWidgets}
               onReorder={(newOrder) => {
-                updateOrder(newOrder);
-                if (!isReordering) {
-                  setIsReordering(true);
-                  toast.info('Dashboard layout saved!');
-                  setTimeout(() => setIsReordering(false), 300);
-                }
+                announce('Dashboard layout updated', 'polite');
+                toast.success('Widget order saved!', { duration: 2000 });
+                console.log('New widget order:', newOrder.map(p => p.id));
               }}
-              className="space-y-6"
-            >
-              {cardOrder.map((cardId) => {
-                const component = cardComponents[cardId];
-                if (!component) return null;
-
-                return (
-                  <Reorder.Item
-                    key={cardId}
-                    value={cardId}
-                    className="cursor-grab active:cursor-grabbing"
-                    drag="y"
-                  >
-                    {component}
-                  </Reorder.Item>
-                );
-              })}
-            </Reorder.Group>
-          </motion.div>
+            />
+          </div>
           
+          {/* Footer Disclaimer */}
           <div className="text-center text-xs text-muted-foreground pt-4 pb-2">
             <p>
               Your $ave+ account is FDIC insured up to $250,000 through our banking partners.
@@ -880,40 +389,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Unified FAB, Command Palette, and Keyboard Hints */}
+        {/* Persistent UI */}
         <UnifiedFAB />
         <CommandPalette />
         <KeyboardHints />
         <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />
       </PullToRefresh>
-      
-      {/* Interactive Wizard */}
-      {showWizard && (
-        <InteractiveWizard
-          steps={wizardSteps}
-          onComplete={() => {
-            setShowWizard(false);
-            toast.success("Welcome to $ave+! You're all set to start saving.");
-          }}
-          onSkip={() => {
-            setShowWizard(false);
-            toast.info("You can restart the tour anytime from Settings.");
-          }}
-        />
-      )}
-      
-      {/* Dashboard Tutorial Overlay (post-onboarding) */}
-      <DashboardTutorialOverlay
-        show={showTutorial}
-        onComplete={() => {
-          setShowTutorial(false);
-          toast.success("Tutorial completed! You're all set to start saving.");
-        }}
-        onSkip={() => {
-          setShowTutorial(false);
-          toast.info("You can always access help from the menu.");
-        }}
-      />
     </AppLayout>
   );
 }
