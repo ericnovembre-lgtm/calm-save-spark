@@ -1264,6 +1264,56 @@ export type Database = {
           },
         ]
       }
+      budget_inflation_alerts: {
+        Row: {
+          budget_id: string
+          category: string
+          created_at: string
+          evidence: Json
+          id: string
+          old_budget: number
+          reason: string
+          status: string
+          suggested_budget: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_id: string
+          category: string
+          created_at?: string
+          evidence?: Json
+          id?: string
+          old_budget: number
+          reason: string
+          status?: string
+          suggested_budget: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_id?: string
+          category?: string
+          created_at?: string
+          evidence?: Json
+          id?: string
+          old_budget?: number
+          reason?: string
+          status?: string
+          suggested_budget?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_inflation_alerts_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_onboarding: {
         Row: {
           completed: boolean | null
@@ -1455,6 +1505,51 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      budget_transfer_log: {
+        Row: {
+          amount: number
+          created_at: string
+          from_budget_id: string
+          id: string
+          reason: string | null
+          to_budget_id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          from_budget_id: string
+          id?: string
+          reason?: string | null
+          to_budget_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          from_budget_id?: string
+          id?: string
+          reason?: string | null
+          to_budget_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_transfer_log_from_budget_id_fkey"
+            columns: ["from_budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_transfer_log_to_budget_id_fkey"
+            columns: ["to_budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       business_expenses: {
         Row: {
@@ -8146,6 +8241,7 @@ export type Database = {
           currency: string | null
           id: string
           is_active: boolean | null
+          last_rebalanced_at: string | null
           name: string
           period: string
           total_limit: number
@@ -8158,6 +8254,7 @@ export type Database = {
           currency?: string | null
           id?: string
           is_active?: boolean | null
+          last_rebalanced_at?: string | null
           name: string
           period: string
           total_limit: number
@@ -8170,6 +8267,7 @@ export type Database = {
           currency?: string | null
           id?: string
           is_active?: boolean | null
+          last_rebalanced_at?: string | null
           name?: string
           period?: string
           total_limit?: number
