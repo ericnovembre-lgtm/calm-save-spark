@@ -94,10 +94,10 @@ export function DailyPaceCalculator({
       <div className="space-y-1">
         <p className="text-xs text-muted-foreground">Safe daily spend</p>
         <div className="flex items-baseline gap-1">
-          <span className={`text-2xl font-bold ${config.color}`}>$</span>
+          <span className={`text-2xl font-bold font-mono tabular-nums ${config.color}`}>$</span>
           <AnimatedCounter
             value={safe_daily_spend}
-            className={`text-2xl font-bold ${config.color}`}
+            className={`text-2xl font-bold font-mono tabular-nums ${config.color}`}
             decimals={2}
           />
           <span className="text-sm text-muted-foreground ml-1">/day</span>

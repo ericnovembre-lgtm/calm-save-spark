@@ -30,14 +30,29 @@ export function BudgetProgressLiquid({
   }, [percentage]);
 
   const getColor = () => {
-    if (isOverBudget) return "hsl(var(--destructive))";
-    if (isWarning) return "hsl(0 84.2% 60.2%)"; // warning color
-    return "hsl(var(--primary))";
+    if (isOverBudget) return "url(#critical-gradient)";
+    if (isWarning) return "url(#warning-gradient)";
+    return "url(#safe-gradient)";
   };
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="transform -rotate-90">
+        <defs>
+          <linearGradient id="safe-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(160, 84%, 52%)" />
+            <stop offset="100%" stopColor="hsl(160, 84%, 39%)" />
+          </linearGradient>
+          <linearGradient id="warning-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(25, 95%, 53%)" />
+            <stop offset="100%" stopColor="hsl(32, 95%, 44%)" />
+          </linearGradient>
+          <linearGradient id="critical-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(0, 84%, 60%)" />
+            <stop offset="100%" stopColor="hsl(0, 91%, 71%)" />
+          </linearGradient>
+        </defs>
+        
         {/* Background circle */}
         <circle
           cx={size / 2}

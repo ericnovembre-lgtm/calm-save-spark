@@ -313,7 +313,7 @@ export function BudgetCard({
               <span className="text-lg font-bold text-foreground">$</span>
               <AnimatedCounter 
                 value={spentAmount} 
-                className="text-lg font-bold text-foreground"
+                className="text-lg font-bold text-foreground font-mono tabular-nums"
                 decimals={2}
               />
             </div>
@@ -326,7 +326,7 @@ export function BudgetCard({
               </span>
               <AnimatedCounter 
                 value={Math.abs(remaining)} 
-                className={`text-lg font-bold ${remaining < 0 ? 'text-destructive' : 'text-primary'}`}
+                className={`text-lg font-bold font-mono tabular-nums ${remaining < 0 ? 'text-destructive' : 'text-primary'}`}
                 decimals={2}
               />
             </div>
