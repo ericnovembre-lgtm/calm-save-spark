@@ -29,9 +29,12 @@ import { GoalCelebration } from "@/components/goals/GoalCelebration";
 import { EnhancedEmptyState } from "@/components/goals/EnhancedEmptyState";
 import { KeyboardShortcutsDialog } from "@/components/goals/KeyboardShortcutsDialog";
 import { HelpButton } from "@/components/goals/HelpButton";
+import { TimeToGoalInsight } from "@/components/goals/TimeToGoalInsight";
 import { goalSchema, GoalFormData } from "@/lib/validations/goal-schemas";
 import { useGoalTour } from "@/hooks/useGoalTour";
 import { useGoalKeyboardShortcuts } from "@/hooks/useGoalKeyboardShortcuts";
+import { useDragToSave } from "@/hooks/useDragToSave";
+import { useOptimisticGoalUpdate } from "@/hooks/useOptimisticGoalUpdate";
 
 import { withPageMemo } from "@/lib/performance-utils";
 
@@ -59,6 +62,23 @@ const Goals = () => {
   const { shortcuts } = useGoalKeyboardShortcuts({
     onNewGoal: () => setIsDialogOpen(true),
     onHelp: () => setShortcutsDialogOpen(true),
+  });
+
+  // Drag-to-save setup
+  const { isDragging, hoveredZone, registerDropZone, unregisterDropZone, getDragHandlers } = useDragToSave({
+    onDrop: async (goalId: string, amount: number) => {
+      const goal = goals?.find(g => g.id === goalId);
+      if (!goal) return;
+
+      const { contribute } = useOptimisticGoalUpdate(goalId);
+      await contribute(amount, 'Drag-to-save contribution');
+      
+      toast({
+        title: "Contribution added!",
+        description: `Added $${amount} to ${goal.name}`,
+      });
+    },
+    defaultAmount: 100,
   });
 
   const { data: goals, isLoading } = useQuery({
@@ -348,7 +368,7 @@ const Goals = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {memoizedGoals.map((goal, index) => (
-                <div key={goal.id} data-tour={index === 0 ? "goal-card" : undefined}>
+                <div key={goal.id} data-tour={index === 0 ? "goal-card" : undefined} className="space-y-4">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -360,6 +380,9 @@ const Goals = () => {
                             target={parseFloat(String(goal.target_amount))}
                             icon={goal.icon || undefined}
                             deadline={goal.deadline || undefined}
+                            isDragHovered={hoveredZone === goal.id}
+                            onRegisterDropZone={registerDropZone}
+                            onUnregisterDropZone={unregisterDropZone}
                             onContribute={() => {
                               setSelectedGoal(goal);
                               setContributeDialogOpen(true);
@@ -378,6 +401,11 @@ const Goals = () => {
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  
+                  <TimeToGoalInsight 
+                    goalId={goal.id}
+                    userId={goal.user_id}
+                  />
                 </div>
               ))}
             </div>

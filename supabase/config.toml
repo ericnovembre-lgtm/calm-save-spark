@@ -174,4 +174,10 @@ verify_jwt = false
 [functions.parse-search-query]
 verify_jwt = true
 
+[functions.generate-goal-visual]
+verify_jwt = true
+
+[functions.calculate-time-to-goal]
+verify_jwt = true
+
 
