@@ -85,6 +85,8 @@ import { DynamicHeroOrchestrator } from "@/components/dashboard/DynamicHeroOrche
 import { SentimentBackground } from "@/components/dashboard/SentimentBackground";
 import { SentimentIndicator } from "@/components/dashboard/SentimentIndicator";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
+import { DailyBriefingCard } from "@/components/dashboard/DailyBriefingCard";
+import { SmartActionsRow } from "@/components/dashboard/SmartActionsRow";
 
 import { withPageMemo } from "@/lib/performance-utils";
 import { Suspense } from "react";
@@ -667,6 +669,12 @@ export default function Dashboard() {
       <div data-wizard="hero-section">
         <DynamicHeroOrchestrator />
       </div>
+
+      {/* Daily Briefing - AI-generated financial summary */}
+      <DailyBriefingCard />
+
+      {/* Smart Actions Row - Context-aware action buttons */}
+      <SmartActionsRow />
 
       {/* Proactive Insight Stream */}
       {userId && <InsightStreamPanel userId={userId} />}
