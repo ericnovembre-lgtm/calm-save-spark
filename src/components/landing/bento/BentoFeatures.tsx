@@ -51,13 +51,13 @@ export const BentoFeatures = () => {
             <SpendAnalysisCard />
           </motion.div>
 
-          {/* Medium Card: Security */}
+          {/* Full Width: Security */}
           <motion.div
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="md:row-span-2"
+            className="md:col-span-3 md:row-span-1"
           >
             <SecurityShieldCard />
           </motion.div>
