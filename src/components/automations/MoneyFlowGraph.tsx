@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { Wallet, Target, PiggyBank, TrendingUp, DollarSign } from 'lucide-react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useIsMobile } from '@/hooks/useMediaQuery';
+import { MoneyFlowGraphVertical } from './MoneyFlowGraphVertical';
 
 interface FlowNode {
   id: string;
@@ -29,6 +31,12 @@ interface MoneyFlowGraphProps {
 
 export function MoneyFlowGraph({ automations }: MoneyFlowGraphProps) {
   const prefersReducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+
+  // Use vertical layout on mobile
+  if (isMobile) {
+    return <MoneyFlowGraphVertical automations={automations} />;
+  }
 
   // Build the flow nodes
   const nodes: FlowNode[] = [

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,15 +12,24 @@ import { SmartRecipes } from "@/components/automations/SmartRecipes";
 import { EmergencyBrake } from "@/components/automations/EmergencyBrake";
 import { AutomationActivityFeed } from "@/components/automations/AutomationActivityFeed";
 import { LogicBlockBuilder } from "@/components/automations/logic-builder/LogicBlockBuilder";
+import { LogicBlockBuilderMobile } from "@/components/automations/logic-builder/LogicBlockBuilderMobile";
+import { AutomationAnalyticsDashboard } from "@/components/automations/AutomationAnalyticsDashboard";
+import { KeyboardShortcutsHelp } from "@/components/automations/KeyboardShortcutsHelp";
+import { useAutomationKeyboardShortcuts } from "@/hooks/useAutomationKeyboardShortcuts";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import { trackEvent } from "@/lib/analytics";
 import { useQueryClient } from "@tanstack/react-query";
 import "@/styles/automation-circuit-theme.css";
 
 export default function Automations() {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [showModal, setShowModal] = useState(false);
   const [editingAutomation, setEditingAutomation] = useState<any>(null);
   const [showLogicBuilder, setShowLogicBuilder] = useState(false);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const conversationalInputRef = useRef<HTMLTextAreaElement>(null);
+  const recipesRef = useRef<HTMLDivElement>(null);
   
   const {
     automations,
@@ -33,6 +42,15 @@ export default function Automations() {
     create,
     toggle,
   } = useAutomations();
+
+  const { shortcuts } = useAutomationKeyboardShortcuts({
+    onNewRule: () => conversationalInputRef.current?.focus(),
+    onToggleEmergencyBrake: () => {}, // Handled in EmergencyBrake component
+    onOpenRecipes: () => recipesRef.current?.scrollIntoView({ behavior: 'smooth' }),
+    onOpenLogicBuilder: () => setShowLogicBuilder(true),
+    onShowShortcuts: () => setShowShortcutsHelp(true),
+    conversationalInputRef,
+  });
 
   useEffect(() => {
     trackEvent('page_view', { page: 'automations' });
@@ -67,7 +85,10 @@ export default function Automations() {
 
   return (
     <AppLayout>
-      <div className="container mx-auto p-6 space-y-8 max-w-7xl circuit-board-container min-h-screen">
+      <div className={cn(
+        "container mx-auto space-y-8 max-w-7xl circuit-board-container min-h-screen",
+        isMobile ? "p-4 space-y-6" : "p-6"
+      )}>
         {/* Emergency Brake */}
         <EmergencyBrake />
 
@@ -95,7 +116,12 @@ export default function Automations() {
         </div>
 
         {/* Smart Recipes */}
-        <SmartRecipes />
+        <div ref={recipesRef}>
+          <SmartRecipes />
+        </div>
+
+        {/* Analytics Dashboard */}
+        <AutomationAnalyticsDashboard />
 
         {/* Advanced Logic Builder */}
         <Card className="glass-panel-subtle p-6">
@@ -159,8 +185,10 @@ export default function Automations() {
           </Card>
         )}
 
-        {/* Two Column Layout */}
-        <div className="grid md:grid-cols-3 gap-6">
+        {/* Two Column Layout (Single Column on Mobile) */}
+        <div className={cn(
+          isMobile ? "space-y-6" : "grid md:grid-cols-3 gap-6"
+        )}>
           {/* Left: Automations */}
           <div className="md:col-span-2 space-y-6">
             {/* Smart Rules Section */}
@@ -251,9 +279,21 @@ export default function Automations() {
       />
 
       <LogicBlockBuilder
-        open={showLogicBuilder}
+        open={showLogicBuilder && !isMobile}
         onOpenChange={setShowLogicBuilder}
         onSave={() => queryClient.invalidateQueries({ queryKey: ['automations'] })}
+      />
+
+      <LogicBlockBuilderMobile
+        open={showLogicBuilder && isMobile}
+        onOpenChange={setShowLogicBuilder}
+        onSave={() => queryClient.invalidateQueries({ queryKey: ['automations'] })}
+      />
+
+      <KeyboardShortcutsHelp
+        open={showShortcutsHelp}
+        onOpenChange={setShowShortcutsHelp}
+        shortcuts={shortcuts}
       />
     </AppLayout>
   );

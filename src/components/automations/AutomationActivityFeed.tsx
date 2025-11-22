@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, Clock } from "lucide-react";
+import { CheckCircle, XCircle, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 
 interface Execution {
   id: string;
@@ -19,6 +21,20 @@ interface Execution {
 export function AutomationActivityFeed() {
   const [executions, setExecutions] = useState<Execution[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isMobile = useIsMobile();
+  const [isCollapsed, setIsCollapsed] = useState(isMobile);
+
+  // Save collapsed state to localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('activity-feed-collapsed');
+    if (saved !== null) {
+      setIsCollapsed(saved === 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('activity-feed-collapsed', isCollapsed.toString());
+  }, [isCollapsed]);
 
   useEffect(() => {
     loadExecutions();
@@ -88,57 +104,95 @@ export function AutomationActivityFeed() {
   }
 
   return (
-    <Card className="glass-panel p-6 sticky top-4">
-      <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-      
-      <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
-        <AnimatePresence initial={false}>
-          {executions.map((execution) => (
-            <motion.div
-              key={execution.id}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              className="p-3 rounded-lg glass-panel-subtle border border-border/50"
-            >
-              <div className="flex items-start gap-3">
-                {execution.status === 'success' ? (
-                  <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                ) : execution.status === 'failed' ? (
-                  <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                ) : (
-                  <Clock className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
-                )}
-                
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {execution.metadata?.rule_name || 'Automation'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {execution.status === 'success' 
-                      ? `$${execution.amount_transferred?.toFixed(2) || '0.00'} transferred`
-                      : execution.error_message || 'Failed'
-                    }
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {execution.executed_at 
-                      ? formatDistanceToNow(new Date(execution.executed_at), { addSuffix: true })
-                      : 'Just now'
-                    }
-                  </p>
-                </div>
-
-                <Badge 
-                  variant={execution.status === 'success' ? 'default' : 'destructive'}
-                  className="shrink-0"
-                >
-                  {execution.status}
-                </Badge>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+    <Card className={`glass-panel p-6 ${isMobile ? 'sticky bottom-0 z-10' : 'sticky top-4'}`}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Recent Activity</h3>
+        {isMobile && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="gap-2"
+          >
+            {isCollapsed ? (
+              <>
+                Show <ChevronUp className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                Hide <ChevronDown className="w-4 h-4" />
+              </>
+            )}
+          </Button>
+        )}
       </div>
+
+      <AnimatePresence initial={false}>
+        {(!isMobile || !isCollapsed) && (
+          <motion.div
+            initial={isMobile ? { height: 0, opacity: 0 } : false}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
+              <AnimatePresence initial={false}>
+                {executions.map((execution) => (
+                  <motion.div
+                    key={execution.id}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    className="p-3 rounded-lg glass-panel-subtle border border-border/50"
+                  >
+                    <div className="flex items-start gap-3">
+                      {execution.status === 'success' ? (
+                        <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                      ) : execution.status === 'failed' ? (
+                        <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                      ) : (
+                        <Clock className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+                      )}
+                      
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {execution.metadata?.rule_name || 'Automation'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {execution.status === 'success' 
+                            ? `$${execution.amount_transferred?.toFixed(2) || '0.00'} transferred`
+                            : execution.error_message || 'Failed'
+                          }
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {execution.executed_at 
+                            ? formatDistanceToNow(new Date(execution.executed_at), { addSuffix: true })
+                            : 'Just now'
+                          }
+                        </p>
+                      </div>
+
+                      <Badge 
+                        variant={execution.status === 'success' ? 'default' : 'destructive'}
+                        className="shrink-0"
+                      >
+                        {execution.status}
+                      </Badge>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {isMobile && isCollapsed && (
+        <p className="text-center text-sm text-muted-foreground py-2">
+          {executions.length} recent executions
+        </p>
+      )}
     </Card>
   );
 }

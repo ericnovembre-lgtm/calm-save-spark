@@ -3,6 +3,8 @@ import { useDrag } from "@use-gesture/react";
 import { X, Link2 } from "lucide-react";
 import { Block } from "@/hooks/useLogicBlockBuilder";
 import { cn } from "@/lib/utils";
+import { haptics } from "@/lib/haptics";
+import { useAutomationSounds } from "@/hooks/useAutomationSounds";
 
 interface DraggableBlockProps {
   block: Block;
@@ -23,8 +25,15 @@ export function DraggableBlock({
   onSelect,
   onStartConnect,
 }: DraggableBlockProps) {
-  const bind = useDrag(({ offset: [x, y], last }) => {
+  const sounds = useAutomationSounds();
+  
+  const bind = useDrag(({ offset: [x, y], last, first }) => {
+    if (first) {
+      haptics.dragStart();
+      sounds.playBlockDrag();
+    }
     if (last) {
+      haptics.dragEnd();
       onDragEnd(block.id, { x, y });
     }
   }, {
@@ -68,6 +77,8 @@ export function DraggableBlock({
           <button
             onClick={(e) => {
               e.stopPropagation();
+              haptics.buttonPress();
+              sounds.playBlockConnected();
               onStartConnect(block.id);
             }}
             className="p-1 hover:bg-white/10 rounded transition-colors"
@@ -78,6 +89,8 @@ export function DraggableBlock({
           <button
             onClick={(e) => {
               e.stopPropagation();
+              haptics.buttonPress();
+              sounds.playDelete();
               onRemove(block.id);
             }}
             className="p-1 hover:bg-white/10 rounded transition-colors"
