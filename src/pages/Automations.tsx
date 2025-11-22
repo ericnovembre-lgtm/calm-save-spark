@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Zap, Loader2 } from "lucide-react";
+import { Wrench, Zap, Loader2 } from "lucide-react";
 import { useAutomations } from "@/hooks/useAutomations";
 import { AutomationCard } from "@/components/automations/AutomationCard";
 import { AutomationFormModal } from "@/components/automations/AutomationFormModal";
 import { MoneyFlowGraph } from "@/components/automations/MoneyFlowGraph";
 import { ConversationalRuleBuilder } from "@/components/automations/ConversationalRuleBuilder";
+import { SmartRecipes } from "@/components/automations/SmartRecipes";
+import { EmergencyBrake } from "@/components/automations/EmergencyBrake";
+import { AutomationActivityFeed } from "@/components/automations/AutomationActivityFeed";
 import { trackEvent } from "@/lib/analytics";
 import { useQueryClient } from "@tanstack/react-query";
 import "@/styles/automation-circuit-theme.css";
@@ -62,28 +65,39 @@ export default function Automations() {
 
   return (
     <AppLayout>
-      <div className="container mx-auto p-6 space-y-6 circuit-board-container">
+      <div className="container mx-auto p-6 space-y-8 max-w-7xl circuit-board-container min-h-screen">
+        {/* Emergency Brake */}
+        <EmergencyBrake />
+
+        {/* Header with conversational input */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2 glow-text">Automation Center</h1>
+              <h1 className="text-4xl font-bold mb-2 glow-text">Smart Automations</h1>
               <p className="text-muted-foreground">
-                Describe your rule in plain English or use the manual builder
+                Describe what you want to automate in plain English
               </p>
             </div>
-            <Button size="lg" variant="outline" className="gap-2" onClick={() => handleOpenModal()}>
-              <Plus className="w-4 h-4" />
+            <Button 
+              variant="outline"
+              onClick={() => handleOpenModal()}
+            >
+              <Wrench className="w-4 h-4 mr-2" />
               Manual Builder
             </Button>
           </div>
-
+          
           <ConversationalRuleBuilder 
             onRuleCreated={() => queryClient.invalidateQueries({ queryKey: ['automations'] })} 
           />
         </div>
 
+        {/* Smart Recipes */}
+        <SmartRecipes />
+
+        {/* Stats */}
         {automations && automations.length > 0 && (
-          <Card className="p-6">
+          <Card className="glass-panel p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Active Rules</p>
@@ -105,8 +119,9 @@ export default function Automations() {
           </Card>
         )}
 
+        {/* Money Flow Visualizer */}
         {automations && automations.length > 0 && (
-          <Card className="p-6">
+          <Card className="glass-panel p-6">
             <h2 className="text-xl font-semibold mb-4">Money Flow Circuit</h2>
             <MoneyFlowGraph 
               automations={automations.map(auto => ({
@@ -119,74 +134,87 @@ export default function Automations() {
           </Card>
         )}
 
-        {transactionMatchAutomations && transactionMatchAutomations.length > 0 && (
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold flex items-center gap-2">
-              <Zap className="w-5 h-5 text-primary" />
-              Smart Rules
-            </h2>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {transactionMatchAutomations.map((automation) => (
-              <AutomationCard
-                key={automation.id}
-                automation={{
-                  id: automation.id,
-                  rule_name: automation.rule_name,
-                  frequency: automation.frequency || 'manual',
-                  start_date: automation.start_date || new Date().toISOString().split('T')[0],
-                  next_run_date: automation.next_run_date,
-                  is_active: automation.is_active,
-                  action_config: automation.action_config as any,
-                  notes: automation.notes,
-                }}
-                onEdit={handleOpenModal}
-                onDelete={handleDeleteAutomation}
-                onToggle={handleToggleAutomation}
-              />
-            ))}
-            </div>
-          </section>
-        )}
+        {/* Two Column Layout */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Left: Automations */}
+          <div className="md:col-span-2 space-y-6">
+            {/* Smart Rules Section */}
+            {transactionMatchAutomations.length > 0 && (
+              <section className="space-y-4">
+                <h2 className="text-2xl font-semibold flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-primary" />
+                  Smart Rules
+                </h2>
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {transactionMatchAutomations.map((automation) => (
+                    <AutomationCard
+                      key={automation.id}
+                      automation={{
+                        id: automation.id,
+                        rule_name: automation.rule_name,
+                        frequency: automation.frequency || 'manual',
+                        start_date: automation.start_date || new Date().toISOString().split('T')[0],
+                        next_run_date: automation.next_run_date,
+                        is_active: automation.is_active,
+                        action_config: automation.action_config as any,
+                        notes: automation.notes,
+                      }}
+                      onEdit={handleOpenModal}
+                      onDelete={handleDeleteAutomation}
+                      onToggle={handleToggleAutomation}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            {/* Scheduled Transfers Section */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : scheduledAutomations.length > 0 ? (
+              <section className="space-y-4">
+                <h2 className="text-2xl font-semibold">Scheduled Transfers</h2>
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {scheduledAutomations.map((automation) => (
+                    <AutomationCard
+                      key={automation.id}
+                      automation={{
+                        id: automation.id,
+                        rule_name: automation.rule_name,
+                        frequency: automation.frequency || 'weekly',
+                        start_date: automation.start_date || new Date().toISOString().split('T')[0],
+                        next_run_date: automation.next_run_date,
+                        is_active: automation.is_active,
+                        action_config: automation.action_config as any,
+                        notes: automation.notes,
+                      }}
+                      onEdit={handleOpenModal}
+                      onDelete={handleDeleteAutomation}
+                      onToggle={handleToggleAutomation}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : !transactionMatchAutomations?.length ? (
+              <Card className="glass-panel p-12 text-center">
+                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Zap className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No Automations Yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Describe your first automation rule above or activate a smart recipe
+                </p>
+              </Card>
+            ) : null}
           </div>
-        ) : scheduledAutomations && scheduledAutomations.length > 0 ? (
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold">Scheduled Transfers</h2>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {scheduledAutomations.map((automation) => (
-              <AutomationCard
-                key={automation.id}
-                automation={{
-                  id: automation.id,
-                  rule_name: automation.rule_name,
-                  frequency: automation.frequency || 'weekly',
-                  start_date: automation.start_date || new Date().toISOString().split('T')[0],
-                  next_run_date: automation.next_run_date,
-                  is_active: automation.is_active,
-                  action_config: automation.action_config as any,
-                  notes: automation.notes,
-                }}
-                onEdit={handleOpenModal}
-                onDelete={handleDeleteAutomation}
-                onToggle={handleToggleAutomation}
-              />
-            ))}
-            </div>
-          </section>
-        ) : !transactionMatchAutomations?.length ? (
-          <Card className="p-12 text-center">
-            <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Zap className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">No Automations Yet</h3>
-            <p className="text-muted-foreground mb-4">
-              Describe your first automation rule above or use the manual builder
-            </p>
-          </Card>
-        ) : null}
+
+          {/* Right: Activity Feed */}
+          <div className="md:col-span-1">
+            <AutomationActivityFeed />
+          </div>
+        </div>
       </div>
 
       <AutomationFormModal
