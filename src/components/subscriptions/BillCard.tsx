@@ -29,6 +29,7 @@ interface BillCardProps {
     zombie_score?: number;
     last_usage_date?: string;
     user_id?: string;
+    marked_for_cancellation?: boolean;
   };
   onTogglePause: (id: string) => void;
   onDelete: (id: string) => void;
@@ -78,6 +79,9 @@ export function BillCard({ subscription, onTogglePause, onDelete }: BillCardProp
               )}
               {isPaused && (
                 <Badge variant="secondary" className="text-xs">Paused</Badge>
+              )}
+              {subscription.marked_for_cancellation && (
+                <Badge variant="destructive" className="text-xs">Marked for Cancellation</Badge>
               )}
               {!subscription.confirmed && (
                 <Badge variant="outline" className="text-xs">Unconfirmed</Badge>

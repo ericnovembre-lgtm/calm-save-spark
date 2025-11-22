@@ -107,7 +107,17 @@ export default function Subscriptions() {
     return (
       <SubscriptionSwipeMode
         subscriptions={activeBills}
-        onKeep={(id) => {}}
+        onKeep={(id) => {
+          const subscription = subscriptions.find(s => s.id === id);
+          if (subscription) {
+            supabase.from('subscription_usage_events').insert({
+              user_id: subscription.user_id,
+              event_type: 'kept_in_review',
+              merchant: subscription.merchant,
+              transaction_date: new Date().toISOString(),
+            });
+          }
+        }}
         onMarkForCancellation={markForCancellation}
         onExit={() => setIsSwipeMode(false)}
       />
