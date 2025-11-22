@@ -109,6 +109,19 @@ All colors MUST be HSL.
     --health-fair: 45 93% 47%; /* Yellow */
     --health-poor: 0 84% 60%; /* Red */
 
+    /* Cyber Security Design Tokens */
+    --cyber-bg: 222 47% 11%; /* Deep slate #0d1829 */
+    --cyber-surface: 215 28% 17%; /* Slate-800 #1e293b */
+    --cyber-border: 217 33% 17%; /* Slate-700 #1f2c3d */
+    --cyber-green: 160 84% 39%; /* Emerald-400 #34d399 */
+    --cyber-amber: 38 92% 50%; /* Orange-500 #fb923c */
+    --cyber-red: 0 84% 60%; /* Red-400 #f87171 */
+    
+    /* Cyber glow effects */
+    --cyber-glow-green: 0 0 8px hsla(160, 84%, 39%, 0.5);
+    --cyber-glow-amber: 0 0 8px hsla(38, 92%, 50%, 0.5);
+    --cyber-glow-red: 0 0 8px hsla(0, 84%, 60%, 0.5);
+
     /* Backward-compat: orbital vars mapped to neutral palette */
     --orbital-space: var(--color-bg);
     --orbital-nebula: #F4F0E6;

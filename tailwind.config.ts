@@ -23,6 +23,14 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        cyber: {
+          bg: '222 47% 11%',        // Deep slate #0d1829
+          surface: '215 28% 17%',    // Slate-800 #1e293b
+          border: '217 33% 17%',     // Slate-700 #1f2c3d
+          green: '160 84% 39%',      // Emerald-400 #34d399
+          amber: '38 92% 50%',       // Orange-500 #fb923c
+          red: '0 84% 60%',          // Red-400 #f87171
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
