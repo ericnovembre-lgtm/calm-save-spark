@@ -13,33 +13,31 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization');
-    console.log('Auth header present:', !!authHeader);
-    console.log('Auth header value:', authHeader?.substring(0, 20) + '...');
-    
-    // Create Supabase client with user's JWT
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader! },
-        },
-      }
-    );
-
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    console.log('getUser result - user:', user?.id, 'error:', authError?.message);
-    
-    if (!user) {
-      console.error('Authentication failed:', authError);
+    if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: 'Authentication failed', details: authError?.message }),
+        JSON.stringify({ error: 'Missing authorization header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('User authenticated:', user.id);
+    // Extract JWT from "Bearer <token>"
+    const jwt = authHeader.replace('Bearer ', '');
+    
+    // Create Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    // Get authenticated user by passing JWT directly
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(jwt);
+    
+    if (!user || authError) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const { context } = await req.json();
 
