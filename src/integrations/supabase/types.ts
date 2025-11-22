@@ -3711,6 +3711,33 @@ export type Database = {
           },
         ]
       }
+      insights_cache: {
+        Row: {
+          cache_key: string
+          created_at: string | null
+          data: Json
+          expires_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string | null
+          data: Json
+          expires_at: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string | null
+          data?: Json
+          expires_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       insurance_policies: {
         Row: {
           beneficiaries: string[] | null
@@ -8648,6 +8675,7 @@ export type Database = {
     }
     Functions: {
       calculate_health_trend: { Args: { p_user_id: string }; Returns: number }
+      clean_expired_insights_cache: { Args: never; Returns: undefined }
       cleanup_expired_ip_blocks: { Args: never; Returns: undefined }
       cleanup_expired_nudges: { Args: never; Returns: undefined }
       cleanup_expired_webauthn_challenges: { Args: never; Returns: undefined }

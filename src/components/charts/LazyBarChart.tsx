@@ -44,4 +44,4 @@ export function LazyBarChart({ data, children, height = 300, className, ...props
 }
 
 // Export recharts components for use with LazyBarChart
-export { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
+export { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ResponsiveContainer } from 'recharts';

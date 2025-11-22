@@ -4,14 +4,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { CashflowChart } from "@/components/insights/CashflowChart";
 import { SpendingInsights } from "@/components/insights/SpendingInsights";
+import { MonthlySpendingChart } from "@/components/insights/MonthlySpendingChart";
+import { MonthlyDetailView } from "@/components/insights/MonthlyDetailView";
+import { CategoryDetailView } from "@/components/insights/CategoryDetailView";
+import { ScenarioPlayground } from "@/components/insights/ScenarioPlayground";
+import { InsightsBreadcrumb } from "@/components/insights/InsightsBreadcrumb";
+import { ChartExplanation } from "@/components/insights/ChartExplanation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ArrowLeft } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
+import { useInsightsDrilldown } from "@/hooks/useInsightsDrilldown";
+import { useChartExplanation } from "@/hooks/useChartExplanation";
 
 export default function Insights() {
   const [forecastDays, setForecastDays] = useState(30);
+  const { state, drillIntoMonth, drillIntoCategory, goBack, breadcrumbs, canGoBack } = useInsightsDrilldown();
+  const { explanation, isLoading: explanationLoading, generateExplanation, clearExplanation } = useChartExplanation();
+
+  // Fetch aggregated insights data
+  const { data: aggregatedData, isLoading: aggregatedLoading } = useQuery({
+    queryKey: ['insights_aggregated'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('aggregate-insights-data', {
+        body: { timeframe: '6months' }
+      });
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: forecast, isLoading: forecastLoading, refetch: refetchForecast } = useQuery({
     queryKey: ['cashflow_forecast', forecastDays],
@@ -41,13 +63,32 @@ export default function Insights() {
     toast.success('Insights refreshed');
   };
 
+  const handleExplainCashflow = () => {
+    if (forecast?.forecast) {
+      generateExplanation({
+        type: 'cashflow',
+        timeframe: `${forecastDays} days`,
+        data: forecast.forecast,
+        metrics: forecast.summary
+      });
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-display font-bold text-foreground mb-2">Insights</h1>
-            <p className="text-muted-foreground">AI-powered financial analysis and forecasting</p>
+            <div className="flex items-center gap-3 mb-2">
+              {canGoBack && (
+                <Button variant="ghost" size="icon" onClick={goBack}>
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              )}
+              <h1 className="text-4xl font-display font-bold text-foreground">Insights</h1>
+            </div>
+            <InsightsBreadcrumb breadcrumbs={breadcrumbs} />
+            <p className="text-muted-foreground mt-1">AI-powered financial analysis and forecasting</p>
           </div>
           <Button variant="outline" onClick={handleRefresh}>
             <RefreshCw className={`w-4 h-4 mr-2 ${forecastLoading ? 'animate-spin' : ''}`} />
@@ -55,73 +96,115 @@ export default function Insights() {
           </Button>
         </div>
 
-        <Tabs defaultValue="forecast" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="forecast">Cash Flow</TabsTrigger>
-            <TabsTrigger value="spending">Spending</TabsTrigger>
-          </TabsList>
+        {state.view === 'overview' && (
+          <Tabs defaultValue="forecast" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 max-w-lg">
+              <TabsTrigger value="forecast">Cash Flow</TabsTrigger>
+              <TabsTrigger value="spending">Spending</TabsTrigger>
+              <TabsTrigger value="scenarios">What-If</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="forecast" className="space-y-4">
-            {forecastLoading ? (
-              <LoadingState />
-            ) : forecast?.forecast ? (
-              <>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
-                    <p className="text-sm text-muted-foreground mb-1">Current Balance</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${forecast.summary?.current_balance?.toFixed(2) || 0}
-                    </p>
+            <TabsContent value="forecast" className="space-y-4">
+              {forecastLoading ? (
+                <LoadingState />
+              ) : forecast?.forecast ? (
+                <>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
+                      <p className="text-sm text-muted-foreground mb-1">Current Balance</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        ${forecast.summary?.current_balance?.toFixed(2) || 0}
+                      </p>
+                    </div>
+                    <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
+                      <p className="text-sm text-muted-foreground mb-1">Projected ({forecastDays} days)</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        ${forecast.summary?.projected_end_balance?.toFixed(2) || 0}
+                      </p>
+                    </div>
+                    <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
+                      <p className="text-sm text-muted-foreground mb-1">Avg Daily Spending</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        ${Math.abs(forecast.summary?.avg_daily_spending || 0).toFixed(2)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
-                    <p className="text-sm text-muted-foreground mb-1">Projected ({forecastDays} days)</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${forecast.summary?.projected_end_balance?.toFixed(2) || 0}
-                    </p>
+
+                  <div className="space-y-4">
+                    <CashflowChart data={forecast.forecast} />
+                    
+                    <ChartExplanation
+                      explanation={explanation}
+                      isLoading={explanationLoading}
+                      onGenerate={handleExplainCashflow}
+                      onClose={clearExplanation}
+                    />
                   </div>
-                  <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
-                    <p className="text-sm text-muted-foreground mb-1">Avg Daily Spending</p>
-                    <p className="text-2xl font-bold text-foreground">
-                      ${Math.abs(forecast.summary?.avg_daily_spending || 0).toFixed(2)}
-                    </p>
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant={forecastDays === 30 ? "default" : "outline"}
+                      onClick={() => setForecastDays(30)}
+                    >
+                      30 Days
+                    </Button>
+                    <Button
+                      variant={forecastDays === 60 ? "default" : "outline"}
+                      onClick={() => setForecastDays(60)}
+                    >
+                      60 Days
+                    </Button>
+                    <Button
+                      variant={forecastDays === 90 ? "default" : "outline"}
+                      onClick={() => setForecastDays(90)}
+                    >
+                      90 Days
+                    </Button>
                   </div>
+                </>
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p>Not enough transaction history for forecasting</p>
+                  <p className="text-sm mt-2">Add transactions to see cash flow predictions</p>
                 </div>
+              )}
+            </TabsContent>
 
-                <CashflowChart data={forecast.forecast} />
+            <TabsContent value="spending" className="space-y-4">
+              {aggregatedLoading ? (
+                <LoadingState />
+              ) : (
+                <>
+                  {aggregatedData?.monthlyData && (
+                    <MonthlySpendingChart 
+                      data={aggregatedData.monthlyData}
+                      onMonthClick={drillIntoMonth}
+                    />
+                  )}
+                  <SpendingInsights />
+                </>
+              )}
+            </TabsContent>
 
-                <div className="flex gap-2">
-                  <Button
-                    variant={forecastDays === 30 ? "default" : "outline"}
-                    onClick={() => setForecastDays(30)}
-                  >
-                    30 Days
-                  </Button>
-                  <Button
-                    variant={forecastDays === 60 ? "default" : "outline"}
-                    onClick={() => setForecastDays(60)}
-                  >
-                    60 Days
-                  </Button>
-                  <Button
-                    variant={forecastDays === 90 ? "default" : "outline"}
-                    onClick={() => setForecastDays(90)}
-                  >
-                    90 Days
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <p>Not enough transaction history for forecasting</p>
-                <p className="text-sm mt-2">Add transactions to see cash flow predictions</p>
-              </div>
-            )}
-          </TabsContent>
+            <TabsContent value="scenarios">
+              <ScenarioPlayground />
+            </TabsContent>
+          </Tabs>
+        )}
 
-          <TabsContent value="spending">
-            <SpendingInsights />
-          </TabsContent>
-        </Tabs>
+        {state.view === 'monthly' && state.selectedMonth && (
+          <MonthlyDetailView 
+            month={state.selectedMonth}
+            onCategoryClick={drillIntoCategory}
+          />
+        )}
+
+        {state.view === 'category' && state.selectedCategory && (
+          <CategoryDetailView 
+            category={state.selectedCategory}
+            month={state.selectedMonth}
+          />
+        )}
       </div>
     </AppLayout>
   );
