@@ -6,6 +6,8 @@ import { GenerativeHero } from "@/components/landing/generative/GenerativeHero";
 import { BentoFeatures } from "@/components/landing/bento/BentoFeatures";
 import { ROICalculator } from "@/components/landing/ROICalculator";
 import { StickyCTA } from "@/components/landing/StickyCTA";
+import { VideoTestimonials } from "@/components/landing/testimonials/VideoTestimonials";
+import { LiveActivityFeed } from "@/components/landing/social/LiveActivityFeed";
 import { SocialProofTicker } from "@/components/landing/advanced/SocialProofTicker";
 import { FeatureHubs } from "@/components/landing/FeatureHubs";
 import { HowItWorks } from "@/components/landing/HowItWorks";
@@ -151,6 +153,14 @@ export default function Landing() {
             </ErrorBoundary>
             
             <ROICalculator />
+            
+            <ErrorBoundary>
+              <VideoTestimonials />
+            </ErrorBoundary>
+            
+            <ErrorBoundary>
+              <LiveActivityFeed />
+            </ErrorBoundary>
             
             <ErrorBoundary>
               <Suspense fallback={<InteractiveDemoSkeleton />}>
