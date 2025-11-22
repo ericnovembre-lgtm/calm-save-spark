@@ -4635,6 +4635,42 @@ export type Database = {
         }
         Relationships: []
       }
+      merchant_category_mappings: {
+        Row: {
+          category: string
+          confidence_score: number | null
+          created_at: string
+          id: string
+          is_user_confirmed: boolean | null
+          merchant_name: string
+          times_applied: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          is_user_confirmed?: boolean | null
+          merchant_name: string
+          times_applied?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          is_user_confirmed?: boolean | null
+          merchant_name?: string
+          times_applied?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       merchant_enrichment: {
         Row: {
           cleaned_name: string
@@ -6437,6 +6473,57 @@ export type Database = {
         }
         Relationships: []
       }
+      smart_alerts: {
+        Row: {
+          action_taken: boolean | null
+          alert_type: string
+          created_at: string
+          data: Json | null
+          dismissed_at: string | null
+          expires_at: string | null
+          id: string
+          is_dismissed: boolean | null
+          is_read: boolean | null
+          message: string
+          read_at: string | null
+          severity: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_taken?: boolean | null
+          alert_type: string
+          created_at?: string
+          data?: Json | null
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_dismissed?: boolean | null
+          is_read?: boolean | null
+          message: string
+          read_at?: string | null
+          severity?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_taken?: boolean | null
+          alert_type?: string
+          created_at?: string
+          data?: Json | null
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_dismissed?: boolean | null
+          is_read?: boolean | null
+          message?: string
+          read_at?: string | null
+          severity?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       social_shares: {
         Row: {
           content_id: string | null
@@ -6493,6 +6580,60 @@ export type Database = {
           forecast_date?: string
           id?: string
           predicted_amount?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spending_patterns: {
+        Row: {
+          average_amount: number | null
+          category: string | null
+          confidence_score: number | null
+          created_at: string
+          first_detected_at: string
+          frequency: string | null
+          id: string
+          is_active: boolean | null
+          last_occurrence_at: string | null
+          merchant: string | null
+          metadata: Json | null
+          occurrence_count: number | null
+          pattern_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_amount?: number | null
+          category?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          first_detected_at?: string
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_occurrence_at?: string | null
+          merchant?: string | null
+          metadata?: Json | null
+          occurrence_count?: number | null
+          pattern_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_amount?: number | null
+          category?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          first_detected_at?: string
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_occurrence_at?: string | null
+          merchant?: string | null
+          metadata?: Json | null
+          occurrence_count?: number | null
+          pattern_type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -7188,6 +7329,51 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_insights: {
+        Row: {
+          acted_on_at: string | null
+          created_at: string
+          data: Json
+          description: string
+          dismissed_at: string | null
+          id: string
+          insight_type: string
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acted_on_at?: string | null
+          created_at?: string
+          data?: Json
+          description: string
+          dismissed_at?: string | null
+          id?: string
+          insight_type: string
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acted_on_at?: string | null
+          created_at?: string
+          data?: Json
+          description?: string
+          dismissed_at?: string | null
+          id?: string
+          insight_type?: string
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transaction_search_history: {
         Row: {
           id: string
@@ -7208,6 +7394,69 @@ export type Database = {
           parsed_filters?: Json
           query?: string
           searched_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transaction_tag_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          id: string
+          tag_id: string
+          transaction_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          id?: string
+          tag_id: string
+          transaction_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          id?: string
+          tag_id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_tag_assignment_tag"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "transaction_tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_tag_assignment_transaction"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transaction_tags: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          tag_name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          tag_name: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          tag_name?: string
           user_id?: string
         }
         Relationships: []
