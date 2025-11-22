@@ -39,6 +39,7 @@ import { ConversationalBudgetPanel } from "@/components/budget/ConversationalBud
 import { useGenerativeComponents } from "@/hooks/useGenerativeComponents";
 import { ComponentRenderer } from "@/components/generative-ui/ComponentRenderer";
 import { AdaptiveGrid } from "@/components/budget/AdaptiveGrid";
+import { SmartInsightsSidebar } from "@/components/budget/SmartInsightsSidebar";
 
 // Lazy load heavy components
 const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
@@ -246,7 +247,7 @@ export default function Budget() {
   const dayOfMonth = now.getDate();
   const timeInMonth = dayOfMonth <= 10 ? 'beginning' : dayOfMonth <= 20 ? 'middle' : 'end';
   
-  const { components: generativeComponents } = useGenerativeComponents({
+  const { components: generativeComponents, sidebarInsights } = useGenerativeComponents({
     budgets,
     spending,
     userContext: {
@@ -274,8 +275,15 @@ export default function Budget() {
   return (
     <AppLayout>
       <BudgetErrorBoundary>
+        {/* Smart Insights Sidebar */}
+        <SmartInsightsSidebar 
+          insights={sidebarInsights}
+          isLoading={budgetsLoading}
+        />
+        
         <MoodTheming budgetHealth={budgetHealth}>
-          <div className="space-y-6 relative overflow-hidden">
+          {/* Main content with right padding for sidebar on desktop */}
+          <div className="space-y-6 relative overflow-hidden md:pr-[352px]">
           <NeuralBackground />
           <VideoBackground state={videoState} />
           <ParticleSystem trigger={showParticles} count={30} />
