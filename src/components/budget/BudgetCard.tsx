@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { MoreVertical, Edit, Trash2, TrendingUp, TrendingDown, AlertCircle, Zap } from "lucide-react";
+import { motion, useSpring, useTransform } from "framer-motion";
+import { MoreVertical, Edit, Trash2, TrendingUp, TrendingDown, AlertCircle, Zap, ArrowRight } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { BudgetProgressLiquid } from "./BudgetProgressLiquid";
 import { CategoryIcon } from "./CategoryIcon";
@@ -10,6 +10,10 @@ import { fadeInUp, cardHover } from "@/lib/motion-variants";
 import { AnimatedCounter } from "@/components/onboarding/AnimatedCounter";
 import { ScanLineOverlay } from "./advanced/ScanLineOverlay";
 import { soundEffects } from "@/lib/sound-effects";
+import { DailyPaceCalculator } from "./DailyPaceCalculator";
+import { useDrag } from '@use-gesture/react';
+import { haptics } from "@/lib/haptics";
+import { useState } from 'react';
 
 type Priority = 'hero' | 'large' | 'normal';
 
@@ -39,6 +43,9 @@ interface BudgetCardProps {
 }
 
 export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, size = 'normal', isOptimistic = false }: BudgetCardProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [showCoverOptions, setShowCoverOptions] = useState(false);
+  
   const spentAmount = spending?.spent_amount || 0;
   const totalLimit = parseFloat(String(budget.total_limit));
   const percentage = totalLimit > 0 ? (spentAmount / totalLimit) * 100 : 0;
@@ -46,7 +53,48 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, s
   
   const isOverBudget = percentage >= 100;
   const isNearLimit = percentage >= 80;
+  const isSafe = percentage < 80;
   const isPriority = size === 'hero' || size === 'large';
+
+  // Elastic spring animation for progress
+  const springPercentage = useSpring(percentage, {
+    stiffness: 100,
+    damping: 15,
+    mass: 0.5
+  });
+
+  // Glow intensity based on percentage
+  const glowIntensity = useTransform(
+    springPercentage,
+    [80, 100],
+    [0, 1]
+  );
+
+  // Haptic feedback on threshold cross
+  if (percentage >= 80 && percentage < 81) {
+    haptics.vibrate('medium');
+  }
+
+  // Drag handlers for rebalancing
+  const dragHandlers = useDrag(({ down, offset: [ox, oy] }) => {
+    if (remaining > 0) {
+      setIsDragging(down);
+      // Could implement visual drag preview here
+    }
+  });
+
+  // Determine card state styling
+  const cardStateClass = isOverBudget
+    ? 'bg-rose-500/10 border-rose-500/30'
+    : isNearLimit
+    ? 'bg-amber-500/10 border-amber-500/30'
+    : 'bg-emerald-500/10 border-emerald-500/30';
+
+  const glowClass = isOverBudget
+    ? 'drop-shadow-[0_0_20px_rgba(248,113,113,0.6)]'
+    : isNearLimit
+    ? 'drop-shadow-[0_0_12px_rgba(251,146,60,0.4)]'
+    : '';
 
   return (
     <motion.div
@@ -55,12 +103,20 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, s
       initial="initial"
       animate="animate"
       layout
+      style={{ touchAction: 'none' }}
     >
+      <motion.div
+        animate={isOverBudget ? { scale: [1, 1.02, 1] } : {}}
+        transition={{ repeat: isOverBudget ? Infinity : 0, duration: 2 }}
+      >
       <Card className={`
-        relative p-6 hover:shadow-lg transition-all duration-300 border-border/50 backdrop-blur-sm bg-card/80 overflow-hidden group
-        ${size === 'hero' ? 'border-2 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.3)]' : ''}
-        ${size === 'large' ? 'border-2 border-yellow-500/50' : ''}
+        relative p-6 hover:shadow-lg transition-all duration-500 backdrop-blur-sm overflow-hidden group
+        ${cardStateClass}
+        ${size === 'hero' ? 'border-2 shadow-[0_0_30px_rgba(239,68,68,0.3)]' : 'border'}
+        ${size === 'large' ? 'border-2' : ''}
         ${isOptimistic ? 'opacity-60 pointer-events-none' : ''}
+        ${isDragging ? 'opacity-50 cursor-grabbing' : 'cursor-grab'}
+        ${glowClass}
       `}>
         {size === 'hero' && (
           <motion.div 
@@ -171,30 +227,65 @@ export function BudgetCard({ budget, spending, categoryData, onEdit, onDelete, s
           </div>
         </div>
 
-        {/* Status Indicator */}
+        {/* Daily Pace Calculator */}
+        <DailyPaceCalculator
+          budgetId={budget.id}
+          totalLimit={totalLimit}
+          spentAmount={spentAmount}
+          periodStart={new Date().toISOString()}
+          periodEnd={new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString()}
+        />
+
+        {/* Status Indicator with Cover Button */}
         {isOverBudget ? (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
-            <AlertCircle className="h-4 w-4 text-destructive" />
-            <p className="text-sm text-destructive font-medium">
-              ${Math.abs(remaining).toFixed(2)} over budget
-            </p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-500/20 border border-rose-500/40">
+              <AlertCircle className="h-4 w-4 text-rose-500" />
+              <p className="text-sm text-rose-500 font-medium">
+                ${Math.abs(remaining).toFixed(2)} over budget
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full gap-2 border-rose-500/50 text-rose-500 hover:bg-rose-500/10"
+              onClick={() => setShowCoverOptions(!showCoverOptions)}
+            >
+              <ArrowRight className="w-4 h-4" />
+              Cover this?
+            </Button>
           </div>
         ) : isNearLimit ? (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-warning/10 border border-warning/20">
-            <TrendingUp className="h-4 w-4 text-warning" />
-            <p className="text-sm text-warning font-medium">
-              {(100 - percentage).toFixed(0)}% remaining
-            </p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/20 border border-amber-500/40">
+              <TrendingUp className="h-4 w-4 text-amber-500" />
+              <p className="text-sm text-amber-500 font-medium">
+                {(100 - percentage).toFixed(0)}% remaining
+              </p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+            >
+              <Button
+                variant="outline"
+                className="w-full gap-2 border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
+                onClick={() => setShowCoverOptions(!showCoverOptions)}
+              >
+                <ArrowRight className="w-4 h-4" />
+                Need more funds?
+              </Button>
+            </motion.div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20">
-            <TrendingDown className="h-4 w-4 text-primary" />
-            <p className="text-sm text-primary font-medium">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/40">
+            <TrendingDown className="h-4 w-4 text-emerald-500" />
+            <p className="text-sm text-emerald-500 font-medium">
               On track - {spending?.transaction_count || 0} transactions
             </p>
           </div>
         )}
       </Card>
+      </motion.div>
     </motion.div>
   );
 }

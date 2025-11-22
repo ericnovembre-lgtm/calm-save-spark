@@ -41,6 +41,9 @@ import { ComponentRenderer } from "@/components/generative-ui/ComponentRenderer"
 import { useBudgetOptimistic } from "@/hooks/usePageOptimisticActions";
 import { AdaptiveGrid } from "@/components/budget/AdaptiveGrid";
 import { SmartInsightsSidebar } from "@/components/budget/SmartInsightsSidebar";
+import { BudgetMasonryGrid } from "@/components/budget/BudgetMasonryGrid";
+import { SmartRebalancingAgent } from "@/components/budget/SmartRebalancingAgent";
+import { InflationDetector } from "@/components/budget/InflationDetector";
 
 // Lazy load heavy components
 const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
@@ -412,6 +415,16 @@ export default function Budget() {
           <ConversationalBudgetPanel className="mb-6" />
         </ScrollSection>
 
+        {/* Inflation Detector */}
+        <ScrollSection>
+          <InflationDetector />
+        </ScrollSection>
+
+        {/* Smart Rebalancing Agent */}
+        <ScrollSection>
+          <SmartRebalancingAgent />
+        </ScrollSection>
+
         {/* Context-Aware Generative Components */}
         {generativeComponents.length > 0 && (
           <ScrollSection>
@@ -508,39 +521,13 @@ export default function Budget() {
               </Card>
             ) : (
               <div className="mt-6">
-                <AdaptiveGrid
-                  items={budgets}
-                  getPriority={(budget) => {
-                    const spendingData = spending[budget.id];
-                    if (!spendingData) return 'normal';
-                    
-                    const utilization = spendingData.spent_amount / budget.total_limit;
-                    
-                    // Critical: Over 90% utilization
-                    if (utilization >= 0.9) return 'hero';
-                    
-                    // Warning: Over 75% utilization
-                    if (utilization >= 0.75) return 'large';
-                    
-                    return 'normal';
-                  }}
-                >
-                  {(budget, size) => (
-                    <GestureCard>
-                      <HolographicCard intensity={size === 'hero' ? 'high' : 'low'}>
-                        <BudgetCard
-                          budget={budget as any}
-                          size={size}
-                          spending={spending[budget.id]}
-                          categoryData={categories.find(c => c.code === Object.keys((budget.category_limits as any) || {})[0])}
-                          onEdit={(updates) => handleUpdateBudget(budget.id, updates)}
-                          onDelete={() => handleDeleteBudget(budget.id)}
-                          isOptimistic={isPending}
-                        />
-                      </HolographicCard>
-                    </GestureCard>
-                  )}
-                </AdaptiveGrid>
+                <BudgetMasonryGrid
+                  budgets={budgets}
+                  spending={spending}
+                  categories={categories}
+                  onEdit={(budgetId) => handleUpdateBudget(budgetId, {})}
+                  onDelete={handleDeleteBudget}
+                />
               </div>
             )}
           </ScrollSection>

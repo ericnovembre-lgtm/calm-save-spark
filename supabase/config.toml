@@ -228,6 +228,17 @@ verify_jwt = false
 [functions.fetch-benchmark-data]
 verify_jwt = false
 
+[functions.calculate-daily-pace]
+verify_jwt = true
+
+[functions.suggest-budget-rebalancing]
+verify_jwt = true
+
+[functions.transfer-budget-funds]
+verify_jwt = true
+
+[functions.detect-budget-inflation]
+verify_jwt = false
 
 
 
