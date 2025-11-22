@@ -872,6 +872,33 @@ export type Database = {
         }
         Relationships: []
       }
+      benchmark_data: {
+        Row: {
+          benchmark_name: string
+          change_percent: number | null
+          created_at: string | null
+          date: string
+          id: string
+          value: number
+        }
+        Insert: {
+          benchmark_name: string
+          change_percent?: number | null
+          created_at?: string | null
+          date: string
+          id?: string
+          value: number
+        }
+        Update: {
+          benchmark_name?: string
+          change_percent?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          value?: number
+        }
+        Relationships: []
+      }
       bill_negotiation_opportunities: {
         Row: {
           category: string | null
@@ -4688,6 +4715,36 @@ export type Database = {
           },
         ]
       }
+      market_data_cache: {
+        Row: {
+          change_percent: number | null
+          created_at: string | null
+          id: string
+          last_updated: string | null
+          price: number
+          symbol: string
+          volume: number | null
+        }
+        Insert: {
+          change_percent?: number | null
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          price: number
+          symbol: string
+          volume?: number | null
+        }
+        Update: {
+          change_percent?: number | null
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          price?: number
+          symbol?: string
+          volume?: number | null
+        }
+        Relationships: []
+      }
       market_loan_rates: {
         Row: {
           created_at: string | null
@@ -5522,6 +5579,33 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_snapshots: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          snapshot_date: string | null
+          total_value: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          snapshot_date?: string | null
+          total_value: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          snapshot_date?: string | null
+          total_value?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       pots: {
         Row: {
           color: string | null
@@ -5855,6 +5939,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rebalancing_suggestions: {
+        Row: {
+          created_at: string | null
+          executed_at: string | null
+          id: string
+          status: string | null
+          suggestion_data: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          executed_at?: string | null
+          id?: string
+          status?: string | null
+          suggestion_data: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          executed_at?: string | null
+          id?: string
+          status?: string | null
+          suggestion_data?: Json
+          user_id?: string
+        }
+        Relationships: []
       }
       recurring_budget_configs: {
         Row: {
