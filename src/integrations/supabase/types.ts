@@ -8361,23 +8361,41 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          accent_color: string | null
           created_at: string | null
           dashboard_card_order: string[] | null
           id: string
+          last_security_check: string | null
+          natural_language_rules: Json | null
+          security_score: number | null
+          security_settings: Json | null
+          spending_persona: Json | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          accent_color?: string | null
           created_at?: string | null
           dashboard_card_order?: string[] | null
           id?: string
+          last_security_check?: string | null
+          natural_language_rules?: Json | null
+          security_score?: number | null
+          security_settings?: Json | null
+          spending_persona?: Json | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          accent_color?: string | null
           created_at?: string | null
           dashboard_card_order?: string[] | null
           id?: string
+          last_security_check?: string | null
+          natural_language_rules?: Json | null
+          security_score?: number | null
+          security_settings?: Json | null
+          spending_persona?: Json | null
           updated_at?: string | null
           user_id?: string
         }
