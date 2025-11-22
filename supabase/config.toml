@@ -21,6 +21,9 @@ verify_jwt = true
 [functions.create-plaid-link-token]
 verify_jwt = true
 
+[functions.create-plaid-investment-link-token]
+verify_jwt = true
+
 [functions.exchange-plaid-token]
 verify_jwt = true
 
