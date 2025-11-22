@@ -14,6 +14,14 @@ interface AutomationFormData {
   notes?: string | null;
 }
 
+interface ParsedAutomationRule {
+  rule_name: string;
+  rule_type: 'transaction_match' | 'scheduled_transfer' | 'balance_threshold' | 'round_up';
+  trigger_condition: any;
+  action_config: any;
+  notes?: string;
+}
+
 export function useAutomations() {
   const queryClient = useQueryClient();
 
@@ -37,28 +45,52 @@ export function useAutomations() {
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (automation: Omit<AutomationFormData, 'id'>) => {
+    mutationFn: async (automation: Omit<AutomationFormData, 'id'> | ParsedAutomationRule) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
-        .from('automation_rules')
-        .insert({
-          user_id: user.id,
-          rule_name: automation.rule_name,
-          rule_type: 'scheduled_transfer',
-          frequency: automation.frequency,
-          start_date: automation.start_date,
-          next_run_date: automation.start_date,
-          action_config: { amount: automation.action_config.amount } as any,
-          notes: automation.notes,
-          is_active: true,
-        })
-        .select()
-        .single();
+      // Check if this is a parsed rule or legacy scheduled transfer
+      const isParsedRule = 'trigger_condition' in automation;
 
-      if (error) throw error;
-      return data;
+      if (isParsedRule) {
+        // New parsed rule format
+        const { data, error } = await supabase
+          .from('automation_rules')
+          .insert({
+            user_id: user.id,
+            rule_name: automation.rule_name,
+            rule_type: automation.rule_type,
+            trigger_condition: automation.trigger_condition,
+            action_config: automation.action_config,
+            notes: automation.notes,
+            is_active: true,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      } else {
+        // Legacy scheduled transfer format
+        const { data, error } = await supabase
+          .from('automation_rules')
+          .insert({
+            user_id: user.id,
+            rule_name: automation.rule_name,
+            rule_type: 'scheduled_transfer',
+            frequency: automation.frequency,
+            start_date: automation.start_date,
+            next_run_date: automation.start_date,
+            action_config: { amount: automation.action_config.amount } as any,
+            notes: automation.notes,
+            is_active: true,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['automations'] });
@@ -154,7 +186,9 @@ export function useAutomations() {
   });
 
   // Computed values
-  const scheduledAutomations = automations?.filter(a => a.rule_type === 'scheduled_transfer') || [];
+  const scheduledAutomations = automations?.filter(a => a.frequency || a.rule_type === 'scheduled_transfer') || [];
+  const transactionMatchAutomations = automations?.filter(a => a.rule_type === 'transaction_match') || [];
+  const balanceThresholdAutomations = automations?.filter(a => a.rule_type === 'balance_threshold') || [];
   const roundUpAutomations = automations?.filter(a => a.rule_type === 'round_up') || [];
   const activeCount = automations?.filter(a => a.is_active).length || 0;
   
@@ -175,6 +209,8 @@ export function useAutomations() {
   return {
     automations: automations || [],
     scheduledAutomations,
+    transactionMatchAutomations,
+    balanceThresholdAutomations,
     roundUpAutomations,
     activeCount,
     totalMonthlyAmount,
