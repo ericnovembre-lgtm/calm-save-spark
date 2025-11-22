@@ -28,8 +28,13 @@ import { SecurityHealthGauge } from '@/components/settings/SecurityHealthGauge';
 import { SpendingPersona } from '@/components/settings/SpendingPersona';
 import { SupportConcierge } from '@/components/settings/SupportConcierge';
 import { LiveThemePreview } from '@/components/settings/LiveThemePreview';
+import { ConnectedAppsPrivacy } from '@/components/settings/ConnectedAppsPrivacy';
+import { useSettingsSync } from '@/hooks/useSettingsSync';
 
 export default function Settings() {
+  // Initialize settings sync
+  useSettingsSync();
+
   return (
     <AppLayout>
       <div className="space-y-6 max-w-4xl mx-auto">
@@ -61,6 +66,8 @@ export default function Settings() {
             <NaturalLanguageNotifications />
             <Separator />
             <LiveThemePreview />
+            <Separator />
+            <ConnectedAppsPrivacy />
             <Separator />
             <SupportConcierge />
           </CardContent>
