@@ -61,11 +61,33 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        glass: {
+          DEFAULT: "var(--glass-bg)",
+          strong: "var(--glass-bg-strong)",
+          subtle: "var(--glass-bg-subtle)",
+          hover: "var(--glass-bg-hover)",
+          border: "var(--glass-border)",
+          "border-strong": "var(--glass-border-strong)",
+          "border-subtle": "var(--glass-border-subtle)",
+          "border-hover": "var(--glass-border-hover)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backdropBlur: {
+        glass: "12px",
+        "glass-strong": "20px",
+        "glass-subtle": "8px",
+      },
+      boxShadow: {
+        glass: "var(--glass-shadow)",
+        "glass-strong": "var(--glass-shadow-strong)",
+        "glass-subtle": "var(--glass-shadow-subtle)",
+        "glass-elevated": "var(--glass-shadow-elevated)",
+        "glass-elevated-hover": "var(--glass-shadow-elevated-hover)",
       },
       keyframes: {
         "accordion-down": {

@@ -56,6 +56,23 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
+    /* Phase 7: Enhanced Glassmorphism Tokens */
+    --glass-bg: hsla(var(--background), 0.7);
+    --glass-bg-strong: hsla(var(--background), 0.85);
+    --glass-bg-subtle: hsla(var(--background), 0.5);
+    --glass-bg-hover: hsla(var(--background), 0.75);
+    
+    --glass-border: hsla(var(--foreground), 0.1);
+    --glass-border-strong: hsla(var(--foreground), 0.15);
+    --glass-border-subtle: hsla(var(--foreground), 0.05);
+    --glass-border-hover: hsla(var(--foreground), 0.12);
+    
+    --glass-shadow: 0 8px 32px 0 hsla(0, 0%, 0%, 0.12);
+    --glass-shadow-strong: 0 12px 48px 0 hsla(0, 0%, 0%, 0.18);
+    --glass-shadow-subtle: 0 4px 16px 0 hsla(0, 0%, 0%, 0.08);
+    --glass-shadow-elevated: 0 16px 64px 0 hsla(0, 0%, 0%, 0.15);
+    --glass-shadow-elevated-hover: 0 20px 80px 0 hsla(0, 0%, 0%, 0.2);
+
     /* Gradients and effects */
     --gradient-subtle: linear-gradient(135deg, #F8F6F0, #E9DFCE);
     --gradient-premium: linear-gradient(135deg, #FFFFFF, #F8F6F0, #E9DFCE);

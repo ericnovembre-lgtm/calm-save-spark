@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { TypewriterText } from '@/components/ui/typewriter-text';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -30,7 +31,7 @@ export function DailyBriefingCard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <Card className="p-6 backdrop-blur-xl bg-card/80 border-border/40 hover:border-primary/20 transition-all duration-300">
+      <Card className="bg-glass border-glass-border backdrop-blur-glass shadow-glass hover:shadow-glass-elevated hover:bg-glass-hover hover:border-glass-border-hover transition-all duration-300">
         <div className="flex items-center gap-3 mb-4">
           <motion.div
             animate={{ rotate: [0, 10, -10, 0] }}

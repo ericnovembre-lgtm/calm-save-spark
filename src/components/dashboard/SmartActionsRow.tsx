@@ -107,9 +107,10 @@ export function SmartActionsRow() {
                 variant="outline"
                 onClick={() => executeAction(action)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-6 h-auto whitespace-nowrap",
-                  "backdrop-blur-md border transition-all group",
-                  "hover:scale-105 hover:shadow-lg",
+                  "relative flex items-center gap-3 px-4 py-6 h-auto whitespace-nowrap rounded-2xl",
+                  "bg-glass border-glass-border backdrop-blur-glass shadow-glass",
+                  "hover:bg-glass-hover hover:border-glass-border-hover hover:shadow-glass-elevated",
+                  "transition-all duration-300 group active:scale-95",
                   colorClasses[action.color]
                 )}
               >
