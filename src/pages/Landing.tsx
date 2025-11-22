@@ -20,19 +20,14 @@ import { PerformanceBudgetMonitor } from "@/components/performance/PerformanceBu
 import { AccessibilityTestPanel } from "@/components/performance/AccessibilityTestPanel";
 import { SkipToContent } from "@/components/accessibility/SkipToContent";
 
-// Lazy load heavy components for better performance
+// Lazy load heavy components for better performance - Phase 6 Optimization: Reduced from 15+ to 8
 import {
-  LazyPremiumShowcase,
-  LazyUseCases,
-  LazyTestimonials,
-  LazyPlatformOverview,
-  LazyFeatureComparison,
-  LazyIntegrations,
   LazyCalculator,
   LazyInteractiveDemo,
   LazyFAQ,
-  LazySaveplusCoachWidget,
-  LazyFloatingParticles,
+  LazyTestimonials,
+  LazyPlatformOverview,
+  LazyEffectsBundle,
 } from "@/components/landing/LazyComponents";
 
 // Advanced generative components
@@ -143,16 +138,9 @@ export default function Landing() {
           </PriorityLoader>
           
           {/* Tier 4: Low Priority - Load on Viewport Entry */}
-          <PriorityLoader priority="low">
-            <ErrorBoundary>
-              <Suspense fallback={<PremiumShowcaseSkeleton />}>
-                <LazyPremiumShowcase />
-              </Suspense>
-            </ErrorBoundary>
-            
+          <PriorityLoader priority="low">            
             <ErrorBoundary>
               <Suspense fallback={<TestimonialsSkeleton />}>
-                <LazyUseCases />
                 <LazyTestimonials />
               </Suspense>
             </ErrorBoundary>
@@ -160,18 +148,6 @@ export default function Landing() {
             <ErrorBoundary>
               <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8"><BrandedSkeletonCard /><BrandedSkeletonCard /><BrandedSkeletonCard /></div>}>
                 <LazyPlatformOverview />
-              </Suspense>
-            </ErrorBoundary>
-            
-            <ErrorBoundary>
-              <Suspense fallback={<FeatureComparisonSkeleton />}>
-                <LazyFeatureComparison />
-              </Suspense>
-            </ErrorBoundary>
-            
-            <ErrorBoundary>
-              <Suspense fallback={<IntegrationsSkeleton />}>
-                <LazyIntegrations />
               </Suspense>
             </ErrorBoundary>
             
@@ -204,32 +180,11 @@ export default function Landing() {
           <CTA />
         </main>
         
-        {/* Coach Widget - Independent Load */}
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <LazySaveplusCoachWidget />
-          </Suspense>
-        </ErrorBoundary>
-        
-        <SimpleBackground />
-        
-        {/* Tier 5: Effects - Load Last After All Content, Only if Motion Allowed */}
+        {/* Tier 5: Effects Bundle - Load Last After All Content, Only if Motion Allowed */}
         {loadEffects && !prefersReducedMotion && (
           <ErrorBoundary>
             <Suspense fallback={null}>
-              <LazyFloatingParticles />
-            </Suspense>
-            <Suspense fallback={null}>
-              <LazyNeuralNetworkBackground />
-            </Suspense>
-            <Suspense fallback={null}>
-              <LazyMagneticCursor />
-            </Suspense>
-            <Suspense fallback={null}>
-              <LazyLiveSocialProofStream />
-            </Suspense>
-            <Suspense fallback={null}>
-              <LazyCoinParticleSystem />
+              <LazyEffectsBundle />
             </Suspense>
           </ErrorBoundary>
         )}

@@ -13,6 +13,7 @@ export function NeuralNetworkBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
+  const performanceCheckRef = useRef({ frameCount: 0, startTime: 0 });
 
   useEffect(() => {
     if (prefersReducedMotion) return;
@@ -23,14 +24,18 @@ export function NeuralNetworkBackground() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Performance monitoring
+    performanceCheckRef.current.startTime = performance.now();
+
     const setCanvasSize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
     setCanvasSize();
 
-    // Node configuration - reduced by 80% on mobile (25 -> 5)
+    // Node configuration - adaptive quality based on device
     const nodeCount = isMobile ? 5 : 25;
+    const connectionDistance = isMobile ? 80 : 150;
     const nodes: Node[] = Array.from({ length: nodeCount }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
@@ -38,7 +43,7 @@ export function NeuralNetworkBackground() {
       vy: (Math.random() - 0.5) * 0.3,
     }));
 
-    const maxDistance = 150;
+    const maxDistance = connectionDistance;
     let mouseX = 0;
     let mouseY = 0;
     let isMouseOnCanvas = false;
@@ -60,6 +65,18 @@ export function NeuralNetworkBackground() {
     let animationFrameId: number;
 
     const animate = () => {
+      // Performance tracking
+      performanceCheckRef.current.frameCount++;
+      if (performanceCheckRef.current.frameCount === 60) {
+        const elapsed = performance.now() - performanceCheckRef.current.startTime;
+        const fps = (60 / elapsed) * 1000;
+        if (fps < 30) {
+          console.warn('[NeuralNetworkBackground] Low FPS detected:', fps.toFixed(1));
+        }
+        performanceCheckRef.current.frameCount = 0;
+        performanceCheckRef.current.startTime = performance.now();
+      }
+
       ctx.fillStyle = 'rgba(250, 248, 242, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
