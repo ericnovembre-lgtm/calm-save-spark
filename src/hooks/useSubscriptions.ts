@@ -17,6 +17,12 @@ export interface Subscription {
   paused_at?: string;
   paused_reason?: string;
   created_at?: string;
+  last_usage_date?: string;
+  usage_count_last_30_days?: number;
+  zombie_score?: number;
+  zombie_flagged_at?: string;
+  marked_for_cancellation?: boolean;
+  marked_for_cancellation_at?: string;
 }
 
 export function useSubscriptions() {
@@ -48,6 +54,11 @@ export function useSubscriptions() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Optimistic UI update
+      queryClient.setQueryData(['subscriptions'], (old: Subscription[] | undefined) => 
+        old?.map(s => s.id === id ? { ...s, status: newStatus } : s)
+      );
+
       const { error } = await supabase
         .from('detected_subscriptions')
         .update({
@@ -56,9 +67,11 @@ export function useSubscriptions() {
         })
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+        throw error;
+      }
 
-      // Log event
       await supabase.from('subscription_events').insert({
         subscription_id: id,
         event_type: newStatus === 'paused' ? 'paused' : 'resumed',
@@ -82,7 +95,11 @@ export function useSubscriptions() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Log cancellation event first
+      // Optimistic UI update
+      queryClient.setQueryData(['subscriptions'], (old: Subscription[] | undefined) => 
+        old?.filter(s => s.id !== id)
+      );
+
       await supabase.from('subscription_events').insert({
         subscription_id: id,
         event_type: 'cancelled',
@@ -94,7 +111,10 @@ export function useSubscriptions() {
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
@@ -106,9 +126,39 @@ export function useSubscriptions() {
     },
   });
 
-  // Computed values
-  const activeBills = subscriptions?.filter(s => s.status !== 'paused') || [];
+  const markForCancellationMutation = useMutation({
+    mutationFn: async (id: string) => {
+      queryClient.setQueryData(['subscriptions'], (old: Subscription[] | undefined) => 
+        old?.map(s => s.id === id ? { 
+          ...s, 
+          marked_for_cancellation: true,
+          marked_for_cancellation_at: new Date().toISOString()
+        } : s)
+      );
+
+      const { error } = await supabase
+        .from('detected_subscriptions')
+        .update({
+          marked_for_cancellation: true,
+          marked_for_cancellation_at: new Date().toISOString(),
+        })
+        .eq('id', id);
+
+      if (error) {
+        queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      toast.success('Marked for cancellation');
+    },
+  });
+
+  const activeBills = subscriptions?.filter(s => s.status !== 'paused' && !s.marked_for_cancellation) || [];
   const pausedBills = subscriptions?.filter(s => s.status === 'paused') || [];
+  const zombieBills = subscriptions?.filter(s => (s.zombie_score || 0) > 70) || [];
+  const markedForCancellation = subscriptions?.filter(s => s.marked_for_cancellation) || [];
   
   const upcomingBills = activeBills.filter(s => {
     const dueDate = new Date(s.next_expected_date);
@@ -128,6 +178,8 @@ export function useSubscriptions() {
     subscriptions: subscriptions || [],
     activeBills,
     pausedBills,
+    zombieBills,
+    markedForCancellation,
     upcomingBills,
     overdueBills,
     monthlyTotal,
@@ -135,6 +187,7 @@ export function useSubscriptions() {
     error,
     togglePause: togglePauseMutation.mutate,
     deleteSubscription: deleteMutation.mutate,
+    markForCancellation: markForCancellationMutation.mutate,
     isTogglingPause: togglePauseMutation.isPending,
     isDeleting: deleteMutation.isPending,
   };
