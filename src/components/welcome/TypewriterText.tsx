@@ -28,20 +28,19 @@ export const TypewriterText = ({ phrases, className = "" }: TypewriterTextProps)
         if (displayedText.length < currentPhrase.length) {
           setDisplayedText(currentPhrase.slice(0, displayedText.length + 1));
         } else {
-          // Finished typing, wait then start deleting
+          // Finished typing, wait 5s then start fade-out transition
           setTimeout(() => setIsDeleting(true), 5000);
         }
       } else {
-        // Deleting
+        // Fade-out complete, instantly switch to next phrase and fade-in
         if (displayedText.length > 0) {
           setDisplayedText(displayedText.slice(0, -1));
         } else {
-          // Finished deleting, move to next phrase
           setIsDeleting(false);
           setCurrentPhraseIndex((prev) => (prev + 1) % phrases.length);
         }
       }
-    }, isDeleting ? 50 : 100);
+    }, isDeleting ? 30 : 80); // Faster transitions for smoother feel
 
     return () => clearTimeout(timeout);
   }, [displayedText, isDeleting, currentPhrase, phrases, currentPhraseIndex, prefersReducedMotion]);
@@ -68,8 +67,20 @@ export const TypewriterText = ({ phrases, className = "" }: TypewriterTextProps)
 
   return (
     <span className={className}>
-      <motion.span animate={controls}>
-        {displayedText}
+      <motion.span 
+        animate={controls}
+        initial={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        key={currentPhraseIndex} // Trigger fade on phrase change
+      >
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          {displayedText}
+        </motion.span>
       </motion.span>
       <motion.span
         animate={{ opacity: [1, 0] }}

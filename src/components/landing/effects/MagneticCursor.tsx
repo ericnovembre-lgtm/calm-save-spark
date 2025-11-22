@@ -1,19 +1,29 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, useSpring, useMotionValue } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 
 export function MagneticCursor() {
   const prefersReducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
   const [isHovering, setIsHovering] = useState(false);
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
   
-  const springConfig = { stiffness: 150, damping: 15, mass: 0.1 };
+  // Adaptive performance: Lower quality on lower-end devices
+  const springConfig = { 
+    stiffness: isMobile ? 100 : 150, 
+    damping: isMobile ? 20 : 15, 
+    mass: 0.1 
+  };
   const cursorXSpring = useSpring(cursorX, springConfig);
   const cursorYSpring = useSpring(cursorY, springConfig);
 
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion || isMobile) return;
+
+    // Performance monitoring
+    const startTime = performance.now();
 
     const updateCursor = (e: MouseEvent) => {
       cursorX.set(e.clientX);
@@ -31,10 +41,17 @@ export function MagneticCursor() {
     };
 
     window.addEventListener('mousemove', updateCursor);
-    return () => window.removeEventListener('mousemove', updateCursor);
-  }, [cursorX, cursorY, prefersReducedMotion]);
+    
+    // Log load time
+    const loadTime = performance.now() - startTime;
+    if (loadTime > 100) {
+      console.warn('[MagneticCursor] Slow initialization:', loadTime, 'ms');
+    }
 
-  if (prefersReducedMotion) return null;
+    return () => window.removeEventListener('mousemove', updateCursor);
+  }, [cursorX, cursorY, prefersReducedMotion, isMobile]);
+
+  if (prefersReducedMotion || isMobile) return null;
 
   return (
     <>
