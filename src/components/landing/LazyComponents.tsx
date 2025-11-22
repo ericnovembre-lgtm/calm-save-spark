@@ -13,13 +13,11 @@ export const LazyEffectsBundle = lazy(() =>
   Promise.all([
     import('./advanced/FloatingParticles').then(m => ({ FloatingParticles: m.FloatingParticles })),
     import('./effects/NeuralNetworkBackground').then(m => ({ NeuralNetworkBackground: m.NeuralNetworkBackground })),
-    import('./particles/CoinParticleSystem').then(m => ({ CoinParticleSystem: m.CoinParticleSystem })),
-  ]).then(([particles, neural, coins]) => ({
+  ]).then(([particles, neural]) => ({
     default: () => (
       <>
         <particles.FloatingParticles />
         <neural.NeuralNetworkBackground />
-        <coins.CoinParticleSystem />
       </>
     )
   }))
