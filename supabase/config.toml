@@ -180,4 +180,13 @@ verify_jwt = true
 [functions.calculate-time-to-goal]
 verify_jwt = true
 
+[functions.explain-chart]
+verify_jwt = true
+
+[functions.calculate-scenarios]
+verify_jwt = true
+
+[functions.aggregate-insights-data]
+verify_jwt = true
+
 
