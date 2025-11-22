@@ -1,10 +1,11 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo, memo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useVirtualTransactions } from "@/hooks/useVirtualTransactions";
+import { useOptimizedTransactions } from "@/hooks/useOptimizedTransactions";
 import { TransactionCard } from "./TransactionCard";
 import { LoadingState } from "@/components/LoadingState";
 import { DollarSign } from "lucide-react";
 import { useMerchantLogoPreload } from "@/hooks/useMerchantLogoPreload";
+import { usePageMemo } from "@/lib/performance-utils";
 
 interface VirtualizedTransactionListProps {
   filters?: {
@@ -17,34 +18,48 @@ interface VirtualizedTransactionListProps {
   };
 }
 
-export function VirtualizedTransactionList({ filters }: VirtualizedTransactionListProps) {
+// Memoized transaction card for better re-render performance
+const MemoizedTransactionCard = memo(TransactionCard, (prev, next) => {
+  return prev.transaction.id === next.transaction.id;
+});
+
+export const VirtualizedTransactionList = memo(function VirtualizedTransactionList({ 
+  filters 
+}: VirtualizedTransactionListProps) {
   const {
     data,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-    isFetching,
-  } = useVirtualTransactions(filters);
+  } = useOptimizedTransactions(filters);
 
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Flatten all pages into single array
-  const allTransactions = data?.pages.flatMap(page => page.transactions) ?? [];
+  // Memoize flattened transactions array
+  const allTransactions = usePageMemo(
+    () => data?.pages.flatMap(page => page.transactions) ?? [],
+    [data?.pages]
+  );
 
-  // Preload merchant logos for first 50 visible transactions
-  const visibleMerchants = allTransactions
-    .slice(0, 50)
-    .map(t => t.merchant)
-    .filter(Boolean) as string[];
+  // Memoize visible merchants for logo preloading
+  const visibleMerchants = usePageMemo(() => 
+    allTransactions
+      .slice(0, 50)
+      .map(t => t.merchant)
+      .filter(Boolean) as string[],
+    [allTransactions]
+  );
   
   useMerchantLogoPreload(visibleMerchants);
 
+  // Optimized virtualizer with better size estimation
   const rowVirtualizer = useVirtualizer({
     count: hasNextPage ? allTransactions.length + 1 : allTransactions.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 100,
-    overscan: 5,
+    estimateSize: () => 88, // More accurate estimation based on TransactionCard
+    overscan: 3, // Reduced overscan for better performance
+    measureElement: (element) => element.getBoundingClientRect().height,
   });
 
   // Infinite scroll trigger
@@ -117,7 +132,7 @@ export function VirtualizedTransactionList({ filters }: VirtualizedTransactionLi
                   </div>
                 ) : null
               ) : (
-                <TransactionCard transaction={transaction} />
+                <MemoizedTransactionCard transaction={transaction} />
               )}
             </div>
           );
@@ -125,4 +140,7 @@ export function VirtualizedTransactionList({ filters }: VirtualizedTransactionLi
       </div>
     </div>
   );
-}
+}, (prev, next) => {
+  // Custom comparison to prevent unnecessary re-renders
+  return JSON.stringify(prev.filters) === JSON.stringify(next.filters);
+});
