@@ -24,6 +24,13 @@ interface VirtualizedTransactionListProps {
     dateRange?: { start: string; end: string };
     searchQuery?: string;
   };
+  anomalies?: Array<{
+    transactionId: string;
+    anomalyType: string;
+    severity: 'low' | 'medium' | 'high';
+    explanation: string;
+    suggestedAction: string;
+  }>;
   onClearFilters?: () => void;
 }
 
@@ -34,6 +41,7 @@ const MemoizedTransactionCard = memo(TransactionCard, (prev, next) => {
 
 export const VirtualizedTransactionList = memo(function VirtualizedTransactionList({ 
   filters,
+  anomalies = [],
   onClearFilters
 }: VirtualizedTransactionListProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -267,7 +275,10 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
                       </motion.div>
                     ) : null
                   ) : (
-                    <MemoizedTransactionCard transaction={item.data} />
+                    <MemoizedTransactionCard 
+                      transaction={item.data}
+                      anomaly={anomalies.find(a => a.transactionId === item.data.id)}
+                    />
                   )}
                 </motion.div>
               );

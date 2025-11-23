@@ -111,14 +111,25 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const systemPrompt = `You are a financial analysis assistant. Generate a brief, insightful observation about a transaction based on its context. Be conversational and helpful. Max 25 words.`;
+    const systemPrompt = `You are a financial analysis assistant with expertise in decoding cryptic bank transaction descriptions.
 
-    const userPrompt = `Transaction: $${currentAmount} at ${merchant}
+Your tasks:
+1. Decode the raw merchant name if it's cryptic (e.g., "ACH WID 9942" → "Direct deposit from payroll service")
+2. Generate a brief, insightful observation about the transaction (max 25 words)
+
+Be conversational and helpful.`;
+
+    const userPrompt = `Raw merchant: ${merchant}
+Transaction: $${currentAmount}
 Category: ${category}
 Pattern: ${pattern}
 Historical avg: $${Math.abs(avgAmount).toFixed(2)}
 Trend: ${trend}
-Your percentile: ${percentile}%`;
+Your percentile: ${percentile}%
+
+Please provide:
+1. A decoded/cleaned merchant name if the raw name is cryptic
+2. A brief insight about this transaction`;
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -140,12 +151,25 @@ Your percentile: ${percentile}%`;
     }
 
     const aiData = await aiResponse.json();
-    const insights = aiData.choices?.[0]?.message?.content || 
+    const aiContent = aiData.choices?.[0]?.message?.content || 
       `This is a ${pattern} transaction at ${merchant}.`;
+    
+    // Try to extract decoded merchant name from AI response
+    let decodedMerchant = merchant;
+    let insights = aiContent;
+    
+    // Look for patterns like "decoded: X" or "cleaned name: X"
+    const decodedMatch = aiContent.match(/(?:decoded|cleaned|actual)(?:\s+name)?:\s*([^\n]+)/i);
+    if (decodedMatch) {
+      decodedMerchant = decodedMatch[1].trim();
+      // Remove the decoded part from insights
+      insights = aiContent.replace(decodedMatch[0], '').trim();
+    }
 
     return new Response(
       JSON.stringify({
         insights,
+        decoded_merchant: decodedMerchant !== merchant ? decodedMerchant : undefined,
         pattern,
         spending_context: {
           avg_amount: Math.abs(avgAmount),

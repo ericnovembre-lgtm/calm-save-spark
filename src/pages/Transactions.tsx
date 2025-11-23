@@ -21,6 +21,8 @@ import { InsightsPanel } from '@/components/transactions/InsightsPanel';
 import { ScrollToTopButton } from '@/components/transactions/ScrollToTopButton';
 import { AddTransactionDialog } from '@/components/transactions/AddTransactionDialog';
 import { ExportTransactionsDialog } from '@/components/transactions/ExportTransactionsDialog';
+import { AnomalyScanner } from '@/components/transactions/AnomalyScanner';
+import { useTransactionAnomalyDetection } from "@/hooks/useTransactionAnomalyDetection";
 
 export default withPageMemo(function Transactions() {
   const queryClient = useQueryClient();
@@ -29,6 +31,9 @@ export default withPageMemo(function Transactions() {
   const [userId, setUserId] = useState<string>();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  
+  // Anomaly detection
+  const { anomalies } = useTransactionAnomalyDetection('30d');
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -139,6 +144,7 @@ export default withPageMemo(function Transactions() {
         <ProgressiveLoader priority="medium" delay={100}>
           <VirtualizedTransactionList 
             filters={filters}
+            anomalies={anomalies}
             onClearFilters={handleClearAllFilters}
           />
         </ProgressiveLoader>
@@ -146,7 +152,11 @@ export default withPageMemo(function Transactions() {
     </AppLayout>
 
     {userId && <InsightsPanel userId={userId} />}
-    <ScrollToTopButton />
+      
+      {/* Anomaly Scanner FAB */}
+      <AnomalyScanner />
+      
+      <ScrollToTopButton />
 
     <AddTransactionDialog
       isOpen={isAddDialogOpen}

@@ -8,7 +8,9 @@ import {
   Calendar,
   Sparkles,
   MapPin,
-  FileText
+  FileText,
+  AlertCircle,
+  Search
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,10 +23,17 @@ interface TransactionDetectiveProps {
   amount: number;
   category: string;
   isExpanded: boolean;
+  anomaly?: {
+    anomalyType: string;
+    severity: string;
+    explanation: string;
+    suggestedAction: string;
+  };
 }
 
 interface AnalysisResult {
   insights: string;
+  decoded_merchant?: string;
   pattern: 'recurring' | 'one-time' | 'irregular';
   spending_context: {
     avg_amount: number;
@@ -44,6 +53,7 @@ export function TransactionDetective({
   amount,
   category,
   isExpanded,
+  anomaly,
 }: TransactionDetectiveProps) {
   const { data: analysis, isLoading } = useQuery({
     queryKey: ['transaction-analysis', transactionId],
@@ -78,6 +88,44 @@ export function TransactionDetective({
       transition={{ duration: 0.3 }}
       className="space-y-4 pt-4 border-t border-border"
     >
+      {/* Anomaly Alert (if present) */}
+      {anomaly && (
+        <div className="p-4 bg-destructive/10 rounded-lg border-2 border-destructive/30">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5 animate-pulse" />
+            <div className="flex-1">
+              <h4 className="font-medium text-sm mb-2 text-destructive">Anomaly Detected</h4>
+              <p className="text-sm mb-2">{anomaly.explanation}</p>
+              {anomaly.suggestedAction && (
+                <p className="text-xs text-muted-foreground">
+                  💡 {anomaly.suggestedAction}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Decoded Merchant (if cryptic) */}
+      {analysis.decoded_merchant && (
+        <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
+          <div className="flex items-start gap-3">
+            <Search className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="font-medium text-sm mb-2">Decoded Description</h4>
+              <div className="space-y-1">
+                <div className="text-xs text-muted-foreground">
+                  Raw: <span className="font-mono">{merchant}</span>
+                </div>
+                <div className="text-sm font-medium text-primary">
+                  → {analysis.decoded_merchant}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* AI Insights */}
       <div className="p-3 bg-accent/5 border border-accent/20 rounded-xl">
         <div className="flex items-start gap-2">
