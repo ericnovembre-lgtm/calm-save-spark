@@ -524,4 +524,188 @@ export class ExportService {
       </html>
     `;
   }
+
+  /**
+   * Export transactions to CSV with customizable columns
+   */
+  static exportTransactionsToCSVCustom(
+    transactions: any[],
+    selectedColumns: string[],
+    filename?: string
+  ) {
+    const COLUMN_MAP: Record<string, (tx: any) => string> = {
+      transaction_date: (tx) => format(new Date(tx.transaction_date), 'yyyy-MM-dd'),
+      merchant: (tx) => `"${(tx.merchant || 'Unknown').replace(/"/g, '""')}"`,
+      amount: (tx) => Math.abs(tx.amount).toFixed(2),
+      category: (tx) => tx.category || 'Uncategorized',
+      description: (tx) => `"${(tx.description || '').replace(/"/g, '""')}"`,
+      account: (tx) => tx.connected_accounts?.institution_name || 'N/A',
+      recurring: (tx) => tx.recurring_metadata ? 'Yes' : 'No',
+      confidence: (tx) => tx.enrichment_metadata?.confidence?.toFixed(2) || 'N/A',
+      enriched: (tx) => tx.enrichment_metadata ? 'Yes' : 'No',
+    };
+
+    const COLUMN_LABELS: Record<string, string> = {
+      transaction_date: 'Date',
+      merchant: 'Merchant',
+      amount: 'Amount',
+      category: 'Category',
+      description: 'Description',
+      account: 'Account',
+      recurring: 'Recurring',
+      confidence: 'AI Confidence',
+      enriched: 'AI Enriched',
+    };
+
+    const headers = selectedColumns.map(col => COLUMN_LABELS[col] || col);
+    const rows = transactions.map(tx =>
+      selectedColumns.map(col => COLUMN_MAP[col]?.(tx) || '')
+    );
+
+    const csv = [headers, ...rows]
+      .map(row => row.join(','))
+      .join('\n');
+
+    this.downloadFile(
+      csv,
+      filename || `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`,
+      'text/csv'
+    );
+  }
+
+  /**
+   * Export transactions to PDF with customizable columns
+   */
+  static exportTransactionsToPDF(
+    transactions: any[],
+    selectedColumns: string[],
+    filters?: any,
+    filename?: string
+  ) {
+    const doc = new jsPDF();
+
+    // Header
+    doc.setFontSize(20);
+    doc.text('Transaction Report', 105, 20, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.text(format(new Date(), 'MMMM dd, yyyy'), 105, 28, { align: 'center' });
+
+    let y = 40;
+
+    // Summary
+    const totalExpenses = transactions
+      .filter(t => t.amount < 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    const totalIncome = transactions
+      .filter(t => t.amount > 0)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    doc.setFontSize(12);
+    doc.text('Summary', 14, y);
+    y += 8;
+
+    doc.setFontSize(10);
+    doc.text(`Total Transactions: ${transactions.length}`, 14, y);
+    y += 6;
+    doc.text(`Total Expenses: $${totalExpenses.toFixed(2)}`, 14, y);
+    y += 6;
+    doc.text(`Total Income: $${totalIncome.toFixed(2)}`, 14, y);
+    y += 6;
+    doc.text(`Net: $${(totalIncome - totalExpenses).toFixed(2)}`, 14, y);
+    y += 12;
+
+    // Filters
+    if (filters && Object.keys(filters).length > 0) {
+      doc.setFontSize(10);
+      doc.text('Filters Applied:', 14, y);
+      y += 6;
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+          doc.setFontSize(9);
+          doc.text(`  • ${key}: ${value}`, 14, y);
+          y += 5;
+        }
+      });
+      y += 8;
+    }
+
+    // Table
+    const COLUMN_LABELS: Record<string, string> = {
+      transaction_date: 'Date',
+      merchant: 'Merchant',
+      amount: 'Amount',
+      category: 'Category',
+      description: 'Description',
+      account: 'Account',
+      recurring: 'Recurring',
+      confidence: 'Confidence',
+      enriched: 'Enriched',
+    };
+
+    const headers = selectedColumns.map(col => COLUMN_LABELS[col] || col);
+
+    const body = transactions.map(tx => {
+      return selectedColumns.map(col => {
+        switch (col) {
+          case 'transaction_date':
+            return format(new Date(tx.transaction_date), 'yyyy-MM-dd');
+          case 'merchant':
+            return tx.merchant || 'Unknown';
+          case 'amount':
+            return `$${Math.abs(tx.amount).toFixed(2)}`;
+          case 'category':
+            return tx.category || 'Uncategorized';
+          case 'description':
+            return (tx.description || '').substring(0, 30);
+          case 'account':
+            return tx.connected_accounts?.institution_name || 'N/A';
+          case 'recurring':
+            return tx.recurring_metadata ? 'Yes' : 'No';
+          case 'confidence':
+            return tx.enrichment_metadata?.confidence?.toFixed(2) || 'N/A';
+          case 'enriched':
+            return tx.enrichment_metadata ? 'Yes' : 'No';
+          default:
+            return '';
+        }
+      });
+    });
+
+    autoTable(doc, {
+      startY: y,
+      head: [headers],
+      body,
+      theme: 'striped',
+      headStyles: {
+        fillColor: [214, 200, 162],
+        textColor: [10, 10, 10],
+        fontSize: 10,
+        fontStyle: 'bold',
+      },
+      bodyStyles: {
+        fontSize: 8,
+        textColor: [40, 40, 40],
+      },
+      columnStyles: {
+        0: { cellWidth: 25 },
+      },
+    });
+
+    // Footer
+    const pageCount = doc.internal.pages.length - 1;
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        105,
+        doc.internal.pageSize.height - 10,
+        { align: 'center' }
+      );
+      doc.text('$ave+', 14, doc.internal.pageSize.height - 10);
+    }
+
+    doc.save(filename || `transactions-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+  }
 }

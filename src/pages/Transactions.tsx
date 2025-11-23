@@ -17,37 +17,35 @@ import { useOptimizedTransactions } from "@/hooks/useOptimizedTransactions";
 import { useSearchInsights } from "@/hooks/useSearchInsights";
 import { useRecurringDetection } from "@/hooks/useRecurringDetection";
 import { supabase } from "@/integrations/supabase/client";
-import { InsightsPanel } from "@/components/transactions/InsightsPanel";
-import { ScrollToTopButton } from "@/components/transactions/ScrollToTopButton";
+import { InsightsPanel } from '@/components/transactions/InsightsPanel';
+import { ScrollToTopButton } from '@/components/transactions/ScrollToTopButton';
+import { AddTransactionDialog } from '@/components/transactions/AddTransactionDialog';
+import { ExportTransactionsDialog } from '@/components/transactions/ExportTransactionsDialog';
 
 export default withPageMemo(function Transactions() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<any>({});
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [userId, setUserId] = useState<string>();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
-  // Get current user for recurring detection
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUserId(data.user?.id);
     });
   }, []);
 
-  // Enable background recurring detection
   useRecurringDetection(userId);
-
-  // Enable performance monitoring
   useWebVitals(true);
   usePerformanceBudgetAlerts(true);
 
-  // Fetch filtered transactions for insights
   const { data: transactionData } = useOptimizedTransactions(filters);
   const allTransactions = useMemo(
     () => transactionData?.pages.flatMap(page => page.transactions) ?? [],
     [transactionData?.pages]
   );
 
-  // Get search insights when query and results are available
   const hasActiveSearch = searchQuery && Object.keys(filters).length > 0;
   const { data: insightData } = useSearchInsights(
     hasActiveSearch
@@ -55,13 +53,12 @@ export default withPageMemo(function Transactions() {
       : null
   );
 
-  // Memoized callbacks for better performance
   const handleAddTransaction = usePageCallback(() => {
-    toast.info('Manual transaction entry coming soon!');
+    setIsAddDialogOpen(true);
   }, []);
 
   const handleExport = usePageCallback(() => {
-    toast.info('Export feature coming soon!');
+    setIsExportDialogOpen(true);
   }, []);
 
   const handleSyncComplete = usePageCallback(() => {
@@ -108,12 +105,10 @@ export default withPageMemo(function Transactions() {
           </div>
         </div>
 
-        {/* Priority load: Search bar (critical for user interaction) */}
         <ProgressiveLoader priority="high">
           <OptimizedSearchBar onSearch={handleSearch} />
         </ProgressiveLoader>
         
-        {/* Progressive load: Filters display */}
         <ProgressiveLoader priority="high" delay={50}>
           <ActiveFiltersDisplay
             filters={filters}
@@ -122,7 +117,6 @@ export default withPageMemo(function Transactions() {
           />
         </ProgressiveLoader>
 
-        {/* Search Insights Card */}
         {insightData && hasActiveSearch && (
           <SearchInsightCard
             query={searchQuery}
@@ -142,7 +136,6 @@ export default withPageMemo(function Transactions() {
           />
         )}
 
-        {/* Progressive load: Transaction list (after critical UI) */}
         <ProgressiveLoader priority="medium" delay={100}>
           <VirtualizedTransactionList 
             filters={filters}
@@ -152,11 +145,20 @@ export default withPageMemo(function Transactions() {
       </div>
     </AppLayout>
 
-    {/* Insights Panel - Desktop only */}
     {userId && <InsightsPanel userId={userId} />}
-    
-    {/* Scroll to Top FAB */}
     <ScrollToTopButton />
+
+    <AddTransactionDialog
+      isOpen={isAddDialogOpen}
+      onClose={() => setIsAddDialogOpen(false)}
+    />
+    
+    <ExportTransactionsDialog
+      isOpen={isExportDialogOpen}
+      onClose={() => setIsExportDialogOpen(false)}
+      transactions={allTransactions}
+      filters={filters}
+    />
   </>
   );
 }, 'Transactions');

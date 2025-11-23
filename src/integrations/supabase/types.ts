@@ -8146,6 +8146,59 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_splits: {
+        Row: {
+          assigned_to: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          parent_transaction_id: string
+          payment_method: string | null
+          payment_status: string | null
+          split_amount: number
+          split_name: string
+          split_percentage: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          parent_transaction_id: string
+          payment_method?: string | null
+          payment_status?: string | null
+          split_amount: number
+          split_name: string
+          split_percentage?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          parent_transaction_id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          split_amount?: number
+          split_name?: string
+          split_percentage?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_splits_parent_transaction_id_fkey"
+            columns: ["parent_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transaction_tag_assignments: {
         Row: {
           assigned_at: string
