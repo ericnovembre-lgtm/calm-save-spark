@@ -10,12 +10,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2, Camera, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SmartCategorySelector } from '@/components/budget/SmartCategorySelector';
 import { useAddTransaction } from '@/hooks/useAddTransaction';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { ReceiptScanner } from './ReceiptScanner';
 
 const formSchema = z.object({
   merchant: z.string()
@@ -42,6 +43,8 @@ interface AddTransactionDialogProps {
 
 export function AddTransactionDialog({ isOpen, onClose }: AddTransactionDialogProps) {
   const addTransaction = useAddTransaction();
+  const [receiptScannerOpen, setReceiptScannerOpen] = useState(false);
+  const [scannedReceiptPath, setScannedReceiptPath] = useState<string>();
   
   const { data: categories = [] } = useQuery({
     queryKey: ['budget-categories'],
@@ -75,14 +78,46 @@ export function AddTransactionDialog({ isOpen, onClose }: AddTransactionDialogPr
         category: values.category,
         transaction_date: format(values.transaction_date, 'yyyy-MM-dd'),
         description: values.description,
+        enrichment_metadata: scannedReceiptPath ? {
+          manually_added: true,
+          added_at: new Date().toISOString(),
+          receipt_image_path: scannedReceiptPath,
+          ocr_extracted: true,
+        } : {
+          manually_added: true,
+          added_at: new Date().toISOString(),
+        },
       },
       {
         onSuccess: () => {
           form.reset();
+          setScannedReceiptPath(undefined);
           onClose();
         },
       }
     );
+  };
+
+  const handleReceiptScanComplete = (data: any) => {
+    // Auto-fill form fields from OCR
+    form.setValue('merchant', data.merchant);
+    form.setValue('amount', Math.abs(data.amount));
+    form.setValue('transaction_date', new Date(data.date));
+    if (data.category) {
+      form.setValue('category', data.category);
+    }
+    
+    // Create description from line items
+    if (data.items && data.items.length > 0) {
+      const itemsSummary = data.items
+        .map((item: any) => `${item.name} ($${item.price.toFixed(2)})`)
+        .join(', ');
+      form.setValue('description', itemsSummary);
+    }
+    
+    // Store receipt image path
+    setScannedReceiptPath(data.imagePath);
+    setReceiptScannerOpen(false);
   };
 
   return (
@@ -233,8 +268,33 @@ export function AddTransactionDialog({ isOpen, onClose }: AddTransactionDialogPr
                 )}
               </Button>
             </div>
+
+            {/* Receipt Scanner Button */}
+            <div className="pt-4 border-t border-border">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setReceiptScannerOpen(true)}
+                className="w-full"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                {scannedReceiptPath ? 'Rescan Receipt' : 'Scan Receipt'}
+              </Button>
+              {scannedReceiptPath && (
+                <div className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
+                  <CheckCircle className="w-3 h-3 text-success" />
+                  Receipt attached
+                </div>
+              )}
+            </div>
           </form>
         </Form>
+
+        <ReceiptScanner
+          open={receiptScannerOpen}
+          onOpenChange={setReceiptScannerOpen}
+          onScanComplete={handleReceiptScanComplete}
+        />
       </DialogContent>
     </Dialog>
   );

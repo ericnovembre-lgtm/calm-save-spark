@@ -6653,8 +6653,10 @@ export type Database = {
           description: string | null
           id: string
           is_public: boolean | null
+          schedule: string | null
           template_config: Json
           template_name: string
+          user_id: string | null
         }
         Insert: {
           category: string
@@ -6662,8 +6664,10 @@ export type Database = {
           description?: string | null
           id?: string
           is_public?: boolean | null
+          schedule?: string | null
           template_config: Json
           template_name: string
+          user_id?: string | null
         }
         Update: {
           category?: string
@@ -6671,8 +6675,10 @@ export type Database = {
           description?: string | null
           id?: string
           is_public?: boolean | null
+          schedule?: string | null
           template_config?: Json
           template_name?: string
+          user_id?: string | null
         }
         Relationships: []
       }

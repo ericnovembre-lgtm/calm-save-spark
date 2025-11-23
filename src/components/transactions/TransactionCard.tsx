@@ -8,9 +8,10 @@ import { MerchantLogo } from './MerchantLogo';
 import { SmartBadges } from './SmartBadges';
 import { QuickActions } from './QuickActions';
 import { TransactionSplitDialog } from './TransactionSplitDialog';
+import { RecategorizeDialog } from './RecategorizeDialog';
+import { AddNoteDialog } from './AddNoteDialog';
 import { useHighSpendingDetection } from '@/hooks/useHighSpendingDetection';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 
 interface Transaction {
@@ -44,9 +45,10 @@ interface TransactionCardProps {
 export function TransactionCard({ transaction, anomaly }: TransactionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSplitDialogOpen, setIsSplitDialogOpen] = useState(false);
+  const [isRecategorizeDialogOpen, setIsRecategorizeDialogOpen] = useState(false);
+  const [isAddNoteDialogOpen, setIsAddNoteDialogOpen] = useState(false);
   const [userId, setUserId] = useState<string>();
   const prefersReducedMotion = useReducedMotion();
-  const { toast } = useToast();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -81,11 +83,11 @@ export function TransactionCard({ transaction, anomaly }: TransactionCardProps) 
 
   // Quick action handlers
   const handleCategorize = () => {
-    toast({ title: 'Categorize transaction', description: 'Feature coming soon!' });
+    setIsRecategorizeDialogOpen(true);
   };
 
   const handleAddNote = () => {
-    toast({ title: 'Add note', description: 'Feature coming soon!' });
+    setIsAddNoteDialogOpen(true);
   };
 
   const handleSplit = () => {
@@ -238,6 +240,31 @@ export function TransactionCard({ transaction, anomaly }: TransactionCardProps) 
         }}
         isOpen={isSplitDialogOpen}
         onClose={() => setIsSplitDialogOpen(false)}
+      />
+
+      <RecategorizeDialog
+        transaction={{
+          id: transaction.id,
+          merchant: merchant,
+          category: category,
+          amount: amount,
+          description: description,
+        }}
+        isOpen={isRecategorizeDialogOpen}
+        onClose={() => setIsRecategorizeDialogOpen(false)}
+      />
+
+      <AddNoteDialog
+        transaction={{
+          id: transaction.id,
+          merchant: merchant,
+          category: category,
+          amount: amount,
+          description: description,
+          tags: (transaction as any).tags,
+        }}
+        isOpen={isAddNoteDialogOpen}
+        onClose={() => setIsAddNoteDialogOpen(false)}
       />
     </motion.div>
   );
