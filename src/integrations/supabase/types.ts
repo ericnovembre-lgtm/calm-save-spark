@@ -6422,6 +6422,27 @@ export type Database = {
           },
         ]
       }
+      recurring_detection_queue: {
+        Row: {
+          created_at: string
+          processed_at: string | null
+          triggered_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          processed_at?: string | null
+          triggered_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          processed_at?: string | null
+          triggered_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       recurring_transactions: {
         Row: {
           avg_amount: number
