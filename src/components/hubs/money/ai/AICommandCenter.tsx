@@ -3,12 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, TrendingUp, AlertCircle, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 export function AICommandCenter() {
   const [healthScore, setHealthScore] = useState(0);
   const [insights, setInsights] = useState<string[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Simulate AI analysis with progressive score animation
@@ -43,9 +46,14 @@ export function AICommandCenter() {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="mb-6"
+      className="mb-4 md:mb-6"
     >
-      <Card className="p-4 bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 border border-primary/30 backdrop-blur-sm overflow-hidden relative">
+      <Card className={cn(
+        "overflow-hidden relative",
+        "p-3 md:p-4 lg:p-5",
+        "bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10",
+        "border border-primary/30 backdrop-blur-sm"
+      )}>
         {/* Animated background gradient */}
         <motion.div
           className="absolute inset-0 opacity-30"
@@ -60,8 +68,9 @@ export function AICommandCenter() {
         />
 
         <div className="relative z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          {/* Header - Better mobile layout */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
               <motion.div
                 animate={{ 
                   rotate: isAnalyzing ? 360 : 0,
@@ -71,9 +80,9 @@ export function AICommandCenter() {
                   rotate: { duration: 2, repeat: isAnalyzing ? Infinity : 0, ease: "linear" },
                   scale: { duration: 1, repeat: isAnalyzing ? Infinity : 0 }
                 }}
-                className="relative"
+                className="relative shrink-0"
               >
-                <Brain className="w-6 h-6 text-primary" />
+                <Brain className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                 {isAnalyzing && (
                   <motion.div
                     className="absolute inset-0 rounded-full border-2 border-primary"
@@ -82,58 +91,82 @@ export function AICommandCenter() {
                   />
                 )}
               </motion.div>
-              <div>
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                  AI Financial Intelligence
+              <div className="min-w-0 flex-1">
+                <h2 className={cn(
+                  "font-bold flex items-center gap-2",
+                  "text-sm md:text-base lg:text-lg"
+                )}>
+                  <span className="truncate">AI Financial Intelligence</span>
                   {!isAnalyzing && (
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="w-2 h-2 bg-green-500 rounded-full"
+                      className="w-2 h-2 bg-green-500 rounded-full shrink-0"
                     />
                   )}
                 </h2>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[10px] md:text-xs text-muted-foreground truncate">
                   {isAnalyzing ? "Analyzing patterns..." : "Real-time insights"}
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            {/* Health Score + Expand - Mobile optimized */}
+            <div className="flex items-center gap-2 shrink-0">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.3, type: "spring" }}
+                transition={{ delay: isMobile ? 0 : 0.3, type: "spring" }}
                 className="text-center"
               >
-                <div className="text-3xl font-bold text-primary">{healthScore}</div>
-                <div className="text-[10px] text-muted-foreground">Health Score</div>
+                <div className="text-xl md:text-2xl lg:text-3xl font-bold text-primary">
+                  {healthScore}
+                </div>
+                <div className="text-[9px] md:text-[10px] text-muted-foreground">
+                  Score
+                </div>
               </motion.div>
               
               <Button
                 variant="ghost"
-                size="sm"
+                size={isMobile ? "default" : "sm"}
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="h-8 w-8 p-0"
+                aria-label={isExpanded ? "Collapse insights" : "Expand insights"}
+                aria-expanded={isExpanded}
+                className={cn(
+                  "shrink-0",
+                  isMobile ? "h-10 w-10 p-0" : "h-8 w-8 p-0"
+                )}
               >
-                {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {isExpanded ? (
+                  <ChevronUp className={isMobile ? "w-5 h-5" : "w-4 h-4"} />
+                ) : (
+                  <ChevronDown className={isMobile ? "w-5 h-5" : "w-4 h-4"} />
+                )}
               </Button>
             </div>
           </div>
 
-          <div className="mt-3 space-y-1.5">
-            {insights.slice(0, isExpanded ? insights.length : 3).map((insight, i) => (
+          {/* Insights - Mobile optimized */}
+          <div className="mt-3 md:mt-4 space-y-1.5 md:space-y-2">
+            {insights.slice(0, isExpanded ? insights.length : (isMobile ? 2 : 3)).map((insight, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.1 }}
+                transition={{ delay: isMobile ? 0 : (0.3 + i * 0.1) }}
                 whileHover={{ x: 4, scale: 1.01 }}
-                className="flex items-start gap-2 p-2.5 rounded-lg bg-background/60 backdrop-blur-sm hover:bg-background/80 transition-colors cursor-pointer border border-transparent hover:border-primary/20"
+                className={cn(
+                  "flex items-start gap-2 rounded-lg",
+                  "bg-background/60 backdrop-blur-sm",
+                  "hover:bg-background/80 transition-colors cursor-pointer",
+                  "border border-transparent hover:border-primary/20",
+                  "p-2 md:p-2.5"
+                )}
               >
-                <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-xs leading-tight flex-1">{insight}</span>
-                <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0 mt-0.5 opacity-60" />
+                <Sparkles className="w-3 md:w-3.5 h-3 md:h-3.5 text-primary shrink-0 mt-0.5" />
+                <span className="text-xs md:text-sm leading-tight flex-1">{insight}</span>
+                <TrendingUp className="w-3 h-3 text-green-500 shrink-0 mt-0.5 opacity-60" />
               </motion.div>
             ))}
           </div>
