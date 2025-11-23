@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,18 +13,27 @@ import { PhysicalAccountCard } from "@/components/accounts/PhysicalAccountCard";
 import { TransferDialog } from "@/components/accounts/TransferDialog";
 import { YieldHunterChip } from "@/components/accounts/YieldHunterChip";
 import { AICFOAssistant } from "@/components/accounts/AICFOAssistant";
+import { LiquidityForecastChart } from "@/components/accounts/LiquidityForecastChart";
 import { useDragToTransfer } from "@/hooks/useDragToTransfer";
+import { useAccountsRealtime } from "@/hooks/useAccountsRealtime";
+import { useDemoMode } from "@/contexts/DemoModeContext";
+import { useDemoAccounts } from "@/hooks/useDemoAccounts";
 import { Link } from "react-router-dom";
+import { AlertCircle, Play } from "lucide-react";
 
 const Accounts = () => {
   const queryClient = useQueryClient();
+  const { isDemoMode, enableDemoMode, disableDemoMode } = useDemoMode();
+  const { accounts: demoAccounts } = useDemoAccounts();
+  
   const [transferDialog, setTransferDialog] = useState<{
     open: boolean;
     fromAccount?: any;
     toAccount?: any;
   }>({ open: false });
 
-  const { data: accounts, isLoading } = useQuery({
+  // Fetch real accounts only if not in demo mode
+  const { data: realAccounts, isLoading } = useQuery({
     queryKey: ['connected_accounts'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -37,8 +47,25 @@ const Accounts = () => {
       
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: !isDemoMode,
   });
+
+  // Use demo accounts if in demo mode, otherwise use real accounts
+  const accounts = isDemoMode ? demoAccounts : realAccounts;
+
+  // Get user ID for realtime (only if not in demo mode)
+  const [userId, setUserId] = useState<string>();
+  useEffect(() => {
+    if (!isDemoMode) {
+      supabase.auth.getUser().then(({ data }) => {
+        setUserId(data.user?.id);
+      });
+    }
+  }, [isDemoMode]);
+
+  // Enable realtime sync for connected accounts
+  useAccountsRealtime(userId);
 
   const handleDrop = (fromAccountId: string, toAccountId: string) => {
     const fromAcc = accounts?.find(a => a.id === fromAccountId);
@@ -119,11 +146,32 @@ const Accounts = () => {
               Visualize, optimize, and move your money
             </p>
           </div>
-          <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
+          {!isDemoMode && (
+            <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
+          )}
         </div>
+
+        {/* Demo Mode Banner */}
+        {isDemoMode && (
+          <Alert className="bg-warning/10 border-warning">
+            <AlertCircle className="h-5 w-5" />
+            <AlertTitle>🎭 Demo Mode Active</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+              <span>Exploring with sample data. Connect real accounts to get started.</span>
+              <Button variant="outline" size="sm" onClick={disableDemoMode}>
+                Exit Demo
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Liquidity Hero */}
         <LiquidityHero />
+
+        {/* 90-Day Liquidity Forecast Chart */}
+        {!isDemoMode && accounts && accounts.length > 0 && (
+          <LiquidityForecastChart />
+        )}
 
         {/* Liquid (Cash) Section */}
         {liquidAccounts.length > 0 && (
@@ -156,6 +204,8 @@ const Accounts = () => {
                       balance={account.current_balance || account.balance || 0}
                       currency={account.currency}
                       apy={account.apy}
+                      nickname={account.nickname}
+                      lastSynced={account.last_synced}
                       color="cyan"
                       isHovered={hoveredZone === account.id}
                       isDragging={draggedAccountId === account.id}
@@ -220,6 +270,8 @@ const Accounts = () => {
                     accountMask={account.account_mask}
                     balance={account.current_balance || account.balance || 0}
                     currency={account.currency}
+                    nickname={account.nickname}
+                    lastSynced={account.last_synced}
                     color="rose"
                     onRegisterDropZone={registerDropZone}
                   />
@@ -252,6 +304,8 @@ const Accounts = () => {
                     accountMask={account.account_mask}
                     balance={account.current_balance || account.balance || 0}
                     currency={account.currency}
+                    nickname={account.nickname}
+                    lastSynced={account.last_synced}
                     color="violet"
                     onRegisterDropZone={registerDropZone}
                   />
@@ -262,7 +316,7 @@ const Accounts = () => {
         )}
 
         {/* Empty state */}
-        {!isLoading && accounts?.length === 0 && (
+        {!isLoading && !isDemoMode && accounts?.length === 0 && (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -276,7 +330,13 @@ const Accounts = () => {
               <p className="text-muted-foreground text-center mb-6 max-w-md">
                 Connect your first bank account to unlock your liquidity command center
               </p>
-              <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
+              <div className="flex gap-4">
+                <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
+                <Button variant="outline" onClick={enableDemoMode}>
+                  <Play className="w-4 h-4 mr-2" />
+                  Try Demo First
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}

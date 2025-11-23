@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CountUp from 'react-countup';
 import { useLiquidityData } from '@/hooks/useLiquidityData';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { useDemoAccounts } from '@/hooks/useDemoAccounts';
 import { supabase } from '@/integrations/supabase/client';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { Button } from '@/components/ui/button';
@@ -21,18 +23,28 @@ interface HealthAnalysis {
 }
 
 export const LiquidityHero = () => {
-  const { data: liquidity, isLoading, error } = useLiquidityData();
+  const { isDemoMode } = useDemoMode();
+  const { liquidity: demoLiquidity } = useDemoAccounts();
+  const { data: realLiquidity, isLoading, error } = useLiquidityData();
   
-  console.log('[LiquidityHero] State:', { liquidity, isLoading, error });
+  // Use demo data if in demo mode, otherwise use real data
+  const liquidity = isDemoMode ? demoLiquidity : realLiquidity;
+  
+  console.log('[LiquidityHero] State:', { liquidity, isLoading, error, isDemoMode });
   const [insight, setInsight] = useState<string>('Calculating your financial runway...');
   const [healthAnalysis, setHealthAnalysis] = useState<HealthAnalysis | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
-  // Fetch AI insight
+  // Fetch AI insight (skip in demo mode)
   useEffect(() => {
     if (!liquidity) return;
+
+    if (isDemoMode) {
+      setInsight(`Your ${liquidity.runway}-day runway provides excellent financial cushion for planning ahead.`);
+      return;
+    }
 
     const fetchInsight = async () => {
       try {
@@ -54,7 +66,7 @@ export const LiquidityHero = () => {
     };
 
     fetchInsight();
-  }, [liquidity]);
+  }, [liquidity, isDemoMode]);
 
   // Liquid wave animation
   useEffect(() => {
@@ -136,7 +148,7 @@ export const LiquidityHero = () => {
     );
   }
 
-  if (isLoading || !liquidity) {
+  if (!isDemoMode && (isLoading || !liquidity)) {
     console.log('[LiquidityHero] Loading state');
     return (
       <div className="relative h-80 rounded-2xl overflow-hidden bg-glass border border-glass-border backdrop-blur-glass animate-pulse">
@@ -146,6 +158,10 @@ export const LiquidityHero = () => {
         </div>
       </div>
     );
+  }
+
+  if (!liquidity) {
+    return null;
   }
 
   return (
@@ -207,32 +223,34 @@ export const LiquidityHero = () => {
           </div>
         </motion.div>
 
-        {/* Health Scan Button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-6"
-        >
-          <Button
-            variant="outline"
-            onClick={runHealthScan}
-            disabled={isScanning}
-            className="gap-2 bg-background/50 backdrop-blur-sm"
+        {/* Health Scan Button (disabled in demo mode) */}
+        {!isDemoMode && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-6"
           >
-            {isScanning ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Analyzing...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                Run Health Scan
-              </>
-            )}
-          </Button>
-        </motion.div>
+            <Button
+              variant="outline"
+              onClick={runHealthScan}
+              disabled={isScanning}
+              className="gap-2 bg-background/50 backdrop-blur-sm"
+            >
+              {isScanning ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Run Health Scan
+                </>
+              )}
+            </Button>
+          </motion.div>
+        )}
 
         {/* Health Analysis Results */}
         <AnimatePresence>

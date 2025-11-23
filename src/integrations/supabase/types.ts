@@ -2492,6 +2492,7 @@ export type Database = {
           institution_logo: string | null
           institution_name: string
           last_synced: string | null
+          nickname: string | null
           plaid_access_token: string | null
           plaid_account_id: string | null
           plaid_item_id: string | null
@@ -2515,6 +2516,7 @@ export type Database = {
           institution_logo?: string | null
           institution_name: string
           last_synced?: string | null
+          nickname?: string | null
           plaid_access_token?: string | null
           plaid_account_id?: string | null
           plaid_item_id?: string | null
@@ -2538,6 +2540,7 @@ export type Database = {
           institution_logo?: string | null
           institution_name?: string
           last_synced?: string | null
+          nickname?: string | null
           plaid_access_token?: string | null
           plaid_account_id?: string | null
           plaid_item_id?: string | null
