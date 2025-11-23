@@ -157,34 +157,34 @@ export function AutomationCard({ automation, onEdit, onDelete, onToggle }: Autom
         onHoverEnd={() => setIsHovered(false)}
       >
         <Card className={cn(
-          "p-5 transition-all duration-300 relative glass-panel border-2",
+          "p-6 transition-all duration-300 relative glass-panel border-2",
           automation.is_active 
-            ? "shadow-lg shadow-success/10 border-success/30 hover:shadow-xl hover:shadow-success/20" 
-            : "hover:border-accent/20 hover:shadow-md"
+            ? "border-success/30" 
+            : "border-border"
         )}>
-        {/* LED Indicator - Enhanced */}
+        {/* LED Indicator - Refined */}
         <motion.div 
           className={cn(
-            "led-indicator absolute top-5 left-5 w-2.5 h-2.5 rounded-full",
-            automation.is_active ? "bg-success shadow-lg shadow-success/50" : "bg-muted-foreground/50"
+            "absolute top-6 left-6 w-3 h-3 rounded-full",
+            automation.is_active ? "bg-success" : "bg-muted-foreground/40"
           )}
           animate={automation.is_active ? {
-            scale: [1, 1.2, 1],
-            opacity: [1, 0.8, 1]
+            scale: [1, 1.15, 1],
+            opacity: [1, 0.7, 1]
           } : undefined}
-          transition={{ duration: 2, repeat: Infinity }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        <div className="flex items-center justify-between gap-4 pl-7">
+        <div className="flex items-center justify-between gap-6 pl-8">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="font-semibold text-base text-foreground truncate">
+            <div className="flex items-center gap-3 mb-3">
+              <h3 className="font-semibold text-lg text-foreground truncate">
                 {automation.rule_name}
               </h3>
               <Badge 
                 variant={automation.is_active ? "default" : "secondary"}
                 className={cn(
-                  "shrink-0 font-medium",
+                  "shrink-0",
                   automation.is_active && "bg-success hover:bg-success text-white"
                 )}
               >
@@ -192,89 +192,89 @@ export function AutomationCard({ automation, onEdit, onDelete, onToggle }: Autom
               </Badge>
             </div>
             
-            {/* Mini Flow Preview - Enhanced */}
-            <div className="flex items-center gap-2 mt-3 mb-4">
+            {/* Mini Flow Preview - Refined */}
+            <div className="flex items-center gap-3 mt-4 mb-5">
               <motion.div 
-                className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center"
+                className="w-8 h-8 rounded-xl bg-success/10 flex items-center justify-center"
                 animate={automation.is_active ? {
-                  scale: [1, 1.1, 1]
+                  scale: [1, 1.05, 1]
                 } : undefined}
-                transition={{ duration: 2, repeat: Infinity, delay: 0 }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               >
-                <Calendar className="w-3.5 h-3.5 text-success" />
+                <Calendar className="w-4 h-4 text-success" />
               </motion.div>
               <motion.div 
-                className="flex-1 h-0.5 bg-gradient-to-r from-success via-accent to-primary max-w-[70px] rounded-full"
+                className="flex-1 h-0.5 bg-gradient-to-r from-success via-accent to-primary max-w-[80px] rounded-full"
                 animate={automation.is_active ? {
-                  opacity: [0.4, 1, 0.4]
-                } : { opacity: 0.2 }}
-                transition={{ duration: 3, repeat: Infinity }}
+                  opacity: [0.3, 1, 0.3]
+                } : { opacity: 0.15 }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
               />
               <motion.div 
-                className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center"
+                className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center"
                 animate={automation.is_active ? {
-                  scale: [1, 1.1, 1]
+                  scale: [1, 1.05, 1]
                 } : undefined}
-                transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 1.25 }}
               >
-                <ArrowRight className="w-3.5 h-3.5 text-primary" />
+                <ArrowRight className="w-4 h-4 text-primary" />
               </motion.div>
             </div>
             
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5 font-medium">
-                <DollarSign className="w-3.5 h-3.5 text-accent" />
+            <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2 font-medium">
+                <DollarSign className="w-4 h-4 text-accent" />
                 ${automation.action_config.amount.toLocaleString()}
               </span>
-              <span className="flex items-center gap-1.5">
-                <Repeat className="w-3.5 h-3.5" />
+              <span className="flex items-center gap-2">
+                <Repeat className="w-4 h-4" />
                 {frequencyLabel}
               </span>
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" />
-                Next: {format(new Date(nextDate), 'MMM d, yyyy')}
+              <span className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                {format(new Date(nextDate), 'MMM d, yyyy')}
               </span>
             </div>
             
             {automation.notes && (
-              <p className="text-xs text-muted-foreground mt-3 truncate bg-accent/5 px-2 py-1 rounded">
+              <p className="text-sm text-muted-foreground mt-4 truncate bg-muted/30 px-3 py-2 rounded-lg">
                 {automation.notes}
               </p>
             )}
           </div>
           
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Mechanical Toggle - Enhanced */}
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Toggle Switch - Refined */}
             <button
               onClick={handleToggle}
               className={cn(
-                "mechanical-toggle transition-all duration-200",
+                "mechanical-toggle",
                 automation.is_active && "active"
               )}
               aria-label={automation.is_active ? 'Pause automation' : 'Resume automation'}
             />
             
-            <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.05 }}>
+            <motion.div whileTap={{ scale: 0.94 }}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleEdit}
-                className="rounded-xl h-9 w-9 text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
+                className="rounded-xl h-10 w-10 text-muted-foreground hover:text-foreground"
                 aria-label="Edit automation"
               >
-                <Edit2 className="w-4 h-4" />
+                <Edit2 className="w-4.5 h-4.5" />
               </Button>
             </motion.div>
             
-            <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.05 }}>
+            <motion.div whileTap={{ scale: 0.94 }}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleDelete}
-                className="rounded-xl h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                className="rounded-xl h-10 w-10 text-muted-foreground hover:text-destructive"
                 aria-label="Delete automation"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4.5 h-4.5" />
               </Button>
             </motion.div>
           </div>

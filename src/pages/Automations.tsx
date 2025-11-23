@@ -95,21 +95,21 @@ export default function Automations() {
           <EmergencyBrake />
         </div>
 
-        {/* Header with conversational input - Enhanced */}
-        <div className="space-y-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        {/* Header - Refined */}
+        <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
           <div className={cn(
-            "flex items-start gap-6",
+            "flex items-start gap-8",
             isMobile ? "flex-col" : "flex-row items-center justify-between"
           )}>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <h1 className={cn(
-                "font-bold tracking-tight glow-text",
-                isMobile ? "text-3xl" : "text-5xl"
+                "font-bold tracking-tight",
+                isMobile ? "text-4xl" : "text-5xl"
               )}>
-                Smart Automations
+                Automations
               </h1>
-              <p className="text-base text-muted-foreground max-w-2xl leading-relaxed">
-                Describe what you want to automate in plain English, or choose from our smart recipes
+              <p className="text-muted-foreground max-w-2xl leading-relaxed">
+                Describe what you want to automate, or explore smart recipes below
               </p>
             </div>
             {!isMobile && (
@@ -117,9 +117,9 @@ export default function Automations() {
                 variant="outline"
                 size="lg"
                 onClick={() => handleOpenModal()}
-                className="shrink-0 gap-2 hover:bg-accent/10 transition-all duration-200"
+                className="shrink-0 gap-2"
               >
-                <Wrench className="w-4 h-4" />
+                <Wrench className="w-5 h-5" />
                 Manual Builder
               </Button>
             )}
@@ -136,7 +136,7 @@ export default function Automations() {
               onClick={() => handleOpenModal()}
               className="w-full gap-2"
             >
-              <Wrench className="w-4 h-4" />
+              <Wrench className="w-5 h-5" />
               Manual Builder
             </Button>
           )}
@@ -152,21 +152,21 @@ export default function Automations() {
           <AutomationAnalyticsDashboard />
         </div>
 
-        {/* Advanced Logic Builder - Premium Card */}
-        <Card className="glass-panel-subtle p-6 md:p-8 border-2 hover:border-accent/30 transition-all duration-300 animate-fade-in group" style={{ animationDelay: '0.4s' }}>
+        {/* Advanced Logic Builder - Refined Card */}
+        <Card className="glass-panel p-8 border-2 animate-fade-in group" style={{ animationDelay: '0.4s' }}>
           <div className={cn(
-            "flex gap-6",
+            "flex gap-8",
             isMobile ? "flex-col" : "items-center justify-between"
           )}>
-            <div className="flex-1 space-y-2">
-              <h3 className="text-xl font-semibold flex items-center gap-3 group-hover:text-accent transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center group-hover:bg-accent/10 transition-colors">
-                  <Blocks className="w-5 h-5 text-primary group-hover:text-accent transition-colors" />
+            <div className="flex-1 space-y-3">
+              <h3 className="text-xl font-semibold flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center">
+                  <Blocks className="w-6 h-6 text-primary" />
                 </div>
                 Advanced Logic Builder
               </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-                Build complex multi-condition automation rules visually with drag-and-drop blocks. Perfect for power users.
+              <p className="text-muted-foreground leading-relaxed max-w-2xl">
+                Build complex multi-condition automation rules visually with drag-and-drop blocks
               </p>
             </div>
             <Button
@@ -175,48 +175,48 @@ export default function Automations() {
               size="lg"
               className={cn("gap-2 shrink-0", isMobile && "w-full")}
             >
-              <Blocks className="w-4 h-4" />
+              <Blocks className="w-5 h-5" />
               Open Builder
             </Button>
           </div>
         </Card>
 
-        {/* Stats - Premium Cards */}
+        {/* Stats - Refined Cards */}
         {automations && automations.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            <Card className="glass-panel p-6 hover:shadow-lg transition-all duration-300 border-2 hover:border-accent/20">
-              <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <Card className="glass-panel p-8 border-2">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">Active Rules</p>
-                  <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-success" />
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Active Rules</p>
+                  <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-success" />
                   </div>
                 </div>
-                <p className="text-4xl font-bold tracking-tight">{activeCount}</p>
+                <p className="text-5xl font-bold tracking-tight">{activeCount}</p>
               </div>
             </Card>
-            <Card className="glass-panel p-6 hover:shadow-lg transition-all duration-300 border-2 hover:border-accent/20">
-              <div className="space-y-3">
+            <Card className="glass-panel p-8 border-2">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">Scheduled This Month</p>
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Loader2 className="w-4 h-4 text-primary" />
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">This Month</p>
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Loader2 className="w-5 h-5 text-primary" />
                   </div>
                 </div>
-                <p className="text-4xl font-bold tracking-tight">
+                <p className="text-5xl font-bold tracking-tight">
                   {scheduledAutomations.filter(a => a.is_active).length}
                 </p>
               </div>
             </Card>
-            <Card className="glass-panel p-6 hover:shadow-lg transition-all duration-300 border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
-              <div className="space-y-3">
+            <Card className="glass-panel p-8 border-2 bg-accent/5">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">Est. Monthly Savings</p>
-                  <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
-                    <Loader2 className="w-4 h-4 text-accent" />
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Est. Savings</p>
+                  <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
+                    <Loader2 className="w-5 h-5 text-accent" />
                   </div>
                 </div>
-                <p className="text-4xl font-bold tracking-tight text-accent">
+                <p className="text-5xl font-bold tracking-tight text-accent">
                   ${estimatedMonthlyTotal.toFixed(0)}
                 </p>
               </div>
@@ -224,13 +224,13 @@ export default function Automations() {
           </div>
         )}
 
-        {/* Money Flow Visualizer - Enhanced */}
+        {/* Money Flow Visualizer - Refined */}
         {automations && automations.length > 0 && (
-          <Card className="glass-panel p-6 md:p-8 border-2 hover:border-accent/20 transition-all duration-300 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-primary" />
+          <Card className="glass-panel p-8 border-2 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <div className="space-y-8">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-primary" />
                 </div>
                 <h2 className="text-2xl font-semibold">Money Flow Circuit</h2>
               </div>
@@ -255,14 +255,14 @@ export default function Automations() {
           <div className="md:col-span-2 space-y-8">
             {/* Smart Rules Section */}
             {transactionMatchAutomations.length > 0 && (
-              <section className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-primary" />
+              <section className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-primary" />
                   </div>
                   <h2 className="text-2xl font-semibold">Smart Rules</h2>
                 </div>
-                <div className="grid gap-4 lg:grid-cols-2">
+                <div className="grid gap-6 lg:grid-cols-2">
                   {transactionMatchAutomations.map((automation) => (
                     <AutomationCard
                       key={automation.id}
@@ -287,19 +287,19 @@ export default function Automations() {
 
             {/* Scheduled Transfers Section */}
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center py-16 space-y-4">
-                <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Loading automations...</p>
+              <div className="flex flex-col items-center justify-center py-24 space-y-6">
+                <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                <p className="text-muted-foreground">Loading automations...</p>
               </div>
             ) : scheduledAutomations.length > 0 ? (
-              <section className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center">
-                    <Loader2 className="w-5 h-5 text-primary" />
+              <section className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center">
+                    <Loader2 className="w-6 h-6 text-primary" />
                   </div>
                   <h2 className="text-2xl font-semibold">Scheduled Transfers</h2>
                 </div>
-                <div className="grid gap-4 lg:grid-cols-2">
+                <div className="grid gap-6 lg:grid-cols-2">
                   {scheduledAutomations.map((automation) => (
                     <AutomationCard
                       key={automation.id}
@@ -321,15 +321,12 @@ export default function Automations() {
                 </div>
               </section>
             ) : !transactionMatchAutomations?.length ? (
-              <Card className="glass-panel p-12 md:p-16 text-center border-2 border-dashed border-accent/30 hover:border-accent/50 transition-all duration-300">
-                <div className="max-w-md mx-auto space-y-6">
-                  <div className="relative inline-block">
-                    <div className="absolute inset-0 bg-accent/20 rounded-full blur-2xl" />
-                    <div className="relative w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-accent/20 to-primary/10 flex items-center justify-center">
-                      <Zap className="w-10 h-10 text-accent" />
-                    </div>
+              <Card className="glass-panel p-16 md:p-24 text-center border-2 border-dashed">
+                <div className="max-w-md mx-auto space-y-8">
+                  <div className="w-24 h-24 mx-auto rounded-3xl bg-accent/10 flex items-center justify-center">
+                    <Zap className="w-12 h-12 text-accent" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <h3 className="text-2xl font-bold">No Automations Yet</h3>
                     <p className="text-muted-foreground leading-relaxed">
                       Describe your first automation rule above or activate a smart recipe to get started
