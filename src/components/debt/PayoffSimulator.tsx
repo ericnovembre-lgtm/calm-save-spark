@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Zap, TrendingDown, DollarSign, Calendar } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useOptimizedDebtSimulation } from '@/hooks/useOptimizedDebtSimulation';
 import { DebtPayoffChart } from '@/components/debt/DebtPayoffChart';
+import { DebtMountainVisualizer } from './DebtMountainVisualizer';
+import { StrategyInsightBadge } from './StrategyInsightBadge';
+import { StrategyToggle } from './StrategyToggle';
+import { CostOfWaitingBadge } from './CostOfWaitingBadge';
 import type { Database } from '@/integrations/supabase/types';
+import { format, addMonths } from 'date-fns';
 
 type Debt = Database['public']['Tables']['debts']['Row'];
 
@@ -17,54 +21,36 @@ interface PayoffSimulatorProps {
 
 export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
   const [extraPayment, setExtraPayment] = useState(0);
+  const [strategy, setStrategy] = useState<'avalanche' | 'snowball'>('avalanche');
 
-  const { data: avalancheData, isLoading: avalancheLoading } = useQuery({
-    queryKey: ['debt_simulation', 'avalanche', extraPayment],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+  // Use optimized hooks for both strategies
+  const { summary: avalancheSummary, simulation: avalancheSimulation, isLoading: avalancheLoading } = 
+    useOptimizedDebtSimulation({
+      strategy: 'avalanche',
+      extraPayment,
+      enabled: debts.length > 0
+    });
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/debt-payoff-simulator`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ strategy: 'avalanche', extraPayment })
-        }
-      );
+  const { summary: snowballSummary, simulation: snowballSimulation, isLoading: snowballLoading } = 
+    useOptimizedDebtSimulation({
+      strategy: 'snowball',
+      extraPayment,
+      enabled: debts.length > 0
+    });
 
-      if (!response.ok) throw new Error('Simulation failed');
-      return response.json();
-    },
-    enabled: debts.length > 0
-  });
+  // Calculate debt-free date based on current strategy
+  const debtFreeDate = useMemo(() => {
+    const summary = strategy === 'avalanche' ? avalancheSummary : snowballSummary;
+    if (!summary?.months_to_payoff) return null;
+    
+    const futureDate = addMonths(new Date(), summary.months_to_payoff);
+    return format(futureDate, 'MMMM yyyy');
+  }, [strategy, avalancheSummary, snowballSummary]);
 
-  const { data: snowballData, isLoading: snowballLoading } = useQuery({
-    queryKey: ['debt_simulation', 'snowball', extraPayment],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/debt-payoff-simulator`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ strategy: 'snowball', extraPayment })
-        }
-      );
-
-      if (!response.ok) throw new Error('Simulation failed');
-      return response.json();
-    },
-    enabled: debts.length > 0
-  });
+  const monthsToFreedom = useMemo(() => {
+    const summary = strategy === 'avalanche' ? avalancheSummary : snowballSummary;
+    return summary?.months_to_payoff || 0;
+  }, [strategy, avalancheSummary, snowballSummary]);
 
   if (debts.length === 0) {
     return (
@@ -75,9 +61,21 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
   }
 
   const isLoading = avalancheLoading || snowballLoading;
+  const currentSimulation = strategy === 'avalanche' ? avalancheSimulation : snowballSimulation;
 
   return (
     <div className="space-y-6">
+      {/* Debt Mountain Hero */}
+      <DebtMountainVisualizer
+        simulation={currentSimulation}
+        debtFreeDate={debtFreeDate}
+        monthsToFreedom={monthsToFreedom}
+        isLoading={isLoading}
+      />
+
+      {/* Cost of Waiting Badge */}
+      <CostOfWaitingBadge debts={debts} />
+
       {/* Extra Payment Slider */}
       <Card className="p-6">
         <div className="space-y-4">
@@ -98,6 +96,16 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
           </p>
         </div>
       </Card>
+
+      {/* Strategy Toggle */}
+      <StrategyToggle strategy={strategy} onChange={setStrategy} />
+
+      {/* AI Insight Badge */}
+      <StrategyInsightBadge
+        avalancheSummary={avalancheSummary}
+        snowballSummary={snowballSummary}
+        currentStrategy={strategy}
+      />
 
       {/* Strategy Comparison */}
       <div className="grid md:grid-cols-2 gap-6">
@@ -120,14 +128,14 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
                 <div className="h-16 bg-muted rounded" />
                 <div className="h-16 bg-muted rounded" />
               </div>
-            ) : avalancheData?.summary ? (
+            ) : avalancheSummary ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Time to Freedom</span>
                   </div>
-                  <span className="text-xl font-bold">{avalancheData.summary.years_to_payoff} years</span>
+                  <span className="text-xl font-bold">{avalancheSummary.years_to_payoff} years</span>
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
@@ -135,7 +143,7 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
                     <span className="text-sm text-muted-foreground">Total Interest</span>
                   </div>
                   <span className="text-xl font-bold text-destructive">
-                    ${avalancheData.summary.total_interest_paid?.toFixed(2) || '0'}
+                    ${avalancheSummary.total_interest_paid?.toFixed(2) || '0'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
@@ -144,7 +152,7 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
                     <span className="text-sm text-muted-foreground">Total Paid</span>
                   </div>
                   <span className="text-xl font-bold">
-                    ${avalancheData.summary.total_paid?.toFixed(2) || '0'}
+                    ${avalancheSummary.total_paid?.toFixed(2) || '0'}
                   </span>
                 </div>
               </div>
@@ -171,14 +179,14 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
                 <div className="h-16 bg-muted rounded" />
                 <div className="h-16 bg-muted rounded" />
               </div>
-            ) : snowballData?.summary ? (
+            ) : snowballSummary ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Time to Freedom</span>
                   </div>
-                  <span className="text-xl font-bold">{snowballData.summary.years_to_payoff} years</span>
+                  <span className="text-xl font-bold">{snowballSummary.years_to_payoff} years</span>
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
@@ -186,7 +194,7 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
                     <span className="text-sm text-muted-foreground">Total Interest</span>
                   </div>
                   <span className="text-xl font-bold text-destructive">
-                    ${snowballData.summary.total_interest_paid?.toFixed(2) || '0'}
+                    ${snowballSummary.total_interest_paid?.toFixed(2) || '0'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
@@ -195,7 +203,7 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
                     <span className="text-sm text-muted-foreground">Total Paid</span>
                   </div>
                   <span className="text-xl font-bold">
-                    ${snowballData.summary.total_paid?.toFixed(2) || '0'}
+                    ${snowballSummary.total_paid?.toFixed(2) || '0'}
                   </span>
                 </div>
               </div>
@@ -205,8 +213,8 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
       </div>
 
       {/* Charts */}
-      {!isLoading && avalancheData?.simulation && (
-        <DebtPayoffChart simulation={avalancheData.simulation} strategy="avalanche" />
+      {!isLoading && currentSimulation && (
+        <DebtPayoffChart simulation={currentSimulation} strategy={strategy} />
       )}
     </div>
   );
