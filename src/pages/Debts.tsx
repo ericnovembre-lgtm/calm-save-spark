@@ -21,6 +21,9 @@ import { DebtComparisonTool } from '@/components/debt/DebtComparisonTool';
 import { DebtMilestoneCelebration } from '@/components/debt/DebtMilestoneCelebration';
 import { useDebtMilestones } from '@/hooks/useDebtMilestones';
 import { useNavigate } from 'react-router-dom';
+import { DebtFreedomCalculator } from '@/components/debt/DebtFreedomCalculator';
+import { DebtConsolidationAnalyzer } from '@/components/debt/DebtConsolidationAnalyzer';
+import { SmartPaymentScheduler } from '@/components/debt/SmartPaymentScheduler';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { useOptimizedDebtSimulation } from '@/hooks/useOptimizedDebtSimulation';
@@ -203,11 +206,25 @@ export default function Debts() {
               />
             )}
 
+            {/* Debt Freedom Calculator - AI Prediction */}
+            {debts.length > 0 && user && (
+              <DebtFreedomCalculator 
+                debts={debts}
+                userId={user.id}
+                currentStrategy={debtStrategy}
+              />
+            )}
+
             {/* Cost of Waiting Badge */}
             {debts.length > 0 && <CostOfWaitingBadge debts={debts} />}
 
             {/* Debt Payoff Calculator */}
             <DebtPayoffCalculator strategy={debtStrategy} hasDebts={debts.length > 0} />
+
+            {/* Debt Consolidation Analyzer */}
+            {debts.length > 1 && user && (
+              <DebtConsolidationAnalyzer debts={debts} userId={user.id} />
+            )}
 
             {/* Debt Comparison Tool */}
             <DebtComparisonTool debts={debts} />
@@ -353,7 +370,18 @@ export default function Debts() {
 
         {/* Simulator Tab */}
         {activeTab === 'simulator' && (
-          <PayoffSimulator debts={debts} userId={user?.id} />
+          <>
+            <PayoffSimulator debts={debts} userId={user?.id} />
+            
+            {/* Smart Payment Scheduler */}
+            {debts.length > 0 && user && (
+              <SmartPaymentScheduler 
+                debts={debts}
+                userId={user.id}
+                onScheduleUpdate={handleUpdateDebt}
+              />
+            )}
+          </>
         )}
 
         {/* Analytics Tab */}
