@@ -5808,6 +5808,7 @@ export type Database = {
           current_amount: number | null
           icon: string | null
           id: string
+          image_url: string | null
           is_active: boolean | null
           name: string
           notes: string | null
@@ -5823,6 +5824,7 @@ export type Database = {
           current_amount?: number | null
           icon?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           name: string
           notes?: string | null
@@ -5838,6 +5840,7 @@ export type Database = {
           current_amount?: number | null
           icon?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           name?: string
           notes?: string | null
