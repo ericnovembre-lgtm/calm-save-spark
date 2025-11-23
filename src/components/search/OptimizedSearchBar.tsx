@@ -19,7 +19,7 @@ import { debounce } from '@/lib/performance-utils';
 import { ProgressiveLoader } from '@/components/performance/ProgressiveLoader';
 
 interface OptimizedSearchBarProps {
-  onSearch: (filters: any) => void;
+  onSearch: (filters: any, query?: string) => void;
   className?: string;
 }
 
@@ -98,7 +98,7 @@ export const OptimizedSearchBar = memo(function OptimizedSearchBar({
 
     const filters = await executeSearch(query);
     if (filters) {
-      onSearch(filters);
+      onSearch(filters, query);
       setShowSuggestions(false);
     }
   };
@@ -107,7 +107,7 @@ export const OptimizedSearchBar = memo(function OptimizedSearchBar({
     setQuery(suggestion);
     const filters = await executeSearch(suggestion);
     if (filters) {
-      onSearch(filters);
+      onSearch(filters, suggestion);
       setShowSuggestions(false);
     }
   };
