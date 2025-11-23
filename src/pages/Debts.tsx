@@ -7,12 +7,12 @@ import { LoadingState } from '@/components/LoadingState';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDebts } from '@/hooks/useDebts';
 import { useDebtPayments } from '@/hooks/useDebtPayments';
-import DebtCard from '@/components/debt/DebtCard';
 import CreateDebtModal from '@/components/debt/CreateDebtModal';
 import PayoffSimulator from '@/components/debt/PayoffSimulator';
 import DebtAnalytics from '@/components/debt/DebtAnalytics';
 import PayoffTimeline from '@/components/debt/PayoffTimeline';
 import ContextualCoachTip from '@/components/debt/ContextualCoachTip';
+import { DebtCardGrid } from '@/components/debt/DebtCardGrid';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -23,6 +23,7 @@ export default function Debts() {
   const [editingDebt, setEditingDebt] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'simulator' | 'analytics' | 'timeline'>('overview');
   const [showHelp, setShowHelp] = useState(false);
+  const [debtStrategy, setDebtStrategy] = useState<'avalanche' | 'snowball'>('avalanche');
 
   const { debts, isLoading, addDebt, updateDebt, deleteDebt } = useDebts();
   const { payments } = useDebtPayments();
@@ -278,21 +279,17 @@ export default function Debts() {
                 </Button>
               </Card>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {debts.map(debt => (
-                  <DebtCard
-                    key={debt.id}
-                    debt={debt}
-                    payments={payments.filter(p => p.debt_id === debt.id)}
-                    onUpdate={(updates) => handleUpdateDebt(debt.id, updates)}
-                    onDelete={() => handleDeleteDebt(debt)}
-                    onEdit={() => {
-                      setEditingDebt(debt);
-                      setShowCreateModal(true);
-                    }}
-                  />
-                ))}
-              </div>
+              <DebtCardGrid
+                debts={debts}
+                payments={payments}
+                strategy={debtStrategy}
+                onUpdate={handleUpdateDebt}
+                onDelete={handleDeleteDebt}
+                onEdit={(debt) => {
+                  setEditingDebt(debt);
+                  setShowCreateModal(true);
+                }}
+              />
             )}
           </>
         )}
