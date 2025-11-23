@@ -24,7 +24,7 @@ import { AlertCircle, Play } from "lucide-react";
 const Accounts = () => {
   const queryClient = useQueryClient();
   const { isDemoMode, enableDemoMode, disableDemoMode } = useDemoMode();
-  const { accounts: demoAccounts } = useDemoAccounts();
+  const { accounts: demoAccounts, forecast: demoForecast } = useDemoAccounts();
   
   const [transferDialog, setTransferDialog] = useState<{
     open: boolean;
@@ -169,8 +169,8 @@ const Accounts = () => {
         <LiquidityHero />
 
         {/* 90-Day Liquidity Forecast Chart */}
-        {!isDemoMode && accounts && accounts.length > 0 && (
-          <LiquidityForecastChart />
+        {accounts && accounts.length > 0 && (
+          <LiquidityForecastChart demoForecast={isDemoMode ? demoForecast : undefined} />
         )}
 
         {/* Liquid (Cash) Section */}

@@ -12,6 +12,10 @@ interface ForecastPoint {
   income: number;
 }
 
+interface LiquidityForecastChartProps {
+  demoForecast?: ForecastPoint[];
+}
+
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
@@ -48,7 +52,7 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-export const LiquidityForecastChart = () => {
+export const LiquidityForecastChart = ({ demoForecast }: LiquidityForecastChartProps = {}) => {
   const { data: forecastData, isLoading } = useQuery({
     queryKey: ['liquidity-forecast'],
     queryFn: async () => {
@@ -57,9 +61,12 @@ export const LiquidityForecastChart = () => {
       return data.forecast as ForecastPoint[];
     },
     staleTime: 60 * 60 * 1000, // Cache 1 hour
+    enabled: !demoForecast, // Don't fetch if demo data is provided
   });
 
-  if (isLoading) {
+  const forecast = demoForecast || forecastData;
+
+  if (isLoading && !demoForecast) {
     return (
       <div className="bg-card rounded-2xl p-6 shadow-glass border border-glass-border">
         <div className="flex items-center gap-2 mb-4">
@@ -71,7 +78,7 @@ export const LiquidityForecastChart = () => {
     );
   }
 
-  if (!forecastData || forecastData.length === 0) {
+  if (!forecast || forecast.length === 0) {
     return (
       <div className="bg-card rounded-2xl p-6 shadow-glass border border-glass-border">
         <div className="flex items-center gap-2 mb-4">
@@ -98,7 +105,7 @@ export const LiquidityForecastChart = () => {
       </div>
       
       <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={forecastData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <AreaChart data={forecast} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="safeGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="hsl(142 76% 36%)" stopOpacity={0.3}/>
