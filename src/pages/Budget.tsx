@@ -44,6 +44,7 @@ import { SmartInsightsSidebar } from "@/components/budget/SmartInsightsSidebar";
 import { BudgetMasonryGrid } from "@/components/budget/BudgetMasonryGrid";
 import { SmartRebalancingAgent } from "@/components/budget/SmartRebalancingAgent";
 import { InflationDetector } from "@/components/budget/InflationDetector";
+import { QuickBudgetCreator } from "@/components/budget/QuickBudgetCreator";
 
 // Lazy load heavy components
 const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
@@ -409,6 +410,11 @@ export default function Budget() {
             Recurring
           </Button>
         </div>
+
+        {/* Quick Budget Creator */}
+        <ScrollSection>
+          <QuickBudgetCreator userId={user?.id} onSuccess={() => soundEffects.success()} />
+        </ScrollSection>
 
         {/* Conversational AI Panel */}
         <ScrollSection>
