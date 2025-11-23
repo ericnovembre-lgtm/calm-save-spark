@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, Trash2, DollarSign, TrendingDown, Calendar, ChevronDown, ChevronUp, Flame } from 'lucide-react';
+import { Edit, Trash2, DollarSign, TrendingDown, Calendar, ChevronDown, ChevronUp, Flame, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
+import { DebtNegotiationScriptModal } from './DebtNegotiationScriptModal';
 import type { Database } from '@/integrations/supabase/types';
 
 type Debt = Database['public']['Tables']['debts']['Row'];
@@ -28,6 +29,7 @@ export default function DebtCard({ debt, payments, onUpdate, onDelete, onEdit, s
   const [showGhostBar, setShowGhostBar] = useState(false);
   const [extraAmount, setExtraAmount] = useState(100);
   const [hasTriggeredVictory, setHasTriggeredVictory] = useState(false);
+  const [showNegotiationModal, setShowNegotiationModal] = useState(false);
 
   // Depleting progress (starts at 100%, goes to 0%)
   const depletingProgress = debt.original_balance 
@@ -212,6 +214,24 @@ export default function DebtCard({ debt, payments, onUpdate, onDelete, onEdit, s
                   </div>
                 </div>
 
+                {/* APR Crusher - Negotiate Rate Button */}
+                {isHighInterest && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <Button
+                      onClick={() => setShowNegotiationModal(true)}
+                      className="w-full gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold"
+                    >
+                      <Flame className="w-4 h-4" />
+                      Negotiate Rate
+                      <Sparkles className="w-4 h-4" />
+                    </Button>
+                  </motion.div>
+                )}
+
                 {/* Pay Extra Button with Ghost Bar */}
                 <div
                   onMouseEnter={() => setShowGhostBar(true)}
@@ -296,6 +316,13 @@ export default function DebtCard({ debt, payments, onUpdate, onDelete, onEdit, s
               </div>
             </motion.div>
           </Card>
+
+          {/* Debt Negotiation Script Modal */}
+          <DebtNegotiationScriptModal
+            debt={debt}
+            open={showNegotiationModal}
+            onOpenChange={setShowNegotiationModal}
+          />
         </motion.div>
       ) : null}
     </AnimatePresence>

@@ -102,6 +102,7 @@ export default function PayoffSimulator({ debts }: PayoffSimulatorProps) {
 
       {/* AI Insight Badge */}
       <StrategyInsightBadge
+        debts={debts}
         avalancheSummary={avalancheSummary}
         snowballSummary={snowballSummary}
         currentStrategy={strategy}
