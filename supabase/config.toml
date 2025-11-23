@@ -267,5 +267,29 @@ verify_jwt = true
 [functions.generate-competitor-alerts]
 verify_jwt = false
 
+[functions.calculate-liquidity]
+verify_jwt = true
+
+[functions.generate-liquidity-insight]
+verify_jwt = true
+
+[functions.analyze-yield-opportunities]
+verify_jwt = true
+
+[functions.transfer-between-accounts]
+verify_jwt = true
+
+[functions.suggest-transaction-note]
+verify_jwt = true
+
+[functions.refine-search]
+verify_jwt = true
+
+[functions.suggest-report-name]
+verify_jwt = true
+
+[functions.analyze-receipt]
+verify_jwt = true
+
 
 

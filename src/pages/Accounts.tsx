@@ -2,29 +2,25 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, Plus, RefreshCw, AlertCircle, CheckCircle2, Clock } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { LazyPlaidLink } from "@/components/accounts/LazyPlaidLink";
-import { Badge } from "@/components/ui/badge";
 import { Helmet } from "react-helmet";
-import { formatDistanceToNow } from "date-fns";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { LiquidityHero } from "@/components/accounts/LiquidityHero";
+import { PhysicalAccountCard } from "@/components/accounts/PhysicalAccountCard";
+import { TransferDialog } from "@/components/accounts/TransferDialog";
+import { YieldHunterChip } from "@/components/accounts/YieldHunterChip";
+import { useDragToTransfer } from "@/hooks/useDragToTransfer";
+import { Link } from "react-router-dom";
 
 const Accounts = () => {
   const queryClient = useQueryClient();
-  const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
+  const [transferDialog, setTransferDialog] = useState<{
+    open: boolean;
+    fromAccount?: any;
+    toAccount?: any;
+  }>({ open: false });
 
   const { data: accounts, isLoading } = useQuery({
     queryKey: ['connected_accounts'],
@@ -43,220 +39,241 @@ const Accounts = () => {
     }
   });
 
-  const disconnectMutation = useMutation({
-    mutationFn: async (accountId: string) => {
-      const { error } = await supabase
-        .from('connected_accounts')
-        .delete()
-        .eq('id', accountId);
+  const handleDrop = (fromAccountId: string, toAccountId: string) => {
+    const fromAcc = accounts?.find(a => a.id === fromAccountId);
+    const toAcc = accounts?.find(a => a.id === toAccountId);
 
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['connected_accounts'] });
-      toast.success('Account disconnected successfully');
-      setDisconnectingId(null);
-    },
-    onError: () => {
-      toast.error('Failed to disconnect account');
-    }
-  });
-
-  const totalBalance = accounts?.reduce((sum, acc) => sum + (acc.current_balance || acc.balance || 0), 0) || 0;
-
-  const getStatusIcon = (status?: string) => {
-    switch (status) {
-      case 'active':
-        return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-      case 'error':
-        return <AlertCircle className="w-4 h-4 text-red-600" />;
-      default:
-        return <Clock className="w-4 h-4 text-muted-foreground" />;
+    if (fromAcc && toAcc) {
+      setTransferDialog({
+        open: true,
+        fromAccount: {
+          id: fromAcc.id,
+          name: fromAcc.institution_name,
+          balance: fromAcc.current_balance || fromAcc.balance || 0,
+        },
+        toAccount: {
+          id: toAcc.id,
+          name: toAcc.institution_name,
+          balance: toAcc.current_balance || toAcc.balance || 0,
+        },
+      });
     }
   };
 
-  const getStatusBadge = (status?: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>;
-      case 'error':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Error</Badge>;
-      default:
-        return <Badge variant="outline">Pending</Badge>;
+  const { 
+    hoveredZone, 
+    registerDropZone, 
+    getDragHandlers,
+    isDragging,
+    draggedAccountId 
+  } = useDragToTransfer({ onDrop: handleDrop });
+
+  const handleYieldTransfer = (fromAccountId: string, toAccountId: string, amount: number) => {
+    const fromAcc = accounts?.find(a => a.id === fromAccountId);
+    const toAcc = accounts?.find(a => a.id === toAccountId);
+
+    if (fromAcc && toAcc) {
+      setTransferDialog({
+        open: true,
+        fromAccount: {
+          id: fromAcc.id,
+          name: fromAcc.institution_name,
+          balance: fromAcc.current_balance || fromAcc.balance || 0,
+        },
+        toAccount: {
+          id: toAcc.id,
+          name: toAcc.institution_name,
+          balance: toAcc.current_balance || toAcc.balance || 0,
+        },
+      });
     }
   };
+
+  // Group accounts by type
+  const liquidAccounts = accounts?.filter(a => 
+    ['checking', 'savings'].includes(a.account_type)
+  ) || [];
+  const debtAccounts = accounts?.filter(a => 
+    ['credit_card', 'loan'].includes(a.account_type)
+  ) || [];
+  const investmentAccounts = accounts?.filter(a => 
+    a.account_type === 'investment'
+  ) || [];
 
   return (
     <AppLayout>
       <Helmet>
         <title>Accounts | $ave+</title>
-        <meta name="description" content="Manage your connected bank accounts" />
+        <meta name="description" content="Your liquidity command center" />
       </Helmet>
 
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-6 space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-4xl font-display font-bold text-foreground mb-2">
-              Connected Accounts
+              Liquidity Command Center
             </h1>
             <p className="text-muted-foreground">
-              Manage your bank accounts and view balances
+              Visualize, optimize, and move your money
             </p>
           </div>
           <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
         </div>
 
-        {/* Credit Card Section */}
-        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="2" y="5" width="20" height="14" rx="2"/>
-                    <path d="M2 10h20"/>
-                  </svg>
-                  $ave+ Credit Card
-                </CardTitle>
-                <CardDescription>Build credit while you spend</CardDescription>
-              </div>
-              <Button asChild variant="outline">
-                <a href="/card">
-                  Manage Cards
-                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </a>
-              </Button>
+        {/* Liquidity Hero */}
+        <LiquidityHero />
+
+        {/* Liquid (Cash) Section */}
+        {liquidAccounts.length > 0 && (
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="h-1 w-8 bg-cyan-500 rounded-full" />
+              <h2 className="text-2xl font-bold text-foreground">Liquid (Cash)</h2>
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Apply for a secured credit card and start building your credit history today.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Total Accounts</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">
-                {accounts?.length || 0}
+            
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2].map(i => (
+                  <div key={i} className="h-64 bg-muted/20 rounded-xl animate-pulse" />
+                ))}
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Total Balance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">
-                ${totalBalance.toFixed(2)}
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {liquidAccounts.map((account, index) => (
+                  <motion.div
+                    key={account.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <PhysicalAccountCard
+                      id={account.id}
+                      institutionName={account.institution_name}
+                      accountType={account.account_type}
+                      accountMask={account.account_mask}
+                      balance={account.current_balance || account.balance || 0}
+                      currency={account.currency}
+                      apy={account.apy}
+                      color="cyan"
+                      isHovered={hoveredZone === account.id}
+                      isDragging={draggedAccountId === account.id}
+                      dragHandlers={getDragHandlers(account.id)}
+                      onRegisterDropZone={registerDropZone}
+                    />
+                  </motion.div>
+                ))}
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </section>
+        )}
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Active Connections</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">
-                {accounts?.filter(a => a.sync_status === 'active').length || 0}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Account Cards */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[1, 2].map(i => (
-              <Card key={i} className="animate-pulse">
-                <CardHeader>
-                  <div className="h-6 bg-muted rounded w-1/2" />
-                  <div className="h-4 bg-muted rounded w-1/3 mt-2" />
-                </CardHeader>
-                <CardContent>
-                  <div className="h-8 bg-muted rounded w-1/4" />
-                </CardContent>
-              </Card>
-            ))}
+        {/* Borrowed (Debt) Section */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="h-1 w-8 bg-rose-500 rounded-full" />
+            <h2 className="text-2xl font-bold text-foreground">Borrowed (Debt)</h2>
           </div>
-        ) : accounts && accounts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {accounts.map((account, index) => (
-              <motion.div
-                key={account.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                          <Wallet className="w-6 h-6 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg">{account.institution_name}</CardTitle>
-                          <CardDescription className="flex items-center gap-2 mt-1">
-                            {account.account_type}
-                            {account.account_mask && ` •••• ${account.account_mask}`}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      {getStatusIcon(account.sync_status || undefined)}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Current Balance</div>
-                      <div className="text-2xl font-bold text-primary">
-                        ${(account.current_balance || account.balance || 0).toFixed(2)}
-                      </div>
-                      {account.currency && account.currency !== 'USD' && (
-                        <div className="text-xs text-muted-foreground">{account.currency}</div>
-                      )}
-                    </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(account.sync_status || undefined)}
-                        {account.last_synced && (
-                          <span className="text-xs text-muted-foreground">
-                            Synced {formatDistanceToNow(new Date(account.last_synced), { addSuffix: true })}
-                          </span>
-                        )}
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDisconnectingId(account.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        Disconnect
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
+          {/* $ave+ Credit Card Promotion */}
+          <Card className="bg-gradient-to-br from-rose-500/5 to-rose-500/10 border-rose-500/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="2" y="5" width="20" height="14" rx="2"/>
+                      <path d="M2 10h20"/>
+                    </svg>
+                    $ave+ Credit Card
+                  </CardTitle>
+                  <CardDescription>Build credit while you spend</CardDescription>
+                </div>
+                <Button asChild variant="outline">
+                  <Link to="/card">
+                    Manage Cards →
+                  </Link>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Apply for a secured credit card and start building your credit history today.
+              </p>
+            </CardContent>
+          </Card>
+
+          {debtAccounts.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {debtAccounts.map((account, index) => (
+                <motion.div
+                  key={account.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <PhysicalAccountCard
+                    id={account.id}
+                    institutionName={account.institution_name}
+                    accountType={account.account_type}
+                    accountMask={account.account_mask}
+                    balance={account.current_balance || account.balance || 0}
+                    currency={account.currency}
+                    color="rose"
+                    onRegisterDropZone={registerDropZone}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Locked (Investments) Section */}
+        {investmentAccounts.length > 0 && (
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="h-1 w-8 bg-violet-500 rounded-full" />
+              <h2 className="text-2xl font-bold text-foreground">Locked (Investments)</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {investmentAccounts.map((account, index) => (
+                <motion.div
+                  key={account.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <PhysicalAccountCard
+                    id={account.id}
+                    institutionName={account.institution_name}
+                    accountType={account.account_type}
+                    accountMask={account.account_mask}
+                    balance={account.current_balance || account.balance || 0}
+                    currency={account.currency}
+                    color="violet"
+                    onRegisterDropZone={registerDropZone}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Empty state */}
+        {!isLoading && accounts?.length === 0 && (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <Wallet className="w-16 h-16 text-muted-foreground mb-4" />
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                  <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                  <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+                </svg>
+              </div>
               <h3 className="text-xl font-semibold mb-2">No accounts connected yet</h3>
               <p className="text-muted-foreground text-center mb-6 max-w-md">
-                Connect your first bank account to get started with $ave+. Your data is secure and encrypted.
+                Connect your first bank account to unlock your liquidity command center
               </p>
               <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
             </CardContent>
@@ -264,26 +281,18 @@ const Accounts = () => {
         )}
       </div>
 
-      {/* Disconnect Confirmation Dialog */}
-      <AlertDialog open={!!disconnectingId} onOpenChange={(open) => !open && setDisconnectingId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Disconnect Account?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove the connection to this account. You can reconnect it anytime.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => disconnectingId && disconnectMutation.mutate(disconnectingId)}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Disconnect
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Transfer Dialog */}
+      {transferDialog.fromAccount && transferDialog.toAccount && (
+        <TransferDialog
+          open={transferDialog.open}
+          onOpenChange={(open) => setTransferDialog({ open })}
+          fromAccount={transferDialog.fromAccount}
+          toAccount={transferDialog.toAccount}
+        />
+      )}
+
+      {/* Yield Hunter Chip */}
+      <YieldHunterChip onTransferClick={handleYieldTransfer} />
     </AppLayout>
   );
 };

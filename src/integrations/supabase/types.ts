@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_balance_history: {
+        Row: {
+          account_id: string
+          balance: number
+          created_at: string | null
+          id: string
+          recorded_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          balance: number
+          created_at?: string | null
+          id?: string
+          recorded_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          balance?: number
+          created_at?: string | null
+          id?: string
+          recorded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_balance_history_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       achievement_collections: {
         Row: {
           category: Database["public"]["Enums"]["achievement_category"]
@@ -2416,8 +2451,10 @@ export type Database = {
       }
       connected_accounts: {
         Row: {
+          account_color: string | null
           account_mask: string | null
           account_type: string
+          apy: number | null
           available_balance: number | null
           balance: number | null
           created_at: string | null
@@ -2437,8 +2474,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_color?: string | null
           account_mask?: string | null
           account_type: string
+          apy?: number | null
           available_balance?: number | null
           balance?: number | null
           created_at?: string | null
@@ -2458,8 +2497,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_color?: string | null
           account_mask?: string | null
           account_type?: string
+          apy?: number | null
           available_balance?: number | null
           balance?: number | null
           created_at?: string | null
