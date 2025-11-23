@@ -6,19 +6,19 @@ interface ScriptPersonalityProfileProps {
 
 const profiles = {
   aggressive: {
-    color: 'text-red-400',
-    bgColor: 'bg-red-950/20',
-    borderColor: 'border-red-500/20',
+    color: 'text-warning',
+    bgColor: 'bg-warning/5',
+    borderColor: 'border-warning/20',
     traits: [
-      { icon: Target, text: 'Direct & Confrontational' },
-      { icon: Zap, text: 'Heavy Switching Threats' },
-      { icon: Shield, text: 'Early Retention Escalation' },
+      { icon: Target, text: 'Direct & Results-Focused' },
+      { icon: Zap, text: 'Emphasizes Competition' },
+      { icon: Shield, text: 'Escalates Strategically' },
     ],
   },
   friendly: {
-    color: 'text-emerald-400',
-    bgColor: 'bg-emerald-950/20',
-    borderColor: 'border-emerald-500/20',
+    color: 'text-success',
+    bgColor: 'bg-success/5',
+    borderColor: 'border-success/20',
     traits: [
       { icon: Heart, text: 'Warm & Collaborative' },
       { icon: Users, text: 'Builds Rapport First' },
@@ -26,9 +26,9 @@ const profiles = {
     ],
   },
   data_driven: {
-    color: 'text-cyan-400',
-    bgColor: 'bg-cyan-950/20',
-    borderColor: 'border-cyan-500/20',
+    color: 'text-accent',
+    bgColor: 'bg-accent/5',
+    borderColor: 'border-accent/20',
     traits: [
       { icon: TrendingUp, text: 'Logical & Methodical' },
       { icon: Target, text: 'Market Data Focus' },
@@ -41,9 +41,9 @@ export function ScriptPersonalityProfile({ variant }: ScriptPersonalityProfilePr
   const profile = profiles[variant];
 
   return (
-    <div className={`space-y-2 p-3 ${profile.bgColor} rounded border ${profile.borderColor}`}>
-      <div className={`text-xs font-semibold ${profile.color}`}>
-        PERSONALITY TRAITS:
+    <div className={`space-y-2 p-3 rounded-xl ${profile.bgColor} border ${profile.borderColor}`}>
+      <div className={`text-xs font-semibold uppercase tracking-wide ${profile.color}`}>
+        Personality Traits
       </div>
       <div className="space-y-1">
         {profile.traits.map((trait, idx) => {

@@ -23,9 +23,9 @@ const variantTitles = {
 };
 
 const variantColors = {
-  aggressive: 'border-red-500/30',
-  friendly: 'border-emerald-500/30',
-  data_driven: 'border-cyan-500/30',
+  aggressive: 'border-warning/30',
+  friendly: 'border-success/30',
+  data_driven: 'border-accent/30',
 };
 
 export function ScriptPreviewModal({
@@ -100,17 +100,17 @@ export function ScriptPreviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`max-w-3xl max-h-[85vh] overflow-y-auto bg-slate-900 border-2 ${variantColors[variant]}`}>
+      <DialogContent className={`max-w-3xl max-h-[85vh] overflow-y-auto bg-background border-2 ${variantColors[variant]}`}>
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <Badge className="bg-slate-700">
+              <Badge variant="secondary">
                 {variantTitles[variant]}
               </Badge>
               <span className="text-muted-foreground">•</span>
               <span>{merchant}</span>
             </DialogTitle>
-            <Badge variant="outline" className="font-mono">
+            <Badge variant="outline">
               ${amount}/mo
             </Badge>
           </div>
@@ -128,23 +128,23 @@ export function ScriptPreviewModal({
             >
               <div className={`p-2 rounded-full ${
                 line.speaker === 'user' 
-                  ? 'bg-cyan-500/20 border border-cyan-500/50' 
-                  : 'bg-slate-700/50 border border-slate-600'
+                  ? 'bg-secondary/30 border border-secondary' 
+                  : 'bg-muted border border-border'
               }`}>
                 {line.speaker === 'user' ? (
-                  <User className="w-5 h-5 text-cyan-400" />
+                  <User className="w-5 h-5 text-foreground/60" />
                 ) : (
-                  <Headphones className="w-5 h-5 text-slate-400" />
+                  <Headphones className="w-5 h-5 text-muted-foreground" />
                 )}
               </div>
               
-              <div className={`flex-1 p-4 rounded-lg ${
+              <div className={`flex-1 p-4 rounded-xl ${
                 line.speaker === 'user'
-                  ? 'bg-cyan-950/30 border border-cyan-500/20'
-                  : 'bg-slate-800/50 border border-slate-700'
+                  ? 'bg-secondary/10 border border-secondary/20'
+                  : 'bg-muted/30 border border-border'
               }`}>
-                <div className="text-xs font-semibold text-muted-foreground mb-1">
-                  {line.speaker === 'user' ? 'YOU' : 'AGENT'}
+                <div className="text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-wide">
+                  {line.speaker === 'user' ? 'You' : 'Agent'}
                 </div>
                 <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
                   {line.text}
@@ -155,14 +155,14 @@ export function ScriptPreviewModal({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 pt-4 border-t border-slate-700">
+        <div className="flex gap-2 pt-4 border-t border-border">
           <Button
             onClick={() => onOpenChange(false)}
             variant="outline"
             size="sm"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Comparison
+            Back
           </Button>
           <Button
             onClick={copyToClipboard}
@@ -171,14 +171,14 @@ export function ScriptPreviewModal({
             disabled={!typingComplete}
           >
             <Copy className="w-4 h-4 mr-2" />
-            Copy Script
+            Copy
           </Button>
           <Button
             onClick={() => {
               onSelect();
               onOpenChange(false);
             }}
-            className="flex-1 bg-cyan-600 hover:bg-cyan-500"
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
             disabled={!typingComplete}
           >
             <Check className="w-4 h-4 mr-2" />

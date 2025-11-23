@@ -124,22 +124,23 @@ export function ScriptVariantSelector({
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-6">
         <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="p-4 rounded-full bg-secondary/20"
         >
-          <Sparkles className="w-16 h-16 text-cyan-400" />
+          <Sparkles className="w-12 h-12 text-foreground/40" />
         </motion.div>
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold text-foreground font-mono">
-            GENERATING 3 BATTLE STRATEGIES...
+          <h2 className="text-2xl font-bold text-foreground">
+            Generating Scripts...
           </h2>
           <p className="text-muted-foreground">
-            Creating aggressive, friendly, and data-driven approaches
+            Creating assertive, collaborative, and analytical approaches
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-96 bg-slate-800/50 rounded-xl animate-pulse" />
+            <div key={i} className="h-96 bg-muted/20 rounded-2xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -149,11 +150,11 @@ export function ScriptVariantSelector({
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold text-foreground font-mono">
-          CHOOSE YOUR <span className="text-cyan-400">BATTLE STYLE</span>
+        <h2 className="text-3xl font-bold text-foreground">
+          Choose Your <span className="text-accent">Negotiation Style</span>
         </h2>
         <p className="text-muted-foreground">
-          3 AI-generated scripts tailored to different negotiation personalities
+          Three AI-generated scripts tailored to different approaches
         </p>
       </div>
 

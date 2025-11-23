@@ -6,6 +6,7 @@ import { CompetitorOfferCard } from "./CompetitorOfferCard";
 import { CompetitorAlerts } from "./CompetitorAlerts";
 import { PriceComparisonChart } from "./PriceComparisonChart";
 import { Badge } from "@/components/ui/badge";
+import { GlassPanel } from "@/components/ui/glass-panel";
 import { Zap, Wifi, Smartphone, Lightbulb, Shield } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -76,21 +77,21 @@ export function CompetitorIntelligencePanel({
   return (
     <div className="space-y-6">
       {/* Header with Alerts Banner */}
-      <div className="bg-slate-900 border border-slate-700 rounded-lg p-6">
+      <GlassPanel className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-cyan-500/20 border border-cyan-500 flex items-center justify-center">
-              <Zap className="w-6 h-6 text-cyan-400" />
+            <div className="w-12 h-12 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center">
+              <Zap className="w-6 h-6 text-foreground/60" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-foreground">Competitor Intelligence</h2>
+              <h2 className="text-2xl font-bold text-foreground">Market Intelligence</h2>
               <p className="text-sm text-muted-foreground">
-                Real-time market pricing • Automatic deal detection
+                Real-time pricing • Competitive analysis
               </p>
             </div>
           </div>
           {unacknowledgedAlerts > 0 && (
-            <Badge className="bg-amber-500 text-black font-bold px-4 py-2">
+            <Badge className="bg-warning text-black font-bold px-4 py-2">
               {unacknowledgedAlerts} New Alert{unacknowledgedAlerts !== 1 ? 's' : ''}
             </Badge>
           )}
@@ -101,17 +102,17 @@ export function CompetitorIntelligencePanel({
             Last updated: {formatDistanceToNow(new Date(lastUpdated), { addSuffix: true })}
           </div>
         )}
-      </div>
+      </GlassPanel>
 
       {/* Alerts Section */}
       {unacknowledgedAlerts > 0 && (
-        <div className="bg-amber-500/5 border-2 border-amber-500/30 rounded-lg p-6">
+        <GlassPanel variant="strong" className="border-warning/30 p-6">
           <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-amber-400" />
+            <Zap className="w-5 h-5 text-warning" />
             Active Alerts
           </h3>
           <CompetitorAlerts alerts={alerts || []} />
-        </div>
+        </GlassPanel>
       )}
 
       {/* Category Tabs */}
@@ -131,7 +132,7 @@ export function CompetitorIntelligencePanel({
         <TabsContent value={selectedCategory} className="space-y-6 mt-6">
           {/* Price Comparison Chart */}
           {userOpportunity && competitorPricing && competitorPricing.length > 0 && (
-            <div className="bg-slate-900 border border-slate-700 rounded-lg p-6">
+            <GlassPanel className="p-6">
               <h3 className="text-lg font-bold text-foreground mb-4">Price Comparison</h3>
               <PriceComparisonChart
                 userPrice={Number(userOpportunity.current_amount)}
@@ -141,20 +142,20 @@ export function CompetitorIntelligencePanel({
                   price: Number(c.monthly_price)
                 }))}
               />
-            </div>
+            </GlassPanel>
           )}
 
           {/* Competitor Offers Grid */}
           <div>
             <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-              <CategoryIcon className="w-5 h-5 text-cyan-400" />
+              <CategoryIcon className="w-5 h-5 text-foreground/60" />
               Top Offers in {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
             </h3>
             
             {pricingLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="h-64 bg-slate-900 rounded-lg animate-pulse" />
+                  <div key={i} className="h-64 bg-muted/20 rounded-2xl animate-pulse" />
                 ))}
               </div>
             ) : competitorPricing && competitorPricing.length > 0 ? (

@@ -2,12 +2,13 @@ import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion } from "framer-motion";
 import { Upload, FileText, TrendingDown, Target, Sparkles } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { GlassPanel } from "@/components/ui/glass-panel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useBillScanner } from "@/hooks/useBillScanner";
 import { ScanningAnimation } from "./ScanningAnimation";
+import { cn } from "@/lib/utils";
 
 interface BillScannerProps {
   onScanComplete?: (analysis: any) => void;
@@ -32,13 +33,12 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
   return (
     <div className="space-y-6">
       {/* Dropzone */}
-      <Card 
+      <GlassPanel 
         {...getRootProps()} 
-        className={`p-8 cursor-pointer transition-all border-2 ${
-          isDragActive 
-            ? 'border-cyan-400 bg-cyan-950/20' 
-            : 'border-slate-700 hover:border-cyan-500/50 bg-slate-900'
-        }`}
+        className={cn(
+          "p-8 cursor-pointer transition-all",
+          isDragActive && "border-accent/50 bg-accent/5"
+        )}
       >
         <input {...getInputProps()} />
         
@@ -46,8 +46,8 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
           <div className="space-y-4">
             <ScanningAnimation />
             <div className="text-center">
-              <p className="text-cyan-400 font-mono text-sm animate-pulse">
-                {analysis ? 'ANALYZING DOCUMENT...' : 'GENERATING NEGOTIATION SCENARIO...'}
+              <p className="text-foreground text-sm">
+                {analysis ? 'Analyzing document...' : 'Generating scenario...'}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {analysis ? 'AI is extracting negotiation leverage points' : 'AI is creating realistic bill with hidden fees'}
@@ -62,9 +62,9 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
                 scale: isDragActive ? 1.1 : 1,
               }}
               transition={{ duration: 0.2 }}
-              className="inline-block p-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20"
+              className="inline-block p-6 rounded-2xl bg-gradient-to-br from-secondary/10 to-accent/10 border border-secondary/20"
             >
-              <Upload className="w-12 h-12 text-cyan-400" />
+              <Upload className="w-12 h-12 text-foreground/60" />
             </motion.div>
             
             <div>
@@ -80,7 +80,7 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
             </div>
           </div>
         )}
-      </Card>
+      </GlassPanel>
 
       {/* Analysis Results */}
       {analysis && (
@@ -89,33 +89,20 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="p-6 bg-slate-900 border-cyan-500/30 relative overflow-hidden">
-            {/* Tactical Corner Brackets */}
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-400/50" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-400/50" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-cyan-400/50" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-400/50" />
-
-            {/* Scanlines */}
-            <div className="absolute inset-0 pointer-events-none opacity-5">
-              {[...Array(15)].map((_, i) => (
-                <div key={i} className="h-px bg-cyan-400 mb-3" />
-              ))}
-            </div>
-
-            <div className="relative z-10 space-y-6">
+          <GlassPanel variant="strong" className="p-6">
+            <div className="space-y-6">
               {/* Header */}
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-cyan-400" />
+                    <FileText className="w-5 h-5 text-foreground/60" />
                     <h3 className="text-2xl font-bold text-foreground">{analysis.provider}</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground font-mono">
-                    TARGET ACQUIRED • ANALYSIS COMPLETE
+                  <p className="text-sm text-muted-foreground">
+                    Analysis complete • Opportunities detected
                   </p>
                 </div>
-                <Badge variant="outline" className="text-lg font-mono border-cyan-500 text-cyan-400">
+                <Badge variant="outline" className="text-lg">
                   ${analysis.amount.toFixed(2)}/mo
                 </Badge>
               </div>
@@ -124,14 +111,14 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Target className="w-4 h-4 text-cyan-400" />
-                    NEGOTIATION POWER SCORE
+                    <Target className="w-4 h-4 text-foreground/60" />
+                    Negotiation Power Score
                   </span>
-                  <span className="text-lg font-mono text-cyan-400">{analysis.negotiation_score}%</span>
+                  <span className="text-lg text-foreground">{analysis.negotiation_score}%</span>
                 </div>
                 <Progress 
                   value={analysis.negotiation_score} 
-                  className="h-2 bg-slate-800"
+                  className="h-2"
                 />
               </div>
 
@@ -139,17 +126,17 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
               {analysis.bloat_items && analysis.bloat_items.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                    <TrendingDown className="w-4 h-4 text-emerald-400" />
-                    REMOVABLE FEES DETECTED
+                    <TrendingDown className="w-4 h-4 text-success" />
+                    Removable Fees Detected
                   </h4>
                   <div className="space-y-2">
                     {analysis.bloat_items.map((item, idx) => (
                       <div 
                         key={idx} 
-                        className="flex items-center justify-between p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-success/10 border border-success/20 rounded-xl"
                       >
                         <span className="text-sm text-foreground">{item.name}</span>
-                        <Badge variant="outline" className="border-emerald-500 text-emerald-400 font-mono">
+                        <Badge variant="outline" className="border-success/50 text-success">
                           ${item.amount}/mo
                         </Badge>
                       </div>
@@ -162,12 +149,12 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
               {analysis.leverage_points && analysis.leverage_points.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-semibold text-muted-foreground">
-                    TACTICAL ADVANTAGES
+                    Your Leverage Points
                   </h4>
                   <div className="space-y-2">
                     {analysis.leverage_points.map((point, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0" />
+                        <div className="w-1.5 h-1.5 bg-accent rounded-full mt-1.5 flex-shrink-0" />
                         <span>{point}</span>
                       </div>
                     ))}
@@ -179,20 +166,19 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
               <div className="flex gap-3 pt-4">
                 <Button 
                   onClick={() => onScanComplete?.(analysis)}
-                  className="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white"
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  Generate Battle Plan
+                  Generate Script
                 </Button>
                 <Button 
                   onClick={clearAnalysis}
                   variant="outline"
-                  className="border-slate-600"
                 >
                   Clear
                 </Button>
               </div>
             </div>
-          </Card>
+          </GlassPanel>
         </motion.div>
       )}
 
@@ -200,22 +186,20 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
       {!analysis && (
         <>
           <div className="flex items-center gap-4">
-            <div className="flex-1 border-t border-slate-700" />
-            <span className="text-sm text-muted-foreground font-mono">OR</span>
-            <div className="flex-1 border-t border-slate-700" />
+            <div className="flex-1 border-t border-border" />
+            <span className="text-sm text-muted-foreground">OR</span>
+            <div className="flex-1 border-t border-border" />
           </div>
 
           {/* Generate Sample Bill Button */}
           <Button
             onClick={generateRandomBill}
             variant="outline"
-            className="w-full border-cyan-500/50 hover:bg-cyan-950/30 hover:border-cyan-400 transition-all group"
+            className="w-full"
             disabled={isScanning}
           >
-            <Sparkles className="w-4 h-4 mr-2 group-hover:text-cyan-400 transition-colors" />
-            <span className="group-hover:text-cyan-400 transition-colors">
-              Generate Sample Bill (AI Demo)
-            </span>
+            <Sparkles className="w-4 h-4 mr-2" />
+            Generate Sample Bill (AI Demo)
           </Button>
         </>
       )}

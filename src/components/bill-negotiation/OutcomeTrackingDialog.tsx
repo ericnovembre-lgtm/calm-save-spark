@@ -63,10 +63,10 @@ export function OutcomeTrackingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-slate-900 border-cyan-500/30">
+      <DialogContent className="max-w-md bg-card border-2 border-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <TrendingUp className="w-6 h-6 text-cyan-400" />
+            <TrendingUp className="w-6 h-6 text-foreground/60" />
             How did your negotiation go?
           </DialogTitle>
         </DialogHeader>
@@ -97,7 +97,7 @@ export function OutcomeTrackingDialog({
                 step="0.01"
               />
               {newAmount && (
-                <div className="text-sm text-emerald-400">
+                <div className="text-sm text-success">
                   💰 Savings: ${(originalAmount - parseFloat(newAmount)).toFixed(2)}/mo
                 </div>
               )}
@@ -126,8 +126,8 @@ export function OutcomeTrackingDialog({
                   <Star
                     className={`w-8 h-8 ${
                       star <= rating
-                        ? 'text-amber-400 fill-amber-400'
-                        : 'text-slate-600'
+                        ? 'text-warning fill-warning'
+                        : 'text-muted-foreground/30'
                     }`}
                   />
                 </button>
@@ -144,7 +144,7 @@ export function OutcomeTrackingDialog({
               Skip
             </Button>
             <Button
-              className="flex-1 bg-cyan-600 hover:bg-cyan-500"
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
               onClick={handleSubmit}
               disabled={submitting}
             >
