@@ -13,9 +13,15 @@ import DebtAnalytics from '@/components/debt/DebtAnalytics';
 import PayoffTimeline from '@/components/debt/PayoffTimeline';
 import ContextualCoachTip from '@/components/debt/ContextualCoachTip';
 import { DebtCardGrid } from '@/components/debt/DebtCardGrid';
+import { DebtMountainVisualizer } from '@/components/debt/DebtMountainVisualizer';
+import { CostOfWaitingBadge } from '@/components/debt/CostOfWaitingBadge';
+import { StrategyToggle } from '@/components/debt/StrategyToggle';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { useOptimizedDebtSimulation } from '@/hooks/useOptimizedDebtSimulation';
+import { useMemo } from 'react';
+import { addMonths, format } from 'date-fns';
 
 export default function Debts() {
   const navigate = useNavigate();
@@ -27,6 +33,23 @@ export default function Debts() {
 
   const { debts, isLoading, addDebt, updateDebt, deleteDebt } = useDebts();
   const { payments } = useDebtPayments();
+
+  // Optimized debt simulation for Overview tab
+  const { summary: currentSummary, simulation: currentSimulation, isLoading: isSimulationLoading } = 
+    useOptimizedDebtSimulation({
+      strategy: debtStrategy,
+      extraPayment: 0,
+      enabled: debts.length > 0
+    });
+
+  // Calculate debt-free date
+  const debtFreeDate = useMemo(() => {
+    if (!currentSummary?.months_to_payoff) return null;
+    const futureDate = addMonths(new Date(), currentSummary.months_to_payoff);
+    return format(futureDate, 'MMMM yyyy');
+  }, [currentSummary]);
+
+  const monthsToFreedom = currentSummary?.months_to_payoff || 0;
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -165,6 +188,19 @@ export default function Debts() {
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <>
+            {/* Debt Mountain Hero Section */}
+            {debts.length > 0 && (
+              <DebtMountainVisualizer
+                simulation={currentSimulation}
+                debtFreeDate={debtFreeDate}
+                monthsToFreedom={monthsToFreedom}
+                isLoading={isSimulationLoading}
+              />
+            )}
+
+            {/* Cost of Waiting Badge */}
+            {debts.length > 0 && <CostOfWaitingBadge debts={debts} />}
+
             {/* Automation Card */}
             <Card className="p-6 border-2 border-primary/20 hover:border-primary/40 transition-colors">
               <div className="flex items-center justify-between">
@@ -239,6 +275,16 @@ export default function Debts() {
                 </p>
               </Card>
             </div>
+
+            {/* Strategy Toggle */}
+            {debts.length > 0 && (
+              <div className="flex justify-center">
+                <StrategyToggle 
+                  strategy={debtStrategy} 
+                  onChange={setDebtStrategy} 
+                />
+              </div>
+            )}
 
             {/* Bills & Subscriptions Card */}
             <Card className="p-6 border-2 border-accent/50">
