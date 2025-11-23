@@ -300,4 +300,13 @@ verify_jwt = true
 [functions.calculate-liquidity-forecast]
 verify_jwt = true
 
+[functions.generate-daily-briefing]
+verify_jwt = true
+
+[functions.generate-smart-actions]
+verify_jwt = true
+
+[functions.generate-ai-opportunity-scanner]
+verify_jwt = true
+
 
