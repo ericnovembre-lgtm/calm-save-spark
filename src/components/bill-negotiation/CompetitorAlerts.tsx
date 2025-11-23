@@ -48,7 +48,7 @@ export function CompetitorAlerts({ alerts }: CompetitorAlertsProps) {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="p-4 rounded-lg border-2 border-amber-500/50 bg-amber-500/10 relative"
+          className="p-4 rounded-xl border-2 border-warning/50 bg-warning/5 relative"
         >
           {/* Close Button */}
           <Button
@@ -62,18 +62,18 @@ export function CompetitorAlerts({ alerts }: CompetitorAlertsProps) {
 
           <div className="flex items-start gap-3 pr-8">
             {/* Icon */}
-            <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-warning/20 border border-warning flex items-center justify-center flex-shrink-0">
               {alert.alert_type === 'price_drop' ? (
-                <TrendingDown className="w-5 h-5 text-amber-400" />
+                <TrendingDown className="w-5 h-5 text-warning" />
               ) : (
-                <Zap className="w-5 h-5 text-amber-400" />
+                <Zap className="w-5 h-5 text-warning" />
               )}
             </div>
 
             {/* Content */}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="outline" className="text-amber-400 border-amber-400">
+                <Badge variant="outline" className="text-warning border-warning">
                   {alert.alert_type.replace('_', ' ').toUpperCase()}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
@@ -86,13 +86,13 @@ export function CompetitorAlerts({ alerts }: CompetitorAlertsProps) {
               </h4>
 
               <p className="text-sm text-muted-foreground mb-2">
-                New price: <span className="text-emerald-400 font-bold">${alert.competitor_price.toFixed(2)}/mo</span>
+                New price: <span className="text-success font-bold">${alert.competitor_price.toFixed(2)}/mo</span>
                 {" vs your current "}
-                <span className="text-red-400 font-bold">${alert.user_current_price.toFixed(2)}/mo</span>
+                <span className="text-destructive font-bold">${alert.user_current_price.toFixed(2)}/mo</span>
               </p>
 
               <div className="flex items-center gap-2 text-sm">
-                <div className="text-emerald-400 font-bold">
+                <div className="text-success font-bold">
                   Save ${alert.potential_savings.toFixed(0)}/mo
                 </div>
                 <div className="text-muted-foreground">
@@ -104,7 +104,7 @@ export function CompetitorAlerts({ alerts }: CompetitorAlertsProps) {
 
           {/* Pulse Animation */}
           <motion.div
-            className="absolute inset-0 rounded-lg border-2 border-amber-400"
+            className="absolute inset-0 rounded-xl border-2 border-warning"
             animate={{ scale: [1, 1.02, 1], opacity: [0.5, 0, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
           />

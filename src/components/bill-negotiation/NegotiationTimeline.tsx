@@ -1,5 +1,6 @@
 import { TimelineEntry } from "./TimelineEntry";
 import { FileText } from "lucide-react";
+import { GlassPanel } from "@/components/ui/glass-panel";
 
 interface NegotiationTimelineProps {
   requests: any[];
@@ -13,15 +14,15 @@ export function NegotiationTimeline({ requests }: NegotiationTimelineProps) {
 
   if (sortedRequests.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-20 h-20 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center mb-4">
+      <GlassPanel className="p-8 text-center">
+        <div className="w-20 h-20 rounded-full bg-secondary/20 border border-secondary mx-auto flex items-center justify-center mb-4">
           <FileText className="w-10 h-10 text-muted-foreground" />
         </div>
-        <h3 className="text-xl font-bold text-foreground mb-2">No Negotiation History</h3>
-        <p className="text-muted-foreground max-w-md">
-          Your completed negotiations will appear here. Start by analyzing bills or requesting negotiations in the Opportunities tab.
+        <h3 className="text-xl font-bold text-foreground mb-2">No Negotiation History Yet</h3>
+        <p className="text-muted-foreground max-w-md mx-auto">
+          Your completed negotiations will appear here. Start by analyzing bills or requesting negotiations.
         </p>
-      </div>
+      </GlassPanel>
     );
   }
 

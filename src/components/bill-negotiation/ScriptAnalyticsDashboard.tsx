@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TacticalCard } from "./TacticalCard";
+import { GlassPanel } from "@/components/ui/glass-panel";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { TrendingUp, Target, DollarSign, Star, Flame, Heart, BarChart3 } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
+import { cn } from "@/lib/utils";
 
 const variantIcons = {
   aggressive: Flame,
@@ -13,9 +14,9 @@ const variantIcons = {
 };
 
 const variantColors = {
-  aggressive: 'text-red-400',
-  friendly: 'text-emerald-400',
-  data_driven: 'text-cyan-400',
+  aggressive: 'text-warning',
+  friendly: 'text-success',
+  data_driven: 'text-accent',
 };
 
 export function ScriptAnalyticsDashboard() {
@@ -91,123 +92,115 @@ export function ScriptAnalyticsDashboard() {
     <div className="space-y-6">
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <TacticalCard glowColor="cyan">
-          <div className="p-6 space-y-2">
-            <div className="flex items-center gap-3">
-              <Target className="w-8 h-8 text-cyan-400" />
-              <div>
-                <div className="text-xs text-muted-foreground font-mono">TOTAL SCRIPTS</div>
-                <div className="text-3xl font-bold text-cyan-400 font-mono">
-                  {analytics?.totalVariants || 0}
-                </div>
+        <GlassPanel className="p-6 space-y-2">
+          <div className="flex items-center gap-3">
+            <Target className="w-8 h-8 text-foreground/60" />
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Total Scripts</div>
+              <div className="text-3xl font-bold text-foreground">
+                {analytics?.totalVariants || 0}
               </div>
             </div>
           </div>
-        </TacticalCard>
+        </GlassPanel>
 
-        <TacticalCard glowColor="emerald">
-          <div className="p-6 space-y-2">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="w-8 h-8 text-emerald-400" />
-              <div>
-                <div className="text-xs text-muted-foreground font-mono">SUCCESS RATE</div>
-                <div className="text-3xl font-bold text-emerald-400 font-mono">
-                  {totalSelections > 0 
-                    ? Math.round((Object.values(analytics?.stats || {}).reduce((sum, s) => sum + s.success, 0) / totalSelections) * 100)
-                    : 0}%
-                </div>
+        <GlassPanel className="p-6 space-y-2">
+          <div className="flex items-center gap-3">
+            <TrendingUp className="w-8 h-8 text-success" />
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Success Rate</div>
+              <div className="text-3xl font-bold text-success">
+                {totalSelections > 0 
+                  ? Math.round((Object.values(analytics?.stats || {}).reduce((sum, s) => sum + s.success, 0) / totalSelections) * 100)
+                  : 0}%
               </div>
             </div>
           </div>
-        </TacticalCard>
+        </GlassPanel>
 
-        <TacticalCard glowColor="amber">
-          <div className="p-6 space-y-2">
-            <div className="flex items-center gap-3">
-              <DollarSign className="w-8 h-8 text-amber-400" />
-              <div>
-                <div className="text-xs text-muted-foreground font-mono">AVG SAVINGS</div>
-                <div className="text-3xl font-bold text-amber-400 font-mono">
-                  ${Object.values(analytics?.stats || {})
-                    .reduce((sum, s) => sum + s.avgSavings, 0)
-                    .toFixed(0)}
-                </div>
+        <GlassPanel className="p-6 space-y-2">
+          <div className="flex items-center gap-3">
+            <DollarSign className="w-8 h-8 text-warning" />
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Avg Savings</div>
+              <div className="text-3xl font-bold text-warning">
+                ${Object.values(analytics?.stats || {})
+                  .reduce((sum, s) => sum + s.avgSavings, 0)
+                  .toFixed(0)}
               </div>
             </div>
           </div>
-        </TacticalCard>
+        </GlassPanel>
       </div>
 
       {/* Variant Performance */}
-      <TacticalCard>
-        <div className="p-6 space-y-4">
-          <h3 className="text-xl font-bold text-foreground font-mono">
-            SCRIPT STYLE PERFORMANCE
-          </h3>
+      <GlassPanel className="p-6 space-y-4">
+        <h3 className="text-xl font-bold text-foreground">
+          Script Style Performance
+        </h3>
 
-          {(['aggressive', 'friendly', 'data_driven'] as const).map((variant) => {
-            const stats = analytics?.stats[variant];
-            if (!stats || stats.count === 0) return null;
+        {(['aggressive', 'friendly', 'data_driven'] as const).map((variant) => {
+          const stats = analytics?.stats[variant];
+          if (!stats || stats.count === 0) return null;
 
-            const Icon = variantIcons[variant];
-            const color = variantColors[variant];
-            const successRate = stats.count > 0 ? (stats.success / stats.count) * 100 : 0;
+          const Icon = variantIcons[variant];
+          const color = variantColors[variant];
+          const successRate = stats.count > 0 ? (stats.success / stats.count) * 100 : 0;
 
-            return (
-              <div key={variant} className="p-4 bg-slate-800/50 border border-slate-700 rounded-lg space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-6 h-6 ${color}`} />
-                    <div>
-                      <div className="font-semibold text-foreground capitalize">
-                        {variant.replace('_', ' ')}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Used {stats.count} times
-                      </div>
+          return (
+            <div key={variant} className="p-4 bg-muted/30 border border-border rounded-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-6 h-6 text-foreground/60`} />
+                  <div>
+                    <div className="font-semibold text-foreground capitalize">
+                      {variant.replace('_', ' ')}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Used {stats.count} times
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground">Success Rate</div>
+                    <div className="text-lg font-bold text-foreground">
+                      {successRate.toFixed(0)}%
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
+                  {stats.avgSavings > 0 && (
                     <div className="text-right">
-                      <div className="text-xs text-muted-foreground">Success Rate</div>
-                      <div className={`text-lg font-bold ${color}`}>
-                        {successRate.toFixed(0)}%
+                      <div className="text-xs text-muted-foreground">Avg Savings</div>
+                      <div className="text-lg font-bold text-success">
+                        ${stats.avgSavings.toFixed(0)}
                       </div>
                     </div>
-                    
-                    {stats.avgSavings > 0 && (
-                      <div className="text-right">
-                        <div className="text-xs text-muted-foreground">Avg Savings</div>
-                        <div className="text-lg font-bold text-emerald-400">
-                          ${stats.avgSavings.toFixed(0)}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {stats.avgRating > 0 && (
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        <span className="text-sm font-bold text-amber-400">
-                          {stats.avgRating.toFixed(1)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  )}
+                  
+                  {stats.avgRating > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-warning fill-warning" />
+                      <span className="text-sm font-bold text-warning">
+                        {stats.avgRating.toFixed(1)}
+                      </span>
+                    </div>
+                  )}
                 </div>
-
-                <Progress value={successRate} className="h-2" />
               </div>
-            );
-          })}
 
-          {totalSelections === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              No script analytics yet. Generate and select a script to see performance data.
+              <Progress value={successRate} className="h-2" />
             </div>
-          )}
-        </div>
-      </TacticalCard>
+          );
+        })}
+
+        {totalSelections === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            No script analytics yet. Generate and select a script to see performance data.
+          </div>
+        )}
+      </GlassPanel>
     </div>
   );
 }

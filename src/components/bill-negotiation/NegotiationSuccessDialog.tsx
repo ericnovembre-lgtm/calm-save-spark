@@ -53,7 +53,7 @@ export function NegotiationSuccessDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-slate-900 border-emerald-500/50">
+      <DialogContent className="max-w-md bg-card border-success/50">
         <div className="text-center space-y-6 py-6">
           {/* Trophy Animation */}
           <motion.div
@@ -64,7 +64,7 @@ export function NegotiationSuccessDialog({
               stiffness: 260,
               damping: 20,
             }}
-            className="mx-auto w-24 h-24 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center"
+            className="mx-auto w-24 h-24 bg-gradient-to-br from-success to-accent rounded-full flex items-center justify-center"
           >
             <Trophy className="w-12 h-12 text-white" />
           </motion.div>
@@ -98,16 +98,16 @@ export function NegotiationSuccessDialog({
               type: "spring",
               stiffness: 200,
             }}
-            className="inline-block p-6 bg-emerald-950/50 border-4 border-emerald-500 rounded-lg rotate-[-5deg]"
+            className="inline-block p-6 bg-success/10 border-4 border-success rounded-xl rotate-[-5deg]"
           >
             <div className="text-center space-y-1">
-              <div className="text-xs font-bold text-emerald-400 tracking-wider">
+              <div className="text-xs font-bold text-success tracking-wider">
                 ANNUAL SAVINGS
               </div>
-              <div className="text-5xl font-bold text-emerald-400 font-mono">
+              <div className="text-5xl font-bold text-success">
                 ${yearlySavings}
               </div>
-              <div className="text-sm text-emerald-300">
+              <div className="text-sm text-success/80">
                 ${monthlySavings}/mo saved
               </div>
             </div>
@@ -120,16 +120,16 @@ export function NegotiationSuccessDialog({
             transition={{ delay: 0.5 }}
             className="grid grid-cols-2 gap-4"
           >
-            <div className="p-4 bg-slate-800 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-cyan-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground font-mono">
+            <div className="p-4 bg-muted/30 rounded-xl">
+              <TrendingUp className="w-5 h-5 text-accent mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">
                 {((monthlySavings / 100) * 100).toFixed(0)}%
               </div>
               <div className="text-xs text-muted-foreground">Reduction</div>
             </div>
-            <div className="p-4 bg-slate-800 rounded-lg">
-              <Trophy className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground font-mono">1</div>
+            <div className="p-4 bg-muted/30 rounded-xl">
+              <Trophy className="w-5 h-5 text-success mx-auto mb-2" />
+              <div className="text-2xl font-bold text-foreground">1</div>
               <div className="text-xs text-muted-foreground">Victory</div>
             </div>
           </motion.div>
@@ -153,7 +153,7 @@ export function NegotiationSuccessDialog({
             </Button>
             <Button
               onClick={() => onOpenChange(false)}
-              className="w-full bg-emerald-600 hover:bg-emerald-500"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               Continue
             </Button>

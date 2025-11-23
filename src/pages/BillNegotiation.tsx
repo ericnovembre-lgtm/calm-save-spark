@@ -12,7 +12,7 @@ import { ScriptVariantSelector } from "@/components/bill-negotiation/ScriptVaria
 import { ScriptAnalyticsDashboard } from "@/components/bill-negotiation/ScriptAnalyticsDashboard";
 import { OutcomeTrackingDialog } from "@/components/bill-negotiation/OutcomeTrackingDialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { TacticalCard } from "@/components/bill-negotiation/TacticalCard";
+import { GlassPanel } from "@/components/ui/glass-panel";
 import { NegotiationTimeline } from "@/components/bill-negotiation/NegotiationTimeline";
 import { NegotiationMetrics } from "@/components/bill-negotiation/NegotiationMetrics";
 import { CompetitorIntelligencePanel } from "@/components/bill-negotiation/CompetitorIntelligencePanel";
@@ -190,38 +190,37 @@ export default function BillNegotiation() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-slate-950 space-y-8">
-        {/* Tactical Header */}
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 blur-3xl" />
-          <div className="relative flex items-center justify-between">
+      <div className="min-h-screen bg-background space-y-8">
+        {/* Header */}
+        <GlassPanel variant="subtle" className="p-6">
+          <div className="flex items-center justify-between">
             <div className="space-y-2">
               <motion.h1 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="text-5xl font-display font-bold text-foreground"
               >
-                Bill Negotiation <span className="text-cyan-400">Command Center</span>
+                Bill Negotiation <span className="text-accent">Hub</span>
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1 }}
-                className="text-muted-foreground font-mono text-sm"
+                className="text-muted-foreground text-sm"
               >
-                TACTICAL INTELLIGENCE • AUTOMATED NEGOTIATION • MAXIMUM SAVINGS
+                Smart savings through strategic negotiation
               </motion.p>
             </div>
             <Button 
               onClick={handleAnalyzeBills} 
               disabled={analyzingBills}
-              className="bg-cyan-600 hover:bg-cyan-500"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${analyzingBills ? 'animate-spin' : ''}`} />
-              Scan Bills
+              Analyze Bills
             </Button>
           </div>
-        </div>
+        </GlassPanel>
 
         {/* Bill Scanner Hero */}
         <BillScanner onScanComplete={(analysis) => {
@@ -229,64 +228,58 @@ export default function BillNegotiation() {
           toast.success('Bill scanned! Review the opportunity below.');
         }} />
 
-        {/* Tactical Stats */}
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <TacticalCard glowColor="emerald">
-            <div className="p-6 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-emerald-500/20 rounded-lg">
-                  <TrendingUp className="w-8 h-8 text-emerald-400" />
+          <GlassPanel className="p-6 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-secondary/20 rounded-xl">
+                <TrendingUp className="w-8 h-8 text-foreground/70" />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Potential Savings
                 </div>
-                <div className="flex-1">
-                  <div className="text-xs font-semibold text-muted-foreground font-mono">
-                    POTENTIAL SAVINGS
-                  </div>
-                  <div className="text-3xl font-bold text-emerald-400 font-mono">
-                    $<CountUp end={totalPotentialSavings} decimals={2} duration={1} />
-                  </div>
-                  <div className="text-xs text-muted-foreground">/month</div>
+                <div className="text-3xl font-bold text-foreground">
+                  $<CountUp end={totalPotentialSavings} decimals={2} duration={1} />
                 </div>
+                <div className="text-xs text-muted-foreground">/month</div>
               </div>
             </div>
-          </TacticalCard>
+          </GlassPanel>
 
-          <TacticalCard glowColor="cyan">
-            <div className="p-6 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-cyan-500/20 rounded-lg">
-                  <Target className="w-8 h-8 text-cyan-400" />
+          <GlassPanel className="p-6 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-secondary/20 rounded-xl">
+                <Target className="w-8 h-8 text-foreground/70" />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Opportunities Found
                 </div>
-                <div className="flex-1">
-                  <div className="text-xs font-semibold text-muted-foreground font-mono">
-                    TARGETS ACQUIRED
-                  </div>
-                  <div className="text-3xl font-bold text-cyan-400 font-mono">
-                    <CountUp end={opportunities?.length || 0} duration={1} />
-                  </div>
-                  <div className="text-xs text-muted-foreground">opportunities</div>
+                <div className="text-3xl font-bold text-foreground">
+                  <CountUp end={opportunities?.length || 0} duration={1} />
                 </div>
+                <div className="text-xs text-muted-foreground">targets</div>
               </div>
             </div>
-          </TacticalCard>
+          </GlassPanel>
 
-          <TacticalCard glowColor="amber">
-            <div className="p-6 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-amber-500/20 rounded-lg">
-                  <CheckCircle2 className="w-8 h-8 text-amber-400" />
+          <GlassPanel className="p-6 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-secondary/20 rounded-xl">
+                <CheckCircle2 className="w-8 h-8 text-foreground/70" />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Annual Impact
                 </div>
-                <div className="flex-1">
-                  <div className="text-xs font-semibold text-muted-foreground font-mono">
-                    ANNUAL IMPACT
-                  </div>
-                  <div className="text-3xl font-bold text-amber-400 font-mono">
-                    $<CountUp end={annualSavings} decimals={0} duration={1} />
-                  </div>
-                  <div className="text-xs text-muted-foreground">/year saved</div>
+                <div className="text-3xl font-bold text-foreground">
+                  $<CountUp end={annualSavings} decimals={0} duration={1} />
                 </div>
+                <div className="text-xs text-muted-foreground">/year saved</div>
               </div>
             </div>
-          </TacticalCard>
+          </GlassPanel>
         </div>
 
         {/* Tabs */}
@@ -316,17 +309,15 @@ export default function BillNegotiation() {
 
           <TabsContent value="opportunities" className="space-y-4">
             {opportunities?.filter(o => o.status === 'identified').length === 0 ? (
-              <TacticalCard>
-                <div className="p-8 text-center">
-                  <p className="text-muted-foreground mb-4">
-                    No negotiation opportunities found yet.
-                  </p>
-                  <Button onClick={handleAnalyzeBills} variant="outline">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Analyze Your Bills
-                  </Button>
-                </div>
-              </TacticalCard>
+              <GlassPanel className="p-8 text-center">
+                <p className="text-muted-foreground mb-4">
+                  No negotiation opportunities found yet.
+                </p>
+                <Button onClick={handleAnalyzeBills} variant="outline">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Analyze Your Bills
+                </Button>
+              </GlassPanel>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {opportunities
@@ -351,61 +342,19 @@ export default function BillNegotiation() {
 
           <TabsContent value="requests" className="space-y-4">
             {requests?.length === 0 ? (
-              <TacticalCard>
-                <div className="p-8 text-center">
-                  <p className="text-muted-foreground">
-                    No negotiation requests yet. Submit a request from the Opportunities tab.
-                  </p>
-                </div>
-              </TacticalCard>
+              <GlassPanel className="p-8 text-center">
+                <p className="text-muted-foreground">
+                  No negotiation requests yet. Submit a request from the Opportunities tab.
+                </p>
+              </GlassPanel>
             ) : (
               <div className="space-y-4">
                 {requests?.map((request) => (
-                  <TacticalCard 
-                    key={request.id}
-                    glowColor={request.status === 'completed' ? 'emerald' : 'cyan'}
-                  >
-                    <div className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-xl text-foreground mb-2">
-                            {request.merchant}
-                          </h3>
-                          <p className="text-sm text-muted-foreground font-mono">
-                            Requested: {new Date(request.requested_at).toLocaleDateString()}
-                          </p>
-                          {request.notes && (
-                            <p className="text-sm text-muted-foreground mt-2">{request.notes}</p>
-                          )}
-                        </div>
-                        
-                        <div className="text-right space-y-2">
-                          <Badge 
-                            variant={request.status === 'completed' ? 'default' : 'outline'}
-                            className={`font-mono ${
-                              request.status === 'completed' 
-                                ? 'bg-emerald-600' 
-                                : request.status === 'in_progress'
-                                ? 'border-cyan-500 text-cyan-400'
-                                : ''
-                            }`}
-                          >
-                            {request.status.replace('_', ' ').toUpperCase()}
-                          </Badge>
-                          
-                          {request.status === 'completed' && request.actual_savings && (
-                            <div className="pt-2">
-                              <div className="text-xs text-muted-foreground font-mono">SAVINGS</div>
-                              <div className="text-2xl font-bold text-emerald-400 font-mono">
-                                ${Number(request.actual_savings).toFixed(2)}
-                              </div>
-                              <div className="text-xs text-emerald-300">/month</div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                  <GlassPanel key={request.id} className="p-6">
+                    <div className="flex items-start justify-between">
+...
                     </div>
-                  </TacticalCard>
+                  </GlassPanel>
                 ))}
               </div>
             )}

@@ -1,5 +1,5 @@
 import { TrendingUp, Target, DollarSign, Award } from "lucide-react";
-import { TacticalCard } from "./TacticalCard";
+import { GlassPanel } from "@/components/ui/glass-panel";
 
 interface NegotiationMetricsProps {
   requests: any[];
@@ -29,73 +29,65 @@ export function NegotiationMetrics({ requests }: NegotiationMetricsProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <TacticalCard glowColor="emerald">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-2">
-            <DollarSign className="w-6 h-6 text-emerald-400" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Lifetime Savings
-            </span>
-          </div>
-          <div className="text-3xl font-bold text-emerald-400">
-            ${lifetimeSavings.toFixed(0)}
-          </div>
-          <div className="text-sm text-muted-foreground mt-1">
-            ${totalSavings.toFixed(0)}/mo sustained
-          </div>
+      <GlassPanel className="p-6">
+        <div className="flex items-center justify-between mb-2">
+          <DollarSign className="w-6 h-6 text-success" />
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">
+            Lifetime Savings
+          </span>
         </div>
-      </TacticalCard>
+        <div className="text-3xl font-bold text-success">
+          ${lifetimeSavings.toFixed(0)}
+        </div>
+        <div className="text-sm text-muted-foreground mt-1">
+          ${totalSavings.toFixed(0)}/mo sustained
+        </div>
+      </GlassPanel>
 
-      <TacticalCard glowColor="cyan">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-2">
-            <Target className="w-6 h-6 text-cyan-400" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Success Rate
-            </span>
-          </div>
-          <div className="text-3xl font-bold text-cyan-400">
-            {successRate.toFixed(0)}%
-          </div>
-          <div className="text-sm text-muted-foreground mt-1">
-            {completedRequests.length} of {requests.length} negotiations
-          </div>
+      <GlassPanel className="p-6">
+        <div className="flex items-center justify-between mb-2">
+          <Target className="w-6 h-6 text-foreground/60" />
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">
+            Success Rate
+          </span>
         </div>
-      </TacticalCard>
+        <div className="text-3xl font-bold text-foreground">
+          {successRate.toFixed(0)}%
+        </div>
+        <div className="text-sm text-muted-foreground mt-1">
+          {completedRequests.length} of {requests.length} negotiations
+        </div>
+      </GlassPanel>
 
-      <TacticalCard glowColor="cyan">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-2">
-            <TrendingUp className="w-6 h-6 text-cyan-400" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Avg Savings
-            </span>
-          </div>
-          <div className="text-3xl font-bold text-cyan-400">
-            ${avgSavings.toFixed(0)}
-          </div>
-          <div className="text-sm text-muted-foreground mt-1">
-            per negotiation
-          </div>
+      <GlassPanel className="p-6">
+        <div className="flex items-center justify-between mb-2">
+          <TrendingUp className="w-6 h-6 text-accent" />
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">
+            Avg Savings
+          </span>
         </div>
-      </TacticalCard>
+        <div className="text-3xl font-bold text-accent">
+          ${avgSavings.toFixed(0)}
+        </div>
+        <div className="text-sm text-muted-foreground mt-1">
+          per negotiation
+        </div>
+      </GlassPanel>
 
-      <TacticalCard glowColor="amber" hasAlert={bestWin.savings > 0}>
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-2">
-            <Award className="w-6 h-6 text-amber-400" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Best Win
-            </span>
-          </div>
-          <div className="text-3xl font-bold text-amber-400">
-            ${bestWin.savings.toFixed(0)}
-          </div>
-          <div className="text-sm text-muted-foreground mt-1 truncate">
-            {bestWin.merchant || 'No wins yet'}
-          </div>
+      <GlassPanel className="p-6">
+        <div className="flex items-center justify-between mb-2">
+          <Award className="w-6 h-6 text-warning" />
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">
+            Best Win
+          </span>
         </div>
-      </TacticalCard>
+        <div className="text-3xl font-bold text-warning">
+          ${bestWin.savings.toFixed(0)}
+        </div>
+        <div className="text-sm text-muted-foreground mt-1 truncate">
+          {bestWin.merchant || 'No wins yet'}
+        </div>
+      </GlassPanel>
     </div>
   );
 }

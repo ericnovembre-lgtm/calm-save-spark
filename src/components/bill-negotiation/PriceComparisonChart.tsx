@@ -31,9 +31,9 @@ export function PriceComparisonChart({ userPrice, userProvider, competitors }: P
           />
           <Tooltip
             contentStyle={{ 
-              backgroundColor: 'rgba(15, 23, 42, 0.95)', 
-              border: '1px solid rgba(100, 116, 139, 0.3)',
-              borderRadius: '8px'
+              backgroundColor: 'hsl(var(--card))', 
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '12px'
             }}
             formatter={(value: number) => [`$${value.toFixed(2)}/mo`, 'Price']}
           />
@@ -41,7 +41,7 @@ export function PriceComparisonChart({ userPrice, userProvider, competitors }: P
             {data.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={entry.isUser ? 'rgba(239, 68, 68, 0.7)' : 'rgba(6, 182, 212, 0.7)'}
+                fill={entry.isUser ? 'hsl(var(--destructive) / 0.7)' : 'hsl(var(--accent) / 0.7)'}
               />
             ))}
           </Bar>
