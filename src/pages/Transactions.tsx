@@ -21,6 +21,8 @@ import { InsightsPanel } from '@/components/transactions/InsightsPanel';
 import { ScrollToTopButton } from '@/components/transactions/ScrollToTopButton';
 import { AddTransactionDialog } from '@/components/transactions/AddTransactionDialog';
 import { ExportTransactionsDialog } from '@/components/transactions/ExportTransactionsDialog';
+import { RefineSearchDialog } from '@/components/transactions/RefineSearchDialog';
+import { SaveReportDialog } from '@/components/transactions/SaveReportDialog';
 import { AnomalyScanner } from '@/components/transactions/AnomalyScanner';
 import { useTransactionAnomalyDetection } from "@/hooks/useTransactionAnomalyDetection";
 
@@ -31,6 +33,8 @@ export default withPageMemo(function Transactions() {
   const [userId, setUserId] = useState<string>();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isRefineSearchOpen, setIsRefineSearchOpen] = useState(false);
+  const [isSaveReportOpen, setIsSaveReportOpen] = useState(false);
   
   // Anomaly detection
   const { anomalies } = useTransactionAnomalyDetection('30d');
@@ -88,6 +92,18 @@ export default withPageMemo(function Transactions() {
     setSearchQuery('');
   }, []);
 
+  const handleRefineSearch = usePageCallback(() => {
+    setIsRefineSearchOpen(true);
+  }, []);
+
+  const handleSaveReport = usePageCallback(() => {
+    setIsSaveReportOpen(true);
+  }, []);
+
+  const handleApplyRefinement = usePageCallback((newFilters: any) => {
+    setFilters(newFilters);
+  }, []);
+
   return (
     <>
       <AppLayout>
@@ -136,8 +152,8 @@ export default withPageMemo(function Transactions() {
                 : undefined
             }
             insights={insightData.insight}
-            onRefineSearch={() => toast.info('Refine search coming soon!')}
-            onSaveReport={() => toast.info('Save report coming soon!')}
+            onRefineSearch={handleRefineSearch}
+            onSaveReport={handleSaveReport}
           />
         )}
 
@@ -169,6 +185,27 @@ export default withPageMemo(function Transactions() {
       transactions={allTransactions}
       filters={filters}
     />
+
+    {hasActiveSearch && (
+      <>
+        <RefineSearchDialog
+          query={searchQuery}
+          currentFilters={filters}
+          transactionCount={allTransactions.length}
+          isOpen={isRefineSearchOpen}
+          onClose={() => setIsRefineSearchOpen(false)}
+          onApplyRefinement={handleApplyRefinement}
+        />
+
+        <SaveReportDialog
+          query={searchQuery}
+          filters={filters}
+          transactionCount={allTransactions.length}
+          isOpen={isSaveReportOpen}
+          onClose={() => setIsSaveReportOpen(false)}
+        />
+      </>
+    )}
   </>
   );
 }, 'Transactions');

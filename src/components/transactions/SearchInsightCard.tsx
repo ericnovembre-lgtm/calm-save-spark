@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import CountUp from "react-countup";
 import { format, differenceInDays } from "date-fns";
+import { toast } from "sonner";
 
 interface SearchInsightCardProps {
   query: string;
@@ -58,12 +59,24 @@ export function SearchInsightCard({
 
             <div className="flex items-center gap-2">
               {onRefineSearch && (
-                <Button variant="outline" size="sm" onClick={onRefineSearch}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    onRefineSearch();
+                  }}
+                >
                   Refine
                 </Button>
               )}
               {onSaveReport && (
-                <Button variant="outline" size="sm" onClick={onSaveReport}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    onSaveReport();
+                  }}
+                >
                   Save Report
                 </Button>
               )}

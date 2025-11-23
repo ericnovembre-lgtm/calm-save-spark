@@ -10,6 +10,7 @@ interface NewTransaction {
   transaction_date: string;
   description?: string;
   account_id?: string;
+  enrichment_metadata?: any;
 }
 
 export function useAddTransaction() {
@@ -31,10 +32,7 @@ export function useAddTransaction() {
           transaction_date: transaction.transaction_date,
           description: transaction.description,
           account_id: transaction.account_id,
-          enrichment_metadata: {
-            manually_added: true,
-            added_at: new Date().toISOString(),
-          },
+          enrichment_metadata: transaction.enrichment_metadata as any,
         })
         .select()
         .single();
