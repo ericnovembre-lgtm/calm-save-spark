@@ -15,6 +15,27 @@ export function useBillScanner() {
   const [isScanning, setIsScanning] = useState(false);
   const [analysis, setAnalysis] = useState<BillAnalysis | null>(null);
 
+  const generateRandomBill = async () => {
+    setIsScanning(true);
+    setAnalysis(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-bill-document', {
+        body: { generateRandom: true },
+      });
+
+      if (error) throw error;
+
+      setAnalysis(data);
+      toast.success('AI generated a realistic negotiation scenario!');
+    } catch (error) {
+      console.error('Error generating random bill:', error);
+      toast.error('Failed to generate scenario. Please try again.');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
   const scanBill = async (file: File) => {
     if (!file || file.type !== 'application/pdf') {
       toast.error('Please upload a PDF file');
@@ -60,6 +81,7 @@ export function useBillScanner() {
 
   return {
     scanBill,
+    generateRandomBill,
     isScanning,
     analysis,
     clearAnalysis,

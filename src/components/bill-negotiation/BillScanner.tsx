@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion } from "framer-motion";
-import { Upload, FileText, TrendingDown, Target } from "lucide-react";
+import { Upload, FileText, TrendingDown, Target, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ interface BillScannerProps {
 }
 
 export function BillScanner({ onScanComplete }: BillScannerProps) {
-  const { scanBill, isScanning, analysis, clearAnalysis } = useBillScanner();
+  const { scanBill, generateRandomBill, isScanning, analysis, clearAnalysis } = useBillScanner();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -47,7 +47,10 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
             <ScanningAnimation />
             <div className="text-center">
               <p className="text-cyan-400 font-mono text-sm animate-pulse">
-                ANALYZING CONTRACT TERMS...
+                {analysis ? 'ANALYZING DOCUMENT...' : 'GENERATING NEGOTIATION SCENARIO...'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {analysis ? 'AI is extracting negotiation leverage points' : 'AI is creating realistic bill with hidden fees'}
               </p>
             </div>
           </div>
@@ -191,6 +194,30 @@ export function BillScanner({ onScanComplete }: BillScannerProps) {
             </div>
           </Card>
         </motion.div>
+      )}
+
+      {/* OR Divider */}
+      {!analysis && (
+        <>
+          <div className="flex items-center gap-4">
+            <div className="flex-1 border-t border-slate-700" />
+            <span className="text-sm text-muted-foreground font-mono">OR</span>
+            <div className="flex-1 border-t border-slate-700" />
+          </div>
+
+          {/* Generate Sample Bill Button */}
+          <Button
+            onClick={generateRandomBill}
+            variant="outline"
+            className="w-full border-cyan-500/50 hover:bg-cyan-950/30 hover:border-cyan-400 transition-all group"
+            disabled={isScanning}
+          >
+            <Sparkles className="w-4 h-4 mr-2 group-hover:text-cyan-400 transition-colors" />
+            <span className="group-hover:text-cyan-400 transition-colors">
+              Generate Sample Bill (AI Demo)
+            </span>
+          </Button>
+        </>
       )}
     </div>
   );
