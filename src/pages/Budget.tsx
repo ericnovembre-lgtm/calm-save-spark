@@ -331,14 +331,34 @@ export default function Budget() {
   if (budgetsLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="flex items-center gap-3 p-6 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50">
-            <div className="animate-spin">
+        <motion.div 
+          className="flex items-center justify-center min-h-[50vh]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <motion.div 
+            className="flex items-center gap-3 p-6 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
               <Target className="w-6 h-6 text-primary" />
-            </div>
-            <span className="text-muted-foreground">Loading budgets...</span>
-          </div>
-        </div>
+            </motion.div>
+            <motion.span 
+              className="text-muted-foreground"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              Loading budgets...
+            </motion.span>
+          </motion.div>
+        </motion.div>
       </AppLayout>
     );
   }
@@ -382,34 +402,49 @@ export default function Budget() {
         </Suspense>
 
         {/* Header */}
-        <BudgetHeader
-          activeView={activeView}
-          onViewChange={setActiveView}
-          onCreateBudget={() => setShowCreateModal(true)}
-          onExport={() => setShowExportDialog(true)}
-          onManageRules={() => setShowRuleManager(true)}
-          budgetCount={budgets.length}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <BudgetHeader
+            activeView={activeView}
+            onViewChange={setActiveView}
+            onCreateBudget={() => setShowCreateModal(true)}
+            onExport={() => setShowExportDialog(true)}
+            onManageRules={() => setShowRuleManager(true)}
+            budgetCount={budgets.length}
+          />
+        </motion.div>
 
         {/* Quick Actions for Advanced Features */}
-        <div className="flex gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            onClick={() => setShowTemplatesLibrary(true)}
-            className="gap-2"
-          >
-            <BookOpen className="w-4 h-4" />
-            Templates
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setShowRecurringManager(true)}
-            className="gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Recurring
-          </Button>
-        </div>
+        <motion.div 
+          className="flex gap-2 flex-wrap"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+        >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="outline"
+              onClick={() => setShowTemplatesLibrary(true)}
+              className="gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              Templates
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="outline"
+              onClick={() => setShowRecurringManager(true)}
+              className="gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Recurring
+            </Button>
+          </motion.div>
+        </motion.div>
 
         {/* Quick Budget Creator */}
         <ScrollSection>
@@ -459,22 +494,34 @@ export default function Budget() {
         {/* Automation Promotion */}
         {budgets.length > 0 && (
           <ScrollSection>
-            <Card className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <CalendarCheck className="w-6 h-6 text-green-600" />
-                  <div>
-                    <h3 className="text-lg font-semibold">Automate Budget Transfers</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Schedule automatic savings based on your budget surplus
-                    </p>
+            <motion.div
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Card className="p-6 hover:border-primary/50 transition-colors duration-300">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <motion.div
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    >
+                      <CalendarCheck className="w-6 h-6 text-green-600" />
+                    </motion.div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Automate Budget Transfers</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Schedule automatic savings based on your budget surplus
+                      </p>
+                    </div>
                   </div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button onClick={() => window.location.href = '/automations'} variant="ghost">
+                      Configure
+                    </Button>
+                  </motion.div>
                 </div>
-                <Button onClick={() => window.location.href = '/automations'} variant="ghost">
-                  Configure
-                </Button>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
           </ScrollSection>
         )}
 

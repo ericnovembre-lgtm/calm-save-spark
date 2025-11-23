@@ -191,11 +191,11 @@ export function BudgetCard({
     <motion.div
       id={`budget-card-${budget.id}`}
       ref={setCardElement}
-      variants={fadeInUp}
-      whileHover="hover"
-      initial="initial"
-      animate="animate"
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
       layout
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       style={{ touchAction: remaining > 0 ? 'none' : 'auto' }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}

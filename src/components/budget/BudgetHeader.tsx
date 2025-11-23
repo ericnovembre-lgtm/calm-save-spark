@@ -30,63 +30,101 @@ export function BudgetHeader({
 
   return (
     <motion.div
-      variants={fadeInUp}
-      initial="initial"
-      animate="animate"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="bg-card/80 backdrop-blur-sm rounded-2xl p-6 border border-border/50"
     >
       {/* Header Row */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/20">
+        <motion.div 
+          className="flex items-center gap-3"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
+          <motion.div 
+            className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/20"
+            whileHover={{ scale: 1.05, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             <PieChart className="w-6 h-6 text-primary" />
-          </div>
+          </motion.div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Smart Budgets</h1>
-            <p className="text-muted-foreground mt-1">
+            <motion.h1 
+              className="text-3xl font-bold text-foreground"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.4 }}
+            >
+              Smart Budgets
+            </motion.h1>
+            <motion.p 
+              className="text-muted-foreground mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+            >
               Track spending across {budgetCount} budget{budgetCount !== 1 ? 's' : ''}
-            </p>
+            </motion.p>
           </div>
-        </div>
+        </motion.div>
         
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              soundEffects.click();
-              onManageRules();
-            }}
-            className="gap-2"
+        <motion.div 
+          className="flex flex-wrap gap-2"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.25, duration: 0.4 }}
+        >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                soundEffects.click();
+                onManageRules();
+              }}
+              className="gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              Auto-Categorize
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                soundEffects.click();
+                onExport();
+              }}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          </motion.div>
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
           >
-            <Settings className="w-4 h-4" />
-            Auto-Categorize
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              soundEffects.click();
-              onExport();
-            }}
-            className="gap-2"
-          >
-            <Download className="w-4 h-4" />
-            Export
-          </Button>
-          <MagneticButton
-            onClick={() => {
-              soundEffects.success();
-              onCreateBudget();
-            }}
-            className="gap-2 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
-            magneticRadius={100}
-            strength={0.4}
-          >
-            <Plus className="w-5 h-5" />
-            New Budget
-          </MagneticButton>
-        </div>
+            <MagneticButton
+              onClick={() => {
+                soundEffects.success();
+                onCreateBudget();
+              }}
+              className="gap-2 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+              magneticRadius={100}
+              strength={0.4}
+            >
+              <Plus className="w-5 h-5" />
+              New Budget
+            </MagneticButton>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Tab Navigation */}
