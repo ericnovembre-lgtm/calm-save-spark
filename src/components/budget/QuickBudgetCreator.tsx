@@ -167,122 +167,152 @@ export function QuickBudgetCreator({ onSuccess, userId }: QuickBudgetCreatorProp
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, y: -20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-purple-500/5">
-        {/* Shimmer effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent shimmer" />
+      <motion.div
+        whileHover={{ y: -2, boxShadow: "0 20px 40px -10px rgba(139, 92, 246, 0.3)" }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-purple-500/5">
+          {/* Shimmer effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent shimmer" />
 
-        <div className="relative p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
+          <div className="relative p-6">
+            <div className="flex items-start gap-4">
+              <motion.div 
+                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center flex-shrink-0"
+                animate={{ 
+                  boxShadow: ["0 0 0 0 rgba(139, 92, 246, 0.4)", "0 0 0 10px rgba(139, 92, 246, 0)", "0 0 0 0 rgba(139, 92, 246, 0)"]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <motion.div
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                >
+                  <Sparkles className="w-5 h-5 text-white" />
+                </motion.div>
+              </motion.div>
 
-            <div className="flex-1 space-y-3">
-              <div>
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  Quick Budget Creator
-                  <kbd className="px-2 py-1 text-xs rounded bg-muted">⌘K</kbd>
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Describe your budget in plain English
-                </p>
-              </div>
-
-              <div className="relative">
-                <Input
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={EXAMPLE_PROMPTS[placeholderIndex]}
-                  className="pr-12 text-base"
-                  disabled={isProcessing || isCreating}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && preview) {
-                      createBudget();
-                    }
-                  }}
-                />
-                {isProcessing && (
-                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary animate-spin" />
-                )}
-              </div>
-
-              {/* Preview Card */}
-              <AnimatePresence>
-                {preview && !isProcessing && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
+              <div className="flex-1 space-y-3">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    Quick Budget Creator
+                    <motion.kbd 
+                      className="px-2 py-1 text-xs rounded bg-muted"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      ⌘K
+                    </motion.kbd>
+                  </h3>
+                  <motion.p 
+                    className="text-sm text-muted-foreground"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.15 }}
                   >
-                    <Card className="p-4 border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-purple-500/10">
-                      <div className="flex items-start gap-4">
-                        {IconComponent && (
-                          <motion.div
-                            initial={{ scale: 0, x: -20 }}
-                            animate={{ scale: 1, x: 0 }}
-                            transition={{ type: 'spring', stiffness: 200 }}
-                            className="w-12 h-12 rounded-lg flex items-center justify-center"
-                            style={{ backgroundColor: `${preview.color}20` }}
-                          >
-                            <IconComponent className="w-6 h-6" style={{ color: preview.color }} />
-                          </motion.div>
-                        )}
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold">{preview.category}</span>
-                            <span className="text-xs text-muted-foreground">• {preview.timeframe}</span>
-                            {preview.autoRenew && (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-600">
-                                Auto-renew
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-2xl font-bold font-mono tabular-nums" style={{ color: preview.color }}>
-                            ${preview.amount.toFixed(2)}
-                          </div>
-                          {preview.notes && (
-                            <p className="text-sm text-muted-foreground mt-2">{preview.notes}</p>
-                          )}
-                        </div>
+                    Describe your budget in plain English
+                  </motion.p>
+                </motion.div>
 
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setPreview(null)}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={createBudget}
-                            disabled={isCreating}
-                            className="gap-2"
-                          >
-                            {isCreating ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Check className="w-4 h-4" />
+                <div className="relative">
+                  <Input
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={EXAMPLE_PROMPTS[placeholderIndex]}
+                    className="pr-12 text-base"
+                    disabled={isProcessing || isCreating}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && preview) {
+                        createBudget();
+                      }
+                    }}
+                  />
+                  {isProcessing && (
+                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary animate-spin" />
+                  )}
+                </div>
+
+                {/* Preview Card */}
+                <AnimatePresence>
+                  {preview && !isProcessing && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Card className="p-4 border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-purple-500/10">
+                        <div className="flex items-start gap-4">
+                          {IconComponent && (
+                            <motion.div
+                              initial={{ scale: 0, x: -20 }}
+                              animate={{ scale: 1, x: 0 }}
+                              transition={{ type: 'spring', stiffness: 200 }}
+                              className="w-12 h-12 rounded-lg flex items-center justify-center"
+                              style={{ backgroundColor: `${preview.color}20` }}
+                            >
+                              <IconComponent className="w-6 h-6" style={{ color: preview.color }} />
+                            </motion.div>
+                          )}
+                          
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold">{preview.category}</span>
+                              <span className="text-xs text-muted-foreground">• {preview.timeframe}</span>
+                              {preview.autoRenew && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-600">
+                                  Auto-renew
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-2xl font-bold font-mono tabular-nums" style={{ color: preview.color }}>
+                              ${preview.amount.toFixed(2)}
+                            </div>
+                            {preview.notes && (
+                              <p className="text-sm text-muted-foreground mt-2">{preview.notes}</p>
                             )}
-                            Create
-                          </Button>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setPreview(null)}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={createBudget}
+                              disabled={isCreating}
+                              className="gap-2"
+                            >
+                              {isCreating ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Check className="w-4 h-4" />
+                              )}
+                              Create
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      </Card>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </motion.div>
 
       <style>{`
         @keyframes shimmer {
