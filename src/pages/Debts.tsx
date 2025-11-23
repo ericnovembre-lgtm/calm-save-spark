@@ -16,6 +16,10 @@ import { DebtCardGrid } from '@/components/debt/DebtCardGrid';
 import { DebtMountainVisualizer } from '@/components/debt/DebtMountainVisualizer';
 import { CostOfWaitingBadge } from '@/components/debt/CostOfWaitingBadge';
 import { StrategyToggle } from '@/components/debt/StrategyToggle';
+import { DebtPayoffCalculator } from '@/components/debt/DebtPayoffCalculator';
+import { DebtComparisonTool } from '@/components/debt/DebtComparisonTool';
+import { DebtMilestoneCelebration } from '@/components/debt/DebtMilestoneCelebration';
+import { useDebtMilestones } from '@/hooks/useDebtMilestones';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -33,6 +37,7 @@ export default function Debts() {
 
   const { debts, isLoading, addDebt, updateDebt, deleteDebt } = useDebts();
   const { payments } = useDebtPayments();
+  const { milestone, dismissMilestone } = useDebtMilestones(debts);
 
   // Optimized debt simulation for Overview tab
   const { summary: currentSummary, simulation: currentSimulation, isLoading: isSimulationLoading } = 
@@ -200,6 +205,12 @@ export default function Debts() {
 
             {/* Cost of Waiting Badge */}
             {debts.length > 0 && <CostOfWaitingBadge debts={debts} />}
+
+            {/* Debt Payoff Calculator */}
+            <DebtPayoffCalculator strategy={debtStrategy} hasDebts={debts.length > 0} />
+
+            {/* Debt Comparison Tool */}
+            <DebtComparisonTool debts={debts} />
 
             {/* Automation Card */}
             <Card className="p-6 border-2 border-primary/20 hover:border-primary/40 transition-colors">
@@ -369,6 +380,9 @@ export default function Debts() {
           debt={editingDebt}
         />
       </div>
+
+      {/* Debt Milestone Celebration */}
+      <DebtMilestoneCelebration milestone={milestone} onDismiss={dismissMilestone} />
     </AppLayout>
   );
 }
