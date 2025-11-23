@@ -6422,6 +6422,51 @@ export type Database = {
           },
         ]
       }
+      recurring_transactions: {
+        Row: {
+          avg_amount: number
+          category: string | null
+          confidence: number
+          created_at: string | null
+          detected_at: string | null
+          expected_date: number | null
+          frequency: string
+          id: string
+          last_occurrence: string
+          merchant: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avg_amount: number
+          category?: string | null
+          confidence: number
+          created_at?: string | null
+          detected_at?: string | null
+          expected_date?: number | null
+          frequency: string
+          id?: string
+          last_occurrence: string
+          merchant: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avg_amount?: number
+          category?: string | null
+          confidence?: number
+          created_at?: string | null
+          detected_at?: string | null
+          expected_date?: number | null
+          frequency?: string
+          id?: string
+          last_occurrence?: string
+          merchant?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           created_at: string | null

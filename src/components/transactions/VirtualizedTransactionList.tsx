@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useOptimizedTransactions } from "@/hooks/useOptimizedTransactions";
 import { TransactionCard } from "./TransactionCard";
+import { SectionHeader } from "./SectionHeader";
 import { LoadingState } from "@/components/LoadingState";
 import { DollarSign, Filter } from "lucide-react";
 import { useMerchantLogoPreload } from "@/hooks/useMerchantLogoPreload";
@@ -11,6 +12,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ANIMATION_DURATION, STAGGER_DELAY } from "@/lib/animation-constants";
+import { differenceInDays, format } from "date-fns";
 
 interface VirtualizedTransactionListProps {
   filters?: {
@@ -50,6 +52,63 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
     [data?.pages]
   );
 
+  // Group transactions by time period
+  const groupedTransactions = usePageMemo(() => {
+    const groups: { title: string; transactions: any[]; total: number }[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const groupMap: Record<string, any[]> = {};
+
+    allTransactions.forEach((tx) => {
+      const txDate = new Date(tx.transaction_date);
+      txDate.setHours(0, 0, 0, 0);
+      const diffDays = differenceInDays(today, txDate);
+
+      let groupKey: string;
+      if (diffDays === 0) groupKey = 'Today';
+      else if (diffDays === 1) groupKey = 'Yesterday';
+      else if (diffDays <= 7) groupKey = 'This Week';
+      else if (diffDays <= 30) groupKey = 'This Month';
+      else groupKey = format(txDate, 'MMMM yyyy');
+
+      if (!groupMap[groupKey]) groupMap[groupKey] = [];
+      groupMap[groupKey].push(tx);
+    });
+
+    // Convert to array and calculate totals
+    Object.entries(groupMap).forEach(([title, transactions]) => {
+      const total = transactions.reduce(
+        (sum, tx) => sum + parseFloat(String(tx.amount)),
+        0
+      );
+      groups.push({ title, transactions, total });
+    });
+
+    return groups;
+  }, [allTransactions]);
+
+  // Flatten grouped data for virtualizer (include headers)
+  const virtualItems = usePageMemo(() => {
+    const items: Array<{ type: 'header' | 'transaction'; data: any; groupTitle?: string }> = [];
+    
+    groupedTransactions.forEach((group) => {
+      items.push({ 
+        type: 'header', 
+        data: { title: group.title, count: group.transactions.length, total: group.total } 
+      });
+      group.transactions.forEach((tx) => {
+        items.push({ type: 'transaction', data: tx, groupTitle: group.title });
+      });
+    });
+
+    if (hasNextPage) {
+      items.push({ type: 'transaction', data: { isLoader: true } });
+    }
+
+    return items;
+  }, [groupedTransactions, hasNextPage]);
+
   // Memoize visible merchants for logo preloading
   const visibleMerchants = usePageMemo(() => 
     allTransactions
@@ -63,10 +122,13 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
 
   // Optimized virtualizer with better size estimation
   const rowVirtualizer = useVirtualizer({
-    count: hasNextPage ? allTransactions.length + 1 : allTransactions.length,
+    count: virtualItems.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 88, // More accurate estimation based on TransactionCard
-    overscan: 3, // Reduced overscan for better performance
+    estimateSize: (index) => {
+      const item = virtualItems[index];
+      return item.type === 'header' ? 48 : 88;
+    },
+    overscan: 3,
     measureElement: (element) => element.getBoundingClientRect().height,
   });
 
@@ -77,7 +139,7 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
     if (!lastItem) return;
 
     if (
-      lastItem.index >= allTransactions.length - 1 &&
+      lastItem.index >= virtualItems.length - 1 &&
       hasNextPage &&
       !isFetchingNextPage
     ) {
@@ -86,7 +148,7 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
   }, [
     hasNextPage,
     fetchNextPage,
-    allTransactions.length,
+    virtualItems.length,
     isFetchingNextPage,
     rowVirtualizer.getVirtualItems(),
   ]);
@@ -146,8 +208,9 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
       >
           <AnimatePresence mode="popLayout">
             {rowVirtualizer.getVirtualItems().map((virtualRow, index) => {
-              const isLoaderRow = virtualRow.index > allTransactions.length - 1;
-              const transaction = allTransactions[virtualRow.index];
+              const item = virtualItems[virtualRow.index];
+
+              if (!item) return null;
 
               return (
                 <motion.div
@@ -178,7 +241,13 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
                 >
-                  {isLoaderRow ? (
+                  {item.type === 'header' ? (
+                    <SectionHeader
+                      title={item.data.title}
+                      count={item.data.count}
+                      total={item.data.total}
+                    />
+                  ) : item.data.isLoader ? (
                     hasNextPage ? (
                       <motion.div 
                         className="p-4 text-center text-sm text-muted-foreground"
@@ -190,7 +259,7 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
                       </motion.div>
                     ) : null
                   ) : (
-                    <MemoizedTransactionCard transaction={transaction} />
+                    <MemoizedTransactionCard transaction={item.data} />
                   )}
                 </motion.div>
               );

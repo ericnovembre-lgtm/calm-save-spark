@@ -1,6 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { VirtualizedTransactionList } from "@/components/transactions/VirtualizedTransactionList";
+import { SearchInsightCard } from "@/components/transactions/SearchInsightCard";
 import { Button } from "@/components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { toast } from "sonner";
@@ -12,14 +13,32 @@ import { ActiveFiltersDisplay } from "@/components/transactions/ActiveFiltersDis
 import { ProgressiveLoader } from "@/components/performance/ProgressiveLoader";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { usePerformanceBudgetAlerts } from "@/hooks/usePerformanceBudgetAlerts";
+import { useOptimizedTransactions } from "@/hooks/useOptimizedTransactions";
+import { useSearchInsights } from "@/hooks/useSearchInsights";
 
 export default withPageMemo(function Transactions() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<any>({});
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Enable performance monitoring
   useWebVitals(true);
   usePerformanceBudgetAlerts(true);
+
+  // Fetch filtered transactions for insights
+  const { data: transactionData } = useOptimizedTransactions(filters);
+  const allTransactions = useMemo(
+    () => transactionData?.pages.flatMap(page => page.transactions) ?? [],
+    [transactionData?.pages]
+  );
+
+  // Get search insights when query and results are available
+  const hasActiveSearch = searchQuery && Object.keys(filters).length > 0;
+  const { data: insightData } = useSearchInsights(
+    hasActiveSearch
+      ? { query: searchQuery, transactions: allTransactions, filters }
+      : null
+  );
 
   // Memoized callbacks for better performance
   const handleAddTransaction = usePageCallback(() => {
@@ -34,8 +53,9 @@ export default withPageMemo(function Transactions() {
     queryClient.invalidateQueries({ queryKey: ['transactions'] });
   }, [queryClient]);
 
-  const handleSearch = usePageCallback((newFilters: any) => {
+  const handleSearch = usePageCallback((newFilters: any, query?: string) => {
     setFilters(newFilters);
+    if (query) setSearchQuery(query);
   }, []);
 
   const handleRemoveFilter = usePageCallback((key: string) => {
@@ -48,6 +68,7 @@ export default withPageMemo(function Transactions() {
 
   const handleClearAllFilters = usePageCallback(() => {
     setFilters({});
+    setSearchQuery('');
   }, []);
 
   return (
@@ -84,6 +105,26 @@ export default withPageMemo(function Transactions() {
             onClearAll={handleClearAllFilters}
           />
         </ProgressiveLoader>
+
+        {/* Search Insights Card */}
+        {insightData && hasActiveSearch && (
+          <SearchInsightCard
+            query={searchQuery}
+            totalAmount={insightData.totalAmount}
+            transactionCount={insightData.transactionCount}
+            dateRange={
+              insightData.dateRange
+                ? {
+                    start: new Date(insightData.dateRange.start),
+                    end: new Date(insightData.dateRange.end),
+                  }
+                : undefined
+            }
+            insights={insightData.insight}
+            onRefineSearch={() => toast.info('Refine search coming soon!')}
+            onSaveReport={() => toast.info('Save report coming soon!')}
+          />
+        )}
 
         {/* Progressive load: Transaction list (after critical UI) */}
         <ProgressiveLoader priority="medium" delay={100}>

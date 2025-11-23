@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { Calendar, Trash2, DollarSign } from "lucide-react";
+import { Calendar, Trash2, DollarSign, ChevronDown, Sparkles } from "lucide-react";
 import { MerchantLogo } from "./MerchantLogo";
 import { AIConfidenceIndicator } from "./AIConfidenceIndicator";
 import { EnrichmentReviewDialog } from "./EnrichmentReviewDialog";
+import { TransactionDetective } from "./TransactionDetective";
+import { RecurringBadge } from "./RecurringBadge";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getCategoryIcon, getCategoryColor } from "@/lib/category-icons";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ANIMATION_DURATION } from "@/lib/animation-constants";
@@ -20,6 +23,11 @@ interface Transaction {
   transaction_date: string;
   category: string;
   enrichment_metadata?: any;
+  recurring_metadata?: {
+    frequency: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+    confidence: number;
+    next_expected?: string;
+  };
   connected_accounts?: {
     institution_name: string;
   } | null;
@@ -31,6 +39,7 @@ interface TransactionCardProps {
 
 export function TransactionCard({ transaction }: TransactionCardProps) {
   const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const amount = parseFloat(String(transaction.amount));
   const metadata = transaction.enrichment_metadata as { 
@@ -42,6 +51,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
   const isAIEnriched = metadata?.ai_cleaned;
   const confidence = metadata?.confidence || 0;
   const isProcessing = metadata?.processing || false;
+  const recurringInfo = transaction.recurring_metadata;
   
   // Swipe gesture state
   const x = useMotionValue(0);
@@ -106,15 +116,16 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
           className="relative"
         >
           <GlassCard className={cn(
-            "mb-2 p-4 cursor-grab active:cursor-grabbing",
+            "mb-2 p-4",
+            isExpanded ? "cursor-default" : "cursor-grab active:cursor-grabbing",
             isProcessing && "relative overflow-hidden"
           )}>
             {/* Processing shimmer overlay */}
             {isProcessing && (
               <motion.div
-                className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/10 to-transparent"
                 animate={{
-                  translateX: ['100%', '100%'],
+                  translateX: ['-100%', '200%'],
                 }}
                 transition={{
                   duration: 2,
@@ -124,7 +135,10 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
               />
             )}
 
-            <div className="flex items-start gap-3">
+            <div 
+              className="flex items-start gap-3 cursor-pointer"
+              onClick={() => !isExpanded && setIsExpanded(true)}
+            >
               <MerchantLogo 
                 merchant={transaction.merchant || 'Unknown'} 
                 size="md"
@@ -135,30 +149,41 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <p className="font-semibold text-foreground truncate">
                     {transaction.merchant || 'Unknown Merchant'}
-                    {isProcessing && (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        Processing...
-                      </span>
-                    )}
                   </p>
-                  {isAIEnriched && confidence > 0.7 && (
-                    <AIConfidenceIndicator
-                      confidence={confidence}
-                      originalMerchant={metadata?.original_merchant}
-                      cleanedName={transaction.merchant || 'Unknown'}
-                      onReview={() => setShowReviewDialog(true)}
-                    />
+                  {isProcessing ? (
+                    <Badge variant="secondary" className="gap-1 text-xs animate-pulse">
+                      <Sparkles className="w-3 h-3" />
+                      Categorizing...
+                    </Badge>
+                  ) : (
+                    <>
+                      {isAIEnriched && confidence > 0.7 && (
+                        <AIConfidenceIndicator
+                          confidence={confidence}
+                          originalMerchant={metadata?.original_merchant}
+                          cleanedName={transaction.merchant || 'Unknown'}
+                          onReview={() => setShowReviewDialog(true)}
+                        />
+                      )}
+                      <Badge 
+                        variant="secondary" 
+                        className={cn(
+                          "text-xs shrink-0 gap-1 border",
+                          categoryColor
+                        )}
+                      >
+                        <CategoryIcon className="w-3 h-3" />
+                        {transaction.category}
+                      </Badge>
+                      {recurringInfo && (
+                        <RecurringBadge
+                          frequency={recurringInfo.frequency}
+                          confidence={recurringInfo.confidence}
+                          nextExpected={recurringInfo.next_expected}
+                        />
+                      )}
+                    </>
                   )}
-                  <Badge 
-                    variant="secondary" 
-                    className={cn(
-                      "text-xs shrink-0 gap-1 border",
-                      categoryColor
-                    )}
-                  >
-                    <CategoryIcon className="w-3 h-3" />
-                    {transaction.category}
-                  </Badge>
                 </div>
               
                 {transaction.description && (
@@ -178,14 +203,44 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
                 </div>
               </div>
               
-              <div className="text-right shrink-0">
-                <p className={`font-bold text-lg ${
-                  amount < 0 ? 'text-red-500' : 'text-green-500'
-                }`}>
-                  {amount < 0 ? '-' : '+'}${Math.abs(amount).toFixed(2)}
-                </p>
+              <div className="text-right shrink-0 flex items-center gap-2">
+                <div>
+                  <p className={`font-bold text-lg ${
+                    amount < 0 ? 'text-destructive' : 'text-success'
+                  }`}>
+                    {amount < 0 ? '-' : '+'}${Math.abs(amount).toFixed(2)}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsExpanded(!isExpanded);
+                  }}
+                >
+                  <motion.div
+                    animate={{ rotate: isExpanded ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </motion.div>
+                </Button>
               </div>
             </div>
+
+            {/* Expanded Detective Section */}
+            <AnimatePresence>
+              {isExpanded && (
+                <TransactionDetective
+                  transactionId={transaction.id}
+                  merchant={transaction.merchant || 'Unknown'}
+                  amount={amount}
+                  category={transaction.category}
+                />
+              )}
+            </AnimatePresence>
           </GlassCard>
         </motion.div>
       </div>
