@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { format } from 'date-fns';
 import { TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ChartWrapper } from '@/components/ui/chart-wrapper';
 
 interface ForecastPoint {
   date: string;
@@ -68,13 +70,19 @@ export const LiquidityForecastChart = ({ demoForecast }: LiquidityForecastChartP
 
   if (isLoading && !demoForecast) {
     return (
-      <div className="bg-card rounded-2xl p-6 shadow-glass border border-glass-border">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-primary" />
-          <h3 className="text-xl font-bold">90-Day Liquidity Forecast</h3>
+      <ChartWrapper delay={0.2}>
+        <div className="bg-card rounded-2xl p-6 shadow-glass border border-glass-border">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            <h3 className="text-xl font-bold">90-Day Liquidity Forecast</h3>
+          </div>
+          <div className="space-y-3">
+            <div className="h-4 bg-muted/30 rounded-full w-3/4 animate-pulse" />
+            <div className="h-4 bg-muted/20 rounded-full w-1/2 animate-pulse" />
+            <div className="h-48 bg-muted/10 rounded-xl animate-pulse" />
+          </div>
         </div>
-        <div className="h-64 bg-muted/20 rounded-xl animate-pulse" />
-      </div>
+      </ChartWrapper>
     );
   }
 
@@ -93,16 +101,21 @@ export const LiquidityForecastChart = ({ demoForecast }: LiquidityForecastChartP
   }
 
   return (
-    <div className="bg-card rounded-2xl p-6 shadow-glass border border-glass-border">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-primary" />
-          <h3 className="text-xl font-bold">90-Day Liquidity Forecast</h3>
+    <ChartWrapper delay={0.2}>
+      <motion.div 
+        className="bg-card rounded-2xl p-6 shadow-glass border border-glass-border hover:shadow-glass-elevated transition-shadow duration-300"
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.2 }}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            <h3 className="text-xl font-bold">90-Day Liquidity Forecast</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Projected safe-to-spend based on your patterns
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Projected safe-to-spend based on your patterns
-        </p>
-      </div>
       
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={forecast} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -137,14 +150,20 @@ export const LiquidityForecastChart = ({ demoForecast }: LiquidityForecastChartP
         </AreaChart>
       </ResponsiveContainer>
       
-      <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-success" />
-          <span>Safe to Spend</span>
-        </div>
-        <span>•</span>
-        <span>Based on spending patterns, bills, and income</span>
-      </div>
-    </div>
+        <motion.div 
+          className="mt-6 flex flex-wrap items-center gap-4 text-xs text-muted-foreground"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-success shadow-sm" />
+            <span>Safe to Spend</span>
+          </div>
+          <span className="hidden sm:inline">•</span>
+          <span>Based on spending patterns, bills, and income</span>
+        </motion.div>
+      </motion.div>
+    </ChartWrapper>
   );
 };

@@ -135,34 +135,57 @@ const Accounts = () => {
         <meta name="description" content="Your liquidity command center" />
       </Helmet>
 
-      <div className="container mx-auto p-6 space-y-8">
+      <div className="container mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <motion.div 
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
           <div>
-            <h1 className="text-4xl font-display font-bold text-foreground mb-2">
+            <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-2">
               Liquidity Command Center
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Visualize, optimize, and move your money
             </p>
           </div>
           {!isDemoMode && (
-            <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {/* Demo Mode Banner */}
         {isDemoMode && (
-          <Alert className="bg-warning/10 border-warning">
-            <AlertCircle className="h-5 w-5" />
-            <AlertTitle>🎭 Demo Mode Active</AlertTitle>
-            <AlertDescription className="flex items-center justify-between">
-              <span>Exploring with sample data. Connect real accounts to get started.</span>
-              <Button variant="outline" size="sm" onClick={disableDemoMode}>
-                Exit Demo
-              </Button>
-            </AlertDescription>
-          </Alert>
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Alert className="bg-warning/10 border-warning backdrop-blur-sm">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <AlertTitle className="text-sm sm:text-base">🎭 Demo Mode Active</AlertTitle>
+              <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <span className="text-sm">Exploring with sample data. Connect real accounts to get started.</span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={disableDemoMode}
+                  className="whitespace-nowrap"
+                >
+                  Exit Demo
+                </Button>
+              </AlertDescription>
+            </Alert>
+          </motion.div>
         )}
 
         {/* Liquidity Hero */}
@@ -175,10 +198,20 @@ const Accounts = () => {
 
         {/* Liquid (Cash) Section */}
         {liquidAccounts.length > 0 && (
-          <section className="space-y-4">
+          <motion.section 
+            className="space-y-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
             <div className="flex items-center gap-3">
-              <div className="h-1 w-8 bg-cyan-500 rounded-full" />
-              <h2 className="text-2xl font-bold text-foreground">Liquid (Cash)</h2>
+              <motion.div 
+                className="h-1 w-8 bg-cyan-500 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: 32 }}
+                transition={{ delay: 0.4, duration: 0.3 }}
+              />
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Liquid (Cash)</h2>
             </div>
             
             {isLoading ? (
@@ -194,7 +227,11 @@ const Accounts = () => {
                     key={account.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ 
+                      delay: 0.5 + index * 0.1,
+                      duration: 0.4,
+                      ease: [0.22, 1, 0.36, 1]
+                    }}
                   >
                     <PhysicalAccountCard
                       id={account.id}
@@ -212,23 +249,38 @@ const Accounts = () => {
                       dragHandlers={getDragHandlers(account.id)}
                       onRegisterDropZone={registerDropZone}
                     />
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </section>
+                </motion.div>
+              ))}
+            </div>
+          )}
+          </motion.section>
         )}
 
         {/* Borrowed (Debt) Section */}
-        <section className="space-y-4">
+        <motion.section 
+          className="space-y-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
           <div className="flex items-center gap-3">
-            <div className="h-1 w-8 bg-rose-500 rounded-full" />
-            <h2 className="text-2xl font-bold text-foreground">Borrowed (Debt)</h2>
+            <motion.div 
+              className="h-1 w-8 bg-rose-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: 32 }}
+              transition={{ delay: 0.5, duration: 0.3 }}
+            />
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Borrowed (Debt)</h2>
           </div>
 
           {/* $ave+ Credit Card Promotion */}
-          <Card className="bg-gradient-to-br from-rose-500/5 to-rose-500/10 border-rose-500/20">
-            <CardHeader>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Card className="bg-gradient-to-br from-rose-500/5 to-rose-500/10 border-rose-500/20 hover:shadow-glass-elevated transition-shadow duration-300">
+              <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2 text-lg">
@@ -252,7 +304,8 @@ const Accounts = () => {
                 Apply for a secured credit card and start building your credit history today.
               </p>
             </CardContent>
-          </Card>
+            </Card>
+          </motion.div>
 
           {debtAccounts.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -261,7 +314,11 @@ const Accounts = () => {
                   key={account.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ 
+                    delay: 0.7 + index * 0.1,
+                    duration: 0.4,
+                    ease: [0.22, 1, 0.36, 1]
+                  }}
                 >
                   <PhysicalAccountCard
                     id={account.id}
@@ -279,14 +336,24 @@ const Accounts = () => {
               ))}
             </div>
           )}
-        </section>
+        </motion.section>
 
         {/* Locked (Investments) Section */}
         {investmentAccounts.length > 0 && (
-          <section className="space-y-4">
+          <motion.section 
+            className="space-y-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
             <div className="flex items-center gap-3">
-              <div className="h-1 w-8 bg-violet-500 rounded-full" />
-              <h2 className="text-2xl font-bold text-foreground">Locked (Investments)</h2>
+              <motion.div 
+                className="h-1 w-8 bg-violet-500 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: 32 }}
+                transition={{ delay: 0.6, duration: 0.3 }}
+              />
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Locked (Investments)</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -295,7 +362,11 @@ const Accounts = () => {
                   key={account.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ 
+                    delay: 0.7 + index * 0.1,
+                    duration: 0.4,
+                    ease: [0.22, 1, 0.36, 1]
+                  }}
                 >
                   <PhysicalAccountCard
                     id={account.id}
@@ -312,33 +383,49 @@ const Accounts = () => {
                 </motion.div>
               ))}
             </div>
-          </section>
+          </motion.section>
         )}
 
         {/* Empty state */}
         {!isLoading && !isDemoMode && accounts?.length === 0 && (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-                  <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-                  <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">No accounts connected yet</h3>
-              <p className="text-muted-foreground text-center mb-6 max-w-md">
-                Connect your first bank account to unlock your liquidity command center
-              </p>
-              <div className="flex gap-4">
-                <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
-                <Button variant="outline" onClick={enableDemoMode}>
-                  <Play className="w-4 h-4 mr-2" />
-                  Try Demo First
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+          >
+            <Card className="border-dashed border-2 hover:border-primary/50 transition-colors duration-300">
+              <CardContent className="flex flex-col items-center justify-center py-12 sm:py-16">
+                <motion.div 
+                  className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4"
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+                  </svg>
+                </motion.div>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">No accounts connected yet</h3>
+                <p className="text-sm sm:text-base text-muted-foreground text-center mb-6 max-w-md px-4">
+                  Connect your first bank account to unlock your liquidity command center
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <LazyPlaidLink onSuccess={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })} />
+                  <Button variant="outline" onClick={enableDemoMode} className="gap-2">
+                    <Play className="w-4 h-4" />
+                    Try Demo First
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
       </div>
 
