@@ -471,6 +471,33 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_cfo_sessions: {
+        Row: {
+          conversation_history: Json | null
+          created_at: string | null
+          id: string
+          last_message_at: string | null
+          message_count: number | null
+          user_id: string
+        }
+        Insert: {
+          conversation_history?: Json | null
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          user_id: string
+        }
+        Update: {
+          conversation_history?: Json | null
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_coaching_sessions: {
         Row: {
           conversation_history: Json | null
@@ -4901,6 +4928,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      liquidity_health_analyses: {
+        Row: {
+          analyzed_at: string | null
+          created_at: string | null
+          health_score: number
+          id: string
+          recommendations: Json
+          risks: Json
+          score_label: string
+          strengths: Json
+          summary: string
+          user_id: string
+        }
+        Insert: {
+          analyzed_at?: string | null
+          created_at?: string | null
+          health_score: number
+          id?: string
+          recommendations: Json
+          risks: Json
+          score_label: string
+          strengths: Json
+          summary: string
+          user_id: string
+        }
+        Update: {
+          analyzed_at?: string | null
+          created_at?: string | null
+          health_score?: number
+          id?: string
+          recommendations?: Json
+          risks?: Json
+          score_label?: string
+          strengths?: Json
+          summary?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       literacy_courses: {
         Row: {
