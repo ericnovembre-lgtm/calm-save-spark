@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, X, Repeat, Sparkles } from "lucide-react";
+import { Plus, Repeat, Sparkles } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { EmptyState } from "@/components/ui/empty-state";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { fadeInUp, staggerContainer } from "@/lib/motion-variants";
 import { PotsGlassCard } from "@/components/pots/PotsGlassCard";
@@ -17,8 +16,10 @@ import { EditPotDialog } from "@/components/pots/EditPotDialog";
 import { AddFundsDialog } from "@/components/pots/AddFundsDialog";
 import { PotsStats } from "@/components/pots/PotsStats";
 import { PotsSkeletonCard } from "@/components/pots/PotsSkeletonCard";
+import { EnhancedEmptyState } from "@/components/pots/EnhancedEmptyState";
 import { usePotGenerator } from "@/hooks/usePotGenerator";
 import { useSavingsPace } from "@/hooks/useSavingsPace";
+import { useRotatingPlaceholder } from "@/hooks/useRotatingPlaceholder";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 
@@ -32,6 +33,7 @@ const Pots = () => {
   const [dreamInput, setDreamInput] = useState("");
   const [showManualDialog, setShowManualDialog] = useState(false);
   const { generatePot, isGenerating } = usePotGenerator();
+  const rotatingPlaceholder = useRotatingPlaceholder(3500);
 
   const { data: pots, isLoading } = useQuery({
     queryKey: ['pots'],
@@ -81,9 +83,10 @@ const Pots = () => {
     }
   };
 
-  const handleGenerate = async () => {
-    if (!dreamInput.trim()) return;
-    await generatePot(dreamInput);
+  const handleGenerate = async (customDream?: string) => {
+    const dream = customDream || dreamInput.trim();
+    if (!dream) return;
+    await generatePot(dream);
     setDreamInput("");
   };
 
@@ -94,19 +97,19 @@ const Pots = () => {
           initial={prefersReducedMotion ? false : "hidden"}
           animate="visible"
           variants={prefersReducedMotion ? {} : fadeInUp}
-          className="flex items-center justify-between gap-4 flex-wrap"
+          className="flex items-center justify-between gap-3 flex-wrap"
         >
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">Visual Vaults</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Watch your dreams materialize as your savings grow</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-foreground">Visual Vaults</h1>
+            <p className="hidden sm:block text-sm text-muted-foreground">Watch your dreams materialize</p>
           </div>
           <Button 
             onClick={() => setShowManualDialog(true)}
-            size="lg"
-            className="gap-2"
+            size="default"
+            className="gap-2 shrink-0"
           >
             <Plus className="w-4 h-4" />
-            Manual
+            <span className="hidden sm:inline">Manual</span>
           </Button>
         </motion.div>
 
@@ -116,14 +119,14 @@ const Pots = () => {
           initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex gap-2 items-end">
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
             <div className="flex-1 relative">
               <Textarea
-                placeholder="What are you dreaming of? 💭 (e.g., A vintage Vespa, Trip to Japan, New MacBook)"
+                placeholder={`What are you dreaming of? 💭 ${rotatingPlaceholder}`}
                 value={dreamInput}
                 onChange={(e) => setDreamInput(e.target.value)}
                 onKeyDown={handleDreamKeyDown}
-                className="text-lg sm:text-2xl font-light resize-none min-h-[80px] bg-glass-subtle border-2 border-primary/30 focus:border-primary transition-all"
+                className="text-base sm:text-lg md:text-xl font-light resize-none min-h-[80px] sm:min-h-[80px] bg-glass-subtle border-2 border-primary/30 focus:border-primary transition-all"
                 disabled={isGenerating}
               />
               {isGenerating && (
@@ -132,23 +135,23 @@ const Pots = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                 >
-                  <Sparkles className="w-6 h-6 animate-spin text-primary mr-2" />
-                  <span className="text-sm text-foreground">Generating your vault...</span>
+                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-primary mr-2" />
+                  <span className="text-xs sm:text-sm text-foreground">Generating vault...</span>
                 </motion.div>
               )}
             </div>
             <Button
-              onClick={handleGenerate}
+              onClick={() => handleGenerate()}
               disabled={!dreamInput.trim() || isGenerating}
               size="lg"
-              className="h-[80px] gap-2 bg-primary hover:bg-primary/90"
+              className="h-12 sm:h-[80px] gap-2 bg-primary hover:bg-primary/90 w-full sm:w-auto"
             >
-              <Sparkles className="w-5 h-5" />
-              Generate
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span>Generate</span>
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Press Enter or click Generate • AI will suggest a target amount and find a perfect image
+          <p className="text-xs text-muted-foreground mt-2 hidden sm:block">
+            Press Enter or click Generate • AI suggests amount & finds image
           </p>
         </motion.div>
 
@@ -160,19 +163,26 @@ const Pots = () => {
         {/* Automation Card */}
         {pots && pots.length > 0 && (
           <motion.div variants={prefersReducedMotion ? {} : fadeInUp}>
-            <Card className="p-6 border border-primary/20 bg-glass">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Repeat className="w-6 h-6 text-primary" />
+            <Card className="p-4 sm:p-6 border border-primary/20 bg-glass">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:justify-between">
+                <div className="flex items-start sm:items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/20 shrink-0">
+                    <Repeat className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Fill Vaults Automatically</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Set recurring deposits to grow your savings pots
+                    <h3 className="text-base sm:text-lg font-semibold">Auto-Fill Vaults</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Recurring deposits
                     </p>
                   </div>
                 </div>
-                <Button onClick={() => window.location.href = '/automations'} variant="outline">
-                  Automate Savings
+                <Button 
+                  onClick={() => window.location.href = '/automations'} 
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto"
+                >
+                  Set Up
                 </Button>
               </div>
             </Card>
@@ -214,11 +224,7 @@ const Pots = () => {
             })}
           </motion.div>
         ) : (
-          <EmptyState
-            icon={Plus}
-            title="No savings pots yet"
-            description="Type your dream above to generate with AI • Or click + Manual for precise control"
-          />
+          <EnhancedEmptyState onQuickCreate={(dream) => handleGenerate(dream)} />
         )}
 
         {/* Impulse Save Coin */}
