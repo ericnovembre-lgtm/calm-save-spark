@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Edit2, Trash2, DollarSign, Target, Calendar, Trophy, Plus } from "lucide-react";
+import { Edit2, Trash2, DollarSign, Target, Calendar, Trophy, Plus, Archive, ArchiveRestore } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { LiquidFillProgress } from "./LiquidFillProgress";
@@ -27,11 +27,14 @@ interface PotsGlassCardProps {
   onEdit: (pot: Pot) => void;
   onDelete: (pot: Pot) => void;
   onAddFunds: (pot: Pot) => void;
+  onArchive?: (potId: string) => void;
   registerDropZone?: (id: string, element: HTMLElement) => void;
   unregisterDropZone?: (id: string) => void;
   hoveredZone?: string | null;
   monthlyPace?: number;
   projectedDate?: Date | null;
+  isArchived?: boolean;
+  dataTour?: string;
 }
 
 export const PotsGlassCard = ({ 
@@ -39,11 +42,14 @@ export const PotsGlassCard = ({
   onEdit, 
   onDelete,
   onAddFunds,
+  onArchive,
   registerDropZone,
   unregisterDropZone,
   hoveredZone,
   monthlyPace = 0,
-  projectedDate
+  projectedDate,
+  isArchived = false,
+  dataTour
 }: PotsGlassCardProps) => {
   const prefersReducedMotion = useReducedMotion();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -103,6 +109,7 @@ export const PotsGlassCard = ({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
       whileHover={prefersReducedMotion ? {} : { scale: 1.02, rotateY: 2 }}
+      data-tour={dataTour}
     >
       <motion.div
         ref={dropZoneRef}
@@ -144,7 +151,7 @@ export const PotsGlassCard = ({
             <h3 className="text-xl font-bold text-foreground flex-1 truncate">
               {pot.name}
             </h3>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1" data-tour="pot-actions">
               <Button
                 variant="ghost"
                 size="icon"
@@ -154,6 +161,21 @@ export const PotsGlassCard = ({
               >
                 <Edit2 className="w-4 h-4" />
               </Button>
+              {onArchive && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onArchive(pot.id)}
+                  className="h-8 w-8 hover:bg-background/20 text-foreground"
+                  aria-label={isArchived ? `Restore ${pot.name}` : `Archive ${pot.name}`}
+                >
+                  {isArchived ? (
+                    <ArchiveRestore className="w-4 h-4" />
+                  ) : (
+                    <Archive className="w-4 h-4" />
+                  )}
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -233,14 +255,17 @@ export const PotsGlassCard = ({
               <PotMilestones progress={progress} targetAmount={pot.target_amount} />
               
               {/* Add Funds Button */}
-              <Button
-                onClick={() => onAddFunds(pot)}
-                className="w-full gap-2 bg-primary/90 hover:bg-primary"
-                size="sm"
-              >
-                <Plus className="w-4 h-4" />
-                Add Funds
-              </Button>
+              {!isArchived && (
+                <Button
+                  onClick={() => onAddFunds(pot)}
+                  className="w-full gap-2 bg-primary/90 hover:bg-primary"
+                  size="sm"
+                  data-tour="add-funds"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Funds
+                </Button>
+              )}
             </div>
           )}
         </div>

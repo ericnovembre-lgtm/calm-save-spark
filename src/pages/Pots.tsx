@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Repeat, Sparkles } from "lucide-react";
+import { Plus, Repeat, Sparkles, Archive, ArchiveRestore, HelpCircle } from "lucide-react";
+import Joyride from 'react-joyride';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,8 +21,11 @@ import { EnhancedEmptyState } from "@/components/pots/EnhancedEmptyState";
 import { usePotGenerator } from "@/hooks/usePotGenerator";
 import { useSavingsPace } from "@/hooks/useSavingsPace";
 import { useRotatingPlaceholder } from "@/hooks/useRotatingPlaceholder";
+import { usePotsTour } from "@/hooks/usePotsTour";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const Pots = () => {
   const { toast } = useToast();
@@ -32,20 +36,49 @@ const Pots = () => {
   const [addFundsPot, setAddFundsPot] = useState<any>(null);
   const [dreamInput, setDreamInput] = useState("");
   const [showManualDialog, setShowManualDialog] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const { generatePot, isGenerating } = usePotGenerator();
   const rotatingPlaceholder = useRotatingPlaceholder(3500);
+  const { run, steps, stepIndex, handleJoyrideCallback, resetTour } = usePotsTour();
 
   const { data: pots, isLoading } = useQuery({
-    queryKey: ['pots'],
+    queryKey: ['pots', showArchived],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pots')
         .select('*')
-        .eq('is_active', true)
+        .eq('is_active', !showArchived)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data;
+    }
+  });
+
+  const archivePotMutation = useMutation({
+    mutationFn: async ({ id, archive }: { id: string; archive: boolean }) => {
+      const { error } = await supabase
+        .from('pots')
+        .update({ is_active: !archive })
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['pots'] });
+      toast({ 
+        title: variables.archive ? "Vault archived!" : "Vault restored!",
+        description: variables.archive 
+          ? "Your vault has been moved to the archive." 
+          : "Your vault is now active again."
+      });
+    },
+    onError: (error) => {
+      toast({ 
+        title: "Failed to update vault", 
+        description: error.message,
+        variant: "destructive" 
+      });
     }
   });
 
@@ -90,8 +123,34 @@ const Pots = () => {
     setDreamInput("");
   };
 
+  const handleArchive = (potId: string) => {
+    archivePotMutation.mutate({ id: potId, archive: true });
+  };
+
+  const handleRestore = (potId: string) => {
+    archivePotMutation.mutate({ id: potId, archive: false });
+  };
+
+  const activePots = pots?.filter(p => !showArchived) || [];
+  const archivedPots = pots?.filter(p => showArchived) || [];
+
   return (
     <AppLayout>
+      <Joyride
+        steps={steps}
+        run={run}
+        stepIndex={stepIndex}
+        continuous
+        showSkipButton
+        showProgress
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            primaryColor: 'hsl(var(--primary))',
+            zIndex: 10000,
+          },
+        }}
+      />
       <div className="container mx-auto p-4 sm:p-6 space-y-6">
         <motion.div 
           initial={prefersReducedMotion ? false : "hidden"}
@@ -103,14 +162,26 @@ const Pots = () => {
             <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-foreground">Visual Vaults</h1>
             <p className="hidden sm:block text-sm text-muted-foreground">Watch your dreams materialize</p>
           </div>
-          <Button 
-            onClick={() => setShowManualDialog(true)}
-            size="default"
-            className="gap-2 shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Manual</span>
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button 
+              variant="ghost"
+              size="icon"
+              onClick={resetTour}
+              className="h-9 w-9"
+              aria-label="Show tour"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </Button>
+            <Button 
+              onClick={() => setShowManualDialog(true)}
+              size="default"
+              className="gap-2"
+              data-tour="manual-button"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Manual</span>
+            </Button>
+          </div>
         </motion.div>
 
         {/* Dream Generator - Hero Input */}
@@ -118,6 +189,7 @@ const Pots = () => {
           className="relative"
           initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          data-tour="dream-generator"
         >
           <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
             <div className="flex-1 relative">
@@ -155,14 +227,28 @@ const Pots = () => {
           </p>
         </motion.div>
 
-        {/* Stats Overview */}
+        {/* Archive Toggle */}
         {pots && pots.length > 0 && (
+          <div className="flex items-center gap-3 justify-end">
+            <Label htmlFor="show-archived" className="text-sm text-muted-foreground cursor-pointer">
+              {showArchived ? 'Viewing Archived' : 'Show Archived'}
+            </Label>
+            <Switch
+              id="show-archived"
+              checked={showArchived}
+              onCheckedChange={setShowArchived}
+            />
+          </div>
+        )}
+
+        {/* Stats Overview */}
+        {pots && pots.length > 0 && !showArchived && (
           <PotsStats pots={pots} />
         )}
 
         {/* Automation Card */}
-        {pots && pots.length > 0 && (
-          <motion.div variants={prefersReducedMotion ? {} : fadeInUp}>
+        {pots && pots.length > 0 && !showArchived && (
+          <motion.div variants={prefersReducedMotion ? {} : fadeInUp} data-tour="automation-card">
             <Card className="p-4 sm:p-6 border border-primary/20 bg-glass">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:justify-between">
                 <div className="flex items-start sm:items-center gap-3">
@@ -207,7 +293,7 @@ const Pots = () => {
             variants={prefersReducedMotion ? {} : staggerContainer}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
           >
-            {pots.map((pot) => {
+            {pots.map((pot, index) => {
               const { monthlyPace, projectedDate } = useSavingsPace(pot);
               
               return (
@@ -217,8 +303,11 @@ const Pots = () => {
                   onEdit={(pot) => setEditPot(pot)}
                   onDelete={(pot) => setDeleteConfirm(pot)}
                   onAddFunds={(pot) => setAddFundsPot(pot)}
+                  onArchive={showArchived ? handleRestore : handleArchive}
                   monthlyPace={monthlyPace}
                   projectedDate={projectedDate}
+                  isArchived={showArchived}
+                  dataTour={index === 0 ? "pot-card" : undefined}
                 />
               );
             })}
