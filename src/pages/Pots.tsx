@@ -13,6 +13,10 @@ import { fadeInUp, staggerContainer } from "@/lib/motion-variants";
 import { PotsGlassCard } from "@/components/pots/PotsGlassCard";
 import { ImpulseSaveCoin } from "@/components/pots/ImpulseSaveCoin";
 import { CreatePotDialog } from "@/components/pots/CreatePotDialog";
+import { EditPotDialog } from "@/components/pots/EditPotDialog";
+import { AddFundsDialog } from "@/components/pots/AddFundsDialog";
+import { PotsStats } from "@/components/pots/PotsStats";
+import { PotsSkeletonCard } from "@/components/pots/PotsSkeletonCard";
 import { usePotGenerator } from "@/hooks/usePotGenerator";
 import { useSavingsPace } from "@/hooks/useSavingsPace";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,6 +27,8 @@ const Pots = () => {
   const queryClient = useQueryClient();
   const prefersReducedMotion = useReducedMotion();
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null);
+  const [editPot, setEditPot] = useState<any>(null);
+  const [addFundsPot, setAddFundsPot] = useState<any>(null);
   const [dreamInput, setDreamInput] = useState("");
   const [showManualDialog, setShowManualDialog] = useState(false);
   const { generatePot, isGenerating } = usePotGenerator();
@@ -146,6 +152,11 @@ const Pots = () => {
           </p>
         </motion.div>
 
+        {/* Stats Overview */}
+        {pots && pots.length > 0 && (
+          <PotsStats pots={pots} />
+        )}
+
         {/* Automation Card */}
         {pots && pots.length > 0 && (
           <motion.div variants={prefersReducedMotion ? {} : fadeInUp}>
@@ -172,10 +183,12 @@ const Pots = () => {
           <motion.div 
             initial={prefersReducedMotion ? false : "hidden"}
             animate="visible"
-            variants={prefersReducedMotion ? {} : fadeInUp}
-            className="text-center py-12 text-muted-foreground"
+            variants={prefersReducedMotion ? {} : staggerContainer}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
           >
-            Loading vaults...
+            {[1, 2, 3].map((i) => (
+              <PotsSkeletonCard key={i} />
+            ))}
           </motion.div>
         ) : pots && pots.length > 0 ? (
           <motion.div 
@@ -191,10 +204,9 @@ const Pots = () => {
                 <PotsGlassCard
                   key={pot.id}
                   pot={pot}
-                  onEdit={(pot) => {
-                    toast({ title: "Edit modal coming soon!" });
-                  }}
+                  onEdit={(pot) => setEditPot(pot)}
                   onDelete={(pot) => setDeleteConfirm(pot)}
+                  onAddFunds={(pot) => setAddFundsPot(pot)}
                   monthlyPace={monthlyPace}
                   projectedDate={projectedDate}
                 />
@@ -218,6 +230,20 @@ const Pots = () => {
         <CreatePotDialog 
           open={showManualDialog} 
           onOpenChange={setShowManualDialog}
+        />
+
+        {/* Edit Dialog */}
+        <EditPotDialog
+          open={!!editPot}
+          onOpenChange={(open) => !open && setEditPot(null)}
+          pot={editPot}
+        />
+
+        {/* Add Funds Dialog */}
+        <AddFundsDialog
+          open={!!addFundsPot}
+          onOpenChange={(open) => !open && setAddFundsPot(null)}
+          pot={addFundsPot}
         />
 
         {/* Delete Confirmation Dialog */}
