@@ -36,24 +36,108 @@ serve(async (req) => {
     const goals = goalsResult.data || [];
     const pots = potsResult.data || [];
 
-    const systemPrompt = `You are a financial automation rule parser for $ave+. Parse natural language into structured automation rules.
+    const systemPrompt = `You are an advanced financial automation intelligence for $ave+. Parse natural language into rich, actionable automation rules with visual identity.
 
-Available destinations for transfers:
+VISUAL INTELLIGENCE - Assign semantic icons from Lucide library:
+• Coffee/Cafe → "coffee"
+• Groceries/Food → "shopping-cart" or "apple"
+• Dining/Restaurants → "utensils"
+• Gaming (Steam, Xbox) → "gamepad-2"
+• Streaming (Netflix, Spotify) → "play-circle"
+• Travel → "plane"
+• Gas/Transportation → "fuel"
+• Bills/Utilities → "receipt"
+• Savings → "piggy-bank"
+• Balance operations → "wallet"
+• Scheduled transfers → "calendar"
+• Safety/Protection → "shield-alert"
+• Fun/Leisure → "party-popper"
+
+COLORS - Choose vibrant, contextual Tailwind colors:
+• Shopping/Discretionary → "purple", "pink"
+• Food/Dining → "orange", "amber"
+• Essential Bills → "blue", "cyan"
+• Savings/Goals → "emerald", "green"
+• Warning/Alerts → "rose", "red"
+• Balance operations → "indigo"
+• Gaming/Entertainment → "violet", "purple"
+
+CONFIDENCE SCORING (0-1):
+• 0.9-1.0: Clear, unambiguous input
+• 0.7-0.89: Good understanding, minor ambiguity
+• 0.5-0.69: Partial understanding, needs clarification
+• Below 0.5: Unclear, suggest rephrasing
+
+SEMANTIC TAGS: Add 2-4 relevant tags like:
+["gaming", "transaction-based", "micro-savings"], ["recurring", "weekly", "leisure"], ["safety", "balance-protection"]
+
+EXAMPLES:
+
+Input: "Save $2 every time I buy from Steam"
+Output via create_automation_rule:
+{
+  "rule_name": "Steam Gaming Savings",
+  "rule_type": "transaction_match",
+  "icon": "gamepad-2",
+  "color": "purple",
+  "confidence": 0.95,
+  "semantic_tags": ["gaming", "transaction-based", "micro-savings"],
+  "trigger_condition": {
+    "type": "transaction_match",
+    "merchant": "Steam",
+    "category": "Entertainment"
+  },
+  "action_config": {
+    "type": "transfer_to_pot",
+    "amount": 2
+  }
+}
+
+Input: "If my balance drops below $500, move $50 from Savings"
+Output via create_automation_rule:
+{
+  "rule_name": "Low Balance Safety Net",
+  "rule_type": "balance_threshold",
+  "icon": "shield-alert",
+  "color": "rose",
+  "confidence": 0.92,
+  "semantic_tags": ["safety", "balance-protection", "automated-transfer"],
+  "trigger_condition": {
+    "type": "balance_threshold",
+    "balance_threshold": 500
+  },
+  "action_config": {
+    "type": "transfer_from_pot",
+    "amount": 50,
+    "target_name": "Savings"
+  }
+}
+
+Input: "Put aside $100 every Friday for weekend fun"
+Output via create_automation_rule:
+{
+  "rule_name": "Weekend Fun Fund",
+  "rule_type": "date_based",
+  "icon": "party-popper",
+  "color": "pink",
+  "confidence": 0.97,
+  "semantic_tags": ["recurring", "weekly", "leisure"],
+  "trigger_condition": {
+    "type": "date_based",
+    "frequency": "weekly",
+    "day_of_week": "friday"
+  },
+  "action_config": {
+    "type": "transfer_to_pot",
+    "amount": 100
+  }
+}
+
+Available user destinations:
 Goals: ${goals.map(g => g.name).join(', ') || 'No goals yet'}
 Pots: ${pots.map(p => p.name).join(', ') || 'No pots yet'}
 
-Parse the user's input and extract:
-1. Rule name (short, descriptive)
-2. Rule type (transaction_match, scheduled_transfer, balance_threshold, round_up)
-3. Trigger conditions
-4. Action configuration
-
-Examples:
-- "Save $5 every time I buy coffee" → transaction_match with merchant/category coffee, transfer $5
-- "Transfer $100 every Friday" → scheduled_transfer with weekly frequency, day friday
-- "When balance exceeds $2000, move $500 to savings" → balance_threshold with threshold $2000
-
-Return structured JSON with the rule configuration.`;
+Parse the user's input with visual identity and semantic depth.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -71,50 +155,48 @@ Return structured JSON with the rule configuration.`;
           type: 'function',
           function: {
             name: 'create_automation_rule',
-            description: 'Parse natural language into an automation rule structure',
+            description: 'Create a new automation rule from natural language with visual identity',
             parameters: {
               type: 'object',
               properties: {
-                rule_name: { 
+                rule_name: {
                   type: 'string',
-                  description: 'Short, descriptive name for the rule'
+                  description: 'A clear, descriptive name for the rule'
                 },
                 rule_type: {
                   type: 'string',
-                  enum: ['transaction_match', 'scheduled_transfer', 'balance_threshold', 'round_up'],
-                  description: 'Type of automation rule'
+                  enum: ['transaction_match', 'date_based', 'balance_threshold'],
+                  description: 'The type of trigger for this rule'
+                },
+                icon: {
+                  type: 'string',
+                  description: 'Lucide icon name representing the rule (e.g., "coffee", "gamepad-2", "wallet")'
+                },
+                color: {
+                  type: 'string',
+                  description: 'Tailwind color name for visual identity (e.g., "emerald", "purple", "rose")'
+                },
+                confidence: {
+                  type: 'number',
+                  description: 'Confidence score from 0-1 indicating parsing certainty',
+                  minimum: 0,
+                  maximum: 1
+                },
+                semantic_tags: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Semantic tags for categorization (e.g., ["gaming", "recurring"])'
                 },
                 trigger_condition: {
                   type: 'object',
-                  properties: {
-                    type: { 
-                      type: 'string',
-                      enum: ['transaction_match', 'date_based', 'balance_threshold']
-                    },
-                    merchant: { type: 'string' },
-                    category: { type: 'string' },
-                    frequency: {
-                      type: 'string',
-                      enum: ['daily', 'weekly', 'bi-weekly', 'monthly']
-                    },
-                    day_of_week: { type: 'string' },
-                    balance_threshold: { type: 'number' }
-                  }
+                  description: 'The condition that will trigger this rule'
                 },
                 action_config: {
                   type: 'object',
-                  properties: {
-                    type: {
-                      type: 'string',
-                      enum: ['transfer_to_goal', 'transfer_to_pot', 'round_up']
-                    },
-                    amount: { type: 'number' },
-                    percentage: { type: 'number' },
-                    target_name: { type: 'string' }
-                  }
+                  description: 'The action to take when triggered'
                 }
               },
-              required: ['rule_name', 'rule_type', 'trigger_condition', 'action_config']
+              required: ['rule_name', 'rule_type', 'icon', 'color', 'confidence', 'semantic_tags', 'trigger_condition', 'action_config']
             }
           }
         }],
@@ -136,6 +218,22 @@ Return structured JSON with the rule configuration.`;
     }
 
     const parsedRule = JSON.parse(toolCall.function.arguments);
+
+    // Check confidence score
+    if (parsedRule.confidence < 0.5) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Could not confidently parse your input. Try being more specific.',
+        suggestions: [
+          'Include specific amounts (e.g., "$10")',
+          'Name the merchant or category (e.g., "coffee shops")',
+          'Specify timing (e.g., "every Friday", "when balance is low")'
+        ]
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400
+      });
+    }
 
     // Match target names to actual IDs
     if (parsedRule.action_config.target_name) {
