@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Edit2, Trash2, DollarSign, Target, Calendar, Trophy } from "lucide-react";
+import { Edit2, Trash2, DollarSign, Target, Calendar, Trophy, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { LiquidFillProgress } from "./LiquidFillProgress";
@@ -25,6 +25,7 @@ interface PotsGlassCardProps {
   pot: Pot;
   onEdit: (pot: Pot) => void;
   onDelete: (pot: Pot) => void;
+  onAddFunds: (pot: Pot) => void;
   registerDropZone?: (id: string, element: HTMLElement) => void;
   unregisterDropZone?: (id: string) => void;
   hoveredZone?: string | null;
@@ -36,6 +37,7 @@ export const PotsGlassCard = ({
   pot, 
   onEdit, 
   onDelete,
+  onAddFunds,
   registerDropZone,
   unregisterDropZone,
   hoveredZone,
@@ -215,7 +217,7 @@ export const PotsGlassCard = ({
           
           {/* Progress bar (simple fallback) */}
           {pot.target_amount && (
-            <div className="mt-auto pt-4">
+            <div className="mt-auto pt-4 space-y-3">
               <div className="flex justify-between text-xs text-foreground/60 mb-1">
                 <span>{progress.toFixed(0)}% complete</span>
                 <span>
@@ -224,6 +226,16 @@ export const PotsGlassCard = ({
                   })} remaining
                 </span>
               </div>
+              
+              {/* Add Funds Button */}
+              <Button
+                onClick={() => onAddFunds(pot)}
+                className="w-full gap-2 bg-primary/90 hover:bg-primary"
+                size="sm"
+              >
+                <Plus className="w-4 h-4" />
+                Add Funds
+              </Button>
             </div>
           )}
         </div>
