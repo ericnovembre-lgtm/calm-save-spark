@@ -99,7 +99,7 @@ export default function Debts() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-8 pb-8">
         {/* Contextual Coach Tips */}
         {user && (
           <ContextualCoachTip 
@@ -109,249 +109,416 @@ export default function Debts() {
           />
         )}
 
-        {/* Header */}
-        <Card className="p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-3 rounded-xl bg-primary/10">
-                <TrendingDown className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-foreground">Debt Management</h1>
-                  <motion.button
-                    onClick={() => setShowHelp(!showHelp)}
-                    className="p-2 rounded-lg hover:bg-accent transition-colors"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+        {/* Header Section - More premium feel */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="overflow-hidden border-border/50 shadow-card">
+            <div className="p-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                <div className="flex items-start space-x-4">
+                  <motion.div 
+                    className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 400 }}
                   >
-                    <motion.div animate={{ rotate: showHelp ? 180 : 0 }}>
-                      <Info className="w-5 h-5 text-muted-foreground" />
-                    </motion.div>
-                  </motion.button>
+                    <TrendingDown className="w-7 h-7 text-primary" />
+                  </motion.div>
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h1 className="text-3xl font-bold text-foreground tracking-tight">Debt Crusher</h1>
+                      <motion.button
+                        onClick={() => setShowHelp(!showHelp)}
+                        className="p-2 rounded-lg hover:bg-accent/50 transition-colors"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <motion.div 
+                          animate={{ rotate: showHelp ? 180 : 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Info className="w-5 h-5 text-muted-foreground" />
+                        </motion.div>
+                      </motion.button>
+                    </div>
+                    <p className="text-muted-foreground text-base">
+                      AI-powered strategies to eliminate debt faster
+                    </p>
+                  </div>
                 </div>
-                <p className="text-muted-foreground mt-1">Track and eliminate your debts faster</p>
+                
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    onClick={() => {
+                      setEditingDebt(null);
+                      setShowCreateModal(true);
+                    }}
+                    className="gap-2 px-6 py-6 text-base font-medium shadow-lg"
+                    size="lg"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Add Debt
+                  </Button>
+                </motion.div>
+              </div>
+
+              {/* Help Panel */}
+              <AnimatePresence>
+                {showHelp && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: 'auto', marginTop: 24 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="p-6 rounded-2xl bg-gradient-to-br from-accent/10 to-secondary/10 border border-accent/20"
+                  >
+                    <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2 text-base">
+                      <Info className="w-5 h-5 text-accent" />
+                      How Debt Crusher Works
+                    </h3>
+                    <div className="grid sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
+                      <div className="flex gap-2">
+                        <span className="text-accent font-medium">•</span>
+                        <div>
+                          <strong className="text-foreground">Snowball Method:</strong> Pay smallest debts first for momentum
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="text-accent font-medium">•</span>
+                        <div>
+                          <strong className="text-foreground">Avalanche Method:</strong> Target high interest to save more
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="text-accent font-medium">•</span>
+                        <div>
+                          <strong className="text-foreground">AI Insights:</strong> Personalized predictions and strategies
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="text-accent font-medium">•</span>
+                        <div>
+                          <strong className="text-foreground">Smart Scheduler:</strong> Optimized payment timing
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Tab Navigation - More refined */}
+              <div className="flex gap-2 mt-8 pt-6 border-t border-border/50">
+                {[
+                  { id: 'overview', label: 'Overview', icon: DollarSign },
+                  { id: 'simulator', label: 'Simulator', icon: Zap },
+                  { id: 'analytics', label: 'Analytics', icon: TrendingDown },
+                  { id: 'timeline', label: 'Timeline', icon: Calendar }
+                ].map(tab => (
+                  <motion.button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`px-6 py-3 flex items-center gap-2 rounded-xl font-medium transition-all ${
+                      activeTab === tab.id
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/20'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </motion.button>
+                ))}
               </div>
             </div>
-            
-            <Button
-              onClick={() => {
-                setEditingDebt(null);
-                setShowCreateModal(true);
-              }}
-              className="gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Add Debt
-            </Button>
-          </div>
-
-          {/* Help Panel */}
-          <AnimatePresence>
-            {showHelp && (
-              <motion.div
-                initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-                exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                className="p-4 rounded-lg bg-primary/5 border border-primary/10"
-              >
-                <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                  <Info className="w-4 h-4" />
-                  About Debt Management
-                </h3>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>• <strong>Snowball Method:</strong> Pay off smallest debts first for quick wins</p>
-                  <p>• <strong>Avalanche Method:</strong> Target highest interest rates to save money</p>
-                  <p>• <strong>Smart Simulator:</strong> Compare strategies and see your debt-free date</p>
-                  <p>• <strong>Integration:</strong> Debts automatically factor into your financial health score</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Tab Navigation */}
-          <div className="flex space-x-2 mt-6 border-b border-border">
-            {[
-              { id: 'overview', label: 'Overview', icon: DollarSign },
-              { id: 'simulator', label: 'Payoff Simulator', icon: Zap },
-              { id: 'analytics', label: 'Analytics', icon: TrendingDown },
-              { id: 'timeline', label: 'Timeline', icon: Calendar }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-2 flex items-center space-x-2 border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                <span className="font-medium">{tab.label}</span>
-              </button>
-            ))}
-          </div>
-        </Card>
+          </Card>
+        </motion.div>
 
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-6"
+          >
             {/* Debt Mountain Hero Section */}
             {debts.length > 0 && (
-              <DebtMountainVisualizer
-                simulation={currentSimulation}
-                debtFreeDate={debtFreeDate}
-                monthsToFreedom={monthsToFreedom}
-                isLoading={isSimulationLoading}
-              />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <DebtMountainVisualizer
+                  simulation={currentSimulation}
+                  debtFreeDate={debtFreeDate}
+                  monthsToFreedom={monthsToFreedom}
+                  isLoading={isSimulationLoading}
+                />
+              </motion.div>
             )}
 
-            {/* Debt Freedom Calculator - AI Prediction */}
-            {debts.length > 0 && user && (
-              <DebtFreedomCalculator 
-                debts={debts}
-                userId={user.id}
-                currentStrategy={debtStrategy}
-              />
-            )}
+            {/* AI-Powered Insights Section */}
+            <div className="space-y-4">
+              {/* Debt Freedom Calculator - AI Prediction */}
+              {debts.length > 0 && user && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.15 }}
+                >
+                  <DebtFreedomCalculator 
+                    debts={debts}
+                    userId={user.id}
+                    currentStrategy={debtStrategy}
+                  />
+                </motion.div>
+              )}
 
-            {/* Cost of Waiting Badge */}
-            {debts.length > 0 && <CostOfWaitingBadge debts={debts} />}
-
-            {/* Debt Payoff Calculator */}
-            <DebtPayoffCalculator strategy={debtStrategy} hasDebts={debts.length > 0} />
-
-            {/* Debt Consolidation Analyzer */}
-            {debts.length > 1 && user && (
-              <DebtConsolidationAnalyzer debts={debts} userId={user.id} />
-            )}
-
-            {/* Debt Comparison Tool */}
-            <DebtComparisonTool debts={debts} />
-
-            {/* Automation Card */}
-            <Card className="p-6 border-2 border-primary/20 hover:border-primary/40 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-xl bg-primary/10">
-                    <Timer className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold">Automate Payments</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Schedule recurring debt payments
-                    </p>
-                  </div>
-                </div>
-                <Button onClick={() => navigate('/automations')} variant="outline" size="sm">
-                  Set Up
-                </Button>
-              </div>
-            </Card>
-
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-muted-foreground">Total Debt</h3>
-                  <DollarSign className="w-5 h-5 text-destructive" />
-                </div>
-                <p className="text-3xl font-bold text-foreground">
-                  ${totalDebt.toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Across {debts.length} debt{debts.length !== 1 ? 's' : ''}
-                </p>
-              </Card>
-
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-muted-foreground">Monthly Payment</h3>
-                  <Calendar className="w-5 h-5 text-primary" />
-                </div>
-                <p className="text-3xl font-bold text-foreground">
-                  ${totalActualPayment.toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Min: ${totalMinPayment.toLocaleString()}
-                </p>
-              </Card>
-
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-muted-foreground">Avg Interest Rate</h3>
-                  <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-                </div>
-                <p className="text-3xl font-bold text-foreground">
-                  {avgInterestRate.toFixed(1)}%
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Annual rate
-                </p>
-              </Card>
-
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-muted-foreground">Extra Payment</h3>
-                  <TrendingDown className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </div>
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                  ${(totalActualPayment - totalMinPayment).toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Accelerating payoff
-                </p>
-              </Card>
+              {/* Cost of Waiting Badge */}
+              {debts.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
+                >
+                  <CostOfWaitingBadge debts={debts} />
+                </motion.div>
+              )}
             </div>
 
-            {/* Strategy Toggle */}
+            {/* Tools & Calculators Section */}
+            <div className="space-y-4">
+              {/* Debt Payoff Calculator */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.25 }}
+              >
+                <DebtPayoffCalculator strategy={debtStrategy} hasDebts={debts.length > 0} />
+              </motion.div>
+
+              {/* Debt Consolidation Analyzer */}
+              {debts.length > 1 && user && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3 }}
+                >
+                  <DebtConsolidationAnalyzer debts={debts} userId={user.id} />
+                </motion.div>
+              )}
+
+              {/* Debt Comparison Tool */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.35 }}
+              >
+                <DebtComparisonTool debts={debts} />
+              </motion.div>
+            </div>
+
+            {/* Automation Card - Enhanced design */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+            >
+              <Card className="p-6 border-2 border-accent/30 hover:border-accent/60 transition-all shadow-card hover:shadow-glass-elevated bg-gradient-to-br from-card to-accent/5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <motion.div 
+                      className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <Timer className="w-6 h-6 text-primary" />
+                    </motion.div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground mb-1">Automate Payments</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Set up recurring transfers and never miss a payment
+                      </p>
+                    </div>
+                  </div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button onClick={() => navigate('/automations')} variant="default" size="default" className="gap-2">
+                      <Zap className="w-4 h-4" />
+                      Set Up Automation
+                    </Button>
+                  </motion.div>
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* Summary Cards - More refined with better visual hierarchy */}
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <motion.div whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                <Card className="p-6 border-border/50 shadow-card hover:shadow-glass-elevated transition-shadow duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Total Debt</h3>
+                      <p className="text-3xl font-bold text-foreground tracking-tight">
+                        ${totalDebt.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-destructive/10">
+                      <DollarSign className="w-5 h-5 text-destructive" />
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {debts.length} active debt{debts.length !== 1 ? 's' : ''}
+                  </p>
+                </Card>
+              </motion.div>
+
+              <motion.div whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                <Card className="p-6 border-border/50 shadow-card hover:shadow-glass-elevated transition-shadow duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Monthly Payment</h3>
+                      <p className="text-3xl font-bold text-foreground tracking-tight">
+                        ${totalActualPayment.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Calendar className="w-5 h-5 text-primary" />
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Minimum: ${totalMinPayment.toLocaleString()}
+                  </p>
+                </Card>
+              </motion.div>
+
+              <motion.div whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                <Card className="p-6 border-border/50 shadow-card hover:shadow-glass-elevated transition-shadow duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Avg Interest</h3>
+                      <p className="text-3xl font-bold text-foreground tracking-tight">
+                        {avgInterestRate.toFixed(1)}%
+                      </p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-warning/10">
+                      <AlertCircle className="w-5 h-5 text-warning" />
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Annual percentage rate
+                  </p>
+                </Card>
+              </motion.div>
+
+              <motion.div whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                <Card className="p-6 border-border/50 shadow-card hover:shadow-glass-elevated transition-shadow duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Extra Payment</h3>
+                      <p className="text-3xl font-bold text-success tracking-tight">
+                        ${(totalActualPayment - totalMinPayment).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-success/10">
+                      <TrendingDown className="w-5 h-5 text-success" />
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Accelerating payoff
+                  </p>
+                </Card>
+              </motion.div>
+            </motion.div>
+
+            {/* Strategy Toggle - Enhanced */}
             {debts.length > 0 && (
-              <div className="flex justify-center">
-                <StrategyToggle 
-                  strategy={debtStrategy} 
-                  onChange={setDebtStrategy} 
-                />
-              </div>
+              <motion.div 
+                className="flex justify-center py-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <div className="inline-flex p-2 bg-muted/30 rounded-2xl border border-border/50">
+                  <StrategyToggle 
+                    strategy={debtStrategy} 
+                    onChange={setDebtStrategy} 
+                  />
+                </div>
+              </motion.div>
             )}
 
-            {/* Bills & Subscriptions Card */}
-            <Card className="p-6 border-2 border-accent/50">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-accent/10">
-                    <Calendar className="w-6 h-6 text-accent" />
+            {/* Bills & Subscriptions Card - More refined */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
+              <Card className="p-6 border-2 border-secondary/40 hover:border-secondary/70 transition-all shadow-card hover:shadow-glass-elevated bg-gradient-to-br from-card to-secondary/5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <motion.div 
+                      className="p-4 rounded-2xl bg-gradient-to-br from-accent/10 to-secondary/10"
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 400 }}
+                    >
+                      <Calendar className="w-6 h-6 text-accent" />
+                    </motion.div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground mb-1">Bills & Subscriptions</h3>
+                      <p className="text-sm text-muted-foreground max-w-md">
+                        Monitor recurring expenses and find savings opportunities
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground">Bills & Subscriptions</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Track recurring payments to reduce expenses and optimize your budget
-                    </p>
-                  </div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button 
+                      onClick={() => navigate('/subscriptions')} 
+                      variant="outline"
+                      className="gap-2 whitespace-nowrap border-accent/30 hover:border-accent/60"
+                    >
+                      Manage Bills
+                      <TrendingDown className="w-4 h-4" />
+                    </Button>
+                  </motion.div>
                 </div>
-                <Button 
-                  onClick={() => navigate('/subscriptions')} 
-                  variant="outline"
-                  className="gap-2 whitespace-nowrap"
-                >
-                  View Bills
-                  <TrendingDown className="w-4 h-4" />
-                </Button>
-              </div>
-            </Card>
-
-            {/* Debt Cards */}
-            {debts.length === 0 ? (
-              <Card className="p-12 text-center">
-                <div className="p-6 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-green-500/10">
-                  <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Debt-free!</h3>
-                <p className="text-muted-foreground mb-6">You have no active debts. Great job!</p>
-                <Button onClick={() => setShowCreateModal(true)} className="gap-2">
-                  <Plus className="w-5 h-5" />
-                  Track a Debt
-                </Button>
               </Card>
+            </motion.div>
+
+            {/* Debt Cards - Enhanced empty state */}
+            {debts.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Card className="p-16 text-center border-border/50 shadow-card">
+                  <motion.div 
+                    className="p-8 rounded-full w-28 h-28 mx-auto mb-6 flex items-center justify-center bg-gradient-to-br from-success/10 to-success/20"
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <CheckCircle className="w-14 h-14 text-success" />
+                  </motion.div>
+                  <h3 className="text-2xl font-bold text-foreground mb-3">Debt-Free Living!</h3>
+                  <p className="text-muted-foreground text-base mb-8 max-w-md mx-auto">
+                    You have no active debts. Keep up the excellent financial habits!
+                  </p>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button onClick={() => setShowCreateModal(true)} className="gap-2 px-6 py-6" size="lg">
+                      <Plus className="w-5 h-5" />
+                      Track a Debt
+                    </Button>
+                  </motion.div>
+                </Card>
+              </motion.div>
             ) : (
               <DebtCardGrid
                 debts={debts}
@@ -365,7 +532,7 @@ export default function Debts() {
                 }}
               />
             )}
-          </>
+          </motion.div>
         )}
 
         {/* Simulator Tab */}
