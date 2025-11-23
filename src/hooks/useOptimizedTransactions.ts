@@ -85,8 +85,9 @@ export function useOptimizedTransactions(filters: TransactionFilters = {}) {
       const loadedCount = allPages.length * ITEMS_PER_PAGE;
       return loadedCount < lastPage.total ? allPages.length : undefined;
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes - aggressive caching
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 3 * 60 * 1000, // 3 minutes - aggressive caching
+    gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 }

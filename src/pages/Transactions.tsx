@@ -4,13 +4,11 @@ import { VirtualizedTransactionList } from "@/components/transactions/Virtualize
 import { SearchInsightCard } from "@/components/transactions/SearchInsightCard";
 import { Button } from "@/components/ui/button";
 import { Plus, Download } from "lucide-react";
-import { toast } from "sonner";
 import { withPageMemo, usePageCallback } from "@/lib/performance-utils";
 import { SyncAccountsButton } from "@/components/accounts/SyncAccountsButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { OptimizedSearchBar } from "@/components/search/OptimizedSearchBar";
 import { ActiveFiltersDisplay } from "@/components/transactions/ActiveFiltersDisplay";
-import { ProgressiveLoader } from "@/components/performance/ProgressiveLoader";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { usePerformanceBudgetAlerts } from "@/hooks/usePerformanceBudgetAlerts";
 import { useOptimizedTransactions } from "@/hooks/useOptimizedTransactions";
@@ -56,7 +54,7 @@ export default withPageMemo(function Transactions() {
   );
 
   const hasActiveSearch = searchQuery && Object.keys(filters).length > 0;
-  const { data: insightData } = useSearchInsights(
+  const { data: insightData, isLoading: insightsLoading } = useSearchInsights(
     hasActiveSearch
       ? { query: searchQuery, transactions: allTransactions, filters }
       : null
@@ -107,65 +105,64 @@ export default withPageMemo(function Transactions() {
   return (
     <>
       <AppLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-display font-bold text-foreground mb-2">Transactions</h1>
-            <p className="text-muted-foreground">AI-enhanced transaction tracking with smart insights</p>
+        <div className="space-y-6 pb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-display font-bold text-foreground mb-2">
+                Transactions
+              </h1>
+              <p className="text-muted-foreground">
+                AI-enhanced transaction tracking with smart insights
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <SyncAccountsButton onSyncComplete={handleSyncComplete} />
+              <Button variant="outline" onClick={handleExport}>
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
+              <Button onClick={handleAddTransaction}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Transaction
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <SyncAccountsButton onSyncComplete={handleSyncComplete} />
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button onClick={handleAddTransaction}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Transaction
-            </Button>
-          </div>
-        </div>
 
-        <ProgressiveLoader priority="high">
           <OptimizedSearchBar onSearch={handleSearch} />
-        </ProgressiveLoader>
-        
-        <ProgressiveLoader priority="high" delay={50}>
+
           <ActiveFiltersDisplay
             filters={filters}
             onRemoveFilter={handleRemoveFilter}
             onClearAll={handleClearAllFilters}
           />
-        </ProgressiveLoader>
 
-        {insightData && hasActiveSearch && (
-          <SearchInsightCard
-            query={searchQuery}
-            totalAmount={insightData.totalAmount}
-            transactionCount={insightData.transactionCount}
-            dateRange={
-              insightData.dateRange
-                ? {
-                    start: new Date(insightData.dateRange.start),
-                    end: new Date(insightData.dateRange.end),
-                  }
-                : undefined
-            }
-            insights={insightData.insight}
-            onRefineSearch={handleRefineSearch}
-            onSaveReport={handleSaveReport}
-          />
-        )}
+          {hasActiveSearch && (
+            <SearchInsightCard
+              query={searchQuery}
+              totalAmount={insightData?.totalAmount ?? 0}
+              transactionCount={insightData?.transactionCount ?? allTransactions.length}
+              dateRange={
+                insightData?.dateRange
+                  ? {
+                      start: new Date(insightData.dateRange.start),
+                      end: new Date(insightData.dateRange.end),
+                    }
+                  : undefined
+              }
+              insights={insightData?.insight}
+              onRefineSearch={handleRefineSearch}
+              onSaveReport={handleSaveReport}
+              isLoading={insightsLoading}
+            />
+          )}
 
-        <ProgressiveLoader priority="medium" delay={100}>
-          <VirtualizedTransactionList 
+          <VirtualizedTransactionList
             filters={filters}
             anomalies={anomalies}
             onClearFilters={handleClearAllFilters}
           />
-        </ProgressiveLoader>
-      </div>
-    </AppLayout>
+        </div>
+      </AppLayout>
 
     {userId && <InsightsPanel userId={userId} />}
       

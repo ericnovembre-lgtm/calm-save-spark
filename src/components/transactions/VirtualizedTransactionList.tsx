@@ -4,13 +4,10 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useOptimizedTransactions } from "@/hooks/useOptimizedTransactions";
 import { TransactionCard } from "./TransactionCard";
 import { SectionHeader } from "./SectionHeader";
-import { LoadingState } from "@/components/LoadingState";
-import { DollarSign, Filter } from "lucide-react";
 import { useMerchantLogoPreload } from "@/hooks/useMerchantLogoPreload";
-import { TransactionCardSkeleton } from "./TransactionCardSkeleton";
+import { TransactionListSkeleton } from "./TransactionListSkeleton";
+import { EmptyTransactionsState } from "./EmptyTransactionsState";
 import { usePageMemo } from "@/lib/performance-utils";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Button } from "@/components/ui/button";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ANIMATION_DURATION, STAGGER_DELAY } from "@/lib/animation-constants";
 import { differenceInDays, format } from "date-fns";
@@ -163,47 +160,24 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
   ]);
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3, 4, 5].map(i => (
-          <TransactionCardSkeleton key={i} />
-        ))}
-      </div>
-    );
+    return <TransactionListSkeleton />;
   }
 
   // Check if filters are applied
-  const hasFilters = filters && (
+  const hasFilters = Boolean(filters && (
     filters.category || 
     filters.merchant || 
     filters.amountMin !== undefined || 
     filters.amountMax !== undefined || 
     filters.dateRange || 
     filters.searchQuery
-  );
+  ));
 
   if (allTransactions.length === 0) {
-    if (hasFilters) {
-      // No results with filters applied
-      return (
-        <EmptyState
-          icon={Filter}
-          title="No transactions match your filters"
-          description="Try adjusting your search criteria or clear all filters to see your transactions."
-          actionLabel={onClearFilters ? "Clear All Filters" : undefined}
-          onAction={onClearFilters}
-          variant="transactions"
-        />
-      );
-    }
-    
-    // No transactions at all
     return (
-      <EmptyState
-        icon={DollarSign}
-        title="No transactions yet"
-        description="Connect your bank account or manually add transactions to get started tracking your spending."
-        variant="transactions"
+      <EmptyTransactionsState
+        hasFilters={hasFilters}
+        onClearFilters={onClearFilters}
       />
     );
   }
