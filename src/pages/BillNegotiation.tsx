@@ -9,10 +9,13 @@ import { BillScanner } from "@/components/bill-negotiation/BillScanner";
 import { BillNegotiationScriptDialog } from "@/components/bill-negotiation/BillNegotiationScriptDialog";
 import { NegotiationSuccessDialog } from "@/components/bill-negotiation/NegotiationSuccessDialog";
 import { TacticalCard } from "@/components/bill-negotiation/TacticalCard";
+import { NegotiationTimeline } from "@/components/bill-negotiation/NegotiationTimeline";
+import { NegotiationMetrics } from "@/components/bill-negotiation/NegotiationMetrics";
+import { CompetitorIntelligencePanel } from "@/components/bill-negotiation/CompetitorIntelligencePanel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, DollarSign, CheckCircle2, Target, TrendingUp } from "lucide-react";
+import { RefreshCw, DollarSign, CheckCircle2, Target, TrendingUp, Zap, FileText } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
 
@@ -25,6 +28,7 @@ export default function BillNegotiation() {
   const [selectedOpportunity, setSelectedOpportunity] = useState<any>(null);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [successData, setSuccessData] = useState<any>(null);
+  const [competitorOffer, setCompetitorOffer] = useState<any>(null);
 
   // All query hooks
   const { data: opportunities, isLoading } = useQuery({
@@ -133,8 +137,9 @@ export default function BillNegotiation() {
     });
   };
 
-  const handleGenerateScript = (opportunity: any) => {
+  const handleGenerateScript = (opportunity: any, competitor?: any) => {
     setSelectedOpportunity(opportunity);
+    setCompetitorOffer(competitor || null);
     setScriptDialogOpen(true);
   };
 
@@ -264,12 +269,22 @@ export default function BillNegotiation() {
 
         {/* Tabs */}
         <Tabs defaultValue="opportunities" className="space-y-6">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="opportunities">
+              <Target className="w-4 h-4 mr-2" />
               Opportunities ({opportunities?.filter(o => o.status === 'identified').length || 0})
             </TabsTrigger>
             <TabsTrigger value="requests">
+              <FileText className="w-4 h-4 mr-2" />
               Requests ({requests?.length || 0})
+            </TabsTrigger>
+            <TabsTrigger value="history">
+              <FileText className="w-4 h-4 mr-2" />
+              History ({completedRequests.length})
+            </TabsTrigger>
+            <TabsTrigger value="intelligence">
+              <Zap className="w-4 h-4 mr-2" />
+              Intelligence
             </TabsTrigger>
           </TabsList>
 
@@ -369,6 +384,22 @@ export default function BillNegotiation() {
               </div>
             )}
           </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history" className="space-y-6">
+            {completedRequests.length > 0 && (
+              <NegotiationMetrics requests={requests || []} />
+            )}
+            <NegotiationTimeline requests={completedRequests} />
+          </TabsContent>
+
+          {/* Intelligence Tab */}
+          <TabsContent value="intelligence">
+            <CompetitorIntelligencePanel 
+              opportunities={opportunities || []}
+              onGenerateScript={handleGenerateScript}
+            />
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -379,6 +410,7 @@ export default function BillNegotiation() {
         merchant={selectedOpportunity?.merchant || ''}
         amount={Number(selectedOpportunity?.current_amount || 0)}
         category={selectedOpportunity?.category}
+        competitorOffer={competitorOffer}
       />
 
       <NegotiationSuccessDialog
