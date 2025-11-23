@@ -261,5 +261,11 @@ verify_jwt = true
 [functions.savings-coach]
 verify_jwt = true
 
+[functions.fetch-competitor-pricing]
+verify_jwt = true
+
+[functions.generate-competitor-alerts]
+verify_jwt = false
+
 
 

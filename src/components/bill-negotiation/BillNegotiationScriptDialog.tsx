@@ -14,6 +14,7 @@ interface BillNegotiationScriptDialogProps {
   merchant: string;
   amount: number;
   category?: string;
+  competitorOffer?: any;
 }
 
 export function BillNegotiationScriptDialog({
@@ -22,6 +23,7 @@ export function BillNegotiationScriptDialog({
   merchant,
   amount,
   category,
+  competitorOffer,
 }: BillNegotiationScriptDialogProps) {
   const [script, setScript] = useState("");
   const [loading, setLoading] = useState(false);
@@ -60,6 +62,7 @@ export function BillNegotiationScriptDialog({
           amount,
           category,
           frequency: 'month',
+          competitorOffer,
         },
       });
 
@@ -127,6 +130,14 @@ export function BillNegotiationScriptDialog({
               <Badge variant="secondary">{category}</Badge>
             )}
           </div>
+          {competitorOffer && (
+            <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-amber-400 font-bold">⚡ Leverage:</span>
+                <span className="text-foreground">{competitorOffer.provider} offers {competitorOffer.speed} for ${competitorOffer.monthly_price}/mo</span>
+              </div>
+            </div>
+          )}
         </DialogHeader>
 
         {loading ? (

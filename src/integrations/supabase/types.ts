@@ -2328,6 +2328,92 @@ export type Database = {
         }
         Relationships: []
       }
+      competitor_alerts: {
+        Row: {
+          acknowledged: boolean | null
+          alert_type: string | null
+          competitor_price: number
+          competitor_provider: string
+          created_at: string | null
+          id: string
+          opportunity_id: string | null
+          potential_savings: number
+          user_current_price: number
+          user_id: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          alert_type?: string | null
+          competitor_price: number
+          competitor_provider: string
+          created_at?: string | null
+          id?: string
+          opportunity_id?: string | null
+          potential_savings: number
+          user_current_price: number
+          user_id: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          alert_type?: string | null
+          competitor_price?: number
+          competitor_provider?: string
+          created_at?: string | null
+          id?: string
+          opportunity_id?: string | null
+          potential_savings?: number
+          user_current_price?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_alerts_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "bill_negotiation_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_pricing: {
+        Row: {
+          category: string
+          features: Json | null
+          id: string
+          last_updated: string | null
+          market_region: string | null
+          monthly_price: number
+          plan_name: string | null
+          provider: string
+          source: string | null
+          speed: string | null
+        }
+        Insert: {
+          category: string
+          features?: Json | null
+          id?: string
+          last_updated?: string | null
+          market_region?: string | null
+          monthly_price: number
+          plan_name?: string | null
+          provider: string
+          source?: string | null
+          speed?: string | null
+        }
+        Update: {
+          category?: string
+          features?: Json | null
+          id?: string
+          last_updated?: string | null
+          market_region?: string | null
+          monthly_price?: number
+          plan_name?: string | null
+          provider?: string
+          source?: string | null
+          speed?: string | null
+        }
+        Relationships: []
+      }
       connected_accounts: {
         Row: {
           account_mask: string | null
