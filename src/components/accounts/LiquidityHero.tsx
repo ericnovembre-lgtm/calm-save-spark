@@ -21,7 +21,9 @@ interface HealthAnalysis {
 }
 
 export const LiquidityHero = () => {
-  const { data: liquidity, isLoading } = useLiquidityData();
+  const { data: liquidity, isLoading, error } = useLiquidityData();
+  
+  console.log('[LiquidityHero] State:', { liquidity, isLoading, error });
   const [insight, setInsight] = useState<string>('Calculating your financial runway...');
   const [healthAnalysis, setHealthAnalysis] = useState<HealthAnalysis | null>(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -122,11 +124,25 @@ export const LiquidityHero = () => {
     return 'hsl(0 84% 60%)'; // rose-500
   };
 
+  if (error) {
+    console.error('[LiquidityHero] Error state:', error);
+    return (
+      <div className="relative h-80 rounded-2xl overflow-hidden bg-glass border border-glass-border backdrop-blur-glass">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+          <p className="text-muted-foreground">Error loading liquidity data</p>
+          <p className="text-xs text-muted-foreground mt-2">{error?.message || 'Unknown error'}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading || !liquidity) {
+    console.log('[LiquidityHero] Loading state');
     return (
       <div className="relative h-80 rounded-2xl overflow-hidden bg-glass border border-glass-border backdrop-blur-glass animate-pulse">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="h-8 w-48 bg-muted rounded" />
+          <p className="text-sm text-muted-foreground mt-4">Loading liquidity data...</p>
         </div>
       </div>
     );
