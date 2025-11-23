@@ -7,6 +7,7 @@ import { TransactionDetective } from './TransactionDetective';
 import { MerchantLogo } from './MerchantLogo';
 import { SmartBadges } from './SmartBadges';
 import { QuickActions } from './QuickActions';
+import { TransactionSplitDialog } from './TransactionSplitDialog';
 import { useHighSpendingDetection } from '@/hooks/useHighSpendingDetection';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -35,6 +36,7 @@ interface TransactionCardProps {
 
 export function TransactionCard({ transaction }: TransactionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSplitDialogOpen, setIsSplitDialogOpen] = useState(false);
   const [userId, setUserId] = useState<string>();
   const prefersReducedMotion = useReducedMotion();
   const { toast } = useToast();
@@ -80,7 +82,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
   };
 
   const handleSplit = () => {
-    toast({ title: 'Split transaction', description: 'Feature coming soon!' });
+    setIsSplitDialogOpen(true);
   };
 
   return (
@@ -186,6 +188,19 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
           />
         </motion.div>
       )}
+      
+      <TransactionSplitDialog
+        transaction={{
+          id: transaction.id,
+          merchant: transaction.merchant,
+          description: transaction.description,
+          amount: typeof transaction.amount === 'number' ? transaction.amount : parseFloat(transaction.amount as string),
+          transaction_date: transaction.transaction_date,
+          category: transaction.category,
+        }}
+        isOpen={isSplitDialogOpen}
+        onClose={() => setIsSplitDialogOpen(false)}
+      />
     </motion.div>
   );
 }
