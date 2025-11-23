@@ -1,4 +1,17 @@
 import { Zap, ArrowRight, Percent } from "lucide-react";
+import * as LucideIcons from "lucide-react";
+import { motion } from "framer-motion";
+
+// Helper to render Lucide icons dynamically
+const DynamicIcon = ({ name, className = "" }: { name: string; className?: string }) => {
+  const IconComponent = (LucideIcons as any)[
+    name.split('-').map((w: string) => 
+      w.charAt(0).toUpperCase() + w.slice(1)
+    ).join('')
+  ] || LucideIcons.Zap;
+  
+  return <IconComponent className={className} />;
+};
 
 interface ActionBlockProps {
   actionConfig: {
@@ -8,11 +21,15 @@ interface ActionBlockProps {
     target_name?: string;
     target_id?: string;
   };
+  icon?: string;
+  color?: string;
   className?: string;
 }
 
-export function ActionBlock({ actionConfig, className = "" }: ActionBlockProps) {
+export function ActionBlock({ actionConfig, icon, color = "blue", className = "" }: ActionBlockProps) {
   const getIcon = () => {
+    if (icon) return <DynamicIcon name={icon} className="w-5 h-5" />;
+    
     switch (actionConfig.type) {
       case 'round_up':
         return <Percent className="w-5 h-5" />;
@@ -53,12 +70,22 @@ export function ActionBlock({ actionConfig, className = "" }: ActionBlockProps) 
   };
 
   return (
-    <div className={`logic-block logic-block-action ${className}`}>
-      <div className="logic-block-icon text-blue-400">
+    <motion.div 
+      className={`logic-block logic-block-action border-2 border-${color}-500/30 bg-${color}-500/5 ${className}`}
+      whileHover={{ scale: 1.02, y: -2 }}
+      transition={{ type: "spring", stiffness: 300 }}
+    >
+      <motion.div 
+        className={`logic-block-icon text-${color}-500`}
+        animate={{ scale: [1, 1.1, 1] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
         {getIcon()}
-      </div>
+      </motion.div>
       <div className="logic-block-content">
-        <div className="logic-block-label text-blue-400">ACTION</div>
+        <div className={`logic-block-label text-${color}-500 font-bold tracking-wider`}>
+          ACTION
+        </div>
         <div className="logic-block-title">{getTitle()}</div>
         <div className="logic-block-details">
           {getDetails().map((detail, i) => (
@@ -66,6 +93,6 @@ export function ActionBlock({ actionConfig, className = "" }: ActionBlockProps) 
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
