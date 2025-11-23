@@ -1415,6 +1415,36 @@ export type Database = {
           },
         ]
       }
+      budget_nl_creation_log: {
+        Row: {
+          confidence: number | null
+          created_at: string | null
+          id: string
+          parsed_budget: Json | null
+          raw_input: string
+          user_id: string
+          was_created: boolean | null
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          parsed_budget?: Json | null
+          raw_input: string
+          user_id: string
+          was_created?: boolean | null
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          parsed_budget?: Json | null
+          raw_input?: string
+          user_id?: string
+          was_created?: boolean | null
+        }
+        Relationships: []
+      }
       budget_onboarding: {
         Row: {
           completed: boolean | null
@@ -1444,6 +1474,36 @@ export type Database = {
           first_category_added?: boolean | null
           id?: string
           skipped?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      budget_rebalancing_feedback: {
+        Row: {
+          action: string
+          created_at: string | null
+          feedback_notes: string | null
+          feedback_reason: string | null
+          id: string
+          suggestion_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          feedback_notes?: string | null
+          feedback_reason?: string | null
+          id?: string
+          suggestion_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          feedback_notes?: string | null
+          feedback_reason?: string | null
+          id?: string
+          suggestion_id?: string
           user_id?: string
         }
         Relationships: []

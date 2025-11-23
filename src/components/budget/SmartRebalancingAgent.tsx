@@ -11,20 +11,25 @@ interface RebalancingSuggestion {
   from: {
     budgetId: string;
     name: string;
-    surplus: number;
+    projectedSurplus: number;
   };
   to: {
     budgetId: string;
     name: string;
-    shortage: number;
+    projectedShortage: number;
   };
   amount: number;
   confidence: number;
-  reason: string;
+  reasoning: string;
+  urgency: 'low' | 'medium' | 'high';
+  impact: string;
+  alternativeActions?: string[];
 }
 
 export function SmartRebalancingAgent() {
   const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
+  const [expandedReasoning, setExpandedReasoning] = useState<string | null>(null);
+  const [dismissalReasons, setDismissalReasons] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
 
   const { data: suggestions = [] } = useQuery({
@@ -51,14 +56,25 @@ export function SmartRebalancingAgent() {
           from_budget_id: suggestion.from.budgetId,
           to_budget_id: suggestion.to.budgetId,
           amount: suggestion.amount,
-          reason: suggestion.reason
+          reason: suggestion.reasoning
         }
       });
 
       if (response.error) throw response.error;
       return response.data;
     },
-    onSuccess: (_, suggestion) => {
+    onSuccess: async (_, suggestion) => {
+      // Log feedback
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase.from('budget_rebalancing_feedback').insert({
+          user_id: session.user.id,
+          suggestion_id: `${suggestion.from.budgetId}-${suggestion.to.budgetId}`,
+          action: 'applied',
+          feedback_reason: 'accepted'
+        });
+      }
+      
       queryClient.invalidateQueries({ queryKey: ['user_budgets'] });
       queryClient.invalidateQueries({ queryKey: ['budget_spending'] });
       queryClient.invalidateQueries({ queryKey: ['rebalancing-suggestions'] });
@@ -73,91 +89,190 @@ export function SmartRebalancingAgent() {
     (s: RebalancingSuggestion) => !dismissedSuggestions.has(`${s.from.budgetId}-${s.to.budgetId}`)
   );
 
+  const handleDismiss = async (suggestionId: string, reason: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await supabase.from('budget_rebalancing_feedback').insert({
+        user_id: session.user.id,
+        suggestion_id: suggestionId,
+        action: 'dismissed',
+        feedback_reason: reason as any
+      });
+    }
+    setDismissedSuggestions(prev => new Set(prev).add(suggestionId));
+  };
+
+  const getConfidenceBadge = (confidence: number) => {
+    if (confidence >= 0.9) {
+      return <span className="px-2 py-1 rounded-full bg-green-500/20 text-green-600 text-xs font-medium">Very Confident</span>;
+    } else if (confidence >= 0.7) {
+      return <span className="px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-600 text-xs font-medium">Confident</span>;
+    } else {
+      return <span className="px-2 py-1 rounded-full bg-gray-500/20 text-gray-600 text-xs font-medium">Tentative</span>;
+    }
+  };
+
+  const getUrgencyBadge = (urgency: string) => {
+    const colors = {
+      high: 'bg-red-500/20 text-red-600',
+      medium: 'bg-orange-500/20 text-orange-600',
+      low: 'bg-blue-500/20 text-blue-600'
+    };
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[urgency as keyof typeof colors]}`}>
+        {urgency.charAt(0).toUpperCase() + urgency.slice(1)} Urgency
+      </span>
+    );
+  };
+
   if (activeSuggestions.length === 0) return null;
 
   return (
     <AnimatePresence>
-      {activeSuggestions.slice(0, 2).map((suggestion: RebalancingSuggestion, index: number) => (
-        <motion.div
-          key={`${suggestion.from.budgetId}-${suggestion.to.budgetId}`}
-          initial={{ opacity: 0, y: -20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.95 }}
-          transition={{ delay: index * 0.1 }}
-        >
-          <Card className="p-6 bg-gradient-to-br from-purple-500/10 via-primary/10 to-blue-500/10 border-purple-500/30 backdrop-blur-sm">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
+      {activeSuggestions.slice(0, 2).map((suggestion: RebalancingSuggestion, index: number) => {
+        const suggestionId = `${suggestion.from.budgetId}-${suggestion.to.budgetId}`;
+        const isExpanded = expandedReasoning === suggestionId;
+        
+        return (
+          <motion.div
+            key={suggestionId}
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card className={`p-6 bg-gradient-to-br from-purple-500/10 via-primary/10 to-blue-500/10 border-2 backdrop-blur-sm ${
+              suggestion.urgency === 'high' ? 'border-red-500/40 shadow-lg shadow-red-500/20' : 'border-purple-500/30'
+            }`}>
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3 flex-1">
+                  <motion.div 
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center"
+                    animate={suggestion.urgency === 'high' ? { scale: [1, 1.1, 1] } : {}}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  >
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </motion.div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <h3 className="font-semibold">Smart Rebalancing Suggestion</h3>
+                      {getConfidenceBadge(suggestion.confidence)}
+                      {getUrgencyBadge(suggestion.urgency)}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{suggestion.reasoning}</p>
+                  </div>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 flex-shrink-0"
+                  onClick={() => {
+                    if (!dismissalReasons[suggestionId]) {
+                      setDismissalReasons(prev => ({ ...prev, [suggestionId]: 'show' }));
+                    } else {
+                      handleDismiss(suggestionId, 'other');
+                    }
+                  }}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Dismissal Reason Selection */}
+              {dismissalReasons[suggestionId] === 'show' && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mb-4 p-3 rounded-lg bg-muted/50"
+                >
+                  <p className="text-sm font-medium mb-2">Why not helpful?</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { value: 'amount_too_high', label: 'Amount too high' },
+                      { value: 'wrong_priority', label: 'Category priority wrong' },
+                      { value: 'bad_timing', label: 'Timing not right' },
+                      { value: 'other', label: 'Other reason' }
+                    ].map(reason => (
+                      <Button
+                        key={reason.value}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDismiss(suggestionId, reason.value)}
+                      >
+                        {reason.label}
+                      </Button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex-1 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <p className="text-xs text-muted-foreground mb-1">From</p>
+                  <p className="font-semibold">{suggestion.from.name}</p>
+                  <p className="text-sm text-emerald-500 mt-1 font-mono tabular-nums">
+                    ${suggestion.from.projectedSurplus.toFixed(2)} projected surplus
+                  </p>
+                </div>
+                
+                <ArrowRight className="w-5 h-5 text-primary flex-shrink-0" />
+                
+                <div className="flex-1 p-4 rounded-lg bg-rose-500/10 border border-rose-500/20">
+                  <p className="text-xs text-muted-foreground mb-1">To</p>
+                  <p className="font-semibold">{suggestion.to.name}</p>
+                  <p className="text-sm text-rose-500 mt-1 font-mono tabular-nums">
+                    ${suggestion.to.projectedShortage.toFixed(2)} projected shortage
+                  </p>
+                </div>
+              </div>
+
+              {/* Impact Visualization */}
+              <div className="mb-4 p-4 rounded-lg bg-muted/30">
+                <p className="text-sm font-medium mb-2">Impact</p>
+                <p className="text-sm text-muted-foreground">{suggestion.impact}</p>
+              </div>
+
+              {/* Alternative Actions */}
+              {suggestion.alternativeActions && suggestion.alternativeActions.length > 0 && (
+                <div className="mb-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                  <p className="text-sm font-medium mb-2">Alternative Options</p>
+                  <ul className="space-y-1">
+                    {suggestion.alternativeActions.map((action, i) => (
+                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-blue-500 mt-0.5">•</span>
+                        <span>{action}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold flex items-center gap-2">
-                    Smart Rebalancing Suggestion
-                    <span className="text-xs font-normal text-muted-foreground">
-                      {(suggestion.confidence * 100).toFixed(0)}% confident
-                    </span>
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">{suggestion.reason}</p>
+                  <p className="text-sm text-muted-foreground">Transfer amount</p>
+                  <p className="text-2xl font-bold text-primary font-mono tabular-nums">
+                    ${suggestion.amount.toFixed(2)}
+                  </p>
                 </div>
+                <Button
+                  onClick={() => applyRebalancingMutation.mutate(suggestion)}
+                  disabled={applyRebalancingMutation.isPending}
+                  className="gap-2"
+                >
+                  {applyRebalancingMutation.isPending ? (
+                    <>Processing...</>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Apply Rebalancing
+                    </>
+                  )}
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => {
-                  setDismissedSuggestions(prev => new Set(prev).add(`${suggestion.from.budgetId}-${suggestion.to.budgetId}`));
-                }}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex-1 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                <p className="text-xs text-muted-foreground mb-1">From</p>
-                <p className="font-semibold">{suggestion.from.name}</p>
-                <p className="text-sm text-emerald-500 mt-1 font-mono tabular-nums">
-                  ${suggestion.from.surplus.toFixed(2)} surplus
-                </p>
-              </div>
-              
-              <ArrowRight className="w-5 h-5 text-primary" />
-              
-              <div className="flex-1 p-4 rounded-lg bg-rose-500/10 border border-rose-500/20">
-                <p className="text-xs text-muted-foreground mb-1">To</p>
-                <p className="font-semibold">{suggestion.to.name}</p>
-                <p className="text-sm text-rose-500 mt-1 font-mono tabular-nums">
-                  ${suggestion.to.shortage.toFixed(2)} short
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Transfer amount</p>
-                <p className="text-2xl font-bold text-primary font-mono tabular-nums">
-                  ${suggestion.amount.toFixed(2)}
-                </p>
-              </div>
-              <Button
-                onClick={() => applyRebalancingMutation.mutate(suggestion)}
-                disabled={applyRebalancingMutation.isPending}
-                className="gap-2"
-              >
-                {applyRebalancingMutation.isPending ? (
-                  <>Processing...</>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    Apply Rebalancing
-                  </>
-                )}
-              </Button>
-            </div>
-          </Card>
-        </motion.div>
-      ))}
+            </Card>
+          </motion.div>
+        );
+      })}
     </AnimatePresence>
   );
 }
