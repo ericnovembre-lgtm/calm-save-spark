@@ -279,6 +279,12 @@ verify_jwt = true
 [functions.transfer-between-accounts]
 verify_jwt = true
 
+[functions.ai-cfo]
+verify_jwt = true
+
+[functions.analyze-liquidity-health]
+verify_jwt = true
+
 [functions.suggest-transaction-note]
 verify_jwt = true
 

@@ -11,6 +11,7 @@ import { LiquidityHero } from "@/components/accounts/LiquidityHero";
 import { PhysicalAccountCard } from "@/components/accounts/PhysicalAccountCard";
 import { TransferDialog } from "@/components/accounts/TransferDialog";
 import { YieldHunterChip } from "@/components/accounts/YieldHunterChip";
+import { AICFOAssistant } from "@/components/accounts/AICFOAssistant";
 import { useDragToTransfer } from "@/hooks/useDragToTransfer";
 import { Link } from "react-router-dom";
 
@@ -293,6 +294,9 @@ const Accounts = () => {
 
       {/* Yield Hunter Chip */}
       <YieldHunterChip onTransferClick={handleYieldTransfer} />
+
+      {/* AI CFO Assistant */}
+      <AICFOAssistant />
     </AppLayout>
   );
 };
