@@ -177,11 +177,12 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
           transition={{ duration: 0.3 }}
           className="mt-4 pt-4 border-t border-glass-border"
         >
-          <TransactionDetective 
+          <TransactionDetective
             transactionId={transaction.id}
             merchant={merchant}
             amount={amount}
             category={category}
+            isExpanded={isExpanded}
           />
         </motion.div>
       )}
