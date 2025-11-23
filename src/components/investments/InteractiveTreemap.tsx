@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AssetIntelligenceModal } from './AssetIntelligenceModal';
 
 interface TreemapData {
   name: string;
@@ -16,6 +17,11 @@ interface InteractiveTreemapProps {
 
 export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
   const [zoomedItem, setZoomedItem] = useState<TreemapData | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<{
+    symbol: string;
+    name: string;
+    value: number;
+  } | null>(null);
   
   const totalValue = data.reduce((sum, item) => sum + item.value, 0);
   const displayData = zoomedItem ? (zoomedItem.children || [zoomedItem]) : data;
@@ -63,7 +69,19 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
                   backgroundColor: item.color,
                   opacity: 0.9 
                 }}
-                onClick={() => item.children && setZoomedItem(item)}
+                onClick={() => {
+                  if (item.children) {
+                    setZoomedItem(item);
+                  } else {
+                    // Extract symbol from name (e.g., "NVDA Holdings" -> "NVDA")
+                    const symbol = item.name.split(' ')[0];
+                    setSelectedAsset({
+                      symbol,
+                      name: item.name,
+                      value: item.value,
+                    });
+                  }
+                }}
               >
                 <div>
                   <h4 className="font-semibold text-white text-lg mb-2">
@@ -97,6 +115,14 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
           </p>
         </div>
       )}
+
+      <AssetIntelligenceModal
+        isOpen={!!selectedAsset}
+        onClose={() => setSelectedAsset(null)}
+        assetSymbol={selectedAsset?.symbol || ''}
+        assetName={selectedAsset?.name || ''}
+        currentValue={selectedAsset?.value || 0}
+      />
     </div>
   );
 }

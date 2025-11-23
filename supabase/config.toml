@@ -309,4 +309,10 @@ verify_jwt = true
 [functions.generate-ai-opportunity-scanner]
 verify_jwt = true
 
+[functions.analyze-asset]
+verify_jwt = true
+
+[functions.hedge-fund-rebalancer]
+verify_jwt = true
+
 
