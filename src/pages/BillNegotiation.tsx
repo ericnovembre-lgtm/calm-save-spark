@@ -18,12 +18,15 @@ import { toast } from "sonner";
 
 export default function BillNegotiation() {
   const queryClient = useQueryClient();
+  
+  // All state hooks first
   const [analyzingBills, setAnalyzingBills] = useState(false);
   const [scriptDialogOpen, setScriptDialogOpen] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState<any>(null);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [successData, setSuccessData] = useState<any>(null);
 
+  // All query hooks
   const { data: opportunities, isLoading } = useQuery({
     queryKey: ['bill-opportunities'],
     queryFn: async () => {
@@ -50,6 +53,7 @@ export default function BillNegotiation() {
     },
   });
 
+  // All mutation hooks
   const analyzeMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke('analyze-bills');
@@ -91,36 +95,7 @@ export default function BillNegotiation() {
     },
   });
 
-  const handleAnalyzeBills = async () => {
-    setAnalyzingBills(true);
-    await analyzeMutation.mutateAsync();
-    setAnalyzingBills(false);
-  };
-
-  const handleRequestNegotiation = (opportunity: any) => {
-    requestMutation.mutate({
-      opportunityId: opportunity.id,
-      merchant: opportunity.merchant,
-      currentAmount: opportunity.current_amount,
-    });
-  };
-
-  if (isLoading) return <LoadingState />;
-
-  const totalPotentialSavings = opportunities?.reduce(
-    (sum, o) => sum + Number(o.estimated_savings),
-    0
-  ) || 0;
-
-  const completedRequests = requests?.filter(r => r.status === 'completed') || [];
-  const totalActualSavings = completedRequests.reduce(
-    (sum, r) => sum + Number(r.actual_savings || 0),
-    0
-  );
-
-  const annualSavings = totalActualSavings * 12;
-
-  // Watch for completed requests and show success dialog
+  // Effect hooks after all other hooks
   useEffect(() => {
     if (requests && requests.length > 0) {
       const latestCompleted = requests
@@ -143,10 +118,48 @@ export default function BillNegotiation() {
     }
   }, [requests]);
 
+  // Handler functions
+  const handleAnalyzeBills = async () => {
+    setAnalyzingBills(true);
+    await analyzeMutation.mutateAsync();
+    setAnalyzingBills(false);
+  };
+
+  const handleRequestNegotiation = (opportunity: any) => {
+    requestMutation.mutate({
+      opportunityId: opportunity.id,
+      merchant: opportunity.merchant,
+      currentAmount: opportunity.current_amount,
+    });
+  };
+
   const handleGenerateScript = (opportunity: any) => {
     setSelectedOpportunity(opportunity);
     setScriptDialogOpen(true);
   };
+
+  // Early return AFTER all hooks
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <LoadingState />
+      </AppLayout>
+    );
+  }
+
+  // Derived calculations after loading check
+  const totalPotentialSavings = opportunities?.reduce(
+    (sum, o) => sum + Number(o.estimated_savings),
+    0
+  ) || 0;
+
+  const completedRequests = requests?.filter(r => r.status === 'completed') || [];
+  const totalActualSavings = completedRequests.reduce(
+    (sum, r) => sum + Number(r.actual_savings || 0),
+    0
+  );
+
+  const annualSavings = totalActualSavings * 12;
 
   return (
     <AppLayout>
@@ -359,26 +372,22 @@ export default function BillNegotiation() {
         </Tabs>
       </div>
 
-      {/* Dialogs */}
-      {selectedOpportunity && (
-        <BillNegotiationScriptDialog
-          open={scriptDialogOpen}
-          onOpenChange={setScriptDialogOpen}
-          merchant={selectedOpportunity.merchant}
-          amount={Number(selectedOpportunity.current_amount)}
-          category={selectedOpportunity.category}
-        />
-      )}
+      {/* Dialogs - Always render, control via open prop */}
+      <BillNegotiationScriptDialog
+        open={scriptDialogOpen && selectedOpportunity !== null}
+        onOpenChange={setScriptDialogOpen}
+        merchant={selectedOpportunity?.merchant || ''}
+        amount={Number(selectedOpportunity?.current_amount || 0)}
+        category={selectedOpportunity?.category}
+      />
 
-      {successData && (
-        <NegotiationSuccessDialog
-          open={successDialogOpen}
-          onOpenChange={setSuccessDialogOpen}
-          merchant={successData.merchant}
-          monthlySavings={successData.monthlySavings}
-          yearlySavings={successData.yearlySavings}
-        />
-      )}
+      <NegotiationSuccessDialog
+        open={successDialogOpen && successData !== null}
+        onOpenChange={setSuccessDialogOpen}
+        merchant={successData?.merchant || ''}
+        monthlySavings={successData?.monthlySavings || 0}
+        yearlySavings={successData?.yearlySavings || 0}
+      />
     </AppLayout>
   );
 }
