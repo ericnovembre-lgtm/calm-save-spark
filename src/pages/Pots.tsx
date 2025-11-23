@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { addMonths } from "date-fns";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Repeat, Sparkles, Archive, ArchiveRestore, HelpCircle } from "lucide-react";
@@ -145,6 +146,23 @@ const Pots = () => {
 
   const activePots = pots?.filter(p => !showArchived) || [];
   const archivedPots = pots?.filter(p => showArchived) || [];
+
+  // Pre-calculate pace data for all pots to avoid hooks violation in map loop
+  const potsWithPaceData = useMemo(() => {
+    return pots?.map(pot => {
+      const remaining = pot.target_amount ? pot.target_amount - pot.current_amount : 0;
+      const monthlyPace = 0; // Placeholder until transaction tracking is implemented
+      const projectedDate = pot.target_amount && monthlyPace > 0 && pot.current_amount < pot.target_amount
+        ? addMonths(new Date(), Math.ceil(remaining / monthlyPace))
+        : null;
+      
+      return {
+        ...pot,
+        monthlyPace,
+        projectedDate
+      };
+    }) || [];
+  }, [pots]);
 
   return (
     <AppLayout>
@@ -305,25 +323,21 @@ const Pots = () => {
             variants={prefersReducedMotion ? {} : staggerContainer}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
           >
-            {pots.map((pot, index) => {
-              const { monthlyPace, projectedDate } = useSavingsPace(pot);
-              
-              return (
-                <PotsGlassCard
-                  key={pot.id}
-                  pot={pot}
-                  onEdit={(pot) => setEditPot(pot)}
-                  onDelete={(pot) => setDeleteConfirm(pot)}
-                  onAddFunds={(pot) => setAddFundsPot(pot)}
-                  onArchive={showArchived ? handleRestore : handleArchive}
-                  onGetCoach={handleGetCoach}
-                  monthlyPace={monthlyPace}
-                  projectedDate={projectedDate}
-                  isArchived={showArchived}
-                  dataTour={index === 0 ? "pot-card" : undefined}
-                />
-              );
-            })}
+            {potsWithPaceData.map((pot, index) => (
+              <PotsGlassCard
+                key={pot.id}
+                pot={pot}
+                onEdit={(pot) => setEditPot(pot)}
+                onDelete={(pot) => setDeleteConfirm(pot)}
+                onAddFunds={(pot) => setAddFundsPot(pot)}
+                onArchive={showArchived ? handleRestore : handleArchive}
+                onGetCoach={handleGetCoach}
+                monthlyPace={pot.monthlyPace}
+                projectedDate={pot.projectedDate}
+                isArchived={showArchived}
+                dataTour={index === 0 ? "pot-card" : undefined}
+              />
+            ))}
           </motion.div>
         ) : (
           <EnhancedEmptyState onQuickCreate={(dream) => handleGenerate(dream)} />
