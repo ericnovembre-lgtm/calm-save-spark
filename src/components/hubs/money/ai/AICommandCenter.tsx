@@ -46,13 +46,15 @@ export function AICommandCenter() {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="mb-4 md:mb-6"
     >
       <Card className={cn(
         "overflow-hidden relative",
         "p-3 md:p-4 lg:p-5",
         "bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10",
-        "border border-primary/30 backdrop-blur-sm"
+        "border border-primary/30 backdrop-blur-sm",
+        "shadow-lg shadow-primary/5"
       )}>
         {/* Animated background gradient */}
         <motion.div
@@ -78,16 +80,16 @@ export function AICommandCenter() {
                 }}
                 transition={{ 
                   rotate: { duration: 2, repeat: isAnalyzing ? Infinity : 0, ease: "linear" },
-                  scale: { duration: 1, repeat: isAnalyzing ? Infinity : 0 }
+                  scale: { duration: 1, repeat: isAnalyzing ? Infinity : 0, ease: [0.22, 1, 0.36, 1] }
                 }}
                 className="relative shrink-0"
               >
-                <Brain className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                <Brain className="w-5 h-5 md:w-6 md:h-6 text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]" />
                 {isAnalyzing && (
                   <motion.div
                     className="absolute inset-0 rounded-full border-2 border-primary"
                     animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
                   />
                 )}
               </motion.div>
@@ -116,13 +118,22 @@ export function AICommandCenter() {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: isMobile ? 0 : 0.3, type: "spring" }}
+                transition={{ 
+                  delay: isMobile ? 0 : 0.3, 
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 15
+                }}
                 className="text-center"
               >
-                <div className="text-xl md:text-2xl lg:text-3xl font-bold text-primary">
+                <motion.div 
+                  className="text-xl md:text-2xl lg:text-3xl font-bold text-primary"
+                  animate={!isAnalyzing ? { scale: [1, 1.1, 1] } : {}}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                >
                   {healthScore}
-                </div>
-                <div className="text-[9px] md:text-[10px] text-muted-foreground">
+                </motion.div>
+                <div className="text-[9px] md:text-[10px] text-muted-foreground font-medium">
                   Score
                 </div>
               </motion.div>
@@ -154,19 +165,29 @@ export function AICommandCenter() {
                 key={i}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: isMobile ? 0 : (0.3 + i * 0.1) }}
-                whileHover={{ x: 4, scale: 1.01 }}
+                transition={{ 
+                  delay: isMobile ? 0 : (0.3 + i * 0.1),
+                  duration: 0.4,
+                  ease: [0.22, 1, 0.36, 1]
+                }}
+                whileHover={{ 
+                  x: 4, 
+                  scale: 1.01,
+                  boxShadow: "0 4px 12px -2px hsl(var(--primary) / 0.1)",
+                  transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] }
+                }}
                 className={cn(
                   "flex items-start gap-2 rounded-lg",
                   "bg-background/60 backdrop-blur-sm",
-                  "hover:bg-background/80 transition-colors cursor-pointer",
+                  "hover:bg-background/80 transition-all duration-300 cursor-pointer",
                   "border border-transparent hover:border-primary/20",
-                  "p-2 md:p-2.5"
+                  "p-2 md:p-2.5",
+                  "shadow-sm"
                 )}
               >
-                <Sparkles className="w-3 md:w-3.5 h-3 md:h-3.5 text-primary shrink-0 mt-0.5" />
-                <span className="text-xs md:text-sm leading-tight flex-1">{insight}</span>
-                <TrendingUp className="w-3 h-3 text-green-500 shrink-0 mt-0.5 opacity-60" />
+                <Sparkles className="w-3 md:w-3.5 h-3 md:h-3.5 text-primary shrink-0 mt-0.5 drop-shadow-sm" />
+                <span className="text-xs md:text-sm leading-tight flex-1 font-medium">{insight}</span>
+                <TrendingUp className="w-3 h-3 text-green-500 shrink-0 mt-0.5 opacity-60 drop-shadow-sm" />
               </motion.div>
             ))}
           </div>
