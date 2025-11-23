@@ -11,6 +11,7 @@ import { TransactionSplitDialog } from './TransactionSplitDialog';
 import { useHighSpendingDetection } from '@/hooks/useHighSpendingDetection';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 interface Transaction {
   id: string;
@@ -32,9 +33,15 @@ interface Transaction {
 
 interface TransactionCardProps {
   transaction: Transaction;
+  anomaly?: {
+    anomalyType: string;
+    severity: 'low' | 'medium' | 'high';
+    explanation: string;
+    suggestedAction: string;
+  };
 }
 
-export function TransactionCard({ transaction }: TransactionCardProps) {
+export function TransactionCard({ transaction, anomaly }: TransactionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSplitDialogOpen, setIsSplitDialogOpen] = useState(false);
   const [userId, setUserId] = useState<string>();
@@ -98,12 +105,33 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
       }}
       onClick={() => setIsExpanded(!isExpanded)}
       className={cn(
-        'group relative bg-glass border border-glass-border rounded-2xl p-4',
-        'backdrop-blur-glass shadow-glass cursor-pointer',
-        'hover:bg-glass-hover hover:border-glass-border-hover',
-        'transition-all duration-300'
+        'group relative bg-glass backdrop-blur-glass rounded-2xl p-4',
+        'shadow-glass cursor-pointer',
+        'hover:bg-glass-hover',
+        'transition-all duration-300',
+        anomaly ? cn(
+          "border-2",
+          anomaly.severity === 'high' && "border-destructive shadow-[0_0_20px_hsl(var(--destructive)/0.3)]",
+          anomaly.severity === 'medium' && "border-warning shadow-[0_0_15px_hsl(var(--warning)/0.2)]",
+          anomaly.severity === 'low' && "border-muted"
+        ) : "border border-glass-border hover:border-glass-border-hover"
       )}
     >
+      {/* Anomaly Alert Badge (top-right) */}
+      {anomaly && (
+        <div className="absolute top-2 right-2 z-10">
+          <Badge 
+            variant="destructive" 
+            className={cn(
+              "text-xs gap-1",
+              anomaly.severity === 'high' && "animate-pulse"
+            )}
+          >
+            ⚠️ Anomaly
+          </Badge>
+        </div>
+      )}
+
       {/* Top Row: Logo + Merchant + Amount */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3 flex-1">
@@ -144,17 +172,26 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
         </div>
       </div>
 
-      {/* Badge Row */}
-      <SmartBadges
-        category={category}
-        isAIEnriched={isAIEnriched}
-        confidence={confidence}
-        isRecurring={isRecurring}
-        recurringInfo={recurringInfo as any}
-        isHighSpending={isHighSpending}
-        isProcessing={isProcessing}
-        className="mb-3"
-      />
+      {/* Badge Row with Anomaly */}
+      <div className="flex flex-wrap gap-2 mb-3">
+        {anomaly && (
+          <Badge
+            variant="destructive"
+            className="gap-1 text-xs"
+          >
+            {anomaly.explanation}
+          </Badge>
+        )}
+        <SmartBadges
+          category={category}
+          isAIEnriched={isAIEnriched}
+          confidence={confidence}
+          isRecurring={isRecurring}
+          recurringInfo={recurringInfo as any}
+          isHighSpending={isHighSpending}
+          isProcessing={isProcessing}
+        />
+      </div>
 
       {/* Metadata Row */}
       <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
@@ -185,6 +222,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             amount={amount}
             category={category}
             isExpanded={isExpanded}
+            anomaly={anomaly}
           />
         </motion.div>
       )}
