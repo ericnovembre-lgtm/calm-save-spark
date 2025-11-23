@@ -5163,6 +5163,125 @@ export type Database = {
         }
         Relationships: []
       }
+      negotiation_script_outcomes: {
+        Row: {
+          actual_savings: number | null
+          created_at: string | null
+          id: string
+          negotiation_completed_at: string | null
+          negotiation_notes: string | null
+          new_monthly_amount: number | null
+          request_id: string | null
+          script_variant_id: string | null
+          user_rating: number | null
+          was_successful: boolean | null
+        }
+        Insert: {
+          actual_savings?: number | null
+          created_at?: string | null
+          id?: string
+          negotiation_completed_at?: string | null
+          negotiation_notes?: string | null
+          new_monthly_amount?: number | null
+          request_id?: string | null
+          script_variant_id?: string | null
+          user_rating?: number | null
+          was_successful?: boolean | null
+        }
+        Update: {
+          actual_savings?: number | null
+          created_at?: string | null
+          id?: string
+          negotiation_completed_at?: string | null
+          negotiation_notes?: string | null
+          new_monthly_amount?: number | null
+          request_id?: string | null
+          script_variant_id?: string | null
+          user_rating?: number | null
+          was_successful?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "negotiation_script_outcomes_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "bill_negotiation_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negotiation_script_outcomes_script_variant_id_fkey"
+            columns: ["script_variant_id"]
+            isOneToOne: false
+            referencedRelation: "negotiation_script_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      negotiation_script_variants: {
+        Row: {
+          aggressive_script: string
+          amount: number
+          bloat_items: Json | null
+          competitor_offer: Json | null
+          created_at: string | null
+          data_driven_script: string
+          friendly_script: string
+          generation_time_ms: number | null
+          id: string
+          leverage_points: Json | null
+          merchant: string
+          negotiation_score: number | null
+          opportunity_id: string | null
+          selected_at: string | null
+          selected_variant: string | null
+          user_id: string
+        }
+        Insert: {
+          aggressive_script: string
+          amount: number
+          bloat_items?: Json | null
+          competitor_offer?: Json | null
+          created_at?: string | null
+          data_driven_script: string
+          friendly_script: string
+          generation_time_ms?: number | null
+          id?: string
+          leverage_points?: Json | null
+          merchant: string
+          negotiation_score?: number | null
+          opportunity_id?: string | null
+          selected_at?: string | null
+          selected_variant?: string | null
+          user_id: string
+        }
+        Update: {
+          aggressive_script?: string
+          amount?: number
+          bloat_items?: Json | null
+          competitor_offer?: Json | null
+          created_at?: string | null
+          data_driven_script?: string
+          friendly_script?: string
+          generation_time_ms?: number | null
+          id?: string
+          leverage_points?: Json | null
+          merchant?: string
+          negotiation_score?: number | null
+          opportunity_id?: string | null
+          selected_at?: string | null
+          selected_variant?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "negotiation_script_variants_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "bill_negotiation_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           budget_alerts: boolean | null
@@ -9158,6 +9277,19 @@ export type Database = {
           total_achievements: number | null
           total_points: number | null
           user_id: string | null
+        }
+        Relationships: []
+      }
+      script_variant_performance: {
+        Row: {
+          avg_rating: number | null
+          avg_savings: number | null
+          last_used: string | null
+          merchant: string | null
+          outcome_count: number | null
+          selected_variant: string | null
+          selection_count: number | null
+          success_rate: number | null
         }
         Relationships: []
       }

@@ -8,6 +8,10 @@ import { OpportunityCard } from "@/components/bill-negotiation/OpportunityCard";
 import { BillScanner } from "@/components/bill-negotiation/BillScanner";
 import { BillNegotiationScriptDialog } from "@/components/bill-negotiation/BillNegotiationScriptDialog";
 import { NegotiationSuccessDialog } from "@/components/bill-negotiation/NegotiationSuccessDialog";
+import { ScriptVariantSelector } from "@/components/bill-negotiation/ScriptVariantSelector";
+import { ScriptAnalyticsDashboard } from "@/components/bill-negotiation/ScriptAnalyticsDashboard";
+import { OutcomeTrackingDialog } from "@/components/bill-negotiation/OutcomeTrackingDialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { TacticalCard } from "@/components/bill-negotiation/TacticalCard";
 import { NegotiationTimeline } from "@/components/bill-negotiation/NegotiationTimeline";
 import { NegotiationMetrics } from "@/components/bill-negotiation/NegotiationMetrics";
@@ -25,10 +29,13 @@ export default function BillNegotiation() {
   // All state hooks first
   const [analyzingBills, setAnalyzingBills] = useState(false);
   const [scriptDialogOpen, setScriptDialogOpen] = useState(false);
+  const [variantSelectorOpen, setVariantSelectorOpen] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState<any>(null);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [successData, setSuccessData] = useState<any>(null);
   const [competitorOffer, setCompetitorOffer] = useState<any>(null);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [outcomeDialogOpen, setOutcomeDialogOpen] = useState(false);
 
   // All query hooks
   const { data: opportunities, isLoading } = useQuery({
@@ -140,7 +147,22 @@ export default function BillNegotiation() {
   const handleGenerateScript = (opportunity: any, competitor?: any) => {
     setSelectedOpportunity(opportunity);
     setCompetitorOffer(competitor || null);
-    setScriptDialogOpen(true);
+    setVariantSelectorOpen(true);
+  };
+
+  const handleVariantSelected = (variant: 'aggressive' | 'friendly' | 'data_driven', scriptId: string) => {
+    setSelectedVariantId(scriptId);
+    setVariantSelectorOpen(false);
+    
+    // Track analytics
+    toast.success(`${variant.toUpperCase().replace('_', '-')} script selected!`, {
+      description: 'Use this script to negotiate with confidence',
+    });
+
+    // Show outcome tracking after 5 minutes (simulated)
+    setTimeout(() => {
+      setOutcomeDialogOpen(true);
+    }, 10000); // 10 seconds for demo, change to 300000 (5 minutes) in production
   };
 
   // Early return AFTER all hooks
@@ -269,7 +291,7 @@ export default function BillNegotiation() {
 
         {/* Tabs */}
         <Tabs defaultValue="opportunities" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="opportunities">
               <Target className="w-4 h-4 mr-2" />
               Opportunities ({opportunities?.filter(o => o.status === 'identified').length || 0})
@@ -285,6 +307,10 @@ export default function BillNegotiation() {
             <TabsTrigger value="intelligence">
               <Zap className="w-4 h-4 mr-2" />
               Intelligence
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Analytics
             </TabsTrigger>
           </TabsList>
 
@@ -400,8 +426,33 @@ export default function BillNegotiation() {
               onGenerateScript={handleGenerateScript}
             />
           </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <ScriptAnalyticsDashboard />
+          </TabsContent>
         </Tabs>
       </div>
+
+      {/* Variant Selector Dialog */}
+      <Dialog open={variantSelectorOpen} onOpenChange={setVariantSelectorOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-slate-900 border-cyan-500/30">
+          <ScriptVariantSelector
+            merchant={selectedOpportunity?.merchant || ''}
+            amount={Number(selectedOpportunity?.current_amount || 0)}
+            category={selectedOpportunity?.category}
+            leveragePoints={selectedOpportunity?.metadata?.leverage_points}
+            bloatItems={selectedOpportunity?.metadata?.bloat_items}
+            competitorOffer={competitorOffer}
+            negotiationScore={selectedOpportunity?.metadata?.negotiation_score}
+            contractEndDate={selectedOpportunity?.metadata?.contract_end_date}
+            customerTenure={selectedOpportunity?.metadata?.customer_tenure_years}
+            opportunityId={selectedOpportunity?.id}
+            onVariantSelected={handleVariantSelected}
+            onClose={() => setVariantSelectorOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Dialogs - Always render, control via open prop */}
       <BillNegotiationScriptDialog
@@ -425,6 +476,16 @@ export default function BillNegotiation() {
         monthlySavings={successData?.monthlySavings || 0}
         yearlySavings={successData?.yearlySavings || 0}
       />
+
+      {/* Outcome Tracking Dialog */}
+      {selectedVariantId && selectedOpportunity && (
+        <OutcomeTrackingDialog
+          open={outcomeDialogOpen}
+          onOpenChange={setOutcomeDialogOpen}
+          variantId={selectedVariantId}
+          originalAmount={Number(selectedOpportunity.current_amount)}
+        />
+      )}
     </AppLayout>
   );
 }

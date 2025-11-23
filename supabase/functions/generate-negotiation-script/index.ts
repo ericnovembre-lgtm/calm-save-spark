@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,7 +12,19 @@ serve(async (req) => {
   }
 
   try {
-    const { merchant, amount, category, frequency, competitorOffer, leveragePoints, bloatItems, contractEndDate, customerTenure } = await req.json();
+    const { 
+      merchant, 
+      amount, 
+      category, 
+      frequency, 
+      competitorOffer, 
+      leveragePoints, 
+      bloatItems, 
+      contractEndDate, 
+      customerTenure,
+      generateVariants = false,
+      opportunityId
+    } = await req.json();
     
     if (!merchant || !amount) {
       throw new Error('Merchant and amount are required');
@@ -28,7 +41,6 @@ serve(async (req) => {
       leverageContext = `\n\nCOMPETITOR LEVERAGE: ${competitorOffer.provider} offers ${competitorOffer.speed || 'service'} for $${competitorOffer.monthly_price}/${frequency} — that's $${(amount - competitorOffer.monthly_price).toFixed(0)} less. Use this as primary leverage.`;
     }
 
-    // Add bloat items to context
     if (bloatItems && bloatItems.length > 0) {
       leverageContext += '\n\nREMOVABLE FEES: ';
       bloatItems.forEach((item: any) => {
@@ -36,12 +48,10 @@ serve(async (req) => {
       });
     }
 
-    // Add leverage points
     if (leveragePoints && leveragePoints.length > 0) {
       leverageContext += '\n\nLEVERAGE POINTS: ' + leveragePoints.join(', ');
     }
 
-    // Provider-specific tactics
     const providerTactics = {
       'Comcast': 'Reference Verizon Fios pricing, threaten cancellation, ask for loyalty department',
       'Xfinity': 'Reference Verizon Fios pricing, threaten cancellation, ask for loyalty department',
@@ -55,6 +65,225 @@ serve(async (req) => {
 
     const providerTactic = providerTactics[merchant as keyof typeof providerTactics] || 'Compare to competitors, reference market rates, threaten to switch';
 
+    const userPrompt = `Generate a tough negotiation script for ${merchant}, currently paying $${amount}/${frequency} for ${category}.
+${competitorOffer ? 'Lead with the competitor offer as primary leverage.' : 'Focus on loyalty and market competition.'}
+Customer has been with provider for ${customerTenure || 2} years. ${contractEndDate ? `Contract ends on ${contractEndDate} (use this as leverage).` : 'Contract is active.'}
+${bloatItems && bloatItems.length > 0 ? `Remove these bloat fees: ${bloatItems.map((i: any) => `${i.name} ($${i.amount})`).join(', ')}` : ''}`;
+
+    // If generateVariants is true, create 3 different scripts
+    if (generateVariants) {
+      const startTime = Date.now();
+      
+      // Create 3 distinct prompts
+      const aggressivePrompt = `You are a HARD-NOSED negotiation expert trained in high-pressure sales. Generate an AGGRESSIVE, NO-NONSENSE script.
+
+PERSONALITY:
+- Direct and confrontational
+- Uses switching threats as primary weapon
+- Refuses to accept first offers
+- Demands retention department immediately
+- Emphasizes competition heavily
+- Willing to walk away
+
+LANGUAGE:
+- "I'm prepared to cancel today"
+- "This is well above market rates"
+- "I've already spoken to [Competitor]"
+- "I need you to match this or I'm out"
+
+TACTICS:
+- Lead with competitor pricing
+- Reference loyalty aggressively
+- Push for 30-40% savings
+- Mention cancellation 2-3 times
+- Escalate to retention early
+
+PROVIDER-SPECIFIC TACTICS for ${merchant}: ${providerTactic}
+${leverageContext}
+
+Generate 4-6 exchanges. End with: "If you can't match that, transfer me to cancellations."`;
+
+      const friendlyPrompt = `You are a RELATIONSHIP-FOCUSED negotiation coach. Generate a FRIENDLY, COLLABORATIVE script.
+
+PERSONALITY:
+- Warm and empathetic
+- Builds rapport first
+- Frames negotiation as partnership
+- Appreciates agent's position
+- Uses loyalty and tenure as foundation
+- Soft on people, hard on numbers
+
+LANGUAGE:
+- "I really value our relationship"
+- "I know you're doing your best"
+- "I'd love to stay with you, but..."
+- "Can we work together on this?"
+
+TACTICS:
+- Start with appreciation and loyalty
+- Acknowledge agent's constraints
+- Use competitor offer as "reluctant alternative"
+- Emphasize desire to stay
+- Ask for "help" rather than demand
+
+PROVIDER-SPECIFIC TACTICS for ${merchant}: ${providerTactic}
+${leverageContext}
+
+Generate 5-7 exchanges. End with: "I trust we can find a solution that works for both of us."`;
+
+      const dataDrivenPrompt = `You are a HIGHLY ANALYTICAL negotiation expert. Generate a DATA-DRIVEN, FACT-BASED script.
+
+PERSONALITY:
+- Logical and methodical
+- Uses specific numbers and percentages
+- References market research
+- Presents cost-benefit analysis
+- Removes emotion from discussion
+- Treats negotiation as business decision
+
+LANGUAGE:
+- "According to market data..."
+- "New customers pay 32% less"
+- "My cost per Mbps is..."
+- "The ROI on this service doesn't align"
+
+TACTICS:
+- Lead with comparative pricing data
+- Break down cost per unit ($/Mbps, $/GB)
+- Reference industry benchmarks
+- Calculate "new customer" savings
+- Present switching as pure economics
+
+PROVIDER-SPECIFIC TACTICS for ${merchant}: ${providerTactic}
+${leverageContext}
+
+Generate 4-6 exchanges. End with: "Economically, switching makes more sense unless we adjust the rate."`;
+
+      // Generate all 3 scripts in parallel
+      const [aggressiveResponse, friendlyResponse, dataDrivenResponse] = await Promise.all([
+        fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: aggressivePrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.8,
+            max_tokens: 1000,
+          }),
+        }),
+        fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: friendlyPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.8,
+            max_tokens: 1000,
+          }),
+        }),
+        fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: dataDrivenPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.8,
+            max_tokens: 1000,
+          }),
+        }),
+      ]);
+
+      if (!aggressiveResponse.ok || !friendlyResponse.ok || !dataDrivenResponse.ok) {
+        throw new Error('Failed to generate one or more script variants');
+      }
+
+      const [aggressive, friendly, dataDriven] = await Promise.all([
+        aggressiveResponse.json(),
+        friendlyResponse.json(),
+        dataDrivenResponse.json(),
+      ]);
+
+      const generationTime = Date.now() - startTime;
+
+      const variants = {
+        aggressive: aggressive.choices[0]?.message?.content || '',
+        friendly: friendly.choices[0]?.message?.content || '',
+        data_driven: dataDriven.choices[0]?.message?.content || '',
+      };
+
+      // Store variants in database
+      const authHeader = req.headers.get('authorization');
+      if (authHeader) {
+        const supabaseClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+          { global: { headers: { Authorization: authHeader } } }
+        );
+
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        
+        if (user) {
+          const { data: variant, error } = await supabaseClient
+            .from('negotiation_script_variants')
+            .insert({
+              user_id: user.id,
+              opportunity_id: opportunityId,
+              merchant,
+              amount,
+              aggressive_script: variants.aggressive,
+              friendly_script: variants.friendly,
+              data_driven_script: variants.data_driven,
+              leverage_points: leveragePoints || [],
+              bloat_items: bloatItems || [],
+              competitor_offer: competitorOffer,
+              generation_time_ms: generationTime,
+            })
+            .select()
+            .single();
+
+          if (error) {
+            console.error('Error storing variants:', error);
+          } else {
+            return new Response(
+              JSON.stringify({
+                variants,
+                variant_id: variant.id,
+                generation_time_ms: generationTime,
+              }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+      }
+
+      return new Response(
+        JSON.stringify({
+          variants,
+          generation_time_ms: generationTime,
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Single script generation (legacy)
     const systemPrompt = `You are an expert bill negotiation coach with 15+ years of experience saving customers money. Generate an AGGRESSIVE, TACTICAL roleplay dialogue script.
 
 RULES:
@@ -71,11 +300,6 @@ PROVIDER-SPECIFIC TACTICS for ${merchant}: ${providerTactic}
 ${leverageContext}
 
 TONE: Confident, polite but firm, data-driven. You're not angry, just informed and willing to leave.`;
-
-    const userPrompt = `Generate a tough negotiation script for ${merchant}, currently paying $${amount}/${frequency} for ${category}.
-${competitorOffer ? 'Lead with the competitor offer as primary leverage.' : 'Focus on loyalty and market competition.'}
-Customer has been with provider for ${customerTenure || 2} years. ${contractEndDate ? `Contract ends on ${contractEndDate} (use this as leverage).` : 'Contract is active.'}
-${bloatItems && bloatItems.length > 0 ? `Remove these bloat fees: ${bloatItems.map((i: any) => `${i.name} ($${i.amount})`).join(', ')}` : ''}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
