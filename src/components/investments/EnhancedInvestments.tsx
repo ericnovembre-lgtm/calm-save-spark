@@ -139,21 +139,16 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
   const totalGains = totalValue - totalCostBasis;
   const gainsPercent = totalCostBasis > 0 ? (totalGains / totalCostBasis) * 100 : 0;
 
-  // Transform accounts into treemap data
-  const treemapData = accounts?.map((acc, idx) => {
-    const colors = [
-      'hsl(var(--primary))', 
-      'hsl(var(--accent))', 
-      '#10b981', 
-      '#f59e0b', 
-      '#ef4444', 
-      '#8b5cf6'
-    ];
+  // Transform accounts into treemap data with performance metrics
+  const treemapData = accounts?.map((acc) => {
+    const value = parseFloat(String(acc.total_value));
+    const costBasis = parseFloat(String(acc.cost_basis || 0));
+    const gainPercent = costBasis > 0 ? ((value - costBasis) / costBasis) * 100 : 0;
     
     return {
       name: acc.account_name,
-      value: parseFloat(String(acc.total_value)),
-      color: colors[idx % colors.length],
+      value,
+      gainPercent,
     };
   }) || [];
 
