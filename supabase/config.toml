@@ -252,5 +252,11 @@ verify_jwt = true
 [functions.check-balance-thresholds]
 verify_jwt = true
 
+[functions.generate-pot]
+verify_jwt = true
+
+[functions.savings-coach]
+verify_jwt = true
+
 
 

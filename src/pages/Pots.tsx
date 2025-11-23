@@ -19,6 +19,8 @@ import { PotsStats } from "@/components/pots/PotsStats";
 import { PotsSkeletonCard } from "@/components/pots/PotsSkeletonCard";
 import { EnhancedEmptyState } from "@/components/pots/EnhancedEmptyState";
 import { usePotGenerator } from "@/hooks/usePotGenerator";
+import { useSavingsCoach } from "@/hooks/useSavingsCoach";
+import { CoachingTipDialog } from "@/components/pots/CoachingTipDialog";
 import { useSavingsPace } from "@/hooks/useSavingsPace";
 import { useRotatingPlaceholder } from "@/hooks/useRotatingPlaceholder";
 import { usePotsTour } from "@/hooks/usePotsTour";
@@ -37,7 +39,10 @@ const Pots = () => {
   const [dreamInput, setDreamInput] = useState("");
   const [showManualDialog, setShowManualDialog] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [coachingPot, setCoachingPot] = useState<any>(null);
+  const [coachingTip, setCoachingTip] = useState<string | null>(null);
   const { generatePot, isGenerating } = usePotGenerator();
+  const { getCoachingTip, isGenerating: isGeneratingTip } = useSavingsCoach();
   const rotatingPlaceholder = useRotatingPlaceholder(3500);
   const { run, steps, stepIndex, handleJoyrideCallback, resetTour } = usePotsTour();
 
@@ -129,6 +134,13 @@ const Pots = () => {
 
   const handleRestore = (potId: string) => {
     archivePotMutation.mutate({ id: potId, archive: false });
+  };
+
+  const handleGetCoach = async (pot: any) => {
+    setCoachingPot(pot);
+    setCoachingTip(null);
+    const tip = await getCoachingTip(pot);
+    setCoachingTip(tip);
   };
 
   const activePots = pots?.filter(p => !showArchived) || [];
@@ -304,6 +316,7 @@ const Pots = () => {
                   onDelete={(pot) => setDeleteConfirm(pot)}
                   onAddFunds={(pot) => setAddFundsPot(pot)}
                   onArchive={showArchived ? handleRestore : handleArchive}
+                  onGetCoach={handleGetCoach}
                   monthlyPace={monthlyPace}
                   projectedDate={projectedDate}
                   isArchived={showArchived}
@@ -339,6 +352,20 @@ const Pots = () => {
           open={!!addFundsPot}
           onOpenChange={(open) => !open && setAddFundsPot(null)}
           pot={addFundsPot}
+        />
+
+        {/* Coaching Tip Dialog */}
+        <CoachingTipDialog
+          open={!!coachingPot}
+          onOpenChange={(open) => {
+            if (!open) {
+              setCoachingPot(null);
+              setCoachingTip(null);
+            }
+          }}
+          tip={coachingTip}
+          isLoading={isGeneratingTip}
+          potName={coachingPot?.name || ""}
         />
 
         {/* Delete Confirmation Dialog */}
