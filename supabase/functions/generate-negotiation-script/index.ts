@@ -22,32 +22,45 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const systemPrompt = `You are a consumer advocate and negotiation expert specializing in reducing bills and subscription costs. Your job is to generate persuasive, polite, and effective negotiation scripts that customers can use when contacting service providers.
+    const systemPrompt = `You are a consumer advocate and negotiation expert specializing in reducing bills and subscription costs. Your job is to generate persuasive, polite, and effective negotiation scripts formatted as a ROLEPLAY DIALOGUE.
 
-Generate a professional negotiation script that includes:
-1. Opening statement establishing loyalty and payment history
-2. Reference to competitor pricing (research if needed)
-3. Request for loyalty discount or promotional rate
-4. Gentle mention of considering alternatives
-5. Alternative asks if discount is denied (e.g., waived fees, extra features)
+Format the script as a conversation between YOU (the customer) and AGENT (the service representative):
 
-The script should be copy-pasteable and formatted with clear sections. Be specific, assertive but polite, and use proven negotiation tactics.`;
+You: [Your opening statement]
+Agent: [Expected agent response]
+You: [Your counter-offer or request]
+Agent: [Possible objection]
+You: [Your final persuasive argument]
 
-    const userPrompt = `Generate a negotiation script for reducing a ${category || 'subscription'} bill with ${merchant}. 
+Include:
+1. Opening with loyalty and payment history
+2. Competitor pricing references
+3. Request for specific discount percentage
+4. Fallback options (waived fees, extra features)
+5. Polite but firm closing
+
+Make it feel like a real conversation with natural dialogue.`;
+
+    const userPrompt = `Generate a roleplay negotiation script for reducing a ${category || 'subscription'} bill with ${merchant}. 
 
 Current details:
 - Service: ${merchant}
 - Current cost: $${amount} per ${frequency}
 - Category: ${category || 'subscription'}
 
-Create a script that:
-- Sounds natural and authentic
-- References typical loyalty discounts (10-25%)
-- Mentions competitor pricing when relevant
-- Includes specific counter-offers
-- Provides fallback options
+Format as dialogue:
+You: [natural opening]
+Agent: [typical agent response]
+You: [your persuasive request with specific numbers]
+Agent: [possible objection]
+You: [counter-argument with alternatives]
 
-Format the script with clear sections and make it ready to copy and paste.`;
+Make it conversational, specific, and include:
+- Mention being a loyal customer (assumed 2+ years)
+- Reference competitor pricing (be specific)
+- Ask for 15-25% discount
+- Fallback: waive fees OR upgrade service tier
+- End with polite but firm closing`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
