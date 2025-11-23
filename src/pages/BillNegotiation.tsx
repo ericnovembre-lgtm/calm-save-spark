@@ -411,6 +411,11 @@ export default function BillNegotiation() {
         amount={Number(selectedOpportunity?.current_amount || 0)}
         category={selectedOpportunity?.category}
         competitorOffer={competitorOffer}
+        leveragePoints={selectedOpportunity?.metadata?.leverage_points}
+        bloatItems={selectedOpportunity?.metadata?.bloat_items}
+        contractEndDate={selectedOpportunity?.metadata?.contract_end_date}
+        customerTenure={selectedOpportunity?.metadata?.customer_tenure_years}
+        negotiationScore={selectedOpportunity?.metadata?.negotiation_score}
       />
 
       <NegotiationSuccessDialog
