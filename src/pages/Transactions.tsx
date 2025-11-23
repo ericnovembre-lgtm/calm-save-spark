@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { VirtualizedTransactionList } from "@/components/transactions/VirtualizedTransactionList";
 import { SearchInsightCard } from "@/components/transactions/SearchInsightCard";
@@ -15,11 +15,24 @@ import { useWebVitals } from "@/hooks/useWebVitals";
 import { usePerformanceBudgetAlerts } from "@/hooks/usePerformanceBudgetAlerts";
 import { useOptimizedTransactions } from "@/hooks/useOptimizedTransactions";
 import { useSearchInsights } from "@/hooks/useSearchInsights";
+import { useRecurringDetection } from "@/hooks/useRecurringDetection";
+import { supabase } from "@/integrations/supabase/client";
 
 export default withPageMemo(function Transactions() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<any>({});
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [userId, setUserId] = useState<string>();
+
+  // Get current user for recurring detection
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id);
+    });
+  }, []);
+
+  // Enable background recurring detection
+  useRecurringDetection(userId);
 
   // Enable performance monitoring
   useWebVitals(true);
