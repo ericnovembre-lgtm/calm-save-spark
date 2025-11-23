@@ -15,6 +15,7 @@ interface SearchInsightCardProps {
   insights?: string;
   onRefineSearch?: () => void;
   onSaveReport?: () => void;
+  isLoading?: boolean;
 }
 
 export function SearchInsightCard({
@@ -25,6 +26,7 @@ export function SearchInsightCard({
   insights,
   onRefineSearch,
   onSaveReport,
+  isLoading = false,
 }: SearchInsightCardProps) {
   const isPositive = totalAmount >= 0;
   const dateRangeText = dateRange
@@ -135,13 +137,20 @@ export function SearchInsightCard({
           </div>
 
           {/* AI Insights */}
-          {insights && (
+          {isLoading ? (
+            <div className="p-4 bg-accent/5 border border-accent/20 rounded-xl">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-accent/30 animate-pulse" />
+                <div className="h-4 bg-accent/20 rounded flex-1 animate-pulse" />
+              </div>
+            </div>
+          ) : insights ? (
             <div className="p-4 bg-accent/5 border border-accent/20 rounded-xl">
               <p className="text-sm text-foreground leading-relaxed">
                 💡 {insights}
               </p>
             </div>
-          )}
+          ) : null}
         </div>
       </GlassPanel>
     </motion.div>

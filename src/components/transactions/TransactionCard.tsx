@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
@@ -42,7 +42,7 @@ interface TransactionCardProps {
   };
 }
 
-export function TransactionCard({ transaction, anomaly }: TransactionCardProps) {
+export const TransactionCard = memo(function TransactionCard({ transaction, anomaly }: TransactionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSplitDialogOpen, setIsSplitDialogOpen] = useState(false);
   const [isRecategorizeDialogOpen, setIsRecategorizeDialogOpen] = useState(false);
@@ -268,4 +268,4 @@ export function TransactionCard({ transaction, anomaly }: TransactionCardProps) 
       />
     </motion.div>
   );
-}
+});
