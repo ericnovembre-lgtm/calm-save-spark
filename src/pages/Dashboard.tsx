@@ -328,7 +328,8 @@ export default function Dashboard() {
       
       <PullToRefresh onRefresh={handleRefresh}>
         <div className={cn(
-          "max-w-7xl mx-auto space-y-6 pb-20 transition-all duration-300 px-4 sm:px-6 lg:px-8",
+          "max-w-7xl mx-auto space-y-6 pb-20 px-4 sm:px-6 lg:px-8",
+          "transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           isChatOpen && "lg:pr-[420px]"
         )}>
           {/* Critical Banners */}
@@ -336,7 +337,7 @@ export default function Dashboard() {
           <SmartBanner />
 
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 [&_svg]:drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
             <SentimentIndicator netWorthChangePercent={netWorthChangePercent} />
             <SyncIndicator 
               status={syncStatus}
