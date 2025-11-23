@@ -87,59 +87,93 @@ export default function Automations() {
   return (
     <AppLayout>
       <div className={cn(
-        "container mx-auto space-y-8 max-w-7xl circuit-board-container min-h-screen",
-        isMobile ? "p-4 space-y-6" : "p-6"
+        "container mx-auto max-w-7xl circuit-board-container min-h-screen pb-12",
+        isMobile ? "px-4 pt-6 space-y-8" : "px-6 pt-8 space-y-10"
       )}>
-        {/* Emergency Brake */}
-        <EmergencyBrake />
+        {/* Emergency Brake - Elevated */}
+        <div className="animate-fade-in">
+          <EmergencyBrake />
+        </div>
 
-        {/* Header with conversational input */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 glow-text">Smart Automations</h1>
-              <p className="text-muted-foreground">
-                Describe what you want to automate in plain English
+        {/* Header with conversational input - Enhanced */}
+        <div className="space-y-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className={cn(
+            "flex items-start gap-6",
+            isMobile ? "flex-col" : "flex-row items-center justify-between"
+          )}>
+            <div className="space-y-2">
+              <h1 className={cn(
+                "font-bold tracking-tight glow-text",
+                isMobile ? "text-3xl" : "text-5xl"
+              )}>
+                Smart Automations
+              </h1>
+              <p className="text-base text-muted-foreground max-w-2xl leading-relaxed">
+                Describe what you want to automate in plain English, or choose from our smart recipes
               </p>
             </div>
-            <Button 
-              variant="outline"
-              onClick={() => handleOpenModal()}
-            >
-              <Wrench className="w-4 h-4 mr-2" />
-              Manual Builder
-            </Button>
+            {!isMobile && (
+              <Button 
+                variant="outline"
+                size="lg"
+                onClick={() => handleOpenModal()}
+                className="shrink-0 gap-2 hover:bg-accent/10 transition-all duration-200"
+              >
+                <Wrench className="w-4 h-4" />
+                Manual Builder
+              </Button>
+            )}
           </div>
           
           <ConversationalRuleBuilder 
             onRuleCreated={() => queryClient.invalidateQueries({ queryKey: ['automations'] })} 
           />
+          
+          {isMobile && (
+            <Button 
+              variant="outline"
+              size="lg"
+              onClick={() => handleOpenModal()}
+              className="w-full gap-2"
+            >
+              <Wrench className="w-4 h-4" />
+              Manual Builder
+            </Button>
+          )}
         </div>
 
-        {/* Smart Recipes */}
-        <div ref={recipesRef}>
+        {/* Smart Recipes - Enhanced Card */}
+        <div ref={recipesRef} className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <SmartRecipes />
         </div>
 
-        {/* Analytics Dashboard */}
-        <AutomationAnalyticsDashboard />
+        {/* Analytics Dashboard - Enhanced */}
+        <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <AutomationAnalyticsDashboard />
+        </div>
 
-        {/* Advanced Logic Builder */}
-        <Card className="glass-panel-subtle p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold mb-1 flex items-center gap-2">
-                <Blocks className="w-5 h-5 text-primary" />
+        {/* Advanced Logic Builder - Premium Card */}
+        <Card className="glass-panel-subtle p-6 md:p-8 border-2 hover:border-accent/30 transition-all duration-300 animate-fade-in group" style={{ animationDelay: '0.4s' }}>
+          <div className={cn(
+            "flex gap-6",
+            isMobile ? "flex-col" : "items-center justify-between"
+          )}>
+            <div className="flex-1 space-y-2">
+              <h3 className="text-xl font-semibold flex items-center gap-3 group-hover:text-accent transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center group-hover:bg-accent/10 transition-colors">
+                  <Blocks className="w-5 h-5 text-primary group-hover:text-accent transition-colors" />
+                </div>
                 Advanced Logic Builder
               </h3>
-              <p className="text-sm text-muted-foreground">
-                Build complex multi-condition automation rules visually with drag-and-drop blocks
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+                Build complex multi-condition automation rules visually with drag-and-drop blocks. Perfect for power users.
               </p>
             </div>
             <Button
               onClick={() => setShowLogicBuilder(true)}
               variant="outline"
-              className="gap-2"
+              size="lg"
+              className={cn("gap-2 shrink-0", isMobile && "w-full")}
             >
               <Blocks className="w-4 h-4" />
               Open Builder
@@ -147,58 +181,87 @@ export default function Automations() {
           </div>
         </Card>
 
-        {/* Stats */}
+        {/* Stats - Premium Cards */}
         {automations && automations.length > 0 && (
-          <Card className="glass-panel p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Active Rules</p>
-                <p className="text-3xl font-bold">{activeCount}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <Card className="glass-panel p-6 hover:shadow-lg transition-all duration-300 border-2 hover:border-accent/20">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-muted-foreground">Active Rules</p>
+                  <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+                    <Zap className="w-4 h-4 text-success" />
+                  </div>
+                </div>
+                <p className="text-4xl font-bold tracking-tight">{activeCount}</p>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Scheduled This Month</p>
-                <p className="text-3xl font-bold">
+            </Card>
+            <Card className="glass-panel p-6 hover:shadow-lg transition-all duration-300 border-2 hover:border-accent/20">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-muted-foreground">Scheduled This Month</p>
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 text-primary" />
+                  </div>
+                </div>
+                <p className="text-4xl font-bold tracking-tight">
                   {scheduledAutomations.filter(a => a.is_active).length}
                 </p>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Est. Monthly Savings</p>
-                <p className="text-3xl font-bold text-primary">
+            </Card>
+            <Card className="glass-panel p-6 hover:shadow-lg transition-all duration-300 border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-muted-foreground">Est. Monthly Savings</p>
+                  <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 text-accent" />
+                  </div>
+                </div>
+                <p className="text-4xl font-bold tracking-tight text-accent">
                   ${estimatedMonthlyTotal.toFixed(0)}
                 </p>
               </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Money Flow Visualizer - Enhanced */}
+        {automations && automations.length > 0 && (
+          <Card className="glass-panel p-6 md:p-8 border-2 hover:border-accent/20 transition-all duration-300 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-primary" />
+                </div>
+                <h2 className="text-2xl font-semibold">Money Flow Circuit</h2>
+              </div>
+              <MoneyFlowGraph 
+                automations={automations.map(auto => ({
+                  id: auto.id,
+                  rule_name: auto.rule_name,
+                  is_active: auto.is_active,
+                  action_config: auto.action_config as { amount?: number },
+                }))} 
+              />
             </div>
           </Card>
         )}
 
-        {/* Money Flow Visualizer */}
-        {automations && automations.length > 0 && (
-          <Card className="glass-panel p-6">
-            <h2 className="text-xl font-semibold mb-4">Money Flow Circuit</h2>
-            <MoneyFlowGraph 
-              automations={automations.map(auto => ({
-                id: auto.id,
-                rule_name: auto.rule_name,
-                is_active: auto.is_active,
-                action_config: auto.action_config as { amount?: number },
-              }))} 
-            />
-          </Card>
-        )}
-
-        {/* Two Column Layout (Single Column on Mobile) */}
+        {/* Two Column Layout (Single Column on Mobile) - Enhanced */}
         <div className={cn(
-          isMobile ? "space-y-6" : "grid md:grid-cols-3 gap-6"
-        )}>
+          "animate-fade-in",
+          isMobile ? "space-y-8" : "grid md:grid-cols-3 gap-8"
+        )} style={{ animationDelay: '0.7s' }}>
           {/* Left: Automations */}
-          <div className="md:col-span-2 space-y-6">
+          <div className="md:col-span-2 space-y-8">
             {/* Smart Rules Section */}
             {transactionMatchAutomations.length > 0 && (
-              <section className="space-y-4">
-                <h2 className="text-2xl font-semibold flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-primary" />
-                  Smart Rules
-                </h2>
+              <section className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-semibold">Smart Rules</h2>
+                </div>
                 <div className="grid gap-4 lg:grid-cols-2">
                   {transactionMatchAutomations.map((automation) => (
                     <AutomationCard
@@ -224,12 +287,18 @@ export default function Automations() {
 
             {/* Scheduled Transfers Section */}
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              <div className="flex flex-col items-center justify-center py-16 space-y-4">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Loading automations...</p>
               </div>
             ) : scheduledAutomations.length > 0 ? (
-              <section className="space-y-4">
-                <h2 className="text-2xl font-semibold">Scheduled Transfers</h2>
+              <section className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center">
+                    <Loader2 className="w-5 h-5 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-semibold">Scheduled Transfers</h2>
+                </div>
                 <div className="grid gap-4 lg:grid-cols-2">
                   {scheduledAutomations.map((automation) => (
                     <AutomationCard
@@ -252,14 +321,21 @@ export default function Automations() {
                 </div>
               </section>
             ) : !transactionMatchAutomations?.length ? (
-              <Card className="glass-panel p-12 text-center">
-                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Zap className="w-6 h-6 text-primary" />
+              <Card className="glass-panel p-12 md:p-16 text-center border-2 border-dashed border-accent/30 hover:border-accent/50 transition-all duration-300">
+                <div className="max-w-md mx-auto space-y-6">
+                  <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-accent/20 rounded-full blur-2xl" />
+                    <div className="relative w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-accent/20 to-primary/10 flex items-center justify-center">
+                      <Zap className="w-10 h-10 text-accent" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-bold">No Automations Yet</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Describe your first automation rule above or activate a smart recipe to get started
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">No Automations Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Describe your first automation rule above or activate a smart recipe
-                </p>
               </Card>
             ) : null}
           </div>

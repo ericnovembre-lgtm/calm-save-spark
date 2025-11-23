@@ -102,35 +102,47 @@ export function AutomationCard({ automation, onEdit, onDelete, onToggle }: Autom
       style={{ transform: `translateX(${swipeOffset}px)`, transition: swipeOffset === 0 ? 'transform 0.2s' : 'none' }}
       className="relative"
     >
-      {/* Swipe Actions Background (Mobile Only) */}
+      {/* Swipe Actions Background (Mobile Only) - Enhanced */}
       {isMobile && (
         <>
           {/* Right Swipe Background (Toggle) */}
           <motion.div
-            className="absolute inset-0 rounded-lg flex items-center justify-start px-6"
+            className="absolute inset-0 rounded-xl flex items-center justify-start px-8"
             style={{
-              backgroundColor: automation.is_active ? 'hsl(var(--destructive) / 0.2)' : 'hsl(var(--green-500) / 0.2)',
+              background: automation.is_active 
+                ? 'linear-gradient(90deg, hsl(var(--destructive) / 0.15), transparent)' 
+                : 'linear-gradient(90deg, hsl(var(--success) / 0.15), transparent)',
               opacity: Math.min(Math.abs(swipeOffset) / SWIPE_THRESHOLD, 1),
             }}
           >
             {swipeOffset > 0 && (
-              <motion.div animate={{ x: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 1 }}>
-                {automation.is_active ? <PowerOff className="w-6 h-6 text-destructive" /> : <Power className="w-6 h-6 text-green-500" />}
+              <motion.div 
+                animate={{ x: [0, 10, 0] }} 
+                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              >
+                {automation.is_active ? (
+                  <PowerOff className="w-7 h-7 text-destructive drop-shadow-lg" />
+                ) : (
+                  <Power className="w-7 h-7 text-success drop-shadow-lg" />
+                )}
               </motion.div>
             )}
           </motion.div>
           
           {/* Left Swipe Background (Delete) */}
           <motion.div
-            className="absolute inset-0 rounded-lg flex items-center justify-end px-6"
+            className="absolute inset-0 rounded-xl flex items-center justify-end px-8"
             style={{
-              backgroundColor: 'hsl(var(--destructive) / 0.2)',
+              background: 'linear-gradient(270deg, hsl(var(--destructive) / 0.15), transparent)',
               opacity: Math.min(Math.abs(swipeOffset) / SWIPE_THRESHOLD, 1),
             }}
           >
             {swipeOffset < 0 && (
-              <motion.div animate={{ x: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 1 }}>
-                <Trash2 className="w-6 h-6 text-destructive" />
+              <motion.div 
+                animate={{ x: [0, -10, 0] }} 
+                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              >
+                <Trash2 className="w-7 h-7 text-destructive drop-shadow-lg" />
               </motion.div>
             )}
           </motion.div>
@@ -138,100 +150,128 @@ export function AutomationCard({ automation, onEdit, onDelete, onToggle }: Autom
       )}
 
       <motion.div
-        whileHover={!isMobile ? { y: -2 } : undefined}
+        whileHover={!isMobile ? { y: -4, scale: 1.01 } : undefined}
+        whileTap={!isMobile ? { scale: 0.99 } : undefined}
         transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
         onHoverStart={() => setIsHovered(true)}
         onHoverEnd={() => setIsHovered(false)}
       >
         <Card className={cn(
-          "p-4 transition-all duration-200 relative glass-panel",
-          automation.is_active && "shadow-lg shadow-emerald-500/20 border-emerald-500/30"
+          "p-5 transition-all duration-300 relative glass-panel border-2",
+          automation.is_active 
+            ? "shadow-lg shadow-success/10 border-success/30 hover:shadow-xl hover:shadow-success/20" 
+            : "hover:border-accent/20 hover:shadow-md"
         )}>
-        {/* LED Indicator */}
-        <div className={cn(
-          "led-indicator absolute top-4 left-4 w-2 h-2 rounded-full",
-          automation.is_active ? "bg-emerald-400 animate-pulse" : "bg-muted-foreground opacity-50"
-        )} />
+        {/* LED Indicator - Enhanced */}
+        <motion.div 
+          className={cn(
+            "led-indicator absolute top-5 left-5 w-2.5 h-2.5 rounded-full",
+            automation.is_active ? "bg-success shadow-lg shadow-success/50" : "bg-muted-foreground/50"
+          )}
+          animate={automation.is_active ? {
+            scale: [1, 1.2, 1],
+            opacity: [1, 0.8, 1]
+          } : undefined}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
 
-        <div className="flex items-center justify-between gap-4 pl-6">
+        <div className="flex items-center justify-between gap-4 pl-7">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-foreground truncate">
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="font-semibold text-base text-foreground truncate">
                 {automation.rule_name}
               </h3>
               <Badge 
                 variant={automation.is_active ? "default" : "secondary"}
-                className="shrink-0"
+                className={cn(
+                  "shrink-0 font-medium",
+                  automation.is_active && "bg-success hover:bg-success text-white"
+                )}
               >
                 {automation.is_active ? 'Active' : 'Paused'}
               </Badge>
             </div>
             
-            {/* Mini Flow Preview */}
-            <div className="flex items-center gap-2 mt-2 mb-3">
-              <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
-                <Calendar className="w-3 h-3 text-green-400" />
-              </div>
+            {/* Mini Flow Preview - Enhanced */}
+            <div className="flex items-center gap-2 mt-3 mb-4">
               <motion.div 
-                className="flex-1 h-0.5 bg-gradient-to-r from-green-400 to-blue-400 max-w-[60px]"
+                className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center"
                 animate={automation.is_active ? {
-                  opacity: [0.5, 1, 0.5]
-                } : {}}
-                transition={{ duration: 2, repeat: Infinity }}
+                  scale: [1, 1.1, 1]
+                } : undefined}
+                transition={{ duration: 2, repeat: Infinity, delay: 0 }}
+              >
+                <Calendar className="w-3.5 h-3.5 text-success" />
+              </motion.div>
+              <motion.div 
+                className="flex-1 h-0.5 bg-gradient-to-r from-success via-accent to-primary max-w-[70px] rounded-full"
+                animate={automation.is_active ? {
+                  opacity: [0.4, 1, 0.4]
+                } : { opacity: 0.2 }}
+                transition={{ duration: 3, repeat: Infinity }}
               />
-              <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
-                <ArrowRight className="w-3 h-3 text-blue-400" />
-              </div>
+              <motion.div 
+                className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center"
+                animate={automation.is_active ? {
+                  scale: [1, 1.1, 1]
+                } : undefined}
+                transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+              >
+                <ArrowRight className="w-3.5 h-3.5 text-primary" />
+              </motion.div>
             </div>
             
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <DollarSign className="w-3 h-3" />
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5 font-medium">
+                <DollarSign className="w-3.5 h-3.5 text-accent" />
                 ${automation.action_config.amount.toLocaleString()}
               </span>
-              <span className="flex items-center gap-1">
-                <Repeat className="w-3 h-3" />
+              <span className="flex items-center gap-1.5">
+                <Repeat className="w-3.5 h-3.5" />
                 {frequencyLabel}
               </span>
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" />
                 Next: {format(new Date(nextDate), 'MMM d, yyyy')}
               </span>
             </div>
             
             {automation.notes && (
-              <p className="text-xs text-muted-foreground mt-2 truncate">
+              <p className="text-xs text-muted-foreground mt-3 truncate bg-accent/5 px-2 py-1 rounded">
                 {automation.notes}
               </p>
             )}
           </div>
           
           <div className="flex items-center gap-2 shrink-0">
-            {/* Mechanical Toggle */}
+            {/* Mechanical Toggle - Enhanced */}
             <button
               onClick={handleToggle}
-              className={cn("mechanical-toggle", automation.is_active && "active")}
+              className={cn(
+                "mechanical-toggle transition-all duration-200",
+                automation.is_active && "active"
+              )}
               aria-label={automation.is_active ? 'Pause automation' : 'Resume automation'}
             />
             
-            <motion.div whileTap={{ scale: 0.95 }}>
+            <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.05 }}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleEdit}
-                className="rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10"
+                className="rounded-xl h-9 w-9 text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
                 aria-label="Edit automation"
               >
                 <Edit2 className="w-4 h-4" />
               </Button>
             </motion.div>
             
-            <motion.div whileTap={{ scale: 0.95 }}>
+            <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.05 }}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleDelete}
-                className="rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                className="rounded-xl h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                 aria-label="Delete automation"
               >
                 <Trash2 className="w-4 h-4" />
