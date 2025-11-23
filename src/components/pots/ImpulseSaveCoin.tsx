@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { haptics } from "@/lib/haptics";
 import confetti from "canvas-confetti";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCelebrationSounds } from "@/hooks/useCelebrationSounds";
 
 interface Pot {
   id: string;
@@ -23,6 +24,7 @@ export const ImpulseSaveCoin = ({ pots }: ImpulseSaveCoinProps) => {
   const [amount, setAmount] = useState(10);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { playConfettiPop } = useCelebrationSounds();
   
   const { isDragging, hoveredZone, getDragHandlers, registerDropZone, unregisterDropZone } = useDragToSave({
     onDrop: async (potId: string, depositAmount: number) => {
@@ -46,6 +48,7 @@ export const ImpulseSaveCoin = ({ pots }: ImpulseSaveCoinProps) => {
       }
       
       // Success feedback
+      playConfettiPop();
       haptics.formSuccess();
       confetti({
         particleCount: 30, 

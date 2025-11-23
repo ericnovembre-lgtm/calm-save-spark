@@ -46,6 +46,7 @@ export const PotsGlassCard = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
+  const [shouldShake, setShouldShake] = useState(false);
   
   const progress = pot.target_amount 
     ? Math.min((pot.current_amount / pot.target_amount) * 100, 100)
@@ -60,6 +61,15 @@ export const PotsGlassCard = ({
       return () => unregisterDropZone?.(pot.id);
     }
   }, [pot.id, registerDropZone, unregisterDropZone]);
+  
+  // Trigger shake animation when hovered
+  useEffect(() => {
+    if (hoveredZone === pot.id && !prefersReducedMotion) {
+      setShouldShake(true);
+      const timer = setTimeout(() => setShouldShake(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [hoveredZone, pot.id, prefersReducedMotion]);
   
   // Confetti celebration on completion
   useEffect(() => {
@@ -99,11 +109,23 @@ export const PotsGlassCard = ({
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(255, 255, 255, 0.1)'
         }}
-        animate={hoveredZone === pot.id ? {
-          boxShadow: "0 0 40px rgba(139, 92, 246, 0.6)",
-          scale: 1.05,
-          borderColor: "rgba(139, 92, 246, 0.8)"
-        } : {}}
+        animate={
+          shouldShake
+            ? {
+                x: [0, -4, 4, -4, 4, 0],
+                boxShadow: "0 0 40px rgba(139, 92, 246, 0.6)",
+                scale: 1.05,
+                borderColor: "rgba(139, 92, 246, 0.8)",
+                transition: { duration: 0.4 }
+              }
+            : hoveredZone === pot.id
+            ? {
+                boxShadow: "0 0 40px rgba(139, 92, 246, 0.6)",
+                scale: 1.05,
+                borderColor: "rgba(139, 92, 246, 0.8)"
+              }
+            : {}
+        }
         transition={{ duration: 0.2 }}
       >
         {/* Background image with unblur effect */}
