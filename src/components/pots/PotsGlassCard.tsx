@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { LiquidFillProgress } from "./LiquidFillProgress";
 import { PotBackgroundImage } from "./PotBackgroundImage";
+import { PotMilestones } from "./PotMilestones";
 import { GradientKey } from "@/lib/pot-gradients";
 import confetti from "canvas-confetti";
 import { haptics } from "@/lib/haptics";
@@ -215,17 +216,21 @@ export const PotsGlassCard = ({
             </motion.div>
           )}
           
-          {/* Progress bar (simple fallback) */}
+          {/* Progress Section */}
           {pot.target_amount && (
             <div className="mt-auto pt-4 space-y-3">
+              {/* Progress Stats */}
               <div className="flex justify-between text-xs text-foreground/60 mb-1">
                 <span>{progress.toFixed(0)}% complete</span>
                 <span>
                   ${(pot.target_amount - pot.current_amount).toLocaleString('en-US', { 
-                    minimumFractionDigits: 2 
-                  })} remaining
+                    minimumFractionDigits: 0 
+                  })} left
                 </span>
               </div>
+              
+              {/* Milestones */}
+              <PotMilestones progress={progress} targetAmount={pot.target_amount} />
               
               {/* Add Funds Button */}
               <Button
