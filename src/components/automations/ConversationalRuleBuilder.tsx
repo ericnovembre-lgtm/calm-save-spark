@@ -162,47 +162,49 @@ export function ConversationalRuleBuilder({ onRuleCreated, className = "" }: Con
   const availableTargets = parsedRule?.action_config.type === 'transfer_to_goal' ? goals : pots;
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {/* Input Bar */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-          <Sparkles className="w-5 h-5 text-primary" />
+    <div className={`space-y-6 ${className}`}>
+      {/* Input Bar - Enhanced */}
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10">
+          <Sparkles className="w-5 h-5 text-accent group-hover:text-accent/80 transition-colors" />
         </div>
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Describe your automation rule... (e.g., 'Save $5 every time I buy coffee')"
-          className="pl-10 h-12 text-base bg-card/50 backdrop-blur-sm border-primary/20 focus:border-primary/50"
+          className="pl-12 pr-12 h-14 text-base bg-card/70 backdrop-blur-sm border-2 border-border hover:border-accent/30 focus:border-accent/50 transition-all duration-200 rounded-xl shadow-sm"
         />
         {isParsing && (
-          <div className="absolute inset-y-0 right-3 flex items-center">
-            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          <div className="absolute inset-y-0 right-4 flex items-center z-10">
+            <Loader2 className="w-5 h-5 animate-spin text-accent" />
           </div>
         )}
       </div>
 
-      {/* Parsed Rule Display */}
+      {/* Parsed Rule Display - Enhanced */}
       {parsedRule && (
-        <div className="animate-fade-in space-y-4 p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Sparkles className="w-4 h-4" />
+        <div className="animate-fade-in space-y-6 p-6 rounded-xl bg-gradient-to-br from-card/80 to-accent/5 backdrop-blur-md border-2 border-accent/20 shadow-lg">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <Sparkles className="w-4 h-4 text-accent" />
             <span>I understand:</span>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+          <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
             <TriggerBlock triggerCondition={parsedRule.trigger_condition} />
             
-            <ArrowRight className="w-6 h-6 text-primary mx-auto md:mx-0 rotate-90 md:rotate-0" />
+            <div className="mx-auto md:mx-0">
+              <ArrowRight className="w-7 h-7 text-accent rotate-90 md:rotate-0 animate-pulse" />
+            </div>
             
             <ActionBlock actionConfig={parsedRule.action_config} />
           </div>
 
-          {/* Target Selection */}
+          {/* Target Selection - Enhanced */}
           {needsTargetSelection && availableTargets && availableTargets.length > 0 && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Destination:</label>
+            <div className="space-y-3 pt-4 border-t border-accent/20">
+              <label className="text-sm font-semibold">Select Destination:</label>
               <Select value={selectedTarget} onValueChange={setSelectedTarget}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 border-2 hover:border-accent/30 transition-colors">
                   <SelectValue placeholder={`Choose a ${parsedRule.action_config.type === 'transfer_to_goal' ? 'goal' : 'pot'}`} />
                 </SelectTrigger>
                 <SelectContent>
@@ -216,25 +218,32 @@ export function ConversationalRuleBuilder({ onRuleCreated, className = "" }: Con
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex gap-2">
+          {/* Actions - Enhanced */}
+          <div className="flex gap-3 pt-2">
             <Button
               onClick={handleCreateRule}
               disabled={needsTargetSelection && !selectedTarget}
-              className="flex-1"
+              size="lg"
+              className="flex-1 font-semibold shadow-md hover:shadow-lg transition-all"
             >
+              <Sparkles className="w-4 h-4 mr-2" />
               Create This Rule
             </Button>
-            <Button variant="outline" onClick={() => setParsedRule(null)}>
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => setParsedRule(null)}
+              className="border-2"
+            >
               Clear
             </Button>
           </div>
         </div>
       )}
 
-      {/* Error Display */}
+      {/* Error Display - Enhanced */}
       {parseError && (
-        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+        <div className="p-4 rounded-xl bg-destructive/10 border-2 border-destructive/30 text-sm text-destructive font-medium animate-fade-in backdrop-blur-sm">
           {parseError}
         </div>
       )}
