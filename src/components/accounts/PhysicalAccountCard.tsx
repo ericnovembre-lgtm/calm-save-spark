@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
 import { Wallet, CircleDollarSign, CreditCard, TrendingUp, AlertCircle } from 'lucide-react';
 import { AccountSparkline } from './AccountSparkline';
+import { AccountNicknameEditor } from './AccountNicknameEditor';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { Badge } from '@/components/ui/badge';
+import { useQueryClient } from '@tanstack/react-query';
+import { formatDistanceToNow } from 'date-fns';
 
 interface PhysicalAccountCardProps {
   id: string;
@@ -13,6 +16,8 @@ interface PhysicalAccountCardProps {
   currency?: string;
   apy?: number;
   color?: string;
+  nickname?: string | null;
+  lastSynced?: string | null;
   isHovered?: boolean;
   isDragging?: boolean;
   dragHandlers?: any;
@@ -53,12 +58,15 @@ export const PhysicalAccountCard = ({
   currency = 'USD',
   apy = 0.01,
   color = 'cyan',
+  nickname,
+  lastSynced,
   isHovered,
   isDragging,
   dragHandlers,
   onRegisterDropZone,
 }: PhysicalAccountCardProps) => {
   const prefersReducedMotion = useReducedMotion();
+  const queryClient = useQueryClient();
   const Icon = accountTypeIcons[accountType as keyof typeof accountTypeIcons] || Wallet;
   const colorTheme = colorMap[color] || colorMap.cyan;
 
@@ -69,7 +77,7 @@ export const PhysicalAccountCard = ({
       ref={(el) => el && onRegisterDropZone?.(id, el)}
       {...dragHandlers}
       className={`
-        relative rounded-xl p-6 bg-gradient-to-br ${colorTheme.bg}
+        group relative rounded-xl p-6 bg-gradient-to-br ${colorTheme.bg}
         border-2 ${isHovered ? 'border-primary' : colorTheme.border}
         backdrop-blur-glass cursor-grab active:cursor-grabbing
         ${isDragging ? 'shadow-glass-elevated scale-105 z-50' : 'shadow-glass'}
@@ -89,12 +97,22 @@ export const PhysicalAccountCard = ({
           <div className={`p-2 rounded-full ${colorTheme.bg}`}>
             <Icon className={`w-5 h-5 ${colorTheme.text}`} />
           </div>
-          <div>
-            <h3 className="font-semibold text-foreground">{institutionName}</h3>
+          <div className="flex-1">
+            <AccountNicknameEditor
+              accountId={id}
+              currentNickname={nickname}
+              institutionName={institutionName}
+              onUpdate={() => queryClient.invalidateQueries({ queryKey: ['connected_accounts'] })}
+            />
             <p className="text-sm text-muted-foreground capitalize">
               {accountType.replace('_', ' ')}
               {accountMask && ` •••• ${accountMask}`}
             </p>
+            {lastSynced && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Synced {formatDistanceToNow(new Date(lastSynced), { addSuffix: true })}
+              </p>
+            )}
           </div>
         </div>
 

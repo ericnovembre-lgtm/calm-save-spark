@@ -297,5 +297,7 @@ verify_jwt = true
 [functions.analyze-receipt]
 verify_jwt = true
 
+[functions.calculate-liquidity-forecast]
+verify_jwt = true
 
 

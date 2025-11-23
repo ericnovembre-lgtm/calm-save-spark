@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { PageTracker } from "@/components/layout/PageTracker";
@@ -157,17 +158,19 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <AuthProvider>
-              <TooltipProvider>
-                <LiveRegion />
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <PageTracker />
-                  <InstallPrompt />
-                  <AnimatedRoutes />
-                  <ConditionalHelpButton />
-                </BrowserRouter>
-              </TooltipProvider>
+              <DemoModeProvider>
+                <TooltipProvider>
+                  <LiveRegion />
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <PageTracker />
+                    <InstallPrompt />
+                    <AnimatedRoutes />
+                    <ConditionalHelpButton />
+                  </BrowserRouter>
+                </TooltipProvider>
+              </DemoModeProvider>
             </AuthProvider>
           </ThemeProvider>
         </QueryClientProvider>
