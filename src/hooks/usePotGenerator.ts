@@ -10,6 +10,8 @@ interface GeneratedPot {
   suggested_amount: number;
   icon: string;
   image_query: string;
+  color_theme: string;
+  reasoning: string;
 }
 
 export const usePotGenerator = () => {
@@ -46,8 +48,8 @@ export const usePotGenerator = () => {
           user_id: user.id,
           name: generatedPot.item_name,
           target_amount: generatedPot.suggested_amount,
-          notes: `AI-generated savings goal for ${generatedPot.category}`,
-          color: getRandomGradient(),
+          notes: `${generatedPot.reasoning}\n\nGenerated from: "${dreamText}"`,
+          color: generatedPot.color_theme,
           image_url: imageUrl
         }]);
       
@@ -57,8 +59,8 @@ export const usePotGenerator = () => {
       queryClient.invalidateQueries({ queryKey: ['pots'] });
       
       toast({
-        title: "✨ Vault Created!",
-        description: `Your "${generatedPot.item_name}" savings pot is ready`
+        title: "✨ Dream Generated!",
+        description: generatedPot.reasoning,
       });
       
       return generatedPot;

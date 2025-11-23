@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Edit2, Trash2, DollarSign, Target, Calendar, Trophy, Plus, Archive, ArchiveRestore } from "lucide-react";
+import { Edit2, Trash2, DollarSign, Target, Calendar, Trophy, Plus, Archive, ArchiveRestore, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { LiquidFillProgress } from "./LiquidFillProgress";
@@ -28,6 +28,7 @@ interface PotsGlassCardProps {
   onDelete: (pot: Pot) => void;
   onAddFunds: (pot: Pot) => void;
   onArchive?: (potId: string) => void;
+  onGetCoach?: (pot: Pot) => void;
   registerDropZone?: (id: string, element: HTMLElement) => void;
   unregisterDropZone?: (id: string) => void;
   hoveredZone?: string | null;
@@ -43,6 +44,7 @@ export const PotsGlassCard = ({
   onDelete,
   onAddFunds,
   onArchive,
+  onGetCoach,
   registerDropZone,
   unregisterDropZone,
   hoveredZone,
@@ -152,6 +154,17 @@ export const PotsGlassCard = ({
               {pot.name}
             </h3>
             <div className="flex items-center gap-1" data-tour="pot-actions">
+              {onGetCoach && !isArchived && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onGetCoach(pot)}
+                  className="h-8 w-8 hover:bg-background/20 text-purple-400 hover:text-purple-300"
+                  aria-label="Get AI Coaching"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
