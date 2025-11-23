@@ -7,6 +7,7 @@ import { SectionHeader } from "./SectionHeader";
 import { LoadingState } from "@/components/LoadingState";
 import { DollarSign, Filter } from "lucide-react";
 import { useMerchantLogoPreload } from "@/hooks/useMerchantLogoPreload";
+import { TransactionCardSkeleton } from "./TransactionCardSkeleton";
 import { usePageMemo } from "@/lib/performance-utils";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
@@ -154,7 +155,13 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
   ]);
 
   if (isLoading) {
-    return <LoadingState />;
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3, 4, 5].map(i => (
+          <TransactionCardSkeleton key={i} />
+        ))}
+      </div>
+    );
   }
 
   // Check if filters are applied
@@ -246,6 +253,7 @@ export const VirtualizedTransactionList = memo(function VirtualizedTransactionLi
                       title={item.data.title}
                       count={item.data.count}
                       total={item.data.total}
+                      isFetchingMore={isFetchingNextPage}
                     />
                   ) : item.data.isLoader ? (
                     hasNextPage ? (

@@ -1,15 +1,17 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SectionHeaderProps {
   title: string;
   count: number;
   total: number;
+  isFetchingMore?: boolean;
   className?: string;
 }
 
-export function SectionHeader({ title, count, total, className }: SectionHeaderProps) {
+export function SectionHeader({ title, count, total, isFetchingMore, className }: SectionHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -28,6 +30,14 @@ export function SectionHeader({ title, count, total, className }: SectionHeaderP
           <Badge variant="secondary" className="text-xs">
             {count} {count === 1 ? 'transaction' : 'transactions'}
           </Badge>
+          {isFetchingMore && (
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            >
+              <Loader2 className="w-3 h-3 text-accent" />
+            </motion.div>
+          )}
         </div>
         <div className="text-sm font-bold text-foreground">
           ${Math.abs(total).toFixed(2)}

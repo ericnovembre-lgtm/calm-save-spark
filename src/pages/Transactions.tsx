@@ -17,6 +17,8 @@ import { useOptimizedTransactions } from "@/hooks/useOptimizedTransactions";
 import { useSearchInsights } from "@/hooks/useSearchInsights";
 import { useRecurringDetection } from "@/hooks/useRecurringDetection";
 import { supabase } from "@/integrations/supabase/client";
+import { InsightsPanel } from "@/components/transactions/InsightsPanel";
+import { ScrollToTopButton } from "@/components/transactions/ScrollToTopButton";
 
 export default withPageMemo(function Transactions() {
   const queryClient = useQueryClient();
@@ -85,7 +87,8 @@ export default withPageMemo(function Transactions() {
   }, []);
 
   return (
-    <AppLayout>
+    <>
+      <AppLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -148,5 +151,12 @@ export default withPageMemo(function Transactions() {
         </ProgressiveLoader>
       </div>
     </AppLayout>
+
+    {/* Insights Panel - Desktop only */}
+    {userId && <InsightsPanel userId={userId} />}
+    
+    {/* Scroll to Top FAB */}
+    <ScrollToTopButton />
+  </>
   );
 }, 'Transactions');

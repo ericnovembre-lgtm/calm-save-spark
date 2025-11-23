@@ -20,6 +20,7 @@ interface TransactionDetectiveProps {
   merchant: string;
   amount: number;
   category: string;
+  isExpanded: boolean;
 }
 
 interface AnalysisResult {
@@ -42,6 +43,7 @@ export function TransactionDetective({
   merchant,
   amount,
   category,
+  isExpanded,
 }: TransactionDetectiveProps) {
   const { data: analysis, isLoading } = useQuery({
     queryKey: ['transaction-analysis', transactionId],
@@ -52,6 +54,8 @@ export function TransactionDetective({
       if (error) throw error;
       return data as AnalysisResult;
     },
+    enabled: isExpanded, // Only fetch when expanded
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   if (isLoading) {

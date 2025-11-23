@@ -17,6 +17,7 @@ import { useSmartSearch } from '@/hooks/useSmartSearch';
 import { cn } from '@/lib/utils';
 import { debounce } from '@/lib/performance-utils';
 import { ProgressiveLoader } from '@/components/performance/ProgressiveLoader';
+import { useFollowUpSuggestions } from '@/hooks/useFollowUpSuggestions';
 
 interface OptimizedSearchBarProps {
   onSearch: (filters: any, query?: string) => void;
@@ -68,10 +69,14 @@ export const OptimizedSearchBar = memo(function OptimizedSearchBar({
   const [query, setQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [lastQuery, setLastQuery] = useState('');
+  const [lastFilters, setLastFilters] = useState<any>(null);
+  const [resultCount, setResultCount] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { searchHistory, suggestions, isSearching, executeSearch, clearHistory } = useSmartSearch();
+  const { suggestions: followUpSuggestions } = useFollowUpSuggestions(lastQuery, lastFilters, resultCount);
 
   // Debounced query update to reduce API calls
   useEffect(() => {
@@ -100,6 +105,8 @@ export const OptimizedSearchBar = memo(function OptimizedSearchBar({
     if (filters) {
       onSearch(filters, query);
       setShowSuggestions(false);
+      setLastQuery(query);
+      setLastFilters(filters);
     }
   };
 
@@ -235,6 +242,36 @@ export const OptimizedSearchBar = memo(function OptimizedSearchBar({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Follow-up suggestions */}
+      {followUpSuggestions.length > 0 && lastQuery && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap gap-2 mt-3"
+        >
+          <span className="text-xs text-muted-foreground">Try asking:</span>
+          {followUpSuggestions.map((suggestion, i) => (
+            <Button
+              key={i}
+              size="sm"
+              variant="outline"
+              className="text-xs h-7"
+              onClick={async () => {
+                setQuery(suggestion);
+                const filters = await executeSearch(suggestion);
+                if (filters) {
+                  onSearch(filters, suggestion);
+                  setLastQuery(suggestion);
+                  setLastFilters(filters);
+                }
+              }}
+            >
+              {suggestion}
+            </Button>
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 });
