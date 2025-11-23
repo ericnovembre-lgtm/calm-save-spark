@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Brain, TrendingUp, ArrowRightLeft } from 'lucide-react';
+import { Brain, TrendingUp, ArrowRightLeft, AlertTriangle, Shield, TrendingDown } from 'lucide-react';
 import { LoadingState } from '@/components/LoadingState';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
@@ -24,6 +24,7 @@ interface SmartRebalancingPanelProps {
 export function SmartRebalancingPanel({ userId, portfolioData }: SmartRebalancingPanelProps) {
   const queryClient = useQueryClient();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [displayedNarrative, setDisplayedNarrative] = useState('');
 
   const { data: suggestions, isLoading } = useQuery({
     queryKey: ['rebalancing-suggestions', userId],
@@ -48,7 +49,7 @@ export function SmartRebalancingPanel({ userId, portfolioData }: SmartRebalancin
       if (!session) throw new Error('Not authenticated');
 
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/smart-rebalance`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/hedge-fund-rebalancer`,
         {
           method: 'POST',
           headers: {
@@ -97,24 +98,51 @@ export function SmartRebalancingPanel({ userId, portfolioData }: SmartRebalancin
 
   const suggestionData = suggestions?.suggestion_data ? 
     (suggestions.suggestion_data as any as { 
+      narrative?: string;
+      keyRisks?: string[];
       suggestions: RebalanceSuggestion[];
+      expectedImpact?: {
+        volatilityReduction: number;
+        diversificationScore: number;
+        riskAdjustedReturn: number;
+      };
       targetAllocation: Record<string, number>;
       currentDrift: number;
     }) : null;
 
+  // Typewriter effect for narrative
+  useEffect(() => {
+    if (suggestionData?.narrative && displayedNarrative.length < suggestionData.narrative.length) {
+      const timer = setTimeout(() => {
+        setDisplayedNarrative(suggestionData.narrative!.slice(0, displayedNarrative.length + 1));
+      }, 15);
+      return () => clearTimeout(timer);
+    }
+  }, [suggestionData?.narrative, displayedNarrative]);
+
+  // Reset typewriter when data changes
+  useEffect(() => {
+    setDisplayedNarrative('');
+  }, [suggestions?.id]);
+
   return (
     <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Brain className="w-5 h-5 text-primary" />
-          <h3 className="text-xl font-semibold text-foreground">Smart Rebalancing</h3>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <Brain className="w-6 h-6 text-white drop-shadow-md" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-foreground">Hedge Fund Analysis</h3>
+            <p className="text-sm text-muted-foreground">AI-powered portfolio optimization</p>
+          </div>
         </div>
         <Button 
           onClick={handleGenerate}
           disabled={isGenerating || generateMutation.isPending}
           size="sm"
         >
-          {isGenerating ? 'Calculating...' : 'Generate Suggestions'}
+          {isGenerating ? 'Analyzing...' : 'Generate Analysis'}
         </Button>
       </div>
 
@@ -133,18 +161,89 @@ export function SmartRebalancingPanel({ userId, portfolioData }: SmartRebalancin
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="space-y-4"
+          className="space-y-6"
         >
-          {suggestionData.currentDrift && (
-            <div className="flex items-center gap-2 p-3 bg-accent/10 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-accent" />
-              <span className="text-sm text-foreground">
-                Portfolio drift: <strong>{suggestionData.currentDrift.toFixed(1)}%</strong>
-              </span>
+          {/* AI Narrative */}
+          {suggestionData.narrative && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-xl border-2 border-amber-200/50"
+            >
+              <div className="flex items-start gap-3 mb-4">
+                <AlertTriangle className="w-5 h-5 text-amber-600 mt-1 flex-shrink-0" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-lg mb-2 text-amber-900 dark:text-amber-100">
+                    Portfolio Risk Analysis
+                  </h4>
+                  <p className="text-sm text-foreground leading-relaxed">
+                    {displayedNarrative}
+                    {displayedNarrative.length < suggestionData.narrative.length && (
+                      <span className="animate-pulse">▊</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Key Risks */}
+          {suggestionData.keyRisks && suggestionData.keyRisks.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="font-semibold flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Identified Risks
+              </h4>
+              <div className="space-y-2">
+                {suggestionData.keyRisks.map((risk, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/20 rounded-lg"
+                  >
+                    <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-foreground">{risk}</span>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           )}
 
+          {/* Expected Impact Metrics */}
+          {suggestionData.expectedImpact && (
+            <div className="grid grid-cols-3 gap-3">
+              <Card className="p-4 text-center">
+                <TrendingDown className="w-5 h-5 text-green-500 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-green-500">
+                  -{suggestionData.expectedImpact.volatilityReduction}%
+                </div>
+                <div className="text-xs text-muted-foreground">Volatility</div>
+              </Card>
+              <Card className="p-4 text-center">
+                <Brain className="w-5 h-5 text-blue-500 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-blue-500">
+                  {suggestionData.expectedImpact.diversificationScore}
+                </div>
+                <div className="text-xs text-muted-foreground">Diversification</div>
+              </Card>
+              <Card className="p-4 text-center">
+                <TrendingUp className="w-5 h-5 text-primary mx-auto mb-2" />
+                <div className="text-2xl font-bold text-primary">
+                  {suggestionData.expectedImpact.riskAdjustedReturn.toFixed(2)}
+                </div>
+                <div className="text-xs text-muted-foreground">Sharpe Ratio</div>
+              </Card>
+            </div>
+          )}
+
+          {/* Rebalancing Actions */}
           <div className="space-y-3">
+            <h4 className="font-semibold flex items-center gap-2">
+              <ArrowRightLeft className="w-4 h-4" />
+              Recommended Actions
+            </h4>
             {suggestionData.suggestions?.map((suggestion, idx) => (
               <motion.div
                 key={idx}
@@ -165,7 +264,6 @@ export function SmartRebalancingPanel({ userId, portfolioData }: SmartRebalancin
                   </p>
                   <p className="text-sm text-muted-foreground">{suggestion.reason}</p>
                 </div>
-                <ArrowRightLeft className="w-5 h-5 text-muted-foreground" />
               </motion.div>
             ))}
           </div>
