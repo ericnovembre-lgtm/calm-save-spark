@@ -12,6 +12,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { fadeInUp, staggerContainer } from "@/lib/motion-variants";
 import { PotsGlassCard } from "@/components/pots/PotsGlassCard";
 import { ImpulseSaveCoin } from "@/components/pots/ImpulseSaveCoin";
+import { CreatePotDialog } from "@/components/pots/CreatePotDialog";
 import { usePotGenerator } from "@/hooks/usePotGenerator";
 import { useSavingsPace } from "@/hooks/useSavingsPace";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,6 +24,7 @@ const Pots = () => {
   const prefersReducedMotion = useReducedMotion();
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null);
   const [dreamInput, setDreamInput] = useState("");
+  const [showManualDialog, setShowManualDialog] = useState(false);
   const { generatePot, isGenerating } = usePotGenerator();
 
   const { data: pots, isLoading } = useQuery({
@@ -69,9 +71,14 @@ const Pots = () => {
   const handleDreamKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      await generatePot(dreamInput);
-      setDreamInput("");
+      await handleGenerate();
     }
+  };
+
+  const handleGenerate = async () => {
+    if (!dreamInput.trim()) return;
+    await generatePot(dreamInput);
+    setDreamInput("");
   };
 
   return (
@@ -87,6 +94,14 @@ const Pots = () => {
             <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">Visual Vaults</h1>
             <p className="text-sm sm:text-base text-muted-foreground">Watch your dreams materialize as your savings grow</p>
           </div>
+          <Button 
+            onClick={() => setShowManualDialog(true)}
+            size="lg"
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Manual
+          </Button>
         </motion.div>
 
         {/* Dream Generator - Hero Input */}
@@ -95,28 +110,39 @@ const Pots = () => {
           initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="relative">
-            <Textarea
-              placeholder="What are you dreaming of? 💭 (e.g., A vintage Vespa, Trip to Japan, New MacBook)"
-              value={dreamInput}
-              onChange={(e) => setDreamInput(e.target.value)}
-              onKeyDown={handleDreamKeyDown}
-              className="text-lg sm:text-2xl font-light resize-none min-h-[80px] bg-glass-subtle border-2 border-primary/30 focus:border-primary transition-all"
-              disabled={isGenerating}
-            />
-            {isGenerating && (
-              <motion.div 
-                className="absolute inset-0 bg-background/80 backdrop-blur flex items-center justify-center rounded-lg"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <Sparkles className="w-6 h-6 animate-spin text-primary mr-2" />
-                <span className="text-sm text-foreground">Generating your vault...</span>
-              </motion.div>
-            )}
+          <div className="flex gap-2 items-end">
+            <div className="flex-1 relative">
+              <Textarea
+                placeholder="What are you dreaming of? 💭 (e.g., A vintage Vespa, Trip to Japan, New MacBook)"
+                value={dreamInput}
+                onChange={(e) => setDreamInput(e.target.value)}
+                onKeyDown={handleDreamKeyDown}
+                className="text-lg sm:text-2xl font-light resize-none min-h-[80px] bg-glass-subtle border-2 border-primary/30 focus:border-primary transition-all"
+                disabled={isGenerating}
+              />
+              {isGenerating && (
+                <motion.div 
+                  className="absolute inset-0 bg-background/80 backdrop-blur flex items-center justify-center rounded-lg"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <Sparkles className="w-6 h-6 animate-spin text-primary mr-2" />
+                  <span className="text-sm text-foreground">Generating your vault...</span>
+                </motion.div>
+              )}
+            </div>
+            <Button
+              onClick={handleGenerate}
+              disabled={!dreamInput.trim() || isGenerating}
+              size="lg"
+              className="h-[80px] gap-2 bg-primary hover:bg-primary/90"
+            >
+              <Sparkles className="w-5 h-5" />
+              Generate
+            </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Press Enter to create • AI will suggest a target amount and find a perfect image
+            Press Enter or click Generate • AI will suggest a target amount and find a perfect image
           </p>
         </motion.div>
 
@@ -179,7 +205,7 @@ const Pots = () => {
           <EmptyState
             icon={Plus}
             title="No savings pots yet"
-            description="Type your dream above to create your first visual vault with AI"
+            description="Type your dream above to generate with AI • Or click + Manual for precise control"
           />
         )}
 
@@ -187,6 +213,12 @@ const Pots = () => {
         {pots && pots.length > 0 && (
           <ImpulseSaveCoin pots={pots} />
         )}
+
+        {/* Manual Creation Dialog */}
+        <CreatePotDialog 
+          open={showManualDialog} 
+          onOpenChange={setShowManualDialog}
+        />
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
