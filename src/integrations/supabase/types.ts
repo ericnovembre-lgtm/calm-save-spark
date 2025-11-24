@@ -6109,6 +6109,48 @@ export type Database = {
           },
         ]
       }
+      portfolio_goals: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          current_amount: number | null
+          deadline: string | null
+          goal_name: string
+          goal_type: string
+          icon: string | null
+          id: string
+          target_amount: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          current_amount?: number | null
+          deadline?: string | null
+          goal_name: string
+          goal_type: string
+          icon?: string | null
+          id?: string
+          target_amount: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          current_amount?: number | null
+          deadline?: string | null
+          goal_name?: string
+          goal_type?: string
+          icon?: string | null
+          id?: string
+          target_amount?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolio_holdings: {
         Row: {
           asset_type: string
@@ -9007,6 +9049,7 @@ export type Database = {
           id: string
           last_security_check: string | null
           natural_language_rules: Json | null
+          portfolio_allocation_target: Json | null
           security_score: number | null
           security_settings: Json | null
           spending_persona: Json | null
@@ -9020,6 +9063,7 @@ export type Database = {
           id?: string
           last_security_check?: string | null
           natural_language_rules?: Json | null
+          portfolio_allocation_target?: Json | null
           security_score?: number | null
           security_settings?: Json | null
           spending_persona?: Json | null
@@ -9033,6 +9077,7 @@ export type Database = {
           id?: string
           last_security_check?: string | null
           natural_language_rules?: Json | null
+          portfolio_allocation_target?: Json | null
           security_score?: number | null
           security_settings?: Json | null
           spending_persona?: Json | null

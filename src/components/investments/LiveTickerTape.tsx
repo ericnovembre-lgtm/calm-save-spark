@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { TrendingUp, TrendingDown, Wifi, WifiOff } from 'lucide-react';
 import { useDemoMode } from '@/contexts/DemoModeContext';
+import { useMarketWebSocket } from '@/hooks/useMarketWebSocket';
 
 interface TickerItem {
   symbol: string;
@@ -14,6 +14,9 @@ interface TickerItem {
 export function LiveTickerTape({ holdings }: { holdings: any[] }) {
   const [tickerData, setTickerData] = useState<TickerItem[]>([]);
   const { isDemoMode } = useDemoMode();
+  
+  const symbols = holdings.map(h => h.symbol).filter(Boolean);
+  const { data: wsData, isConnected, error } = useMarketWebSocket(isDemoMode ? [] : symbols);
 
   useEffect(() => {
     // In demo mode, use holdings data directly
@@ -27,57 +30,16 @@ export function LiveTickerTape({ holdings }: { holdings: any[] }) {
       return;
     }
 
-    // Get symbols from holdings
-    const symbols = holdings.map(h => h.symbol).filter(Boolean);
-    if (symbols.length === 0) return;
-
-    // Fetch initial data
-    const fetchTickerData = async () => {
-      const { data } = await supabase
-        .from('market_data_cache')
-        .select('symbol, price, change_percent')
-        .in('symbol', symbols);
-
-      if (data) {
-        setTickerData(data.map(item => ({
-          symbol: item.symbol,
-          price: parseFloat(String(item.price)),
-          change: 0, // Calculate from previous price if needed
-          changePercent: parseFloat(String(item.change_percent || 0))
-        })));
-      }
-    };
-
-    fetchTickerData();
-
-    // Subscribe to real-time updates
-    const channel = supabase
-      .channel('market-data-updates')
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'market_data_cache',
-        filter: `symbol=in.(${symbols.join(',')})`
-      }, (payload: any) => {
-        setTickerData(prev => {
-          const updated = prev.map(item => 
-            item.symbol === payload.new.symbol 
-              ? {
-                  ...item,
-                  price: parseFloat(String(payload.new.price)),
-                  changePercent: parseFloat(String(payload.new.change_percent || 0))
-                }
-              : item
-          );
-          return updated;
-        });
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [holdings, isDemoMode]);
+    // Use WebSocket data when available
+    if (Object.keys(wsData).length > 0) {
+      setTickerData(Object.values(wsData).map(d => ({
+        symbol: d.symbol,
+        price: d.price,
+        change: d.change,
+        changePercent: d.changePercent
+      })));
+    }
+  }, [holdings, isDemoMode, wsData]);
 
   if (tickerData.length === 0) {
     return null;
@@ -88,14 +50,26 @@ export function LiveTickerTape({ holdings }: { holdings: any[] }) {
 
   return (
     <div className="bg-slate-900/50 backdrop-blur-sm rounded-lg overflow-hidden border border-slate-800 relative">
-      {/* LIVE Badge */}
+      {/* Connection Status Badge */}
       <div className="absolute top-2 right-2 z-10">
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-          </span>
-          <span className="text-xs font-mono text-slate-300">LIVE</span>
+        <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${
+          isConnected ? 'bg-green-500/20 border-green-500/30' : 'bg-slate-800/80 border-slate-700'
+        } border`}>
+          {isConnected ? (
+            <>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              <Wifi className="w-3 h-3 text-green-500" />
+              <span className="text-xs font-mono text-green-500">LIVE</span>
+            </>
+          ) : (
+            <>
+              <WifiOff className="w-3 h-3 text-slate-400" />
+              <span className="text-xs font-mono text-slate-400">{isDemoMode ? 'DEMO' : 'OFFLINE'}</span>
+            </>
+          )}
         </div>
       </div>
 
