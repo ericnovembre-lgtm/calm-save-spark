@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, User, Loader2 } from "lucide-react";
+import { Send, Sparkles, Loader2, X, RefreshCcw } from "lucide-react";
 import { AddressDetective } from "./AddressDetective";
-import { SlideToConfirm } from "./SlideToConfirm";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ParsedIntent {
+  type: 'SEND' | 'SWAP';
   action: string;
   amount?: number;
   token?: string;
+  fromToken?: string;
+  toToken?: string;
   recipient?: {
     name?: string;
     address?: string;
@@ -25,39 +27,30 @@ export function SmartSendInterface({ onSend, onClose }: SmartSendInterfaceProps)
   const [input, setInput] = useState("");
   const [parsedIntent, setParsedIntent] = useState<ParsedIntent | null>(null);
   const [addressResult, setAddressResult] = useState<any>(null);
-  const [contacts, setContacts] = useState<Array<{ name: string; address: string }>>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [showDraft, setShowDraft] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadContacts();
-  }, []);
-
-  const loadContacts = async () => {
-    const { data } = await supabase
-      .from('wallet_contacts')
-      .select('name, address')
-      .limit(10);
-    
-    if (data) setContacts(data);
-  };
-
-  const analyzeInput = async (text: string) => {
-    if (text.length < 5) {
-      setParsedIntent(null);
-      setAddressResult(null);
+  const handleDraft = async () => {
+    if (!input.trim() || input.length < 5) {
+      toast({
+        title: "Input too short",
+        description: "Please describe your transaction in more detail",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsAnalyzing(true);
+    setShowDraft(false);
+    setParsedIntent(null);
+    setAddressResult(null);
 
     try {
       const { data, error } = await supabase.functions.invoke('wallet-ai-assistant', {
         body: {
           action: 'parse_send',
-          input: text,
-          contacts: contacts,
+          input: input,
         },
       });
 
@@ -65,9 +58,10 @@ export function SmartSendInterface({ onSend, onClose }: SmartSendInterfaceProps)
 
       if (data.parsed) {
         setParsedIntent(data.parsed);
+        setShowDraft(true);
         
-        // If raw address detected, run detective
-        if (data.parsed.recipient?.address && data.parsed.recipient.address.startsWith('0x')) {
+        // If raw address detected and it's a SEND, run detective
+        if (data.parsed.type === 'SEND' && data.parsed.recipient?.address && data.parsed.recipient.address.startsWith('0x')) {
           const detectiveData = await supabase.functions.invoke('wallet-ai-assistant', {
             body: {
               action: 'detect_address',
@@ -82,26 +76,25 @@ export function SmartSendInterface({ onSend, onClose }: SmartSendInterfaceProps)
       }
     } catch (error) {
       console.error('Analysis error:', error);
+      toast({
+        title: "Failed to parse command",
+        description: "Please try rephrasing your transaction",
+        variant: "destructive",
+      });
     } finally {
       setIsAnalyzing(false);
     }
   };
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (input) analyzeInput(input);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [input]);
 
   const handleConfirm = async () => {
     if (!parsedIntent) return;
 
     try {
       await onSend(parsedIntent);
-      toast({ title: "Transaction sent successfully!" });
-      onClose();
+      toast({ title: `${parsedIntent.type} transaction sent successfully!` });
+      setShowDraft(false);
+      setInput("");
+      setParsedIntent(null);
     } catch (error) {
       toast({
         title: "Transaction failed",
@@ -111,139 +104,129 @@ export function SmartSendInterface({ onSend, onClose }: SmartSendInterfaceProps)
     }
   };
 
-  const canProceed = parsedIntent && 
-    parsedIntent.amount && 
-    parsedIntent.recipient?.address &&
-    !addressResult?.warning;
+  const closeDraft = () => {
+    setShowDraft(false);
+    setParsedIntent(null);
+    setAddressResult(null);
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      className="space-y-4"
-    >
-      {/* Natural Language Input */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">
-          Describe your transaction
-        </label>
-        <div className="relative">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder='Try "Send 0.5 ETH to Mike" or paste an address...'
-            className="w-full h-24 px-4 py-3 bg-card border-2 border-border rounded-xl focus:border-accent focus:outline-none resize-none text-foreground placeholder:text-muted-foreground"
-          />
-          {isAnalyzing && (
-            <div className="absolute top-3 right-3">
-              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-            </div>
-          )}
+    <div className="space-y-4">
+      {/* Natural Language Input Bar */}
+      <div className="relative">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+          <Sparkles className="w-5 h-5 text-violet-400" />
         </div>
-        <p className="text-xs text-muted-foreground">
-          💡 AI will parse your intent and validate the recipient
-        </p>
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleDraft()}
+          placeholder='Type "Send 0.5 ETH to Mike" or "Swap USDC for SOL"'
+          className="w-full pl-12 pr-28 py-4 bg-slate-900/50 border border-white/10 rounded-2xl focus:border-violet-400 focus:outline-none text-white placeholder:text-slate-500"
+          disabled={isAnalyzing}
+        />
+        <button
+          onClick={handleDraft}
+          disabled={isAnalyzing || !input.trim()}
+          className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-violet-500 hover:bg-violet-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-xl font-medium transition-colors"
+        >
+          {isAnalyzing ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            "Draft"
+          )}
+        </button>
       </div>
 
-      {/* Parsed Intent Preview */}
+      {/* Draft Card */}
       <AnimatePresence>
-        {parsedIntent && (
+        {showDraft && parsedIntent && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-accent/10 border-2 border-accent/30 rounded-xl p-4 space-y-2"
+            className="bg-slate-900/80 border border-white/10 rounded-2xl p-4 space-y-4"
           >
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Send className="w-4 h-4" />
-              <span>Detected Intent</span>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              {parsedIntent.amount && (
-                <div>
-                  <div className="text-muted-foreground">Amount</div>
-                  <div className="font-bold text-foreground">
-                    {parsedIntent.amount} {parsedIntent.token || 'ETH'}
-                  </div>
-                </div>
-              )}
-              
-              {parsedIntent.recipient && (
-                <div>
-                  <div className="text-muted-foreground">Recipient</div>
-                  <div className="font-mono text-xs text-foreground">
-                    {parsedIntent.recipient.name || 
-                     `${parsedIntent.recipient.address?.slice(0, 6)}...${parsedIntent.recipient.address?.slice(-4)}`}
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Address Detective */}
-      <AnimatePresence>
-        {addressResult && <AddressDetective result={addressResult} />}
-      </AnimatePresence>
-
-      {/* Contact Suggestions */}
-      {contacts.length > 0 && !parsedIntent && (
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-foreground">Quick Send</div>
-          <div className="flex flex-wrap gap-2">
-            {contacts.slice(0, 4).map((contact, i) => (
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {parsedIntent.type === 'SEND' ? (
+                  <Send className="w-5 h-5 text-violet-400" />
+                ) : (
+                  <RefreshCcw className="w-5 h-5 text-emerald-400" />
+                )}
+                <span className="font-bold text-white">
+                  {parsedIntent.type} Transaction
+                </span>
+                <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-full">
+                  Ethereum
+                </span>
+              </div>
               <button
-                key={i}
-                onClick={() => setInput(`Send to ${contact.name}`)}
-                className="flex items-center gap-2 px-3 py-2 bg-muted/20 hover:bg-muted/30 rounded-lg text-sm transition-colors"
+                onClick={closeDraft}
+                className="p-1 hover:bg-white/10 rounded-lg transition-colors"
               >
-                <User className="w-3 h-3" />
-                <span>{contact.name}</span>
+                <X className="w-4 h-4 text-slate-400" />
               </button>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
 
-      {/* Slide to Confirm */}
-      {canProceed && !showConfirm && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <button
-            onClick={() => setShowConfirm(true)}
-            className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:shadow-lg transition-shadow"
-          >
-            Review Transaction
-          </button>
-        </motion.div>
-      )}
+            <div className="h-px bg-white/10" />
 
-      <AnimatePresence>
-        {showConfirm && canProceed && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="space-y-4"
-          >
-            <SlideToConfirm
-              onConfirm={handleConfirm}
-              label="Slide to Send Transaction"
-            />
+            {/* Transaction Details */}
+            <div className="space-y-3">
+              {parsedIntent.type === 'SEND' ? (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400 text-sm">Asset</span>
+                    <span className="text-white font-bold">
+                      {parsedIntent.amount} {parsedIntent.token || 'ETH'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400 text-sm">To</span>
+                    <span className="text-white font-mono text-xs">
+                      {parsedIntent.recipient?.name || 
+                       `${parsedIntent.recipient?.address?.slice(0, 6)}...${parsedIntent.recipient?.address?.slice(-4)}`}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400 text-sm">From</span>
+                    <span className="text-white font-bold">
+                      {parsedIntent.amount} {parsedIntent.fromToken || parsedIntent.token}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400 text-sm">To</span>
+                    <span className="text-white font-bold">
+                      {parsedIntent.toToken}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="h-px bg-white/10" />
+
+            {/* Address Detective */}
+            <AnimatePresence>
+              {addressResult && <AddressDetective result={addressResult} />}
+            </AnimatePresence>
+
+            {/* Confirm Button */}
             <button
-              onClick={() => setShowConfirm(false)}
-              className="w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              onClick={handleConfirm}
+              disabled={addressResult?.warning}
+              className="w-full py-3 bg-violet-500 hover:bg-violet-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-xl font-medium transition-colors"
             >
-              Cancel
+              ✓ Confirm {parsedIntent.type}
             </button>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
