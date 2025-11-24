@@ -30,19 +30,22 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { action, input, address, contacts } = await req.json();
+    const { action, input, address, contacts, current_gas_gwei } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    // Action 1: Parse Natural Language Send Command
+    // Action 1: Parse Natural Language Send/Swap Command
     if (action === 'parse_send') {
-      const systemPrompt = `You are a crypto wallet assistant. Parse natural language send commands into structured data.
-Extract: amount, token (default ETH), recipient name or address.
-If recipient is a name, check the contacts list to resolve it to an address.
-Return JSON: { "action": "send", "amount": number, "token": string, "recipient": { "name"?: string, "address": string } }`;
+      const systemPrompt = `You are a crypto wallet assistant. Parse natural language transaction commands.
+Detect if it's a SEND or SWAP:
+- SEND: "Send X ETH to Mike" → { type: "SEND", amount, token, recipient }
+- SWAP: "Swap 100 USDC for SOL" → { type: "SWAP", amount, fromToken, toToken }
+
+For SEND: Extract amount, token (default ETH), recipient name or address.
+For SWAP: Extract amount, fromToken, toToken.`;
 
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -54,7 +57,7 @@ Return JSON: { "action": "send", "amount": number, "token": string, "recipient":
           model: 'google/gemini-2.5-flash',
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: `Input: "${input}"\nContacts: ${JSON.stringify(contacts)}` }
+            { role: 'user', content: `Input: "${input}"\nContacts: ${JSON.stringify(contacts || [])}` }
           ],
           tools: [{
             type: 'function',
@@ -64,19 +67,21 @@ Return JSON: { "action": "send", "amount": number, "token": string, "recipient":
               parameters: {
                 type: 'object',
                 properties: {
+                  type: { type: 'string', enum: ['SEND', 'SWAP'] },
                   action: { type: 'string' },
                   amount: { type: 'number' },
                   token: { type: 'string' },
+                  fromToken: { type: 'string' },
+                  toToken: { type: 'string' },
                   recipient: {
                     type: 'object',
                     properties: {
                       name: { type: 'string' },
                       address: { type: 'string' }
-                    },
-                    required: ['address']
+                    }
                   }
                 },
-                required: ['action', 'amount', 'recipient']
+                required: ['type', 'amount']
               }
             }
           }],
@@ -160,10 +165,13 @@ Return JSON: { "isValid": bool, "type": string, "label": string, "warning": stri
       }
     }
 
-    // Action 3: Gas Guru Advice
+    // Action 3: Gas Guru Witty Traffic Report
     if (action === 'gas_advice') {
-      const systemPrompt = `You are a gas fee advisor. Analyze current network conditions and provide timing advice for optimal gas fees.
-Return JSON: { "currentLevel": string, "advice": string, "bestTime": string, "predictedSavings": number }`;
+      const gasGwei = current_gas_gwei || 25;
+      const systemPrompt = `You are a witty Ethereum gas analyst. Current gas: ${gasGwei} gwei.
+Generate a SHORT (max 15 words), witty "traffic report" style tip about whether to transact now or wait.
+Examples: "Highway's clear! Great time to cruise." or "Rush hour chaos, grab coffee and wait."
+Return format: { "fee": "~$X.XX", "tip": "your witty message" }`;
 
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -175,18 +183,41 @@ Return JSON: { "currentLevel": string, "advice": string, "bestTime": string, "pr
           model: 'google/gemini-2.5-flash',
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: 'Provide gas fee timing advice for Ethereum mainnet' }
+            { role: 'user', content: `Generate witty gas advice for ${gasGwei} gwei` }
           ],
+          tools: [{
+            type: 'function',
+            function: {
+              name: 'generate_gas_tip',
+              description: 'Generate gas fee tip',
+              parameters: {
+                type: 'object',
+                properties: {
+                  fee: { type: 'string', description: 'Estimated fee like ~$4.20' },
+                  tip: { type: 'string', description: 'Short witty traffic report style message' }
+                },
+                required: ['fee', 'tip']
+              }
+            }
+          }],
+          tool_choice: { type: 'function', function: { name: 'generate_gas_tip' } }
         })
       });
 
+      if (!response.ok) {
+        throw new Error('Failed to generate gas advice');
+      }
+
       const aiResponse = await response.json();
-      const advice = aiResponse.choices?.[0]?.message?.content;
+      const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
       
-      return new Response(
-        JSON.stringify({ advice }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      if (toolCall) {
+        const result = JSON.parse(toolCall.function.arguments);
+        return new Response(
+          JSON.stringify(result),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     return new Response(

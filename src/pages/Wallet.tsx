@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { ArrowUpRight, ArrowDownLeft, Clock, TrendingUp, Plus, Sparkles } from "lucide-react";
 import { HolographicWalletCard } from "@/components/wallet/HolographicWalletCard";
 import { SmartSendInterface } from "@/components/wallet/SmartSendInterface";
 import { GasGuru } from "@/components/wallet/GasGuru";
@@ -95,30 +96,25 @@ export default function Wallet() {
 
         {walletAddress && (
           <>
-            {/* Smart Send Interface */}
+            {/* Gas Guru - Compact witty traffic report */}
+            <GasGuru />
+
+            {/* Smart Send - Always visible */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="mb-8"
+              className="bg-slate-900/50 border border-white/10 rounded-2xl p-6 mb-6"
             >
-              {!showSmartSend ? (
-                <button
-                  onClick={() => setShowSmartSend(true)}
-                  className="w-full bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white py-4 rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-violet-500/50"
-                >
-                  💬 Smart Send
-                </button>
-              ) : (
-                <SmartSendInterface
-                  onSend={handleSend}
-                  onClose={() => setShowSmartSend(false)}
-                />
-              )}
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="w-5 h-5 text-violet-400" />
+                <h2 className="text-lg font-bold text-white">Smart Send</h2>
+              </div>
+              <SmartSendInterface
+                onSend={handleSend}
+                onClose={() => {}}
+              />
             </motion.div>
-
-            {/* Gas Guru */}
-            <GasGuru />
 
             {/* Tabs Section */}
             <motion.div
