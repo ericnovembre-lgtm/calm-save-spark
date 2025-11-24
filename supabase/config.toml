@@ -315,4 +315,19 @@ verify_jwt = true
 [functions.hedge-fund-rebalancer]
 verify_jwt = true
 
+[functions.wallet-create]
+verify_jwt = true
+
+[functions.wallet-sign-transaction]
+verify_jwt = true
+
+[functions.wallet-estimate-gas]
+verify_jwt = true
+
+[functions.wallet-ai-assistant]
+verify_jwt = true
+
+[functions.check-investment-alerts]
+verify_jwt = false
+
 

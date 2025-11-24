@@ -9391,6 +9391,42 @@ export type Database = {
           },
         ]
       }
+      wallet_contacts: {
+        Row: {
+          address: string
+          chain: string
+          created_at: string
+          id: string
+          last_transaction_at: string | null
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          chain?: string
+          created_at?: string
+          id?: string
+          last_transaction_at?: string | null
+          name: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          chain?: string
+          created_at?: string
+          id?: string
+          last_transaction_at?: string | null
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_tokens: {
         Row: {
           chain: string
