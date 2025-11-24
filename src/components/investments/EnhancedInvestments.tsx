@@ -256,16 +256,21 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
 
   return (
     <div className="space-y-6">
-      {/* Terminal-style Header Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="p-4 bg-slate-900/50 border-slate-800">
-          <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+      {/* Portfolio Stats Cards */}
+      <motion.div 
+        className="grid gap-4 md:grid-cols-3"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+      >
+        <Card className="p-6 bg-card border-border shadow-sm hover:shadow-md transition-shadow duration-300">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-medium">
             Total Portfolio Value
           </p>
-          <div className="text-2xl font-mono tabular-nums text-slate-100">
+          <div className="text-3xl font-mono tabular-nums text-foreground font-bold">
             $<CountUp 
               end={totalValue} 
-              duration={prefersReducedMotion ? 0 : 1.5} 
+              duration={prefersReducedMotion ? 0 : 1.2} 
               decimals={0} 
               separator="," 
               preserveValue
@@ -273,41 +278,41 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
           </div>
         </Card>
         
-        <Card className="p-4 bg-slate-900/50 border-slate-800">
-          <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+        <Card className="p-6 bg-card border-border shadow-sm hover:shadow-md transition-shadow duration-300">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-medium">
             Total Gains/Losses
           </p>
           <div className="flex items-center gap-2">
-            <div className={`text-2xl font-mono tabular-nums ${totalGains >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <div className={`text-3xl font-mono tabular-nums font-bold ${totalGains >= 0 ? 'text-success' : 'text-destructive'}`}>
               {totalGains >= 0 ? '+' : ''}$<CountUp 
                 end={Math.abs(totalGains)} 
-                duration={prefersReducedMotion ? 0 : 1.5} 
+                duration={prefersReducedMotion ? 0 : 1.2} 
                 decimals={0} 
                 separator="," 
                 preserveValue
               />
             </div>
             {totalGains >= 0 ? 
-              <TrendingUp className="w-4 h-4 text-green-400" /> : 
-              <TrendingDown className="w-4 h-4 text-red-400" />
+              <TrendingUp className="w-5 h-5 text-success" /> : 
+              <TrendingDown className="w-5 h-5 text-destructive" />
             }
           </div>
         </Card>
         
-        <Card className="p-4 bg-slate-900/50 border-slate-800">
-          <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+        <Card className="p-6 bg-card border-border shadow-sm hover:shadow-md transition-shadow duration-300">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-medium">
             Return on Investment
           </p>
-          <div className={`text-2xl font-mono tabular-nums ${gainsPercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+          <div className={`text-3xl font-mono tabular-nums font-bold ${gainsPercent >= 0 ? 'text-success' : 'text-destructive'}`}>
             {gainsPercent >= 0 ? '+' : ''}<CountUp 
               end={Math.abs(gainsPercent)} 
-              duration={prefersReducedMotion ? 0 : 1.5} 
+              duration={prefersReducedMotion ? 0 : 1.2} 
               decimals={2} 
               preserveValue
             />%
           </div>
         </Card>
-      </div>
+      </motion.div>
 
       {/* Live Ticker Tape */}
       {holdings && Array.isArray(holdings) && holdings.length > 0 && (
@@ -349,15 +354,16 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4"
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="bg-warning/10 border border-warning/30 rounded-lg p-5 shadow-sm"
         >
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 text-warning mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <h4 className="text-sm font-semibold text-amber-500 mb-1">
-                ⚠️ Portfolio Drift Detected
+              <h4 className="text-sm font-semibold text-foreground mb-1">
+                Portfolio Drift Detected
               </h4>
-              <p className="text-sm text-slate-300 mb-3">
+              <p className="text-sm text-muted-foreground mb-3">
                 Your portfolio has drifted {driftData.driftPercent.toFixed(1)}% from target allocation. 
                 {driftData.affectedAssets.length > 0 && (
                   <span className="block mt-1">
@@ -369,7 +375,7 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="bg-amber-500/20 border-amber-500/40 hover:bg-amber-500/30"
+                  className="hover:bg-warning/10"
                   onClick={() => {
                     document.getElementById('rebalancing-panel')?.scrollIntoView({ 
                       behavior: 'smooth',
@@ -434,20 +440,25 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
       />
 
       {(!accounts || !Array.isArray(accounts) || accounts.length === 0) && (
-        <Card className="border-2 border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-              <TrendingUp className="w-10 h-10 text-primary" />
-            </div>
-            
-            <h3 className="text-2xl font-semibold mb-3">
-              Start Building Your Portfolio
-            </h3>
-            
-            <p className="text-muted-foreground text-center max-w-md mb-8">
-              Connect your brokerage account to track investments, get AI-powered insights, 
-              and optimize your portfolio with real-time market data.
-            </p>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Card className="border-2 border-dashed border-border">
+            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                <TrendingUp className="w-10 h-10 text-accent" />
+              </div>
+              
+              <h3 className="text-2xl font-semibold mb-3 text-foreground">
+                Start Building Your Portfolio
+              </h3>
+              
+              <p className="text-muted-foreground text-center max-w-md mb-8">
+                Connect your brokerage account to track investments, get AI-powered insights, 
+                and optimize your portfolio with real-time market data.
+              </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-2xl w-full">
               <div className="flex flex-col items-center text-center p-4">
@@ -503,6 +514,7 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
             </p>
           </CardContent>
         </Card>
+        </motion.div>
       )}
     </div>
   );
