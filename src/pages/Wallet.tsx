@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, ArrowDownLeft, Clock, TrendingUp, Plus, Sparkles } from "lucide-react";
 import { HolographicWalletCard } from "@/components/wallet/HolographicWalletCard";
@@ -45,6 +45,13 @@ export default function Wallet() {
     },
   });
 
+  // Sync wallet address from fetched data
+  useEffect(() => {
+    if (wallet?.address) {
+      setWalletAddress(wallet.address);
+    }
+  }, [wallet]);
+
   // Mock tokens data with sparkline
   const mockTokens = [
     { symbol: 'ETH', name: 'Ethereum', balance: 1.45, usdValue: 3240.50, change24h: 2.4, sparklineData: [3100, 3150, 3120, 3200, 3180, 3240], isStablecoin: false },
@@ -62,8 +69,8 @@ export default function Wallet() {
       });
 
       if (error) throw error;
-      if (data.address) {
-        setWalletAddress(data.address);
+      if (data.wallet?.address) {
+        setWalletAddress(data.wallet.address);
         toast({ title: "Wallet created successfully!" });
       }
     } catch (error) {
