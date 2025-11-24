@@ -10,7 +10,7 @@ import { SmartRebalancingPanel } from "./SmartRebalancingPanel";
 import { PlaidInvestmentLink } from "./PlaidInvestmentLink";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { RefreshCw, TrendingUp, TrendingDown, BarChart3, Sparkles, Shield, Play } from "lucide-react";
+import { RefreshCw, TrendingUp, TrendingDown, BarChart3, Sparkles, Shield, Play, Settings } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
 import CountUp from 'react-countup';
@@ -19,6 +19,8 @@ import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_INVESTMENT_ACCOUNTS, DEMO_PORTFOLIO_HOLDINGS } from '@/lib/demo-data';
 import { useDriftDetection } from '@/hooks/useDriftDetection';
 import { AlertCircle } from 'lucide-react';
+import { AllocationSettingsModal } from './AllocationSettingsModal';
+import { PortfolioGoals } from './PortfolioGoals';
 
 interface EnhancedInvestmentsProps {
   userId: string;
@@ -28,6 +30,7 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
   const queryClient = useQueryClient();
   const prefersReducedMotion = useReducedMotion();
   const { isDemoMode, enableDemoMode } = useDemoMode();
+  const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
 
   const { data: dbAccounts, isLoading } = useQuery({
     queryKey: ['investment_accounts', userId],
@@ -213,8 +216,39 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
     accounts: accounts || []
   };
 
-  // Drift detection
-  const driftData = useDriftDetection(treemapData);
+  // Load user allocation preferences
+  const { data: userPreferences } = useQuery({
+    queryKey: ['user_preferences', userId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('user_preferences')
+        .select('portfolio_allocation_target')
+        .eq('user_id', userId)
+        .single();
+      return data;
+    },
+  });
+
+  // Drift detection with user's custom target
+  const targetAllocation = userPreferences?.portfolio_allocation_target 
+    ? (userPreferences.portfolio_allocation_target as Record<string, number>)
+    : undefined;
+  
+  const driftData = useDriftDetection(treemapData, targetAllocation);
+
+  // Calculate current allocation percentages
+  const currentAllocation = (() => {
+    const total = treemapData.reduce((sum, item) => sum + item.value, 0);
+    return treemapData.reduce((acc, item) => {
+      const key = item.name.toLowerCase().includes('brokerage') || item.name.toLowerCase().includes('investment') ? 'brokerage' :
+                  item.name.toLowerCase().includes('bond') || item.name.toLowerCase().includes('fixed') ? 'bond' :
+                  item.name.toLowerCase().includes('crypto') ? 'crypto' :
+                  item.name.toLowerCase().includes('cash') ? 'cash' : 'other';
+      const percent = total > 0 ? (item.value / total) * 100 : 0;
+      acc[key] = (acc[key] || 0) + percent;
+      return acc;
+    }, {} as Record<string, number>);
+  })();
 
   if (isLoading) return <LoadingState />;
 
@@ -293,6 +327,11 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
         <PerformanceChart userId={userId} />
       </div>
 
+      {/* Portfolio Goals */}
+      {totalValue > 0 && (
+        <PortfolioGoals userId={userId} totalPortfolioValue={totalValue} />
+      )}
+
       {/* Drift Detection Alert */}
       {driftData.hasDrift && (
         <motion.div
@@ -314,19 +353,29 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
                   </span>
                 )}
               </p>
-              <Button
-                size="sm"
-                variant="outline"
-                className="bg-amber-500/20 border-amber-500/40 hover:bg-amber-500/30"
-                onClick={() => {
-                  document.getElementById('rebalancing-panel')?.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
-                  });
-                }}
-              >
-                Review Suggestions
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="bg-amber-500/20 border-amber-500/40 hover:bg-amber-500/30"
+                  onClick={() => {
+                    document.getElementById('rebalancing-panel')?.scrollIntoView({ 
+                      behavior: 'smooth',
+                      block: 'start'
+                    });
+                  }}
+                >
+                  Review Suggestions
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsAllocationModalOpen(true)}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Adjust Targets
+                </Button>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -352,7 +401,25 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
           <RefreshCw className={`w-4 h-4 mr-2 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
           Sync Portfolio
         </Button>
+        
+        {accounts && Array.isArray(accounts) && accounts.length > 0 && (
+          <Button 
+            variant="outline" 
+            onClick={() => setIsAllocationModalOpen(true)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Target Allocation
+          </Button>
+        )}
       </div>
+
+      {/* Allocation Settings Modal */}
+      <AllocationSettingsModal
+        open={isAllocationModalOpen}
+        onOpenChange={setIsAllocationModalOpen}
+        userId={userId}
+        currentAllocation={currentAllocation}
+      />
 
       {(!accounts || !Array.isArray(accounts) || accounts.length === 0) && (
         <Card className="border-2 border-dashed">
