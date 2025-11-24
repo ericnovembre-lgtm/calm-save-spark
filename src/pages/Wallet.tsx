@@ -10,6 +10,8 @@ import { TokenBalanceCard } from "@/components/wallet/TokenBalanceCard";
 import { TransactionHistory } from "@/components/wallet/TransactionHistory";
 import { DemoModeWarningBanner } from "@/components/wallet/DemoModeWarningBanner";
 import { WalletDemoModal } from "@/components/wallet/WalletDemoModal";
+import { PortfolioRiskAnalyst } from "@/components/wallet/PortfolioRiskAnalyst";
+import { NFTSentimentOracle } from "@/components/wallet/NFTSentimentOracle";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -24,9 +26,9 @@ export default function Wallet() {
 
   // Mock tokens data with sparkline
   const mockTokens = [
-    { symbol: 'ETH', name: 'Ethereum', balance: 1.45, usdValue: 3240.50, change24h: 2.4, sparklineData: [3100, 3150, 3120, 3200, 3180, 3240] },
-    { symbol: 'USDC', name: 'USD Coin', balance: 450.00, usdValue: 450.00, change24h: 0.01, sparklineData: [450, 450, 450, 450, 450, 450] },
-    { symbol: 'SOL', name: 'Solana', balance: 142, usdValue: 2840, change24h: -1.2, sparklineData: [2900, 2880, 2850, 2870, 2860, 2840] },
+    { symbol: 'ETH', name: 'Ethereum', balance: 1.45, usdValue: 3240.50, change24h: 2.4, sparklineData: [3100, 3150, 3120, 3200, 3180, 3240], isStablecoin: false },
+    { symbol: 'USDC', name: 'USD Coin', balance: 450.00, usdValue: 450.00, change24h: 0.01, sparklineData: [450, 450, 450, 450, 450, 450], isStablecoin: true },
+    { symbol: 'SOL', name: 'Solana', balance: 142, usdValue: 2840, change24h: -1.2, sparklineData: [2900, 2880, 2850, 2870, 2860, 2840], isStablecoin: false },
   ];
 
   const totalBalance = mockTokens.reduce((sum, token) => sum + token.usdValue, 0);
@@ -145,25 +147,26 @@ export default function Wallet() {
               />
 
               {/* Tab Content */}
-              <div className="space-y-3">
-                {activeTab === 'tokens' && mockTokens.map((token, i) => (
-                  <motion.div
-                    key={token.symbol}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                  >
-                    <TokenBalanceCard {...token} />
-                  </motion.div>
-                ))}
-
-                {activeTab === 'nfts' && (
-                  <div className="text-center py-12 text-slate-500">
-                    <div className="text-4xl mb-4">🖼️</div>
-                    <p className="text-lg font-medium mb-2">No NFTs yet</p>
-                    <p className="text-sm">Your collectibles will appear here</p>
-                  </div>
+              <div className="space-y-6">
+                {activeTab === 'tokens' && (
+                  <>
+                    <div className="space-y-3">
+                      {mockTokens.map((token, i) => (
+                        <motion.div
+                          key={token.symbol}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                        >
+                          <TokenBalanceCard {...token} />
+                        </motion.div>
+                      ))}
+                    </div>
+                    <PortfolioRiskAnalyst tokens={mockTokens} />
+                  </>
                 )}
+
+                {activeTab === 'nfts' && <NFTSentimentOracle />}
 
                 {activeTab === 'history' && <TransactionHistory />}
               </div>
