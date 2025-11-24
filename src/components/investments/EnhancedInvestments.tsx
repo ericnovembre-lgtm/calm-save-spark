@@ -9,11 +9,13 @@ import { SmartRebalancingPanel } from "./SmartRebalancingPanel";
 import { PlaidInvestmentLink } from "./PlaidInvestmentLink";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { RefreshCw, TrendingUp, TrendingDown, BarChart3, Sparkles, Shield } from "lucide-react";
+import { RefreshCw, TrendingUp, TrendingDown, BarChart3, Sparkles, Shield, Play } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
 import CountUp from 'react-countup';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_INVESTMENT_ACCOUNTS, DEMO_PORTFOLIO_HOLDINGS } from '@/lib/demo-data';
 
 interface EnhancedInvestmentsProps {
   userId: string;
@@ -22,8 +24,9 @@ interface EnhancedInvestmentsProps {
 export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
   const queryClient = useQueryClient();
   const prefersReducedMotion = useReducedMotion();
+  const { isDemoMode, enableDemoMode } = useDemoMode();
 
-  const { data: accounts, isLoading } = useQuery({
+  const { data: dbAccounts, isLoading } = useQuery({
     queryKey: ['investment_accounts', userId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -35,9 +38,10 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
       if (error) throw error;
       return data;
     },
+    enabled: !isDemoMode,
   });
 
-  const { data: holdings } = useQuery({
+  const { data: dbHoldings } = useQuery({
     queryKey: ['portfolio_holdings', userId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -48,7 +52,12 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
       if (error) throw error;
       return data;
     },
+    enabled: !isDemoMode,
   });
+
+  // Use demo data when demo mode is active, otherwise use database data
+  const accounts = (isDemoMode ? DEMO_INVESTMENT_ACCOUNTS : dbAccounts) as any;
+  const holdings = (isDemoMode ? DEMO_PORTFOLIO_HOLDINGS : dbHoldings) as any;
 
   // Initial data load effect - populate benchmark and market data if empty
   useEffect(() => {
@@ -137,8 +146,8 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
     },
   });
 
-  const totalValue = accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.total_value)), 0) || 0;
-  const totalCostBasis = accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.cost_basis || 0)), 0) || 0;
+  const totalValue = Array.isArray(accounts) ? accounts.reduce((sum: number, acc: any) => sum + parseFloat(String(acc.total_value)), 0) : 0;
+  const totalCostBasis = Array.isArray(accounts) ? accounts.reduce((sum: number, acc: any) => sum + parseFloat(String(acc.cost_basis || 0)), 0) : 0;
   const totalGains = totalValue - totalCostBasis;
   const gainsPercent = totalCostBasis > 0 ? (totalGains / totalCostBasis) * 100 : 0;
 
@@ -154,21 +163,21 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
 
   // Transform accounts into hierarchical treemap data grouped by account type
   const treemapData = (() => {
-    if (!accounts || accounts.length === 0) return [];
+    if (!accounts || !Array.isArray(accounts) || accounts.length === 0) return [];
 
     // Group accounts by type
-    const grouped = accounts.reduce((acc, account) => {
+    const grouped = accounts.reduce((acc: Record<string, any[]>, account: any) => {
       const type = account.account_type || 'Other';
       if (!acc[type]) {
         acc[type] = [];
       }
       acc[type].push(account);
       return acc;
-    }, {} as Record<string, typeof accounts>);
+    }, {});
 
     // Transform into hierarchical structure
-    return Object.entries(grouped).map(([type, accs]) => {
-      const children = accs.map(acc => {
+    return Object.entries(grouped as Record<string, any[]>).map(([type, accs]: [string, any[]]) => {
+      const children = accs.map((acc: any) => {
         const value = parseFloat(String(acc.total_value));
         const costBasis = parseFloat(String(acc.cost_basis || 0));
         const gainPercent = costBasis > 0 ? ((value - costBasis) / costBasis) * 100 : 0;
@@ -180,8 +189,8 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
         };
       });
 
-      const totalValue = children.reduce((sum, child) => sum + child.value, 0);
-      const totalCostBasis = accs.reduce((sum, acc) => sum + parseFloat(String(acc.cost_basis || 0)), 0);
+      const totalValue = children.reduce((sum: number, child: any) => sum + child.value, 0);
+      const totalCostBasis = accs.reduce((sum: number, acc: any) => sum + parseFloat(String(acc.cost_basis || 0)), 0);
       const weightedGainPercent = totalCostBasis > 0 ? ((totalValue - totalCostBasis) / totalCostBasis) * 100 : 0;
 
       return {
@@ -259,12 +268,12 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
       </div>
 
       {/* Live Ticker Tape */}
-      {holdings && holdings.length > 0 && (
+      {holdings && Array.isArray(holdings) && holdings.length > 0 && (
         <LiveTickerTape holdings={holdings} />
       )}
 
       {/* AI Insights */}
-      {accounts && accounts.length > 0 && (
+      {accounts && Array.isArray(accounts) && accounts.length > 0 && (
         <AIInsightsCard portfolioData={portfolioDataForAI} />
       )}
 
@@ -279,7 +288,7 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
       </div>
 
       {/* Smart Rebalancing */}
-      {accounts && accounts.length > 0 && (
+      {accounts && Array.isArray(accounts) && accounts.length > 0 && (
         <SmartRebalancingPanel 
           userId={userId} 
           portfolioData={portfolioDataForAI} 
@@ -298,7 +307,7 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
         </Button>
       </div>
 
-      {accounts?.length === 0 && (
+      {(!accounts || !Array.isArray(accounts) || accounts.length === 0) && (
         <Card className="border-2 border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16 px-6">
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
@@ -346,12 +355,22 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
               </div>
             </div>
 
-            <PlaidInvestmentLink 
-              onSuccess={() => {
-                queryClient.invalidateQueries({ queryKey: ['investment_accounts'] });
-                queryClient.invalidateQueries({ queryKey: ['portfolio_holdings'] });
-              }} 
-            />
+            <div className="flex gap-3">
+              <PlaidInvestmentLink 
+                onSuccess={() => {
+                  queryClient.invalidateQueries({ queryKey: ['investment_accounts'] });
+                  queryClient.invalidateQueries({ queryKey: ['portfolio_holdings'] });
+                }} 
+              />
+              
+              <Button 
+                variant="outline"
+                onClick={enableDemoMode}
+              >
+                <Play className="w-4 h-4 mr-2" />
+                View Demo Portfolio
+              </Button>
+            </div>
 
             <p className="text-xs text-muted-foreground mt-6">
               Supports all major brokerages including Fidelity, Schwab, E*TRADE, and more

@@ -7,12 +7,16 @@ import { LoadingState } from "@/components/LoadingState";
 import { EmotionDetectionBar } from "@/components/guardian/EmotionDetectionBar";
 import { InterventionModal } from "@/components/guardian/InterventionModal";
 import { motion } from "framer-motion";
+import { useDemoMode } from "@/contexts/DemoModeContext";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, X } from "lucide-react";
 
 export default function Investments() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [interventionData, setInterventionData] = useState<any>(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const { isDemoMode, disableDemoMode } = useDemoMode();
 
   useEffect(() => {
     const getUser = async () => {
@@ -66,6 +70,33 @@ export default function Investments() {
         />
 
       <div className="relative z-10 space-y-6">
+        {/* Demo Mode Banner */}
+        {isDemoMode && (
+          <motion.div 
+            className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 flex items-center justify-between"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            role="alert"
+          >
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-amber-200">Demo Mode Active</p>
+                <p className="text-sm text-amber-300/70">Viewing sample portfolio data for demonstration purposes</p>
+              </div>
+            </div>
+            <Button 
+              onClick={disableDemoMode} 
+              variant="ghost" 
+              size="sm"
+              className="hover:bg-amber-500/20 text-amber-200"
+            >
+              <X className="w-4 h-4 mr-1" />
+              Exit Demo
+            </Button>
+          </motion.div>
+        )}
+
         {/* Live Connection Indicator */}
         <motion.div 
           className="flex items-center justify-between mb-4"
