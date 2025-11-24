@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Sparkles, Loader2, X, RefreshCcw } from "lucide-react";
 import { AddressDetective } from "./AddressDetective";
+import { SlideToConfirm } from "./SlideToConfirm";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -216,14 +217,19 @@ export function SmartSendInterface({ onSend, onClose }: SmartSendInterfaceProps)
               {addressResult && <AddressDetective result={addressResult} />}
             </AnimatePresence>
 
-            {/* Confirm Button */}
-            <button
-              onClick={handleConfirm}
-              disabled={addressResult?.warning}
-              className="w-full py-3 bg-violet-500 hover:bg-violet-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-xl font-medium transition-colors"
-            >
-              ✓ Confirm {parsedIntent.type}
-            </button>
+            {/* Slide to Confirm - High Friction Safety Pattern */}
+            <div className="space-y-2">
+              {addressResult?.warning && (
+                <div className="text-xs text-red-400 text-center">
+                  ⚠️ Address verification failed - confirmation disabled
+                </div>
+              )}
+              <SlideToConfirm
+                onConfirm={handleConfirm}
+                disabled={addressResult?.warning}
+                label={`Slide to Confirm ${parsedIntent.type}`}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
