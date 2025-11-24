@@ -30,7 +30,7 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { action, input, address, contacts, current_gas_gwei } = await req.json();
+    const { action, input, address, contacts, current_gas_gwei, tokens, nft } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
@@ -206,6 +206,156 @@ Return format: { "fee": "~$X.XX", "tip": "your witty message" }`;
 
       if (!response.ok) {
         throw new Error('Failed to generate gas advice');
+      }
+
+      const aiResponse = await response.json();
+      const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
+      
+      if (toolCall) {
+        const result = JSON.parse(toolCall.function.arguments);
+        return new Response(
+          JSON.stringify(result),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Action 4: Portfolio Risk Analyst
+    if (action === 'analyze_portfolio') {
+      const totalValue = tokens.reduce((sum: number, t: any) => sum + t.usdValue, 0);
+      const volatileValue = tokens
+        .filter((t: any) => !t.isStablecoin)
+        .reduce((sum: number, t: any) => sum + t.usdValue, 0);
+      const stableValue = tokens
+        .filter((t: any) => t.isStablecoin)
+        .reduce((sum: number, t: any) => sum + t.usdValue, 0);
+      
+      const volatilePercent = Math.round((volatileValue / totalValue) * 100);
+      const stablePercent = Math.round((stableValue / totalValue) * 100);
+
+      // Find concentration (largest holding)
+      const sortedTokens = [...tokens].sort((a: any, b: any) => b.usdValue - a.usdValue);
+      const largestHolding = sortedTokens[0];
+      const concentrationPercent = Math.round((largestHolding.usdValue / totalValue) * 100);
+
+      const systemPrompt = `You are a portfolio risk analyst. Analyze this portfolio:
+Total Value: $${totalValue.toFixed(2)}
+Volatile Assets: ${volatilePercent}% ($${volatileValue.toFixed(2)})
+Stable Assets: ${stablePercent}% ($${stableValue.toFixed(2)})
+Largest Holding: ${largestHolding.symbol} (${concentrationPercent}%)
+
+Provide:
+1. Risk level (low if <60% volatile, medium if 60-80%, high if >80%)
+2. A 2-3 sentence assessment explaining the risk
+3. A practical diversification tip (max 25 words)
+4. A concentration warning if any single asset is >70%`;
+
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: 'Analyze this portfolio' }
+          ],
+          tools: [{
+            type: 'function',
+            function: {
+              name: 'analyze_portfolio_risk',
+              description: 'Analyze portfolio risk',
+              parameters: {
+                type: 'object',
+                properties: {
+                  riskLevel: { type: 'string', enum: ['low', 'medium', 'high'] },
+                  assessment: { type: 'string', description: '2-3 sentence risk assessment' },
+                  tip: { type: 'string', description: 'Diversification tip (max 25 words)' },
+                  concentrationWarning: { type: 'string', description: 'Warning if concentration >70%' }
+                },
+                required: ['riskLevel', 'assessment', 'tip']
+              }
+            }
+          }],
+          tool_choice: { type: 'function', function: { name: 'analyze_portfolio_risk' } }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze portfolio');
+      }
+
+      const aiResponse = await response.json();
+      const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
+      
+      if (toolCall) {
+        const result = JSON.parse(toolCall.function.arguments);
+        return new Response(
+          JSON.stringify({
+            ...result,
+            volatilePercent,
+            stablePercent
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Action 5: NFT Sentiment Oracle
+    if (action === 'nft_sentiment') {
+      const systemPrompt = `You are an NFT sentiment analyst with personality. Analyze this NFT:
+Name: ${nft.name}
+Collection: ${nft.collection}
+Rarity: ${nft.rarity}
+Traits: ${nft.traits.join(', ')}
+Floor Price: Ξ${nft.floorPrice}
+
+Generate a witty "Vibe Check" (max 30 words) that:
+1. Assesses sentiment (hot/neutral/cold)
+2. Comments on rarity and traits
+3. Gives a playful hold/sell signal
+4. Includes market trend insight
+
+Be fun and engaging - use crypto slang like "diamond hands", "floor", "HODL"`;
+
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: 'Generate NFT sentiment analysis' }
+          ],
+          tools: [{
+            type: 'function',
+            function: {
+              name: 'analyze_nft_sentiment',
+              description: 'Analyze NFT sentiment',
+              parameters: {
+                type: 'object',
+                properties: {
+                  sentiment: { type: 'string', enum: ['hot', 'neutral', 'cold'] },
+                  sentimentEmoji: { type: 'string', description: 'Emoji representing sentiment' },
+                  vibeCheck: { type: 'string', description: 'Witty vibe check message (max 30 words)' },
+                  marketTrend: { type: 'string', description: 'Market trend insight (max 20 words)' },
+                  holdOrSell: { type: 'string', description: 'Hold or sell recommendation (max 10 words)' }
+                },
+                required: ['sentiment', 'sentimentEmoji', 'vibeCheck', 'marketTrend', 'holdOrSell']
+              }
+            }
+          }],
+          tool_choice: { type: 'function', function: { name: 'analyze_nft_sentiment' } }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze NFT sentiment');
       }
 
       const aiResponse = await response.json();
