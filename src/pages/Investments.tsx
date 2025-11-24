@@ -67,20 +67,25 @@ export default function Investments() {
 
       <div className="relative z-10 space-y-6">
         {/* Live Connection Indicator */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
+        <motion.div 
+          className="flex items-center justify-between mb-4"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 px-4 py-2 bg-slate-900/80 border border-green-500/30 rounded-lg">
+              <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
               </span>
-              <span className="text-xs font-mono text-slate-400">LIVE</span>
+              <span className="text-sm font-mono font-bold text-green-400 tracking-wider">LIVE</span>
             </div>
-            <span className="text-xs text-slate-500">
+            <span className="text-sm font-mono text-slate-400">
               Last updated: {lastUpdated.toLocaleTimeString()}
             </span>
           </div>
-        </div>
+        </motion.div>
 
         <EmotionDetectionBar />
 
