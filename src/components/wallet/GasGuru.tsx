@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Zap, TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { Fuel, TrendingDown, TrendingUp, Sparkles, Loader2 } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GasGuruProps {
   currentGas?: number;
@@ -11,136 +12,138 @@ interface GasGuruProps {
 }
 
 export function GasGuru({
-  currentGas = 15,
-  predictedLow = 4,
-  bestTime = "2:00 AM",
+  currentGas = 25,
+  predictedLow = 12,
+  bestTime = "2-4 AM EST",
   network = "Ethereum",
 }: GasGuruProps) {
-  const [congestionLevel, setCongestionLevel] = useState<'low' | 'medium' | 'high'>('medium');
+  const [aiTip, setAiTip] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const congestionLevel = currentGas > 50 ? 'high' : currentGas > 25 ? 'medium' : 'low';
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    if (currentGas < 5) setCongestionLevel('low');
-    else if (currentGas < 15) setCongestionLevel('medium');
-    else setCongestionLevel('high');
+    const fetchGasAdvice = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('wallet-ai-assistant', {
+          body: {
+            action: 'gas_advice',
+            current_gas_gwei: currentGas
+          }
+        });
+
+        if (!error && data?.tip) {
+          setAiTip(data.tip);
+        }
+      } catch (err) {
+        console.error('Gas advice error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGasAdvice();
   }, [currentGas]);
 
   const getCongestionColor = () => {
     switch (congestionLevel) {
-      case 'low': return 'text-success';
-      case 'medium': return 'text-warning';
-      case 'high': return 'text-destructive';
+      case 'high': return 'bg-red-500 animate-pulse';
+      case 'medium': return 'bg-amber-500';
+      default: return 'bg-emerald-500';
     }
   };
 
   const getCongestionLabel = () => {
     switch (congestionLevel) {
-      case 'low': return '🟢 Low Congestion';
-      case 'medium': return '🟡 Medium Congestion';
-      case 'high': return '🔴 High Congestion';
+      case 'high': return '🔴 High';
+      case 'medium': return '🟡 Medium';
+      default: return '🟢 Low';
     }
   };
 
-  const savings = Math.round(((currentGas - predictedLow) / currentGas) * 100);
+  const savingsAmount = currentGas > predictedLow ? ((currentGas - predictedLow) * 21000 * 0.000000001 * 3000) : 0;
+  const savings = savingsAmount.toFixed(2);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card/60 backdrop-blur-xl rounded-2xl border-2 border-border p-6 space-y-4"
+      transition={{ delay: 0.2 }}
+      className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 rounded-3xl p-6 mb-8 shadow-2xl relative overflow-hidden"
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <motion.div
-            animate={prefersReducedMotion ? {} : {
-              scale: [1, 1.2, 1],
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Zap className={`w-6 h-6 ${getCongestionColor()}`} />
-          </motion.div>
+      {/* Glow effect */}
+      <div className="absolute -right-10 -top-10 h-32 w-32 bg-orange-500/10 blur-3xl rounded-full" />
+      
+      <div className="relative z-10">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 rounded-full bg-orange-500/20 text-orange-400">
+            <Fuel size={24} />
+          </div>
           <div>
-            <h3 className="font-bold text-foreground">Gas Guru</h3>
-            <p className="text-xs text-muted-foreground">{network} Network</p>
+            <h3 className="text-xl font-bold text-white">Gas Guru</h3>
+            <p className="text-xs text-slate-400">{network} Network</p>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-2xl font-bold text-foreground">${currentGas}</div>
-          <div className="text-xs text-muted-foreground">Current Fee</div>
-        </div>
-      </div>
 
-      {/* Congestion Gauge */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span className={`font-medium ${getCongestionColor()}`}>
-            {getCongestionLabel()}
-          </span>
-          <span className="text-muted-foreground">Average Fee</span>
-        </div>
-        
-        <div className="h-2 bg-muted/20 rounded-full overflow-hidden">
-          <motion.div
-            className={`h-full ${
-              congestionLevel === 'low' ? 'bg-success' :
-              congestionLevel === 'medium' ? 'bg-warning' :
-              'bg-destructive'
-            }`}
-            initial={{ width: 0 }}
-            animate={{ 
-              width: congestionLevel === 'low' ? '30%' :
-                     congestionLevel === 'medium' ? '60%' : '90%'
-            }}
-            transition={{ duration: 1 }}
-          />
-        </div>
-      </div>
-
-      {/* AI Prediction */}
-      {savings > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-accent/10 border border-accent/20 rounded-xl p-4 space-y-3"
-        >
-          <div className="flex items-start gap-3">
-            <Clock className="w-5 h-5 text-accent mt-0.5" />
-            <div className="flex-1 space-y-2">
-              <p className="text-sm font-medium text-foreground">
-                💡 Fees typically drop {savings}% after {bestTime}
-              </p>
-              <div className="flex items-center gap-4 text-xs">
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <TrendingDown className="w-3 h-3" />
-                  <span>Predicted: ${predictedLow}</span>
-                </div>
-                <div className="flex items-center gap-1 text-success">
-                  <span>Save ${currentGas - predictedLow}</span>
-                </div>
-              </div>
-            </div>
+        {/* Current Gas Price */}
+        <div className="mb-6">
+          <p className="text-sm text-slate-400 mb-2">Current Average Fee</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-bold text-white">{currentGas}</span>
+            <span className="text-lg text-slate-400">Gwei</span>
           </div>
-        </motion.div>
-      )}
+        </div>
 
-      {/* Fee Comparison */}
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          { label: 'Slow', price: currentGas * 0.7, time: '~10 min' },
-          { label: 'Standard', price: currentGas, time: '~3 min' },
-          { label: 'Fast', price: currentGas * 1.3, time: '~30 sec' },
-        ].map((option, i) => (
-          <button
-            key={i}
-            className="p-3 rounded-lg border border-border hover:border-accent/50 hover:bg-accent/5 transition-all text-left group"
-          >
-            <div className="text-xs text-muted-foreground mb-1">{option.label}</div>
-            <div className="text-sm font-bold text-foreground">
-              ${option.price.toFixed(2)}
+        {/* Fee Comparison Grid */}
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {[
+            { label: 'Slow', gwei: currentGas * 0.8, time: '~10 min', color: 'emerald' },
+            { label: 'Standard', gwei: currentGas, time: '~3 min', color: 'blue' },
+            { label: 'Fast', gwei: currentGas * 1.2, time: '~30 sec', color: 'violet' }
+          ].map((option) => (
+            <button
+              key={option.label}
+              className="bg-slate-900/50 border border-white/10 hover:border-white/30 rounded-xl p-3 transition-all hover:bg-slate-900"
+            >
+              <p className="text-xs text-slate-400 mb-1">{option.label}</p>
+              <p className="text-lg font-bold text-white">{Math.round(option.gwei)}</p>
+              <p className="text-[10px] text-slate-500">{option.time}</p>
+            </button>
+          ))}
+        </div>
+
+        {/* AI Prediction Panel */}
+        <div className="mt-4 bg-slate-900/50 rounded-xl p-4 border border-white/10">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${getCongestionColor()}`} />
+              <span className="text-xs font-bold uppercase text-slate-400">
+                {getCongestionLabel()} Congestion
+              </span>
             </div>
-            <div className="text-xs text-muted-foreground mt-1">{option.time}</div>
-          </button>
-        ))}
+            {loading && <Loader2 size={14} className="animate-spin text-violet-400" />}
+          </div>
+          
+          {aiTip && (
+            <div className="flex items-start gap-2 text-xs mb-3 bg-black/20 px-3 py-2 rounded-lg border border-white/5">
+              <Sparkles size={12} className="text-violet-400 mt-0.5 flex-shrink-0" />
+              <span className="text-slate-300">{aiTip}</span>
+            </div>
+          )}
+          
+          <p className="text-sm text-white mb-3">
+            💡 Gas typically drops to ~{predictedLow} Gwei during {bestTime}
+          </p>
+          
+          {savingsAmount > 0 && (
+            <div className="flex items-center gap-2 text-xs">
+              <TrendingDown className="w-4 h-4 text-emerald-500" />
+              <span className="text-slate-400">
+                Potential savings: <span className="font-bold text-emerald-500">${savings}</span> per transaction
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );

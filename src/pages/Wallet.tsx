@@ -20,12 +20,14 @@ export default function Wallet() {
   const [activeTab, setActiveTab] = useState<Tab>('tokens');
   const { toast } = useToast();
 
-  // Mock tokens data
+  // Mock tokens data with sparkline
   const mockTokens = [
-    { symbol: 'ETH', name: 'Ethereum', balance: 2.5431, usdValue: 8234.12, change24h: 3.24 },
-    { symbol: 'USDC', name: 'USD Coin', balance: 1500.00, usdValue: 1500.00, change24h: 0.01 },
-    { symbol: 'WBTC', name: 'Wrapped Bitcoin', balance: 0.15, usdValue: 6234.50, change24h: -1.82 },
+    { symbol: 'ETH', name: 'Ethereum', balance: 1.45, usdValue: 3240.50, change24h: 2.4, sparklineData: [3100, 3150, 3120, 3200, 3180, 3240] },
+    { symbol: 'USDC', name: 'USD Coin', balance: 450.00, usdValue: 450.00, change24h: 0.01, sparklineData: [450, 450, 450, 450, 450, 450] },
+    { symbol: 'SOL', name: 'Solana', balance: 142, usdValue: 2840, change24h: -1.2, sparklineData: [2900, 2880, 2850, 2870, 2860, 2840] },
   ];
+
+  const totalBalance = mockTokens.reduce((sum, token) => sum + token.usdValue, 0);
 
   const handleCreateWallet = async () => {
     setIsCreatingWallet(true);
@@ -52,26 +54,26 @@ export default function Wallet() {
 
   const handleSend = async (data: any) => {
     console.log('Sending transaction:', data);
-    // Demo mode: simulate transaction
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    toast({ title: "Transaction submitted", description: "Your transaction is being processed" });
+    setShowSmartSend(false);
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-950">
       <WalletDemoModal />
       
-      <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
+      <div className="container mx-auto px-4 py-12 max-w-xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-2"
+          className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-foreground">
-            Smart Crypto Command Center
+          <h1 className="text-3xl font-bold text-white mb-2">
+            My Wallet
           </h1>
-          <p className="text-muted-foreground">
-            AI-powered wallet with intelligent transaction parsing and security scanning
+          <p className="text-slate-400 text-sm">
+            AI-powered crypto command center
           </p>
         </motion.div>
 
@@ -85,6 +87,7 @@ export default function Wallet() {
         >
           <HolographicWalletCard
             address={walletAddress}
+            balance={totalBalance}
             onCreateWallet={handleCreateWallet}
             isCreating={isCreatingWallet}
           />
@@ -97,14 +100,14 @@ export default function Wallet() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-card/60 backdrop-blur-xl rounded-2xl border-2 border-border p-6"
+              className="mb-8"
             >
               {!showSmartSend ? (
                 <button
                   onClick={() => setShowSmartSend(true)}
-                  className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-medium hover:shadow-lg transition-shadow"
+                  className="w-full bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white py-4 rounded-2xl font-bold text-lg transition-all shadow-lg hover:shadow-violet-500/50"
                 >
-                  Send Transaction
+                  💬 Smart Send
                 </button>
               ) : (
                 <SmartSendInterface
@@ -115,13 +118,7 @@ export default function Wallet() {
             </motion.div>
 
             {/* Gas Guru */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <GasGuru />
-            </motion.div>
+            <GasGuru />
 
             {/* Tabs Section */}
             <motion.div
@@ -130,52 +127,33 @@ export default function Wallet() {
               transition={{ delay: 0.4 }}
               className="space-y-6"
             >
-              <div className="flex justify-center">
-                <WalletTabsSwitcher
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                />
-              </div>
+              <WalletTabsSwitcher
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
 
               {/* Tab Content */}
-              <div className="min-h-[400px]">
-                {activeTab === 'tokens' && (
+              <div className="space-y-3">
+                {activeTab === 'tokens' && mockTokens.map((token, i) => (
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                    key={token.symbol}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
                   >
-                    {mockTokens.map((token, i) => (
-                      <motion.div
-                        key={token.symbol}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                      >
-                        <TokenBalanceCard {...token} />
-                      </motion.div>
-                    ))}
+                    <TokenBalanceCard {...token} />
                   </motion.div>
-                )}
+                ))}
 
                 {activeTab === 'nfts' && (
-                  <div className="text-center py-20">
-                    <div className="text-muted-foreground">
-                      <div className="text-4xl mb-4">🖼️</div>
-                      <p className="text-lg font-medium">NFT Gallery Coming Soon</p>
-                      <p className="text-sm mt-2">Manage your digital collectibles</p>
-                    </div>
+                  <div className="text-center py-12 text-slate-500">
+                    <div className="text-4xl mb-4">🖼️</div>
+                    <p className="text-lg font-medium mb-2">No NFTs yet</p>
+                    <p className="text-sm">Your collectibles will appear here</p>
                   </div>
                 )}
 
-                {activeTab === 'history' && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    <TransactionHistory />
-                  </motion.div>
-                )}
+                {activeTab === 'history' && <TransactionHistory />}
               </div>
             </motion.div>
           </>
