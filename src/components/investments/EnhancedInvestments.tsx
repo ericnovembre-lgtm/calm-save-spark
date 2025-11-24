@@ -21,6 +21,7 @@ import { useDriftDetection } from '@/hooks/useDriftDetection';
 import { AlertCircle } from 'lucide-react';
 import { AllocationSettingsModal } from './AllocationSettingsModal';
 import { PortfolioGoals } from './PortfolioGoals';
+import { ScenarioSimulator } from './ScenarioSimulator';
 
 interface EnhancedInvestmentsProps {
   userId: string;
@@ -330,6 +331,11 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
       {/* Portfolio Goals */}
       {totalValue > 0 && (
         <PortfolioGoals userId={userId} totalPortfolioValue={totalValue} />
+      )}
+
+      {/* Scenario Simulator */}
+      {treemapData.length > 0 && (
+        <ScenarioSimulator portfolioData={treemapData} />
       )}
 
       {/* Drift Detection Alert */}
