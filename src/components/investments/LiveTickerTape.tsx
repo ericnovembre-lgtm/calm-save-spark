@@ -74,8 +74,19 @@ export function LiveTickerTape({ holdings }: { holdings: any[] }) {
   const duplicatedData = [...tickerData, ...tickerData];
 
   return (
-    <div className="bg-card/50 backdrop-blur-sm rounded-lg overflow-hidden border border-border">
-      <div className="relative h-16 overflow-hidden">
+    <div className="bg-slate-900/50 backdrop-blur-sm rounded-lg overflow-hidden border border-slate-800 relative">
+      {/* LIVE Badge */}
+      <div className="absolute top-2 right-2 z-10">
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          </span>
+          <span className="text-xs font-mono text-slate-300">LIVE</span>
+        </div>
+      </div>
+
+      <div className="relative h-16 overflow-hidden bg-gradient-to-r from-slate-900/50 via-slate-800/50 to-slate-900/50">
         <motion.div
           className="flex gap-8 absolute whitespace-nowrap"
           animate={{
@@ -92,10 +103,20 @@ export function LiveTickerTape({ holdings }: { holdings: any[] }) {
               key={`${item.symbol}-${idx}`}
               className="flex items-center gap-4 px-6 h-16"
             >
-              <span className="font-bold text-foreground">{item.symbol}</span>
-              <span className="text-foreground">${item.price.toFixed(2)}</span>
-              <span className={`flex items-center gap-1 ${
-                item.changePercent >= 0 ? 'text-green-500' : 'text-red-500'
+              {/* Pulsing Indicator */}
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                  item.changePercent >= 0 ? 'bg-green-400' : 'bg-red-400'
+                }`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                  item.changePercent >= 0 ? 'bg-green-500' : 'bg-red-500'
+                }`}></span>
+              </span>
+              
+              <span className="font-bold font-mono text-slate-100">{item.symbol}</span>
+              <span className="font-mono tabular-nums text-slate-200">${item.price.toFixed(2)}</span>
+              <span className={`flex items-center gap-1 font-mono tabular-nums ${
+                item.changePercent >= 0 ? 'text-green-400' : 'text-red-400'
               }`}>
                 {item.changePercent >= 0 ? (
                   <TrendingUp className="w-3 h-3" />

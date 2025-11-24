@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AssetIntelligenceModal } from './AssetIntelligenceModal';
+import CountUp from 'react-countup';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface TreemapData {
   name: string;
@@ -17,6 +19,7 @@ interface InteractiveTreemapProps {
 }
 
 export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
+  const prefersReducedMotion = useReducedMotion();
   const [zoomedItem, setZoomedItem] = useState<TreemapData | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<{
     symbol: string;
@@ -37,17 +40,31 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
   const displayData = zoomedItem ? (zoomedItem.children || [zoomedItem]) : data;
   
   return (
-    <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
+    <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold text-foreground">Asset Allocation</h3>
+        <div className="flex items-center gap-2 text-sm">
+          <button 
+            onClick={() => setZoomedItem(null)}
+            className="text-slate-400 hover:text-slate-100 transition-colors"
+          >
+            Portfolio
+          </button>
+          {zoomedItem && (
+            <>
+              <ChevronRight className="w-4 h-4 text-slate-600" />
+              <span className="text-slate-100 font-medium">{zoomedItem.name}</span>
+            </>
+          )}
+        </div>
         {zoomedItem && (
           <Button 
             variant="outline" 
             size="sm"
             onClick={() => setZoomedItem(null)}
+            className="bg-slate-800 border-slate-700 hover:bg-slate-700"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Overview
+            Back
           </Button>
         )}
       </div>
@@ -162,9 +179,17 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
       </AnimatePresence>
 
       {!zoomedItem && (
-        <div className="mt-6 pt-6 border-t border-border">
-          <p className="text-sm text-muted-foreground">
-            Total Portfolio: <span className="font-bold text-foreground">${totalValue.toLocaleString()}</span>
+        <div className="mt-6 pt-6 border-t border-slate-800">
+          <p className="text-sm text-slate-400">
+            Total Portfolio: <span className="font-mono tabular-nums text-slate-100 text-lg">
+              $<CountUp 
+                end={totalValue} 
+                duration={prefersReducedMotion ? 0 : 1.5} 
+                decimals={0} 
+                separator="," 
+                preserveValue
+              />
+            </span>
           </p>
         </div>
       )}
