@@ -57,15 +57,15 @@ export default function Investments() {
   if (!userId) return <LoadingState />;
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-background">
       <AppLayout>
-        {/* Terminal Grid Background */}
+        {/* Subtle Grid Background */}
         <div 
-          className="fixed inset-0 pointer-events-none z-0"
+          className="fixed inset-0 pointer-events-none z-0 opacity-30"
           style={{
             backgroundImage: 
-              'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
-            backgroundSize: '24px 24px'
+              'linear-gradient(hsl(var(--border)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px)',
+            backgroundSize: '32px 32px'
           }}
         />
 
@@ -73,23 +73,24 @@ export default function Investments() {
         {/* Demo Mode Banner */}
         {isDemoMode && (
           <motion.div 
-            className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 flex items-center justify-between"
+            className="bg-warning/10 border border-warning/30 rounded-lg p-4 flex items-center justify-between"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             role="alert"
           >
             <div className="flex items-center gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0" />
               <div>
-                <p className="font-semibold text-amber-200">Demo Mode Active</p>
-                <p className="text-sm text-amber-300/70">Viewing sample portfolio data for demonstration purposes</p>
+                <p className="font-semibold text-foreground">Demo Mode Active</p>
+                <p className="text-sm text-muted-foreground">Viewing sample portfolio data for demonstration purposes</p>
               </div>
             </div>
             <Button 
               onClick={disableDemoMode} 
               variant="ghost" 
               size="sm"
-              className="hover:bg-amber-500/20 text-amber-200"
+              className="hover:bg-warning/20"
             >
               <X className="w-4 h-4 mr-1" />
               Exit Demo
@@ -99,20 +100,20 @@ export default function Investments() {
 
         {/* Live Connection Indicator */}
         <motion.div 
-          className="flex items-center justify-between mb-4"
+          className="flex items-center justify-between mb-6"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 px-4 py-2 bg-slate-900/80 border border-green-500/30 rounded-lg">
+            <div className="flex items-center gap-3 px-4 py-2 bg-card border border-success/20 rounded-lg shadow-sm">
               <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-60"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-success shadow-[0_0_8px_hsl(var(--success)/0.4)]"></span>
               </span>
-              <span className="text-sm font-mono font-bold text-green-400 tracking-wider">LIVE</span>
+              <span className="text-sm font-mono font-bold text-success tracking-wider">LIVE</span>
             </div>
-            <span className="text-sm font-mono text-slate-400">
+            <span className="text-sm font-mono text-muted-foreground">
               Last updated: {lastUpdated.toLocaleTimeString()}
             </span>
           </div>
@@ -135,11 +136,11 @@ export default function Investments() {
           }}
         />
 
-        <div>
-          <h1 className="text-3xl font-mono font-bold text-slate-100 mb-2">
+        <div className="mb-2">
+          <h1 className="text-3xl font-mono font-bold text-foreground mb-2">
             Investment Command Center
           </h1>
-          <p className="text-slate-400 text-sm font-mono">
+          <p className="text-muted-foreground text-sm">
             Real-time portfolio analytics · Market intelligence · Risk assessment
           </p>
         </div>
