@@ -10,9 +10,11 @@ import {
   Loader2,
   Clock,
   CheckCircle,
-  XCircle 
+  XCircle,
+  Wifi
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useWalletTransactionsRealtime } from "@/hooks/useWalletTransactionsRealtime";
 
 export function TransactionHistory() {
   const { data: wallet } = useQuery({
@@ -50,6 +52,9 @@ export function TransactionHistory() {
     },
     enabled: !!wallet,
   });
+
+  // Enable real-time updates
+  useWalletTransactionsRealtime(wallet?.id);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -104,6 +109,12 @@ export function TransactionHistory() {
 
   return (
     <div className="space-y-3">
+      {/* Live Connection Indicator */}
+      <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
+        <Wifi className="w-3 h-3 text-green-500" />
+        <span>Live updates enabled</span>
+      </div>
+
       {transactions.map((tx) => (
         <Card key={tx.id} className="p-4">
           <div className="flex items-start justify-between">
