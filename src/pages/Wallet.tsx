@@ -12,8 +12,10 @@ import { DemoModeWarningBanner } from "@/components/wallet/DemoModeWarningBanner
 import { WalletDemoModal } from "@/components/wallet/WalletDemoModal";
 import { PortfolioRiskAnalyst } from "@/components/wallet/PortfolioRiskAnalyst";
 import { NFTSentimentOracle } from "@/components/wallet/NFTSentimentOracle";
+import { PortfolioBalanceChart } from "@/components/wallet/PortfolioBalanceChart";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 type Tab = 'tokens' | 'nfts' | 'history';
 
@@ -23,6 +25,25 @@ export default function Wallet() {
   const [showSmartSend, setShowSmartSend] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('tokens');
   const { toast } = useToast();
+
+  // Fetch wallet data for balance chart
+  const { data: wallet } = useQuery({
+    queryKey: ['user-wallet'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('wallets')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('chain', 'ethereum')
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // Mock tokens data with sparkline
   const mockTokens = [
@@ -99,6 +120,21 @@ export default function Wallet() {
 
         {walletAddress && (
           <>
+            {/* Portfolio Balance Chart */}
+            {wallet && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="mb-6"
+              >
+                <PortfolioBalanceChart 
+                  walletId={wallet.id} 
+                  currentBalance={totalBalance}
+                />
+              </motion.div>
+            )}
+
             {/* Gas Guru - Compact witty traffic report */}
             <GasGuru />
 

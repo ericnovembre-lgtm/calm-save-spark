@@ -9391,6 +9391,44 @@ export type Database = {
           },
         ]
       }
+      wallet_balance_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          recorded_at: string
+          token_breakdown: Json
+          total_balance_usd: number
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          recorded_at?: string
+          token_breakdown?: Json
+          total_balance_usd: number
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          recorded_at?: string
+          token_breakdown?: Json
+          total_balance_usd?: number
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_balance_history_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wallet_contacts: {
         Row: {
           address: string
