@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Sparkles, Loader2, X, RefreshCcw } from "lucide-react";
 import { AddressDetective } from "./AddressDetective";
 import { SlideToConfirm } from "./SlideToConfirm";
+import { RecentContacts } from "./RecentContacts";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -113,6 +114,11 @@ export function SmartSendInterface({ onSend, onClose }: SmartSendInterfaceProps)
 
   return (
     <div className="space-y-4">
+      {/* Recent Contacts */}
+      <RecentContacts onSelectAddress={(address) => {
+        setInput(`Send 0.1 ETH to ${address}`);
+      }} />
+
       {/* Natural Language Input Bar */}
       <div className="relative">
         <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">

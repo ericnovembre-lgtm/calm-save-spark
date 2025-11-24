@@ -9429,6 +9429,42 @@ export type Database = {
           },
         ]
       }
+      wallet_chain_configs: {
+        Row: {
+          chain_id: string
+          chain_name: string
+          created_at: string | null
+          explorer_url: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          native_currency: Json
+          rpc_url: string
+        }
+        Insert: {
+          chain_id: string
+          chain_name: string
+          created_at?: string | null
+          explorer_url: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          native_currency: Json
+          rpc_url: string
+        }
+        Update: {
+          chain_id?: string
+          chain_name?: string
+          created_at?: string | null
+          explorer_url?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          native_currency?: Json
+          rpc_url?: string
+        }
+        Relationships: []
+      }
       wallet_contacts: {
         Row: {
           address: string
@@ -9461,6 +9497,72 @@ export type Database = {
           name?: string
           notes?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          notification_type: string
+          priority: string | null
+          read: boolean | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          notification_type: string
+          priority?: string | null
+          read?: boolean | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          notification_type?: string
+          priority?: string | null
+          read?: boolean | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_push_subscriptions: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          subscription_data: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          subscription_data: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          subscription_data?: Json
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -9508,6 +9610,7 @@ export type Database = {
         Row: {
           amount: number
           block_number: number | null
+          chain: string | null
           created_at: string
           from_address: string
           gas_price: number | null
@@ -9527,6 +9630,7 @@ export type Database = {
         Insert: {
           amount: number
           block_number?: number | null
+          chain?: string | null
           created_at?: string
           from_address: string
           gas_price?: number | null
@@ -9546,6 +9650,7 @@ export type Database = {
         Update: {
           amount?: number
           block_number?: number | null
+          chain?: string | null
           created_at?: string
           from_address?: string
           gas_price?: number | null
