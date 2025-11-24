@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TransactionDetailsModal } from "./TransactionDetailsModal";
+import { ChainBadge } from "./ChainBadge";
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -15,10 +17,15 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useWalletTransactionsRealtime } from "@/hooks/useWalletTransactionsRealtime";
+import { useState } from "react";
+import { useActiveChain } from "@/hooks/useActiveChain";
 
 export function TransactionHistory() {
+  const { selectedChain } = useActiveChain();
+  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  
   const { data: wallet } = useQuery({
-    queryKey: ['user-wallet'],
+    queryKey: ['user-wallet', selectedChain],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -27,7 +34,7 @@ export function TransactionHistory() {
         .from('wallets')
         .select('*')
         .eq('user_id', user.id)
-        .eq('chain', 'ethereum')
+        .eq('chain', selectedChain)
         .single();
 
       if (error) throw error;
@@ -116,7 +123,11 @@ export function TransactionHistory() {
       </div>
 
       {transactions.map((tx) => (
-        <Card key={tx.id} className="p-4">
+        <Card 
+          key={tx.id} 
+          className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+          onClick={() => setSelectedTransaction(tx)}
+        >
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3 flex-1">
               <div className="p-2 bg-muted rounded-full">
@@ -145,12 +156,24 @@ export function TransactionHistory() {
                   </p>
                   <p className="flex items-center gap-2">
                     {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-auto p-0 text-xs"
-                      asChild
-                    >
+                    {tx.chain && <ChainBadge chainId={tx.chain} />}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-right">
+              <p className="font-bold text-lg">
+                {tx.amount.toFixed(4)} {tx.token_symbol}
+              </p>
+              {tx.gas_used && tx.gas_price && (
+                <p className="text-xs text-muted-foreground">
+                  Gas: {((tx.gas_used * tx.gas_price) / 1e18).toFixed(6)} ETH
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
                       <a
                         href={`https://etherscan.io/tx/${tx.hash}`}
                         target="_blank"

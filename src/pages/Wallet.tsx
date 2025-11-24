@@ -13,6 +13,8 @@ import { WalletDemoModal } from "@/components/wallet/WalletDemoModal";
 import { PortfolioRiskAnalyst } from "@/components/wallet/PortfolioRiskAnalyst";
 import { NFTSentimentOracle } from "@/components/wallet/NFTSentimentOracle";
 import { PortfolioBalanceChart } from "@/components/wallet/PortfolioBalanceChart";
+import { WalletNotificationCenter } from "@/components/wallet/WalletNotificationCenter";
+import { ChainSwitcher } from "@/components/wallet/ChainSwitcher";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
