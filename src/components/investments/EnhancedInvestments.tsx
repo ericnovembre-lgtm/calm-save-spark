@@ -22,6 +22,7 @@ import { AlertCircle } from 'lucide-react';
 import { AllocationSettingsModal } from './AllocationSettingsModal';
 import { PortfolioGoals } from './PortfolioGoals';
 import { ScenarioSimulator } from './ScenarioSimulator';
+import { InvestmentAlertsPanel } from './InvestmentAlertsPanel';
 
 interface EnhancedInvestmentsProps {
   userId: string;
@@ -336,6 +337,11 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
       {/* Scenario Simulator */}
       {treemapData.length > 0 && (
         <ScenarioSimulator portfolioData={treemapData} />
+      )}
+
+      {/* Investment Alerts & Notifications */}
+      {totalValue > 0 && (
+        <InvestmentAlertsPanel />
       )}
 
       {/* Drift Detection Alert */}

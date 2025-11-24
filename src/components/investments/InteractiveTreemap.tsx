@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AssetIntelligenceModal } from './AssetIntelligenceModal';
+import { PriceAlertModal } from './PriceAlertModal';
 import CountUp from 'react-countup';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
@@ -34,6 +35,7 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
     name: string;
     value: number;
   } | null>(null);
+  const [showPriceAlert, setShowPriceAlert] = useState(false);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -139,6 +141,18 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
                     });
                   }
                 }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  if (!item.children) {
+                    const symbol = item.name.split(' ')[0];
+                    setSelectedAsset({
+                      symbol,
+                      name: item.name,
+                      value: item.value,
+                    });
+                    setShowPriceAlert(true);
+                  }
+                }}
               >
                 {/* Pulsing glow for big movers */}
                 {isBigMover && (
@@ -190,9 +204,14 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
                   <p className="text-white text-2xl font-bold">
                     ${item.value.toLocaleString()}
                   </p>
-                  {item.children && (
+                  {item.children ? (
                     <p className="text-white/70 text-xs mt-2">
                       Click to explore {item.children.length} holdings
+                    </p>
+                  ) : (
+                    <p className="text-white/70 text-xs mt-2 flex items-center gap-1">
+                      <Bell className="w-3 h-3" />
+                      Right-click to set price alert
                     </p>
                   )}
                 </div>
@@ -260,6 +279,14 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
         assetSymbol={selectedAsset?.symbol || ''}
         assetName={selectedAsset?.name || ''}
         currentValue={selectedAsset?.value || 0}
+      />
+
+      <PriceAlertModal
+        open={showPriceAlert}
+        onOpenChange={setShowPriceAlert}
+        prefilledSymbol={selectedAsset?.symbol || ''}
+        prefilledAssetName={selectedAsset?.name || ''}
+        prefilledCurrentPrice={selectedAsset?.value}
       />
     </div>
   );
