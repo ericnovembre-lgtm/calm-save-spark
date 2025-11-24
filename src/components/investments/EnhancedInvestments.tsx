@@ -12,6 +12,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RefreshCw, TrendingUp, TrendingDown, BarChart3, Sparkles, Shield } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
+import CountUp from 'react-countup';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface EnhancedInvestmentsProps {
   userId: string;
@@ -19,6 +21,7 @@ interface EnhancedInvestmentsProps {
 
 export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
   const queryClient = useQueryClient();
+  const prefersReducedMotion = useReducedMotion();
 
   const { data: accounts, isLoading } = useQuery({
     queryKey: ['investment_accounts', userId],
@@ -139,18 +142,57 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
   const totalGains = totalValue - totalCostBasis;
   const gainsPercent = totalCostBasis > 0 ? (totalGains / totalCostBasis) * 100 : 0;
 
-  // Transform accounts into treemap data with performance metrics
-  const treemapData = accounts?.map((acc) => {
-    const value = parseFloat(String(acc.total_value));
-    const costBasis = parseFloat(String(acc.cost_basis || 0));
-    const gainPercent = costBasis > 0 ? ((value - costBasis) / costBasis) * 100 : 0;
-    
-    return {
-      name: acc.account_name,
-      value,
-      gainPercent,
-    };
-  }) || [];
+  // Sector color mapping
+  const getSectorColor = (accountType: string) => {
+    const normalized = accountType.toLowerCase();
+    if (normalized.includes('brokerage') || normalized.includes('investment')) return '#3b82f6'; // Blue for Stocks
+    if (normalized.includes('crypto')) return '#f59e0b'; // Orange for Crypto
+    if (normalized.includes('bond') || normalized.includes('fixed')) return '#10b981'; // Green for Bonds
+    if (normalized.includes('cash') || normalized.includes('savings')) return '#6b7280'; // Gray for Cash
+    return '#8b5cf6'; // Purple default
+  };
+
+  // Transform accounts into hierarchical treemap data grouped by account type
+  const treemapData = (() => {
+    if (!accounts || accounts.length === 0) return [];
+
+    // Group accounts by type
+    const grouped = accounts.reduce((acc, account) => {
+      const type = account.account_type || 'Other';
+      if (!acc[type]) {
+        acc[type] = [];
+      }
+      acc[type].push(account);
+      return acc;
+    }, {} as Record<string, typeof accounts>);
+
+    // Transform into hierarchical structure
+    return Object.entries(grouped).map(([type, accs]) => {
+      const children = accs.map(acc => {
+        const value = parseFloat(String(acc.total_value));
+        const costBasis = parseFloat(String(acc.cost_basis || 0));
+        const gainPercent = costBasis > 0 ? ((value - costBasis) / costBasis) * 100 : 0;
+        
+        return {
+          name: acc.account_name,
+          value,
+          gainPercent,
+        };
+      });
+
+      const totalValue = children.reduce((sum, child) => sum + child.value, 0);
+      const totalCostBasis = accs.reduce((sum, acc) => sum + parseFloat(String(acc.cost_basis || 0)), 0);
+      const weightedGainPercent = totalCostBasis > 0 ? ((totalValue - totalCostBasis) / totalCostBasis) * 100 : 0;
+
+      return {
+        name: type,
+        value: totalValue,
+        gainPercent: weightedGainPercent,
+        color: getSectorColor(type),
+        children,
+      };
+    });
+  })();
 
   const portfolioDataForAI = {
     totalValue,
@@ -163,29 +205,56 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header Stats */}
+      {/* Terminal-style Header Stats */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="p-6">
-          <p className="text-sm text-muted-foreground mb-1">Total Portfolio Value</p>
-          <p className="text-3xl font-bold text-foreground">${totalValue.toLocaleString()}</p>
+        <Card className="p-4 bg-slate-900/50 border-slate-800">
+          <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+            Total Portfolio Value
+          </p>
+          <div className="text-2xl font-mono tabular-nums text-slate-100">
+            $<CountUp 
+              end={totalValue} 
+              duration={prefersReducedMotion ? 0 : 1.5} 
+              decimals={0} 
+              separator="," 
+              preserveValue
+            />
+          </div>
         </Card>
-        <Card className="p-6">
-          <p className="text-sm text-muted-foreground mb-1">Total Gains/Losses</p>
+        
+        <Card className="p-4 bg-slate-900/50 border-slate-800">
+          <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+            Total Gains/Losses
+          </p>
           <div className="flex items-center gap-2">
-            <p className={`text-3xl font-bold ${totalGains >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-              {totalGains >= 0 ? '+' : ''}${totalGains.toLocaleString()}
-            </p>
+            <div className={`text-2xl font-mono tabular-nums ${totalGains >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {totalGains >= 0 ? '+' : ''}$<CountUp 
+                end={Math.abs(totalGains)} 
+                duration={prefersReducedMotion ? 0 : 1.5} 
+                decimals={0} 
+                separator="," 
+                preserveValue
+              />
+            </div>
             {totalGains >= 0 ? 
-              <TrendingUp className="w-5 h-5 text-green-500" /> : 
-              <TrendingDown className="w-5 h-5 text-red-500" />
+              <TrendingUp className="w-4 h-4 text-green-400" /> : 
+              <TrendingDown className="w-4 h-4 text-red-400" />
             }
           </div>
         </Card>
-        <Card className="p-6">
-          <p className="text-sm text-muted-foreground mb-1">Return on Investment</p>
-          <p className={`text-3xl font-bold ${gainsPercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {gainsPercent >= 0 ? '+' : ''}{gainsPercent.toFixed(2)}%
+        
+        <Card className="p-4 bg-slate-900/50 border-slate-800">
+          <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+            Return on Investment
           </p>
+          <div className={`text-2xl font-mono tabular-nums ${gainsPercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            {gainsPercent >= 0 ? '+' : ''}<CountUp 
+              end={Math.abs(gainsPercent)} 
+              duration={prefersReducedMotion ? 0 : 1.5} 
+              decimals={2} 
+              preserveValue
+            />%
+          </div>
         </Card>
       </div>
 
