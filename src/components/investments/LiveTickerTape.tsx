@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 
 interface TickerItem {
   symbol: string;
@@ -12,8 +13,20 @@ interface TickerItem {
 
 export function LiveTickerTape({ holdings }: { holdings: any[] }) {
   const [tickerData, setTickerData] = useState<TickerItem[]>([]);
+  const { isDemoMode } = useDemoMode();
 
   useEffect(() => {
+    // In demo mode, use holdings data directly
+    if (isDemoMode && holdings.length > 0) {
+      setTickerData(holdings.map(h => ({
+        symbol: h.symbol,
+        price: h.price || 0,
+        change: h.change || 0,
+        changePercent: h.change_percent || h.change || 0
+      })));
+      return;
+    }
+
     // Get symbols from holdings
     const symbols = holdings.map(h => h.symbol).filter(Boolean);
     if (symbols.length === 0) return;
@@ -64,7 +77,7 @@ export function LiveTickerTape({ holdings }: { holdings: any[] }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [holdings]);
+  }, [holdings, isDemoMode]);
 
   if (tickerData.length === 0) {
     return null;
