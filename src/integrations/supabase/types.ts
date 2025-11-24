@@ -4269,6 +4269,45 @@ export type Database = {
         }
         Relationships: []
       }
+      investment_alert_settings: {
+        Row: {
+          created_at: string | null
+          daily_portfolio_summary: boolean | null
+          drift_threshold_percent: number | null
+          id: string
+          market_event_alerts: boolean | null
+          price_alert_notifications: boolean | null
+          updated_at: string | null
+          user_id: string
+          volatility_alerts: boolean | null
+          volatility_threshold_percent: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          daily_portfolio_summary?: boolean | null
+          drift_threshold_percent?: number | null
+          id?: string
+          market_event_alerts?: boolean | null
+          price_alert_notifications?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          volatility_alerts?: boolean | null
+          volatility_threshold_percent?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          daily_portfolio_summary?: boolean | null
+          drift_threshold_percent?: number | null
+          id?: string
+          market_event_alerts?: boolean | null
+          price_alert_notifications?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          volatility_alerts?: boolean | null
+          volatility_threshold_percent?: number | null
+        }
+        Relationships: []
+      }
       investment_mandates: {
         Row: {
           auto_rebalance_enabled: boolean | null
@@ -4304,6 +4343,54 @@ export type Database = {
           target_allocation?: Json
           tax_loss_harvest_enabled?: boolean | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      investment_price_alerts: {
+        Row: {
+          alert_type: string
+          asset_name: string | null
+          created_at: string | null
+          current_price_at_creation: number | null
+          id: string
+          is_active: boolean | null
+          is_triggered: boolean | null
+          note: string | null
+          percent_threshold: number | null
+          symbol: string
+          target_price: number | null
+          triggered_at: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          asset_name?: string | null
+          created_at?: string | null
+          current_price_at_creation?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_triggered?: boolean | null
+          note?: string | null
+          percent_threshold?: number | null
+          symbol: string
+          target_price?: number | null
+          triggered_at?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          asset_name?: string | null
+          created_at?: string | null
+          current_price_at_creation?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_triggered?: boolean | null
+          note?: string | null
+          percent_threshold?: number | null
+          symbol?: string
+          target_price?: number | null
+          triggered_at?: string | null
           user_id?: string
         }
         Relationships: []
