@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { InteractiveTreemap } from "./InteractiveTreemap";
 import { LiveTickerTape } from "./LiveTickerTape";
@@ -16,6 +17,8 @@ import CountUp from 'react-countup';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_INVESTMENT_ACCOUNTS, DEMO_PORTFOLIO_HOLDINGS } from '@/lib/demo-data';
+import { useDriftDetection } from '@/hooks/useDriftDetection';
+import { AlertCircle } from 'lucide-react';
 
 interface EnhancedInvestmentsProps {
   userId: string;
@@ -210,6 +213,9 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
     accounts: accounts || []
   };
 
+  // Drift detection
+  const driftData = useDriftDetection(treemapData);
+
   if (isLoading) return <LoadingState />;
 
   return (
@@ -287,12 +293,53 @@ export function EnhancedInvestments({ userId }: EnhancedInvestmentsProps) {
         <PerformanceChart userId={userId} />
       </div>
 
+      {/* Drift Detection Alert */}
+      {driftData.hasDrift && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4"
+        >
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold text-amber-500 mb-1">
+                ⚠️ Portfolio Drift Detected
+              </h4>
+              <p className="text-sm text-slate-300 mb-3">
+                Your portfolio has drifted {driftData.driftPercent.toFixed(1)}% from target allocation. 
+                {driftData.affectedAssets.length > 0 && (
+                  <span className="block mt-1">
+                    Affected: {driftData.affectedAssets.map(a => a.name).join(', ')}
+                  </span>
+                )}
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="bg-amber-500/20 border-amber-500/40 hover:bg-amber-500/30"
+                onClick={() => {
+                  document.getElementById('rebalancing-panel')?.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                  });
+                }}
+              >
+                Review Suggestions
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Smart Rebalancing */}
       {accounts && Array.isArray(accounts) && accounts.length > 0 && (
-        <SmartRebalancingPanel 
-          userId={userId} 
-          portfolioData={portfolioDataForAI} 
-        />
+        <div id="rebalancing-panel">
+          <SmartRebalancingPanel 
+            userId={userId} 
+            portfolioData={portfolioDataForAI} 
+          />
+        </div>
       )}
 
       {/* Action Buttons */}
