@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,14 @@ interface TreemapData {
   children?: TreemapData[];
 }
 
+interface TooltipData {
+  name: string;
+  value: number;
+  gainPercent?: number;
+  x: number;
+  y: number;
+}
+
 interface InteractiveTreemapProps {
   data: TreemapData[];
 }
@@ -26,6 +34,8 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
     name: string;
     value: number;
   } | null>(null);
+  const [tooltip, setTooltip] = useState<TooltipData | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   // Dynamic color based on performance
   const getPerformanceColor = (gainPercent: number = 0) => {
@@ -40,7 +50,7 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
   const displayData = zoomedItem ? (zoomedItem.children || [zoomedItem]) : data;
   
   return (
-    <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6">
+    <div ref={containerRef} className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 relative">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-sm">
           <button 
@@ -102,6 +112,20 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
                     ? `0 0 30px ${gainPercent > 0 ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.5)'}`
                     : undefined
                 }}
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const containerRect = containerRef.current?.getBoundingClientRect();
+                  if (containerRect) {
+                    setTooltip({
+                      name: item.name,
+                      value: item.value,
+                      gainPercent: item.gainPercent,
+                      x: rect.left - containerRect.left + rect.width / 2,
+                      y: rect.top - containerRect.top,
+                    });
+                  }
+                }}
+                onMouseLeave={() => setTooltip(null)}
                 onClick={() => {
                   if (item.children) {
                     setZoomedItem(item);
@@ -193,6 +217,42 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
           </p>
         </div>
       )}
+
+      {/* Hover Tooltip */}
+      <AnimatePresence>
+        {tooltip && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute z-50 pointer-events-none"
+            style={{
+              left: `${tooltip.x}px`,
+              top: `${tooltip.y - 10}px`,
+              transform: 'translate(-50%, -100%)',
+            }}
+          >
+            <div className="bg-slate-950/95 border border-slate-700 rounded-lg shadow-xl p-3 min-w-[200px] backdrop-blur-sm">
+              <p className="text-sm font-semibold text-slate-100 mb-1">{tooltip.name}</p>
+              <p className="text-lg font-mono text-slate-100">${tooltip.value.toLocaleString()}</p>
+              {tooltip.gainPercent !== undefined && (
+                <div className="mt-1 flex items-center gap-1">
+                  <span className={`text-sm font-medium ${
+                    tooltip.gainPercent >= 0 ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {tooltip.gainPercent >= 0 ? '+' : ''}{tooltip.gainPercent.toFixed(2)}%
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    ({tooltip.gainPercent >= 0 ? '+' : ''}$
+                    {((tooltip.value * tooltip.gainPercent) / (100 + tooltip.gainPercent)).toFixed(0)})
+                  </span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AssetIntelligenceModal
         isOpen={!!selectedAsset}
