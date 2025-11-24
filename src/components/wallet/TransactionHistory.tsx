@@ -115,93 +115,76 @@ export function TransactionHistory() {
   }
 
   return (
-    <div className="space-y-3">
-      {/* Live Connection Indicator */}
-      <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
-        <Wifi className="w-3 h-3 text-green-500" />
-        <span>Live updates enabled</span>
-      </div>
+    <>
+      <div className="space-y-3">
+        {/* Live Connection Indicator */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+          <Wifi className="w-3 h-3 text-green-500" />
+          <span>Live updates enabled</span>
+        </div>
 
-      {transactions.map((tx) => (
-        <Card 
-          key={tx.id} 
-          className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-          onClick={() => setSelectedTransaction(tx)}
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-3 flex-1">
-              <div className="p-2 bg-muted rounded-full">
-                {tx.transaction_type === 'send' ? (
-                  <ArrowUpRight className="h-5 w-5" />
-                ) : (
-                  <ArrowDownLeft className="h-5 w-5" />
-                )}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold capitalize">
-                    {tx.transaction_type}
-                  </span>
-                  {getStatusIcon(tx.status)}
-                  {getStatusBadge(tx.status)}
+        {transactions.map((tx) => (
+          <Card 
+            key={tx.id} 
+            className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={() => setSelectedTransaction(tx)}
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3 flex-1">
+                <div className="p-2 bg-muted rounded-full">
+                  {tx.transaction_type === 'send' ? (
+                    <ArrowUpRight className="h-5 w-5" />
+                  ) : (
+                    <ArrowDownLeft className="h-5 w-5" />
+                  )}
                 </div>
                 
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>
-                    {tx.transaction_type === 'send' ? 'To: ' : 'From: '}
-                    <code className="text-xs bg-muted px-1 rounded">
-                      {formatAddress(tx.transaction_type === 'send' ? tx.to_address : tx.from_address)}
-                    </code>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
-                    {tx.chain && <ChainBadge chainId={tx.chain} />}
-                  </p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold capitalize">
+                      {tx.transaction_type}
+                    </span>
+                    {getStatusIcon(tx.status)}
+                    {getStatusBadge(tx.status)}
+                  </div>
+                  
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p>
+                      {tx.transaction_type === 'send' ? 'To: ' : 'From: '}
+                      <code className="text-xs bg-muted px-1 rounded">
+                        {formatAddress(tx.transaction_type === 'send' ? tx.to_address : tx.from_address)}
+                      </code>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
+                      {tx.chain && <ChainBadge chainId={tx.chain} />}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="text-right">
-              <p className="font-bold text-lg">
-                {tx.amount.toFixed(4)} {tx.token_symbol}
-              </p>
-              {tx.gas_used && tx.gas_price && (
-                <p className="text-xs text-muted-foreground">
-                  Gas: {((tx.gas_used * tx.gas_price) / 1e18).toFixed(6)} ETH
+              
+              <div className="text-right">
+                <p className="font-bold text-lg">
+                  {tx.amount.toFixed(4)} {tx.token_symbol}
                 </p>
-              )}
-            </div>
-          </div>
-        </Card>
-                      <a
-                        href={`https://etherscan.io/tx/${tx.hash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink className="h-3 w-3 mr-1" />
-                        View on Etherscan
-                      </a>
-                    </Button>
+                {tx.gas_used && tx.gas_price && (
+                  <p className="text-xs text-muted-foreground">
+                    Gas: {((tx.gas_used * tx.gas_price) / 1e18).toFixed(6)} ETH
                   </p>
-                </div>
+                )}
               </div>
             </div>
+          </Card>
+        ))}
+      </div>
 
-            <div className="text-right">
-              <p className="font-semibold text-lg">
-                {tx.transaction_type === 'send' ? '-' : '+'}
-                {tx.amount} {tx.token_symbol}
-              </p>
-              {tx.gas_used && tx.gas_price && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Gas: {(Number(tx.gas_used) * Number(tx.gas_price) / 1e18).toFixed(6)} ETH
-                </p>
-              )}
-            </div>
-          </div>
-        </Card>
-      ))}
-    </div>
+      {selectedTransaction && (
+        <TransactionDetailsModal
+          transaction={selectedTransaction}
+          isOpen={!!selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+        />
+      )}
+    </>
   );
 }
