@@ -1,21 +1,23 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { QrCode, Copy, Check } from "lucide-react";
+import { QrCode, Copy, Check, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface HolographicWalletCardProps {
   address?: string;
+  balance?: number;
   onCreateWallet: () => void;
   isCreating?: boolean;
 }
 
 export function HolographicWalletCard({
   address,
+  balance = 0,
   onCreateWallet,
   isCreating = false,
 }: HolographicWalletCardProps) {
-  const [showQR, setShowQR] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const prefersReducedMotion = useReducedMotion();
@@ -85,90 +87,71 @@ export function HolographicWalletCard({
   }
 
   return (
-    <motion.div
-      className="relative w-full max-w-md mx-auto h-64"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      onHoverStart={() => setShowQR(true)}
-      onHoverEnd={() => setShowQR(false)}
-    >
-      {/* Active State Card */}
+    <div className="perspective-1000 relative h-56 w-full max-w-md mx-auto mb-10">
       <motion.div
-        className="absolute inset-0 rounded-3xl overflow-hidden"
-        animate={prefersReducedMotion ? {} : {
-          rotateY: showQR ? 0 : 0,
-        }}
+        onClick={() => setIsFlipped(!isFlipped)}
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        className="relative h-full w-full cursor-pointer"
         style={{ transformStyle: 'preserve-3d' }}
       >
+        {/* Front Face */}
         <div 
-          className="absolute inset-0 bg-card/80 backdrop-blur-xl border-2 border-accent/30"
-          style={{ backdropFilter: 'blur(20px)' }}
-        />
-        
-        {/* Gradient Glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-accent/5" />
-        
-        {/* Border Glow Animation */}
-        <motion.div
-          className="absolute inset-0 rounded-3xl"
-          animate={prefersReducedMotion ? {} : {
-            boxShadow: [
-              '0 0 20px rgba(233, 223, 206, 0.2)',
-              '0 0 40px rgba(233, 223, 206, 0.4)',
-              '0 0 20px rgba(233, 223, 206, 0.2)',
-            ],
-          }}
-          transition={{ duration: 3, repeat: Infinity }}
-        />
-        
-        {/* Content */}
-        <div className="relative h-full flex flex-col items-center justify-center p-8">
-          <motion.div
-            animate={prefersReducedMotion ? {} : { 
-              y: [-2, 2, -2],
-              rotateZ: [-1, 1, -1]
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          >
-            {showQR ? (
-              <div className="space-y-4 text-center">
-                <div className="w-32 h-32 bg-card rounded-xl flex items-center justify-center border border-border">
-                  <QrCode className="w-24 h-24 text-foreground" />
+          className="absolute inset-0 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 p-6 shadow-2xl overflow-hidden"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          {/* Holo Sheen */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-50 pointer-events-none" />
+          <div className="absolute -right-10 -top-10 h-32 w-32 bg-cyan-500/20 blur-3xl rounded-full" />
+
+          <div className="flex flex-col justify-between h-full relative z-10">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-cyan-500/20 text-cyan-400">
+                  <Wallet size={20} />
                 </div>
-                <p className="text-sm text-muted-foreground">Scan to Receive</p>
+                <span className="font-bold text-white tracking-wide">$ave+ Vault</span>
               </div>
-            ) : (
-              <>
-                <div className="mb-4">
-                  <div className="text-xs text-muted-foreground mb-1">Your Wallet Address</div>
-                  <div className="text-lg font-mono font-medium bg-muted/20 px-4 py-2 rounded-lg text-foreground">
-                    {address.slice(0, 6)}...{address.slice(-4)}
-                  </div>
-                </div>
-                
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleCopy}
-                  className="flex items-center gap-2 px-4 py-2 bg-accent/20 hover:bg-accent/30 rounded-lg text-sm font-medium transition-colors"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      Copy Address
-                    </>
-                  )}
-                </motion.button>
-              </>
-            )}
-          </motion.div>
+              <span className="text-xs font-mono text-slate-400 bg-black/30 px-2 py-1 rounded border border-white/5">ETH Mainnet</span>
+            </div>
+
+            <div>
+              <p className="text-slate-400 text-sm uppercase tracking-wider mb-1">Total Balance</p>
+              <h2 className="text-4xl font-bold text-white tracking-tight">${balance.toLocaleString()}</h2>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-slate-300 font-mono text-sm bg-white/5 px-3 py-1.5 rounded-lg">
+                {address.slice(0, 6)}...{address.slice(-4)}
+                <Copy 
+                  size={14} 
+                  className="text-slate-500 hover:text-white transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopy();
+                  }}
+                />
+              </div>
+              <div className="text-[10px] text-slate-500 flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Connected
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Back Face (QR Code) */}
+        <div 
+          className="absolute inset-0 rounded-3xl bg-white p-6 shadow-2xl flex flex-col items-center justify-center"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        >
+          <QrCode size={120} className="text-slate-900 mb-4" />
+          <p className="text-slate-500 text-xs font-mono text-center break-all px-4">
+            {address}
+          </p>
+          <p className="text-slate-400 text-[10px] mt-2 uppercase tracking-widest">Scan to Deposit</p>
         </div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }

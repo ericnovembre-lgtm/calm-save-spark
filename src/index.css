@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 3D Perspective for wallet card flip */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
 @import './styles/touch-targets.css';
 @import './styles/glass.css';
 
