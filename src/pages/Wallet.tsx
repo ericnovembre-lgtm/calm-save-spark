@@ -18,6 +18,7 @@ import { ChainSwitcher } from "@/components/wallet/ChainSwitcher";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useActiveChain } from "@/hooks/useActiveChain";
 
 type Tab = 'tokens' | 'nfts' | 'history';
 
@@ -27,10 +28,11 @@ export default function Wallet() {
   const [showSmartSend, setShowSmartSend] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('tokens');
   const { toast } = useToast();
+  const { selectedChain } = useActiveChain();
 
   // Fetch wallet data for balance chart
   const { data: wallet } = useQuery({
-    queryKey: ['user-wallet'],
+    queryKey: ['user-wallet', selectedChain],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -39,7 +41,7 @@ export default function Wallet() {
         .from('wallets')
         .select('*')
         .eq('user_id', user.id)
-        .eq('chain', 'ethereum')
+        .eq('chain', selectedChain)
         .single();
 
       if (error) throw error;
@@ -101,14 +103,20 @@ export default function Wallet() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="flex items-center justify-between mb-8"
         >
-          <h1 className="text-3xl font-bold text-white mb-2">
-            My Wallet
-          </h1>
-          <p className="text-slate-400 text-sm">
-            AI-powered crypto command center
-          </p>
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              My Wallet
+            </h1>
+            <p className="text-slate-400 text-sm">
+              AI-powered crypto command center
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <ChainSwitcher />
+            <WalletNotificationCenter />
+          </div>
         </motion.div>
 
         <DemoModeWarningBanner />
