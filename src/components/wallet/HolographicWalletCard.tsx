@@ -69,8 +69,8 @@ export function HolographicWalletCard({
               transition={{ duration: 2, repeat: Infinity }}
               className="mb-6"
             >
-              <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center">
-                <div className="w-12 h-16 border-4 border-accent rounded-lg" />
+              <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <div className="w-12 h-16 border-4 border-amber-500 rounded-lg" />
               </div>
             </motion.div>
             
@@ -107,37 +107,94 @@ export function HolographicWalletCard({
       >
         {/* Front Face */}
         <div 
-          className="absolute inset-0 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 p-6 shadow-2xl overflow-hidden"
+          className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-950 via-yellow-900 to-amber-900 border border-amber-400/20 p-6 shadow-2xl overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}
         >
+          {/* Edge Glow */}
+          <motion.div
+            className="absolute inset-0 rounded-3xl pointer-events-none"
+            style={{
+              boxShadow: 'inset 0 0 30px rgba(251, 191, 36, 0.1)',
+            }}
+            animate={prefersReducedMotion ? {} : {
+              boxShadow: [
+                'inset 0 0 30px rgba(251, 191, 36, 0.05)',
+                'inset 0 0 40px rgba(251, 191, 36, 0.15)',
+                'inset 0 0 30px rgba(251, 191, 36, 0.05)',
+              ],
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          
+          {/* Gold Shimmer Sweep Animation */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: `linear-gradient(
+                105deg,
+                transparent 20%,
+                rgba(251, 191, 36, 0.1) 35%,
+                rgba(245, 158, 11, 0.2) 50%,
+                rgba(251, 191, 36, 0.1) 65%,
+                transparent 80%
+              )`,
+              backgroundSize: '200% 100%',
+            }}
+            animate={prefersReducedMotion ? {} : {
+              backgroundPosition: ['200% 0%', '-200% 0%'],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: 'linear',
+              repeatDelay: 2,
+            }}
+          />
+          
+          {/* Secondary Metallic Highlight */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none opacity-30"
+            style={{
+              background: `radial-gradient(
+                ellipse 80% 50% at 50% 50%,
+                rgba(251, 191, 36, 0.3),
+                transparent 70%
+              )`,
+            }}
+            animate={prefersReducedMotion ? {} : {
+              opacity: [0.2, 0.4, 0.2],
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          
           {/* Holo Sheen */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-50 pointer-events-none" />
-          <div className="absolute -right-10 -top-10 h-32 w-32 bg-cyan-500/20 blur-3xl rounded-full" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-200/10 to-transparent opacity-50 pointer-events-none" />
+          <div className="absolute -right-10 -top-10 h-32 w-32 bg-amber-400/30 blur-3xl rounded-full" />
 
           <div className="flex flex-col justify-between h-full relative z-10">
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-cyan-500/20 text-cyan-400">
+                <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400">
                   <Wallet size={20} />
                 </div>
                 <span className="font-bold text-white tracking-wide">$ave+ Vault</span>
               </div>
-              <span className="text-xs font-mono text-slate-400 bg-black/30 px-2 py-1 rounded border border-white/5">ETH Mainnet</span>
+              <span className="text-xs font-mono text-amber-200/80 bg-amber-950/50 px-2 py-1 rounded border border-amber-400/20">ETH Mainnet</span>
             </div>
 
             <div>
-              <p className="text-slate-400 text-sm uppercase tracking-wider mb-1">Total Balance</p>
+              <p className="text-amber-200/70 text-sm uppercase tracking-wider mb-1">Total Balance</p>
               <h2 className="text-4xl font-bold text-white tracking-tight">
                 {settings?.hide_balance ? '••••••' : formattedBalance}
               </h2>
             </div>
 
             <div className="flex justify-between items-end">
-              <div className="flex items-center gap-2 text-slate-300 font-mono text-sm bg-white/5 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
+              <div className="flex items-center gap-2 text-amber-100/90 font-mono text-sm bg-amber-500/10 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-colors">
                 {address.slice(0, 6)}...{address.slice(-4)}
                 <Copy 
                   size={14} 
-                  className="text-slate-500 hover:text-white transition-colors cursor-pointer"
+                  className="text-amber-300/60 hover:text-amber-200 transition-colors cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleCopy();
@@ -153,7 +210,7 @@ export function HolographicWalletCard({
                     e.stopPropagation();
                     onReceive();
                   }}
-                  className="bg-white/10 border-white/20 hover:bg-white/20 text-white h-8 px-3"
+                  className="bg-amber-500/20 border-amber-400/40 hover:bg-amber-500/30 text-amber-100 h-8 px-3"
                 >
                   <ArrowDownLeft className="h-3 w-3 mr-1" />
                   Receive
