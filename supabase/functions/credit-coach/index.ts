@@ -4,7 +4,7 @@ const corsHeaders = {
 };
 
 interface CoachRequest {
-  mode: 'approval-power' | 'forensic-scan' | 'limit-lift' | 'inquiry-detective' | 'dispute-wizard' | 'azeo-strategist';
+  mode: 'approval-power' | 'forensic-scan' | 'limit-lift' | 'inquiry-detective' | 'dispute-wizard' | 'azeo-strategist' | 'goodwill-ghostwriter' | 'closure-simulator';
   data: {
     score?: number;
     goalType?: string;
@@ -16,6 +16,15 @@ interface CoachRequest {
     disputeType?: string;
     accountName?: string;
     cardLimits?: number[];
+    creditorName?: string;
+    circumstanceType?: string;
+    lateDays?: string;
+    additionalContext?: string;
+    cardAge?: number;
+    cardLimit?: number;
+    totalCreditLimit?: number;
+    avgAccountAge?: number;
+    numAccounts?: number;
   };
 }
 
@@ -119,6 +128,44 @@ Provide:
 5. Warning: Don't do this if carrying actual debt
 
 Keep it actionable and under 150 words.`;
+        break;
+
+      case 'goodwill-ghostwriter':
+        systemPrompt = 'You are a consumer advocate skilled at writing persuasive, humble goodwill letters to creditors. Focus on human connection, taking responsibility, and politely requesting forgiveness.';
+        userPrompt = `Draft a goodwill adjustment letter to ${data.creditorName}:
+- Reason for late payment: ${data.circumstanceType}
+- How late: ${data.lateDays} days
+- Additional context: ${data.additionalContext || 'None provided'}
+
+Requirements:
+1. Open with gratitude for being a loyal customer
+2. Take responsibility - DO NOT make excuses
+3. Briefly explain the extenuating circumstance
+4. Emphasize it was a one-time situation
+5. Highlight positive payment history before/after
+6. Politely request removal as a goodwill gesture
+7. Professional but warm tone
+
+~200 words, ready to mail.`;
+        break;
+
+      case 'closure-simulator':
+        systemPrompt = 'You are a credit scoring expert who understands FICO score composition. Analyze closure scenarios with data-driven predictions.';
+        userPrompt = `Analyze closing this credit card:
+- Card Age: ${data.cardAge} years
+- Card Limit: $${data.cardLimit}
+- Total Credit Limit (all cards): $${data.totalCreditLimit}
+- Current Average Account Age: ${data.avgAccountAge} years
+- Number of Open Accounts: ${data.numAccounts}
+
+Calculate and explain:
+1. New Average Account Age after closure (if this card is removed)
+2. New Utilization Rate (assuming $0 balance on closed card)
+3. Impact on "Credit Mix" factor
+4. Predicted Score Impact: "Safe to Close", "Moderate Risk (-5 to -20 pts)", or "High Risk (>20 pts drop)"
+5. RECOMMENDATION with reasoning
+
+Be specific with numbers. Under 150 words.`;
         break;
 
       default:

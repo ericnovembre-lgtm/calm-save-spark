@@ -16,6 +16,8 @@ import { LimitLiftScriptCard } from '@/components/credit/LimitLiftScriptCard';
 import { InquiryDetectiveCard } from '@/components/credit/InquiryDetectiveCard';
 import { DisputeWizardCard } from '@/components/credit/DisputeWizardCard';
 import { AZEOStrategistCard } from '@/components/credit/AZEOStrategistCard';
+import { GoodwillGhostwriterCard } from '@/components/credit/GoodwillGhostwriterCard';
+import { ClosureSimulatorCard } from '@/components/credit/ClosureSimulatorCard';
 
 export default function Credit() {
   const queryClient = useQueryClient();
@@ -131,6 +133,8 @@ export default function Credit() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <DisputeWizardCard />
                   <AZEOStrategistCard />
+                  <GoodwillGhostwriterCard />
+                  <ClosureSimulatorCard />
                 </div>
               </div>
             </>
