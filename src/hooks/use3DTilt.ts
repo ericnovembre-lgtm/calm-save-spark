@@ -1,5 +1,6 @@
 import { useReducedMotion } from './useReducedMotion';
 import { useState, useCallback, useRef } from 'react';
+import { useSpring, useMotionValue } from 'framer-motion';
 
 interface TiltState {
   rotateX: number;
@@ -31,13 +32,20 @@ export function use3DTilt({
   damping = 20
 }: Use3DTiltOptions = {}) {
   const prefersReducedMotion = useReducedMotion();
-  const [tilt, setTilt] = useState<TiltState>({
-    rotateX: 0,
-    rotateY: 0,
-    scale: 1,
-    sheenX: 50,
-    sheenY: 50
-  });
+  
+  // Use Framer Motion springs for heavy metal feel
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const scaleValue = useMotionValue(1);
+  const sheenX = useMotionValue(50);
+  const sheenY = useMotionValue(50);
+
+  const springRotateX = useSpring(rotateX, { stiffness, damping });
+  const springRotateY = useSpring(rotateY, { stiffness, damping });
+  const springScale = useSpring(scaleValue, { stiffness, damping });
+  const springSheenX = useSpring(sheenX, { stiffness, damping });
+  const springSheenY = useSpring(sheenY, { stiffness, damping });
+
   const timeoutRef = useRef<NodeJS.Timeout>();
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -50,51 +58,46 @@ export function use3DTilt({
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     
-    const rotateX = ((y - centerY) / centerY) * maxTilt;
-    const rotateY = ((centerX - x) / centerX) * maxTilt;
+    const calculatedRotateX = ((y - centerY) / centerY) * maxTilt;
+    const calculatedRotateY = ((centerX - x) / centerX) * maxTilt;
 
     // Sheen moves opposite to tilt for realistic reflection
-    const sheenX = 50 + ((x - centerX) / rect.width) * 50;
-    const sheenY = 50 + ((y - centerY) / rect.height) * 50;
+    const calculatedSheenX = 50 + ((x - centerX) / rect.width) * 50;
+    const calculatedSheenY = 50 + ((y - centerY) / rect.height) * 50;
 
-    setTilt({
-      rotateX,
-      rotateY,
-      scale,
-      sheenX,
-      sheenY
-    });
-  }, [prefersReducedMotion, maxTilt, scale]);
+    // Update motion values - springs will handle smooth interpolation
+    rotateX.set(calculatedRotateX);
+    rotateY.set(calculatedRotateY);
+    scaleValue.set(scale);
+    sheenX.set(calculatedSheenX);
+    sheenY.set(calculatedSheenY);
+  }, [prefersReducedMotion, maxTilt, scale, rotateX, rotateY, scaleValue, sheenX, sheenY]);
 
   const handleMouseLeave = useCallback(() => {
     if (prefersReducedMotion) return;
 
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      setTilt({
-        rotateX: 0,
-        rotateY: 0,
-        scale: 1,
-        sheenX: 50,
-        sheenY: 50
-      });
+      // Spring back to rest position with heavy metal feel
+      rotateX.set(0);
+      rotateY.set(0);
+      scaleValue.set(1);
+      sheenX.set(50);
+      sheenY.set(50);
     }, 100);
-  }, [prefersReducedMotion]);
-
-  const tiltStyle = prefersReducedMotion ? {} : {
-    transform: `perspective(${perspective}px) rotateX(${-tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(${tilt.scale})`,
-    transition: `transform ${speed}ms cubic-bezier(0.22, 1, 0.36, 1)`
-  };
-
-  const sheenStyle = {
-    background: `radial-gradient(circle at ${tilt.sheenX}% ${tilt.sheenY}%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 50%, transparent 70%)`,
-    transition: `background ${speed}ms cubic-bezier(0.22, 1, 0.36, 1)`
-  };
+  }, [prefersReducedMotion, rotateX, rotateY, scaleValue, sheenX, sheenY]);
 
   return {
-    tilt,
-    tiltStyle,
-    sheenStyle,
+    tiltStyle: prefersReducedMotion ? {} : {
+      rotateX: springRotateX,
+      rotateY: springRotateY,
+      scale: springScale,
+      perspective
+    },
+    sheenStyle: {
+      sheenX: springSheenX,
+      sheenY: springSheenY
+    },
     handleMouseMove,
     handleMouseLeave
   };

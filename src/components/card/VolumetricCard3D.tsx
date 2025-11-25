@@ -27,6 +27,9 @@ export function VolumetricCard3D({ card, onFreeze }: VolumetricCard3DProps) {
     damping: 20
   });
 
+  // Mock CVV for display (in production, fetch from secure endpoint)
+  const cvv = '***';
+
   const isFrozen = card.status === 'frozen';
 
   return (
@@ -63,11 +66,33 @@ export function VolumetricCard3D({ card, onFreeze }: VolumetricCard3DProps) {
 
             {/* Dynamic Sheen Layer - Layer 2 */}
             {!isFrozen && (
-              <div 
+              <motion.div 
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                  ...sheenStyle,
+                  background: sheenStyle.sheenX && sheenStyle.sheenY 
+                    ? `radial-gradient(circle at ${sheenStyle.sheenX}% ${sheenStyle.sheenY}%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 50%, transparent 70%)`
+                    : 'none',
                   transform: 'translateZ(2px)'
+                }}
+              />
+            )}
+
+            {/* Holographic Foil Edge - Active State Only */}
+            {!isFrozen && (
+              <motion.div
+                className="absolute inset-0 pointer-events-none rounded-3xl"
+                style={{
+                  transform: 'translateZ(2.5px)',
+                  background: 'conic-gradient(from 0deg, transparent 0deg, rgba(255,0,255,0.15) 90deg, transparent 180deg, rgba(0,255,255,0.15) 270deg, transparent 360deg)',
+                  mixBlendMode: 'screen'
+                }}
+                animate={{
+                  rotate: [0, 360]
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: 'linear'
                 }}
               />
             )}
@@ -127,10 +152,17 @@ export function VolumetricCard3D({ card, onFreeze }: VolumetricCard3DProps) {
                     )}
                   </div>
                 </div>
-                <div className={`text-xs font-medium tracking-wider ${
-                  isFrozen ? 'text-zinc-500' : 'text-zinc-700'
-                }`}>
-                  {card.card_type?.toUpperCase() || 'SECURED'}
+                <div className="text-right">
+                  <div className={`text-xs uppercase tracking-wider mb-1 ${
+                    isFrozen ? 'text-zinc-500' : 'text-zinc-600'
+                  }`}>
+                    CVV
+                  </div>
+                  <div className={`text-sm font-bold font-mono ${
+                    isFrozen ? 'text-zinc-400' : 'text-zinc-900'
+                  }`}>
+                    {showDetails ? cvv : '•••'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -170,7 +202,7 @@ export function VolumetricCard3D({ card, onFreeze }: VolumetricCard3DProps) {
           variant="outline"
           size="sm"
           onClick={() => setShowDetails(!showDetails)}
-          className="gap-2"
+          className="gap-2 active:scale-[0.95] transition-transform"
         >
           {showDetails ? (
             <>
@@ -190,7 +222,7 @@ export function VolumetricCard3D({ card, onFreeze }: VolumetricCard3DProps) {
             variant={isFrozen ? "default" : "destructive"}
             size="sm"
             onClick={() => onFreeze(card.id)}
-            className="gap-2"
+            className="gap-2 active:scale-[0.95] transition-transform"
           >
             <Lock className="w-4 h-4" />
             {isFrozen ? 'Unfreeze' : 'Freeze'}

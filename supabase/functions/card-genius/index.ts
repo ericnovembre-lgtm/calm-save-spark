@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,7 +18,9 @@ interface GeniusRequest {
   };
 }
 
-Deno.serve(async (req) => {
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -32,11 +34,33 @@ Deno.serve(async (req) => {
     }
 
     // Mode-specific system prompts
-    const systemPrompts = {
-      purchase: `You are a credit card purchase analyzer. Calculate points earned, identify applicable protections and insurance coverage. Be specific with numbers.`,
-      travel: `You are a travel advisor for credit card users. Provide local payment customs, tipping culture, currency info, and warn about foreign transaction fees.`,
-      dispute: `You are a banking dispute letter writer. Draft formal, professional dispute letters based on user's issue. Include account details placeholders.`,
-      benefits: `You are a credit card benefits expert. Check if the user's question matches card protections (phone insurance, travel insurance, purchase protection, extended warranty). Provide coverage amounts.`
+    const systemPrompts: Record<GeniusMode, string> = {
+      purchase: `You are a credit card rewards expert. Analyze purchases and provide:
+1. Exact points/cashback earned
+2. Applicable card protections (purchase protection, extended warranty, price protection)
+3. Any special bonus categories
+Format response with clear numbers and protection details. Return structured data.`,
+      
+      travel: `You are a travel credit card concierge. For the given destination, provide:
+1. Local tipping culture and percentages (e.g., "10-15% standard")
+2. Currency information
+3. Foreign transaction fee warnings
+4. Travel protections available (trip delay, baggage, rental car)
+Return as JSON with: { tips: string, currency: string, fxFee: string, protections: string[] }`,
+      
+      dispute: `You are a banking dispute specialist. Draft a formal, professional dispute letter that:
+1. States the issue clearly
+2. References consumer protection laws
+3. Requests specific action
+4. Maintains professional tone
+Return as JSON with: { letter: string, subject: string, keyPoints: string[] }`,
+      
+      benefits: `You are a credit card benefits expert. Check if the user's situation is covered by:
+1. Cell phone protection
+2. Purchase protection
+3. Extended warranty
+4. Return protection
+Return as JSON with: { covered: boolean, coverageAmount: number, benefit: string, claimProcess: string }`
     };
 
     // Call Lovable AI
@@ -66,18 +90,40 @@ Deno.serve(async (req) => {
     const aiData = await aiResponse.json();
     const result = aiData.choices[0].message.content;
 
-    // Parse structured data based on mode
-    let structured = {};
-    
-    if (mode === 'purchase') {
-      // Extract points and protections from response
-      const pointsMatch = result.match(/(\d+(?:,\d+)*)\s*points?/i);
-      const protectionsMatch = result.match(/protections?:?\s*([^\n]+)/gi);
-      
-      structured = {
-        points: pointsMatch ? parseInt(pointsMatch[1].replace(/,/g, '')) : null,
-        protections: protectionsMatch?.map(p => p.replace(/protections?:?\s*/i, '').trim()) || []
-      };
+    // Parse structured data for all modes
+    let structured = undefined;
+    try {
+      if (mode === 'purchase') {
+        // Extract points and protections
+        const pointsMatch = result.match(/(\d+)\s*points/i);
+        const points = pointsMatch ? parseInt(pointsMatch[1]) : 0;
+        
+        const protections: string[] = [];
+        if (result.toLowerCase().includes('purchase protection')) protections.push('Purchase Protection');
+        if (result.toLowerCase().includes('extended warranty')) protections.push('Extended Warranty');
+        if (result.toLowerCase().includes('price protection')) protections.push('Price Protection');
+        if (result.toLowerCase().includes('trip delay')) protections.push('Trip Delay Insurance');
+        
+        structured = { points, protections };
+      } else if (mode === 'travel') {
+        // Try to parse JSON response
+        const jsonMatch = result.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          structured = JSON.parse(jsonMatch[0]);
+        }
+      } else if (mode === 'dispute') {
+        const jsonMatch = result.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          structured = JSON.parse(jsonMatch[0]);
+        }
+      } else if (mode === 'benefits') {
+        const jsonMatch = result.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          structured = JSON.parse(jsonMatch[0]);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse structured data:', e);
     }
 
     return new Response(
