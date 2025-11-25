@@ -1,18 +1,23 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { CreditScoreCard } from "@/components/credit/CreditScoreCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { RefreshCw, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { LoadingState } from "@/components/LoadingState";
 import { toast } from "sonner";
-import { SyncStatusBadge } from "@/components/ui/SyncStatusBadge";
-import { LazyLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from '@/components/charts/LazyLineChart';
-import { format } from 'date-fns';
+import { NeonCreditGauge } from '@/components/credit/NeonCreditGauge';
+import { CreditSimulator } from '@/components/credit/CreditSimulator';
+import { CreditFactorBars } from '@/components/credit/CreditFactorBars';
+import { ApprovalPowerCard } from '@/components/credit/ApprovalPowerCard';
+import { ForensicScanCard } from '@/components/credit/ForensicScanCard';
+import { LimitLiftScriptCard } from '@/components/credit/LimitLiftScriptCard';
+import { InquiryDetectiveCard } from '@/components/credit/InquiryDetectiveCard';
 
 export default function Credit() {
   const queryClient = useQueryClient();
+  const [projectedScore, setProjectedScore] = useState<number | undefined>(undefined);
 
   const { data: scores, isLoading } = useQuery({
     queryKey: ['credit_scores'],
@@ -53,154 +58,81 @@ export default function Credit() {
   });
 
   const latestScore = scores?.[0];
-  const historicalData = scores?.slice().reverse().map(s => ({
-    date: format(new Date(s.score_date), 'MMM dd'),
-    score: s.score
-  }));
 
   if (isLoading) return <LoadingState />;
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-display font-bold text-foreground mb-2">Credit Score</h1>
-            <p className="text-muted-foreground">Monitor your credit health and track improvements</p>
-          </div>
-          <Button 
-            onClick={() => syncMutation.mutate()}
-            disabled={syncMutation.isPending}
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
-            Update Score
-          </Button>
-        </div>
-
-        {latestScore ? (
-          <div className="space-y-4">
-            <CreditScoreCard
-              score={latestScore.score}
-              change={latestScore.change_from_previous || 0}
-              provider={latestScore.provider}
-              date={latestScore.score_date}
-              factors={latestScore.factors as any[]}
-            />
-            <Card className="p-4 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Last Updated</p>
-              <SyncStatusBadge 
-                lastSynced={latestScore.score_date}
-                isSyncing={syncMutation.isPending}
-                syncType="credit score"
-              />
-            </Card>
-          </div>
-        ) : (
-          <Card className="p-12 text-center">
-            <p className="text-muted-foreground mb-4">No credit score data yet</p>
-            <Button onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending}>
-              Get Your Credit Score
+      <div className="min-h-screen bg-[hsl(var(--cyber-bg))] text-foreground">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-5xl font-display font-bold text-foreground mb-2">
+                Credit Command Center
+              </h1>
+              <p className="text-muted-foreground">
+                Predict, protect, and optimize your credit health
+              </p>
+            </div>
+            <Button 
+              onClick={() => syncMutation.mutate()}
+              disabled={syncMutation.isPending}
+              variant="outline"
+              className="border-[hsl(var(--cyber-green))] text-[hsl(var(--cyber-green))] hover:bg-[hsl(var(--cyber-green))]/10"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+              Update Score
             </Button>
-          </Card>
-        )}
+          </div>
 
-        {historicalData && historicalData.length > 1 && (
-          <Card className="p-6">
-            <h3 className="text-xl font-semibold text-foreground mb-4">Credit Score History</h3>
-            <LazyLineChart data={historicalData} height={300}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis 
-                dataKey="date" 
-                stroke="hsl(var(--muted-foreground))"
-                style={{ fontSize: '12px' }}
-              />
-              <YAxis 
-                stroke="hsl(var(--muted-foreground))"
-                style={{ fontSize: '12px' }}
-                domain={[300, 850]}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  color: 'hsl(var(--foreground))'
-                }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="score" 
-                stroke="hsl(var(--primary))" 
-                strokeWidth={2}
-                dot={{ fill: 'hsl(var(--primary))' }}
-              />
-            </LazyLineChart>
-          </Card>
-        )}
+          {latestScore ? (
+            <>
+              {/* Hero: Neon Gauge */}
+              <Card className="p-8 backdrop-blur-glass bg-[hsl(var(--cyber-surface))]/50 border-[hsl(var(--cyber-border))]">
+                <NeonCreditGauge 
+                  score={latestScore.score} 
+                  projectedScore={projectedScore}
+                />
+              </Card>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="p-6">
-            <h4 className="text-sm font-semibold text-foreground mb-4">What Affects Your Score</h4>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Payment History</span>
-                <span className="font-medium text-foreground">35%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Credit Utilization</span>
-                <span className="font-medium text-foreground">30%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Credit Age</span>
-                <span className="font-medium text-foreground">15%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Credit Mix</span>
-                <span className="font-medium text-foreground">10%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">New Credit</span>
-                <span className="font-medium text-foreground">10%</span>
-              </div>
-            </div>
-          </Card>
+              {/* Two-Column Layout: Simulator + AI Coach */}
+              <div className="grid lg:grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  <CreditSimulator 
+                    currentScore={latestScore.score}
+                    onProjectedScoreChange={setProjectedScore}
+                  />
+                  <CreditFactorBars />
+                </div>
 
-          <Card className="p-6">
-            <h4 className="text-sm font-semibold text-foreground mb-4">Score Ranges</h4>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-green-500">Exceptional</span>
-                <span className="text-muted-foreground">800-850</span>
+                <div className="space-y-6">
+                  <div className="backdrop-blur-glass bg-[hsl(var(--cyber-surface))]/50 border border-[hsl(var(--cyber-border))] rounded-lg p-6">
+                    <h2 className="text-2xl font-display font-bold text-foreground mb-6">
+                      AI Credit Coach
+                    </h2>
+                    <div className="space-y-4">
+                      <ApprovalPowerCard currentScore={latestScore.score} />
+                      <ForensicScanCard currentScore={latestScore.score} />
+                      <LimitLiftScriptCard />
+                      <InquiryDetectiveCard />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-blue-500">Very Good</span>
-                <span className="text-muted-foreground">740-799</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-yellow-500">Good</span>
-                <span className="text-muted-foreground">670-739</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-orange-500">Fair</span>
-                <span className="text-muted-foreground">580-669</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-red-500">Poor</span>
-                <span className="text-muted-foreground">300-579</span>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h4 className="text-sm font-semibold text-foreground mb-4">Improvement Tips</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>• Pay all bills on time</li>
-              <li>• Keep credit utilization below 30%</li>
-              <li>• Don't close old accounts</li>
-              <li>• Limit new credit applications</li>
-              <li>• Regularly check for errors</li>
-            </ul>
-          </Card>
+            </>
+          ) : (
+            <Card className="p-12 text-center backdrop-blur-glass bg-[hsl(var(--cyber-surface))]/50 border-[hsl(var(--cyber-border))]">
+              <p className="text-muted-foreground mb-4">No credit score data yet</p>
+              <Button 
+                onClick={() => syncMutation.mutate()} 
+                disabled={syncMutation.isPending}
+                className="bg-[hsl(var(--cyber-green))] hover:bg-[hsl(var(--cyber-green))]/90"
+              >
+                Get Your Credit Score
+              </Button>
+            </Card>
+          )}
         </div>
       </div>
     </AppLayout>
