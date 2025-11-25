@@ -1,4 +1,4 @@
-import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -89,13 +89,20 @@ Deno.serve(async (req) => {
           });
           if (goalError) console.error('Goal update error:', goalError);
         } else if (rule.destination_pot_id) {
-          const { error: potError } = await supabase
+          // Get current pot amount and increment
+          const { data: pot } = await supabase
             .from('pots')
-            .update({
-              current_amount: supabase.raw(`current_amount + ${saveAmount}`)
-            })
-            .eq('id', rule.destination_pot_id);
-          if (potError) console.error('Pot update error:', potError);
+            .select('current_amount')
+            .eq('id', rule.destination_pot_id)
+            .single();
+          
+          if (pot) {
+            const { error: potError } = await supabase
+              .from('pots')
+              .update({ current_amount: pot.current_amount + saveAmount })
+              .eq('id', rule.destination_pot_id);
+            if (potError) console.error('Pot update error:', potError);
+          }
         }
 
         // Update rule statistics
@@ -162,13 +169,21 @@ Deno.serve(async (req) => {
     pointsEarned.push({ type: 'base', points: finalPoints, multiplier });
 
     // Update tier total points
-    await supabase
+    const { data: tierData } = await supabase
       .from('card_tier_status')
-      .update({
-        total_points: supabase.raw(`total_points + ${finalPoints}`),
-        lifetime_points: supabase.raw(`lifetime_points + ${finalPoints}`)
-      })
-      .eq('user_id', transaction.user_id);
+      .select('total_points, lifetime_points')
+      .eq('user_id', transaction.user_id)
+      .single();
+    
+    if (tierData) {
+      await supabase
+        .from('card_tier_status')
+        .update({
+          total_points: tierData.total_points + finalPoints,
+          lifetime_points: tierData.lifetime_points + finalPoints
+        })
+        .eq('user_id', transaction.user_id);
+    }
 
     console.log('Rewards processed:', { appliedRules, pointsEarned });
 
@@ -187,8 +202,9 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error processing card rewards:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
