@@ -5,6 +5,7 @@ import { Copy, ExternalLink, Clock, ArrowUpRight, ArrowDownLeft, Check, X, Loade
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useState } from "react";
+import { useWalletSettings } from "@/hooks/useWalletSettings";
 
 interface Transaction {
   id: string;
@@ -29,8 +30,11 @@ interface TransactionDetailsModalProps {
 
 export function TransactionDetailsModal({ transaction, isOpen, onClose }: TransactionDetailsModalProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const { settings } = useWalletSettings();
 
   if (!transaction) return null;
+  
+  const shouldHideAmounts = settings?.hide_transaction_amounts || false;
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -106,7 +110,7 @@ export function TransactionDetailsModal({ transaction, isOpen, onClose }: Transa
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">Amount</p>
             <p className="text-3xl font-bold">
-              {transaction.amount.toFixed(6)} {transaction.token_symbol}
+              {shouldHideAmounts ? '••••••' : `${transaction.amount.toFixed(6)} ${transaction.token_symbol}`}
             </p>
           </div>
 
@@ -168,7 +172,7 @@ export function TransactionDetailsModal({ transaction, isOpen, onClose }: Transa
           </div>
 
           {/* Gas Breakdown */}
-          {gasFee && (
+          {gasFee && !shouldHideAmounts && (
             <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
               <p className="font-semibold">Gas Breakdown</p>
               <div className="space-y-2 text-sm">
@@ -189,7 +193,7 @@ export function TransactionDetailsModal({ transaction, isOpen, onClose }: Transa
           )}
 
           {/* Total Cost */}
-          {transaction.transaction_type === 'send' && gasFee && (
+          {transaction.transaction_type === 'send' && gasFee && !shouldHideAmounts && (
             <div className="flex justify-between items-center p-4 bg-primary/10 rounded-lg">
               <span className="font-semibold">Total Cost</span>
               <span className="text-xl font-bold">

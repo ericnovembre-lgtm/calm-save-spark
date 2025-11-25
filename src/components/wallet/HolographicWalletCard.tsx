@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { QrCode, Copy, Check, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useWalletSettings } from "@/hooks/useWalletSettings";
+import { formatCurrency } from "@/lib/exchangeRates";
 
 interface HolographicWalletCardProps {
   address?: string;
@@ -21,6 +23,10 @@ export function HolographicWalletCard({
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const prefersReducedMotion = useReducedMotion();
+  const { settings } = useWalletSettings();
+  
+  const displayCurrency = settings?.display_currency || 'USD';
+  const formattedBalance = formatCurrency(balance, displayCurrency);
 
   const handleCopy = () => {
     if (address) {
@@ -117,7 +123,7 @@ export function HolographicWalletCard({
 
             <div>
               <p className="text-slate-400 text-sm uppercase tracking-wider mb-1">Total Balance</p>
-              <h2 className="text-4xl font-bold text-white tracking-tight">${balance.toLocaleString()}</h2>
+              <h2 className="text-4xl font-bold text-white tracking-tight">{formattedBalance}</h2>
             </div>
 
             <div className="flex justify-between items-center">
