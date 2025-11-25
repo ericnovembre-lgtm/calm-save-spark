@@ -70,6 +70,7 @@
     "jspdf-autotable": "^5.0.2",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.462.0",
+    "mapbox-gl": "^3.16.0",
     "matter-js": "^0.20.0",
     "posthog-js": "^1.283.0",
     "qrcode.react": "^4.2.0",
