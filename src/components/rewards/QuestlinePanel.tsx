@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { QuestlineCard } from "./QuestlineCard";
 import { Card } from "@/components/ui/card";
 import { BookOpen } from "lucide-react";
+import { useQuestlineNarrative } from "@/hooks/useQuestlineNarrative";
 
 export function QuestlinePanel() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -66,25 +67,65 @@ export function QuestlinePanel() {
         const steps = questline.steps as any[];
 
         return (
-          <QuestlineCard
+          <QuestlineCardWithNarrative 
             key={questline.id}
-            name={questline.name}
-            description={questline.description || undefined}
-            narrativeIntro={questline.narrative_intro || undefined}
+            questline={questline}
+            userProgress={userProgress}
             steps={steps}
-            totalPoints={questline.total_points}
-            category={questline.category}
-            icon={questline.icon || undefined}
-            progress={userProgress ? {
-              currentStep: userProgress.current_step,
-              stepsCompleted: userProgress.steps_completed as number[],
-              completedAt: userProgress.completed_at || undefined,
-            } : undefined}
-            isExpanded={expandedId === questline.id}
-            onToggle={() => setExpandedId(expandedId === questline.id ? null : questline.id)}
+            expandedId={expandedId}
+            setExpandedId={setExpandedId}
           />
         );
       })}
     </div>
+  );
+}
+
+function QuestlineCardWithNarrative({ 
+  questline, 
+  userProgress, 
+  steps, 
+  expandedId, 
+  setExpandedId 
+}: {
+  questline: any;
+  userProgress: any;
+  steps: any[];
+  expandedId: string | null;
+  setExpandedId: (id: string | null) => void;
+}) {
+  const { data: narrative, isLoading: isNarrativeLoading } = useQuestlineNarrative({
+    questlineId: questline.id,
+    category: questline.category,
+    progress: userProgress ? {
+      currentStep: userProgress.current_step,
+      stepsCompleted: userProgress.steps_completed as number[],
+      totalSteps: steps.length,
+    } : undefined,
+    userBehavior: {
+      recentTransactions: 5,
+      savingsVelocity: 'moderate',
+    },
+  });
+
+  return (
+    <QuestlineCard
+      name={questline.name}
+      description={questline.description || undefined}
+      narrativeIntro={questline.narrative_intro || undefined}
+      aiNarrative={narrative}
+      isNarrativeLoading={isNarrativeLoading}
+      steps={steps}
+      totalPoints={questline.total_points}
+      category={questline.category}
+      icon={questline.icon || undefined}
+      progress={userProgress ? {
+        currentStep: userProgress.current_step,
+        stepsCompleted: userProgress.steps_completed as number[],
+        completedAt: userProgress.completed_at || undefined,
+      } : undefined}
+      isExpanded={expandedId === questline.id}
+      onToggle={() => setExpandedId(expandedId === questline.id ? null : questline.id)}
+    />
   );
 }
