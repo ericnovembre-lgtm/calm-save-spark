@@ -5,6 +5,8 @@ interface TiltState {
   rotateX: number;
   rotateY: number;
   scale: number;
+  sheenX: number;
+  sheenY: number;
 }
 
 interface Use3DTiltOptions {
@@ -12,23 +14,29 @@ interface Use3DTiltOptions {
   perspective?: number;
   scale?: number;
   speed?: number;
+  stiffness?: number;
+  damping?: number;
 }
 
 /**
- * Hook for 3D tilt effect on mouse move
- * Creates parallax effect following cursor
+ * Enhanced hook for volumetric 3D tilt effect
+ * Adds sheen tracking for realistic metal reflections
  */
 export function use3DTilt({
   maxTilt = 15,
   perspective = 1000,
   scale = 1.05,
-  speed = 400
+  speed = 400,
+  stiffness = 300,
+  damping = 20
 }: Use3DTiltOptions = {}) {
   const prefersReducedMotion = useReducedMotion();
   const [tilt, setTilt] = useState<TiltState>({
     rotateX: 0,
     rotateY: 0,
-    scale: 1
+    scale: 1,
+    sheenX: 50,
+    sheenY: 50
   });
   const timeoutRef = useRef<NodeJS.Timeout>();
 
@@ -45,10 +53,16 @@ export function use3DTilt({
     const rotateX = ((y - centerY) / centerY) * maxTilt;
     const rotateY = ((centerX - x) / centerX) * maxTilt;
 
+    // Sheen moves opposite to tilt for realistic reflection
+    const sheenX = 50 + ((x - centerX) / rect.width) * 50;
+    const sheenY = 50 + ((y - centerY) / rect.height) * 50;
+
     setTilt({
       rotateX,
       rotateY,
-      scale
+      scale,
+      sheenX,
+      sheenY
     });
   }, [prefersReducedMotion, maxTilt, scale]);
 
@@ -60,7 +74,9 @@ export function use3DTilt({
       setTilt({
         rotateX: 0,
         rotateY: 0,
-        scale: 1
+        scale: 1,
+        sheenX: 50,
+        sheenY: 50
       });
     }, 100);
   }, [prefersReducedMotion]);
@@ -70,9 +86,15 @@ export function use3DTilt({
     transition: `transform ${speed}ms cubic-bezier(0.22, 1, 0.36, 1)`
   };
 
+  const sheenStyle = {
+    background: `radial-gradient(circle at ${tilt.sheenX}% ${tilt.sheenY}%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 50%, transparent 70%)`,
+    transition: `background ${speed}ms cubic-bezier(0.22, 1, 0.36, 1)`
+  };
+
   return {
     tilt,
     tiltStyle,
+    sheenStyle,
     handleMouseMove,
     handleMouseLeave
   };

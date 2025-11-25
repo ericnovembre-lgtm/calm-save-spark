@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Plus, Activity, FileText } from 'lucide-react';
+import { CreditCard, Plus, Activity, FileText, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CardDisplay } from '@/components/card/CardDisplay';
+import { VolumetricCard3D } from '@/components/card/VolumetricCard3D';
+import { CardGeniusHub } from '@/components/card/CardGeniusHub';
+import { SmartLimitOptimizer } from '@/components/card/SmartLimitOptimizer';
 import { AccountSummary } from '@/components/card/AccountSummary';
 import { TransactionList } from '@/components/card/TransactionList';
 import { CardControls } from '@/components/card/CardControls';
@@ -87,21 +89,23 @@ export default function CardPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <Card>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Premium Header */}
+      <Card className="border-2">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <CreditCard className="w-6 h-6 text-primary" />
+              <div className="p-2 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 text-white">
+                <CreditCard className="w-6 h-6" />
+              </div>
               <div>
-                <CardTitle>$ave+ Credit Cards</CardTitle>
-                <CardDescription>Manage your cards and transactions</CardDescription>
+                <CardTitle className="text-2xl">$ave+ Metal Card</CardTitle>
+                <CardDescription>Premium credit card experience</CardDescription>
               </div>
             </div>
             <Link to="/card/apply">
-              <Button variant="outline">
-                <Plus className="w-4 h-4 mr-2" />
+              <Button variant="outline" className="gap-2">
+                <Plus className="w-4 h-4" />
                 Apply for Card
               </Button>
             </Link>
@@ -109,51 +113,67 @@ export default function CardPage() {
         </CardHeader>
       </Card>
 
+      {/* Hero Section: Volumetric Card + AI Hub */}
+      {cards.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Volumetric 3D Card */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <VolumetricCard3D 
+              card={cards[0]} 
+              onFreeze={handleFreezeCard}
+            />
+          </motion.div>
+
+          {/* Card Genius AI Hub */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <CardGeniusHub cardId={cards[0].id} />
+          </motion.div>
+        </div>
+      )}
+
+      {/* Smart Limit Optimizer */}
+      {account && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <SmartLimitOptimizer accountId={account.id} currentLimit={1200} />
+        </motion.div>
+      )}
+
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="rewards">Rewards</TabsTrigger>
-          <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="controls">Controls</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 h-12">
+          <TabsTrigger value="overview" className="gap-2">
+            <Activity className="w-4 h-4" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="rewards" className="gap-2">
+            <Sparkles className="w-4 h-4" />
+            Rewards
+          </TabsTrigger>
+          <TabsTrigger value="transactions" className="gap-2">
+            <FileText className="w-4 h-4" />
+            Transactions
+          </TabsTrigger>
+          <TabsTrigger value="controls" className="gap-2">
+            <CreditCard className="w-4 h-4" />
+            Controls
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           {/* Account Summary */}
           <AccountSummary account={account} />
-
-          {/* Cards */}
-          {cardsLoading ? (
-            <div className="text-center py-8 text-muted-foreground">
-              Loading cards...
-            </div>
-          ) : cards.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6 text-center space-y-4">
-                <CreditCard className="w-12 h-12 mx-auto text-muted-foreground" />
-                <div>
-                  <h3 className="font-semibold text-foreground mb-1">No Cards Yet</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Request your first card to start using your account
-                  </p>
-                </div>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Request Physical Card
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {cards.map((card) => (
-                <CardDisplay
-                  key={card.id}
-                  card={card}
-                  onFreeze={handleFreezeCard}
-                />
-              ))}
-            </div>
-          )}
 
           {/* Quick Actions */}
           <Card>
@@ -162,19 +182,28 @@ export default function CardPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                  <Activity className="w-5 h-5" />
-                  <span className="text-sm">View Activity</span>
+                <Button 
+                  variant="outline" 
+                  className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
+                >
+                  <Activity className="w-6 h-6" />
+                  <span className="text-sm font-medium">View Activity</span>
                 </Button>
                 
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                  <FileText className="w-5 h-5" />
-                  <span className="text-sm">Statements</span>
+                <Button 
+                  variant="outline" 
+                  className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
+                >
+                  <FileText className="w-6 h-6" />
+                  <span className="text-sm font-medium">Statements</span>
                 </Button>
                 
-                <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  <span className="text-sm">Make Payment</span>
+                <Button 
+                  variant="outline" 
+                  className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
+                >
+                  <CreditCard className="w-6 h-6" />
+                  <span className="text-sm font-medium">Make Payment</span>
                 </Button>
               </div>
             </CardContent>
@@ -205,7 +234,7 @@ export default function CardPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDisplay card={card} onFreeze={handleFreezeCard} />
+                    <VolumetricCard3D card={card} onFreeze={handleFreezeCard} />
                   </CardContent>
                 </Card>
               ))}
