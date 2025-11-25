@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { ScrollSection } from "@/components/animations/ScrollSection";
 import { CreditScoreCard } from "@/components/credit/CreditScoreCard";
@@ -15,9 +16,11 @@ import { DisputeWizardCard } from "@/components/credit/DisputeWizardCard";
 import { AZEOStrategistCard } from "@/components/credit/AZEOStrategistCard";
 import { GoodwillGhostwriterCard } from "@/components/credit/GoodwillGhostwriterCard";
 import { ClosureSimulatorCard } from "@/components/credit/ClosureSimulatorCard";
+import { CreditSimulator } from "@/components/credit/CreditSimulator";
 
 export default function Credit() {
   const { data: latestScore, isLoading } = useLatestCreditScore();
+  const [projectedScore, setProjectedScore] = useState<number | undefined>();
 
   return (
     <PageTransition>
@@ -35,7 +38,10 @@ export default function Credit() {
           <Skeleton className="h-[300px] w-full" />
         ) : latestScore ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <NeonCreditGauge score={latestScore.score} />
+            <NeonCreditGauge 
+              score={latestScore.score} 
+              projectedScore={projectedScore}
+            />
             <CreditScoreCard
               score={latestScore.score}
               change={latestScore.change}
@@ -45,6 +51,14 @@ export default function Credit() {
             />
           </div>
         ) : null}
+
+        {/* Credit Simulator */}
+        {latestScore && (
+          <CreditSimulator
+            currentScore={latestScore.score}
+            onProjectedScoreChange={setProjectedScore}
+          />
+        )}
 
         {/* Credit Health Factors */}
         <CreditFactorBars />
