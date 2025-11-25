@@ -1000,6 +1000,60 @@ export type Database = {
         }
         Relationships: []
       }
+      benefit_matches: {
+        Row: {
+          activated_at: string | null
+          benefit_id: string
+          created_at: string | null
+          dismissed_at: string | null
+          expires_at: string | null
+          id: string
+          match_confidence: number | null
+          status: string | null
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          benefit_id: string
+          created_at?: string | null
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          match_confidence?: number | null
+          status?: string | null
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          benefit_id?: string
+          created_at?: string | null
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          match_confidence?: number | null
+          status?: string | null
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_matches_benefit_id_fkey"
+            columns: ["benefit_id"]
+            isOneToOne: false
+            referencedRelation: "card_benefits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_matches_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "card_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bill_negotiation_opportunities: {
         Row: {
           category: string | null
@@ -2034,6 +2088,60 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      card_benefits: {
+        Row: {
+          activation_required: boolean | null
+          activation_url: string | null
+          benefit_category: string
+          benefit_name: string
+          card_tier: string
+          created_at: string | null
+          description: string
+          fine_print: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          trigger_keywords: string[] | null
+          trigger_merchant_categories: string[] | null
+          trigger_min_amount_cents: number | null
+          validity_days: number | null
+        }
+        Insert: {
+          activation_required?: boolean | null
+          activation_url?: string | null
+          benefit_category: string
+          benefit_name: string
+          card_tier: string
+          created_at?: string | null
+          description: string
+          fine_print?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          trigger_keywords?: string[] | null
+          trigger_merchant_categories?: string[] | null
+          trigger_min_amount_cents?: number | null
+          validity_days?: number | null
+        }
+        Update: {
+          activation_required?: boolean | null
+          activation_url?: string | null
+          benefit_category?: string
+          benefit_name?: string
+          card_tier?: string
+          created_at?: string | null
+          description?: string
+          fine_print?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          trigger_keywords?: string[] | null
+          trigger_merchant_categories?: string[] | null
+          trigger_min_amount_cents?: number | null
+          validity_days?: number | null
         }
         Relationships: []
       }
