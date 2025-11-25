@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { motion } from "framer-motion";
-import { Loader2, MapPin } from "lucide-react";
+import { Loader2, MapPin, AlertTriangle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useMapboxToken } from "@/hooks/useMapboxToken";
 import { useMerchantLocations } from "@/hooks/useMerchantLocations";
 import { MapFilterPanel } from "./MapFilterPanel";
@@ -23,8 +24,9 @@ export function MerchantMapVisualization({ cardId }: MerchantMapVisualizationPro
     end: new Date(),
   });
   const [minAmount, setMinAmount] = useState(0);
+  const [mapError, setMapError] = useState<string | null>(null);
 
-  const { data: token, isLoading: tokenLoading } = useMapboxToken();
+  const { data: token, isLoading: tokenLoading, isError: tokenError, error, refetch } = useMapboxToken();
   const { data: locations, isLoading: locationsLoading } = useMerchantLocations({
     cardId,
     dateRange,
@@ -36,24 +38,35 @@ export function MerchantMapVisualization({ cardId }: MerchantMapVisualizationPro
   useEffect(() => {
     if (!mapContainer.current || !token || map.current) return;
 
-    mapboxgl.accessToken = token;
+    try {
+      setMapError(null);
+      mapboxgl.accessToken = token;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [-98.5795, 39.8283], // Center of US
-      zoom: 3,
-      projection: 'mercator' as any,
-    });
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [-98.5795, 39.8283], // Center of US
+        zoom: 3,
+        projection: 'mercator' as any,
+      });
 
-    map.current.addControl(
-      new mapboxgl.NavigationControl({
-        visualizePitch: true,
-      }),
-      'top-left'
-    );
+      map.current.addControl(
+        new mapboxgl.NavigationControl({
+          visualizePitch: true,
+        }),
+        'top-left'
+      );
 
-    map.current.scrollZoom.enable();
+      map.current.scrollZoom.enable();
+
+      map.current.on('error', (e) => {
+        console.error('Map error:', e);
+        setMapError('Failed to initialize map. Please check your connection.');
+      });
+    } catch (error) {
+      console.error('Error initializing map:', error);
+      setMapError(error instanceof Error ? error.message : 'Failed to initialize map');
+    }
 
     return () => {
       map.current?.remove();
@@ -183,6 +196,33 @@ export function MerchantMapVisualization({ cardId }: MerchantMapVisualizationPro
     return (
       <div className="h-[600px] rounded-2xl bg-muted/50 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (tokenError || mapError) {
+    return (
+      <div className="h-[600px] rounded-2xl bg-destructive/10 border border-destructive/20 flex flex-col items-center justify-center gap-4">
+        <AlertTriangle className="h-12 w-12 text-destructive" />
+        <div className="text-center max-w-md px-4">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Unable to load map
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {mapError || error?.message || 'There was a problem loading the map. Please try again.'}
+          </p>
+        </div>
+        <Button 
+          variant="outline" 
+          onClick={() => {
+            setMapError(null);
+            refetch();
+          }}
+          className="gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Try Again
+        </Button>
       </div>
     );
   }

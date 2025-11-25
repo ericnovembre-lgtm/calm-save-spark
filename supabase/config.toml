@@ -354,6 +354,9 @@ verify_jwt = false
 [functions.geocode-merchant]
 verify_jwt = true
 
+[functions.geocode-merchant-mapbox]
+verify_jwt = true
+
 [functions.match-card-receipt]
 verify_jwt = true
 
