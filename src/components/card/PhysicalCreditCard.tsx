@@ -12,13 +12,13 @@ const FlowingLines = ({ variant }: { variant: CardVariant }) => {
   const lineColor = variant === 'matte-white' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)';
   
   return (
-    <svg className="absolute top-0 left-0 w-full h-2/3 overflow-visible pointer-events-none" viewBox="0 0 340 140" preserveAspectRatio="none">
-      <path d="M170,60 Q100,30 20,50" stroke={lineColor} fill="none" strokeWidth="1" />
-      <path d="M170,60 Q120,20 40,30" stroke={lineColor} fill="none" strokeWidth="1" />
-      <path d="M170,60 Q80,40 10,80" stroke={lineColor} fill="none" strokeWidth="1" />
-      <path d="M170,60 Q220,30 300,45" stroke={lineColor} fill="none" strokeWidth="1" />
-      <path d="M170,60 Q250,15 320,25" stroke={lineColor} fill="none" strokeWidth="1" />
-      <path d="M170,60 Q280,50 330,70" stroke={lineColor} fill="none" strokeWidth="1" />
+    <svg className="absolute top-0 left-0 w-full h-1/2 overflow-visible pointer-events-none" viewBox="0 0 214 170" preserveAspectRatio="none">
+      <path d="M107,80 Q70,50 20,70" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M107,80 Q60,40 15,50" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M107,80 Q50,60 10,100" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M107,80 Q140,50 190,70" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M107,80 Q150,35 200,45" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M107,80 Q170,60 205,100" stroke={lineColor} fill="none" strokeWidth="1" />
     </svg>
   );
 };
@@ -40,22 +40,19 @@ const WireframeGlobe = ({ variant }: { variant: CardVariant }) => {
   );
 };
 
-// Network logo (overlapping circles)
-const NetworkLogo = ({ variant }: { variant: CardVariant }) => {
-  const getColors = () => {
-    switch(variant) {
-      case 'metallic-gold': return ['#B38728', '#FCF6BA'];
-      case 'metallic-silver': return ['#A8A8A8', '#E8E8E8'];
-      case 'matte-white': return ['rgba(100,100,100,0.8)', 'rgba(160,160,160,0.6)'];
-      default: return ['rgba(180,180,180,0.8)', 'rgba(220,220,220,0.6)'];
-    }
-  };
-  const [left, right] = getColors();
-  
+// Mastercard logo with official brand colors
+const MastercardLogo = ({ variant }: { variant: CardVariant }) => {
   return (
-    <div className="flex items-center -space-x-3">
-      <div className="w-8 h-8 rounded-full" style={{ background: left }} />
-      <div className="w-8 h-8 rounded-full opacity-80" style={{ background: right }} />
+    <div className="flex flex-col items-center gap-1">
+      <div className="flex items-center -space-x-3">
+        <div className="w-8 h-8 rounded-full" style={{ background: '#EB001B' }} />
+        <div className="w-8 h-8 rounded-full" style={{ background: '#F79E1B' }} />
+      </div>
+      <span className="text-[8px] font-semibold tracking-wide" style={{ 
+        color: variant === 'matte-white' ? '#000' : '#fff' 
+      }}>
+        mastercard
+      </span>
     </div>
   );
 };
@@ -143,7 +140,7 @@ export function PhysicalCreditCard({
 
   return (
     <motion.div
-      className={cn("w-[340px] h-[214px] relative group", className)}
+      className={cn("w-[214px] h-[340px] relative group", className)}
       style={{
         perspective: 1200,
         transformStyle: 'preserve-3d',
@@ -224,27 +221,28 @@ export function PhysicalCreditCard({
             {/* Flowing lines */}
             <FlowingLines variant={variant} />
 
-            {/* Layer 5: Card Content */}
+            {/* Layer 5: Card Content - Vertical Layout */}
             <div className="absolute inset-0 p-6 flex flex-col z-10">
-              {/* Top section with chip and globe */}
-              <div className="flex justify-between items-start mb-auto">
+              {/* EMV Chip - top left */}
+              <div className="mb-8">
                 <EMVChip variant={style.chipColor} size="sm" />
-                
-                <div className="absolute left-1/2 top-4 -translate-x-1/2">
-                  <WireframeGlobe variant={variant} />
-                </div>
               </div>
 
-              {/* Brand name - centered vertically */}
-              <div className="flex-1 flex items-center">
+              {/* Wireframe globe - upper center */}
+              <div className="flex justify-center mb-8">
+                <WireframeGlobe variant={variant} />
+              </div>
+
+              {/* Brand name - center */}
+              <div className="flex-1 flex items-center justify-center">
                 <div className={cn("text-3xl font-bold tracking-wider", style.textColor)}>
                   $AVE+
                 </div>
               </div>
 
-              {/* Network logo - bottom right */}
-              <div className="flex justify-end">
-                <NetworkLogo variant={variant} />
+              {/* Mastercard logo - bottom center */}
+              <div className="flex justify-center">
+                <MastercardLogo variant={variant} />
               </div>
 
               {/* Flip indicator */}
@@ -407,7 +405,7 @@ export function PhysicalCreditCard({
 
           {/* Hologram Strip */}
           <div 
-            className="absolute bottom-6 left-6 right-6 h-8 rounded-sm overflow-hidden"
+            className="absolute bottom-24 left-6 right-6 h-6 rounded-sm overflow-hidden"
             style={{
               background: 'linear-gradient(90deg, #ff0080, #ff8c00, #40e0d0, #0080ff, #ff0080)',
               backgroundSize: '200% 100%',
@@ -416,14 +414,9 @@ export function PhysicalCreditCard({
             }}
           />
 
-          {/* Network Logo */}
-          <div className="absolute top-6 right-6">
-            <div className={cn(
-              "text-xs font-bold tracking-wider",
-              style.textColor
-            )}>
-              VISA ®
-            </div>
+          {/* Mastercard Logo - bottom center */}
+          <div className="absolute bottom-14 left-1/2 -translate-x-1/2">
+            <MastercardLogo variant={variant} />
           </div>
 
           {/* Small print */}
