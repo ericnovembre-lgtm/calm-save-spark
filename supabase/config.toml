@@ -366,4 +366,7 @@ verify_jwt = false
 [functions.detect-recurring]
 verify_jwt = false
 
+[functions.redeem-points]
+verify_jwt = true
+
 

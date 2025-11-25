@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Plus, Activity, FileText, Sparkles } from 'lucide-react';
+import { CreditCard, Plus, Activity, FileText, Sparkles, RefreshCw, DollarSign } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -196,7 +196,7 @@ export default function CardPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 h-12">
+        <TabsList className="grid w-full grid-cols-5 h-12">
           <TabsTrigger value="overview" className="gap-2">
             <Activity className="w-4 h-4" />
             Overview
@@ -208,6 +208,10 @@ export default function CardPage() {
           <TabsTrigger value="transactions" className="gap-2">
             <FileText className="w-4 h-4" />
             Transactions
+          </TabsTrigger>
+          <TabsTrigger value="subscriptions" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Subscriptions
           </TabsTrigger>
           <TabsTrigger value="controls" className="gap-2">
             <CreditCard className="w-4 h-4" />
@@ -229,6 +233,7 @@ export default function CardPage() {
                 <Button 
                   variant="outline" 
                   className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
+                  onClick={() => setActiveTab('transactions')}
                 >
                   <Activity className="w-6 h-6" />
                   <span className="text-sm font-medium">View Activity</span>
@@ -237,17 +242,23 @@ export default function CardPage() {
                 <Button 
                   variant="outline" 
                   className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
+                  asChild
                 >
-                  <FileText className="w-6 h-6" />
-                  <span className="text-sm font-medium">Statements</span>
+                  <Link to="/reports">
+                    <FileText className="w-6 h-6" />
+                    <span className="text-sm font-medium">Statements</span>
+                  </Link>
                 </Button>
                 
                 <Button 
                   variant="outline" 
                   className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
+                  asChild
                 >
-                  <CreditCard className="w-6 h-6" />
-                  <span className="text-sm font-medium">Make Payment</span>
+                  <Link to="/accounts">
+                    <DollarSign className="w-6 h-6" />
+                    <span className="text-sm font-medium">Make Payment</span>
+                  </Link>
                 </Button>
               </div>
             </CardContent>
@@ -271,22 +282,49 @@ export default function CardPage() {
           <CardSubscriptionTracker />
         </TabsContent>
 
-        <TabsContent value="controls">
-          {account && cards.length > 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="controls" className="space-y-6">
+          {account && cards.length > 0 ? (
+            <div className="space-y-6">
               {cards.map((card) => (
-                <Card key={card.id}>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      Card ending in {card.last4}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <VolumetricCard3D card={card} onFreeze={handleFreezeCard} />
-                  </CardContent>
-                </Card>
+                <div key={card.id} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">
+                        Card ending in {card.last4}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <VolumetricCard3D card={card} onFreeze={handleFreezeCard} />
+                    </CardContent>
+                  </Card>
+                  
+                  <CardControls 
+                    controls={{
+                      id: `control-${card.id}`,
+                      account_id: card.account_id,
+                      user_id: card.user_id,
+                      international_enabled: true,
+                      contactless_enabled: true,
+                      online_enabled: true,
+                      atm_enabled: true,
+                      daily_spend_limit_cents: 100000,
+                      single_transaction_limit_cents: 50000,
+                      monthly_spend_limit_cents: null,
+                      allowed_merchant_categories: null,
+                      blocked_merchant_categories: null,
+                      created_at: new Date().toISOString(),
+                      updated_at: new Date().toISOString()
+                    }}
+                  />
+                </div>
               ))}
             </div>
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center text-muted-foreground">
+                No cards available to configure controls
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
       </Tabs>
