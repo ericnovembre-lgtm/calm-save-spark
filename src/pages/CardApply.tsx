@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { useConnectedAccounts } from '@/hooks/useConnectedAccounts';
 
 type CardType = 'secured' | 'credit';
 type Step = 'select_type' | 'setup_collateral' | 'confirm';
@@ -20,6 +21,12 @@ export default function CardApplyPage() {
   const [creditLimit, setCreditLimit] = useState(500);
   const [sourceAccountId, setSourceAccountId] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Fetch real user accounts for collateral
+  const { accounts: savingsAccounts, isLoading: accountsLoading } = useConnectedAccounts({
+    accountType: 'savings',
+    minBalance: 100, // Minimum $100 balance required
+  });
 
   const handleTypeSelection = (type: CardType) => {
     setSelectedType(type);
@@ -256,13 +263,38 @@ export default function CardApplyPage() {
               <div className="space-y-2">
                 <Label htmlFor="source-account">Source Account (Optional)</Label>
                 <Select value={sourceAccountId} onValueChange={setSourceAccountId}>
-                  <SelectTrigger id="source-account">
-                    <SelectValue placeholder="Select savings account..." />
+                  <SelectTrigger id="source-account" disabled={accountsLoading}>
+                    <SelectValue placeholder={
+                      accountsLoading 
+                        ? "Loading accounts..." 
+                        : savingsAccounts.length === 0 
+                        ? "No eligible accounts available"
+                        : "Select savings account..."
+                    } />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="demo-account">Demo Savings Account</SelectItem>
+                    {savingsAccounts.length === 0 ? (
+                      <SelectItem value="" disabled>
+                        No savings accounts with sufficient balance
+                      </SelectItem>
+                    ) : (
+                      savingsAccounts.map((account) => (
+                        <SelectItem key={account.id} value={account.id}>
+                          {account.institution_name} - {account.account_type}
+                          {(account.current_balance !== null || account.balance !== null) && 
+                            ` ($${(account.current_balance || account.balance || 0).toFixed(2)})`
+                          }
+                          {account.account_mask && ` (...${account.account_mask})`}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
+                {savingsAccounts.length === 0 && !accountsLoading && (
+                  <p className="text-sm text-muted-foreground">
+                    Connect a savings account with at least $100 to use as collateral
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-3">
