@@ -1,9 +1,5 @@
 {
-  "nodeModulesDir": "auto",
   "compilerOptions": {
     "lib": ["deno.window", "dom"]
-  },
-  "imports": {
-    "@supabase/realtime-js": "npm:@supabase/realtime-js@2.15.5"
   }
 }
