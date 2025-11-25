@@ -18,6 +18,13 @@ interface QuestlineCardProps {
   name: string;
   description?: string;
   narrativeIntro?: string;
+  aiNarrative?: {
+    narrative: string;
+    encouragement: string;
+    nextStepHint: string;
+    progressMood: string;
+  };
+  isNarrativeLoading?: boolean;
   steps: QuestStep[];
   totalPoints: number;
   category: string;
@@ -36,6 +43,8 @@ export function QuestlineCard({
   name,
   description,
   narrativeIntro,
+  aiNarrative,
+  isNarrativeLoading,
   steps,
   totalPoints,
   category,
@@ -196,11 +205,33 @@ export function QuestlineCard({
               transition={{ duration: 0.3 }}
               className="pt-4 border-t border-border"
             >
-              {narrativeIntro && (
+              {/* AI-Generated Narrative */}
+              {isNarrativeLoading ? (
+                <div className="mb-4 space-y-2">
+                  <div className="h-4 bg-muted/50 rounded animate-pulse w-full" />
+                  <div className="h-4 bg-muted/50 rounded animate-pulse w-5/6" />
+                </div>
+              ) : aiNarrative ? (
+                <div className="mb-4 space-y-3">
+                  <p className="text-sm text-foreground/90 italic leading-relaxed">
+                    "{aiNarrative.narrative}"
+                  </p>
+                  {aiNarrative.encouragement && (
+                    <p className={`text-xs font-medium ${getCategoryAccent(category)}`}>
+                      💪 {aiNarrative.encouragement}
+                    </p>
+                  )}
+                  {aiNarrative.nextStepHint && !isComplete && (
+                    <p className="text-xs text-muted-foreground bg-muted/30 p-2 rounded">
+                      💡 <span className="font-medium">Next:</span> {aiNarrative.nextStepHint}
+                    </p>
+                  )}
+                </div>
+              ) : narrativeIntro ? (
                 <p className="text-sm text-foreground/80 italic mb-4 leading-relaxed">
                   "{narrativeIntro}"
                 </p>
-              )}
+              ) : null}
 
               <div className="space-y-3">
                 {steps.map((step) => {

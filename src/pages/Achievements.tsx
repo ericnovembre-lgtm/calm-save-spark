@@ -23,11 +23,14 @@ import { useGeoRewardRealtime } from "@/hooks/useGeoRewardRealtime";
 import { useQuestlineAutoProgress } from "@/hooks/useQuestlineAutoProgress";
 import { useQuestlineCelebration } from "@/hooks/useQuestlineCelebration";
 import { QuestlineCelebration } from "@/components/rewards/QuestlineCelebration";
+import { useGeoRewardProximity } from "@/hooks/useGeoRewardProximity";
 import confetti from "canvas-confetti";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { MapPin } from "lucide-react";
 
 export default function Achievements() {
   const prefersReducedMotion = useReducedMotion();
+  const [activeTab, setActiveTab] = useState('achievements');
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -45,6 +48,9 @@ export default function Achievements() {
 
   // Questline celebration system
   const { celebrationData, isVisible: isCelebrationVisible, triggerCelebration, dismiss } = useQuestlineCelebration();
+
+  // Real-time proximity tracking for Geo-Boosters
+  const geoProximity = useGeoRewardProximity(activeTab === 'geo-boosters');
 
   // Listen for questline chapter completion events
   useEffect(() => {
@@ -249,12 +255,17 @@ export default function Achievements() {
         </div>
 
         {/* Main Tabs */}
-        <Tabs defaultValue="achievements" className="space-y-6">
+        <Tabs defaultValue="achievements" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid grid-cols-5 w-full">
             <TabsTrigger value="achievements">Achievements</TabsTrigger>
             <TabsTrigger value="questlines">Questlines</TabsTrigger>
             <TabsTrigger value="team">Team Progress</TabsTrigger>
-            <TabsTrigger value="geo-boosters">Geo-Boosters</TabsTrigger>
+            <TabsTrigger value="geo-boosters">
+              Geo-Boosters
+              {geoProximity.isTracking && (
+                <MapPin className="w-3 h-3 ml-1 text-green-500 animate-pulse" />
+              )}
+            </TabsTrigger>
             <TabsTrigger value="ways-to-earn">Ways to Earn</TabsTrigger>
           </TabsList>
 
@@ -344,6 +355,21 @@ export default function Achievements() {
 
           {/* Geo-Boosters Tab */}
           <TabsContent value="geo-boosters">
+            {geoProximity.isTracking && (
+              <Card className="p-4 mb-4 bg-green-500/10 border-green-500/20">
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-5 h-5 text-green-500 animate-pulse" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      📍 Tracking nearby rewards
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      You'll be notified when you're close to active geo-boosters
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
             <GeoRewardMap />
           </TabsContent>
 
