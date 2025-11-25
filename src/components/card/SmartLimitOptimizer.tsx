@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Shield, TrendingUp, AlertCircle, Sparkles } from 'lucide-react';
+import { Shield, TrendingUp, AlertCircle, Sparkles, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface SmartLimitOptimizerProps {
   accountId: string;
@@ -18,9 +20,10 @@ interface SmartLimitOptimizerProps {
 export function SmartLimitOptimizer({ accountId, currentLimit = 0 }: SmartLimitOptimizerProps) {
   const [dailyLimit, setDailyLimit] = useState(currentLimit || 1200);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  // Simulated AI suggestion (in production, this would call an edge function)
-  const safeHarborLimit = 1200;
+  const [safeHarborLimit, setSafeHarborLimit] = useState(1200);
+  const [aiReason, setAiReason] = useState<string | null>(null);
+  const { toast } = useToast();
+  
   const maxRecommended = 2400;
 
   const getZone = (limit: number) => {
@@ -61,13 +64,35 @@ export function SmartLimitOptimizer({ accountId, currentLimit = 0 }: SmartLimitO
   const config = zoneConfig[zone];
   const Icon = config.icon;
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     setIsAnalyzing(true);
-    // Simulate AI analysis
-    setTimeout(() => {
-      setDailyLimit(safeHarborLimit);
+    try {
+      const { data, error } = await supabase.functions.invoke('smart-limit-analyzer', {
+        body: { accountId }
+      });
+
+      if (error) throw error;
+
+      if (data?.suggestedLimit) {
+        setSafeHarborLimit(data.suggestedLimit);
+        setDailyLimit(data.suggestedLimit);
+        setAiReason(data.reason);
+        
+        toast({
+          title: "AI Analysis Complete",
+          description: `Safe Harbor limit: $${data.suggestedLimit.toLocaleString()}/day`,
+        });
+      }
+    } catch (error) {
+      console.error('Smart limit analysis error:', error);
+      toast({
+        title: "Analysis Failed",
+        description: "Could not analyze your spending patterns",
+        variant: "destructive"
+      });
+    } finally {
       setIsAnalyzing(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -90,9 +115,13 @@ export function SmartLimitOptimizer({ accountId, currentLimit = 0 }: SmartLimitO
             size="sm"
             onClick={handleAnalyze}
             disabled={isAnalyzing}
-            className="gap-2"
+            className="gap-2 active:scale-[0.95] transition-transform"
           >
-            <Sparkles className="w-4 h-4" />
+            {isAnalyzing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4" />
+            )}
             Analyze
           </Button>
         </div>
@@ -158,7 +187,7 @@ export function SmartLimitOptimizer({ accountId, currentLimit = 0 }: SmartLimitO
                 {config.label}
               </div>
               <p className="text-sm text-foreground/80">
-                {config.message}
+                {aiReason || config.message}
               </p>
             </div>
           </div>

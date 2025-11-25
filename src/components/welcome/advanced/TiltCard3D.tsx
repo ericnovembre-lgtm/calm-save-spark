@@ -63,7 +63,7 @@ export const TiltCard3D = ({
   }
 
   return (
-    <div
+    <motion.div
       ref={cardRef}
       className={`relative ${className}`}
       style={tiltStyle}
@@ -103,6 +103,6 @@ export const TiltCard3D = ({
       />
       
       {children}
-    </div>
+    </motion.div>
   );
 };

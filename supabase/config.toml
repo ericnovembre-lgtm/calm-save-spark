@@ -339,4 +339,10 @@ verify_jwt = true
 [functions.check-investment-alerts]
 verify_jwt = false
 
+[functions.card-genius]
+verify_jwt = true
+
+[functions.smart-limit-analyzer]
+verify_jwt = true
+
 

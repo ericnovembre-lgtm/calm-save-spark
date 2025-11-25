@@ -75,7 +75,7 @@ export function CardGeniusHub({ cardId }: CardGeniusHubProps) {
                 variant={mode === m.id ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setMode(m.id)}
-                className="justify-start gap-2"
+                className="justify-start gap-2 active:scale-[0.95] transition-transform"
               >
                 <Icon className="w-4 h-4" />
                 <span className="text-xs">{m.label}</span>
@@ -98,7 +98,7 @@ export function CardGeniusHub({ cardId }: CardGeniusHubProps) {
               type="submit"
               size="icon"
               disabled={isPending || !query.trim()}
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 active:scale-[0.95] transition-transform"
             >
               {isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
