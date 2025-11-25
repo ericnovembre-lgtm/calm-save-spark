@@ -31,6 +31,10 @@ serve(async (req) => {
       throw new Error('Not authenticated');
     }
 
+    // Check if this is a refresh request for "Ask for Tip"
+    const body = await req.json().catch(() => ({}));
+    const isRefresh = body.refresh === true;
+
     // Fetch user's current progress
     const { data: userAchievements } = await supabaseClient
       .from('user_achievements')
@@ -63,7 +67,20 @@ serve(async (req) => {
     let message = '';
     let progress = 0;
 
-    if (questlineProgress && questlineProgress.length > 0) {
+    // Alternative tips for refresh requests
+    const refreshTips = [
+      "Small wins compound! Even $5 saved today adds up to bigger goals tomorrow.",
+      "Your next achievement is closer than you think—keep the momentum going!",
+      "Pro tip: Enable autopilot rules to hit your goals while you sleep.",
+      "Streaks matter. Every day you save strengthens your financial muscle memory.",
+      "Check your Geo-Boosters—there might be active multipliers near you right now!",
+    ];
+
+    if (isRefresh) {
+      // Return a random motivational tip
+      message = refreshTips[Math.floor(Math.random() * refreshTips.length)];
+      progress = 75;
+    } else if (questlineProgress && questlineProgress.length > 0) {
       const questline = questlineProgress[0];
       const totalSteps = (questline.financial_questlines?.steps as any[])?.length || 0;
       const completedSteps = (questline.steps_completed as number[])?.length || 0;

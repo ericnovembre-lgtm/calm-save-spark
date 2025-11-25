@@ -49,11 +49,21 @@ export function QuestlineCard({
 
   const getCategoryColor = (cat: string) => {
     switch (cat) {
-      case 'debt_slay': return 'from-red-500/20 to-orange-500/20 border-red-500/20';
-      case 'home_horizon': return 'from-blue-500/20 to-cyan-500/20 border-blue-500/20';
-      case 'savings_sprint': return 'from-green-500/20 to-emerald-500/20 border-green-500/20';
-      case 'credit_builder': return 'from-purple-500/20 to-pink-500/20 border-purple-500/20';
+      case 'debt_slay': return 'from-rose-900/40 to-red-800/40 border-rose-500/30';
+      case 'home_horizon': return 'from-blue-900/40 to-cyan-700/40 border-blue-500/30';
+      case 'savings_sprint': return 'from-emerald-900/40 to-green-700/40 border-emerald-500/30';
+      case 'credit_builder': return 'from-purple-900/40 to-pink-700/40 border-purple-500/30';
       default: return 'from-primary/20 to-accent/20 border-primary/20';
+    }
+  };
+
+  const getCategoryAccent = (cat: string) => {
+    switch (cat) {
+      case 'debt_slay': return 'text-rose-400';
+      case 'home_horizon': return 'text-cyan-400';
+      case 'savings_sprint': return 'text-emerald-400';
+      case 'credit_builder': return 'text-pink-400';
+      default: return 'text-primary';
     }
   };
 
@@ -74,9 +84,15 @@ export function QuestlineCard({
       transition={{ duration: 0.3 }}
     >
       <Card 
-        className={`p-6 relative overflow-hidden cursor-pointer transition-all bg-gradient-to-br ${getCategoryColor(category)} hover:shadow-lg`}
+        className={`p-6 relative overflow-hidden cursor-pointer transition-all bg-gradient-to-br ${getCategoryColor(category)} hover:shadow-xl border-2`}
         onClick={onToggle}
       >
+        {/* Book spine on left edge */}
+        <div className={`absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b ${getCategoryColor(category).split(' ')[0]} opacity-60`} />
+        
+        {/* Page corner fold effect */}
+        <div className="absolute top-0 right-0 w-0 h-0 border-t-[30px] border-l-[30px] border-t-background/20 border-l-transparent" />
+
         {/* Completion celebration effect */}
         {!prefersReducedMotion && isComplete && (
           <motion.div
@@ -99,16 +115,16 @@ export function QuestlineCard({
             <div className="flex items-start gap-3">
               <div className="text-3xl">{getIconEmoji(icon || 'trophy')}</div>
               <div>
-                <h3 className="font-semibold text-lg text-foreground">{name}</h3>
+                <h3 className={`font-bold text-lg ${getCategoryAccent(category)}`}>{name}</h3>
                 {description && (
                   <p className="text-sm text-muted-foreground mt-1">{description}</p>
                 )}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm font-medium text-primary">{totalPoints} pts</div>
+              <div className={`text-sm font-bold ${getCategoryAccent(category)}`}>{totalPoints} pts</div>
               {isComplete && (
-                <div className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                <div className="text-xs text-green-400 flex items-center gap-1 mt-1 font-semibold">
                   <Check className="w-3 h-3" />
                   Complete
                 </div>
@@ -116,17 +132,47 @@ export function QuestlineCard({
             </div>
           </div>
 
-          {/* Progress */}
+          {/* Segmented Progress - Chapter style */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
+              <span className="text-muted-foreground font-medium">
                 Chapter {progress?.currentStep || 1} of {steps.length}
               </span>
-              <span className="font-medium text-foreground">
+              <span className={`font-bold ${getCategoryAccent(category)}`}>
                 {progressPercent.toFixed(0)}%
               </span>
             </div>
-            <AnimatedProgress value={progressPercent} />
+            
+            {/* Segmented progress bar */}
+            <div className="flex gap-1">
+              {steps.map((step, idx) => {
+                const isStepComplete = progress?.stepsCompleted?.includes(step.step);
+                return (
+                  <div
+                    key={step.step}
+                    className="flex-1 h-3 rounded-sm relative overflow-hidden bg-muted/30"
+                  >
+                    <motion.div
+                      className={`absolute inset-0 ${
+                        isStepComplete 
+                          ? `bg-gradient-to-r ${getCategoryColor(category).split(' ')[0]}` 
+                          : 'bg-transparent'
+                      }`}
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: isStepComplete ? 1 : 0 }}
+                      transition={{ duration: 0.5, delay: idx * 0.1 }}
+                      style={{ transformOrigin: 'left' }}
+                    />
+                    {/* Chapter number badge */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[8px] font-bold text-foreground/50">
+                        {step.step}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Expanded content */}

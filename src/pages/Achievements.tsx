@@ -21,6 +21,7 @@ import { GeoRewardMap } from "@/components/rewards/GeoRewardMap";
 import { WaysToEarn } from "@/components/rewards/WaysToEarn";
 import { useGeoRewardRealtime } from "@/hooks/useGeoRewardRealtime";
 import { useQuestlineAutoProgress } from "@/hooks/useQuestlineAutoProgress";
+import confetti from "canvas-confetti";
 
 export default function Achievements() {
   const prefersReducedMotion = useReducedMotion();
@@ -100,6 +101,20 @@ export default function Achievements() {
       navigator.clipboard.writeText(text);
       toast.success('Achievement progress copied to clipboard!');
     }
+  };
+
+  const triggerConfetti = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+    
+    confetti({
+      particleCount: 50,
+      spread: 60,
+      origin: { x, y },
+      colors: ['#fbbf24', '#f59e0b', '#f97316'],
+      ticks: 100,
+    });
   };
 
   return (
@@ -225,10 +240,11 @@ export default function Achievements() {
                   {userAchievements?.map((userAch, index) => (
                     <motion.div 
                       key={userAch.id} 
-                      className="relative group"
+                      className="relative group cursor-pointer"
                       initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
                       animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05, duration: 0.3 }}
+                      onClick={triggerConfetti}
                     >
                       <AchievementBadge
                         name={userAch.achievements?.name || ''}

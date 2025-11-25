@@ -181,6 +181,14 @@ export function TeamProgressTab() {
               ? (Number(goal.current_amount) / Number(goal.target_amount)) * 100 
               : 0;
             const memberCount = goal.collaborative_goal_members?.length || 0;
+            const members = goal.collaborative_goal_members || [];
+            
+            // Calculate contribution percentages for tug-of-war
+            const totalContributions = members.reduce((sum, m) => sum + Number(m.contribution || 0), 0);
+            const leftContribution = totalContributions > 0 
+              ? (Number(members[0]?.contribution || 0) / totalContributions) * 100 
+              : 50;
+            const rightContribution = 100 - leftContribution;
 
             return (
               <motion.div
@@ -207,20 +215,74 @@ export function TeamProgressTab() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Users className="w-4 h-4" />
-                      <span>{memberCount} {memberCount === 1 ? 'member' : 'members'}</span>
-                    </div>
+                    {/* Tug-of-War Visualization */}
+                    {memberCount >= 2 && (
+                      <div className="space-y-3">
+                        <div className="relative h-12 flex items-center">
+                          {/* Left Avatar */}
+                          <motion.div
+                            className="absolute left-0 w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary border-2 border-primary z-10"
+                            style={{ left: `${leftContribution * 0.8}%` }}
+                            transition={{ type: "spring", damping: 15 }}
+                          >
+                            ME
+                          </motion.div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Progress</span>
-                        <span className="font-medium text-foreground">
-                          ${Number(goal.current_amount).toFixed(2)} / ${Number(goal.target_amount).toFixed(2)}
-                        </span>
+                          {/* Rope/Progress Bar */}
+                          <div className="absolute inset-x-0 h-3 bg-muted/50 rounded-full overflow-hidden">
+                            <div className="absolute inset-0 flex">
+                              <motion.div
+                                className="bg-gradient-to-r from-primary to-primary/50"
+                                style={{ width: `${leftContribution}%` }}
+                                transition={{ type: "spring", damping: 20 }}
+                              />
+                              <motion.div
+                                className="bg-gradient-to-l from-accent to-accent/50"
+                                style={{ width: `${rightContribution}%` }}
+                                transition={{ type: "spring", damping: 20 }}
+                              />
+                            </div>
+                            {/* Central goal marker */}
+                            <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-0.5 h-5 bg-foreground/30" />
+                          </div>
+
+                          {/* Right Avatar */}
+                          <motion.div
+                            className="absolute right-0 w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-xs font-bold text-accent border-2 border-accent z-10"
+                            style={{ right: `${rightContribution * 0.8}%` }}
+                            transition={{ type: "spring", damping: 15 }}
+                          >
+                            {members[1]?.user_id?.substring(0, 2).toUpperCase() || 'P2'}
+                          </motion.div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>${Number(members[0]?.contribution || 0).toFixed(2)}</span>
+                          <span className="font-semibold text-foreground">🎯 ${Number(goal.target_amount).toFixed(2)}</span>
+                          <span>${Number(members[1]?.contribution || 0).toFixed(2)}</span>
+                        </div>
                       </div>
-                      <AnimatedProgress value={Math.min(progressPercent, 100)} />
-                    </div>
+                    )}
+
+                    {/* Standard progress for single member */}
+                    {memberCount < 2 && (
+                      <>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="w-4 h-4" />
+                          <span>{memberCount} {memberCount === 1 ? 'member' : 'members'}</span>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Progress</span>
+                            <span className="font-medium text-foreground">
+                              ${Number(goal.current_amount).toFixed(2)} / ${Number(goal.target_amount).toFixed(2)}
+                            </span>
+                          </div>
+                          <AnimatedProgress value={Math.min(progressPercent, 100)} />
+                        </div>
+                      </>
+                    )}
 
                     <div className="flex items-center gap-2 text-sm text-primary">
                       <TrendingUp className="w-4 h-4" />
