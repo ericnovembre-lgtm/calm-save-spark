@@ -207,6 +207,9 @@ verify_jwt = true
 [functions.generate-onboarding-persona]
 verify_jwt = true
 
+[functions.generate-quest-narrative]
+verify_jwt = false
+
 [functions.plaid-create-link-token]
 verify_jwt = true
 
