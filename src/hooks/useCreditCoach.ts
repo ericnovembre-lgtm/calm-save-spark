@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export type CoachMode = 'approval-power' | 'forensic-scan' | 'limit-lift' | 'inquiry-detective' | 'dispute-wizard' | 'azeo-strategist';
+export type CoachMode = 'approval-power' | 'forensic-scan' | 'limit-lift' | 'inquiry-detective' | 'dispute-wizard' | 'azeo-strategist' | 'goodwill-ghostwriter' | 'closure-simulator';
 
 interface CoachRequest {
   mode: CoachMode;
@@ -16,6 +16,15 @@ interface CoachRequest {
     disputeType?: string;
     accountName?: string;
     cardLimits?: number[];
+    creditorName?: string;
+    circumstanceType?: string;
+    lateDays?: string;
+    additionalContext?: string;
+    cardAge?: number;
+    cardLimit?: number;
+    totalCreditLimit?: number;
+    avgAccountAge?: number;
+    numAccounts?: number;
   };
 }
 
