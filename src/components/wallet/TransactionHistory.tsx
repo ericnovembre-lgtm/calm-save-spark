@@ -19,10 +19,12 @@ import { formatDistanceToNow } from "date-fns";
 import { useWalletTransactionsRealtime } from "@/hooks/useWalletTransactionsRealtime";
 import { useState } from "react";
 import { useActiveChain } from "@/hooks/useActiveChain";
+import { useWalletSettings } from "@/hooks/useWalletSettings";
 
 export function TransactionHistory() {
   const { selectedChain } = useActiveChain();
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const { settings } = useWalletSettings();
   
   const { data: wallet } = useQuery({
     queryKey: ['user-wallet', selectedChain],
@@ -167,10 +169,14 @@ export function TransactionHistory() {
                 <p className="font-bold text-lg">
                   {tx.amount.toFixed(4)} {tx.token_symbol}
                 </p>
-                {tx.gas_used && tx.gas_price && (
-                  <p className="text-xs text-muted-foreground">
-                    Gas: {((tx.gas_used * tx.gas_price) / 1e18).toFixed(6)} ETH
-                  </p>
+                {settings?.hide_transaction_amounts ? (
+                  <p className="text-xs text-muted-foreground">••••••</p>
+                ) : (
+                  tx.gas_used && tx.gas_price && (
+                    <p className="text-xs text-muted-foreground">
+                      Gas: {((tx.gas_used * tx.gas_price) / 1e18).toFixed(6)} ETH
+                    </p>
+                  )
                 )}
               </div>
             </div>

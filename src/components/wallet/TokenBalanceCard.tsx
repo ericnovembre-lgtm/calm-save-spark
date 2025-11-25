@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useWalletSettings } from "@/hooks/useWalletSettings";
+import { formatCurrency } from "@/lib/exchangeRates";
 
 interface TokenBalanceCardProps {
   symbol: string;
@@ -19,6 +21,10 @@ export function TokenBalanceCard({
   icon,
 }: TokenBalanceCardProps) {
   const isPositive = change24h >= 0;
+  const { settings } = useWalletSettings();
+  
+  const displayCurrency = settings?.display_currency || 'USD';
+  const formattedValue = formatCurrency(usdValue, displayCurrency);
 
   return (
     <motion.div
@@ -55,7 +61,7 @@ export function TokenBalanceCard({
           {balance.toFixed(4)}
         </div>
         <div className="text-sm text-muted-foreground">
-          ${usdValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {formattedValue}
         </div>
       </div>
       
