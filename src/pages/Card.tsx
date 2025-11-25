@@ -22,6 +22,29 @@ export default function CardPage() {
   const { cards, isLoading: cardsLoading, freezeCard } = useCards(account?.id);
   const { transactions, isLoading: transactionsLoading } = useCardTransactions(account?.id);
 
+  // Demo card for preview when no real cards exist yet
+  const demoCard = {
+    id: 'demo-card',
+    account_id: account?.id || '',
+    user_id: '',
+    card_type: 'physical' as const,
+    status: 'active' as const,
+    brand: 'TITANIUM',
+    network: 'visa',
+    last4: '0000',
+    exp_month: 12,
+    exp_year: 2028,
+    cardholder_name: 'YOUR NAME HERE',
+    cvv_encrypted: null,
+    pan_encrypted: null,
+    billing_address: null,
+    issued_at: null,
+    activated_at: null,
+    frozen_at: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
   const handleFreezeCard = (cardId: string) => {
     const card = cards.find(c => c.id === cardId);
     if (card) {
@@ -114,7 +137,7 @@ export default function CardPage() {
       </Card>
 
       {/* Hero Section: Volumetric Card + AI Hub */}
-      {cards.length > 0 && (
+      {hasAccount && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Volumetric 3D Card */}
           <motion.div
@@ -122,10 +145,27 @@ export default function CardPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <VolumetricCard3D 
-              card={cards[0]} 
-              onFreeze={handleFreezeCard}
-            />
+            {cards.length > 0 ? (
+              <VolumetricCard3D 
+                card={cards[0]} 
+                onFreeze={handleFreezeCard}
+              />
+            ) : (
+              <div className="relative">
+                {/* Demo badge */}
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                  <span className="px-3 py-1 text-xs font-bold bg-violet-500/90 text-white rounded-full backdrop-blur-sm">
+                    PREVIEW
+                  </span>
+                </div>
+                <VolumetricCard3D 
+                  card={demoCard as any} 
+                />
+                <p className="text-center text-sm text-muted-foreground mt-4">
+                  Your card is being prepared. This is a preview of what it will look like.
+                </p>
+              </div>
+            )}
           </motion.div>
 
           {/* Card Genius AI Hub */}
@@ -134,7 +174,7 @@ export default function CardPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <CardGeniusHub cardId={cards[0].id} />
+            <CardGeniusHub cardId={cards[0]?.id || 'demo'} />
           </motion.div>
         </div>
       )}
@@ -211,8 +251,8 @@ export default function CardPage() {
         </TabsContent>
 
         <TabsContent value="rewards" className="space-y-6">
-          {cards.length > 0 && (
-            <CardRewardsDashboard cardId={cards[0].id} />
+          {(cards.length > 0 || hasAccount) && (
+            <CardRewardsDashboard cardId={cards[0]?.id || 'demo'} />
           )}
         </TabsContent>
 
