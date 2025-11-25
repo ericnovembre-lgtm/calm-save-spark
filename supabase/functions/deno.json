@@ -1,12 +1,9 @@
 {
+  "nodeModulesDir": "auto",
   "compilerOptions": {
     "lib": ["deno.window", "dom"]
   },
   "imports": {
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.76.1?deps=deno.land/x/xhr@0.1.0",
-    "https://esm.sh/@supabase/supabase-js@2": "https://esm.sh/@supabase/supabase-js@2.76.1?deps=deno.land/x/xhr@0.1.0",
-    "https://esm.sh/@supabase/supabase-js@2.7.1": "https://esm.sh/@supabase/supabase-js@2.76.1?deps=deno.land/x/xhr@0.1.0",
-    "https://esm.sh/@supabase/supabase-js@2.39.3": "https://esm.sh/@supabase/supabase-js@2.76.1?deps=deno.land/x/xhr@0.1.0",
-    "https://esm.sh/@supabase/supabase-js@2.76.1": "https://esm.sh/@supabase/supabase-js@2.76.1?deps=deno.land/x/xhr@0.1.0"
+    "@supabase/realtime-js": "npm:@supabase/realtime-js@2.15.5"
   }
 }
