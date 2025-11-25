@@ -3,6 +3,9 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, ArrowDownLeft, Clock, TrendingUp, Plus, Sparkles } from "lucide-react";
 import { HolographicWalletCard } from "@/components/wallet/HolographicWalletCard";
 import { SmartAddressInput } from "@/components/wallet/SmartAddressInput";
+import { Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { SmartSendInterface } from "@/components/wallet/SmartSendInterface";
 import { GasGuru } from "@/components/wallet/GasGuru";
 import { WalletTabsSwitcher } from "@/components/wallet/WalletTabsSwitcher";
@@ -29,6 +32,7 @@ export default function Wallet() {
   const [activeTab, setActiveTab] = useState<Tab>('tokens');
   const { toast } = useToast();
   const { selectedChain } = useActiveChain();
+  const navigate = useNavigate();
 
   // Fetch wallet data for balance chart
   const { data: wallet } = useQuery({
@@ -114,6 +118,14 @@ export default function Wallet() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/wallet/settings')}
+              className="text-slate-400 hover:text-white"
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
             <ChainSwitcher />
             <WalletNotificationCenter />
           </div>

@@ -9501,6 +9501,39 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_gas_alerts: {
+        Row: {
+          chain_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          last_triggered_at: string | null
+          threshold_gwei: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chain_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          threshold_gwei: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chain_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          threshold_gwei?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_notifications: {
         Row: {
           action_url: string | null
@@ -9563,6 +9596,39 @@ export type Database = {
           id?: string
           subscription_data?: Json
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_settings: {
+        Row: {
+          created_at: string
+          display_currency: string
+          hide_balance: boolean
+          hide_transaction_amounts: boolean
+          id: string
+          show_transaction_history: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_currency?: string
+          hide_balance?: boolean
+          hide_transaction_amounts?: boolean
+          id?: string
+          show_transaction_history?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_currency?: string
+          hide_balance?: boolean
+          hide_transaction_amounts?: boolean
+          id?: string
+          show_transaction_history?: boolean
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
