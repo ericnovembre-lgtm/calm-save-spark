@@ -2405,6 +2405,77 @@ export type Database = {
         }
         Relationships: []
       }
+      collaborative_goal_members: {
+        Row: {
+          contribution: number | null
+          goal_id: string
+          id: string
+          joined_at: string | null
+          user_id: string
+        }
+        Insert: {
+          contribution?: number | null
+          goal_id: string
+          id?: string
+          joined_at?: string | null
+          user_id: string
+        }
+        Update: {
+          contribution?: number | null
+          goal_id?: string
+          id?: string
+          joined_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborative_goal_members_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collaborative_goals: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          current_amount: number | null
+          deadline: string | null
+          description: string | null
+          goal_type: string | null
+          id: string
+          is_completed: boolean | null
+          name: string
+          target_amount: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          current_amount?: number | null
+          deadline?: string | null
+          description?: string | null
+          goal_type?: string | null
+          id?: string
+          is_completed?: boolean | null
+          name: string
+          target_amount?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          current_amount?: number | null
+          deadline?: string | null
+          description?: string | null
+          goal_type?: string | null
+          id?: string
+          is_completed?: boolean | null
+          name?: string
+          target_amount?: number | null
+        }
+        Relationships: []
+      }
       community_challenges: {
         Row: {
           challenge_name: string
@@ -3858,6 +3929,98 @@ export type Database = {
           recommendations?: Json | null
           savings_component?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      financial_questlines: {
+        Row: {
+          badge_reward: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          narrative_intro: string | null
+          steps: Json
+          total_points: number | null
+        }
+        Insert: {
+          badge_reward?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          narrative_intro?: string | null
+          steps?: Json
+          total_points?: number | null
+        }
+        Update: {
+          badge_reward?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          narrative_intro?: string | null
+          steps?: Json
+          total_points?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_questlines_badge_reward_fkey"
+            columns: ["badge_reward"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      geo_reward_partners: {
+        Row: {
+          address: string | null
+          bonus_type: string | null
+          category: string
+          created_at: string | null
+          current_multiplier: number | null
+          id: string
+          is_active: boolean | null
+          latitude: number | null
+          longitude: number | null
+          multiplier_end_time: string | null
+          name: string
+        }
+        Insert: {
+          address?: string | null
+          bonus_type?: string | null
+          category: string
+          created_at?: string | null
+          current_multiplier?: number | null
+          id?: string
+          is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          multiplier_end_time?: string | null
+          name: string
+        }
+        Update: {
+          address?: string | null
+          bonus_type?: string | null
+          category?: string
+          created_at?: string | null
+          current_multiplier?: number | null
+          id?: string
+          is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          multiplier_end_time?: string | null
+          name?: string
         }
         Relationships: []
       }
@@ -9092,6 +9255,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_geo_rewards: {
+        Row: {
+          id: string
+          partner_id: string
+          points_earned: number | null
+          transaction_date: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          partner_id: string
+          points_earned?: number | null
+          transaction_date?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          partner_id?: string
+          points_earned?: number | null
+          transaction_date?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_geo_rewards_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "geo_reward_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_milestones: {
         Row: {
           completed_at: string
@@ -9172,6 +9367,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_questline_progress: {
+        Row: {
+          completed_at: string | null
+          current_step: number | null
+          id: string
+          questline_id: string
+          started_at: string | null
+          steps_completed: Json | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          current_step?: number | null
+          id?: string
+          questline_id: string
+          started_at?: string | null
+          steps_completed?: Json | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          current_step?: number | null
+          id?: string
+          questline_id?: string
+          started_at?: string | null
+          steps_completed?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_questline_progress_questline_id_fkey"
+            columns: ["questline_id"]
+            isOneToOne: false
+            referencedRelation: "financial_questlines"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
