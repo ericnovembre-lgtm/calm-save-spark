@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Plus, Activity, FileText, Sparkles, RefreshCw, DollarSign, Gift } from 'lucide-react';
+import { CreditCard, Plus, Activity, FileText, Sparkles, RefreshCw, DollarSign, Gift, Palette } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { VolumetricCard3D } from '@/components/card/VolumetricCard3D';
 import { PhysicalCreditCard } from '@/components/card/PhysicalCreditCard';
+import { CardCustomizationWizard, CustomizationData } from '@/components/card/CardCustomizationWizard';
 import { CardGeniusHub } from '@/components/card/CardGeniusHub';
 import { SmartLimitOptimizer } from '@/components/card/SmartLimitOptimizer';
 import { AccountSummary } from '@/components/card/AccountSummary';
@@ -26,6 +28,7 @@ import { motion } from 'framer-motion';
 export default function CardPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [cardVariant, setCardVariant] = useState<'matte-black' | 'matte-white' | 'metallic-gold' | 'metallic-silver'>('matte-black');
+  const [showWizard, setShowWizard] = useState(false);
   const { account, isLoading: accountLoading, hasAccount } = useCardAccount();
   const { cards, isLoading: cardsLoading, freezeCard } = useCards(account?.id);
   const { transactions, isLoading: transactionsLoading } = useCardTransactions(account?.id);
@@ -58,6 +61,13 @@ export default function CardPage() {
     if (card) {
       freezeCard(cardId, card.status !== 'frozen');
     }
+  };
+
+  const handleOrderCard = (data: CustomizationData) => {
+    console.log('Card order submitted:', data);
+    setCardVariant(data.variant);
+    setShowWizard(false);
+    // TODO: Implement actual card ordering logic
   };
 
   if (accountLoading) {
@@ -198,6 +208,15 @@ export default function CardPage() {
                     Metallic Silver
                   </Button>
                 </div>
+
+                <Button
+                  variant="outline"
+                  onClick={() => setShowWizard(true)}
+                  className="w-full gap-2 mt-2"
+                >
+                  <Palette className="w-4 h-4" />
+                  Customize Your Card
+                </Button>
               </CardContent>
             </Card>
 
@@ -392,6 +411,16 @@ export default function CardPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Card Customization Wizard */}
+      <Sheet open={showWizard} onOpenChange={setShowWizard}>
+        <SheetContent side="bottom" className="h-[90vh] p-0">
+          <CardCustomizationWizard
+            onComplete={handleOrderCard}
+            onCancel={() => setShowWizard(false)}
+          />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
