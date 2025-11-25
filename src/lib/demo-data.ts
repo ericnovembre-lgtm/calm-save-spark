@@ -256,3 +256,128 @@ export const DEMO_PORTFOLIO_HOLDINGS = [
     updated_at: new Date().toISOString(),
   },
 ];
+
+export interface DemoMerchantLocation {
+  merchant: string;
+  lat: number;
+  lon: number;
+  city: string | null;
+  state: string | null;
+  totalSpent: number;
+  transactionCount: number;
+  category: string | null;
+  lastTransaction: Date;
+}
+
+export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
+  {
+    merchant: 'Starbucks Reserve',
+    lat: 40.7484,
+    lon: -73.9857,
+    city: 'New York',
+    state: 'NY',
+    totalSpent: 87.50,
+    transactionCount: 12,
+    category: 'Food & Dining',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+  },
+  {
+    merchant: 'Target',
+    lat: 34.0522,
+    lon: -118.2437,
+    city: 'Los Angeles',
+    state: 'CA',
+    totalSpent: 245.99,
+    transactionCount: 5,
+    category: 'Shopping',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+  },
+  {
+    merchant: 'Whole Foods Market',
+    lat: 41.8781,
+    lon: -87.6298,
+    city: 'Chicago',
+    state: 'IL',
+    totalSpent: 342.18,
+    transactionCount: 8,
+    category: 'Groceries',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 6), // 6 hours ago
+  },
+  {
+    merchant: 'Delta Airlines',
+    lat: 33.6407,
+    lon: -84.4277,
+    city: 'Atlanta',
+    state: 'GA',
+    totalSpent: 1289.00,
+    transactionCount: 2,
+    category: 'Travel',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
+  },
+  {
+    merchant: 'AMC Theater',
+    lat: 30.2672,
+    lon: -97.7431,
+    city: 'Austin',
+    state: 'TX',
+    totalSpent: 64.50,
+    transactionCount: 3,
+    category: 'Entertainment',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
+  },
+  {
+    merchant: 'Shake Shack',
+    lat: 25.7617,
+    lon: -80.1918,
+    city: 'Miami',
+    state: 'FL',
+    totalSpent: 48.25,
+    transactionCount: 4,
+    category: 'Food & Dining',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 12), // 12 hours ago
+  },
+  {
+    merchant: 'Apple Store',
+    lat: 37.7749,
+    lon: -122.4194,
+    city: 'San Francisco',
+    state: 'CA',
+    totalSpent: 1499.00,
+    transactionCount: 1,
+    category: 'Shopping',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7), // 1 week ago
+  },
+  {
+    merchant: 'Trader Joe\'s',
+    lat: 39.7392,
+    lon: -104.9903,
+    city: 'Denver',
+    state: 'CO',
+    totalSpent: 156.78,
+    transactionCount: 6,
+    category: 'Groceries',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+  },
+  {
+    merchant: 'Chipotle Mexican Grill',
+    lat: 47.6062,
+    lon: -122.3321,
+    city: 'Seattle',
+    state: 'WA',
+    totalSpent: 93.42,
+    transactionCount: 7,
+    category: 'Food & Dining',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
+  },
+  {
+    merchant: 'REI Co-op',
+    lat: 45.5152,
+    lon: -122.6784,
+    city: 'Portland',
+    state: 'OR',
+    totalSpent: 287.50,
+    transactionCount: 2,
+    category: 'Shopping',
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 days ago
+  },
+];

@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_MERCHANT_LOCATIONS } from '@/lib/demo-data';
 
 export interface MerchantLocation {
   merchant: string;
@@ -29,9 +31,32 @@ export function useMerchantLocations({
   categories,
   minAmount,
 }: UseMerchantLocationsParams) {
+  const { isDemoMode } = useDemoMode();
+
   return useQuery({
-    queryKey: ['merchant-locations', cardId, dateRange, categories, minAmount],
+    queryKey: ['merchant-locations', cardId, dateRange, categories, minAmount, isDemoMode],
     queryFn: async (): Promise<MerchantLocation[]> => {
+      // Return demo data in demo mode
+      if (isDemoMode) {
+        let demoLocations = [...DEMO_MERCHANT_LOCATIONS];
+
+        // Apply category filter
+        if (categories && categories.length > 0) {
+          demoLocations = demoLocations.filter(loc => 
+            categories.includes(loc.category || 'Other')
+          );
+        }
+
+        // Apply minimum amount filter
+        if (minAmount) {
+          demoLocations = demoLocations.filter(loc => 
+            loc.totalSpent >= minAmount
+          );
+        }
+
+        return demoLocations;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
