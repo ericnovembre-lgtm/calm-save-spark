@@ -1,6 +1,10 @@
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, RefreshCw } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCreditScoreSync } from "@/hooks/useCreditScoreHistory";
+import { toast } from "sonner";
 
 interface CreditScoreCardProps {
   score: number;
@@ -11,6 +15,20 @@ interface CreditScoreCardProps {
 }
 
 export const CreditScoreCard = ({ score, change, provider, date, factors }: CreditScoreCardProps) => {
+  const queryClient = useQueryClient();
+  const syncScore = useCreditScoreSync();
+  
+  const syncMutation = useMutation({
+    mutationFn: syncScore,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['credit_score_history'] });
+      toast.success('Credit score synced successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to sync credit score');
+      console.error('Sync error:', error);
+    },
+  });
   const getScoreColor = (score: number) => {
     if (score >= 800) return 'text-green-500';
     if (score >= 740) return 'text-blue-500';
@@ -33,11 +51,31 @@ export const CreditScoreCard = ({ score, change, provider, date, factors }: Cred
     return <Minus className="w-5 h-5 text-muted-foreground" />;
   };
 
+  const lastSyncTime = new Date(date).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+
   return (
     <Card className="p-6">
+      <div className="flex items-center gap-2 mb-1">
+        <p className="text-sm text-muted-foreground">Credit Score</p>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => syncMutation.mutate()}
+          disabled={syncMutation.isPending}
+          className="h-6 px-2"
+        >
+          <RefreshCw className={`w-3 h-3 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+        </Button>
+      </div>
+      <p className="text-xs text-muted-foreground mb-6">Last synced: {lastSyncTime}</p>
+      
       <div className="flex items-start justify-between mb-6">
         <div>
-          <p className="text-sm text-muted-foreground mb-1">Credit Score</p>
           <div className="flex items-baseline gap-2">
             <h2 className={`text-5xl font-bold ${getScoreColor(score)}`}>{score}</h2>
             <Badge variant={change > 0 ? "default" : change < 0 ? "destructive" : "secondary"}>

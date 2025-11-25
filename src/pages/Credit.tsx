@@ -18,6 +18,7 @@ import { DisputeWizardCard } from '@/components/credit/DisputeWizardCard';
 import { AZEOStrategistCard } from '@/components/credit/AZEOStrategistCard';
 import { GoodwillGhostwriterCard } from '@/components/credit/GoodwillGhostwriterCard';
 import { ClosureSimulatorCard } from '@/components/credit/ClosureSimulatorCard';
+import { CreditScoreHistoryChart } from '@/components/credit/CreditScoreHistoryChart';
 
 export default function Credit() {
   const queryClient = useQueryClient();
@@ -99,6 +100,9 @@ export default function Credit() {
                   projectedScore={projectedScore}
                 />
               </Card>
+
+              {/* Credit Score History Chart */}
+              <CreditScoreHistoryChart />
 
               {/* Two-Column Layout: Simulator + AI Coach */}
               <div className="grid lg:grid-cols-2 gap-6">
