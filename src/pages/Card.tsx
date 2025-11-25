@@ -12,6 +12,7 @@ import { EnhancedCardTransactionList } from '@/components/card/EnhancedCardTrans
 import { CardSpendingInsights } from '@/components/card/CardSpendingInsights';
 import { CardControls } from '@/components/card/CardControls';
 import { CardRewardsDashboard } from '@/components/card/CardRewardsDashboard';
+import { MerchantMapVisualization } from '@/components/card/MerchantMapVisualization';
 import { useCardAccount } from '@/hooks/useCardAccount';
 import { useCards } from '@/hooks/useCards';
 import { useCardTransactions } from '@/hooks/useCardTransactions';
@@ -258,6 +259,7 @@ export default function CardPage() {
         </TabsContent>
 
         <TabsContent value="transactions" className="space-y-6">
+          <MerchantMapVisualization cardId={cards[0]?.id || 'demo'} />
           <CardSpendingInsights cardId={cards[0]?.id || 'demo'} />
           <EnhancedCardTransactionList transactions={transactions} isLoading={transactionsLoading} />
         </TabsContent>

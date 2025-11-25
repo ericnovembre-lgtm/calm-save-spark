@@ -2333,9 +2333,15 @@ export type Database = {
           description: string | null
           enriched_at: string | null
           enrichment_status: string | null
+          geo_confidence: number | null
           id: string
           merchant_category: string | null
+          merchant_city: string | null
+          merchant_country: string | null
+          merchant_lat: number | null
+          merchant_lon: number | null
           merchant_name: string | null
+          merchant_state: string | null
           metadata: Json | null
           posted_date: string | null
           status: string | null
@@ -2354,9 +2360,15 @@ export type Database = {
           description?: string | null
           enriched_at?: string | null
           enrichment_status?: string | null
+          geo_confidence?: number | null
           id?: string
           merchant_category?: string | null
+          merchant_city?: string | null
+          merchant_country?: string | null
+          merchant_lat?: number | null
+          merchant_lon?: number | null
           merchant_name?: string | null
+          merchant_state?: string | null
           metadata?: Json | null
           posted_date?: string | null
           status?: string | null
@@ -2375,9 +2387,15 @@ export type Database = {
           description?: string | null
           enriched_at?: string | null
           enrichment_status?: string | null
+          geo_confidence?: number | null
           id?: string
           merchant_category?: string | null
+          merchant_city?: string | null
+          merchant_country?: string | null
+          merchant_lat?: number | null
+          merchant_lon?: number | null
           merchant_name?: string | null
+          merchant_state?: string | null
           metadata?: Json | null
           posted_date?: string | null
           status?: string | null
@@ -5787,6 +5805,48 @@ export type Database = {
           raw_merchant?: string
           suggested_category?: string | null
           times_used?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      merchant_locations: {
+        Row: {
+          city: string | null
+          confidence: number | null
+          country: string | null
+          created_at: string | null
+          id: string
+          lat: number
+          lon: number
+          merchant_name: string
+          source: string | null
+          state: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          city?: string | null
+          confidence?: number | null
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          lat: number
+          lon: number
+          merchant_name: string
+          source?: string | null
+          state?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          city?: string | null
+          confidence?: number | null
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          lat?: number
+          lon?: number
+          merchant_name?: string
+          source?: string | null
+          state?: string | null
           updated_at?: string | null
         }
         Relationships: []
