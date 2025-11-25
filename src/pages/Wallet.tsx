@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, ArrowDownLeft, Clock, TrendingUp, Plus, Sparkles } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Clock, TrendingUp, Plus, Sparkles, Coins } from "lucide-react";
 import { HolographicWalletCard } from "@/components/wallet/HolographicWalletCard";
 import { SmartAddressInput } from "@/components/wallet/SmartAddressInput";
 import { Settings } from "lucide-react";
@@ -122,30 +122,30 @@ export default function Wallet() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-background">
       <WalletDemoModal />
       
-      <div className="container mx-auto px-4 py-12 max-w-xl">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
+          className="flex items-center justify-between mb-12"
         >
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              My Wallet
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              Wallet
             </h1>
-            <p className="text-slate-400 text-sm">
-              AI-powered crypto command center
+            <p className="text-muted-foreground text-sm">
+              Secure crypto management
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate('/wallet/settings')}
-              className="text-slate-400 hover:text-white"
+              className="hover:bg-accent"
             >
               <Settings className="w-5 h-5" />
             </Button>
@@ -158,9 +158,10 @@ export default function Wallet() {
 
         {/* Holographic Wallet Card */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-8"
         >
           <HolographicWalletCard
             address={walletAddress}
@@ -177,8 +178,8 @@ export default function Wallet() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-                className="mb-6"
+                transition={{ delay: 0.15, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="mb-8"
               >
                 <PortfolioBalanceChart 
                   walletId={wallet.id} 
@@ -187,83 +188,113 @@ export default function Wallet() {
               </motion.div>
             )}
 
-            {/* Gas Guru - Compact witty traffic report */}
-            <GasGuru />
-
-            {/* Address Scanner - Standalone safety check */}
+            {/* Gas Guru */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-slate-900/50 border border-white/10 rounded-2xl p-6 mb-6"
+              transition={{ delay: 0.2, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-8"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-cyan-400" />
-                <h2 className="text-lg font-bold text-white">Address Detective</h2>
-                <span className="text-xs text-slate-400">Verify before you send</span>
-              </div>
-              <SmartAddressInput />
+              <GasGuru />
             </motion.div>
 
-            {/* Smart Send - Natural Language input */}
+            {/* Smart Tools Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-slate-900/50 border border-white/10 rounded-2xl p-6 mb-6"
+              transition={{ delay: 0.25, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-6 mb-8"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-violet-400" />
-                <h2 className="text-lg font-bold text-white">Smart Send</h2>
+              {/* Address Scanner */}
+              <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-foreground">Address Detective</h2>
+                    <p className="text-xs text-muted-foreground">Verify before you send</p>
+                  </div>
+                </div>
+                <SmartAddressInput />
               </div>
-              <SmartSendInterface
-                onSend={handleSend}
-                onClose={() => {}}
-              />
+
+              {/* Smart Send */}
+              <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-accent-foreground" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-foreground">Smart Send</h2>
+                </div>
+                <SmartSendInterface
+                  onSend={handleSend}
+                  onClose={() => {}}
+                />
+              </div>
             </motion.div>
 
             {/* Tabs Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.3, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="space-y-6"
             >
-              <WalletTabsSwitcher
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-              />
+              <div className="flex justify-center">
+                <WalletTabsSwitcher
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                />
+              </div>
 
               {/* Tab Content */}
-              <div className="space-y-6">
+              <div className="space-y-4">
               {activeTab === 'tokens' && (
                   <>
                     {tokens.length > 0 ? (
                       <>
+                        {isPricesFeedConnected && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex items-center gap-2 px-4 py-2 bg-success/10 border border-success/20 rounded-xl"
+                          >
+                            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                            <span className="text-xs font-medium text-success">Live prices connected</span>
+                          </motion.div>
+                        )}
                         <div className="space-y-3">
-                          {isPricesFeedConnected && (
-                            <div className="text-xs text-muted-foreground flex items-center gap-2 px-2">
-                              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                              Live prices connected
-                            </div>
-                          )}
                           {tokens.map((token, i) => (
                             <motion.div
                               key={token.symbol}
-                              initial={{ opacity: 0, y: 20 }}
+                              initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: i * 0.1 }}
+                              transition={{ 
+                                delay: i * 0.05,
+                                duration: 0.3,
+                                ease: [0.22, 1, 0.36, 1]
+                              }}
                             >
                               <TokenBalanceCard {...token} />
                             </motion.div>
                           ))}
                         </div>
-                        <PortfolioRiskAnalyst tokens={tokens} />
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          <PortfolioRiskAnalyst tokens={tokens} />
+                        </motion.div>
                       </>
                     ) : (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <p>No tokens found</p>
-                        <p className="text-sm mt-2">Add crypto holdings to see them here</p>
+                      <div className="text-center py-16 px-4">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-muted/50 flex items-center justify-center">
+                          <Coins className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                        <p className="text-lg font-medium text-foreground mb-1">No tokens yet</p>
+                        <p className="text-sm text-muted-foreground">Add crypto holdings to get started</p>
                       </div>
                     )}
                   </>
