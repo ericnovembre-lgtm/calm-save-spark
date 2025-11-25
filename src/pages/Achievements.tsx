@@ -21,7 +21,10 @@ import { GeoRewardMap } from "@/components/rewards/GeoRewardMap";
 import { WaysToEarn } from "@/components/rewards/WaysToEarn";
 import { useGeoRewardRealtime } from "@/hooks/useGeoRewardRealtime";
 import { useQuestlineAutoProgress } from "@/hooks/useQuestlineAutoProgress";
+import { useQuestlineCelebration } from "@/hooks/useQuestlineCelebration";
+import { QuestlineCelebration } from "@/components/rewards/QuestlineCelebration";
 import confetti from "canvas-confetti";
+import { useEffect } from "react";
 
 export default function Achievements() {
   const prefersReducedMotion = useReducedMotion();
@@ -39,6 +42,21 @@ export default function Achievements() {
   
   // Enable automatic questline progress tracking
   useQuestlineAutoProgress(session?.user?.id);
+
+  // Questline celebration system
+  const { celebrationData, isVisible: isCelebrationVisible, triggerCelebration, dismiss } = useQuestlineCelebration();
+
+  // Listen for questline chapter completion events
+  useEffect(() => {
+    const handleChapterComplete = (event: CustomEvent) => {
+      triggerCelebration(event.detail);
+    };
+
+    window.addEventListener('questline-chapter-complete', handleChapterComplete as EventListener);
+    return () => {
+      window.removeEventListener('questline-chapter-complete', handleChapterComplete as EventListener);
+    };
+  }, [triggerCelebration]);
 
   const { data: userAchievements, isLoading: achievementsLoading } = useQuery({
     queryKey: ['user-achievements'],
@@ -119,6 +137,19 @@ export default function Achievements() {
 
   return (
     <AppLayout>
+      {/* Questline celebration overlay */}
+      {celebrationData && (
+        <QuestlineCelebration
+          isVisible={isCelebrationVisible}
+          stepTitle={celebrationData.stepTitle}
+          stepPoints={celebrationData.stepPoints}
+          questlineName={celebrationData.questlineName}
+          category={celebrationData.category}
+          isQuestlineComplete={celebrationData.isQuestlineComplete}
+          onDismiss={dismiss}
+        />
+      )}
+      
       <div className="space-y-6">
         {/* Header */}
         <motion.div 
