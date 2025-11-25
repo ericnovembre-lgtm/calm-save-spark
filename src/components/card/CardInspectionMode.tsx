@@ -71,7 +71,9 @@ export function CardInspectionMode({ children, isActive, onClose }: CardInspecti
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isActive, rotateX, rotateY, onClose]);
 
-  if (!isActive) return null;
+  if (!isActive) {
+    return <>{children}</>;
+  }
 
   const handleDrag = (_: any, info: PanInfo) => {
     // 1px of drag = 0.5 degrees of rotation
