@@ -168,161 +168,159 @@ export default function CardPage() {
         </CardHeader>
       </Card>
 
-      {/* Hero Section: Physical Card + AI Hub */}
+      {/* Hero Card Section - Front and Center */}
       {hasAccount && (
+        <motion.div 
+          className="relative py-8 flex flex-col items-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Credit Card - Hero Element */}
+          <div className="relative mb-6 transform scale-110">
+            {!cards.length && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                <span className="px-3 py-1 text-xs font-bold bg-violet-500/90 text-white rounded-full backdrop-blur-sm">
+                  PREVIEW
+                </span>
+              </div>
+            )}
+            <CardInspectionMode isActive={inspectionMode} onClose={() => setInspectionMode(false)}>
+              <PhysicalCreditCard
+                variant={cardVariant}
+                cardNumber={cards[0]?.last4 || demoCard.last4}
+                cardHolder={cards[0]?.cardholder_name || demoCard.cardholder_name}
+                expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
+                showDetails={true}
+              />
+            </CardInspectionMode>
+          </div>
+
+          {/* Compact Variant Selector */}
+          <div className="flex items-center gap-2 mb-4">
+            <button
+              onClick={() => setCardVariant('matte-black')}
+              className={`w-10 h-10 rounded-full border-2 transition-all ${
+                cardVariant === 'matte-black' 
+                  ? 'ring-2 ring-primary ring-offset-2 scale-110' 
+                  : 'opacity-60 hover:opacity-100'
+              }`}
+              style={{ background: '#1a1a1a' }}
+              aria-label="Matte Black"
+            />
+            <button
+              onClick={() => setCardVariant('matte-white')}
+              className={`w-10 h-10 rounded-full border-2 transition-all ${
+                cardVariant === 'matte-white' 
+                  ? 'ring-2 ring-primary ring-offset-2 scale-110' 
+                  : 'opacity-60 hover:opacity-100'
+              }`}
+              style={{ background: '#FAFAFA', borderColor: '#e5e5e5' }}
+              aria-label="Matte White"
+            />
+            <button
+              onClick={() => setCardVariant('metallic-gold')}
+              className={`w-10 h-10 rounded-full border-2 transition-all ${
+                cardVariant === 'metallic-gold' 
+                  ? 'ring-2 ring-primary ring-offset-2 scale-110' 
+                  : 'opacity-60 hover:opacity-100'
+              }`}
+              style={{ background: 'linear-gradient(135deg, #BF953F, #B38728)' }}
+              aria-label="Metallic Gold"
+            />
+            <button
+              onClick={() => setCardVariant('metallic-silver')}
+              className={`w-10 h-10 rounded-full border-2 transition-all ${
+                cardVariant === 'metallic-silver' 
+                  ? 'ring-2 ring-primary ring-offset-2 scale-110' 
+                  : 'opacity-60 hover:opacity-100'
+              }`}
+              style={{ background: 'linear-gradient(135deg, #E0E0E0, #B0B0B0)' }}
+              aria-label="Metallic Silver"
+            />
+          </div>
+
+          {/* Action Buttons Row */}
+          <div className="flex items-center gap-3 flex-wrap justify-center">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowWizard(true)}
+              className="gap-2"
+            >
+              <Palette className="w-4 h-4" />
+              Customize
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setInspectionMode(true)}
+              className="gap-2"
+            >
+              <RotateCw className="w-4 h-4" />
+              Inspect 360°
+            </Button>
+            {hasSeenUnboxing && cards.length > 0 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={replayUnboxing}
+                  className="gap-2"
+                >
+                  <Gift className="w-4 h-4" />
+                  Unboxing
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowEngraving(true)}
+                  className="gap-2"
+                >
+                  <svg 
+                    className="w-4 h-4" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                  >
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                  </svg>
+                  Personalize
+                </Button>
+              </>
+            )}
+          </div>
+
+          {!cards.length && (
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Your card is being prepared. This is a preview of what it will look like.
+            </p>
+          )}
+        </motion.div>
+      )}
+
+      {/* Card Genius Hub and Smart Limit Optimizer Grid */}
+      {hasAccount && account && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Physical Credit Card with Variant Selector */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="space-y-4"
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Card Finish</CardTitle>
-                <CardDescription>Choose your preferred card style</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  <Button
-                    variant={cardVariant === 'matte-black' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCardVariant('matte-black')}
-                    className="gap-2"
-                  >
-                    <div className="w-3 h-3 rounded-full bg-neutral-900" />
-                    Matte Black
-                  </Button>
-                  <Button
-                    variant={cardVariant === 'matte-white' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCardVariant('matte-white')}
-                    className="gap-2"
-                  >
-                    <div className="w-3 h-3 rounded-full bg-[#FAFAFA] border border-neutral-300" />
-                    Matte White
-                  </Button>
-                  <Button
-                    variant={cardVariant === 'metallic-gold' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCardVariant('metallic-gold')}
-                    className="gap-2"
-                  >
-                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#BF953F] to-[#B38728]" />
-                    Metallic Gold
-                  </Button>
-                  <Button
-                    variant={cardVariant === 'metallic-silver' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCardVariant('metallic-silver')}
-                    className="gap-2"
-                  >
-                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#E0E0E0] to-[#B0B0B0]" />
-                    Metallic Silver
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowWizard(true)}
-                    className="gap-2"
-                  >
-                    <Palette className="w-4 h-4" />
-                    Customize
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setInspectionMode(true)}
-                    className="gap-2"
-                  >
-                    <RotateCw className="w-4 h-4" />
-                    Inspect 360°
-                  </Button>
-                </div>
-                
-                {hasSeenUnboxing && cards.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    <Button
-                      variant="ghost"
-                      onClick={replayUnboxing}
-                      className="gap-2 text-xs"
-                      size="sm"
-                    >
-                      <Gift className="w-3 h-3" />
-                      Replay Unboxing
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => setShowEngraving(true)}
-                      className="gap-2 text-xs"
-                      size="sm"
-                    >
-                      <svg 
-                        className="w-3 h-3" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2"
-                      >
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                        <path d="M2 17l10 5 10-5" />
-                        <path d="M2 12l10 5 10-5" />
-                      </svg>
-                      Personalize
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <div className="relative flex items-center justify-center">
-              {!cards.length && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                  <span className="px-3 py-1 text-xs font-bold bg-violet-500/90 text-white rounded-full backdrop-blur-sm">
-                    PREVIEW
-                  </span>
-                </div>
-              )}
-              <CardInspectionMode isActive={inspectionMode} onClose={() => setInspectionMode(false)}>
-                <PhysicalCreditCard
-                  variant={cardVariant}
-                  cardNumber={cards[0]?.last4 || demoCard.last4}
-                  cardHolder={cards[0]?.cardholder_name || demoCard.cardholder_name}
-                  expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
-                  showDetails={true}
-                />
-              </CardInspectionMode>
-            </div>
-
-            {!cards.length && (
-              <p className="text-center text-sm text-muted-foreground">
-                Your card is being prepared. This is a preview of what it will look like.
-              </p>
-            )}
-          </motion.div>
-
-          {/* Card Genius AI Hub */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
             <CardGeniusHub cardId={cards[0]?.id || 'demo'} />
           </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <SmartLimitOptimizer accountId={account.id} currentLimit={1200} />
+          </motion.div>
         </div>
-      )}
-
-      {/* Smart Limit Optimizer */}
-      {account && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <SmartLimitOptimizer accountId={account.id} currentLimit={1200} />
-        </motion.div>
       )}
 
       {/* Tabs */}
