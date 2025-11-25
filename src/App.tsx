@@ -76,6 +76,7 @@ const Integrations = createPageLoader(() => import("./pages/Integrations"), 'med
 const Accounts = createPageLoader(() => import("./pages/Accounts"), 'medium');
 const Leaderboard = createPageLoader(() => import("./pages/Leaderboard"), 'medium');
 const Wallet = createPageLoader(() => import("./pages/Wallet"), 'medium');
+const WalletSettings = createPageLoader(() => import("./pages/WalletSettings"), 'medium');
 const Card = createPageLoader(() => import("./pages/Card"), 'medium');
 const TaxDocuments = createPageLoader(() => import("./pages/TaxDocuments"), 'medium');
 const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
@@ -235,6 +236,7 @@ function AnimatedRoutes() {
         <Route path="/debts" element={<ProtectedRoute><PageTransition><Debts /></PageTransition></ProtectedRoute>} />
         <Route path="/investments" element={<ProtectedRoute><PageTransition><Investments /></PageTransition></ProtectedRoute>} />
         <Route path="/wallet" element={<ProtectedRoute><PageTransition><Wallet /></PageTransition></ProtectedRoute>} />
+        <Route path="/wallet/settings" element={<ProtectedRoute><PageTransition><WalletSettings /></PageTransition></ProtectedRoute>} />
         <Route path="/credit" element={<ProtectedRoute><PageTransition><Credit /></PageTransition></ProtectedRoute>} />
         <Route path="/goals" element={<ProtectedRoute><PageTransition><Goals /></PageTransition></ProtectedRoute>} />
         <Route path="/pots" element={<ProtectedRoute><PageTransition><Pots /></PageTransition></ProtectedRoute>} />
