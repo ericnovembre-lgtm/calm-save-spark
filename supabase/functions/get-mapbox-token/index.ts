@@ -12,22 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    // Verify user is authenticated
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
-    );
-
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Return the Mapbox public token
+    // Return the Mapbox public token (no auth required for public tokens)
     const token = Deno.env.get('MAPBOX_PUBLIC_TOKEN');
     if (!token) {
       console.error('MAPBOX_PUBLIC_TOKEN not configured');
