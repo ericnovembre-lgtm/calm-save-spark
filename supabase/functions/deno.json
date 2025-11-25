@@ -1,5 +1,17 @@
 {
   "compilerOptions": {
     "lib": ["deno.window", "dom"]
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-unused-vars"]
+    }
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false
   }
 }
