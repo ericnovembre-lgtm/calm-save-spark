@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { QrCode, Copy, Check, Wallet, ArrowDownLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -31,6 +31,43 @@ export function HolographicWalletCard({
   
   const displayCurrency = settings?.display_currency || 'USD';
   const formattedBalance = formatCurrency(balance, displayCurrency);
+
+  // 3D Tilt Motion Values
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  // Transform mouse position to rotation values (±15°)
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], [15, -15]);
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-15, 15]);
+
+  // Dynamic shadow based on tilt
+  const shadowX = useTransform(mouseX, [-0.5, 0.5], [20, -20]);
+  const shadowY = useTransform(mouseY, [-0.5, 0.5], [20, -20]);
+
+  // Specular light position
+  const lightX = useTransform(mouseX, [-0.5, 0.5], ['0%', '100%']);
+  const lightY = useTransform(mouseY, [-0.5, 0.5], ['0%', '100%']);
+
+  // Edge reflection opacities
+  const topEdgeOpacity = useTransform(rotateX, [-15, 15], [0.3, 0]);
+  const bottomEdgeOpacity = useTransform(rotateX, [-15, 15], [0, 0.3]);
+
+  // Handle mouse tracking for 3D tilt
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (prefersReducedMotion || isFlipped) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
+
+  const handleMouseLeave = () => {
+    if (prefersReducedMotion) return;
+    mouseX.set(0);
+    mouseY.set(0);
+  };
 
   const handleCopy = () => {
     if (address) {
@@ -97,24 +134,92 @@ export function HolographicWalletCard({
   }
 
   return (
-    <div className="perspective-1000 relative h-56 w-full max-w-md mx-auto mb-10">
+    <div 
+      className="perspective-1000 relative h-56 w-full max-w-md mx-auto mb-10"
+      style={{ perspective: '1200px', perspectiveOrigin: '50% 50%' }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
       <motion.div
         onClick={() => setIsFlipped(!isFlipped)}
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        animate={prefersReducedMotion ? 
+          { rotateY: isFlipped ? 180 : 0 } : 
+          { 
+            rotateY: isFlipped ? 180 : 0,
+            y: isFlipped ? 0 : [0, -8, 0],
+            rotateZ: isFlipped ? 0 : [0, 0.5, 0]
+          }
+        }
+        style={!isFlipped && !prefersReducedMotion ? {
+          transformStyle: 'preserve-3d',
+          rotateX,
+          rotateY: rotateY,
+        } : { transformStyle: 'preserve-3d' }}
+        transition={prefersReducedMotion ? 
+          { duration: 0.6, type: "spring", stiffness: 260, damping: 20 } :
+          {
+            rotateY: { duration: 0.6, type: "spring", stiffness: 260, damping: 20 },
+            y: { duration: 6, repeat: Infinity, ease: 'easeInOut' },
+            rotateZ: { duration: 6, repeat: Infinity, ease: 'easeInOut' }
+          }
+        }
         className="relative h-full w-full cursor-pointer"
-        style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Front Face */}
-        <div 
+        <motion.div 
           className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-950 via-yellow-900 to-amber-900 border border-amber-400/20 p-6 shadow-2xl overflow-hidden"
-          style={{ backfaceVisibility: 'hidden' }}
+          style={prefersReducedMotion ? { backfaceVisibility: 'hidden' } : {
+            backfaceVisibility: 'hidden',
+            boxShadow: useTransform(
+              [shadowX, shadowY],
+              ([x, y]) => `${x}px ${y}px 40px rgba(0,0,0,0.3), 0 0 60px rgba(251, 191, 36, 0.2)`
+            ) as any,
+          }}
         >
+          {/* Specular light highlight that follows cursor */}
+          {!prefersReducedMotion && !isFlipped && (
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: useTransform(
+                  [lightX, lightY],
+                  ([x, y]) => `radial-gradient(circle at ${x} ${y}, rgba(255,255,255,0.2), transparent 50%)`
+                ) as any,
+                transform: 'translateZ(5px)',
+              }}
+            />
+          )}
+
+          {/* Top edge reflection */}
+          {!prefersReducedMotion && !isFlipped && (
+            <motion.div
+              className="absolute top-0 left-0 right-0 h-20 pointer-events-none"
+              style={{
+                background: 'linear-gradient(180deg, rgba(251, 191, 36, 0.3), transparent)',
+                opacity: topEdgeOpacity,
+                transform: 'translateZ(5px)',
+              }}
+            />
+          )}
+
+          {/* Bottom edge reflection */}
+          {!prefersReducedMotion && !isFlipped && (
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+              style={{
+                background: 'linear-gradient(0deg, rgba(251, 191, 36, 0.3), transparent)',
+                opacity: bottomEdgeOpacity,
+                transform: 'translateZ(5px)',
+              }}
+            />
+          )}
+
           {/* Edge Glow */}
           <motion.div
             className="absolute inset-0 rounded-3xl pointer-events-none"
             style={{
               boxShadow: 'inset 0 0 30px rgba(251, 191, 36, 0.1)',
+              transform: 'translateZ(15px)',
             }}
             animate={prefersReducedMotion ? {} : {
               boxShadow: [
@@ -139,6 +244,7 @@ export function HolographicWalletCard({
                 transparent 80%
               )`,
               backgroundSize: '200% 100%',
+              transform: 'translateZ(10px)',
             }}
             animate={prefersReducedMotion ? {} : {
               backgroundPosition: ['200% 0%', '-200% 0%'],
@@ -160,19 +266,37 @@ export function HolographicWalletCard({
                 rgba(251, 191, 36, 0.3),
                 transparent 70%
               )`,
+              transform: 'translateZ(10px)',
             }}
             animate={prefersReducedMotion ? {} : {
-              opacity: [0.2, 0.4, 0.2],
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.5, 0.3],
             }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
           />
           
           {/* Holo Sheen */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-200/10 to-transparent opacity-50 pointer-events-none" />
-          <div className="absolute -right-10 -top-10 h-32 w-32 bg-amber-400/30 blur-3xl rounded-full" />
+          <div 
+            className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-200/10 to-transparent opacity-50 pointer-events-none"
+            style={{ transform: 'translateZ(0px)' }}
+          />
+          <div 
+            className="absolute -right-10 -top-10 h-32 w-32 bg-amber-400/30 blur-3xl rounded-full"
+            style={{ transform: 'translateZ(-20px)' }}
+          />
 
-          <div className="flex flex-col justify-between h-full relative z-10">
-            <div className="flex justify-between items-start">
+          <div 
+            className="flex flex-col justify-between h-full relative z-10"
+            style={{ transform: 'translateZ(20px)' }}
+          >
+            <div 
+              className="flex justify-between items-start"
+              style={{ transform: 'translateZ(15px)' }}
+            >
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400">
                   <Wallet size={20} />
@@ -182,14 +306,17 @@ export function HolographicWalletCard({
               <span className="text-xs font-mono text-amber-200/80 bg-amber-950/50 px-2 py-1 rounded border border-amber-400/20">ETH Mainnet</span>
             </div>
 
-            <div>
+            <div style={{ transform: 'translateZ(30px)' }}>
               <p className="text-amber-200/70 text-sm uppercase tracking-wider mb-1">Total Balance</p>
               <h2 className="text-4xl font-bold text-white tracking-tight">
                 {settings?.hide_balance ? '••••••' : formattedBalance}
               </h2>
             </div>
 
-            <div className="flex justify-between items-end">
+            <div 
+              className="flex justify-between items-end"
+              style={{ transform: 'translateZ(20px)' }}
+            >
               <div className="flex items-center gap-2 text-amber-100/90 font-mono text-sm bg-amber-500/10 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-colors">
                 {address.slice(0, 6)}...{address.slice(-4)}
                 <Copy 
@@ -218,7 +345,7 @@ export function HolographicWalletCard({
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Back Face (QR Code) */}
         <div 
