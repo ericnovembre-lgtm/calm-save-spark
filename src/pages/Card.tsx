@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VolumetricCard3D } from '@/components/card/VolumetricCard3D';
+import { PhysicalCreditCard } from '@/components/card/PhysicalCreditCard';
 import { CardGeniusHub } from '@/components/card/CardGeniusHub';
 import { SmartLimitOptimizer } from '@/components/card/SmartLimitOptimizer';
 import { AccountSummary } from '@/components/card/AccountSummary';
@@ -24,6 +25,7 @@ import { motion } from 'framer-motion';
 
 export default function CardPage() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [cardVariant, setCardVariant] = useState<'matte-black' | 'matte-white' | 'metallic-gold' | 'metallic-silver'>('matte-black');
   const { account, isLoading: accountLoading, hasAccount } = useCardAccount();
   const { cards, isLoading: cardsLoading, freezeCard } = useCards(account?.id);
   const { transactions, isLoading: transactionsLoading } = useCardTransactions(account?.id);
@@ -142,35 +144,84 @@ export default function CardPage() {
         </CardHeader>
       </Card>
 
-      {/* Hero Section: Volumetric Card + AI Hub */}
+      {/* Hero Section: Physical Card + AI Hub */}
       {hasAccount && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Volumetric 3D Card */}
+          {/* Physical Credit Card with Variant Selector */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
+            className="space-y-4"
           >
-            {cards.length > 0 ? (
-              <VolumetricCard3D 
-                card={cards[0]} 
-                onFreeze={handleFreezeCard}
-              />
-            ) : (
-              <div className="relative">
-                {/* Demo badge */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Card Finish</CardTitle>
+                <CardDescription>Choose your preferred card style</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <Button
+                    variant={cardVariant === 'matte-black' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setCardVariant('matte-black')}
+                    className="gap-2"
+                  >
+                    <div className="w-3 h-3 rounded-full bg-neutral-900" />
+                    Matte Black
+                  </Button>
+                  <Button
+                    variant={cardVariant === 'matte-white' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setCardVariant('matte-white')}
+                    className="gap-2"
+                  >
+                    <div className="w-3 h-3 rounded-full bg-[#FAFAFA] border border-neutral-300" />
+                    Matte White
+                  </Button>
+                  <Button
+                    variant={cardVariant === 'metallic-gold' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setCardVariant('metallic-gold')}
+                    className="gap-2"
+                  >
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#BF953F] to-[#B38728]" />
+                    Metallic Gold
+                  </Button>
+                  <Button
+                    variant={cardVariant === 'metallic-silver' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setCardVariant('metallic-silver')}
+                    className="gap-2"
+                  >
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#E0E0E0] to-[#B0B0B0]" />
+                    Metallic Silver
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="relative flex items-center justify-center">
+              {!cards.length && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
                   <span className="px-3 py-1 text-xs font-bold bg-violet-500/90 text-white rounded-full backdrop-blur-sm">
                     PREVIEW
                   </span>
                 </div>
-                <VolumetricCard3D 
-                  card={demoCard as any} 
-                />
-                <p className="text-center text-sm text-muted-foreground mt-4">
-                  Your card is being prepared. This is a preview of what it will look like.
-                </p>
-              </div>
+              )}
+              <PhysicalCreditCard
+                variant={cardVariant}
+                cardNumber={cards[0]?.last4 || demoCard.last4}
+                cardHolder={cards[0]?.cardholder_name || demoCard.cardholder_name}
+                expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
+                showDetails={true}
+              />
+            </div>
+
+            {!cards.length && (
+              <p className="text-center text-sm text-muted-foreground">
+                Your card is being prepared. This is a preview of what it will look like.
+              </p>
             )}
           </motion.div>
 
