@@ -345,4 +345,25 @@ verify_jwt = true
 [functions.smart-limit-analyzer]
 verify_jwt = true
 
+[functions.enrich-card-transaction]
+verify_jwt = true
+
+[functions.get-mapbox-token]
+verify_jwt = true
+
+[functions.geocode-merchant]
+verify_jwt = true
+
+[functions.match-card-receipt]
+verify_jwt = true
+
+[functions.detect-card-subscriptions]
+verify_jwt = true
+
+[functions.schedule-subscription-reminders]
+verify_jwt = false
+
+[functions.detect-recurring]
+verify_jwt = false
+
 

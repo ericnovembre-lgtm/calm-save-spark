@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Filter, Search, RefreshCw } from 'lucide-react';
+import { Sparkles, Filter, Search, RefreshCw, Receipt } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -172,6 +172,9 @@ export function EnhancedCardTransactionList({ transactions, isLoading }: Enhance
                     </p>
                     {tx.enrichment_status === 'completed' && tx.ai_confidence && tx.ai_confidence > 0.8 && (
                       <Sparkles className="w-3 h-3 text-violet-500" />
+                    )}
+                    {tx.receipt_image_path && (
+                      <Receipt className="w-3 h-3 text-green-600" />
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-1">

@@ -2279,6 +2279,89 @@ export type Database = {
           },
         ]
       }
+      card_subscriptions: {
+        Row: {
+          ai_merchant_name: string | null
+          amount_cents: number
+          cancel_reminder_days_before: number | null
+          cancel_reminder_enabled: boolean | null
+          card_id: string | null
+          category: string | null
+          confidence: number | null
+          created_at: string | null
+          first_detected_at: string | null
+          frequency: string | null
+          id: string
+          is_confirmed: boolean | null
+          last_charge_date: string | null
+          last_usage_date: string | null
+          merchant_name: string
+          next_expected_date: string | null
+          notes: string | null
+          status: string | null
+          updated_at: string | null
+          usage_count_last_30_days: number | null
+          user_id: string
+          zombie_score: number | null
+        }
+        Insert: {
+          ai_merchant_name?: string | null
+          amount_cents: number
+          cancel_reminder_days_before?: number | null
+          cancel_reminder_enabled?: boolean | null
+          card_id?: string | null
+          category?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          first_detected_at?: string | null
+          frequency?: string | null
+          id?: string
+          is_confirmed?: boolean | null
+          last_charge_date?: string | null
+          last_usage_date?: string | null
+          merchant_name: string
+          next_expected_date?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+          usage_count_last_30_days?: number | null
+          user_id: string
+          zombie_score?: number | null
+        }
+        Update: {
+          ai_merchant_name?: string | null
+          amount_cents?: number
+          cancel_reminder_days_before?: number | null
+          cancel_reminder_enabled?: boolean | null
+          card_id?: string | null
+          category?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          first_detected_at?: string | null
+          frequency?: string | null
+          id?: string
+          is_confirmed?: boolean | null
+          last_charge_date?: string | null
+          last_usage_date?: string | null
+          merchant_name?: string
+          next_expected_date?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+          usage_count_last_30_days?: number | null
+          user_id?: string
+          zombie_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_subscriptions_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       card_tier_status: {
         Row: {
           avg_utilization_rate: number | null
@@ -2344,6 +2427,11 @@ export type Database = {
           merchant_state: string | null
           metadata: Json | null
           posted_date: string | null
+          receipt_extracted_data: Json | null
+          receipt_image_path: string | null
+          receipt_match_confidence: number | null
+          receipt_matched_at: string | null
+          receipt_verified: boolean | null
           status: string | null
           transaction_date: string | null
           transaction_type: string
@@ -2371,6 +2459,11 @@ export type Database = {
           merchant_state?: string | null
           metadata?: Json | null
           posted_date?: string | null
+          receipt_extracted_data?: Json | null
+          receipt_image_path?: string | null
+          receipt_match_confidence?: number | null
+          receipt_matched_at?: string | null
+          receipt_verified?: boolean | null
           status?: string | null
           transaction_date?: string | null
           transaction_type: string
@@ -2398,6 +2491,11 @@ export type Database = {
           merchant_state?: string | null
           metadata?: Json | null
           posted_date?: string | null
+          receipt_extracted_data?: Json | null
+          receipt_image_path?: string | null
+          receipt_match_confidence?: number | null
+          receipt_matched_at?: string | null
+          receipt_verified?: boolean | null
           status?: string | null
           transaction_date?: string | null
           transaction_type?: string
@@ -8542,6 +8640,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      subscription_reminders: {
+        Row: {
+          created_at: string | null
+          dismissed_at: string | null
+          id: string
+          is_sent: boolean | null
+          message: string | null
+          reminder_date: string
+          reminder_type: string | null
+          sent_at: string | null
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          dismissed_at?: string | null
+          id?: string
+          is_sent?: boolean | null
+          message?: string | null
+          reminder_date: string
+          reminder_type?: string | null
+          sent_at?: string | null
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          dismissed_at?: string | null
+          id?: string
+          is_sent?: boolean | null
+          message?: string | null
+          reminder_date?: string
+          reminder_type?: string | null
+          sent_at?: string | null
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_reminders_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "card_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscription_usage_events: {
         Row: {
