@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Check, Lock } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
+import { ParticleEffect } from "@/components/effects/ParticleEffect";
+import { useState } from "react";
 
 interface QuestStep {
   step: number;
@@ -27,6 +29,7 @@ interface QuestlineCardProps {
   };
   isExpanded?: boolean;
   onToggle?: () => void;
+  onChapterComplete?: () => void;
 }
 
 export function QuestlineCard({
@@ -40,8 +43,10 @@ export function QuestlineCard({
   progress,
   isExpanded = false,
   onToggle,
+  onChapterComplete,
 }: QuestlineCardProps) {
   const prefersReducedMotion = useReducedMotion();
+  const [showParticles, setShowParticles] = useState(false);
 
   const completedSteps = progress?.stepsCompleted?.length || 0;
   const progressPercent = (completedSteps / steps.length) * 100;
@@ -87,6 +92,13 @@ export function QuestlineCard({
         className={`p-6 relative overflow-hidden cursor-pointer transition-all bg-gradient-to-br ${getCategoryColor(category)} hover:shadow-xl border-2`}
         onClick={onToggle}
       >
+        {/* Particle effect for chapter completion */}
+        <ParticleEffect
+          trigger={showParticles}
+          color={getCategoryColor(category).split(' ')[0].replace('from-', '')}
+          particleCount={25}
+          duration={2000}
+        />
         {/* Book spine on left edge */}
         <div className={`absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b ${getCategoryColor(category).split(' ')[0]} opacity-60`} />
         

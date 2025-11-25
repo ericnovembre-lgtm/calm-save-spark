@@ -102,7 +102,18 @@ export function useQuestlineAutoProgress(userId: string | undefined) {
               })
               .eq('id', userProgress.id);
 
-            // Show celebration notification
+            // Emit celebration event for UI
+            window.dispatchEvent(new CustomEvent('questline-chapter-complete', {
+              detail: {
+                stepTitle: currentStep.title,
+                stepPoints: currentStep.points,
+                questlineName: questline.name,
+                category: questline.category || 'general',
+                isQuestlineComplete,
+              }
+            }));
+
+            // Show toast notification
             if (isQuestlineComplete) {
               toast.success('🎊 Questline Complete!', {
                 description: `You've completed "${questline.name}"! Earned ${questline.total_points} points.`,

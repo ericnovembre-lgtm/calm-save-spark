@@ -1,13 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { MapPin, Clock, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Clock, Zap, Locate, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { formatDistanceToNow } from "date-fns";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { calculateDistance, formatDistance } from "@/lib/geo-utils";
+import { useMemo } from "react";
 
 export function GeoRewardMap() {
   const prefersReducedMotion = useReducedMotion();
+  const { latitude, longitude, status, error, refetch, isGranted, isDenied } = useGeolocation();
 
   const { data: partners, isLoading } = useQuery({
     queryKey: ['geo-reward-partners'],
@@ -23,7 +28,24 @@ export function GeoRewardMap() {
     },
   });
 
-  if (isLoading || !partners || partners.length === 0) return null;
+  // Sort partners by distance if location is available
+  const sortedPartners = useMemo(() => {
+    if (!partners || !isGranted || !latitude || !longitude) return partners;
+    
+    return [...partners]
+      .map(partner => ({
+        ...partner,
+        distance: calculateDistance(
+          latitude,
+          longitude,
+          Number(partner.latitude),
+          Number(partner.longitude)
+        ),
+      }))
+      .sort((a, b) => a.distance - b.distance);
+  }, [partners, isGranted, latitude, longitude]);
+
+  if (isLoading || !sortedPartners || sortedPartners.length === 0) return null;
 
   const getMultiplierColor = (multiplier: number) => {
     if (multiplier >= 3) return 'text-accent';
@@ -42,18 +64,64 @@ export function GeoRewardMap() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <MapPin className="w-5 h-5 text-primary" />
-        <div>
-          <h3 className="font-semibold text-foreground">Nearby Loot</h3>
-          <p className="text-sm text-muted-foreground">Reward boosters active in your area</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-primary" />
+          <div>
+            <h3 className="font-semibold text-foreground">Nearby Loot</h3>
+            <p className="text-sm text-muted-foreground">
+              {isGranted 
+                ? 'Sorted by distance from your location' 
+                : 'Enable location to see nearest rewards'}
+            </p>
+          </div>
         </div>
+        
+        {/* Location status indicator */}
+        {isDenied && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refetch}
+            className="gap-2"
+          >
+            <Locate className="w-4 h-4" />
+            Enable Location
+          </Button>
+        )}
+        
+        {status === 'loading' && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <Locate className="w-4 h-4" />
+            </motion.div>
+            Calculating...
+          </div>
+        )}
       </div>
+
+      {/* Permission error message */}
+      {isDenied && (
+        <Card className="p-4 bg-amber-500/10 border-amber-500/20">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-foreground mb-1">Location access needed</p>
+              <p className="text-muted-foreground">
+                Enable location permissions to see accurate distances and find the closest reward partners near you.
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Horizontal scroll container */}
       <div className="relative -mx-4 px-4">
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-          {partners.map((partner, index) => {
+          {sortedPartners.map((partner, index) => {
           const isActive = partner.multiplier_end_time && new Date(partner.multiplier_end_time) > new Date();
           const timeRemaining = partner.multiplier_end_time 
             ? formatDistanceToNow(new Date(partner.multiplier_end_time), { addSuffix: true })
@@ -63,8 +131,11 @@ export function GeoRewardMap() {
             : 0;
           const isExpiringSoon = hoursRemaining < 4 && hoursRemaining > 0;
           
-          // Mock distance for now (can be replaced with real geolocation)
-          const mockDistance = (Math.random() * 2).toFixed(1);
+          // Real distance calculation
+          const distance = isGranted && latitude && longitude && partner.latitude && partner.longitude
+            ? calculateDistance(latitude, longitude, Number(partner.latitude), Number(partner.longitude))
+            : null;
+          const displayDistance = distance !== null ? formatDistance(distance) : 'Distance unknown';
           
           const getRarityStyle = (multiplier: number) => {
             if (multiplier >= 3) return 'from-amber-500/20 to-yellow-500/20 border-amber-500/30';
@@ -144,7 +215,9 @@ export function GeoRewardMap() {
                   {/* Distance indicator */}
                   <div className="flex items-center gap-2 text-sm">
                     <MapPin className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">{mockDistance} mi away</span>
+                    <span className={`font-medium ${distance !== null ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {displayDistance}
+                    </span>
                   </div>
 
                   {partner.address && (
