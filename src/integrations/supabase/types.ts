@@ -9391,6 +9391,85 @@ export type Database = {
           },
         ]
       }
+      wallet_backup_audit_log: {
+        Row: {
+          action: string
+          backup_id: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          backup_id: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          backup_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_backup_audit_log_backup_id_fkey"
+            columns: ["backup_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_backups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallet_backups: {
+        Row: {
+          backup_type: string
+          created_at: string
+          encrypted_seed_phrase: string
+          encryption_hint: string | null
+          id: string
+          last_accessed_at: string | null
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          backup_type?: string
+          created_at?: string
+          encrypted_seed_phrase: string
+          encryption_hint?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          backup_type?: string
+          created_at?: string
+          encrypted_seed_phrase?: string
+          encryption_hint?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_backups_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: true
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wallet_balance_history: {
         Row: {
           created_at: string | null

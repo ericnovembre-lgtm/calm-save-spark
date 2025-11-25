@@ -22,6 +22,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveChain } from "@/hooks/useActiveChain";
+import { useWalletTokenHoldings } from "@/hooks/useWalletTokenHoldings";
+import { useTokenPriceWebSocket } from "@/hooks/useTokenPriceWebSocket";
 
 type Tab = 'tokens' | 'nfts' | 'history';
 
@@ -60,14 +62,35 @@ export default function Wallet() {
     }
   }, [wallet]);
 
-  // Mock tokens data with sparkline
-  const mockTokens = [
-    { symbol: 'ETH', name: 'Ethereum', balance: 1.45, usdValue: 3240.50, change24h: 2.4, sparklineData: [3100, 3150, 3120, 3200, 3180, 3240], isStablecoin: false },
-    { symbol: 'USDC', name: 'USD Coin', balance: 450.00, usdValue: 450.00, change24h: 0.01, sparklineData: [450, 450, 450, 450, 450, 450], isStablecoin: true },
-    { symbol: 'SOL', name: 'Solana', balance: 142, usdValue: 2840, change24h: -1.2, sparklineData: [2900, 2880, 2850, 2870, 2860, 2840], isStablecoin: false },
-  ];
+  // Fetch user's actual token holdings
+  const { data: tokenHoldings = [] } = useWalletTokenHoldings(walletAddress);
 
-  const totalBalance = mockTokens.reduce((sum, token) => sum + token.usdValue, 0);
+  // Subscribe to real-time prices for user's tokens
+  const tokenSymbols = tokenHoldings.map(h => h.symbol);
+  const { prices: livePrices, isConnected: isPricesFeedConnected } = useTokenPriceWebSocket(tokenSymbols);
+
+  // Combine holdings with live prices
+  const tokens = tokenHoldings.map(holding => {
+    const livePrice = livePrices.get(holding.symbol);
+    const currentPrice = livePrice?.price || holding.current_price || 0;
+    const usdValue = holding.quantity * currentPrice;
+    const change24h = livePrice?.changePercent || 0;
+
+    return {
+      symbol: holding.symbol,
+      name: holding.name,
+      balance: holding.quantity,
+      usdValue,
+      change24h,
+      livePrice: livePrice?.price,
+      lastUpdate: livePrice?.timestamp,
+      isLive: !!livePrice,
+      sparklineData: [], // Could be populated from price history
+      isStablecoin: ['USDC', 'USDT', 'DAI'].includes(holding.symbol.toUpperCase()),
+    };
+  });
+
+  const totalBalance = tokens.reduce((sum, token) => sum + token.usdValue, 0);
 
   const handleCreateWallet = async () => {
     setIsCreatingWallet(true);
@@ -213,21 +236,36 @@ export default function Wallet() {
 
               {/* Tab Content */}
               <div className="space-y-6">
-                {activeTab === 'tokens' && (
+              {activeTab === 'tokens' && (
                   <>
-                    <div className="space-y-3">
-                      {mockTokens.map((token, i) => (
-                        <motion.div
-                          key={token.symbol}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                        >
-                          <TokenBalanceCard {...token} />
-                        </motion.div>
-                      ))}
-                    </div>
-                    <PortfolioRiskAnalyst tokens={mockTokens} />
+                    {tokens.length > 0 ? (
+                      <>
+                        <div className="space-y-3">
+                          {isPricesFeedConnected && (
+                            <div className="text-xs text-muted-foreground flex items-center gap-2 px-2">
+                              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                              Live prices connected
+                            </div>
+                          )}
+                          {tokens.map((token, i) => (
+                            <motion.div
+                              key={token.symbol}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.1 }}
+                            >
+                              <TokenBalanceCard {...token} />
+                            </motion.div>
+                          ))}
+                        </div>
+                        <PortfolioRiskAnalyst tokens={tokens} />
+                      </>
+                    ) : (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <p>No tokens found</p>
+                        <p className="text-sm mt-2">Add crypto holdings to see them here</p>
+                      </div>
+                    )}
                   </>
                 )}
 

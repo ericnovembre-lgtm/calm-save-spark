@@ -6,9 +6,33 @@ import { WalletNotificationSettings } from "@/components/wallet/WalletNotificati
 import { DisplayCurrencySettings } from "@/components/wallet/settings/DisplayCurrencySettings";
 import { PrivacySettings } from "@/components/wallet/settings/PrivacySettings";
 import { GasAlertSettings } from "@/components/wallet/settings/GasAlertSettings";
+import { WalletBackupSettings } from "@/components/wallet/settings/WalletBackupSettings";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useActiveChain } from "@/hooks/useActiveChain";
 
 export default function WalletSettings() {
   const navigate = useNavigate();
+  const { selectedChain } = useActiveChain();
+
+  // Fetch wallet data
+  const { data: wallet } = useQuery({
+    queryKey: ['user-wallet', selectedChain],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('wallets')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('chain', selectedChain)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -45,6 +69,19 @@ export default function WalletSettings() {
           >
             <WalletNotificationSettings />
           </motion.div>
+
+          {wallet && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <WalletBackupSettings 
+                walletId={wallet.id}
+                walletAddress={wallet.address}
+              />
+            </motion.div>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
