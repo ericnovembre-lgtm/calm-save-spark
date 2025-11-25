@@ -101,12 +101,12 @@ export const NeonCreditGauge = ({ score, projectedScore }: NeonCreditGaugeProps)
 
         {/* Tick Marks */}
         {[300, 400, 500, 600, 700, 800, 850].map((tick) => {
-          const angle = calculateAngle(tick);
-          const radians = (angle * Math.PI) / 180;
-          const x1 = 100 + 72 * Math.cos(radians);
-          const y1 = 100 + 72 * Math.sin(radians);
-          const x2 = 100 + 80 * Math.cos(radians);
-          const y2 = 100 + 80 * Math.sin(radians);
+          // Map score to angle: 300→π (left), 850→0 (right)
+          const theta = Math.PI * (850 - tick) / 550;
+          const x1 = 100 + 72 * Math.cos(theta);
+          const y1 = 100 - 72 * Math.sin(theta);
+          const x2 = 100 + 80 * Math.cos(theta);
+          const y2 = 100 - 80 * Math.sin(theta);
           
           return (
             <g key={tick}>
@@ -119,8 +119,8 @@ export const NeonCreditGauge = ({ score, projectedScore }: NeonCreditGaugeProps)
                 strokeWidth="1"
               />
               <text
-                x={100 + 88 * Math.cos(radians)}
-                y={100 + 88 * Math.sin(radians)}
+                x={100 + 90 * Math.cos(theta)}
+                y={100 - 90 * Math.sin(theta)}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 className="text-[6px] fill-muted-foreground font-mono"
