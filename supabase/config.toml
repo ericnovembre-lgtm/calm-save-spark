@@ -369,4 +369,7 @@ verify_jwt = false
 [functions.redeem-points]
 verify_jwt = true
 
+[functions.benefit-hunter]
+verify_jwt = true
+
 

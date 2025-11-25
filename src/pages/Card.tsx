@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Plus, Activity, FileText, Sparkles, RefreshCw, DollarSign } from 'lucide-react';
+import { CreditCard, Plus, Activity, FileText, Sparkles, RefreshCw, DollarSign, Gift } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +15,8 @@ import { CardRewardsDashboard } from '@/components/card/CardRewardsDashboard';
 import { MerchantMapVisualization } from '@/components/card/MerchantMapVisualization';
 import { CardReceiptScanner } from '@/components/card/CardReceiptScanner';
 import { CardSubscriptionTracker } from '@/components/card/CardSubscriptionTracker';
+import { BenefitHunterNudge } from '@/components/card/BenefitHunterNudge';
+import { BenefitHunterPanel } from '@/components/card/BenefitHunterPanel';
 import { useCardAccount } from '@/hooks/useCardAccount';
 import { useCards } from '@/hooks/useCards';
 import { useCardTransactions } from '@/hooks/useCardTransactions';
@@ -196,30 +198,37 @@ export default function CardPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5 h-12">
+        <TabsList className="grid w-full grid-cols-6 h-12">
           <TabsTrigger value="overview" className="gap-2">
             <Activity className="w-4 h-4" />
-            Overview
+            <span className="hidden sm:inline">Overview</span>
           </TabsTrigger>
           <TabsTrigger value="rewards" className="gap-2">
             <Sparkles className="w-4 h-4" />
-            Rewards
+            <span className="hidden sm:inline">Rewards</span>
+          </TabsTrigger>
+          <TabsTrigger value="benefits" className="gap-2">
+            <Gift className="w-4 h-4" />
+            <span className="hidden sm:inline">Benefits</span>
           </TabsTrigger>
           <TabsTrigger value="transactions" className="gap-2">
             <FileText className="w-4 h-4" />
-            Transactions
+            <span className="hidden sm:inline">Transactions</span>
           </TabsTrigger>
           <TabsTrigger value="subscriptions" className="gap-2">
             <RefreshCw className="w-4 h-4" />
-            Subscriptions
+            <span className="hidden sm:inline">Subscriptions</span>
           </TabsTrigger>
           <TabsTrigger value="controls" className="gap-2">
             <CreditCard className="w-4 h-4" />
-            Controls
+            <span className="hidden sm:inline">Controls</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          {/* Benefit Hunter Nudge */}
+          <BenefitHunterNudge maxDisplay={1} onViewAll={() => setActiveTab('benefits')} />
+
           {/* Account Summary */}
           <AccountSummary account={account} />
 
@@ -269,6 +278,10 @@ export default function CardPage() {
           {(cards.length > 0 || hasAccount) && (
             <CardRewardsDashboard cardId={cards[0]?.id || 'demo'} />
           )}
+        </TabsContent>
+
+        <TabsContent value="benefits" className="space-y-6">
+          <BenefitHunterPanel />
         </TabsContent>
 
         <TabsContent value="transactions" className="space-y-6">
