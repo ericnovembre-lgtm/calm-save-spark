@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Plus, Activity, FileText, Sparkles, RefreshCw, DollarSign, Gift, Palette } from 'lucide-react';
+import { CreditCard, Plus, Activity, FileText, Sparkles, RefreshCw, DollarSign, Gift, Palette, RotateCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,18 +20,30 @@ import { CardReceiptScanner } from '@/components/card/CardReceiptScanner';
 import { CardSubscriptionTracker } from '@/components/card/CardSubscriptionTracker';
 import { BenefitHunterNudge } from '@/components/card/BenefitHunterNudge';
 import { BenefitHunterPanel } from '@/components/card/BenefitHunterPanel';
+import { CardInspectionMode } from '@/components/card/CardInspectionMode';
+import { CardUnboxingExperience } from '@/components/card/CardUnboxingExperience';
 import { useCardAccount } from '@/hooks/useCardAccount';
 import { useCards } from '@/hooks/useCards';
 import { useCardTransactions } from '@/hooks/useCardTransactions';
-import { motion } from 'framer-motion';
+import { useCardUnboxing } from '@/hooks/useCardUnboxing';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CardPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [cardVariant, setCardVariant] = useState<'matte-black' | 'matte-white' | 'metallic-gold' | 'metallic-silver'>('matte-black');
   const [showWizard, setShowWizard] = useState(false);
+  const [inspectionMode, setInspectionMode] = useState(false);
   const { account, isLoading: accountLoading, hasAccount } = useCardAccount();
   const { cards, isLoading: cardsLoading, freezeCard } = useCards(account?.id);
   const { transactions, isLoading: transactionsLoading } = useCardTransactions(account?.id);
+  const { hasSeenUnboxing, isUnboxing, completeUnboxing, replayUnboxing } = useCardUnboxing();
+
+  // Auto-trigger unboxing on first visit if user has account
+  useEffect(() => {
+    if (hasAccount && !hasSeenUnboxing && cards.length > 0) {
+      replayUnboxing();
+    }
+  }, [hasAccount, hasSeenUnboxing, cards.length, replayUnboxing]);
 
   // Demo card for preview when no real cards exist yet
   const demoCard = {
@@ -209,14 +221,36 @@ export default function CardPage() {
                   </Button>
                 </div>
 
-                <Button
-                  variant="outline"
-                  onClick={() => setShowWizard(true)}
-                  className="w-full gap-2 mt-2"
-                >
-                  <Palette className="w-4 h-4" />
-                  Customize Your Card
-                </Button>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowWizard(true)}
+                    className="gap-2"
+                  >
+                    <Palette className="w-4 h-4" />
+                    Customize
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setInspectionMode(true)}
+                    className="gap-2"
+                  >
+                    <RotateCw className="w-4 h-4" />
+                    Inspect 360°
+                  </Button>
+                </div>
+                
+                {hasSeenUnboxing && cards.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    onClick={replayUnboxing}
+                    className="w-full gap-2 mt-2 text-xs"
+                    size="sm"
+                  >
+                    <Gift className="w-3 h-3" />
+                    Replay Unboxing
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
@@ -228,13 +262,15 @@ export default function CardPage() {
                   </span>
                 </div>
               )}
-              <PhysicalCreditCard
-                variant={cardVariant}
-                cardNumber={cards[0]?.last4 || demoCard.last4}
-                cardHolder={cards[0]?.cardholder_name || demoCard.cardholder_name}
-                expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
-                showDetails={true}
-              />
+              <CardInspectionMode isActive={inspectionMode} onClose={() => setInspectionMode(false)}>
+                <PhysicalCreditCard
+                  variant={cardVariant}
+                  cardNumber={cards[0]?.last4 || demoCard.last4}
+                  cardHolder={cards[0]?.cardholder_name || demoCard.cardholder_name}
+                  expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
+                  showDetails={true}
+                />
+              </CardInspectionMode>
             </div>
 
             {!cards.length && (
@@ -421,6 +457,20 @@ export default function CardPage() {
           />
         </SheetContent>
       </Sheet>
+
+      {/* Card Unboxing Experience */}
+      <AnimatePresence>
+        {isUnboxing && (
+          <CardUnboxingExperience
+            variant={cardVariant}
+            cardHolder={cards[0]?.cardholder_name || demoCard.cardholder_name}
+            cardNumber={cards[0]?.last4 || demoCard.last4}
+            expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
+            onComplete={completeUnboxing}
+            autoPlay={true}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
