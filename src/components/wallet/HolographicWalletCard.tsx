@@ -123,7 +123,9 @@ export function HolographicWalletCard({
 
             <div>
               <p className="text-slate-400 text-sm uppercase tracking-wider mb-1">Total Balance</p>
-              <h2 className="text-4xl font-bold text-white tracking-tight">{formattedBalance}</h2>
+              <h2 className="text-4xl font-bold text-white tracking-tight">
+                {settings?.hide_balance ? '••••••' : formattedBalance}
+              </h2>
             </div>
 
             <div className="flex justify-between items-center">

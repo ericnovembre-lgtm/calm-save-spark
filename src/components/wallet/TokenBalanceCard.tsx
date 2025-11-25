@@ -58,10 +58,10 @@ export function TokenBalanceCard({
       
       <div className="space-y-1">
         <div className="text-2xl font-bold text-foreground">
-          {balance.toFixed(4)}
+          {settings?.hide_balance ? '••••' : balance.toFixed(4)}
         </div>
         <div className="text-sm text-muted-foreground">
-          {formattedValue}
+          {settings?.hide_balance ? '••••••' : formattedValue}
         </div>
       </div>
       

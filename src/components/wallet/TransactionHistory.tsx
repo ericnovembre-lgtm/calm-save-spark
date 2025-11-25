@@ -167,7 +167,7 @@ export function TransactionHistory() {
               
               <div className="text-right">
                 <p className="font-bold text-lg">
-                  {tx.amount.toFixed(4)} {tx.token_symbol}
+                  {settings?.hide_transaction_amounts ? '••••' : `${tx.amount.toFixed(4)} ${tx.token_symbol}`}
                 </p>
                 {settings?.hide_transaction_amounts ? (
                   <p className="text-xs text-muted-foreground">••••••</p>
