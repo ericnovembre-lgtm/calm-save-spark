@@ -52,6 +52,17 @@ export function HolographicWalletCard({
   const topEdgeOpacity = useTransform(rotateX, [-15, 15], [0.3, 0]);
   const bottomEdgeOpacity = useTransform(rotateX, [-15, 15], [0, 0.3]);
 
+  // Combined transforms (must be at top level)
+  const dynamicShadow = useTransform(
+    [shadowX, shadowY],
+    ([x, y]) => `${x}px ${y}px 40px rgba(0,0,0,0.3), 0 0 60px rgba(251, 191, 36, 0.2)`
+  );
+
+  const specularLight = useTransform(
+    [lightX, lightY],
+    ([x, y]) => `radial-gradient(circle at ${x} ${y}, rgba(255,255,255,0.2), transparent 50%)`
+  );
+
   // Handle mouse tracking for 3D tilt
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (prefersReducedMotion || isFlipped) return;
@@ -170,49 +181,40 @@ export function HolographicWalletCard({
           className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-950 via-yellow-900 to-amber-900 border border-amber-400/20 p-6 shadow-2xl overflow-hidden"
           style={prefersReducedMotion ? { backfaceVisibility: 'hidden' } : {
             backfaceVisibility: 'hidden',
-            boxShadow: useTransform(
-              [shadowX, shadowY],
-              ([x, y]) => `${x}px ${y}px 40px rgba(0,0,0,0.3), 0 0 60px rgba(251, 191, 36, 0.2)`
-            ) as any,
+            boxShadow: dynamicShadow as any,
           }}
         >
           {/* Specular light highlight that follows cursor */}
-          {!prefersReducedMotion && !isFlipped && (
-            <motion.div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: useTransform(
-                  [lightX, lightY],
-                  ([x, y]) => `radial-gradient(circle at ${x} ${y}, rgba(255,255,255,0.2), transparent 50%)`
-                ) as any,
-                transform: 'translateZ(5px)',
-              }}
-            />
-          )}
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: specularLight as any,
+              transform: 'translateZ(5px)',
+              display: prefersReducedMotion || isFlipped ? 'none' : 'block',
+            }}
+          />
 
           {/* Top edge reflection */}
-          {!prefersReducedMotion && !isFlipped && (
-            <motion.div
-              className="absolute top-0 left-0 right-0 h-20 pointer-events-none"
-              style={{
-                background: 'linear-gradient(180deg, rgba(251, 191, 36, 0.3), transparent)',
-                opacity: topEdgeOpacity,
-                transform: 'translateZ(5px)',
-              }}
-            />
-          )}
+          <motion.div
+            className="absolute top-0 left-0 right-0 h-20 pointer-events-none"
+            style={{
+              background: 'linear-gradient(180deg, rgba(251, 191, 36, 0.3), transparent)',
+              opacity: topEdgeOpacity,
+              transform: 'translateZ(5px)',
+              display: prefersReducedMotion || isFlipped ? 'none' : 'block',
+            }}
+          />
 
           {/* Bottom edge reflection */}
-          {!prefersReducedMotion && !isFlipped && (
-            <motion.div
-              className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
-              style={{
-                background: 'linear-gradient(0deg, rgba(251, 191, 36, 0.3), transparent)',
-                opacity: bottomEdgeOpacity,
-                transform: 'translateZ(5px)',
-              }}
-            />
-          )}
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+            style={{
+              background: 'linear-gradient(0deg, rgba(251, 191, 36, 0.3), transparent)',
+              opacity: bottomEdgeOpacity,
+              transform: 'translateZ(5px)',
+              display: prefersReducedMotion || isFlipped ? 'none' : 'block',
+            }}
+          />
 
           {/* Edge Glow */}
           <motion.div
