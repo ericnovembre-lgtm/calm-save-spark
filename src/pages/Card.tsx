@@ -8,6 +8,7 @@ import { CardDisplay } from '@/components/card/CardDisplay';
 import { AccountSummary } from '@/components/card/AccountSummary';
 import { TransactionList } from '@/components/card/TransactionList';
 import { CardControls } from '@/components/card/CardControls';
+import { CardRewardsDashboard } from '@/components/card/CardRewardsDashboard';
 import { useCardAccount } from '@/hooks/useCardAccount';
 import { useCards } from '@/hooks/useCards';
 import { useCardTransactions } from '@/hooks/useCardTransactions';
@@ -110,8 +111,9 @@ export default function CardPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="rewards">Rewards</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="controls">Controls</TabsTrigger>
         </TabsList>
@@ -177,6 +179,12 @@ export default function CardPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="rewards" className="space-y-6">
+          {cards.length > 0 && (
+            <CardRewardsDashboard cardId={cards[0].id} />
+          )}
         </TabsContent>
 
         <TabsContent value="transactions">

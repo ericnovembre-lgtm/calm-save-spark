@@ -2143,6 +2143,184 @@ export type Database = {
           },
         ]
       }
+      card_points_ledger: {
+        Row: {
+          card_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          multiplier: number | null
+          points_amount: number
+          points_type: string
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          card_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          multiplier?: number | null
+          points_amount: number
+          points_type: string
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          card_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          multiplier?: number | null
+          points_amount?: number
+          points_type?: string
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_points_ledger_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_points_ledger_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "card_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_spend_rules: {
+        Row: {
+          card_id: string | null
+          category_filters: string[] | null
+          created_at: string | null
+          destination_goal_id: string | null
+          destination_pot_id: string | null
+          id: string
+          is_active: boolean | null
+          max_daily_save: number | null
+          merchant_filters: string[] | null
+          min_transaction_amount: number | null
+          rule_name: string
+          rule_type: string
+          rule_value: number
+          times_triggered: number | null
+          total_saved: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          card_id?: string | null
+          category_filters?: string[] | null
+          created_at?: string | null
+          destination_goal_id?: string | null
+          destination_pot_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_daily_save?: number | null
+          merchant_filters?: string[] | null
+          min_transaction_amount?: number | null
+          rule_name: string
+          rule_type: string
+          rule_value: number
+          times_triggered?: number | null
+          total_saved?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          card_id?: string | null
+          category_filters?: string[] | null
+          created_at?: string | null
+          destination_goal_id?: string | null
+          destination_pot_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_daily_save?: number | null
+          merchant_filters?: string[] | null
+          min_transaction_amount?: number | null
+          rule_name?: string
+          rule_type?: string
+          rule_value?: number
+          times_triggered?: number | null
+          total_saved?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_spend_rules_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_spend_rules_destination_goal_id_fkey"
+            columns: ["destination_goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_spend_rules_destination_pot_id_fkey"
+            columns: ["destination_pot_id"]
+            isOneToOne: false
+            referencedRelation: "pots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_tier_status: {
+        Row: {
+          avg_utilization_rate: number | null
+          consecutive_months_paid_on_time: number | null
+          current_tier: string
+          id: string
+          lifetime_points: number | null
+          months_with_rules_active: number | null
+          points_to_next_tier: number | null
+          tier_benefits: Json | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avg_utilization_rate?: number | null
+          consecutive_months_paid_on_time?: number | null
+          current_tier?: string
+          id?: string
+          lifetime_points?: number | null
+          months_with_rules_active?: number | null
+          points_to_next_tier?: number | null
+          tier_benefits?: Json | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avg_utilization_rate?: number | null
+          consecutive_months_paid_on_time?: number | null
+          current_tier?: string
+          id?: string
+          lifetime_points?: number | null
+          months_with_rules_active?: number | null
+          points_to_next_tier?: number | null
+          tier_benefits?: Json | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       card_transactions: {
         Row: {
           account_id: string
