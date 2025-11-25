@@ -431,6 +431,30 @@ export function PhysicalCreditCard({
                 </div>
               </div>
 
+              {/* Cardholder Name & Last 4 Digits */}
+              {showDetails && (
+                <div 
+                  className="mb-4 space-y-1"
+                  style={{ transform: 'translateZ(4px)' }}
+                >
+                  {/* Card Number (last 4 digits) */}
+                  <div 
+                    className={cn("text-sm font-mono tracking-[0.2em]", style.textColor)}
+                    style={{ textShadow: style.emboss, opacity: 0.9 }}
+                  >
+                    •••• •••• •••• {cardNumber.slice(-4)}
+                  </div>
+                  
+                  {/* Cardholder Name */}
+                  <div 
+                    className={cn("text-xs font-medium uppercase tracking-wider", style.textColor)}
+                    style={{ textShadow: style.emboss, opacity: 0.8 }}
+                  >
+                    {cardHolder}
+                  </div>
+                </div>
+              )}
+
               {/* Mastercard logo - bottom center with depth */}
               <div 
                 className="flex justify-center"
