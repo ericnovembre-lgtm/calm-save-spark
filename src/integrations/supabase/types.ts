@@ -2324,10 +2324,15 @@ export type Database = {
       card_transactions: {
         Row: {
           account_id: string
+          ai_category: string | null
+          ai_confidence: number | null
+          ai_merchant_name: string | null
           amount_cents: number
           card_id: string
           created_at: string | null
           description: string | null
+          enriched_at: string | null
+          enrichment_status: string | null
           id: string
           merchant_category: string | null
           merchant_name: string | null
@@ -2340,10 +2345,15 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          ai_category?: string | null
+          ai_confidence?: number | null
+          ai_merchant_name?: string | null
           amount_cents: number
           card_id: string
           created_at?: string | null
           description?: string | null
+          enriched_at?: string | null
+          enrichment_status?: string | null
           id?: string
           merchant_category?: string | null
           merchant_name?: string | null
@@ -2356,10 +2366,15 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          ai_category?: string | null
+          ai_confidence?: number | null
+          ai_merchant_name?: string | null
           amount_cents?: number
           card_id?: string
           created_at?: string | null
           description?: string | null
+          enriched_at?: string | null
+          enrichment_status?: string | null
           id?: string
           merchant_category?: string | null
           merchant_name?: string | null
@@ -6582,6 +6597,53 @@ export type Database = {
           },
         ]
       }
+      points_redemptions: {
+        Row: {
+          catalog_item_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          dollar_value: number
+          fulfillment_details: Json | null
+          id: string
+          points_spent: number
+          redemption_type: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          catalog_item_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          dollar_value: number
+          fulfillment_details?: Json | null
+          id?: string
+          points_spent: number
+          redemption_type: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          catalog_item_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          dollar_value?: number
+          fulfillment_details?: Json | null
+          id?: string
+          points_spent?: number
+          redemption_type?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "points_redemptions_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "redemption_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       portfolio_goals: {
         Row: {
           color: string | null
@@ -7170,6 +7232,51 @@ export type Database = {
           merchant?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      redemption_catalog: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          dollar_value: number
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          min_points: number | null
+          name: string
+          partner_logo_url: string | null
+          partner_name: string | null
+          points_cost: number
+          redemption_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          dollar_value: number
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          min_points?: number | null
+          name: string
+          partner_logo_url?: string | null
+          partner_name?: string | null
+          points_cost: number
+          redemption_type: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          dollar_value?: number
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          min_points?: number | null
+          name?: string
+          partner_logo_url?: string | null
+          partner_name?: string | null
+          points_cost?: number
+          redemption_type?: string
         }
         Relationships: []
       }

@@ -8,7 +8,8 @@ import { VolumetricCard3D } from '@/components/card/VolumetricCard3D';
 import { CardGeniusHub } from '@/components/card/CardGeniusHub';
 import { SmartLimitOptimizer } from '@/components/card/SmartLimitOptimizer';
 import { AccountSummary } from '@/components/card/AccountSummary';
-import { TransactionList } from '@/components/card/TransactionList';
+import { EnhancedCardTransactionList } from '@/components/card/EnhancedCardTransactionList';
+import { CardSpendingInsights } from '@/components/card/CardSpendingInsights';
 import { CardControls } from '@/components/card/CardControls';
 import { CardRewardsDashboard } from '@/components/card/CardRewardsDashboard';
 import { useCardAccount } from '@/hooks/useCardAccount';
@@ -256,11 +257,9 @@ export default function CardPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="transactions">
-          <TransactionList
-            transactions={transactions}
-            isLoading={transactionsLoading}
-          />
+        <TabsContent value="transactions" className="space-y-6">
+          <CardSpendingInsights cardId={cards[0]?.id || 'demo'} />
+          <EnhancedCardTransactionList transactions={transactions} isLoading={transactionsLoading} />
         </TabsContent>
 
         <TabsContent value="controls">
