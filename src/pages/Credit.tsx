@@ -24,20 +24,25 @@ export default function Credit() {
 
   return (
     <PageTransition>
-      <ScrollSection className="space-y-8">
+      <ScrollSection className="space-y-10">
         {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Credit Intelligence</h1>
-          <p className="text-muted-foreground">
+        <div className="space-y-3">
+          <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+            Credit Intelligence
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
             Monitor your credit score, set goals, and track your progress with AI-powered insights.
           </p>
         </div>
 
         {/* Hero Section: Gauge + Score Card */}
         {isLoading ? (
-          <Skeleton className="h-[300px] w-full" />
-        ) : latestScore ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Skeleton className="h-[320px] w-full rounded-2xl" />
+            <Skeleton className="h-[320px] w-full rounded-2xl" />
+          </div>
+        ) : latestScore ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
             <NeonCreditGauge 
               score={latestScore.score} 
               projectedScore={projectedScore}
@@ -50,39 +55,52 @@ export default function Credit() {
               factors={latestScore.factors}
             />
           </div>
-        ) : null}
+        ) : (
+          <div className="text-center py-16 px-4">
+            <p className="text-muted-foreground text-lg">No credit score data available yet.</p>
+            <p className="text-sm text-muted-foreground mt-2">Connect your accounts to start tracking your credit.</p>
+          </div>
+        )}
 
         {/* Credit Simulator */}
         {latestScore && (
-          <CreditSimulator
-            currentScore={latestScore.score}
-            onProjectedScoreChange={setProjectedScore}
-          />
+          <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <CreditSimulator
+              currentScore={latestScore.score}
+              onProjectedScoreChange={setProjectedScore}
+            />
+          </div>
         )}
 
         {/* Credit Health Factors */}
-        <CreditFactorBars />
+        <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <CreditFactorBars />
+        </div>
 
         {/* Credit Score History Chart */}
-        <CreditScoreHistoryChart />
+        <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <CreditScoreHistoryChart />
+        </div>
 
         {/* Credit Goal Tracker */}
-        <CreditGoalTracker />
+        <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <CreditGoalTracker />
+        </div>
 
         {/* AI Credit Coach Tools */}
-        <div className="space-y-8 mt-12">
-          <div>
-            <h2 className="text-2xl font-bold mb-1">AI Credit Coach</h2>
-            <p className="text-sm text-muted-foreground">
+        <div className="space-y-10 mt-16 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold tracking-tight">AI Credit Coach</h2>
+            <p className="text-base text-muted-foreground">
               Powerful AI-driven tools to optimize your credit strategy
             </p>
           </div>
 
           {/* Score Analysis Section */}
-          <div className="space-y-4">
-            <div className="border-l-4 border-primary pl-4">
-              <h3 className="text-lg font-semibold">Score Analysis</h3>
-              <p className="text-sm text-muted-foreground">
+          <div className="space-y-6">
+            <div className="border-l-4 border-primary pl-5 py-1">
+              <h3 className="text-xl font-semibold mb-1">Score Analysis</h3>
+              <p className="text-muted-foreground">
                 Understand your approval odds and identify report issues
               </p>
             </div>
@@ -93,10 +111,10 @@ export default function Credit() {
           </div>
 
           {/* Credit Optimization Section */}
-          <div className="space-y-4">
-            <div className="border-l-4 border-primary pl-4">
-              <h3 className="text-lg font-semibold">Credit Optimization</h3>
-              <p className="text-sm text-muted-foreground">
+          <div className="space-y-6">
+            <div className="border-l-4 border-primary pl-5 py-1">
+              <h3 className="text-xl font-semibold mb-1">Credit Optimization</h3>
+              <p className="text-muted-foreground">
                 Maximize your credit limits and utilization strategy
               </p>
             </div>
@@ -107,10 +125,10 @@ export default function Credit() {
           </div>
 
           {/* Dispute & Recovery Section */}
-          <div className="space-y-4">
-            <div className="border-l-4 border-primary pl-4">
-              <h3 className="text-lg font-semibold">Dispute & Recovery</h3>
-              <p className="text-sm text-muted-foreground">
+          <div className="space-y-6">
+            <div className="border-l-4 border-primary pl-5 py-1">
+              <h3 className="text-xl font-semibold mb-1">Dispute & Recovery</h3>
+              <p className="text-muted-foreground">
                 Challenge errors and request goodwill adjustments
               </p>
             </div>
@@ -121,10 +139,10 @@ export default function Credit() {
           </div>
 
           {/* Account Management Section */}
-          <div className="space-y-4">
-            <div className="border-l-4 border-primary pl-4">
-              <h3 className="text-lg font-semibold">Account Management</h3>
-              <p className="text-sm text-muted-foreground">
+          <div className="space-y-6">
+            <div className="border-l-4 border-primary pl-5 py-1">
+              <h3 className="text-xl font-semibold mb-1">Account Management</h3>
+              <p className="text-muted-foreground">
                 Decode inquiries and simulate account closures
               </p>
             </div>
