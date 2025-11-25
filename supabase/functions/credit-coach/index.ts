@@ -4,7 +4,7 @@ const corsHeaders = {
 };
 
 interface CoachRequest {
-  mode: 'approval-power' | 'forensic-scan' | 'limit-lift' | 'inquiry-detective';
+  mode: 'approval-power' | 'forensic-scan' | 'limit-lift' | 'inquiry-detective' | 'dispute-wizard' | 'azeo-strategist';
   data: {
     score?: number;
     goalType?: string;
@@ -13,6 +13,9 @@ interface CoachRequest {
     currentLimit?: number;
     paymentHistory?: string;
     inquiryCode?: string;
+    disputeType?: string;
+    accountName?: string;
+    cardLimits?: number[];
   };
 }
 
@@ -79,6 +82,43 @@ Provide:
 3. Whether it's a hard or soft inquiry
 
 Keep response under 75 words.`;
+        break;
+
+      case 'dispute-wizard':
+        systemPrompt = 'You are a consumer rights expert specializing in credit report disputes under the Fair Credit Reporting Act (FCRA). Generate formal, legally-sound dispute letters.';
+        userPrompt = `Draft a formal credit bureau dispute letter for:
+- Error Type: ${data.disputeType}
+- Account/Item: ${data.accountName || 'Not specified'}
+
+Requirements:
+1. Reference specific FCRA sections (§611, §623)
+2. Include formal letter structure (date, addresses, subject line)
+3. Cite the consumer's legal right to dispute
+4. Request investigation within 30 days per FCRA requirements
+5. Request deletion if unverifiable
+
+Make it professional, assertive, and ready to mail. ~250 words.`;
+        break;
+
+      case 'azeo-strategist':
+        const limits = data.cardLimits || [];
+        const totalLimit = limits.reduce((a, b) => a + b, 0);
+        const onePercent = Math.round(totalLimit * 0.01);
+        
+        systemPrompt = 'You are a credit optimization expert who understands advanced scoring algorithms. Explain the AZEO method clearly.';
+        userPrompt = `Analyze for AZEO (All Zero Except One) strategy:
+- Card Limits: ${limits.map((l, i) => `Card ${i+1}: $${l}`).join(', ')}
+- Total Available Credit: $${totalLimit}
+- Target 1% Utilization: $${onePercent}
+
+Provide:
+1. Brief explanation of why AZEO works (scoring algorithms treat 0% differently than 1%)
+2. Which card to use (recommend the one with highest limit)
+3. Exact dollar amount to leave as statement balance: $${onePercent}
+4. Timeline: When to do this before a mortgage application
+5. Warning: Don't do this if carrying actual debt
+
+Keep it actionable and under 150 words.`;
         break;
 
       default:

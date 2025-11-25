@@ -14,6 +14,8 @@ import { ApprovalPowerCard } from '@/components/credit/ApprovalPowerCard';
 import { ForensicScanCard } from '@/components/credit/ForensicScanCard';
 import { LimitLiftScriptCard } from '@/components/credit/LimitLiftScriptCard';
 import { InquiryDetectiveCard } from '@/components/credit/InquiryDetectiveCard';
+import { DisputeWizardCard } from '@/components/credit/DisputeWizardCard';
+import { AZEOStrategistCard } from '@/components/credit/AZEOStrategistCard';
 
 export default function Credit() {
   const queryClient = useQueryClient();
@@ -118,6 +120,17 @@ export default function Credit() {
                       <InquiryDetectiveCard />
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Credit Repair Tools Section */}
+              <div className="backdrop-blur-glass bg-[hsl(var(--cyber-surface))]/50 border border-[hsl(var(--cyber-border))] rounded-lg p-6">
+                <h2 className="text-2xl font-display font-bold text-foreground mb-6">
+                  Credit Repair Tools
+                </h2>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <DisputeWizardCard />
+                  <AZEOStrategistCard />
                 </div>
               </div>
             </>
