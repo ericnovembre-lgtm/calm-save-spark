@@ -5,6 +5,7 @@ import { PhysicalCreditCard } from './PhysicalCreditCard';
 import { CardParticleEffects } from './CardParticleEffects';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useCelebrationSounds } from '@/hooks/useCelebrationSounds';
+import { haptics } from '@/lib/haptics';
 
 type UnboxingPhase = 
   | 'idle'
@@ -17,6 +18,15 @@ type UnboxingPhase =
   | 'glamour-spin'
   | 'celebration'
   | 'complete';
+
+// Custom haptic patterns for unboxing experience
+const UNBOXING_HAPTICS = {
+  shake: [10, 30, 10, 30, 10],
+  sealBreak: [30, 50, 20],
+  flapOpen: [15, 100, 10],
+  cardEmerge: [20, 40, 30, 60, 40],
+  glamourSpin: [15, 200, 15, 200, 15],
+};
 
 interface CardUnboxingExperienceProps {
   variant: 'matte-black' | 'matte-white' | 'metallic-gold' | 'metallic-silver';
@@ -50,25 +60,31 @@ export function CardUnboxingExperience({
       return;
     }
 
-    // Animation timeline
+    // Animation timeline with haptics
     const timeline = [
       { delay: 0, phase: 'envelope-enter' as UnboxingPhase },
-      { delay: 500, phase: 'shake' as UnboxingPhase },
-      { delay: 1100, phase: 'seal-break' as UnboxingPhase, sound: () => playConfettiPop() },
-      { delay: 1500, phase: 'flap-open' as UnboxingPhase },
-      { delay: 2300, phase: 'card-emerge' as UnboxingPhase },
+      { delay: 500, phase: 'shake' as UnboxingPhase, haptic: () => haptics.custom(UNBOXING_HAPTICS.shake) },
+      { delay: 1100, phase: 'seal-break' as UnboxingPhase, sound: () => playConfettiPop(), haptic: () => haptics.custom(UNBOXING_HAPTICS.sealBreak) },
+      { delay: 1500, phase: 'flap-open' as UnboxingPhase, haptic: () => haptics.custom(UNBOXING_HAPTICS.flapOpen) },
+      { delay: 2300, phase: 'card-emerge' as UnboxingPhase, haptic: () => haptics.custom(UNBOXING_HAPTICS.cardEmerge) },
       { delay: 3100, phase: 'envelope-exit' as UnboxingPhase },
-      { delay: 3500, phase: 'glamour-spin' as UnboxingPhase },
-      { delay: 4500, phase: 'celebration' as UnboxingPhase, sound: () => playSuccessChime() },
+      { delay: 3500, phase: 'glamour-spin' as UnboxingPhase, haptic: () => haptics.custom(UNBOXING_HAPTICS.glamourSpin) },
+      { delay: 4500, phase: 'celebration' as UnboxingPhase, sound: () => playSuccessChime(), haptic: () => haptics.pattern('achievement') },
       { delay: 7500, phase: 'complete' as UnboxingPhase },
     ];
 
     const timeouts: NodeJS.Timeout[] = [];
 
-    timeline.forEach(({ delay, phase, sound }) => {
+    timeline.forEach(({ delay, phase, sound, haptic }: { 
+      delay: number; 
+      phase: UnboxingPhase; 
+      sound?: () => void; 
+      haptic?: () => void 
+    }) => {
       const timeout = setTimeout(() => {
         setPhase(phase);
         sound?.();
+        haptic?.();
       }, delay);
       timeouts.push(timeout);
     });

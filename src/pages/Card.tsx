@@ -22,6 +22,7 @@ import { BenefitHunterNudge } from '@/components/card/BenefitHunterNudge';
 import { BenefitHunterPanel } from '@/components/card/BenefitHunterPanel';
 import { CardInspectionMode } from '@/components/card/CardInspectionMode';
 import { CardUnboxingExperience } from '@/components/card/CardUnboxingExperience';
+import { LaserEngravingPreview } from '@/components/card/LaserEngravingPreview';
 import { useCardAccount } from '@/hooks/useCardAccount';
 import { useCards } from '@/hooks/useCards';
 import { useCardTransactions } from '@/hooks/useCardTransactions';
@@ -33,6 +34,7 @@ export default function CardPage() {
   const [cardVariant, setCardVariant] = useState<'matte-black' | 'matte-white' | 'metallic-gold' | 'metallic-silver'>('matte-black');
   const [showWizard, setShowWizard] = useState(false);
   const [inspectionMode, setInspectionMode] = useState(false);
+  const [showEngraving, setShowEngraving] = useState(false);
   const { account, isLoading: accountLoading, hasAccount } = useCardAccount();
   const { cards, isLoading: cardsLoading, freezeCard } = useCards(account?.id);
   const { transactions, isLoading: transactionsLoading } = useCardTransactions(account?.id);
@@ -241,15 +243,36 @@ export default function CardPage() {
                 </div>
                 
                 {hasSeenUnboxing && cards.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    onClick={replayUnboxing}
-                    className="w-full gap-2 mt-2 text-xs"
-                    size="sm"
-                  >
-                    <Gift className="w-3 h-3" />
-                    Replay Unboxing
-                  </Button>
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    <Button
+                      variant="ghost"
+                      onClick={replayUnboxing}
+                      className="gap-2 text-xs"
+                      size="sm"
+                    >
+                      <Gift className="w-3 h-3" />
+                      Replay Unboxing
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShowEngraving(true)}
+                      className="gap-2 text-xs"
+                      size="sm"
+                    >
+                      <svg 
+                        className="w-3 h-3" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2"
+                      >
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                      </svg>
+                      Personalize
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -468,6 +491,18 @@ export default function CardPage() {
             expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
             onComplete={completeUnboxing}
             autoPlay={true}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Laser Engraving Preview */}
+      <AnimatePresence>
+        {showEngraving && (
+          <LaserEngravingPreview
+            name={(cards[0]?.cardholder_name || demoCard.cardholder_name).toUpperCase()}
+            cardVariant={cardVariant}
+            onComplete={() => setTimeout(() => setShowEngraving(false), 1500)}
+            onClose={() => setShowEngraving(false)}
           />
         )}
       </AnimatePresence>
