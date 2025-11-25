@@ -18,6 +18,8 @@ import { NFTSentimentOracle } from "@/components/wallet/NFTSentimentOracle";
 import { PortfolioBalanceChart } from "@/components/wallet/PortfolioBalanceChart";
 import { WalletNotificationCenter } from "@/components/wallet/WalletNotificationCenter";
 import { ChainSwitcher } from "@/components/wallet/ChainSwitcher";
+import { ReceiveModal } from "@/components/wallet/ReceiveModal";
+import { AddTokenDialog } from "@/components/wallet/AddTokenDialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -31,6 +33,7 @@ export default function Wallet() {
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [isCreatingWallet, setIsCreatingWallet] = useState(false);
   const [showSmartSend, setShowSmartSend] = useState(false);
+  const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('tokens');
   const { toast } = useToast();
   const { selectedChain } = useActiveChain();
@@ -168,6 +171,7 @@ export default function Wallet() {
             balance={totalBalance}
             onCreateWallet={handleCreateWallet}
             isCreating={isCreatingWallet}
+            onReceive={() => setShowReceiveModal(true)}
           />
         </motion.div>
 
@@ -252,6 +256,11 @@ export default function Wallet() {
               <div className="space-y-4">
               {activeTab === 'tokens' && (
                   <>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-sm font-medium text-muted-foreground">Your Holdings</h3>
+                      <AddTokenDialog walletAddress={walletAddress} />
+                    </div>
+                    
                     {tokens.length > 0 ? (
                       <>
                         {isPricesFeedConnected && (
@@ -294,7 +303,8 @@ export default function Wallet() {
                           <Coins className="w-8 h-8 text-muted-foreground" />
                         </div>
                         <p className="text-lg font-medium text-foreground mb-1">No tokens yet</p>
-                        <p className="text-sm text-muted-foreground">Add crypto holdings to get started</p>
+                        <p className="text-sm text-muted-foreground mb-4">Add crypto holdings to get started</p>
+                        <AddTokenDialog walletAddress={walletAddress} />
                       </div>
                     )}
                   </>
@@ -308,6 +318,12 @@ export default function Wallet() {
           </>
         )}
       </div>
+      
+      {/* Receive Modal */}
+      <ReceiveModal 
+        open={showReceiveModal} 
+        onClose={() => setShowReceiveModal(false)} 
+      />
     </div>
   );
 }

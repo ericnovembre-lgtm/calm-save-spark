@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { QrCode, Copy, Check, Wallet } from "lucide-react";
+import { QrCode, Copy, Check, Wallet, ArrowDownLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useWalletSettings } from "@/hooks/useWalletSettings";
 import { formatCurrency } from "@/lib/exchangeRates";
+import { QRCodeSVG } from "qrcode.react";
+import { Button } from "@/components/ui/button";
 
 interface HolographicWalletCardProps {
   address?: string;
   balance?: number;
   onCreateWallet: () => void;
   isCreating?: boolean;
+  onReceive?: () => void;
 }
 
 export function HolographicWalletCard({
@@ -18,6 +21,7 @@ export function HolographicWalletCard({
   balance = 0,
   onCreateWallet,
   isCreating = false,
+  onReceive,
 }: HolographicWalletCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -128,8 +132,8 @@ export function HolographicWalletCard({
               </h2>
             </div>
 
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2 text-slate-300 font-mono text-sm bg-white/5 px-3 py-1.5 rounded-lg">
+            <div className="flex justify-between items-end">
+              <div className="flex items-center gap-2 text-slate-300 font-mono text-sm bg-white/5 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
                 {address.slice(0, 6)}...{address.slice(-4)}
                 <Copy 
                   size={14} 
@@ -140,24 +144,49 @@ export function HolographicWalletCard({
                   }}
                 />
               </div>
-              <div className="text-[10px] text-slate-500 flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Connected
-              </div>
+              
+              {onReceive && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onReceive();
+                  }}
+                  className="bg-white/10 border-white/20 hover:bg-white/20 text-white h-8 px-3"
+                >
+                  <ArrowDownLeft className="h-3 w-3 mr-1" />
+                  Receive
+                </Button>
+              )}
             </div>
           </div>
         </div>
 
         {/* Back Face (QR Code) */}
         <div 
-          className="absolute inset-0 rounded-3xl bg-white p-6 shadow-2xl flex flex-col items-center justify-center"
+          className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white to-slate-50 p-6 shadow-2xl flex flex-col items-center justify-center border border-slate-200"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
-          <QrCode size={120} className="text-slate-900 mb-4" />
-          <p className="text-slate-500 text-xs font-mono text-center break-all px-4">
+          <div className="mb-3">
+            <span className="text-slate-900 font-bold text-sm">$ave+ Wallet</span>
+          </div>
+          
+          <div className="p-4 bg-white rounded-2xl shadow-lg border border-slate-200">
+            <QRCodeSVG
+              value={address}
+              size={140}
+              level="H"
+              includeMargin={false}
+              fgColor="#0f172a"
+              bgColor="#ffffff"
+            />
+          </div>
+          
+          <p className="text-slate-500 text-xs font-mono text-center break-all px-4 mt-4 max-w-[280px]">
             {address}
           </p>
-          <p className="text-slate-400 text-[10px] mt-2 uppercase tracking-widest">Scan to Deposit</p>
+          <p className="text-slate-400 text-[10px] mt-2 uppercase tracking-widest">Scan to Receive Crypto</p>
         </div>
       </motion.div>
     </div>

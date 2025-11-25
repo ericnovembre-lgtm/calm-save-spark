@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Copy, QrCode } from "lucide-react";
 import { toast } from "sonner";
+import { QRCodeSVG } from "qrcode.react";
 
 interface ReceiveModalProps {
   open: boolean;
@@ -42,11 +43,6 @@ export function ReceiveModal({ open, onClose }: ReceiveModalProps) {
     }
   };
 
-  // Generate QR code URL (using a free QR code API)
-  const qrCodeUrl = wallet?.address 
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${wallet.address}`
-    : '';
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -60,14 +56,15 @@ export function ReceiveModal({ open, onClose }: ReceiveModalProps) {
               <p className="text-sm text-muted-foreground mb-4">
                 Scan QR code or copy address below
               </p>
-              <div className="bg-white p-4 rounded-lg inline-block">
-                {qrCodeUrl && (
-                  <img 
-                    src={qrCodeUrl} 
-                    alt="Wallet QR Code" 
-                    className="w-64 h-64"
-                  />
-                )}
+              <div className="bg-white dark:bg-slate-100 p-6 rounded-2xl inline-block shadow-lg">
+                <QRCodeSVG
+                  value={wallet.address}
+                  size={240}
+                  level="H"
+                  includeMargin={false}
+                  fgColor="#0f172a"
+                  bgColor="#ffffff"
+                />
               </div>
             </div>
 
