@@ -13,6 +13,8 @@ import { CardSpendingInsights } from '@/components/card/CardSpendingInsights';
 import { CardControls } from '@/components/card/CardControls';
 import { CardRewardsDashboard } from '@/components/card/CardRewardsDashboard';
 import { MerchantMapVisualization } from '@/components/card/MerchantMapVisualization';
+import { CardReceiptScanner } from '@/components/card/CardReceiptScanner';
+import { CardSubscriptionTracker } from '@/components/card/CardSubscriptionTracker';
 import { useCardAccount } from '@/hooks/useCardAccount';
 import { useCards } from '@/hooks/useCards';
 import { useCardTransactions } from '@/hooks/useCardTransactions';
@@ -259,9 +261,14 @@ export default function CardPage() {
         </TabsContent>
 
         <TabsContent value="transactions" className="space-y-6">
+          <CardReceiptScanner />
           <MerchantMapVisualization cardId={cards[0]?.id || 'demo'} />
           <CardSpendingInsights cardId={cards[0]?.id || 'demo'} />
           <EnhancedCardTransactionList transactions={transactions} isLoading={transactionsLoading} />
+        </TabsContent>
+
+        <TabsContent value="subscriptions" className="space-y-6">
+          <CardSubscriptionTracker />
         </TabsContent>
 
         <TabsContent value="controls">
