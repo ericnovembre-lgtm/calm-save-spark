@@ -41,29 +41,63 @@ export function GeoRewardMap() {
   };
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
         <MapPin className="w-5 h-5 text-primary" />
-        <h3 className="font-semibold text-foreground">Nearby Reward Boosters</h3>
+        <div>
+          <h3 className="font-semibold text-foreground">Nearby Loot</h3>
+          <p className="text-sm text-muted-foreground">Reward boosters active in your area</p>
+        </div>
       </div>
 
-      <div className="space-y-3">
-        {partners.map((partner, index) => {
+      {/* Horizontal scroll container */}
+      <div className="relative -mx-4 px-4">
+        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+          {partners.map((partner, index) => {
           const isActive = partner.multiplier_end_time && new Date(partner.multiplier_end_time) > new Date();
           const timeRemaining = partner.multiplier_end_time 
             ? formatDistanceToNow(new Date(partner.multiplier_end_time), { addSuffix: true })
             : null;
+          const hoursRemaining = partner.multiplier_end_time
+            ? (new Date(partner.multiplier_end_time).getTime() - new Date().getTime()) / (1000 * 60 * 60)
+            : 0;
+          const isExpiringSoon = hoursRemaining < 4 && hoursRemaining > 0;
+          
+          // Mock distance for now (can be replaced with real geolocation)
+          const mockDistance = (Math.random() * 2).toFixed(1);
+          
+          const getRarityStyle = (multiplier: number) => {
+            if (multiplier >= 3) return 'from-amber-500/20 to-yellow-500/20 border-amber-500/30';
+            if (multiplier >= 2) return 'from-primary/20 to-blue-500/20 border-primary/30';
+            return 'from-slate-500/20 to-slate-600/20 border-slate-500/30';
+          };
 
           return (
             <motion.div
               key={partner.id}
-              initial={prefersReducedMotion ? {} : { opacity: 0, x: -20 }}
+              className="flex-shrink-0 w-72 snap-start"
+              initial={prefersReducedMotion ? {} : { opacity: 0, x: 20 }}
               animate={prefersReducedMotion ? {} : { opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1, duration: 0.3 }}
             >
-              <Card className="p-4 relative overflow-hidden group hover:shadow-md transition-shadow">
-                {/* Pulse effect for active multipliers */}
-                {!prefersReducedMotion && isActive && (
+              <Card className={`p-5 relative overflow-hidden h-full bg-gradient-to-br ${getRarityStyle(Number(partner.current_multiplier))} hover:shadow-lg transition-all`}>
+                {/* Expiring soon pulse - more aggressive */}
+                {!prefersReducedMotion && isExpiringSoon && (
+                  <motion.div
+                    className="absolute inset-0 bg-amber-500/20"
+                    animate={{
+                      opacity: [0.3, 0.8, 0.3],
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                )}
+                
+                {/* Active pulse */}
+                {!prefersReducedMotion && isActive && !isExpiringSoon && (
                   <motion.div
                     className="absolute inset-0 bg-primary/5"
                     animate={{
@@ -77,44 +111,72 @@ export function GeoRewardMap() {
                   />
                 )}
 
-                <div className="relative flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{getBonusIcon(partner.bonus_type)}</span>
-                      <h4 className="font-medium text-foreground">{partner.name}</h4>
+                <div className="relative space-y-3">
+                  {/* LOOT label */}
+                  <div className="absolute -top-3 -right-3">
+                    <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      Number(partner.current_multiplier) >= 3 
+                        ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' 
+                        : 'bg-primary/20 text-primary border border-primary/30'
+                    }`}>
+                      LOOT
                     </div>
-                    <p className="text-sm text-muted-foreground capitalize">{partner.category}</p>
-                    {partner.address && (
-                      <p className="text-xs text-muted-foreground mt-1">{partner.address}</p>
-                    )}
                   </div>
 
-                  <div className="text-right space-y-1">
-                    <div className={`text-lg font-bold ${getMultiplierColor(Number(partner.current_multiplier))}`}>
-                      {partner.current_multiplier}x
-                    </div>
-                    {isActive && timeRemaining && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        <span>{timeRemaining}</span>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-2xl">{getBonusIcon(partner.bonus_type)}</span>
+                        <div>
+                          <h4 className="font-semibold text-foreground">{partner.name}</h4>
+                          <p className="text-xs text-muted-foreground capitalize">{partner.category}</p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
 
-                {isActive && (
-                  <div className="mt-3 pt-3 border-t border-border">
-                    <div className="flex items-center gap-2 text-sm text-primary">
-                      <Zap className="w-4 h-4" />
-                      <span className="font-medium">Eligible for {partner.bonus_type} bonus</span>
+                    <div className="text-right">
+                      <div className={`text-2xl font-bold ${getMultiplierColor(Number(partner.current_multiplier))}`}>
+                        {partner.current_multiplier}x
+                      </div>
                     </div>
                   </div>
-                )}
+
+                  {/* Distance indicator */}
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium text-foreground">{mockDistance} mi away</span>
+                  </div>
+
+                  {partner.address && (
+                    <p className="text-xs text-muted-foreground line-clamp-2">{partner.address}</p>
+                  )}
+
+                  {/* Time remaining with emphasis on expiring */}
+                  {isActive && timeRemaining && (
+                    <div className={`flex items-center gap-2 text-sm ${isExpiringSoon ? 'text-amber-500 font-semibold' : 'text-muted-foreground'}`}>
+                      <Clock className={`w-4 h-4 ${isExpiringSoon ? 'animate-pulse' : ''}`} />
+                      <span>
+                        {isExpiringSoon ? '⚡ ' : ''}
+                        Expires {timeRemaining}
+                      </span>
+                    </div>
+                  )}
+
+                  {isActive && (
+                    <div className="pt-3 border-t border-border/50">
+                      <div className="flex items-center gap-2 text-sm text-primary">
+                        <Zap className="w-4 h-4" />
+                        <span className="font-medium">Active bonus: {partner.bonus_type}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </Card>
             </motion.div>
           );
         })}
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }
