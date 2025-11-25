@@ -27,6 +27,9 @@ import { useCardAccount } from '@/hooks/useCardAccount';
 import { useCards } from '@/hooks/useCards';
 import { useCardTransactions } from '@/hooks/useCardTransactions';
 import { useCardUnboxing } from '@/hooks/useCardUnboxing';
+import { useCardControls } from '@/hooks/useCardControls';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CardPage() {
@@ -39,6 +42,7 @@ export default function CardPage() {
   const { cards, isLoading: cardsLoading, freezeCard } = useCards(account?.id);
   const { transactions, isLoading: transactionsLoading } = useCardTransactions(account?.id);
   const { hasSeenUnboxing, isUnboxing, completeUnboxing, replayUnboxing } = useCardUnboxing();
+  const { controls, isLoading: controlsLoading, updateControls } = useCardControls(account?.id);
 
   // Auto-trigger unboxing on first visit if user has account
   useEffect(() => {
@@ -77,11 +81,69 @@ export default function CardPage() {
     }
   };
 
-  const handleOrderCard = (data: CustomizationData) => {
-    console.log('Card order submitted:', data);
-    setCardVariant(data.variant);
-    setShowWizard(false);
-    // TODO: Implement actual card ordering logic
+  const handleOrderCard = async (data: CustomizationData) => {
+    if (!account) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Generate card details
+      const expDate = new Date();
+      expDate.setFullYear(expDate.getFullYear() + 4);
+      const last4 = Math.floor(1000 + Math.random() * 9000).toString();
+
+      // Create the card
+      const { data: newCard, error: cardError } = await supabase
+        .from('cards')
+        .insert({
+          account_id: account.id,
+          user_id: user.id,
+          card_type: 'physical',
+          status: 'pending',
+          cardholder_name: data.cardholderName,
+          last4,
+          exp_month: expDate.getMonth() + 1,
+          exp_year: expDate.getFullYear(),
+          network: 'visa',
+          brand: data.variant.toUpperCase().replace(/-/g, ' '),
+        })
+        .select()
+        .single();
+
+      if (cardError) throw cardError;
+
+      // Create default card controls if they don't exist
+      const { error: controlsError } = await supabase
+        .from('card_controls')
+        .insert({
+          account_id: account.id,
+          user_id: user.id,
+          daily_spend_limit_cents: 100000,
+          single_transaction_limit_cents: 50000,
+          international_enabled: false,
+          online_enabled: true,
+          contactless_enabled: true,
+          atm_enabled: true,
+        });
+
+      if (controlsError && controlsError.code !== '23505') {
+        // Ignore duplicate key errors (controls already exist)
+        console.error('Error creating controls:', controlsError);
+      }
+
+      setCardVariant(data.variant);
+      setShowWizard(false);
+      toast.success('Card ordered successfully! It will arrive in 7-10 business days.');
+      
+      // Trigger unboxing experience
+      setTimeout(() => {
+        replayUnboxing();
+      }, 500);
+    } catch (error) {
+      console.error('Error ordering card:', error);
+      toast.error('Failed to order card. Please try again.');
+    }
   };
 
   if (accountLoading) {
@@ -434,24 +496,26 @@ export default function CardPage() {
                     </CardContent>
                   </Card>
                   
-                  <CardControls 
-                    controls={{
-                      id: `control-${card.id}`,
-                      account_id: card.account_id,
-                      user_id: card.user_id,
-                      international_enabled: true,
-                      contactless_enabled: true,
-                      online_enabled: true,
-                      atm_enabled: true,
-                      daily_spend_limit_cents: 100000,
-                      single_transaction_limit_cents: 50000,
-                      monthly_spend_limit_cents: null,
-                      allowed_merchant_categories: null,
-                      blocked_merchant_categories: null,
-                      created_at: new Date().toISOString(),
-                      updated_at: new Date().toISOString()
-                    }}
-                  />
+                  {controlsLoading ? (
+                    <Card>
+                      <CardContent className="py-12 text-center">
+                        <div className="animate-pulse text-muted-foreground">
+                          Loading card controls...
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : controls ? (
+                    <CardControls 
+                      controls={controls}
+                      onUpdate={updateControls}
+                    />
+                  ) : (
+                    <Card>
+                      <CardContent className="py-12 text-center text-muted-foreground">
+                        No controls configured for this card
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               ))}
             </div>
