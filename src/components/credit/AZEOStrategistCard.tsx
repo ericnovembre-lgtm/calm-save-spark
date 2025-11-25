@@ -6,6 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Calculator, Loader2, Plus, X } from 'lucide-react';
 import { useCreditCoach } from '@/hooks/useCreditCoach';
 import { toast } from 'sonner';
+import { LazyPieChart, Pie, Cell, Tooltip, Legend } from '@/components/charts/LazyPieChart';
+
+const CHART_COLORS = [
+  'hsl(var(--chart-1))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--chart-3))',
+  'hsl(var(--chart-4))',
+  'hsl(var(--chart-5))',
+];
 
 export function AZEOStrategistCard() {
   const [cardLimits, setCardLimits] = useState<string[]>(['', '']);
@@ -15,6 +24,19 @@ export function AZEOStrategistCard() {
     .filter(l => l !== '')
     .reduce((sum, limit) => sum + parseFloat(limit), 0);
   const targetAmount = Math.round(totalLimit * 0.01);
+
+  const validLimits = cardLimits
+    .filter(l => l !== '')
+    .map(l => parseFloat(l));
+  const maxLimit = validLimits.length > 0 ? Math.max(...validLimits) : 0;
+
+  const chartData = cardLimits
+    .map((limit, index) => ({
+      name: `Card ${index + 1}`,
+      value: limit !== '' ? parseFloat(limit) : 0,
+      isRecommended: limit !== '' && parseFloat(limit) === maxLimit,
+    }))
+    .filter(d => d.value > 0);
 
   const handleAddCard = () => {
     if (cardLimits.length < 5) {
@@ -121,6 +143,41 @@ export function AZEOStrategistCard() {
               <span className="text-muted-foreground">Target 1% Amount:</span>
               <span className="font-bold text-primary">${targetAmount.toLocaleString()}</span>
             </div>
+          </div>
+        )}
+
+        {chartData.length >= 2 && (
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Credit Limit Distribution</p>
+            <LazyPieChart height={300}>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, value, percent, isRecommended }) => (
+                  `${name}: $${value.toLocaleString()} (${(percent * 100).toFixed(1)}%)${isRecommended ? ' ★' : ''}`
+                )}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {chartData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.isRecommended ? 'hsl(142, 76%, 36%)' : CHART_COLORS[index % CHART_COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip 
+                formatter={(value: number) => `$${value.toLocaleString()}`}
+              />
+              <Legend 
+                formatter={(value, entry: any) => 
+                  `${value}${entry.payload.isRecommended ? ' (Recommended - Use This Card)' : ''}`
+                }
+              />
+            </LazyPieChart>
           </div>
         )}
 
