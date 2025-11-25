@@ -135,21 +135,41 @@ export const NeonCreditGauge = ({ score, projectedScore }: NeonCreditGaugeProps)
         {projectedScore && projectedScore !== score && (
           <motion.g
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
+            animate={{ opacity: 0.6 }}
             transition={{ duration: 0.3 }}
           >
+            {/* Dashed ghost needle line */}
             <motion.line
               x1="100"
               y1="100"
               x2="100"
               y2="35"
               stroke={getScoreColor(projectedScore)}
-              strokeWidth="2"
+              strokeWidth="2.5"
+              strokeDasharray="4,3"
               strokeLinecap="round"
               initial={{ rotate: currentAngle }}
               animate={{ rotate: projectedAngle }}
               transition={{ type: "spring", damping: 20, stiffness: 100 }}
               style={{ transformOrigin: '100px 100px' }}
+            />
+            {/* Pulsing tip indicator */}
+            <motion.circle
+              cx="100"
+              cy="35"
+              r="4"
+              fill={getScoreColor(projectedScore)}
+              initial={{ rotate: currentAngle }}
+              animate={{ 
+                rotate: projectedAngle,
+                scale: [1, 1.4, 1]
+              }}
+              transition={{
+                rotate: { type: "spring", damping: 20, stiffness: 100 },
+                scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+              }}
+              style={{ transformOrigin: '100px 100px' }}
+              filter="url(#glow)"
             />
           </motion.g>
         )}
@@ -166,35 +186,33 @@ export const NeonCreditGauge = ({ score, projectedScore }: NeonCreditGaugeProps)
           }}
           style={{ transformOrigin: '100px 100px' }}
         >
-          <line
-            x1="100"
-            y1="100"
-            x2="100"
-            y2="35"
-            stroke={getScoreColor(score)}
-            strokeWidth="3"
-            strokeLinecap="round"
-            filter="url(#glow)"
+          {/* Needle shadow for depth */}
+          <polygon
+            points="100,30 97,95 100,100 103,95"
+            fill="rgba(0,0,0,0.3)"
+            transform="translate(2,2)"
           />
-          <circle
-            cx="100"
-            cy="100"
-            r="4"
+          
+          {/* Main tapered needle shape */}
+          <polygon
+            points="100,30 97,95 100,100 103,95"
             fill={getScoreColor(score)}
             filter="url(#glow)"
           />
+          
+          {/* Highlight edge on needle */}
+          <line
+            x1="100" y1="32"
+            x2="100" y2="90"
+            stroke="rgba(255,255,255,0.4)"
+            strokeWidth="1"
+          />
+          
+          {/* Center hub cap - larger */}
+          <circle cx="100" cy="100" r="8" fill={getScoreColor(score)} filter="url(#glow)"/>
+          <circle cx="100" cy="100" r="5" fill="hsl(var(--cyber-surface))"/>
+          <circle cx="100" cy="100" r="3" fill={getScoreColor(score)}/>
         </motion.g>
-
-        {/* Center Hub */}
-        <circle
-          cx="100"
-          cy="100"
-          r="6"
-          fill="hsl(var(--cyber-surface))"
-          stroke={getScoreColor(score)}
-          strokeWidth="2"
-          filter="url(#glow)"
-        />
       </svg>
 
       {/* Score Display */}

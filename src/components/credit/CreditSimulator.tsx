@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CreditCard, XCircle } from 'lucide-react';
 import { useCreditSimulation } from '@/hooks/useCreditSimulation';
 import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
 
 interface CreditSimulatorProps {
   currentScore: number;
@@ -22,11 +23,14 @@ export const CreditSimulator = ({ currentScore, onProjectedScoreChange }: Credit
 
   const hasChanges = state.payDownAmount > 0 || state.openNewCard || state.missPayment;
 
-  if (hasChanges) {
-    onProjectedScoreChange(result.projectedScore);
-  } else {
-    onProjectedScoreChange(undefined);
-  }
+  // Fix side effect: Move projection update to useEffect
+  useEffect(() => {
+    if (hasChanges) {
+      onProjectedScoreChange(result.projectedScore);
+    } else {
+      onProjectedScoreChange(undefined);
+    }
+  }, [hasChanges, result.projectedScore, onProjectedScoreChange]);
 
   return (
     <Card className="p-6 backdrop-blur-glass bg-glass border-glass-border">
