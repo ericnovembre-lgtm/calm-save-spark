@@ -1,3 +1,4 @@
+import { CreditWidget } from "@/components/dashboard/CreditWidget";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -261,6 +262,13 @@ export default function Dashboard() {
         <GoalsSection />
       </DashboardErrorBoundary>
     ),
+    'credit': dashboardData?.creditScore ? (
+      <CreditWidget
+        score={dashboardData.creditScore.score}
+        change={dashboardData.creditScore.change}
+        goal={dashboardData.creditGoal}
+      />
+    ) : null,
     'portfolio': dashboardData?.investments && dashboardData.investments.length > 0 ? (
       <PortfolioWidget
         totalValue={dashboardData.investments.reduce((sum, inv) => sum + inv.total_value, 0)}

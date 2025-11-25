@@ -2802,6 +2802,45 @@ export type Database = {
           },
         ]
       }
+      credit_goals: {
+        Row: {
+          achieved_at: string | null
+          created_at: string | null
+          id: string
+          is_achieved: boolean | null
+          reason: string | null
+          starting_score: number
+          target_date: string | null
+          target_score: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          reason?: string | null
+          starting_score: number
+          target_date?: string | null
+          target_score: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          reason?: string | null
+          starting_score?: number
+          target_date?: string | null
+          target_score?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       credit_scores: {
         Row: {
           change_from_previous: number | null
@@ -5706,6 +5745,8 @@ export type Database = {
         Row: {
           budget_alerts: boolean | null
           created_at: string | null
+          credit_alerts: boolean | null
+          credit_score_alert_threshold: number | null
           digest_frequency: string | null
           email_notifications: boolean | null
           goal_reminders: boolean | null
@@ -5721,6 +5762,8 @@ export type Database = {
         Insert: {
           budget_alerts?: boolean | null
           created_at?: string | null
+          credit_alerts?: boolean | null
+          credit_score_alert_threshold?: number | null
           digest_frequency?: string | null
           email_notifications?: boolean | null
           goal_reminders?: boolean | null
@@ -5736,6 +5779,8 @@ export type Database = {
         Update: {
           budget_alerts?: boolean | null
           created_at?: string | null
+          credit_alerts?: boolean | null
+          credit_score_alert_threshold?: number | null
           digest_frequency?: string | null
           email_notifications?: boolean | null
           goal_reminders?: boolean | null

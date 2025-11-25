@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { queryKeys } from "@/lib/query-config";
 import { UnifiedDashboardData, DASHBOARD_CACHE_CONFIG } from "@/lib/dashboard-data-types";
+import { calculateCreditProgress } from "@/lib/credit-notification-scheduler";
 
 /**
  * Phase 6: Unified Dashboard Data Hook
@@ -16,7 +17,10 @@ import { UnifiedDashboardData, DASHBOARD_CACHE_CONFIG } from "@/lib/dashboard-da
  * - Cache reduces server load by ~90%
  */
 export function useDashboardData() {
-  return useQuery<UnifiedDashboardData>({
+  return useQuery<UnifiedDashboardData & {
+    creditScore?: { score: number; change: number };
+    creditGoal?: { target: number; progress: number };
+  }>({
     queryKey: queryKeys.dashboard(),
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -35,7 +39,53 @@ export function useDashboardData() {
 
       if (!response.ok) throw new Error('Failed to fetch dashboard data');
       
-      return await response.json() as UnifiedDashboardData;
+      const dashboardData = await response.json() as UnifiedDashboardData;
+
+      // Fetch credit score data
+      const { data: creditScores } = await supabase
+        .from('credit_scores')
+        .select('score, score_date')
+        .eq('user_id', session.user.id)
+        .order('score_date', { ascending: false })
+        .limit(2);
+
+      let creditScore;
+      if (creditScores && creditScores.length > 0) {
+        const latest = creditScores[0];
+        const previous = creditScores[1];
+        creditScore = {
+          score: latest.score,
+          change: previous ? latest.score - previous.score : 0,
+        };
+      }
+
+      // Fetch credit goal data
+      const { data: goal } = await supabase
+        .from('credit_goals')
+        .select('target_score, starting_score')
+        .eq('user_id', session.user.id)
+        .eq('is_achieved', false)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      let creditGoal;
+      if (goal && creditScore) {
+        creditGoal = {
+          target: goal.target_score,
+          progress: calculateCreditProgress(
+            creditScore.score,
+            goal.target_score,
+            goal.starting_score
+          ),
+        };
+      }
+
+      return {
+        ...dashboardData,
+        creditScore,
+        creditGoal,
+      };
     },
     ...DASHBOARD_CACHE_CONFIG,
   });

@@ -137,6 +137,90 @@ serve(async (req) => {
 
     if (error) throw error;
 
+    // Check if score change meets alert threshold
+    const { data: prefs } = await supabaseClient
+      .from('notification_preferences')
+      .select('credit_alerts, credit_score_alert_threshold')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    const threshold = prefs?.credit_score_alert_threshold || 10;
+    const alertsEnabled = prefs?.credit_alerts ?? true;
+
+    // Queue notification if significant change detected
+    if (alertsEnabled && Math.abs(change) >= threshold) {
+      const alertType = change > 0 ? 'credit_score_increase' : 'credit_score_decrease';
+      const subject = change > 0 ? '📈 Your Credit Score Increased!' : '📉 Credit Score Alert';
+      const message = `Your credit score ${change > 0 ? 'increased' : 'decreased'} by ${Math.abs(change)} points`;
+
+      // Determine milestone
+      let milestone = null;
+      if (newScore >= 800 && (previousScore?.score || 0) < 800) {
+        milestone = "Exceptional Credit! 🌟";
+      } else if (newScore >= 740 && (previousScore?.score || 0) < 740) {
+        milestone = "Very Good Credit Range";
+      } else if (newScore >= 670 && (previousScore?.score || 0) < 670) {
+        milestone = "Good Credit Range";
+      }
+
+      await supabaseClient.from('notification_queue').insert({
+        user_id: user.id,
+        notification_type: alertType,
+        subject,
+        content: {
+          previousScore: previousScore?.score,
+          newScore,
+          change,
+          milestone,
+          message,
+          html_content: milestone 
+            ? `${message}. You've reached: ${milestone}` 
+            : message,
+        },
+        status: 'pending',
+      });
+
+      console.log(`Credit alert queued for user ${user.id}: ${alertType}`);
+    }
+
+    // Check if user achieved their credit goal
+    const { data: currentGoal } = await supabaseClient
+      .from('credit_goals')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('is_achieved', false)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (currentGoal && newScore >= currentGoal.target_score) {
+      // Mark goal as achieved
+      await supabaseClient
+        .from('credit_goals')
+        .update({
+          is_achieved: true,
+          achieved_at: new Date().toISOString(),
+        })
+        .eq('id', currentGoal.id);
+
+      // Send achievement notification
+      await supabaseClient.from('notification_queue').insert({
+        user_id: user.id,
+        notification_type: 'credit_goal_achieved',
+        subject: '🎯 Credit Goal Achieved!',
+        content: {
+          goalName: currentGoal.reason || 'Credit Score Goal',
+          targetScore: currentGoal.target_score,
+          currentScore: newScore,
+          message: `Congratulations! You've reached your credit score goal of ${currentGoal.target_score}!`,
+          html_content: `Congratulations! You've reached your credit score goal of ${currentGoal.target_score}!`,
+        },
+        status: 'pending',
+      });
+
+      console.log(`Credit goal achieved notification queued for user ${user.id}`);
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true,
