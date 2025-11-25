@@ -1,8 +1,10 @@
 interface EMVChipProps {
   variant: 'gold' | 'silver';
+  size?: 'sm' | 'md';
 }
 
-export const EMVChip = ({ variant }: EMVChipProps) => {
+export const EMVChip = ({ variant, size = 'md' }: EMVChipProps) => {
+  const sizeClasses = size === 'sm' ? 'w-10 h-7' : 'w-12 h-10';
   const chipStyles = {
     gold: {
       background: 'linear-gradient(145deg, #D4AF37 0%, #FFD700 50%, #B8860B 100%)',
@@ -14,7 +16,7 @@ export const EMVChip = ({ variant }: EMVChipProps) => {
 
   return (
     <div
-      className="w-12 h-10 rounded-md relative overflow-hidden"
+      className={`${sizeClasses} rounded-md relative overflow-hidden`}
       style={{
         background: chipStyles[variant].background,
         boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.2)',

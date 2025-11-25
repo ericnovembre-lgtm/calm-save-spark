@@ -1,12 +1,64 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Wifi } from 'lucide-react';
 import { use3DTilt } from '@/hooks/use3DTilt';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { EMVChip } from './EMVChip';
 import { cn } from '@/lib/utils';
 
 type CardVariant = 'matte-black' | 'matte-white' | 'metallic-gold' | 'metallic-silver';
+
+// Decorative flowing lines
+const FlowingLines = ({ variant }: { variant: CardVariant }) => {
+  const lineColor = variant === 'matte-white' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)';
+  
+  return (
+    <svg className="absolute top-0 left-0 w-full h-2/3 overflow-visible pointer-events-none" viewBox="0 0 340 140" preserveAspectRatio="none">
+      <path d="M170,60 Q100,30 20,50" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M170,60 Q120,20 40,30" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M170,60 Q80,40 10,80" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M170,60 Q220,30 300,45" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M170,60 Q250,15 320,25" stroke={lineColor} fill="none" strokeWidth="1" />
+      <path d="M170,60 Q280,50 330,70" stroke={lineColor} fill="none" strokeWidth="1" />
+    </svg>
+  );
+};
+
+// Wireframe globe
+const WireframeGlobe = ({ variant }: { variant: CardVariant }) => {
+  const strokeColor = variant === 'matte-white' ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.4)';
+  
+  return (
+    <svg className="w-16 h-16" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="28" stroke={strokeColor} fill="none" strokeWidth="1" />
+      <ellipse cx="32" cy="32" rx="28" ry="10" stroke={strokeColor} fill="none" strokeWidth="0.5" />
+      <ellipse cx="32" cy="32" rx="28" ry="20" stroke={strokeColor} fill="none" strokeWidth="0.5" />
+      <ellipse cx="32" cy="32" rx="10" ry="28" stroke={strokeColor} fill="none" strokeWidth="0.5" />
+      <ellipse cx="32" cy="32" rx="20" ry="28" stroke={strokeColor} fill="none" strokeWidth="0.5" />
+      <line x1="32" y1="4" x2="32" y2="60" stroke={strokeColor} strokeWidth="0.5" />
+      <line x1="4" y1="32" x2="60" y2="32" stroke={strokeColor} strokeWidth="0.5" />
+    </svg>
+  );
+};
+
+// Network logo (overlapping circles)
+const NetworkLogo = ({ variant }: { variant: CardVariant }) => {
+  const getColors = () => {
+    switch(variant) {
+      case 'metallic-gold': return ['#B38728', '#FCF6BA'];
+      case 'metallic-silver': return ['#A8A8A8', '#E8E8E8'];
+      case 'matte-white': return ['rgba(100,100,100,0.8)', 'rgba(160,160,160,0.6)'];
+      default: return ['rgba(180,180,180,0.8)', 'rgba(220,220,220,0.6)'];
+    }
+  };
+  const [left, right] = getColors();
+  
+  return (
+    <div className="flex items-center -space-x-3">
+      <div className="w-8 h-8 rounded-full" style={{ background: left }} />
+      <div className="w-8 h-8 rounded-full opacity-80" style={{ background: right }} />
+    </div>
+  );
+};
 
 interface PhysicalCreditCardProps {
   variant: CardVariant;
@@ -169,79 +221,30 @@ export function PhysicalCreditCard({
               />
             )}
 
+            {/* Flowing lines */}
+            <FlowingLines variant={variant} />
+
             {/* Layer 5: Card Content */}
-            <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
-              {/* Top Row: Logo + NFC */}
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className={cn("text-xl font-bold tracking-wide", style.textColor)}>
-                    $AVE+
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Wifi className={cn("w-6 h-6 rotate-90 opacity-60", style.textColor)} />
-                  <div className={cn("text-sm font-semibold", style.textColor)}>VISA</div>
+            <div className="absolute inset-0 p-6 flex flex-col z-10">
+              {/* Top section with chip and globe */}
+              <div className="flex justify-between items-start mb-auto">
+                <EMVChip variant={style.chipColor} size="sm" />
+                
+                <div className="absolute left-1/2 top-4 -translate-x-1/2">
+                  <WireframeGlobe variant={variant} />
                 </div>
               </div>
 
-              {/* Middle: EMV Chip */}
-              <div className="flex items-center gap-6">
-                <EMVChip variant={style.chipColor} />
+              {/* Brand name - centered vertically */}
+              <div className="flex-1 flex items-center">
+                <div className={cn("text-3xl font-bold tracking-wider", style.textColor)}>
+                  $AVE+
+                </div>
               </div>
 
-              {/* Bottom: Card Number & Details */}
-              <div className="space-y-3">
-                {/* Card Number */}
-                {showDetails && (
-                  <div 
-                    className={cn(
-                      "font-mono text-lg tracking-[0.3em] select-none",
-                      style.textColor
-                    )}
-                    style={{
-                      textShadow: style.emboss,
-                    }}
-                  >
-                    •••• •••• •••• {cardNumber}
-                  </div>
-                )}
-
-                {/* Cardholder Name & Expiry */}
-                <div className="flex justify-between items-end">
-                  <div>
-                    {showDetails && (
-                      <div 
-                        className={cn(
-                          "font-medium tracking-widest uppercase text-sm",
-                          style.textColor
-                        )}
-                        style={{
-                          textShadow: style.emboss,
-                        }}
-                      >
-                        {cardHolder}
-                      </div>
-                    )}
-                  </div>
-                  {showDetails && (
-                    <div className="text-right">
-                      <div className={cn("text-[10px] tracking-wide uppercase opacity-60", style.textColor)}>
-                        Valid Thru
-                      </div>
-                      <div 
-                        className={cn(
-                          "font-mono text-sm tracking-wider",
-                          style.textColor
-                        )}
-                        style={{
-                          textShadow: style.emboss,
-                        }}
-                      >
-                        {expiryDate}
-                      </div>
-                    </div>
-                  )}
-                </div>
+              {/* Network logo - bottom right */}
+              <div className="flex justify-end">
+                <NetworkLogo variant={variant} />
               </div>
 
               {/* Flip indicator */}
@@ -294,12 +297,60 @@ export function PhysicalCreditCard({
             }}
           />
 
-          {/* Signature Panel & CVV */}
-          <div className="absolute top-24 left-6 right-6 space-y-3">
+          {/* Card Details Section */}
+          <div className="absolute top-24 left-6 right-6 space-y-4">
+            {/* Card Number */}
+            {showDetails && (
+              <div 
+                className={cn(
+                  "font-mono text-base tracking-[0.25em] select-none",
+                  style.textColor
+                )}
+              >
+                •••• •••• •••• {cardNumber}
+              </div>
+            )}
+
+            {/* Cardholder Name & Expiry */}
+            <div className="flex justify-between items-end">
+              <div>
+                {showDetails && (
+                  <>
+                    <div className={cn("text-[10px] tracking-wide uppercase opacity-60", style.textColor)}>
+                      Card Holder
+                    </div>
+                    <div 
+                      className={cn(
+                        "font-medium tracking-widest uppercase text-sm",
+                        style.textColor
+                      )}
+                    >
+                      {cardHolder}
+                    </div>
+                  </>
+                )}
+              </div>
+              {showDetails && (
+                <div className="text-right">
+                  <div className={cn("text-[10px] tracking-wide uppercase opacity-60", style.textColor)}>
+                    Valid Thru
+                  </div>
+                  <div 
+                    className={cn(
+                      "font-mono text-sm tracking-wider",
+                      style.textColor
+                    )}
+                  >
+                    {expiryDate}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Signature Panel */}
             <div 
               className={cn(
-                "h-10 rounded px-3 flex items-center relative overflow-hidden",
+                "h-10 rounded px-3 flex items-center relative overflow-hidden mt-4",
                 variant === 'matte-black' ? 'bg-[#FFF8E7]' :
                 variant === 'matte-white' ? 'bg-white' :
                 variant === 'metallic-gold' ? 'bg-[#FFF8E7] border border-yellow-800/20' :
