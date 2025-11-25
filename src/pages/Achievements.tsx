@@ -19,9 +19,25 @@ import { QuestlinePanel } from "@/components/rewards/QuestlinePanel";
 import { TeamProgressTab } from "@/components/rewards/TeamProgressTab";
 import { GeoRewardMap } from "@/components/rewards/GeoRewardMap";
 import { WaysToEarn } from "@/components/rewards/WaysToEarn";
+import { useGeoRewardRealtime } from "@/hooks/useGeoRewardRealtime";
+import { useQuestlineAutoProgress } from "@/hooks/useQuestlineAutoProgress";
 
 export default function Achievements() {
   const prefersReducedMotion = useReducedMotion();
+
+  const { data: session } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
+  // Enable real-time geo-reward notifications
+  useGeoRewardRealtime();
+  
+  // Enable automatic questline progress tracking
+  useQuestlineAutoProgress(session?.user?.id);
 
   const { data: userAchievements, isLoading: achievementsLoading } = useQuery({
     queryKey: ['user-achievements'],
