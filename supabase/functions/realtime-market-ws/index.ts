@@ -41,51 +41,79 @@ serve(async (req) => {
         if (intervalId) clearInterval(intervalId);
         
         const fetchData = async () => {
-          if (!ALPHA_VANTAGE_API_KEY || symbols.length === 0) return;
+          if (symbols.length === 0) return;
 
-          // Fetch one symbol at a time to avoid rate limits
-          for (const symbol of symbols.slice(0, 1)) {
-            try {
-              const response = await fetch(
-                `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHA_VANTAGE_API_KEY}`
-              );
+          // Map symbols to CoinGecko coin IDs
+          const symbolToCoinId = (symbol: string) => {
+            const map: Record<string, string> = {
+              'btc': 'bitcoin',
+              'eth': 'ethereum',
+              'usdt': 'tether',
+              'usdc': 'usd-coin',
+              'bnb': 'binancecoin',
+              'ada': 'cardano',
+              'doge': 'dogecoin',
+              'xrp': 'ripple',
+              'sol': 'solana',
+              'dot': 'polkadot',
+              'matic': 'matic-network',
+              'avax': 'avalanche-2',
+            };
+            return map[symbol.toLowerCase()] || symbol.toLowerCase();
+          };
 
-              const data = await response.json();
-              const quote = data['Global Quote'];
+          // Create comma-separated list of coin IDs for batch API call
+          const coinIds = symbols.map(symbolToCoinId).join(',');
+
+          try {
+            const response = await fetch(
+              `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_vol=true&include_24hr_change=true`
+            );
+
+            if (!response.ok) {
+              console.error('CoinGecko API error:', response.status);
+              return;
+            }
+
+            const data = await response.json();
+
+            // Process each symbol
+            for (const symbol of symbols) {
+              const coinId = symbolToCoinId(symbol);
+              const priceData = data[coinId];
               
-              if (quote && quote['05. price']) {
-                const priceData = {
-                  symbol,
-                  price: parseFloat(quote['05. price']),
-                  change: parseFloat(quote['09. change']),
-                  changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
-                  volume: parseInt(quote['06. volume'] || '0'),
+              if (priceData && priceData.usd) {
+                const payload = {
+                  symbol: symbol.toUpperCase(),
+                  price: priceData.usd,
+                  change: priceData.usd_24h_change || 0,
+                  changePercent: priceData.usd_24h_change || 0,
+                  volume: priceData.usd_24h_vol || 0,
                   timestamp: new Date().toISOString(),
                 };
 
                 // Update database
                 await supabaseClient
-                  .from('market_data_cache')
-                  .upsert({
-                    symbol,
-                    current_price: priceData.price,
-                    change_amount: priceData.change,
-                    change_percent: priceData.changePercent,
-                    volume: priceData.volume,
-                    last_updated: priceData.timestamp,
-                  }, {
-                    onConflict: 'symbol'
-                  });
+                  .from('crypto_holdings')
+                  .update({ 
+                    current_price: payload.price,
+                    updated_at: payload.timestamp 
+                  })
+                  .eq('symbol', symbol.toUpperCase());
 
                 // Send update to client
                 socket.send(JSON.stringify({
                   type: 'price_update',
-                  data: priceData
+                  data: payload
                 }));
               }
-            } catch (error) {
-              console.error(`Error fetching ${symbol}:`, error);
             }
+          } catch (error) {
+            console.error('Error fetching crypto prices:', error);
+            socket.send(JSON.stringify({
+              type: 'error',
+              message: 'Failed to fetch prices'
+            }));
           }
         };
 

@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, Radio } from "lucide-react";
 import { useWalletSettings } from "@/hooks/useWalletSettings";
 import { formatCurrency } from "@/lib/exchangeRates";
+import { format } from "date-fns";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface TokenBalanceCardProps {
   symbol: string;
@@ -10,6 +12,9 @@ interface TokenBalanceCardProps {
   usdValue: number;
   change24h: number;
   icon?: string;
+  livePrice?: number;
+  lastUpdate?: string;
+  isLive?: boolean;
 }
 
 export function TokenBalanceCard({
@@ -19,6 +24,9 @@ export function TokenBalanceCard({
   usdValue,
   change24h,
   icon,
+  livePrice,
+  lastUpdate,
+  isLive = false,
 }: TokenBalanceCardProps) {
   const isPositive = change24h >= 0;
   const { settings } = useWalletSettings();
@@ -33,16 +41,28 @@ export function TokenBalanceCard({
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center relative">
             {icon ? (
               <img src={icon} alt={symbol} className="w-6 h-6" />
             ) : (
               <span className="text-sm font-bold text-foreground">{symbol[0]}</span>
             )}
+            {isLive && (
+              <div className="absolute -top-1 -right-1">
+                <Radio className="w-3 h-3 text-green-500 animate-pulse" />
+              </div>
+            )}
           </div>
           <div>
             <div className="font-bold text-foreground">{symbol}</div>
-            <div className="text-xs text-muted-foreground">{name}</div>
+            <div className="text-xs text-muted-foreground flex items-center gap-2">
+              {name}
+              {lastUpdate && (
+                <span className="text-[10px] opacity-50">
+                  • {format(new Date(lastUpdate), 'HH:mm:ss')}
+                </span>
+              )}
+            </div>
           </div>
         </div>
         
