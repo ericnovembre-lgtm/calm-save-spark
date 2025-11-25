@@ -16,7 +16,7 @@ export function CreditGoalTracker() {
   const { currentGoal, isLoading, createGoal, deleteGoal, isCreating } = useCreditGoal();
   const { data: scoreHistory } = useCreditScoreHistory("30d");
 
-  const currentScore = scoreHistory?.[0]?.score || 0;
+  const currentScore = scoreHistory?.[scoreHistory.length - 1]?.score || 0;
 
   // Fetch AI timeline prediction
   const { data: timeline } = useQuery({
