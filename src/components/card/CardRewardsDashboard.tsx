@@ -2,6 +2,8 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SpendRulesEngine } from './SpendRulesEngine';
 import { PointsEarningCard } from './PointsEarningCard';
+import { RewardsRedemptionPanel } from './RewardsRedemptionPanel';
+import { Gift } from 'lucide-react';
 import { useCardTierStatus } from '@/hooks/useCardTierStatus';
 import { Crown, Sparkles, TrendingUp } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -66,14 +68,18 @@ export function CardRewardsDashboard({ cardId }: CardRewardsDashboardProps) {
 
       {/* Main Rewards Interface */}
       <Tabs defaultValue="rules" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="rules" className="gap-2">
             <TrendingUp className="w-4 h-4" />
-            Savings Rules
+            Rules
           </TabsTrigger>
           <TabsTrigger value="points" className="gap-2">
             <Sparkles className="w-4 h-4" />
             Points
+          </TabsTrigger>
+          <TabsTrigger value="redeem" className="gap-2">
+            <Gift className="w-4 h-4" />
+            Redeem
           </TabsTrigger>
         </TabsList>
 
@@ -83,6 +89,10 @@ export function CardRewardsDashboard({ cardId }: CardRewardsDashboardProps) {
 
         <TabsContent value="points" className="mt-6">
           <PointsEarningCard cardId={cardId} />
+        </TabsContent>
+
+        <TabsContent value="redeem" className="mt-6">
+          <RewardsRedemptionPanel />
         </TabsContent>
       </Tabs>
     </div>
