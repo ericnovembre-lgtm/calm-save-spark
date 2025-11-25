@@ -156,87 +156,97 @@ export default function Achievements() {
         />
       )}
       
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
         <motion.div 
-          className="flex items-center justify-between"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
           initial={prefersReducedMotion ? {} : { opacity: 0, y: -20 }}
           animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
-          <div>
-            <h1 className="text-4xl font-display font-bold text-foreground mb-2">
+          <div className="space-y-2">
+            <h1 className="text-5xl font-display font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               Your Financial Odyssey
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-lg text-muted-foreground/80">
               Every streak, boost, and accomplishment—alive in real-time
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleShareProgress}
-            className="gap-2"
+          <motion.div
+            initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.9 }}
+            animate={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
           >
-            <Share2 className="h-4 w-4" />
-            Share Progress
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareProgress}
+              className="gap-2 hover:bg-accent/10 transition-colors"
+            >
+              <Share2 className="h-4 w-4" />
+              Share Progress
+            </Button>
+          </motion.div>
         </motion.div>
 
         {/* AI Spend Coach Nudge */}
         <RewardCoachNudge />
 
         {/* Stats Overview Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-4">
             <motion.div
-              initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
-              animate={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1, duration: 0.3 }}
+              initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+              animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             >
-              <InteractiveCard className="p-6">
+              <InteractiveCard className="p-6 bg-gradient-to-br from-card to-accent/5 border-accent/20 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3">
-                  <Trophy className="w-8 h-8 text-yellow-500" />
+                  <div className="p-2.5 rounded-xl bg-yellow-500/10 ring-1 ring-yellow-500/20">
+                    <Trophy className="w-6 h-6 text-yellow-600" />
+                  </div>
                   <div>
-                    <div className="text-2xl font-bold text-foreground">{userAchievements?.length || 0}</div>
-                    <div className="text-xs text-muted-foreground">Unlocked</div>
+                    <div className="text-3xl font-bold text-foreground tracking-tight">{userAchievements?.length || 0}</div>
+                    <div className="text-xs text-muted-foreground font-medium">Unlocked</div>
                   </div>
                 </div>
               </InteractiveCard>
             </motion.div>
 
             <motion.div
-              initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
-              animate={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.3 }}
+              initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+              animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             >
-              <InteractiveCard className="p-6">
+              <InteractiveCard className="p-6 bg-gradient-to-br from-card to-primary/5 border-primary/20 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3">
-                  <Sparkles className="w-8 h-8 text-primary" />
+                  <div className="p-2.5 rounded-xl bg-primary/10 ring-1 ring-primary/20">
+                    <Sparkles className="w-6 h-6 text-primary" />
+                  </div>
                   <div>
-                    <div className="text-2xl font-bold text-foreground">{totalPoints}</div>
-                    <div className="text-xs text-muted-foreground">Total Points</div>
+                    <div className="text-3xl font-bold text-foreground tracking-tight">{totalPoints}</div>
+                    <div className="text-xs text-muted-foreground font-medium">Total Points</div>
                   </div>
                 </div>
               </InteractiveCard>
             </motion.div>
 
             <motion.div
-              initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
-              animate={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.3 }}
+              initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+              animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               className="col-span-2"
             >
-              <InteractiveCard className="p-6">
-                <div className="space-y-3">
+              <InteractiveCard className="p-6 bg-gradient-to-br from-card to-accent/5 border-accent/20 hover:shadow-lg transition-all duration-300">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">Progress</span>
-                    <span className="text-sm text-muted-foreground">{completionRate}%</span>
+                    <span className="text-sm font-semibold text-foreground">Completion Progress</span>
+                    <span className="text-lg font-bold text-foreground">{completionRate}%</span>
                   </div>
-                  <AnimatedProgress value={Number(completionRate)} />
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Target className="w-3 h-3" />
+                  <AnimatedProgress value={Number(completionRate)} className="h-2.5" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground/80">
+                    <Target className="w-3.5 h-3.5" />
                     <span>{allAchievements?.length || 0} total achievements available</span>
                   </div>
                 </div>
@@ -246,35 +256,52 @@ export default function Achievements() {
 
           {/* Streak Protector */}
           <motion.div
-            initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
-            animate={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.3 }}
+            initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+            animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           >
             <StreakProtectorCard />
           </motion.div>
         </div>
 
         {/* Main Tabs */}
-        <Tabs defaultValue="achievements" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-5 w-full">
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-            <TabsTrigger value="questlines">Questlines</TabsTrigger>
-            <TabsTrigger value="team">Team Progress</TabsTrigger>
-            <TabsTrigger value="geo-boosters">
-              Geo-Boosters
-              {geoProximity.isTracking && (
-                <MapPin className="w-3 h-3 ml-1 text-green-500 animate-pulse" />
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="ways-to-earn">Ways to Earn</TabsTrigger>
-          </TabsList>
+        <motion.div
+          initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+          animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <Tabs defaultValue="achievements" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid grid-cols-5 w-full h-auto p-1.5 bg-muted/30">
+              <TabsTrigger value="achievements" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                Achievements
+              </TabsTrigger>
+              <TabsTrigger value="questlines" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                Questlines
+              </TabsTrigger>
+              <TabsTrigger value="team" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                Team Progress
+              </TabsTrigger>
+              <TabsTrigger value="geo-boosters" className="data-[state=active]:bg-card data-[state=active]:shadow-sm relative">
+                Geo-Boosters
+                {geoProximity.isTracking && (
+                  <MapPin className="w-3 h-3 ml-1.5 text-green-500 animate-pulse absolute -top-0.5 -right-0.5" />
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="ways-to-earn" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                Ways to Earn
+              </TabsTrigger>
+            </TabsList>
 
           {/* Achievements Tab */}
-          <TabsContent value="achievements" className="space-y-6">
+          <TabsContent value="achievements" className="space-y-6 animate-fade-in">
             <Tabs defaultValue="earned" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="earned">Earned ({userAchievements?.length || 0})</TabsTrigger>
-                <TabsTrigger value="locked">Locked ({(allAchievements?.length || 0) - (userAchievements?.length || 0)})</TabsTrigger>
+              <TabsList className="bg-muted/30">
+                <TabsTrigger value="earned" className="data-[state=active]:bg-card">
+                  Earned ({userAchievements?.length || 0})
+                </TabsTrigger>
+                <TabsTrigger value="locked" className="data-[state=active]:bg-card">
+                  Locked ({(allAchievements?.length || 0) - (userAchievements?.length || 0)})
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="earned" className="space-y-4">
@@ -285,8 +312,14 @@ export default function Achievements() {
                       className="relative group cursor-pointer"
                       initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
                       animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05, duration: 0.3 }}
+                      transition={{ 
+                        delay: index * 0.03, 
+                        duration: 0.4,
+                        ease: [0.4, 0, 0.2, 1]
+                      }}
                       onClick={triggerConfetti}
+                      whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+                      whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                     >
                       <AchievementBadge
                         name={userAch.achievements?.name || ''}
@@ -296,7 +329,7 @@ export default function Achievements() {
                         points={userAch.achievements?.points || 0}
                         earnedAt={userAch.earned_at}
                       />
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <AchievementShareCard
                           achievementName={userAch.achievements?.name || ''}
                           achievementDescription={userAch.achievements?.description || ''}
@@ -308,12 +341,21 @@ export default function Achievements() {
                   ))}
                 </div>
                 {userAchievements?.length === 0 && (
-                  <Card className="p-8 text-center">
-                    <Trophy className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                      No achievements yet. Start saving to unlock your first badge!
-                    </p>
-                  </Card>
+                  <motion.div
+                    initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
+                    animate={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card className="p-12 text-center bg-gradient-to-br from-card to-muted/20 border-dashed">
+                      <Trophy className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        Your Achievement Journey Begins
+                      </h3>
+                      <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                        Start saving to unlock your first badge and begin building your financial legacy
+                      </p>
+                    </Card>
+                  </motion.div>
                 )}
               </TabsContent>
 
@@ -326,7 +368,11 @@ export default function Achievements() {
                         key={ach.id}
                         initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
                         animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05, duration: 0.3 }}
+                        transition={{ 
+                          delay: index * 0.03, 
+                          duration: 0.4,
+                          ease: [0.4, 0, 0.2, 1]
+                        }}
                       >
                         <AchievementBadge
                           name={ach.name}
@@ -344,40 +390,47 @@ export default function Achievements() {
           </TabsContent>
 
           {/* Questlines Tab */}
-          <TabsContent value="questlines">
+          <TabsContent value="questlines" className="animate-fade-in">
             <QuestlinePanel />
           </TabsContent>
 
           {/* Team Progress Tab */}
-          <TabsContent value="team">
+          <TabsContent value="team" className="animate-fade-in">
             <TeamProgressTab />
           </TabsContent>
 
           {/* Geo-Boosters Tab */}
-          <TabsContent value="geo-boosters">
+          <TabsContent value="geo-boosters" className="space-y-4 animate-fade-in">
             {geoProximity.isTracking && (
-              <Card className="p-4 mb-4 bg-green-500/10 border-green-500/20">
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-5 h-5 text-green-500 animate-pulse" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      📍 Tracking nearby rewards
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      You'll be notified when you're close to active geo-boosters
-                    </p>
+              <motion.div
+                initial={prefersReducedMotion ? {} : { opacity: 0, y: -10 }}
+                animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="p-4 bg-gradient-to-r from-green-500/10 to-green-500/5 border-green-500/30">
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-5 h-5 text-green-600 animate-pulse" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">
+                        📍 Tracking nearby rewards
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        You'll be notified when you're close to active geo-boosters
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
             )}
             <GeoRewardMap />
           </TabsContent>
 
           {/* Ways to Earn Tab */}
-          <TabsContent value="ways-to-earn">
+          <TabsContent value="ways-to-earn" className="animate-fade-in">
             <WaysToEarn />
           </TabsContent>
         </Tabs>
+        </motion.div>
       </div>
     </AppLayout>
   );
