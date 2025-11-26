@@ -49,7 +49,7 @@ Help plan for major life events with realistic timelines and comprehensive check
     enhancedPrompt, 
     history, 
     message,
-    'google/gemini-2.5-pro',
+    'claude/claude-sonnet-4-5',
     UI_TOOLS
   );
 

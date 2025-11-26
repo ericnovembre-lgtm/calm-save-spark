@@ -32,35 +32,73 @@ export async function consultAgent(
     throw new Error(`Agent ${consultingAgent} not found`);
   }
 
-  // Call AI to get consultation response
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${lovableApiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
-      messages: [
-        {
-          role: 'system',
-          content: `${agent.system_prompt}\n\nYou are being consulted by the ${requestingAgent} agent. Provide expert advice within your domain.`
-        },
-        {
-          role: 'user',
-          content: query
-        }
-      ],
-      max_completion_tokens: 1000
-    })
-  });
+  // Call AI to get consultation response using Claude
+  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+  
+  let response: Response;
+  
+  if (ANTHROPIC_API_KEY) {
+    // Use Anthropic API directly for Claude
+    response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        system: `${agent.system_prompt}\n\nYou are being consulted by the ${requestingAgent} agent. Provide expert advice within your domain.`,
+        messages: [{ role: 'user', content: query }]
+      })
+    });
+  } else {
+    // Fallback to Lovable AI Gateway
+    console.warn('ANTHROPIC_API_KEY not found, using Lovable AI Gateway fallback');
+    response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${lovableApiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: `${agent.system_prompt}\n\nYou are being consulted by the ${requestingAgent} agent. Provide expert advice within your domain.`
+          },
+          { role: 'user', content: query }
+        ],
+        max_completion_tokens: 1000
+      })
+    });
+  }
 
   if (!response.ok) {
     throw new Error('Consultation failed');
   }
 
   const result = await response.json();
-  const consultationResponse = result.choices[0].message.content;
+  
+  // Parse response based on provider
+  let consultationResponse: string;
+  if (ANTHROPIC_API_KEY && response.headers.get('content-type')?.includes('application/json')) {
+    // Anthropic response format
+    const content = result.content;
+    if (Array.isArray(content)) {
+      consultationResponse = content
+        .filter((block: any) => block.type === 'text')
+        .map((block: any) => block.text)
+        .join('');
+    } else {
+      consultationResponse = content;
+    }
+  } else {
+    // OpenAI/Lovable AI Gateway format
+    consultationResponse = result.choices[0].message.content;
+  }
 
   // Log the consultation
   await supabase.from('agent_consultations').insert({

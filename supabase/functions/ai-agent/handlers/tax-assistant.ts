@@ -99,17 +99,9 @@ ${taxUpdates}` : ''}
 
 Analyze transactions for potential deductions and provide tax-saving recommendations. Consider recent tax law changes if applicable.`;
 
-  // Check for active A/B test
-  const abTest = await getActiveABTest(supabase, 'tax_assistant');
-  let selectedModel = 'openai/gpt-5';
-  let testId: string | undefined;
-
-  if (abTest) {
-    const selection = selectModelForTest(abTest);
-    selectedModel = selection.model;
-    testId = selection.testId;
-    console.log(`A/B Test: Using ${selectedModel} for tax_assistant`);
-  }
+  // Use Claude 4 Sonnet for tax assistant (no A/B testing)
+  const selectedModel = 'claude/claude-sonnet-4-5';
+  const testId: string | undefined = undefined;
 
   const aiStream = await streamAIResponse(
     enhancedPrompt, 

@@ -1,9 +1,14 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { streamAnthropicResponse } from "./anthropic-client.ts";
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
+
+// Model constants
+export const CLAUDE_MAIN_BRAIN = 'claude/claude-sonnet-4-5';
+export const CLAUDE_35_SONNET = 'claude/claude-3-5-sonnet-20241022';
 
 interface ToolCall {
   id: string;
@@ -24,6 +29,34 @@ export async function streamAIResponse(
   conversationId?: string,
   userId?: string
 ): Promise<ReadableStream> {
+  // Route to appropriate AI provider based on model prefix
+  if (model.startsWith('claude/')) {
+    const claudeModel = model.replace('claude/', '');
+    console.log(`Routing to Anthropic Claude: ${claudeModel}`);
+    
+    try {
+      return await streamAnthropicResponse(
+        systemPrompt,
+        conversationHistory,
+        userMessage,
+        claudeModel,
+        tools,
+        supabase,
+        conversationId,
+        userId
+      );
+    } catch (error) {
+      // Fallback to Lovable AI Gateway if Anthropic fails
+      if (error instanceof Error && error.message.includes('ANTHROPIC')) {
+        console.warn('Anthropic unavailable, falling back to Lovable AI Gateway');
+        model = 'google/gemini-2.5-pro'; // Use equivalent model
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  // Use Lovable AI Gateway for OpenAI/Google models
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   if (!LOVABLE_API_KEY) {
     throw new Error('LOVABLE_API_KEY is not configured');
