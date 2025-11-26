@@ -50,8 +50,13 @@ serve(async (req) => {
       const embedding = embeddings[0];
 
       // Store in Pinecone (assuming index is already created)
+      const PINECONE_INDEX_URL = Deno.env.get('PINECONE_INDEX_URL');
+      if (!PINECONE_INDEX_URL) {
+        throw new Error('PINECONE_INDEX_URL not configured');
+      }
+      
       const pineconeResponse = await fetch(
-        'https://your-pinecone-index.pinecone.io/vectors/upsert',
+        `${PINECONE_INDEX_URL}/vectors/upsert`,
         {
           method: 'POST',
           headers: {
@@ -110,8 +115,13 @@ serve(async (req) => {
       const queryEmbedding = embeddings[0];
 
       // Query Pinecone
+      const PINECONE_INDEX_URL = Deno.env.get('PINECONE_INDEX_URL');
+      if (!PINECONE_INDEX_URL) {
+        throw new Error('PINECONE_INDEX_URL not configured');
+      }
+      
       const pineconeResponse = await fetch(
-        'https://your-pinecone-index.pinecone.io/query',
+        `${PINECONE_INDEX_URL}/query`,
         {
           method: 'POST',
           headers: {
