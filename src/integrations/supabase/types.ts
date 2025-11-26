@@ -2045,12 +2045,19 @@ export type Database = {
           account_number: string | null
           account_type: string
           apr_bps: number | null
+          autopay_amount_type: string | null
+          autopay_enabled: boolean | null
           available_cents: number
+          billing_cycle_day: number | null
           closed_at: string | null
           created_at: string | null
           credit_limit_cents: number
           current_balance_cents: number | null
           id: string
+          last_statement_date: string | null
+          minimum_payment_cents: number | null
+          next_due_date: string | null
+          next_statement_date: string | null
           opened_at: string | null
           routing_number: string | null
           status: string | null
@@ -2061,12 +2068,19 @@ export type Database = {
           account_number?: string | null
           account_type: string
           apr_bps?: number | null
+          autopay_amount_type?: string | null
+          autopay_enabled?: boolean | null
           available_cents?: number
+          billing_cycle_day?: number | null
           closed_at?: string | null
           created_at?: string | null
           credit_limit_cents?: number
           current_balance_cents?: number | null
           id?: string
+          last_statement_date?: string | null
+          minimum_payment_cents?: number | null
+          next_due_date?: string | null
+          next_statement_date?: string | null
           opened_at?: string | null
           routing_number?: string | null
           status?: string | null
@@ -2077,12 +2091,19 @@ export type Database = {
           account_number?: string | null
           account_type?: string
           apr_bps?: number | null
+          autopay_amount_type?: string | null
+          autopay_enabled?: boolean | null
           available_cents?: number
+          billing_cycle_day?: number | null
           closed_at?: string | null
           created_at?: string | null
           credit_limit_cents?: number
           current_balance_cents?: number | null
           id?: string
+          last_statement_date?: string | null
+          minimum_payment_cents?: number | null
+          next_due_date?: string | null
+          next_statement_date?: string | null
           opened_at?: string | null
           routing_number?: string | null
           status?: string | null
@@ -2251,6 +2272,75 @@ export type Database = {
           },
         ]
       }
+      card_payments: {
+        Row: {
+          account_id: string
+          amount_cents: number
+          confirmation_number: string | null
+          created_at: string | null
+          id: string
+          is_autopay: boolean | null
+          notes: string | null
+          payment_date: string | null
+          payment_method: string
+          payment_source: Json | null
+          scheduled_date: string | null
+          statement_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          amount_cents: number
+          confirmation_number?: string | null
+          created_at?: string | null
+          id?: string
+          is_autopay?: boolean | null
+          notes?: string | null
+          payment_date?: string | null
+          payment_method: string
+          payment_source?: Json | null
+          scheduled_date?: string | null
+          statement_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          amount_cents?: number
+          confirmation_number?: string | null
+          created_at?: string | null
+          id?: string
+          is_autopay?: boolean | null
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: string
+          payment_source?: Json | null
+          scheduled_date?: string | null
+          statement_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_payments_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "card_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_payments_statement_id_fkey"
+            columns: ["statement_id"]
+            isOneToOne: false
+            referencedRelation: "card_statements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       card_points_ledger: {
         Row: {
           card_id: string | null
@@ -2383,6 +2473,80 @@ export type Database = {
             columns: ["destination_pot_id"]
             isOneToOne: false
             referencedRelation: "pots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_statements: {
+        Row: {
+          account_id: string
+          available_credit_cents: number
+          created_at: string | null
+          credit_limit_cents: number
+          due_date: string
+          fees_cents: number | null
+          id: string
+          interest_cents: number | null
+          is_paid: boolean | null
+          minimum_payment_cents: number
+          new_balance_cents: number
+          paid_at: string | null
+          payments_cents: number | null
+          pdf_path: string | null
+          previous_balance_cents: number | null
+          purchases_cents: number | null
+          statement_date: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          available_credit_cents: number
+          created_at?: string | null
+          credit_limit_cents: number
+          due_date: string
+          fees_cents?: number | null
+          id?: string
+          interest_cents?: number | null
+          is_paid?: boolean | null
+          minimum_payment_cents: number
+          new_balance_cents: number
+          paid_at?: string | null
+          payments_cents?: number | null
+          pdf_path?: string | null
+          previous_balance_cents?: number | null
+          purchases_cents?: number | null
+          statement_date: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          available_credit_cents?: number
+          created_at?: string | null
+          credit_limit_cents?: number
+          due_date?: string
+          fees_cents?: number | null
+          id?: string
+          interest_cents?: number | null
+          is_paid?: boolean | null
+          minimum_payment_cents?: number
+          new_balance_cents?: number
+          paid_at?: string | null
+          payments_cents?: number | null
+          pdf_path?: string | null
+          previous_balance_cents?: number | null
+          purchases_cents?: number | null
+          statement_date?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_statements_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "card_accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -10938,6 +11102,13 @@ export type Database = {
     }
     Functions: {
       calculate_health_trend: { Args: { p_user_id: string }; Returns: number }
+      calculate_next_billing_dates: {
+        Args: { billing_day: number; from_date?: string }
+        Returns: {
+          next_due: string
+          next_statement: string
+        }[]
+      }
       clean_expired_insights_cache: { Args: never; Returns: undefined }
       cleanup_expired_ip_blocks: { Args: never; Returns: undefined }
       cleanup_expired_news_cache: { Args: never; Returns: undefined }

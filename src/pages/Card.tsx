@@ -24,6 +24,8 @@ import { BenefitHunterPanel } from '@/components/card/BenefitHunterPanel';
 import { CardInspectionMode } from '@/components/card/CardInspectionMode';
 import { CardUnboxingExperience } from '@/components/card/CardUnboxingExperience';
 import { LaserEngravingPreview } from '@/components/card/LaserEngravingPreview';
+import { BillingStatementsPanel } from '@/components/card/BillingStatementsPanel';
+import { CardActivationFlow } from '@/components/card/CardActivationFlow';
 import { useCardAccount } from '@/hooks/useCardAccount';
 import { useCards } from '@/hooks/useCards';
 import { useCardTransactions } from '@/hooks/useCardTransactions';
@@ -39,6 +41,7 @@ export default function CardPage() {
   const [showWizard, setShowWizard] = useState(false);
   const [inspectionMode, setInspectionMode] = useState(false);
   const [showEngraving, setShowEngraving] = useState(false);
+  const [showActivation, setShowActivation] = useState(false);
   const { account, isLoading: accountLoading, hasAccount } = useCardAccount();
   const { cards, isLoading: cardsLoading, freezeCard } = useCards(account?.id);
   const { transactions, isLoading: transactionsLoading } = useCardTransactions(account?.id);
@@ -382,10 +385,14 @@ export default function CardPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6 h-12">
+        <TabsList className="grid w-full grid-cols-7 h-12">
           <TabsTrigger value="overview" className="gap-2">
             <Activity className="w-4 h-4" />
             <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="billing" className="gap-2">
+            <FileText className="w-4 h-4" />
+            <span className="hidden sm:inline">Billing</span>
           </TabsTrigger>
           <TabsTrigger value="rewards" className="gap-2">
             <Sparkles className="w-4 h-4" />
@@ -396,12 +403,12 @@ export default function CardPage() {
             <span className="hidden sm:inline">Benefits</span>
           </TabsTrigger>
           <TabsTrigger value="transactions" className="gap-2">
-            <FileText className="w-4 h-4" />
-            <span className="hidden sm:inline">Transactions</span>
+            <DollarSign className="w-4 h-4" />
+            <span className="hidden sm:inline">Activity</span>
           </TabsTrigger>
           <TabsTrigger value="subscriptions" className="gap-2">
             <RefreshCw className="w-4 h-4" />
-            <span className="hidden sm:inline">Subscriptions</span>
+            <span className="hidden sm:inline">Subs</span>
           </TabsTrigger>
           <TabsTrigger value="controls" className="gap-2">
             <CreditCard className="w-4 h-4" />
@@ -415,6 +422,23 @@ export default function CardPage() {
 
           {/* Account Summary */}
           <AccountSummary account={account} />
+
+          {/* Card Activation Notice */}
+          {cards[0] && !cards[0].activated_at && (
+            <Card className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-amber-900 dark:text-amber-100">Activate Your Card</h3>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">Your card needs to be activated before use</p>
+                  </div>
+                  <Button onClick={() => setShowActivation(true)} variant="default">
+                    Activate Now
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Quick Actions */}
           <Card>
@@ -435,12 +459,10 @@ export default function CardPage() {
                 <Button 
                   variant="outline" 
                   className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
-                  asChild
+                  onClick={() => setActiveTab('billing')}
                 >
-                  <Link to="/reports">
-                    <FileText className="w-6 h-6" />
-                    <span className="text-sm font-medium">Statements</span>
-                  </Link>
+                  <FileText className="w-6 h-6" />
+                  <span className="text-sm font-medium">Statements</span>
                 </Button>
                 
                 <Button 
