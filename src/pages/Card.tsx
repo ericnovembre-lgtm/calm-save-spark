@@ -468,16 +468,18 @@ export default function CardPage() {
                 <Button 
                   variant="outline" 
                   className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
-                  asChild
+                  onClick={() => setActiveTab('billing')}
                 >
-                  <Link to="/accounts">
-                    <DollarSign className="w-6 h-6" />
-                    <span className="text-sm font-medium">Make Payment</span>
-                  </Link>
+                  <DollarSign className="w-6 h-6" />
+                  <span className="text-sm font-medium">Make Payment</span>
                 </Button>
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="billing" className="space-y-6">
+          <BillingStatementsPanel accountId={account.id} />
         </TabsContent>
 
         <TabsContent value="rewards" className="space-y-6">
@@ -549,6 +551,16 @@ export default function CardPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Card Activation Flow */}
+      {showActivation && cards[0] && (
+        <CardActivationFlow
+          open={showActivation}
+          onOpenChange={setShowActivation}
+          cardId={cards[0].id}
+          last4Hint={cards[0].last4}
+        />
+      )}
 
       {/* Card Customization Wizard */}
       <Sheet open={showWizard} onOpenChange={setShowWizard}>
