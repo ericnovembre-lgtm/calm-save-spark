@@ -2522,6 +2522,11 @@ export type Database = {
           card_id: string
           created_at: string | null
           description: string | null
+          dispute_letter_path: string | null
+          dispute_reason: string | null
+          dispute_resolved_at: string | null
+          dispute_status: string | null
+          dispute_submitted_at: string | null
           enriched_at: string | null
           enrichment_status: string | null
           geo_confidence: number | null
@@ -2554,6 +2559,11 @@ export type Database = {
           card_id: string
           created_at?: string | null
           description?: string | null
+          dispute_letter_path?: string | null
+          dispute_reason?: string | null
+          dispute_resolved_at?: string | null
+          dispute_status?: string | null
+          dispute_submitted_at?: string | null
           enriched_at?: string | null
           enrichment_status?: string | null
           geo_confidence?: number | null
@@ -2586,6 +2596,11 @@ export type Database = {
           card_id?: string
           created_at?: string | null
           description?: string | null
+          dispute_letter_path?: string | null
+          dispute_reason?: string | null
+          dispute_resolved_at?: string | null
+          dispute_status?: string | null
+          dispute_submitted_at?: string | null
           enriched_at?: string | null
           enrichment_status?: string | null
           geo_confidence?: number | null

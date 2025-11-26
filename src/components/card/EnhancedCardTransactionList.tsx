@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Filter, Search, RefreshCw, Receipt } from 'lucide-react';
+import { Sparkles, Filter, Search, RefreshCw, Receipt, AlertCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCardTransactionEnrichment } from '@/hooks/useCardTransactionEnrichment';
+import { TransactionDisputeDialog } from '@/components/card/TransactionDisputeDialog';
 import type { Database } from '@/integrations/supabase/types';
 
 type CardTransaction = Database['public']['Tables']['card_transactions']['Row'];
@@ -45,6 +46,7 @@ const categoryIcons: Record<string, string> = {
 export function EnhancedCardTransactionList({ transactions, isLoading }: EnhancedCardTransactionListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [disputeTransaction, setDisputeTransaction] = useState<CardTransaction | null>(null);
   const { enrich, batchEnrich, isEnriching, isBatchEnriching } = useCardTransactionEnrichment();
 
   const pendingTransactions = transactions.filter(tx => tx.enrichment_status === 'pending');
@@ -189,29 +191,59 @@ export function EnhancedCardTransactionList({ transactions, isLoading }: Enhance
                   </div>
                 </div>
 
-                {/* Amount */}
-                <div className="text-right">
+                {/* Amount & Actions */}
+                <div className="text-right space-y-1">
                   <p className={`font-semibold ${tx.amount_cents < 0 ? 'text-red-600' : 'text-green-600'}`}>
                     {tx.amount_cents < 0 ? '-' : '+'}${(Math.abs(tx.amount_cents) / 100).toFixed(2)}
                   </p>
-                  {tx.enrichment_status === 'pending' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => enrich({ transactionId: tx.id, rawMerchant: tx.merchant_name || '' })}
-                      disabled={isEnriching}
-                      className="mt-1 h-6 text-xs"
-                    >
-                      <RefreshCw className="w-3 h-3 mr-1" />
-                      Enrich
-                    </Button>
-                  )}
+                  
+                  <div className="flex gap-1">
+                    {tx.enrichment_status === 'pending' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => enrich({ transactionId: tx.id, rawMerchant: tx.merchant_name || '' })}
+                        disabled={isEnriching}
+                        className="h-6 text-xs"
+                      >
+                        <RefreshCw className="w-3 h-3 mr-1" />
+                        Enrich
+                      </Button>
+                    )}
+                    
+                    {tx.amount_cents < 0 && !tx.dispute_status && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDisputeTransaction(tx)}
+                        className="h-6 text-xs text-orange-600 hover:text-orange-700"
+                      >
+                        <AlertCircle className="w-3 h-3 mr-1" />
+                        Dispute
+                      </Button>
+                    )}
+                    
+                    {tx.dispute_status && (
+                      <Badge variant="outline" className="text-xs">
+                        {tx.dispute_status}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))
           )}
         </div>
       </ScrollArea>
+
+      {/* Dispute Dialog */}
+      {disputeTransaction && (
+        <TransactionDisputeDialog
+          transaction={disputeTransaction}
+          open={!!disputeTransaction}
+          onOpenChange={(open) => !open && setDisputeTransaction(null)}
+        />
+      )}
     </Card>
   );
 }
