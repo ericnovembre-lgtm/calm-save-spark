@@ -9,6 +9,10 @@ export function WealthGrowthBackground() {
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
       
+      {/* Radial Gradient Accents */}
+      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-radial from-primary/10 to-transparent blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-radial from-accent/10 to-transparent blur-3xl" />
+      
       {/* Animated Growth Lines */}
       {!prefersReducedMotion && (
         <>

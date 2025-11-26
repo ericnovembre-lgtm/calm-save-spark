@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIcon, CreditCard, Trophy, ArrowRight, ChevronUp } from "lucide-react";
+import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIcon, CreditCard, Trophy, ArrowRight, ChevronUp, PiggyBank, Shield, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LiquidCardMorph } from "@/components/hubs/money/effects/LiquidCardMorph";
@@ -21,6 +21,7 @@ const features = [
     path: "/goals",
     color: "text-blue-500",
     gradient: "from-blue-500/20 to-cyan-500/20",
+    badge: "Popular",
   },
   {
     icon: TrendingUp,
@@ -37,6 +38,7 @@ const features = [
     path: "/credit",
     color: "text-purple-500",
     gradient: "from-purple-500/20 to-pink-500/20",
+    badge: "New",
   },
   {
     icon: WalletIcon,
@@ -84,6 +86,8 @@ export default function GrowWealthHub() {
       value: stats.totalSaved,
       format: "currency",
       trend: stats.totalSaved > 0 ? "up" : null,
+      icon: PiggyBank,
+      gradient: "from-blue-500/10 to-cyan-500/10",
     },
     {
       label: "Credit Score",
@@ -91,18 +95,24 @@ export default function GrowWealthHub() {
       format: "number",
       change: stats.creditChange,
       trend: stats.creditChange > 0 ? "up" : stats.creditChange < 0 ? "down" : null,
+      icon: Shield,
+      gradient: "from-purple-500/10 to-pink-500/10",
     },
     {
       label: "Active Goals",
       value: stats.activeGoals,
       format: "number",
       trend: stats.activeGoals > 0 ? "up" : null,
+      icon: Target,
+      gradient: "from-green-500/10 to-emerald-500/10",
     },
     {
       label: "Card Status",
       value: stats.cardStatus,
       format: "text",
       trend: stats.cardStatus === "Active" ? "up" : null,
+      icon: CreditCard,
+      gradient: "from-orange-500/10 to-yellow-500/10",
     },
   ];
 
@@ -119,13 +129,31 @@ export default function GrowWealthHub() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 flex items-center gap-3">
-            <TrendingUp className="w-10 h-10 text-primary" />
-            Grow Wealth
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Build your future with goals, investments, and credit building
-          </p>
+          <div className="flex items-start gap-4 mb-3">
+            <motion.div
+              animate={prefersReducedMotion ? {} : { 
+                rotate: [0, 5, -5, 0],
+                scale: [1, 1.05, 1]
+              }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <TrendingUp className="w-12 h-12 text-primary" />
+            </motion.div>
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                  Grow Wealth
+                </h1>
+                <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  AI-Powered
+                </span>
+              </div>
+              <p className="text-muted-foreground text-lg">
+                Build your future with goals, investments, and credit building
+              </p>
+            </div>
+          </div>
         </motion.div>
 
         {/* Stats Cards */}
@@ -135,17 +163,31 @@ export default function GrowWealthHub() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          {statCards.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
-            >
-              <Card className="border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5 hover:border-primary/40 transition-colors">
-                <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
-                  <div className="flex items-center justify-between">
+          {statCards.map((stat, index) => {
+            const StatIcon = stat.icon;
+            return (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
+                whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -4 }}
+              >
+                <Card className={`border-2 border-primary/20 bg-gradient-to-br ${stat.gradient} hover:border-primary/40 transition-all hover:shadow-lg hover:shadow-primary/10`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="p-2 rounded-lg bg-background/50">
+                        <StatIcon className="w-4 h-4 text-primary" />
+                      </div>
+                      {stat.trend && (
+                        <ChevronUp
+                          className={`w-5 h-5 ${
+                            stat.trend === "up" ? "text-green-500" : "text-red-500 rotate-180"
+                          }`}
+                        />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
                     <p className="text-2xl font-bold">
                       {stat.format === "currency" && "$"}
                       {stat.format !== "text" ? (
@@ -159,23 +201,16 @@ export default function GrowWealthHub() {
                         stat.value
                       )}
                     </p>
-                    {stat.trend && (
-                      <ChevronUp
-                        className={`w-5 h-5 ${
-                          stat.trend === "up" ? "text-green-500" : "text-red-500 rotate-180"
-                        }`}
-                      />
+                    {stat.change !== undefined && stat.change !== 0 && (
+                      <p className={`text-xs mt-1 ${stat.change > 0 ? "text-green-500" : "text-red-500"}`}>
+                        {stat.change > 0 ? "+" : ""}{stat.change}
+                      </p>
                     )}
-                  </div>
-                  {stat.change !== undefined && stat.change !== 0 && (
-                    <p className={`text-xs mt-1 ${stat.change > 0 ? "text-green-500" : "text-red-500"}`}>
-                      {stat.change > 0 ? "+" : ""}{stat.change}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
         </motion.div>
 
         {/* Wealth Progress Overview */}
@@ -193,6 +228,15 @@ export default function GrowWealthHub() {
         </div>
 
         {/* Feature Cards */}
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-primary" />
+            Explore Features
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Discover all the tools to grow your wealth
+          </p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence mode="wait">
             {features.map((feature, index) => {
@@ -207,7 +251,20 @@ export default function GrowWealthHub() {
                 >
                   <LiquidCardMorph delay={0.5 + index * 0.05}>
                     <Link to={feature.path}>
-                      <Card className={`p-6 hover:shadow-lg transition-all cursor-pointer h-full border-2 hover:border-primary bg-gradient-to-br ${feature.gradient} group relative overflow-hidden`}>
+                      <Card className={`p-6 hover:shadow-xl hover:shadow-primary/20 transition-all cursor-pointer h-full border-2 hover:border-primary bg-gradient-to-br ${feature.gradient} group relative overflow-hidden`}>
+                        {/* Badge */}
+                        {feature.badge && (
+                          <div className="absolute top-3 right-3 z-20">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              feature.badge === "Popular" 
+                                ? "bg-primary/20 text-primary" 
+                                : "bg-accent/20 text-accent"
+                            }`}>
+                              {feature.badge}
+                            </span>
+                          </div>
+                        )}
+                        
                         {/* Glow effect on hover */}
                         <motion.div
                           className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0"
@@ -218,10 +275,18 @@ export default function GrowWealthHub() {
                         
                         <div className="relative z-10">
                           <div className="flex items-start justify-between mb-4">
-                            <div className={`p-3 rounded-xl bg-background/50 ${feature.color}`}>
+                            <motion.div 
+                              className={`p-3 rounded-xl bg-gradient-to-br ${feature.gradient} border border-primary/10 ${feature.color}`}
+                              whileHover={prefersReducedMotion ? {} : { scale: 1.1, rotate: 5 }}
+                            >
                               <Icon className="w-8 h-8" />
-                            </div>
-                            <ArrowRight className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </motion.div>
+                            <motion.div
+                              animate={prefersReducedMotion ? {} : { x: [0, 5, 0] }}
+                              transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                            >
+                              <ArrowRight className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </motion.div>
                           </div>
                           
                           <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
@@ -233,19 +298,25 @@ export default function GrowWealthHub() {
 
                           {/* Dynamic stats based on feature */}
                           {feature.title === "Goals" && stats.activeGoals > 0 && (
-                            <p className="text-xs text-primary mt-3 font-medium">
-                              {stats.activeGoals} active • {Math.round(stats.overallProgress)}% complete
-                            </p>
+                            <div className="mt-3 pt-3 border-t border-primary/10">
+                              <p className="text-xs text-primary font-medium">
+                                {stats.activeGoals} active • {Math.round(stats.overallProgress)}% complete
+                              </p>
+                            </div>
                           )}
                           {feature.title === "Credit Score" && stats.creditScore && (
-                            <p className="text-xs text-primary mt-3 font-medium">
-                              {stats.creditScore} pts {stats.creditChange > 0 && `↑ +${stats.creditChange}`}
-                            </p>
+                            <div className="mt-3 pt-3 border-t border-primary/10">
+                              <p className="text-xs text-primary font-medium">
+                                {stats.creditScore} pts {stats.creditChange > 0 && `↑ +${stats.creditChange}`}
+                              </p>
+                            </div>
                           )}
                           {feature.title === "Investments" && stats.investmentValue > 0 && (
-                            <p className="text-xs text-primary mt-3 font-medium">
-                              ${stats.investmentValue.toFixed(0)} • +{stats.investmentChange}%
-                            </p>
+                            <div className="mt-3 pt-3 border-t border-primary/10">
+                              <p className="text-xs text-primary font-medium">
+                                ${stats.investmentValue.toFixed(0)} • +{stats.investmentChange}%
+                              </p>
+                            </div>
                           )}
                         </div>
                       </Card>
