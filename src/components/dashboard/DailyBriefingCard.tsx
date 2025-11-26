@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { GlassCard } from '@/components/ui/glass-card';
 import { TypewriterText } from '@/components/ui/typewriter-text';
+import { VoiceBriefingPlayer } from '@/components/voice/VoiceBriefingPlayer';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { BriefingSkeleton } from './skeletons/BriefingSkeleton';
@@ -39,14 +40,19 @@ export function DailyBriefingCard() {
           >
             <Sparkles className="w-5 h-5 text-primary" />
           </motion.div>
-          <h3 className="font-semibold text-foreground">Daily Briefing</h3>
-          <span className="text-xs text-muted-foreground ml-auto">
-            {new Date().toLocaleDateString('en-US', { 
-              weekday: 'short', 
-              month: 'short', 
-              day: 'numeric' 
-            })}
-          </span>
+          <div className="flex-1">
+            <h3 className="font-semibold text-foreground">Daily Briefing</h3>
+            <span className="text-xs text-muted-foreground">
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+              })}
+            </span>
+          </div>
+          {briefing?.message && (
+            <VoiceBriefingPlayer text={briefing.message} />
+          )}
         </div>
         
         {briefing?.message ? (

@@ -375,4 +375,10 @@ verify_jwt = true
 [functions.benefit-hunter]
 verify_jwt = true
 
+[functions.polygon-market-data]
+verify_jwt = false
+
+[functions.elevenlabs-speak]
+verify_jwt = true
+
 
