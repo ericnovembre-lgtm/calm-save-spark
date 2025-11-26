@@ -17,6 +17,8 @@ import { FEATURE_FLAGS } from "@/lib/flags";
 import { supabase } from "@/integrations/supabase/client";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { FABMenu } from "@/components/navigation/FABMenu";
+import { GlobalAIAssistant } from "@/components/global-ai/GlobalAIAssistant";
+import { usePageContext } from "@/hooks/usePageContext";
 
 const taglines = [
   "Navigate Your Financial Universe",
@@ -62,6 +64,9 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const [taglineIndex, setTaglineIndex] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // Track page context for AI assistant
+  usePageContext();
 
   useEffect(() => {
     getClientUser().then(setUser);
@@ -211,6 +216,9 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
       {/* FAB Menu */}
       <FABMenu />
+
+      {/* Global AI Assistant */}
+      <GlobalAIAssistant />
 
       {/* Bottom Navigation (mobile) */}
       <nav

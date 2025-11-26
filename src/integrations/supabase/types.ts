@@ -3286,6 +3286,68 @@ export type Database = {
           },
         ]
       }
+      conversation_contexts: {
+        Row: {
+          captured_at: string | null
+          conversation_id: string | null
+          id: string
+          page_context: Json | null
+          page_route: string
+          user_id: string
+        }
+        Insert: {
+          captured_at?: string | null
+          conversation_id?: string | null
+          id?: string
+          page_context?: Json | null
+          page_route: string
+          user_id: string
+        }
+        Update: {
+          captured_at?: string | null
+          conversation_id?: string | null
+          id?: string
+          page_context?: Json | null
+          page_route?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_contexts_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_starters_cache: {
+        Row: {
+          context_hash: string
+          expires_at: string | null
+          generated_at: string | null
+          id: string
+          starters: Json
+          user_id: string
+        }
+        Insert: {
+          context_hash: string
+          expires_at?: string | null
+          generated_at?: string | null
+          id?: string
+          starters: Json
+          user_id: string
+        }
+        Update: {
+          context_hash?: string
+          expires_at?: string | null
+          generated_at?: string | null
+          id?: string
+          starters?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       cooling_off_sessions: {
         Row: {
           early_exit_requested: boolean | null
@@ -10382,6 +10444,47 @@ export type Database = {
             columns: ["business_profile_id"]
             isOneToOne: false
             referencedRelation: "business_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voice_sessions: {
+        Row: {
+          conversation_id: string | null
+          id: string
+          metadata: Json | null
+          session_end: string | null
+          session_start: string | null
+          total_duration_ms: number | null
+          turns_count: number | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          id?: string
+          metadata?: Json | null
+          session_end?: string | null
+          session_start?: string | null
+          total_duration_ms?: number | null
+          turns_count?: number | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          id?: string
+          metadata?: Json | null
+          session_end?: string | null
+          session_start?: string | null
+          total_duration_ms?: number | null
+          turns_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_sessions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
             referencedColumns: ["id"]
           },
         ]
