@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { VoiceProvider } from "@/contexts/VoiceContext";
+import { GlobalAIProvider } from "@/contexts/GlobalAIContext";
 import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { PageTracker } from "@/components/layout/PageTracker";
@@ -163,17 +164,19 @@ const App = () => {
             <AuthProvider>
               <DemoModeProvider>
                 <VoiceProvider>
-                  <TooltipProvider>
-                  <LiveRegion />
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <PageTracker />
-                    <InstallPrompt />
-                    <AnimatedRoutes />
-                    <ConditionalHelpButton />
-                  </BrowserRouter>
-                  </TooltipProvider>
+                  <GlobalAIProvider>
+                    <TooltipProvider>
+                    <LiveRegion />
+                    <Toaster />
+                    <Sonner />
+                    <BrowserRouter>
+                      <PageTracker />
+                      <InstallPrompt />
+                      <AnimatedRoutes />
+                      <ConditionalHelpButton />
+                    </BrowserRouter>
+                    </TooltipProvider>
+                  </GlobalAIProvider>
                 </VoiceProvider>
               </DemoModeProvider>
             </AuthProvider>

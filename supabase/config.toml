@@ -387,4 +387,16 @@ verify_jwt = true
 [functions.pinecone-memory]
 verify_jwt = true
 
+[functions.ai-memory-suggestions]
+verify_jwt = true
+
+[functions.voice-to-text]
+verify_jwt = true
+
+[functions.conversation-starters]
+verify_jwt = true
+
+[functions.realtime-voice]
+verify_jwt = true
+
 
