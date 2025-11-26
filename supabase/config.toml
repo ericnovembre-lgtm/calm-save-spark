@@ -381,4 +381,10 @@ verify_jwt = false
 [functions.elevenlabs-speak]
 verify_jwt = true
 
+[functions.cohere-embed]
+verify_jwt = true
+
+[functions.pinecone-memory]
+verify_jwt = true
+
 
