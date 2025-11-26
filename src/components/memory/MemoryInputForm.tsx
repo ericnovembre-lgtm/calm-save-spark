@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,8 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Brain, Target, Lightbulb, TrendingUp, Sparkles, Loader2 } from 'lucide-react';
+import { Brain, Target, Lightbulb, TrendingUp, Sparkles, Loader2, Mic, MicOff, Wand2 } from 'lucide-react';
 import { useFinancialMemory } from '@/hooks/useFinancialMemory';
+import { useVoice } from '@/contexts/VoiceContext';
+import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 const formSchema = z.object({
@@ -45,8 +49,12 @@ const templates = [
 
 export function MemoryInputForm({ onMemoryStored }: MemoryInputFormProps) {
   const { storeMemory, isLoading } = useFinancialMemory();
+  const { isVoiceEnabled } = useVoice();
+  const { isRecording, isProcessing, startRecording, stopRecording, cancelRecording } = useVoiceRecording();
   const [showSuccess, setShowSuccess] = useState(false);
   const [charCount, setCharCount] = useState(0);
+  const [aiSuggestions, setAiSuggestions] = useState<Array<{ content: string; category: string; importance: number }>>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -89,6 +97,57 @@ export function MemoryInputForm({ onMemoryStored }: MemoryInputFormProps) {
     return '🔴 High';
   };
 
+  const handleVoiceToggle = async () => {
+    if (isRecording) {
+      try {
+        const base64Audio = await stopRecording();
+        
+        // Send to edge function for transcription
+        const { data, error } = await supabase.functions.invoke('voice-to-text', {
+          body: { audio: base64Audio },
+        });
+
+        if (error) throw error;
+
+        setValue('content', data.text);
+        setCharCount(data.text.length);
+      } catch (error) {
+        console.error('Error transcribing audio:', error);
+        toast.error('Failed to transcribe audio');
+      }
+    } else {
+      await startRecording();
+    }
+  };
+
+  const loadAISuggestions = async () => {
+    setIsLoadingSuggestions(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-memory-suggestions');
+      
+      if (error) throw error;
+      
+      setAiSuggestions(data.suggestions || []);
+      toast.success('AI suggestions loaded');
+    } catch (error) {
+      console.error('Error loading AI suggestions:', error);
+      toast.error('Failed to load AI suggestions');
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  const applySuggestion = (suggestion: typeof aiSuggestions[0]) => {
+    setValue('content', suggestion.content);
+    setValue('category', suggestion.category as any);
+    setValue('importance', suggestion.importance);
+    setCharCount(suggestion.content.length);
+  };
+
+  useEffect(() => {
+    loadAISuggestions();
+  }, []);
+
   return (
     <Card>
       <CardHeader>
@@ -102,6 +161,59 @@ export function MemoryInputForm({ onMemoryStored }: MemoryInputFormProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* AI Suggestions */}
+          {aiSuggestions.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Wand2 className="h-4 w-4" />
+                  AI Suggestions Based on Your History
+                </Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={loadAISuggestions}
+                  disabled={isLoadingSuggestions}
+                  className="text-xs"
+                >
+                  {isLoadingSuggestions ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    'Refresh'
+                  )}
+                </Button>
+              </div>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {aiSuggestions.map((suggestion, idx) => (
+                  <motion.button
+                    key={idx}
+                    type="button"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    onClick={() => applySuggestion(suggestion)}
+                    className="w-full p-3 text-left rounded-lg border bg-card hover:bg-accent transition-colors text-sm"
+                  >
+                    <div className="flex items-start gap-2">
+                      <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-foreground">{suggestion.content}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-muted-foreground capitalize">{suggestion.category}</span>
+                          <span className="text-xs text-muted-foreground">•</span>
+                          <span className="text-xs text-muted-foreground">
+                            {suggestion.importance < 0.4 ? 'Low' : suggestion.importance < 0.7 ? 'Medium' : 'High'} priority
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Quick Templates */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Quick Templates</Label>
@@ -123,17 +235,51 @@ export function MemoryInputForm({ onMemoryStored }: MemoryInputFormProps) {
 
           {/* Content */}
           <div className="space-y-2">
-            <Label htmlFor="content">Memory Content *</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="content">Memory Content *</Label>
+              {isVoiceEnabled && (
+                <Button
+                  type="button"
+                  variant={isRecording ? "destructive" : "outline"}
+                  size="sm"
+                  onClick={handleVoiceToggle}
+                  disabled={isLoading || isProcessing}
+                  className="gap-2"
+                >
+                  {isRecording ? (
+                    <>
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ repeat: Infinity, duration: 1 }}
+                      >
+                        <Mic className="h-3 w-3" />
+                      </motion.div>
+                      Stop Recording
+                    </>
+                  ) : isProcessing ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Transcribing...
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-3 w-3" />
+                      Speak
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
             <Textarea
               id="content"
-              placeholder="E.g., I want to save $5,000 for an emergency fund..."
+              placeholder={isVoiceEnabled ? "Click 'Speak' to use voice input or type here..." : "E.g., I want to save $5,000 for an emergency fund..."}
               {...register('content')}
               onChange={(e) => {
                 register('content').onChange(e);
                 setCharCount(e.target.value.length);
               }}
               className="min-h-[100px] resize-none"
-              disabled={isLoading}
+              disabled={isLoading || isRecording || isProcessing}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>{errors.content?.message}</span>

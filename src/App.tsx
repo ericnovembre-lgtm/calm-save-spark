@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
+import { VoiceProvider } from "@/contexts/VoiceContext";
 import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { PageTracker } from "@/components/layout/PageTracker";
@@ -161,7 +162,8 @@ const App = () => {
           <ThemeProvider>
             <AuthProvider>
               <DemoModeProvider>
-                <TooltipProvider>
+                <VoiceProvider>
+                  <TooltipProvider>
                   <LiveRegion />
                   <Toaster />
                   <Sonner />
@@ -171,7 +173,8 @@ const App = () => {
                     <AnimatedRoutes />
                     <ConditionalHelpButton />
                   </BrowserRouter>
-                </TooltipProvider>
+                  </TooltipProvider>
+                </VoiceProvider>
               </DemoModeProvider>
             </AuthProvider>
           </ThemeProvider>
