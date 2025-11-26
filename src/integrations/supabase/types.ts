@@ -4515,6 +4515,48 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_anomalies: {
+        Row: {
+          affected_entity_id: string | null
+          affected_entity_type: string | null
+          anomaly_type: string
+          detected_at: string | null
+          factors: Json
+          false_positive: boolean | null
+          id: string
+          resolution_type: string | null
+          resolved_at: string | null
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          affected_entity_id?: string | null
+          affected_entity_type?: string | null
+          anomaly_type: string
+          detected_at?: string | null
+          factors?: Json
+          false_positive?: boolean | null
+          id?: string
+          resolution_type?: string | null
+          resolved_at?: string | null
+          severity?: string
+          user_id: string
+        }
+        Update: {
+          affected_entity_id?: string | null
+          affected_entity_type?: string | null
+          anomaly_type?: string
+          detected_at?: string | null
+          factors?: Json
+          false_positive?: boolean | null
+          id?: string
+          resolution_type?: string | null
+          resolved_at?: string | null
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       financial_health_benchmarks: {
         Row: {
           age_range: string
@@ -5495,6 +5537,36 @@ export type Database = {
           score?: number
           time_period?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      learning_events: {
+        Row: {
+          event_data: Json | null
+          event_type: string
+          feedback_at: string | null
+          id: string
+          prediction_id: string | null
+          user_id: string
+          was_accurate: boolean | null
+        }
+        Insert: {
+          event_data?: Json | null
+          event_type: string
+          feedback_at?: string | null
+          id?: string
+          prediction_id?: string | null
+          user_id: string
+          was_accurate?: boolean | null
+        }
+        Update: {
+          event_data?: Json | null
+          event_type?: string
+          feedback_at?: string | null
+          id?: string
+          prediction_id?: string | null
+          user_id?: string
+          was_accurate?: boolean | null
         }
         Relationships: []
       }
@@ -9885,6 +9957,39 @@ export type Database = {
           message?: string
           severity?: string | null
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_behavior_patterns: {
+        Row: {
+          confidence_score: number | null
+          first_detected_at: string | null
+          id: string
+          last_updated_at: string | null
+          pattern_data: Json
+          pattern_type: string
+          sample_size: number | null
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          first_detected_at?: string | null
+          id?: string
+          last_updated_at?: string | null
+          pattern_data?: Json
+          pattern_type: string
+          sample_size?: number | null
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          first_detected_at?: string | null
+          id?: string
+          last_updated_at?: string | null
+          pattern_data?: Json
+          pattern_type?: string
+          sample_size?: number | null
           user_id?: string
         }
         Relationships: []
