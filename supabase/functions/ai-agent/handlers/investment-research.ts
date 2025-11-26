@@ -104,7 +104,7 @@ Provide objective analysis and educational insights. Always emphasize this is no
     enhancedPrompt, 
     history, 
     message,
-    'google/gemini-2.5-pro',
+    'claude/claude-sonnet-4-5',
     UI_TOOLS
   );
 

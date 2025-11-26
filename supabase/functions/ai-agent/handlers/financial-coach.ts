@@ -114,7 +114,7 @@ Use this context to provide personalized advice. Reference specific data points 
     enhancedPrompt, 
     history, 
     message,
-    'openai/gpt-5-mini',
+    'claude/claude-sonnet-4-5',
     UI_TOOLS,
     supabase,
     conversationId,
