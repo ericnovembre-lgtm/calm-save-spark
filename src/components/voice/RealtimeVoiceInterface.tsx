@@ -7,9 +7,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface RealtimeVoiceInterfaceProps {
   systemPrompt?: string;
+  onTranscriptUpdate?: (transcript: string) => void;
+  onResponseUpdate?: (response: string) => void;
+  onClose?: () => void;
 }
 
-export function RealtimeVoiceInterface({ systemPrompt }: RealtimeVoiceInterfaceProps) {
+export function RealtimeVoiceInterface({ 
+  systemPrompt,
+  onTranscriptUpdate,
+  onResponseUpdate,
+  onClose 
+}: RealtimeVoiceInterfaceProps) {
   const [transcript, setTranscript] = useState('');
   const [response, setResponse] = useState('');
 
@@ -17,11 +25,18 @@ export function RealtimeVoiceInterface({ systemPrompt }: RealtimeVoiceInterfaceP
     systemPrompt,
     onTranscript: (text, isFinal) => {
       setTranscript(text);
+      onTranscriptUpdate?.(text);
     },
     onResponse: (text) => {
       setResponse(text);
+      onResponseUpdate?.(text);
     },
   });
+
+  const handleDisconnect = () => {
+    disconnect();
+    onClose?.();
+  };
 
   return (
     <Card className="p-6">
@@ -36,7 +51,7 @@ export function RealtimeVoiceInterface({ systemPrompt }: RealtimeVoiceInterfaceP
           </div>
           <Button
             variant={isConnected ? 'destructive' : 'default'}
-            onClick={isConnected ? disconnect : connect}
+            onClick={isConnected ? handleDisconnect : connect}
           >
             {isConnected ? (
               <>

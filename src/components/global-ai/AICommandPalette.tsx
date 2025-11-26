@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useGlobalAI } from '@/contexts/GlobalAIContext';
 import { SmartStarters } from './SmartStarters';
+import { RealtimeVoiceInterface } from '@/components/voice/RealtimeVoiceInterface';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -64,6 +65,20 @@ export function AICommandPalette() {
   return (
     <Dialog open={isOpen} onOpenChange={closeAI}>
       <DialogContent className="max-w-2xl h-[600px] p-0 gap-0">
+        {/* Voice Mode Interface */}
+        {isVoiceMode && (
+          <div className="absolute inset-0 z-50 bg-background">
+            <RealtimeVoiceInterface
+              onTranscriptUpdate={(transcript) => {
+                addMessage('user', transcript);
+              }}
+              onResponseUpdate={(response) => {
+                addMessage('assistant', response);
+              }}
+              onClose={() => setVoiceMode(false)}
+            />
+          </div>
+        )}
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
