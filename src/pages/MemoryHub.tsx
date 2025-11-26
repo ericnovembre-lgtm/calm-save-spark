@@ -1,10 +1,18 @@
+import { useState } from 'react';
 import { MemoryViewer } from '@/components/memory/MemoryViewer';
 import { MemoryInsights } from '@/components/memory/MemoryInsights';
 import { MemoryTimeline } from '@/components/memory/MemoryTimeline';
 import { MemorySemanticSearch } from '@/components/memory/MemorySemanticSearch';
+import { MemoryInputForm } from '@/components/memory/MemoryInputForm';
 import { Brain } from 'lucide-react';
 
 export default function MemoryHub() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleMemoryStored = () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -19,9 +27,11 @@ export default function MemoryHub() {
       
       <MemorySemanticSearch />
       
+      <MemoryInputForm onMemoryStored={handleMemoryStored} />
+      
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-6">
-          <MemoryViewer />
+          <MemoryViewer key={refreshKey} />
           <MemoryTimeline />
         </div>
         

@@ -26,16 +26,16 @@ export function MemoryViewer() {
   const [memories, setMemories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadMemories();
-  }, []);
-
   const loadMemories = async () => {
     setIsLoading(true);
     const data = await getLocalMemories();
     setMemories(data);
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    loadMemories();
+  }, []);
 
   if (isLoading) {
     return (
