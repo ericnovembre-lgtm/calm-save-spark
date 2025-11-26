@@ -113,6 +113,9 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
           const { done, value } = await reader.read();
           
           if (done) {
+            // Send [DONE] signal in OpenAI format
+            const doneChunk = new TextEncoder().encode('data: [DONE]\n\n');
+            controller.enqueue(doneChunk);
             controller.close();
             break;
           }
@@ -128,6 +131,8 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
               const data = line.slice(6);
               
               if (data === '[DONE]') {
+                const doneChunk = new TextEncoder().encode('data: [DONE]\n\n');
+                controller.enqueue(doneChunk);
                 controller.close();
                 return;
               }
@@ -139,11 +144,38 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
                 if (parsed.type === 'content_block_delta') {
                   const delta = parsed.delta;
                   if (delta.type === 'text_delta' && delta.text) {
-                    // Convert to OpenAI-style format for consistency
-                    const chunk = new TextEncoder().encode(delta.text);
-                    controller.enqueue(chunk);
+                    // Convert to OpenAI-style SSE format
+                    const openAIFormat = {
+                      choices: [{ delta: { content: delta.text } }]
+                    };
+                    const sseData = `data: ${JSON.stringify(openAIFormat)}\n\n`;
+                    controller.enqueue(new TextEncoder().encode(sseData));
                   }
+                } else if (parsed.type === 'content_block_start' && parsed.content_block?.type === 'tool_use') {
+                  // Handle tool calls - transform to OpenAI format
+                  const toolCall = {
+                    id: parsed.content_block.id,
+                    type: 'function',
+                    function: {
+                      name: parsed.content_block.name,
+                      arguments: ''
+                    }
+                  };
+                  const openAIFormat = {
+                    choices: [{ delta: { tool_calls: [toolCall] } }]
+                  };
+                  const sseData = `data: ${JSON.stringify(openAIFormat)}\n\n`;
+                  controller.enqueue(new TextEncoder().encode(sseData));
+                } else if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'input_json_delta') {
+                  // Handle tool call arguments streaming
+                  const openAIFormat = {
+                    choices: [{ delta: { tool_calls: [{ function: { arguments: parsed.delta.partial_json } }] } }]
+                  };
+                  const sseData = `data: ${JSON.stringify(openAIFormat)}\n\n`;
+                  controller.enqueue(new TextEncoder().encode(sseData));
                 } else if (parsed.type === 'message_stop') {
+                  const doneChunk = new TextEncoder().encode('data: [DONE]\n\n');
+                  controller.enqueue(doneChunk);
                   controller.close();
                   return;
                 }
