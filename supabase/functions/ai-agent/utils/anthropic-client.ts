@@ -64,7 +64,15 @@ export async function streamAnthropicResponse(
     requestBody.tools = convertToolsToClaude(tools);
   }
 
-  console.log(`Calling Anthropic API with model: ${model}`);
+  // ===== REQUEST-LEVEL LOGGING =====
+  const requestStartTime = Date.now();
+  console.log('[Anthropic] ===== New Request =====');
+  console.log('[Anthropic] Timestamp:', new Date().toISOString());
+  console.log('[Anthropic] Model:', model);
+  console.log('[Anthropic] Messages:', messages.length);
+  console.log('[Anthropic] System prompt length:', systemPrompt.length, 'chars');
+  console.log('[Anthropic] Tools:', tools ? tools.map(t => t.function?.name).join(', ') : 'none');
+  console.log('[Anthropic] Conversation ID:', conversationId || 'none');
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -76,15 +84,41 @@ export async function streamAnthropicResponse(
     body: JSON.stringify(requestBody),
   });
 
+  // ===== RESPONSE-LEVEL LOGGING =====
+  const requestEndTime = Date.now();
+  console.log('[Anthropic] Response status:', response.status);
+  console.log('[Anthropic] Request duration:', requestEndTime - requestStartTime, 'ms');
+  console.log('[Anthropic] Rate limit remaining:', response.headers.get('anthropic-ratelimit-requests-remaining'));
+  console.log('[Anthropic] Rate limit reset:', response.headers.get('anthropic-ratelimit-requests-reset'));
+  console.log('[Anthropic] Request ID:', response.headers.get('request-id'));
+
   if (!response.ok) {
+    const errorBody = await response.text();
+    
+    // ===== ERROR CLASSIFICATION LOGGING =====
+    console.error('[Anthropic Error] ===== API Error =====');
+    console.error('[Anthropic Error] Status:', response.status);
+    console.error('[Anthropic Error] Status Text:', response.statusText);
+    console.error('[Anthropic Error] Body:', errorBody);
+    console.error('[Anthropic Error] Model:', model);
+    console.error('[Anthropic Error] Request ID:', response.headers.get('request-id'));
+    console.error('[Anthropic Error] Request duration:', requestEndTime - requestStartTime, 'ms');
+    
     if (response.status === 429) {
+      console.error('[Anthropic Error] Type: RATE_LIMIT - Too many requests');
       throw new Error('RATE_LIMIT_EXCEEDED');
     }
     if (response.status === 401) {
+      console.error('[Anthropic Error] Type: AUTH_ERROR - Invalid API key');
       throw new Error('ANTHROPIC_AUTH_ERROR');
     }
-    const errorText = await response.text();
-    console.error('Anthropic API error:', response.status, errorText);
+    if (response.status === 400) {
+      console.error('[Anthropic Error] Type: INVALID_REQUEST - Bad request parameters');
+    }
+    if (response.status >= 500) {
+      console.error('[Anthropic Error] Type: SERVER_ERROR - Anthropic service issue');
+    }
+    
     throw new Error(`Anthropic API error: ${response.statusText}`);
   }
 
@@ -105,10 +139,19 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
   const reader = sourceStream.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+  
+  // ===== PERFORMANCE METRICS TRACKING =====
+  const streamStartTime = Date.now();
+  let firstTokenTime: number | null = null;
+  let chunkCount = 0;
+  let totalTokensInput = 0;
+  let totalTokensOutput = 0;
 
   return new ReadableStream({
     async start(controller) {
       try {
+        console.log('[Anthropic Stream] ===== Stream Started =====');
+        
         while (true) {
           const { done, value } = await reader.read();
           
@@ -140,10 +183,35 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
               try {
                 const parsed = JSON.parse(data);
                 
+                // ===== STREAM EVENT LOGGING =====
+                if (parsed.type === 'message_start') {
+                  console.log('[Anthropic Stream] Message started');
+                  console.log('[Anthropic Stream] Model:', parsed.message?.model);
+                  if (parsed.message?.usage) {
+                    totalTokensInput = parsed.message.usage.input_tokens || 0;
+                    console.log('[Anthropic Stream] Input tokens:', totalTokensInput);
+                  }
+                }
+                
+                if (parsed.type === 'content_block_start') {
+                  console.log('[Anthropic Stream] Content block started, type:', parsed.content_block?.type);
+                  if (parsed.index !== undefined) {
+                    console.log('[Anthropic Stream] Block index:', parsed.index);
+                  }
+                }
+                
                 // Handle different event types from Anthropic
                 if (parsed.type === 'content_block_delta') {
                   const delta = parsed.delta;
                   if (delta.type === 'text_delta' && delta.text) {
+                    // Track first token timing
+                    if (!firstTokenTime) {
+                      firstTokenTime = Date.now();
+                      console.log('[Anthropic Perf] Time to first token:', firstTokenTime - streamStartTime, 'ms');
+                    }
+                    
+                    chunkCount++;
+                    
                     // Convert to OpenAI-style SSE format
                     const openAIFormat = {
                       choices: [{ delta: { content: delta.text } }]
@@ -152,6 +220,11 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
                     controller.enqueue(new TextEncoder().encode(sseData));
                   }
                 } else if (parsed.type === 'content_block_start' && parsed.content_block?.type === 'tool_use') {
+                  // ===== TOOL CALL LOGGING =====
+                  console.log('[Anthropic Tool] Tool call started');
+                  console.log('[Anthropic Tool] Tool name:', parsed.content_block.name);
+                  console.log('[Anthropic Tool] Tool ID:', parsed.content_block.id);
+                  
                   // Handle tool calls - transform to OpenAI format
                   const toolCall = {
                     id: parsed.content_block.id,
@@ -168,12 +241,40 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
                   controller.enqueue(new TextEncoder().encode(sseData));
                 } else if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'input_json_delta') {
                   // Handle tool call arguments streaming
+                  const argsPreview = parsed.delta.partial_json?.slice(0, 100) || '';
+                  console.log('[Anthropic Tool] Tool arguments chunk:', argsPreview.length, 'chars');
+                  
                   const openAIFormat = {
                     choices: [{ delta: { tool_calls: [{ function: { arguments: parsed.delta.partial_json } }] } }]
                   };
                   const sseData = `data: ${JSON.stringify(openAIFormat)}\n\n`;
                   controller.enqueue(new TextEncoder().encode(sseData));
+                } else if (parsed.type === 'message_delta') {
+                  console.log('[Anthropic Stream] Message delta');
+                  if (parsed.delta?.stop_reason) {
+                    console.log('[Anthropic Stream] Stop reason:', parsed.delta.stop_reason);
+                  }
+                  if (parsed.usage?.output_tokens) {
+                    totalTokensOutput = parsed.usage.output_tokens;
+                    console.log('[Anthropic Stream] Output tokens:', totalTokensOutput);
+                  }
                 } else if (parsed.type === 'message_stop') {
+                  // ===== PERFORMANCE METRICS LOGGING =====
+                  const totalTime = Date.now() - streamStartTime;
+                  console.log('[Anthropic Stream] ===== Stream Complete =====');
+                  console.log('[Anthropic Perf] Total chunks:', chunkCount);
+                  console.log('[Anthropic Perf] Total time:', totalTime, 'ms');
+                  console.log('[Anthropic Perf] Input tokens:', totalTokensInput);
+                  console.log('[Anthropic Perf] Output tokens:', totalTokensOutput);
+                  console.log('[Anthropic Perf] Total tokens:', totalTokensInput + totalTokensOutput);
+                  if (chunkCount > 0 && totalTime > 0) {
+                    console.log('[Anthropic Perf] Avg ms per chunk:', (totalTime / chunkCount).toFixed(2));
+                  }
+                  if (totalTokensOutput > 0 && firstTokenTime) {
+                    const tokensPerSec = (totalTokensOutput / ((totalTime - (firstTokenTime - streamStartTime)) / 1000)).toFixed(2);
+                    console.log('[Anthropic Perf] Tokens per second:', tokensPerSec);
+                  }
+                  
                   const doneChunk = new TextEncoder().encode('data: [DONE]\n\n');
                   controller.enqueue(doneChunk);
                   controller.close();
@@ -181,13 +282,17 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
                 }
               } catch (e) {
                 // Ignore parse errors for partial JSON
-                console.warn('Failed to parse SSE data:', e);
+                console.warn('[Anthropic Stream] Failed to parse SSE data:', e);
               }
             }
           }
         }
       } catch (error) {
-        console.error('Stream transformation error:', error);
+        // ===== STREAM ERROR LOGGING =====
+        console.error('[Anthropic Stream Error] ===== Stream Failed =====');
+        console.error('[Anthropic Stream Error] Error:', error);
+        console.error('[Anthropic Stream Error] Chunks received before error:', chunkCount);
+        console.error('[Anthropic Stream Error] Time before error:', Date.now() - streamStartTime, 'ms');
         controller.error(error);
       }
     }
