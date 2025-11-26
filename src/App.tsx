@@ -91,6 +91,7 @@ const PremiumHub = createPageLoader(() => import("./pages/hubs/PremiumHub"), 'me
 const FeaturesHub = createPageLoader(() => import("./pages/FeaturesHub"), 'medium');
 const AgentHub = createPageLoader(() => import("./pages/AgentHub"), 'medium');
 const RefinancingHub = createPageLoader(() => import("./pages/RefinancingHub"), 'medium');
+const MemoryHub = createPageLoader(() => import("./pages/MemoryHub"), 'medium');
 
 // LIGHT PAGES - Auth, static content, simple UI
 const Landing = createPageLoader(() => import("./pages/Landing"), 'light');
@@ -280,6 +281,7 @@ function AnimatedRoutes() {
         <Route path="/hubs/ai-insights" element={<ProtectedRoute><PageTransition><AIInsightsHub /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/lifestyle" element={<ProtectedRoute><PageTransition><LifestyleHub /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/premium" element={<ProtectedRoute><PageTransition><PremiumHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/hubs/memory" element={<ProtectedRoute><PageTransition><MemoryHub /></PageTransition></ProtectedRoute>} />
         
         {/* Next-Gen Features */}
         <Route path="/digital-twin" element={<ProtectedRoute><PageTransition><DigitalTwin /></PageTransition></ProtectedRoute>} />
