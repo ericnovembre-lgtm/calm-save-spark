@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useNavigate } from "react-router-dom";
+import { VoiceBriefingPlayer } from "@/components/voice/VoiceBriefingPlayer";
+import { useSpeakableText } from "@/hooks/useSpeakableText";
 
 interface AIInsight {
   id: string;
@@ -18,6 +20,7 @@ interface AIInsight {
 
 export function AIInsightsCard() {
   const navigate = useNavigate();
+  const { generateInsightSummary } = useSpeakableText();
   const [insights, setInsights] = useState<AIInsight[]>([
     {
       id: "1",
@@ -102,7 +105,7 @@ export function AIInsightsCard() {
       >
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-1">
             {/* Animated AI Avatar */}
             <motion.div
               className="relative w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center"
@@ -153,12 +156,21 @@ export function AIInsightsCard() {
             </div>
           </div>
 
-          <button
-            onClick={handleDismiss}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <VoiceBriefingPlayer
+              text={generateInsightSummary(
+                currentInsight.text,
+                currentInsight.action?.label
+              )}
+              className="flex-shrink-0"
+            />
+            <button
+              onClick={handleDismiss}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Insight text with typing effect */}
