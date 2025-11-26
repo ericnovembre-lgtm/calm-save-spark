@@ -41,6 +41,7 @@ import { PortfolioWidget } from "@/components/dashboard/PortfolioWidget";
 import { BudgetsWidget } from "@/components/dashboard/BudgetsWidget";
 import { SmartBanner } from "@/components/dashboard/SmartBanner";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+import { AnomalyAlertCenter } from "@/components/ai/AnomalyAlertCenter";
 import { useKeyboardShortcuts, defaultDashboardShortcuts, useShortcutsHelp } from "@/hooks/useKeyboardShortcuts";
 
 export default function Dashboard() {
@@ -343,6 +344,9 @@ export default function Dashboard() {
           {/* Critical Banners */}
           <EmailVerificationBanner />
           <SmartBanner />
+
+          {/* Anomaly Alerts */}
+          <AnomalyAlertCenter />
 
           {/* Header */}
           <div className="flex items-center justify-between mb-6 [&_svg]:drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">

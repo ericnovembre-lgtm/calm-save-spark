@@ -10,6 +10,7 @@ import { CategoryDetailView } from "@/components/insights/CategoryDetailView";
 import { ScenarioPlayground } from "@/components/insights/ScenarioPlayground";
 import { InsightsBreadcrumb } from "@/components/insights/InsightsBreadcrumb";
 import { ChartExplanation } from "@/components/insights/ChartExplanation";
+import { BehavioralInsightsPanel } from "@/components/ai/BehavioralInsightsPanel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RefreshCw, ArrowLeft } from "lucide-react";
@@ -114,9 +115,10 @@ export default function Insights() {
 
         {state.view === 'overview' && (
           <Tabs defaultValue="forecast" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 max-w-lg">
+            <TabsList className="grid w-full grid-cols-4 max-w-2xl">
               <TabsTrigger value="forecast">Cash Flow</TabsTrigger>
               <TabsTrigger value="spending">Spending</TabsTrigger>
+              <TabsTrigger value="behavioral">AI Insights</TabsTrigger>
               <TabsTrigger value="scenarios">What-If</TabsTrigger>
             </TabsList>
 
@@ -200,6 +202,10 @@ export default function Insights() {
                   <SpendingInsights />
                 </>
               )}
+            </TabsContent>
+
+            <TabsContent value="behavioral">
+              <BehavioralInsightsPanel />
             </TabsContent>
 
             <TabsContent value="scenarios">
