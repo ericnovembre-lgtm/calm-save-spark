@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNetWorthData } from "@/hooks/useNetWorthData";
 import { useGenerativeInsights } from "@/hooks/useGenerativeInsights";
+import { useRealtimeMarketData } from "@/hooks/useRealtimeMarketData";
 import { supabase } from "@/integrations/supabase/client";
 import CountUp from "react-countup";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -15,6 +16,7 @@ export function WealthDashboardSummary() {
   const [userId, setUserId] = useState<string>('');
   const { data: netWorthData, isLoading: isNetWorthLoading } = useNetWorthData();
   const { insights, isLoading: isInsightsLoading } = useGenerativeInsights(userId);
+  const { data: marketData } = useRealtimeMarketData();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -157,6 +159,32 @@ export function WealthDashboardSummary() {
             </ResponsiveContainer>
           </div>
         </div>
+
+        {/* Real-time Market Indices */}
+        {marketData && marketData.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <h4 className="font-semibold">Live Market Indices</h4>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+              {marketData.slice(0, 5).map((market) => (
+                <motion.div
+                  key={market.symbol}
+                  whileHover={{ scale: 1.02 }}
+                  className="p-3 rounded-lg bg-muted/50 border border-border"
+                >
+                  <div className="text-xs text-muted-foreground">{market.symbol}</div>
+                  <div className="text-lg font-bold">${market.price.toFixed(2)}</div>
+                  <div className={`text-xs flex items-center gap-1 ${market.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {market.change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                    {market.changePercent.toFixed(2)}%
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Personalized Insights */}
         {!isInsightsLoading && wealthInsights.length > 0 && (
