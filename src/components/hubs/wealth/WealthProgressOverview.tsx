@@ -51,11 +51,11 @@ export function WealthProgressOverview({ overallProgress, nextMilestone, creditS
                   cx="40"
                   cy="40"
                   r="32"
-                  stroke="currentColor"
+                  stroke="url(#progressGradient)"
                   strokeWidth="6"
                   fill="transparent"
                   strokeDasharray={`${2 * Math.PI * 32}`}
-                  className="text-primary"
+                  strokeLinecap="round"
                   initial={{ strokeDashoffset: 2 * Math.PI * 32 }}
                   animate={{ 
                     strokeDashoffset: prefersReducedMotion 
@@ -64,28 +64,46 @@ export function WealthProgressOverview({ overallProgress, nextMilestone, creditS
                   }}
                   transition={{ duration: 1.5, ease: "easeOut" }}
                 />
+                <defs>
+                  <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" />
+                    <stop offset="100%" stopColor="hsl(var(--accent))" />
+                  </linearGradient>
+                </defs>
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-sm font-bold">{Math.round(overallProgress)}%</span>
+                <motion.span 
+                  className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+                  animate={prefersReducedMotion ? {} : { scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                >
+                  {Math.round(overallProgress)}%
+                </motion.span>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Overall Goals Progress */}
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <motion.div 
+              className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background/80 transition-colors"
+              whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+            >
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
                 <Target className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Overall Goals</p>
                 <p className="font-semibold">{Math.round(overallProgress)}% Complete</p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Credit Health */}
-            {creditScore && (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
+            {creditScore ? (
+              <motion.div 
+                className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background/80 transition-colors"
+                whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+              >
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                   creditScore >= 750 ? 'bg-green-500/10' :
                   creditScore >= 650 ? 'bg-yellow-500/10' : 'bg-red-500/10'
@@ -99,23 +117,47 @@ export function WealthProgressOverview({ overallProgress, nextMilestone, creditS
                   <p className="text-sm text-muted-foreground">Credit Health</p>
                   <p className="font-semibold">{creditScore >= 750 ? 'Excellent' : creditScore >= 650 ? 'Good' : 'Fair'}</p>
                 </div>
+              </motion.div>
+            ) : (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
+                <div className="w-10 h-10 rounded-full bg-muted/20 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Credit Health</p>
+                  <p className="font-semibold text-muted-foreground">No data yet</p>
+                </div>
               </div>
             )}
 
             {/* Next Milestone */}
-            {nextMilestone && remaining > 0 && (
+            {nextMilestone && remaining > 0 ? (
               <Link 
                 to="/goals" 
-                className="md:col-span-2 flex items-center justify-between p-4 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors group"
+                className="md:col-span-2 flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/15 hover:to-accent/15 transition-all group border border-primary/10"
               >
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Next Milestone</p>
+                  <p className="text-xs text-muted-foreground mb-1">Next Milestone</p>
                   <p className="font-semibold">{nextMilestone.name || 'Goal'}</p>
-                  <p className="text-sm text-primary mt-1">
+                  <p className="text-sm text-primary mt-1 font-medium">
                     ${remaining.toFixed(2)} to go
                   </p>
                 </div>
-                <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
+                <motion.div
+                  animate={prefersReducedMotion ? {} : { x: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <ArrowRight className="w-5 h-5 text-primary" />
+                </motion.div>
+              </Link>
+            ) : (
+              <Link
+                to="/goals"
+                className="md:col-span-2 flex items-center justify-center p-4 rounded-lg bg-muted/10 hover:bg-muted/20 transition-colors border border-dashed border-muted-foreground/20"
+              >
+                <p className="text-sm text-muted-foreground">
+                  Create your first goal to start tracking progress
+                </p>
               </Link>
             )}
           </div>

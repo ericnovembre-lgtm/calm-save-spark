@@ -3,9 +3,9 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { Coins, Gem, TrendingUp } from 'lucide-react';
 
 const particles = [
-  { Icon: Coins, color: 'text-yellow-500/30' },
-  { Icon: Gem, color: 'text-cyan-500/30' },
-  { Icon: TrendingUp, color: 'text-green-500/30' },
+  { Icon: Coins, color: 'text-yellow-500/40' },
+  { Icon: Gem, color: 'text-cyan-500/40' },
+  { Icon: TrendingUp, color: 'text-green-500/40' },
 ];
 
 export function WealthParticles() {
