@@ -1,4 +1,4 @@
-import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error('Health prediction error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -109,15 +109,15 @@ async function predictHealthScore(supabase: any, userId: string): Promise<Health
 
   return {
     current_score: currentScore,
-    predicted_30d,
-    predicted_60d,
-    predicted_90d,
+    predicted_30d: predicted30d,
+    predicted_60d: predicted60d,
+    predicted_90d: predicted90d,
     factors,
     recommendations,
   };
 }
 
-async function calculateCurrentHealthScore(supabase: any, userId: string): number {
+async function calculateCurrentHealthScore(supabase: any, userId: string): Promise<number> {
   // Simplified health score calculation (0-100)
   let score = 50; // Start at neutral
 
@@ -186,8 +186,8 @@ async function getSpendingTrend(supabase: any, userId: string) {
     .gte('date', new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString())
     .lt('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
 
-  const last30Total = last30?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0;
-  const prev30Total = prev30?.reduce((sum, t) => sum + Math.abs(t.amount), 0) || 0;
+  const last30Total = last30?.reduce((sum: number, t: any) => sum + Math.abs(t.amount), 0) || 0;
+  const prev30Total = prev30?.reduce((sum: number, t: any) => sum + Math.abs(t.amount), 0) || 0;
 
   const change = prev30Total > 0 ? (last30Total - prev30Total) / prev30Total : 0;
 

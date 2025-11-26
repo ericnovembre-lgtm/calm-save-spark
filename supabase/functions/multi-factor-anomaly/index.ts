@@ -1,4 +1,4 @@
-import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error('Anomaly detection error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -104,9 +104,9 @@ async function detectMultiFactorAnomalies(
 
   // Calculate baseline statistics
   const historicalAmounts = historicalTransactions.map((t: any) => Math.abs(t.amount));
-  const avgAmount = historicalAmounts.reduce((a, b) => a + b, 0) / historicalAmounts.length;
+  const avgAmount = historicalAmounts.reduce((a: number, b: number) => a + b, 0) / historicalAmounts.length;
   const variance =
-    historicalAmounts.reduce((sum, val) => sum + Math.pow(val - avgAmount, 2), 0) /
+    historicalAmounts.reduce((sum: number, val: number) => sum + Math.pow(val - avgAmount, 2), 0) /
     historicalAmounts.length;
   const stdDev = Math.sqrt(variance);
 
