@@ -1,9 +1,12 @@
-import { useProactiveNudges } from '@/hooks/useProactiveNudges';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, AlertCircle, TrendingUp, Bell, Target, Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from "framer-motion";
+import { AlertCircle, TrendingUp, Bell, Target, Calendar, X, ArrowRight } from "lucide-react";
+import { useProactiveNudges } from "@/hooks/useProactiveNudges";
+import { useNavigate } from "react-router-dom";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { VoiceBriefingPlayer } from "@/components/voice/VoiceBriefingPlayer";
+import { useSpeakableText } from "@/hooks/useSpeakableText";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const nudgeIcons: Record<string, any> = {
   budget_warning: AlertCircle,
@@ -22,6 +25,7 @@ const nudgeColors: Record<string, string> = {
 export function ProactiveNudgesBanner() {
   const { nudges, dismissNudge, actOnNudge } = useProactiveNudges();
   const navigate = useNavigate();
+  const { generateNudgeSummary } = useSpeakableText();
 
   if (nudges.length === 0) return null;
 
@@ -76,14 +80,20 @@ export function ProactiveNudgesBanner() {
             )}
           </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 shrink-0 opacity-70 hover:opacity-100"
-            onClick={() => dismissNudge(topNudge.id)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <VoiceBriefingPlayer
+              text={generateNudgeSummary(topNudge.message, topNudge.nudge_type)}
+              className="flex-shrink-0"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 shrink-0 opacity-70 hover:opacity-100"
+              onClick={() => dismissNudge(topNudge.id)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {nudges.length > 1 && (

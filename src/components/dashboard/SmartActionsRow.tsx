@@ -14,6 +14,8 @@ import {
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { ActionsSkeleton } from './skeletons/ActionsSkeleton';
+import { VoiceBriefingPlayer } from '@/components/voice/VoiceBriefingPlayer';
+import { useSpeakableText } from '@/hooks/useSpeakableText';
 
 interface SmartAction {
   id: string;
@@ -46,6 +48,7 @@ const colorClasses = {
 export function SmartActionsRow() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { generateActionsSummary } = useSpeakableText();
 
   const { data, isLoading } = useQuery({
     queryKey: ['smart-actions'],
@@ -89,9 +92,15 @@ export function SmartActionsRow() {
       transition={{ delay: 0.3 }}
       className="space-y-3"
     >
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-        Smart Actions
-      </h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+          Smart Actions
+        </h3>
+        <VoiceBriefingPlayer
+          text={generateActionsSummary(data.actions)}
+          className="flex-shrink-0"
+        />
+      </div>
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
         {data.actions.map((action: SmartAction, index: number) => {
           const Icon = iconMap[action.icon as keyof typeof iconMap] || PlusCircle;

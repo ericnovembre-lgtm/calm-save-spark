@@ -6,10 +6,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useFinancialHealthMetrics } from "@/hooks/useFinancialHealthMetrics";
 import { MetricProgressBar } from "./MetricProgressBar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { VoiceBriefingPlayer } from "@/components/voice/VoiceBriefingPlayer";
+import { useSpeakableText } from "@/hooks/useSpeakableText";
 
 export function FinancialHealthWidget() {
   const prefersReducedMotion = useReducedMotion();
   const { data: metrics, isLoading } = useFinancialHealthMetrics();
+  const { generateHealthSummary } = useSpeakableText();
 
   if (isLoading) {
     return (
@@ -55,9 +58,20 @@ export function FinancialHealthWidget() {
               <p className="text-sm text-muted-foreground">Comprehensive wellness metric</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-            <span className="text-2xl font-bold text-primary">{metrics?.compositeScore}</span>
-            <span className="text-sm text-muted-foreground">/ 100</span>
+          <div className="flex items-center gap-2">
+            <VoiceBriefingPlayer
+              text={generateHealthSummary(
+                metrics?.compositeScore || 0,
+                metrics?.creditScore || 0,
+                metrics?.savingsRate || 0,
+                metrics?.debtToIncomeRatio || 0
+              )}
+              className="flex-shrink-0"
+            />
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+              <span className="text-2xl font-bold text-primary">{metrics?.compositeScore}</span>
+              <span className="text-sm text-muted-foreground">/ 100</span>
+            </div>
           </div>
         </div>
 

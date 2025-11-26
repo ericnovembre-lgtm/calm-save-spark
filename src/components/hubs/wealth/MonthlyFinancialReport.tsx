@@ -10,6 +10,8 @@ import { exportToCSV } from "@/lib/export-lazy";
 import { toast } from "sonner";
 import { ChartWrapper } from "@/components/ui/chart-wrapper";
 import { startOfMonth } from "date-fns";
+import { VoiceBriefingPlayer } from "@/components/voice/VoiceBriefingPlayer";
+import { useSpeakableText } from "@/hooks/useSpeakableText";
 
 interface ReportSections {
   netWorth: boolean;
@@ -32,6 +34,7 @@ export function MonthlyFinancialReport() {
 
   const { data: reportData, isLoading } = useMonthlyReportData(selectedMonth);
   const prefersReducedMotion = useReducedMotion();
+  const { generateReportSummary } = useSpeakableText();
 
   const handleSectionToggle = (section: keyof ReportSections) => {
     setSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -159,9 +162,19 @@ export function MonthlyFinancialReport() {
   return (
     <ChartWrapper delay={0.5}>
       <div className="glass-card p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <FileText className="w-6 h-6 text-primary" />
-          <h2 className="text-2xl font-bold text-foreground">Monthly Financial Report</h2>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <FileText className="w-6 h-6 text-primary" />
+            <h2 className="text-2xl font-bold text-foreground">Monthly Financial Report</h2>
+          </div>
+          {reportData && (
+            <VoiceBriefingPlayer
+              text={generateReportSummary(
+                reportData.reportMonth,
+                Object.values(sections).filter(Boolean).length
+              )}
+            />
+          )}
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
