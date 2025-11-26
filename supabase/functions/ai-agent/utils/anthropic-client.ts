@@ -320,3 +320,178 @@ async function logToolExecution(
     console.error('Error logging tool execution:', error);
   }
 }
+
+/**
+ * Health check for Anthropic Claude API
+ * Tests API key validity and Claude model responsiveness
+ */
+export async function checkAnthropicHealth(): Promise<{
+  status: 'healthy' | 'unhealthy' | 'degraded';
+  apiKeyConfigured: boolean;
+  apiKeyValid: boolean;
+  modelResponding: boolean;
+  latencyMs: number;
+  model: string;
+  error?: string;
+  rateLimitReset?: string;
+  timestamp: string;
+}> {
+  const startTime = Date.now();
+  const model = 'claude-sonnet-4-5';
+  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+  
+  console.log('[Anthropic Health] ===== Health Check Started =====');
+  console.log('[Anthropic Health] Timestamp:', new Date().toISOString());
+  
+  // Check if API key exists
+  if (!ANTHROPIC_API_KEY) {
+    console.error('[Anthropic Health] FAILED: API key not configured');
+    return {
+      status: 'unhealthy',
+      apiKeyConfigured: false,
+      apiKeyValid: false,
+      modelResponding: false,
+      latencyMs: Date.now() - startTime,
+      model,
+      error: 'ANTHROPIC_API_KEY not configured',
+      timestamp: new Date().toISOString()
+    };
+  }
+  
+  console.log('[Anthropic Health] API key configured:', ANTHROPIC_API_KEY.slice(0, 8) + '...');
+  
+  try {
+    // Make minimal test request to Claude (non-streaming for simplicity)
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'ping' }]
+      })
+    });
+    
+    const latencyMs = Date.now() - startTime;
+    console.log('[Anthropic Health] Response received, status:', response.status);
+    console.log('[Anthropic Health] Latency:', latencyMs, 'ms');
+    
+    // Handle 401 - Invalid API key
+    if (response.status === 401) {
+      console.error('[Anthropic Health] FAILED: Invalid API key (401)');
+      return {
+        status: 'unhealthy',
+        apiKeyConfigured: true,
+        apiKeyValid: false,
+        modelResponding: false,
+        latencyMs,
+        model,
+        error: 'Invalid API key - authentication failed',
+        timestamp: new Date().toISOString()
+      };
+    }
+    
+    // Handle 429 - Rate limited
+    if (response.status === 429) {
+      const resetHeader = response.headers.get('anthropic-ratelimit-requests-reset');
+      console.warn('[Anthropic Health] DEGRADED: Rate limited (429)');
+      console.warn('[Anthropic Health] Reset time:', resetHeader);
+      return {
+        status: 'degraded',
+        apiKeyConfigured: true,
+        apiKeyValid: true,
+        modelResponding: false,
+        latencyMs,
+        model,
+        error: 'Rate limited - try again later',
+        rateLimitReset: resetHeader || undefined,
+        timestamp: new Date().toISOString()
+      };
+    }
+    
+    // Handle 400 - Bad request
+    if (response.status === 400) {
+      const errorBody = await response.text();
+      console.error('[Anthropic Health] FAILED: Bad request (400)');
+      console.error('[Anthropic Health] Error body:', errorBody);
+      return {
+        status: 'unhealthy',
+        apiKeyConfigured: true,
+        apiKeyValid: true,
+        modelResponding: false,
+        latencyMs,
+        model,
+        error: 'Bad request - API configuration issue',
+        timestamp: new Date().toISOString()
+      };
+    }
+    
+    // Handle 500+ - Server errors
+    if (response.status >= 500) {
+      const errorBody = await response.text();
+      console.error('[Anthropic Health] FAILED: Server error (500+)');
+      console.error('[Anthropic Health] Error body:', errorBody);
+      return {
+        status: 'unhealthy',
+        apiKeyConfigured: true,
+        apiKeyValid: true,
+        modelResponding: false,
+        latencyMs,
+        model,
+        error: 'Anthropic service error',
+        timestamp: new Date().toISOString()
+      };
+    }
+    
+    // Handle success
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log('[Anthropic Health] SUCCESS: Claude responding correctly');
+      console.log('[Anthropic Health] Response ID:', responseData.id);
+      console.log('[Anthropic Health] Usage:', responseData.usage);
+      
+      return {
+        status: 'healthy',
+        apiKeyConfigured: true,
+        apiKeyValid: true,
+        modelResponding: true,
+        latencyMs,
+        model,
+        timestamp: new Date().toISOString()
+      };
+    }
+    
+    // Unexpected status
+    console.error('[Anthropic Health] FAILED: Unexpected status', response.status);
+    return {
+      status: 'unhealthy',
+      apiKeyConfigured: true,
+      apiKeyValid: true,
+      modelResponding: false,
+      latencyMs,
+      model,
+      error: `Unexpected response status: ${response.status}`,
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    const latencyMs = Date.now() - startTime;
+    console.error('[Anthropic Health] FAILED: Network or request error');
+    console.error('[Anthropic Health] Error:', error);
+    
+    return {
+      status: 'unhealthy',
+      apiKeyConfigured: true,
+      apiKeyValid: true,
+      modelResponding: false,
+      latencyMs,
+      model,
+      error: error instanceof Error ? error.message : 'Network error',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
