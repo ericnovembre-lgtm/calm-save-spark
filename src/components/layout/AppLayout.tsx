@@ -9,6 +9,7 @@ import { announce } from "./LiveRegion";
 import { NavItem } from "./NavItem";
 import { BottomNavItem } from "./BottomNavItem";
 import { SearchToggle } from "./SearchToggle";
+import { VoiceToggle } from "./VoiceToggle";
 import { UserChip } from "./UserChip";
 import { MobileDrawer } from "./MobileDrawer";
 import { getClientUser, AppUser } from "@/lib/session";
@@ -170,6 +171,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 <span className="hidden md:inline">Search</span>
               </Button>
               {FEATURE_FLAGS.SEARCH_ENABLED && <SearchToggle />}
+              <VoiceToggle />
               <HelpButton />
               <ThemeToggle />
               
