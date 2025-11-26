@@ -137,8 +137,8 @@ serve(async (req) => {
     }
 
     // Sort by impact and confidence
-    suggestions.sort((a, b) => {
-      const impactScore = { high: 3, medium: 2, low: 1 };
+    suggestions.sort((a: any, b: any) => {
+      const impactScore: Record<string, number> = { high: 3, medium: 2, low: 1 };
       return (impactScore[b.impact] * b.confidence) - (impactScore[a.impact] * a.confidence);
     });
 
@@ -148,14 +148,14 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });
 
-function hasRule(rules: any[], ruleType: string): boolean {
+function hasRule(rules: any[] | null, ruleType: string): boolean {
   return rules?.some(r => r.metadata?.suggestion_id === ruleType) || false;
 }
 
