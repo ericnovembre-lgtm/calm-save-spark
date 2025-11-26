@@ -9,6 +9,8 @@ import { WealthParticles } from "@/components/hubs/wealth/WealthParticles";
 import { WealthProgressOverview } from "@/components/hubs/wealth/WealthProgressOverview";
 import { WealthQuickActions } from "@/components/hubs/wealth/WealthQuickActions";
 import { WealthHubSkeleton } from "@/components/hubs/wealth/WealthHubSkeleton";
+import { WealthDashboardSummary } from "@/components/hubs/wealth/WealthDashboardSummary";
+import { FinancialHealthWidget } from "@/components/hubs/wealth/FinancialHealthWidget";
 import { useWealthHubStats } from "@/hooks/useWealthHubStats";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import CountUp from "react-countup";
@@ -212,6 +214,16 @@ export default function GrowWealthHub() {
             );
           })}
         </motion.div>
+
+        {/* Wealth Dashboard Summary */}
+        <div className="mb-8">
+          <WealthDashboardSummary />
+        </div>
+
+        {/* Financial Health Score Widget */}
+        <div className="mb-8">
+          <FinancialHealthWidget />
+        </div>
 
         {/* Wealth Progress Overview */}
         <div className="mb-8">
