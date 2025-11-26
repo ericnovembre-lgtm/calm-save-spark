@@ -7,6 +7,7 @@ import { investmentResearchHandler } from "./handlers/investment-research.ts";
 import { debtAdvisorHandler } from "./handlers/debt-advisor.ts";
 import { lifePlannerHandler } from "./handlers/life-planner.ts";
 import { helpAgentHandler } from "./handlers/help-agent.ts";
+import { checkAnthropicHealth } from "./utils/anthropic-client.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,6 +35,34 @@ serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Handle health check endpoint (no auth required)
+  const url = new URL(req.url);
+  if (url.searchParams.get('health') === 'claude') {
+    try {
+      const healthResult = await checkAnthropicHealth();
+      const statusCode = healthResult.status === 'healthy' ? 200 : 
+                        healthResult.status === 'degraded' ? 429 : 503;
+      
+      return new Response(JSON.stringify(healthResult, null, 2), {
+        status: statusCode,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      console.error('Health check error:', error);
+      return new Response(
+        JSON.stringify({ 
+          status: 'unhealthy',
+          error: error instanceof Error ? error.message : 'Health check failed',
+          timestamp: new Date().toISOString()
+        }, null, 2),
+        {
+          status: 503,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
   }
 
   try {
