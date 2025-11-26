@@ -9,25 +9,59 @@ const TIER_BENEFITS = {
     name: 'Basic',
     pointsMultiplier: 1.0,
     color: 'from-gray-400 to-gray-600',
-    benefits: ['1x Base Points', 'Standard APR', 'Basic Support']
+    benefits: [
+      '1x Base Points',
+      '1% Cashback on All Purchases',
+      'Zero Liability Protection',
+      'Standard APR',
+      'Basic Support'
+    ]
   },
   growth: {
     name: 'Growth',
     pointsMultiplier: 1.25,
     color: 'from-emerald-400 to-emerald-600',
-    benefits: ['1.25x Points', 'Reduced APR', 'Priority Support', 'Quarterly Bonuses']
+    benefits: [
+      '1.25x Points',
+      '3x Points on Dining',
+      '2% Cashback on Gas',
+      'Emergency Card Replacement',
+      'Reduced APR',
+      'Priority Support',
+      'Quarterly Bonuses'
+    ]
   },
   prestige: {
     name: 'Prestige',
     pointsMultiplier: 1.5,
     color: 'from-violet-400 to-violet-600',
-    benefits: ['1.5x Points', 'Lower APR', '24/7 Support', 'Travel Perks', 'Partner Discounts']
+    benefits: [
+      '1.5x Points',
+      '4x Points on Restaurants',
+      '3x Points on Online Shopping',
+      '24/7 Emergency Assistance',
+      'Global Entry/TSA PreCheck Credit',
+      'Lower APR',
+      'Travel Perks',
+      'Partner Discounts'
+    ]
   },
   elite_legacy: {
     name: 'Elite Legacy',
     pointsMultiplier: 2.0,
     color: 'from-amber-400 to-amber-600',
-    benefits: ['2x Points', 'Lowest APR', 'Dedicated Support', 'Premium Perks', 'VIP Access', 'Annual Bonuses']
+    benefits: [
+      '2x Points',
+      '5x Points on Fine Dining',
+      '4x Points on Luxury Shopping',
+      'Medical Evacuation Coverage',
+      'Primary Rental Car Coverage',
+      'Annual Travel Credit ($300)',
+      'Lowest APR',
+      'Dedicated Support',
+      'VIP Access',
+      'Annual Bonuses'
+    ]
   }
 };
 

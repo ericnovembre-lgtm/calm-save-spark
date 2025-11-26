@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { CreditCard, Plus, Activity, FileText, Sparkles, RefreshCw, DollarSign, Gift, Palette, RotateCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -247,15 +248,13 @@ export default function CardPage() {
                 </span>
               </div>
             )}
-            <CardInspectionMode isActive={inspectionMode} onClose={() => setInspectionMode(false)}>
-              <PhysicalCreditCard
-                variant={cardVariant}
-                cardNumber={cards[0]?.last4 || demoCard.last4}
-                cardHolder={cards[0]?.cardholder_name || demoCard.cardholder_name}
-                expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
-                showDetails={true}
-              />
-            </CardInspectionMode>
+            <PhysicalCreditCard
+              variant={cardVariant}
+              cardNumber={cards[0]?.last4 || demoCard.last4}
+              cardHolder={cards[0]?.cardholder_name || demoCard.cardholder_name}
+              expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
+              showDetails={true}
+            />
           </div>
 
           {/* Compact Variant Selector */}
@@ -564,6 +563,20 @@ export default function CardPage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Card Inspection Mode - Portal */}
+      {inspectionMode && createPortal(
+        <CardInspectionMode isActive={inspectionMode} onClose={() => setInspectionMode(false)}>
+          <PhysicalCreditCard
+            variant={cardVariant}
+            cardNumber={cards[0]?.last4 || demoCard.last4}
+            cardHolder={cards[0]?.cardholder_name || demoCard.cardholder_name}
+            expiryDate={`${String(cards[0]?.exp_month || demoCard.exp_month).padStart(2, '0')}/${String(cards[0]?.exp_year || demoCard.exp_year).slice(-2)}`}
+            showDetails={true}
+          />
+        </CardInspectionMode>,
+        document.body
+      )}
     </div>
   );
 }
