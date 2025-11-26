@@ -1,6 +1,7 @@
 import { MemoryViewer } from '@/components/memory/MemoryViewer';
 import { MemoryInsights } from '@/components/memory/MemoryInsights';
 import { MemoryTimeline } from '@/components/memory/MemoryTimeline';
+import { MemorySemanticSearch } from '@/components/memory/MemorySemanticSearch';
 import { Brain } from 'lucide-react';
 
 export default function MemoryHub() {
@@ -15,6 +16,8 @@ export default function MemoryHub() {
           AI-powered semantic memory system with Pinecone vector storage
         </p>
       </div>
+      
+      <MemorySemanticSearch />
       
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-6">
