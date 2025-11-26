@@ -4209,6 +4209,51 @@ export type Database = {
         }
         Relationships: []
       }
+      digital_twin_state: {
+        Row: {
+          calibration_accuracy: number | null
+          created_at: string | null
+          financial_goals_alignment: number | null
+          id: string
+          impulse_factor: number | null
+          last_calibrated_at: string | null
+          personality_profile: Json | null
+          risk_tolerance: number | null
+          savings_propensity: number | null
+          twin_version: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          calibration_accuracy?: number | null
+          created_at?: string | null
+          financial_goals_alignment?: number | null
+          id?: string
+          impulse_factor?: number | null
+          last_calibrated_at?: string | null
+          personality_profile?: Json | null
+          risk_tolerance?: number | null
+          savings_propensity?: number | null
+          twin_version?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          calibration_accuracy?: number | null
+          created_at?: string | null
+          financial_goals_alignment?: number | null
+          id?: string
+          impulse_factor?: number | null
+          last_calibrated_at?: string | null
+          personality_profile?: Json | null
+          risk_tolerance?: number | null
+          savings_propensity?: number | null
+          twin_version?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       edge_function_rate_limits: {
         Row: {
           call_count: number | null
