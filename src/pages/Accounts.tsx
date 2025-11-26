@@ -18,6 +18,7 @@ import { useDragToTransfer } from "@/hooks/useDragToTransfer";
 import { useAccountsRealtime } from "@/hooks/useAccountsRealtime";
 import { useDemoMode } from "@/contexts/DemoModeContext";
 import { useDemoAccounts } from "@/hooks/useDemoAccounts";
+import { CrossAccountIntelligence } from "@/components/ai/CrossAccountIntelligence";
 import { Link } from "react-router-dom";
 import { AlertCircle, Play } from "lucide-react";
 
@@ -194,6 +195,17 @@ const Accounts = () => {
         {/* 90-Day Liquidity Forecast Chart */}
         {accounts && accounts.length > 0 && (
           <LiquidityForecastChart demoForecast={isDemoMode ? demoForecast : undefined} />
+        )}
+
+        {/* Cross-Account Intelligence */}
+        {accounts && accounts.length > 1 && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <CrossAccountIntelligence />
+          </motion.section>
         )}
 
         {/* Liquid (Cash) Section */}

@@ -16,6 +16,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GoalCard } from "@/components/GoalCard";
 import { GoalSavingsOptimizer } from "@/components/goals/GoalSavingsOptimizer";
 import { AIGoalSuggestions } from "@/components/goals/AIGoalSuggestions";
+import { GoalOptimizer } from "@/components/goals/GoalOptimizer";
 import { QuickGoalTemplates } from "@/components/goals/QuickGoalTemplates";
 import { GoalCard3D } from "@/components/goals/advanced/GoalCard3D";
 import { DynamicBackground } from "@/components/goals/ambient/DynamicBackground";
@@ -360,6 +361,7 @@ const Goals = () => {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="space-y-6 pt-4">
+                  <GoalOptimizer />
                   <GoalSavingsOptimizer />
                   <AIGoalSuggestions />
                 </AccordionContent>

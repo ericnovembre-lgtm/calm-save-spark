@@ -10,6 +10,7 @@ import { MoneyFlowGraph } from "@/components/automations/MoneyFlowGraph";
 import { ConversationalRuleBuilder } from "@/components/automations/ConversationalRuleBuilder";
 import { SmartRecipes } from "@/components/automations/SmartRecipes";
 import { EmergencyBrake } from "@/components/automations/EmergencyBrake";
+import { SmartAutomationSuggestions } from "@/components/automations/SmartAutomationSuggestions";
 import { AutomationActivityFeed } from "@/components/automations/AutomationActivityFeed";
 import { LogicBlockBuilder } from "@/components/automations/logic-builder/LogicBlockBuilder";
 import { LogicBlockBuilderMobile } from "@/components/automations/logic-builder/LogicBlockBuilderMobile";
@@ -142,8 +143,13 @@ export default function Automations() {
           )}
         </div>
 
+        {/* Smart Automation Suggestions */}
+        <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <SmartAutomationSuggestions />
+        </div>
+
         {/* Smart Recipes - Enhanced Card */}
-        <div ref={recipesRef} className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <div ref={recipesRef} className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <SmartRecipes />
         </div>
 

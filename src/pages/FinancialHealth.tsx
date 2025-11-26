@@ -12,6 +12,7 @@ import { CelebrationEffect } from "@/components/financial-health/CelebrationEffe
 import { RecommendationCard } from "@/components/financial-health/RecommendationCard";
 import { ActionTimeline } from "@/components/financial-health/ActionTimeline";
 import { BenchmarkComparison } from "@/components/analytics/BenchmarkComparison";
+import { PredictiveHealthScore } from "@/components/ai/PredictiveHealthScore";
 import { SectionDivider } from "@/components/financial-health/SectionDivider";
 import { FinancialHealthSkeleton } from "@/components/financial-health/FinancialHealthSkeleton";
 import { Card } from "@/components/ui/card";
@@ -159,6 +160,16 @@ export default function FinancialHealth() {
               />
             </>
           )}
+        </ScrollSection>
+
+        {/* Predictive Health Score */}
+        <ScrollSection>
+          <SectionDivider 
+            title="Health Forecast" 
+            subtitle="90-day AI prediction with actionable insights"
+            icon={<TrendingUp className="w-6 h-6" />}
+          />
+          <PredictiveHealthScore />
         </ScrollSection>
 
         {/* Breakdown Section - Liquid Metric Cards */}
