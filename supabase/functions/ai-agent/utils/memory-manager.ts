@@ -115,6 +115,65 @@ export async function pruneOldMemories(
   }
 }
 
+export async function extractPreferencesFromConversation(
+  supabase: SupabaseClient,
+  userId: string,
+  agentType: string,
+  conversationText: string
+): Promise<void> {
+  // Extract preferences using pattern matching
+  const patterns = [
+    { pattern: /i (prefer|like|love|enjoy|want) (.+)/i, type: 'preference' as const },
+    { pattern: /i always (.+)/i, type: 'preference' as const },
+    { pattern: /i never (.+)/i, type: 'preference' as const },
+    { pattern: /my goal is to (.+)/i, type: 'goal' as const },
+    { pattern: /i'm (saving|planning|hoping) to (.+)/i, type: 'goal' as const },
+    { pattern: /i (am|have|work as) (.+)/i, type: 'fact' as const },
+    { pattern: /my (.+) is (.+)/i, type: 'fact' as const },
+  ];
+
+  for (const { pattern, type } of patterns) {
+    const match = conversationText.match(pattern);
+    if (match) {
+      const key = match[1] || 'extracted';
+      const value = match[2] || match[0];
+      
+      await storeMemory(supabase, userId, agentType, type, key, value, 0.7);
+    }
+  }
+}
+
+export async function learnFromInteraction(
+  supabase: SupabaseClient,
+  userId: string,
+  agentType: string,
+  userMessage: string,
+  assistantResponse: string
+): Promise<void> {
+  // Check for explicit "remember" commands
+  const rememberPattern = /remember (that )?(.+)/i;
+  const match = userMessage.match(rememberPattern);
+  
+  if (match) {
+    const fact = match[2];
+    await storeMemory(supabase, userId, agentType, 'fact', 'user_note', fact, 1.0);
+    return;
+  }
+
+  // Extract preferences from conversation
+  await extractPreferencesFromConversation(supabase, userId, agentType, userMessage);
+  
+  // Analyze patterns in user behavior
+  const memories = await retrieveMemories(supabase, userId, agentType);
+  
+  // If user mentions the same topic multiple times, increase confidence
+  memories.forEach(async (memory) => {
+    if (userMessage.toLowerCase().includes(memory.key.toLowerCase())) {
+      await updateMemoryConfidence(supabase, memory.id, Math.min(1.0, memory.confidence_score + 0.1));
+    }
+  });
+}
+
 export function formatMemoriesForContext(memories: Memory[]): string {
   if (memories.length === 0) return '';
 

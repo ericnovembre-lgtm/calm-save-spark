@@ -107,10 +107,55 @@ export function useFinancialMemory() {
     }
   };
 
+  const rememberFact = async (fact: string, category: FinancialMemory['category'] = 'preference') => {
+    return storeMemory({
+      content: fact,
+      category,
+      importance: 0.9,
+    });
+  };
+
+  const learnFromConversation = async (userMessage: string, assistantResponse: string) => {
+    // Extract insights from conversation
+    const insights: string[] = [];
+
+    // Pattern: User mentions a financial goal
+    const goalPattern = /(?:saving|planning|hoping) (?:to|for) (.+)/i;
+    const goalMatch = userMessage.match(goalPattern);
+    if (goalMatch) {
+      insights.push(`User goal: ${goalMatch[1]}`);
+    }
+
+    // Pattern: User mentions spending habits
+    const spendingPattern = /i (?:spend|spent|buy) (.+)/i;
+    const spendingMatch = userMessage.match(spendingPattern);
+    if (spendingMatch) {
+      insights.push(`Spending habit: ${spendingMatch[1]}`);
+    }
+
+    // Pattern: User mentions preferences
+    const preferencePattern = /i (?:prefer|like|love|want) (.+)/i;
+    const preferenceMatch = userMessage.match(preferencePattern);
+    if (preferenceMatch) {
+      insights.push(`Preference: ${preferenceMatch[1]}`);
+    }
+
+    // Store extracted insights
+    for (const insight of insights) {
+      await storeMemory({
+        content: insight,
+        category: 'insight',
+        importance: 0.7,
+      });
+    }
+  };
+
   return {
     storeMemory,
     retrieveMemories,
     getLocalMemories,
+    rememberFact,
+    learnFromConversation,
     memories,
     isLoading,
   };
