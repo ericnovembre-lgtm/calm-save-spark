@@ -22,6 +22,7 @@ export default function Auth() {
   const location = useLocation();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -44,6 +45,7 @@ export default function Auth() {
     
     if (type === 'recovery') {
       setIsPasswordRecovery(true);
+      setCheckingSession(false);
       return;
     }
 
@@ -51,6 +53,8 @@ export default function Auth() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         navigate(returnTo);
+      } else {
+        setCheckingSession(false);
       }
     });
   }, [navigate, returnTo]);
@@ -309,6 +313,24 @@ export default function Auth() {
               </form>
             </CardContent>
           </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Show loading state while checking session
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 rounded-full bg-foreground flex items-center justify-center mb-4 mx-auto">
+            <span className="text-background font-bold text-2xl">$+</span>
+          </div>
+          <div className="animate-pulse text-muted-foreground">Loading...</div>
         </motion.div>
       </div>
     );
