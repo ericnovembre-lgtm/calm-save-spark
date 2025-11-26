@@ -385,97 +385,133 @@ export default function CardPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-7 h-12">
-          <TabsTrigger value="overview" className="gap-2">
-            <Activity className="w-4 h-4" />
-            <span className="hidden sm:inline">Overview</span>
-          </TabsTrigger>
-          <TabsTrigger value="billing" className="gap-2">
-            <FileText className="w-4 h-4" />
-            <span className="hidden sm:inline">Billing</span>
-          </TabsTrigger>
-          <TabsTrigger value="rewards" className="gap-2">
-            <Sparkles className="w-4 h-4" />
-            <span className="hidden sm:inline">Rewards</span>
-          </TabsTrigger>
-          <TabsTrigger value="benefits" className="gap-2">
-            <Gift className="w-4 h-4" />
-            <span className="hidden sm:inline">Benefits</span>
-          </TabsTrigger>
-          <TabsTrigger value="transactions" className="gap-2">
-            <DollarSign className="w-4 h-4" />
-            <span className="hidden sm:inline">Activity</span>
-          </TabsTrigger>
-          <TabsTrigger value="subscriptions" className="gap-2">
-            <RefreshCw className="w-4 h-4" />
-            <span className="hidden sm:inline">Subs</span>
-          </TabsTrigger>
-          <TabsTrigger value="controls" className="gap-2">
-            <CreditCard className="w-4 h-4" />
-            <span className="hidden sm:inline">Controls</span>
-          </TabsTrigger>
-        </TabsList>
+        <div className="relative">
+          <TabsList className="w-full h-auto p-1 grid grid-cols-3 sm:grid-cols-7 gap-1">
+            <TabsTrigger value="overview" className="gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Activity className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <FileText className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Billing</span>
+            </TabsTrigger>
+            <TabsTrigger value="rewards" className="gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Sparkles className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Rewards</span>
+            </TabsTrigger>
+            <TabsTrigger value="benefits" className="gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Gift className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Benefits</span>
+            </TabsTrigger>
+            <TabsTrigger value="transactions" className="gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <DollarSign className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Activity</span>
+            </TabsTrigger>
+            <TabsTrigger value="subscriptions" className="gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <RefreshCw className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Subs</span>
+            </TabsTrigger>
+            <TabsTrigger value="controls" className="gap-1.5 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <CreditCard className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Controls</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6 animate-in fade-in-50 duration-500">
+          {/* Card Activation Notice - Priority placement */}
+          {cards[0] && !cards[0].activated_at && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative overflow-hidden"
+            >
+              <Card className="border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                        <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100">
+                          Activate Your Card
+                        </h3>
+                      </div>
+                      <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
+                        Complete activation to unlock your $ave+ credit card and start earning rewards
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
+                        <span>Card ending in {cards[0].last4}</span>
+                        <span>•</span>
+                        <span>Takes 2 minutes</span>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={() => setShowActivation(true)} 
+                      className="bg-amber-600 hover:bg-amber-700 text-white shadow-lg hover:shadow-xl transition-all"
+                      size="lg"
+                    >
+                      Activate Now
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
           {/* Benefit Hunter Nudge */}
           <BenefitHunterNudge maxDisplay={1} onViewAll={() => setActiveTab('benefits')} />
 
           {/* Account Summary */}
           <AccountSummary account={account} />
 
-          {/* Card Activation Notice */}
-          {cards[0] && !cards[0].activated_at && (
-            <Card className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-amber-900 dark:text-amber-100">Activate Your Card</h3>
-                    <p className="text-sm text-amber-700 dark:text-amber-300">Your card needs to be activated before use</p>
-                  </div>
-                  <Button onClick={() => setShowActivation(true)} variant="default">
-                    Activate Now
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <Button 
+                    variant="outline" 
+                    className="h-auto py-8 flex-col gap-3 hover:scale-[1.02] hover:shadow-md transition-all group bg-gradient-to-br from-background to-accent/20"
+                    onClick={() => setActiveTab('transactions')}
+                  >
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Activity className="w-6 h-6 text-primary" />
+                    </div>
+                    <span className="font-medium">View Activity</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-auto py-8 flex-col gap-3 hover:scale-[1.02] hover:shadow-md transition-all group bg-gradient-to-br from-background to-accent/20"
+                    onClick={() => setActiveTab('billing')}
+                  >
+                    <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                      <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <span className="font-medium">Statements</span>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-auto py-8 flex-col gap-3 hover:scale-[1.02] hover:shadow-md transition-all group bg-gradient-to-br from-background to-green-500/10"
+                    onClick={() => setActiveTab('billing')}
+                  >
+                    <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
+                      <DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <span className="font-medium">Make Payment</span>
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          )}
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Button 
-                  variant="outline" 
-                  className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
-                  onClick={() => setActiveTab('transactions')}
-                >
-                  <Activity className="w-6 h-6" />
-                  <span className="text-sm font-medium">View Activity</span>
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
-                  onClick={() => setActiveTab('billing')}
-                >
-                  <FileText className="w-6 h-6" />
-                  <span className="text-sm font-medium">Statements</span>
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="h-auto py-6 flex-col gap-2 hover:scale-[1.02] transition-transform active:scale-[0.98]"
-                  onClick={() => setActiveTab('billing')}
-                >
-                  <DollarSign className="w-6 h-6" />
-                  <span className="text-sm font-medium">Make Payment</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          </motion.div>
         </TabsContent>
 
         <TabsContent value="billing" className="space-y-6">

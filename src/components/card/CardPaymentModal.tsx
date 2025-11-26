@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DollarSign, Calendar, CreditCard, Zap, Calculator } from 'lucide-react';
+import { DollarSign, Calendar, CreditCard, Zap, Calculator, CheckCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCardPayments } from '@/hooks/useCardPayments';
 import { useCardAccount } from '@/hooks/useCardAccount';
+import { motion } from 'framer-motion';
 
 interface CardPaymentModalProps {
   open: boolean;
@@ -107,50 +108,53 @@ export function CardPaymentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[540px]">
         <DialogHeader>
-          <DialogTitle>Make a Payment</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-2xl">Make a Payment</DialogTitle>
+          <DialogDescription className="text-base">
             Choose your payment amount and schedule
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="one-time" className="w-full">
+        <Tabs defaultValue="one-time" className="w-full mt-2">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="one-time">One-Time Payment</TabsTrigger>
             <TabsTrigger value="autopay">Autopay</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="one-time" className="space-y-4">
-            <div className="space-y-4">
+          <TabsContent value="one-time" className="space-y-5 mt-4">
+            <div className="space-y-5">
               <div className="grid gap-3">
-                <Label>Payment Amount</Label>
+                <Label className="text-base font-semibold">Payment Amount</Label>
                 <RadioGroup value={paymentType} onValueChange={(v) => setPaymentType(v as any)}>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center justify-between p-4 border-2 rounded-xl hover:border-primary/50 transition-colors cursor-pointer">
                     <div className="flex items-center gap-3">
                       <RadioGroupItem value="minimum" id="minimum" />
                       <Label htmlFor="minimum" className="cursor-pointer">
-                        Minimum Payment
+                        <div className="font-medium">Minimum Payment</div>
+                        <div className="text-xs text-muted-foreground">Required monthly amount</div>
                       </Label>
                     </div>
-                    <span className="font-semibold">${(minimumPayment / 100).toFixed(2)}</span>
+                    <span className="text-lg font-bold">${(minimumPayment / 100).toFixed(2)}</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center justify-between p-4 border-2 rounded-xl hover:border-primary/50 transition-colors cursor-pointer bg-green-500/5">
                     <div className="flex items-center gap-3">
                       <RadioGroupItem value="statement" id="statement" />
                       <Label htmlFor="statement" className="cursor-pointer">
-                        Full Balance
+                        <div className="font-medium">Full Balance</div>
+                        <div className="text-xs text-green-600 dark:text-green-400">Recommended • Avoid interest</div>
                       </Label>
                     </div>
-                    <span className="font-semibold">${(currentBalance / 100).toFixed(2)}</span>
+                    <span className="text-lg font-bold">${(currentBalance / 100).toFixed(2)}</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between p-4 border-2 rounded-xl hover:border-primary/50 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3 flex-1">
                       <RadioGroupItem value="custom" id="custom" />
-                      <Label htmlFor="custom" className="cursor-pointer">
-                        Custom Amount
+                      <Label htmlFor="custom" className="cursor-pointer flex-1">
+                        <div className="font-medium">Custom Amount</div>
+                        <div className="text-xs text-muted-foreground">Choose your own amount</div>
                       </Label>
                     </div>
                     {paymentType === 'custom' && (
@@ -159,10 +163,11 @@ export function CardPaymentModal({
                         placeholder="0.00"
                         value={paymentAmount}
                         onChange={(e) => setPaymentAmount(e.target.value)}
-                        className="w-32 text-right"
+                        className="w-32 text-right font-bold text-lg"
                         min={minimumPayment / 100}
                         max={currentBalance / 100}
                         step="0.01"
+                        onClick={(e) => e.stopPropagation()}
                       />
                     )}
                   </div>
@@ -170,80 +175,93 @@ export function CardPaymentModal({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="schedule-date">Schedule Payment (Optional)</Label>
+                <Label htmlFor="schedule-date" className="text-sm font-medium">Schedule Payment (Optional)</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                  <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground pointer-events-none" />
                   <Input
                     id="schedule-date"
                     type="date"
                     value={scheduledDate}
                     onChange={(e) => setScheduledDate(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 h-11"
                     min={new Date().toISOString().split('T')[0]}
                   />
                 </div>
                 {scheduledDate && (
-                  <p className="text-sm text-muted-foreground">
-                    Payment will be processed on {new Date(scheduledDate).toLocaleDateString()}
-                  </p>
+                  <motion.p 
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-blue-600 dark:text-blue-400 flex items-center gap-1.5"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    Payment scheduled for {new Date(scheduledDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </motion.p>
                 )}
               </div>
 
               {paymentType === 'custom' && amount > 0 && (
-                <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-start gap-2">
-                    <Calculator className="w-4 h-4 mt-0.5 text-blue-600" />
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-xl border border-blue-200 dark:border-blue-800"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                      <Calculator className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    </div>
                     <div className="text-sm">
-                      <div className="font-medium text-blue-900 dark:text-blue-100">Payoff Calculator</div>
-                      <div className="text-blue-700 dark:text-blue-300 mt-1">
+                      <div className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Payoff Calculator</div>
+                      <div className="text-blue-700 dark:text-blue-300">
                         {payoffMonths === Infinity ? (
-                          'Payment too small to pay off balance (covers interest only)'
+                          '⚠️ Payment too small to pay off balance (covers interest only)'
                         ) : payoffMonths === 1 ? (
-                          'This payment will pay off your balance!'
+                          '🎉 This payment will pay off your balance!'
                         ) : (
-                          `At $${amount.toFixed(2)}/month, you'll pay off your balance in ${payoffMonths} months`
+                          `📊 At $${amount.toFixed(2)}/month, you'll be debt-free in ${payoffMonths} months`
                         )}
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )}
 
-              <div className="pt-4 border-t">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">Payment Total</span>
-                  <span className="text-2xl font-bold">${amount.toFixed(2)}</span>
+              <div className="pt-5 border-t space-y-4">
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
+                  <span className="text-base font-medium text-muted-foreground">Payment Total</span>
+                  <span className="text-3xl font-bold text-primary">${amount.toFixed(2)}</span>
                 </div>
 
                 <Button
-                  className="w-full"
+                  className="w-full h-12 text-base font-semibold"
                   size="lg"
                   onClick={handleSubmit}
                   disabled={isProcessing || amount <= 0 || (paymentType === 'custom' && amount < minimumPayment / 100)}
                 >
-                  {isProcessing ? 'Processing...' : scheduledDate ? 'Schedule Payment' : 'Pay Now'}
+                  {isProcessing ? 'Processing...' : scheduledDate ? '📅 Schedule Payment' : '💳 Pay Now'}
                 </Button>
               </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="autopay" className="space-y-4">
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                <Zap className="w-5 h-5 text-amber-600 mt-0.5" />
-                <div className="text-sm">
-                  <div className="font-medium text-amber-900 dark:text-amber-100">
+          <TabsContent value="autopay" className="space-y-5 mt-4">
+            <div className="space-y-5">
+              <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20 rounded-xl border-2 border-amber-200 dark:border-amber-800">
+                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <div className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
                     Never miss a payment
                   </div>
-                  <div className="text-amber-700 dark:text-amber-300 mt-1">
-                    Autopay automatically pays your bill on the due date each month
+                  <div className="text-sm text-amber-700 dark:text-amber-300">
+                    Autopay automatically pays your bill on the due date each month, helping you avoid late fees and maintain a strong credit score
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center justify-between p-5 border-2 rounded-xl bg-gradient-to-br from-background to-accent/5">
                 <div>
-                  <div className="font-medium">Enable Autopay</div>
+                  <div className="font-semibold text-base mb-1">Enable Autopay</div>
                   <div className="text-sm text-muted-foreground">
                     Automatic payments on due date
                   </div>
@@ -252,42 +270,47 @@ export function CardPaymentModal({
                   checked={autopayEnabled}
                   onCheckedChange={handleAutopayToggle}
                   disabled={isUpdatingAutopay}
+                  className="data-[state=checked]:bg-green-500"
                 />
               </div>
 
               {autopayEnabled && (
-                <div className="space-y-3">
-                  <Label>Autopay Amount</Label>
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="space-y-4"
+                >
+                  <Label className="text-base font-semibold">Autopay Amount</Label>
                   <RadioGroup value={autopayType} onValueChange={(v) => setAutopayType(v as any)}>
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-xl hover:border-primary/50 transition-colors cursor-pointer">
                       <RadioGroupItem value="minimum" id="auto-minimum" />
                       <Label htmlFor="auto-minimum" className="cursor-pointer flex-1">
-                        <div>Minimum Payment</div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="font-medium mb-1">Minimum Payment</div>
+                        <div className="text-xs text-muted-foreground">
                           Pay the minimum due each month
                         </div>
                       </Label>
                     </div>
 
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-xl hover:border-primary/50 transition-colors cursor-pointer bg-green-500/5">
                       <RadioGroupItem value="statement" id="auto-statement" />
                       <Label htmlFor="auto-statement" className="cursor-pointer flex-1">
-                        <div>Full Statement Balance</div>
-                        <div className="text-sm text-muted-foreground">
-                          Pay the full balance (avoid interest)
+                        <div className="font-medium mb-1">Full Statement Balance</div>
+                        <div className="text-xs text-green-600 dark:text-green-400">
+                          Pay the full balance (avoid interest) • Recommended
                         </div>
                       </Label>
                     </div>
                   </RadioGroup>
 
                   <Button
-                    className="w-full"
+                    className="w-full h-12 text-base font-semibold"
                     onClick={() => updateAutopay({ accountId, enabled: true, amountType: autopayType })}
                     disabled={isUpdatingAutopay}
                   >
-                    {isUpdatingAutopay ? 'Saving...' : 'Save Autopay Settings'}
+                    {isUpdatingAutopay ? 'Saving...' : '✓ Save Autopay Settings'}
                   </Button>
-                </div>
+                </motion.div>
               )}
             </div>
           </TabsContent>
