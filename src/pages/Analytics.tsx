@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, TrendingUp, PieChart, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BarChart3, TrendingUp, PieChart, FileText, Sparkles, Loader2 } from "lucide-react";
 import { useAnalyticsData, useAIInsights, type Timeframe } from "@/hooks/useAnalyticsData";
+import { useSeedSampleData } from "@/hooks/useSeedSampleData";
 import { TimeframePicker } from "@/components/analytics/TimeframePicker";
 import { SpendingOverviewCards } from "@/components/analytics/SpendingOverviewCards";
 import { SpendingTrendsChart } from "@/components/analytics/SpendingTrendsChart";
@@ -30,6 +32,11 @@ export default function Analytics() {
     refetch: refetchInsights,
     isFetching: isRefreshingInsights,
   } = useAIInsights(timeframe);
+
+  const { mutate: seedSampleData, isPending: isSeeding } = useSeedSampleData();
+
+  // Check if there's no data to show empty state
+  const hasNoData = !isAnalyticsLoading && (!analyticsData?.transactionCount || analyticsData.transactionCount === 0);
 
   // Prepare export data
   const exportData = {
@@ -69,6 +76,36 @@ export default function Analytics() {
             <ExportButton data={exportData} />
           </div>
         </div>
+
+        {/* Empty State with Seed Data Option */}
+        {hasNoData && (
+          <div className="rounded-2xl border border-border bg-card p-8 text-center">
+            <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+              <BarChart3 className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No Transaction Data</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Connect a bank account or generate sample data to see your analytics dashboard in action.
+            </p>
+            <Button 
+              onClick={() => seedSampleData()} 
+              disabled={isSeeding}
+              className="gap-2"
+            >
+              {isSeeding ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Generate Sample Data
+                </>
+              )}
+            </Button>
+          </div>
+        )}
 
         {/* Overview Cards */}
         <SpendingOverviewCards
