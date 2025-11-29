@@ -3,7 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { VirtualizedTransactionList } from "@/components/transactions/VirtualizedTransactionList";
 import { SearchInsightCard } from "@/components/transactions/SearchInsightCard";
 import { Button } from "@/components/ui/button";
-import { Plus, Download } from "lucide-react";
+import { Plus, Download, Upload } from "lucide-react";
 import { withPageMemo, usePageCallback } from "@/lib/performance-utils";
 import { SyncAccountsButton } from "@/components/accounts/SyncAccountsButton";
 import { useQueryClient } from "@tanstack/react-query";
@@ -19,6 +19,7 @@ import { InsightsPanel } from '@/components/transactions/InsightsPanel';
 import { ScrollToTopButton } from '@/components/transactions/ScrollToTopButton';
 import { AddTransactionDialog } from '@/components/transactions/AddTransactionDialog';
 import { ExportTransactionsDialog } from '@/components/transactions/ExportTransactionsDialog';
+import { ImportTransactionsDialog } from '@/components/transactions/ImportTransactionsDialog';
 import { RefineSearchDialog } from '@/components/transactions/RefineSearchDialog';
 import { SaveReportDialog } from '@/components/transactions/SaveReportDialog';
 import { AnomalyScanner } from '@/components/transactions/AnomalyScanner';
@@ -31,6 +32,7 @@ export default withPageMemo(function Transactions() {
   const [userId, setUserId] = useState<string>();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [isRefineSearchOpen, setIsRefineSearchOpen] = useState(false);
   const [isSaveReportOpen, setIsSaveReportOpen] = useState(false);
   
@@ -117,6 +119,10 @@ export default withPageMemo(function Transactions() {
             </div>
             <div className="flex gap-2">
               <SyncAccountsButton onSyncComplete={handleSyncComplete} />
+              <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
+                <Upload className="w-4 h-4 mr-2" />
+                Import
+              </Button>
               <Button variant="outline" onClick={handleExport}>
                 <Download className="w-4 h-4 mr-2" />
                 Export
@@ -181,6 +187,11 @@ export default withPageMemo(function Transactions() {
       onClose={() => setIsExportDialogOpen(false)}
       transactions={allTransactions}
       filters={filters}
+    />
+
+    <ImportTransactionsDialog
+      isOpen={isImportDialogOpen}
+      onClose={() => setIsImportDialogOpen(false)}
     />
 
     {hasActiveSearch && (

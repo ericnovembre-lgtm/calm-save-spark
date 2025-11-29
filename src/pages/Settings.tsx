@@ -9,6 +9,7 @@ import { ProfilePictureUpload } from '@/components/settings/ProfilePictureUpload
 import { NotificationPreferences } from '@/components/settings/NotificationPreferences';
 import { ResetOnboarding } from '@/components/settings/ResetOnboarding';
 import { WeeklyDigestTrigger } from '@/components/settings/WeeklyDigestTrigger';
+import { AnalyticsDigestPreview } from '@/components/settings/AnalyticsDigestPreview';
 import { CurrencyPreference } from "@/components/settings/CurrencyPreference";
 import { useState } from "react";
 import { CurrencySelector } from "@/components/currency/CurrencySelector";
@@ -128,6 +129,8 @@ export default function Settings() {
             <NotificationPreferences />
             <Separator />
             <WeeklyDigestTrigger />
+            <Separator />
+            <AnalyticsDigestPreview />
           </CardContent>
         </Card>
 
