@@ -1,9 +1,12 @@
-import { HelpCircle, Book, MessageCircle, Mail, FileText, Search } from "lucide-react";
+import { HelpCircle, Book, MessageCircle, Mail, FileText, Search, History, Sparkles } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useWhatsNew } from "@/hooks/useWhatsNew";
 
 interface FAQItem {
   question: string;
@@ -61,6 +64,8 @@ const categories = Array.from(new Set(faqs.map(faq => faq.category)));
  * SEO optimized for help, support, and frequently asked questions
  */
 const Help = () => {
+  const navigate = useNavigate();
+  const { hasNewUpdates, openWhatsNew } = useWhatsNew();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -130,7 +135,7 @@ const Help = () => {
       </div>
 
       {/* Quick Actions */}
-      <section className="grid md:grid-cols-3 gap-4 mb-12" aria-label="Quick help actions">
+      <section className="grid md:grid-cols-4 gap-4 mb-12" aria-label="Quick help actions">
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <MessageCircle className="w-8 h-8 text-primary mb-2" />
@@ -140,7 +145,7 @@ const Help = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" onClick={() => window.location.href = '/coach'}>
+            <Button className="w-full" onClick={() => navigate('/coach')}>
               Start Chat
             </Button>
           </CardContent>
@@ -161,17 +166,37 @@ const Help = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow relative">
           <CardHeader>
-            <Mail className="w-8 h-8 text-primary mb-2" />
-            <CardTitle className="text-lg">Contact Support</CardTitle>
+            <History className="w-8 h-8 text-primary mb-2" />
+            <CardTitle className="text-lg">Changelog</CardTitle>
             <CardDescription>
-              Reach out to our team for personalized help
+              See what's new in each release
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
-              Email Us
+            <Button variant="outline" className="w-full" onClick={() => navigate('/changelog')}>
+              View Updates
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow relative">
+          {hasNewUpdates && (
+            <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">
+              NEW
+            </Badge>
+          )}
+          <CardHeader>
+            <Sparkles className="w-8 h-8 text-primary mb-2" />
+            <CardTitle className="text-lg">What's New</CardTitle>
+            <CardDescription>
+              Discover the latest features
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" onClick={openWhatsNew}>
+              See Features
             </Button>
           </CardContent>
         </Card>
@@ -230,7 +255,7 @@ const Help = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex gap-3 justify-center">
-          <Button onClick={() => window.location.href = '/coach'}>
+          <Button onClick={() => navigate('/coach')}>
             <MessageCircle className="w-4 h-4 mr-2" />
             Chat Now
           </Button>
@@ -243,8 +268,5 @@ const Help = () => {
     </div>
   );
 };
-
-// Missing import
-import { Badge } from "@/components/ui/badge";
 
 export default Help;

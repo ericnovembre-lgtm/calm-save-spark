@@ -50,6 +50,7 @@ import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { LottieCelebrations } from "@/components/effects/LottieCelebrations";
 import { DashboardTour } from "@/components/dashboard/DashboardTour";
 import { WhatsNewModal } from "@/components/dashboard/WhatsNewModal";
+import { FeatureSpotlight } from "@/components/dashboard/FeatureSpotlight";
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
@@ -400,6 +401,9 @@ export default function Dashboard() {
       
       {/* What's New Modal */}
       <WhatsNewModal />
+      
+      {/* Feature Spotlight - shows after WhatsNew modal */}
+      <FeatureSpotlight />
       
       {/* Essential Effects */}
       <div data-tour="aurora-background">

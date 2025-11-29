@@ -100,6 +100,7 @@ const MemoryHub = createPageLoader(() => import("./pages/MemoryHub"), 'medium');
 const Landing = createPageLoader(() => import("./pages/Landing"), 'light');
 const Auth = createPageLoader(() => import("./pages/Auth"), 'light');
 const Help = createPageLoader(() => import("./pages/Help"), 'light');
+const Changelog = createPageLoader(() => import("./pages/Changelog"), 'light');
 const NotFound = createPageLoader(() => import("./pages/NotFound"), 'light');
 const Maintenance = createPageLoader(() => import("./pages/Maintenance"), 'light');
 const Search = createPageLoader(() => import("./pages/Search"), 'light');
@@ -258,6 +259,7 @@ function AnimatedRoutes() {
         <Route path="/ai-agents" element={<ProtectedRoute><PageTransition><AIAgents /></PageTransition></ProtectedRoute>} />
         <Route path="/features-hub" element={<ProtectedRoute><PageTransition><FeaturesHub /></PageTransition></ProtectedRoute>} />
         <Route path="/help" element={<ProtectedRoute><PageTransition><Help /></PageTransition></ProtectedRoute>} />
+        <Route path="/changelog" element={<ProtectedRoute><PageTransition><Changelog /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
         <Route path="/security" element={<ProtectedRoute><PageTransition><Security /></PageTransition></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><PageTransition><Achievements /></PageTransition></ProtectedRoute>} />
