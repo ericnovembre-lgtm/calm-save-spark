@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sparkles, ArrowRight, Rocket } from 'lucide-react';
+import { Sparkles, ArrowRight, Rocket, History } from 'lucide-react';
 import { useWhatsNew, FEATURE_UPDATES } from '@/hooks/useWhatsNew';
 import { useDashboardTour } from '@/hooks/useDashboardTour';
 import { cn } from '@/lib/utils';
@@ -19,6 +20,7 @@ interface WhatsNewModalProps {
 }
 
 export function WhatsNewModal({ open, onOpenChange }: WhatsNewModalProps) {
+  const navigate = useNavigate();
   const { showWhatsNew, dismissWhatsNew, currentUpdates, currentVersion } = useWhatsNew();
   const { startTour } = useDashboardTour();
 
@@ -49,6 +51,11 @@ export function WhatsNewModal({ open, onOpenChange }: WhatsNewModalProps) {
   const handleStartTour = () => {
     handleOpenChange(false);
     setTimeout(() => startTour(), 300);
+  };
+
+  const handleViewChangelog = () => {
+    handleOpenChange(false);
+    navigate('/changelog');
   };
 
   return (
@@ -121,14 +128,23 @@ export function WhatsNewModal({ open, onOpenChange }: WhatsNewModalProps) {
 
         <DialogFooter className="flex-col sm:flex-row gap-2 pt-4 border-t border-border/50">
           <Button
+            variant="link"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
+            onClick={handleViewChangelog}
+          >
+            <History className="w-3 h-3 mr-1" />
+            View full changelog
+          </Button>
+          <div className="flex-1" />
+          <Button
             variant="outline"
-            className="flex-1"
             onClick={() => handleOpenChange(false)}
           >
             Got it!
           </Button>
           <Button
-            className="flex-1 gap-2"
+            className="gap-2"
             onClick={handleStartTour}
           >
             <Rocket className="w-4 h-4" />

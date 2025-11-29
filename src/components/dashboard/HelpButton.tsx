@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { HelpCircle, Search, Keyboard, Play, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { HelpCircle, Search, Keyboard, Play, Sparkles, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,6 +22,7 @@ import { cn } from '@/lib/utils';
  * Provides access to keyboard shortcuts, What's New modal, and help documentation
  */
 export function HelpButton() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [showWhatsNew, setShowWhatsNew] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,6 +38,11 @@ export function HelpButton() {
   const handleOpenWhatsNew = () => {
     setIsOpen(false);
     setTimeout(() => setShowWhatsNew(true), 150);
+  };
+
+  const handleOpenChangelog = () => {
+    setIsOpen(false);
+    navigate('/changelog');
   };
 
   return (
@@ -121,6 +128,17 @@ export function HelpButton() {
                   NEW
                 </span>
               )}
+            </Button>
+
+            {/* Changelog Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-2"
+              onClick={handleOpenChangelog}
+            >
+              <History className="w-4 h-4" />
+              View Full Changelog
             </Button>
 
             {/* Restart Tour Button */}
