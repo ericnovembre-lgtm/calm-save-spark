@@ -3001,6 +3001,83 @@ export type Database = {
         }
         Relationships: []
       }
+      claude_api_metrics: {
+        Row: {
+          agent_type: string
+          conversation_id: string | null
+          created_at: string | null
+          error_message: string | null
+          error_type: string | null
+          id: string
+          input_tokens: number | null
+          latency_ms: number
+          model: string
+          output_tokens: number | null
+          rate_limit_remaining: number | null
+          rate_limit_reset: string | null
+          request_id: string | null
+          status: string
+          time_to_first_token_ms: number | null
+          tool_count: number | null
+          tools_used: string[] | null
+          total_stream_time_ms: number | null
+          total_tokens: number | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_type: string
+          conversation_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          error_type?: string | null
+          id?: string
+          input_tokens?: number | null
+          latency_ms: number
+          model?: string
+          output_tokens?: number | null
+          rate_limit_remaining?: number | null
+          rate_limit_reset?: string | null
+          request_id?: string | null
+          status: string
+          time_to_first_token_ms?: number | null
+          tool_count?: number | null
+          tools_used?: string[] | null
+          total_stream_time_ms?: number | null
+          total_tokens?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_type?: string
+          conversation_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          error_type?: string | null
+          id?: string
+          input_tokens?: number | null
+          latency_ms?: number
+          model?: string
+          output_tokens?: number | null
+          rate_limit_remaining?: number | null
+          rate_limit_reset?: string | null
+          request_id?: string | null
+          status?: string
+          time_to_first_token_ms?: number | null
+          tool_count?: number | null
+          tools_used?: string[] | null
+          total_stream_time_ms?: number | null
+          total_tokens?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claude_api_metrics_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaborative_goal_members: {
         Row: {
           contribution: number | null

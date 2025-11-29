@@ -132,6 +132,9 @@ verify_jwt = false
 [functions.ai-agent]
 verify_jwt = true
 
+[functions.ai-agent-health]
+verify_jwt = false
+
 [functions.transcribe-audio]
 verify_jwt = true
 

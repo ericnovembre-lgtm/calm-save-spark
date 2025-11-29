@@ -15,6 +15,63 @@ interface ToolDefinition {
   };
 }
 
+interface ClaudeMetrics {
+  requestId?: string;
+  conversationId?: string;
+  userId?: string;
+  agentType: string;
+  model: string;
+  latencyMs: number;
+  timeToFirstTokenMs?: number;
+  totalStreamTimeMs?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  totalTokens?: number;
+  status: 'success' | 'error' | 'rate_limited';
+  errorType?: string;
+  errorMessage?: string;
+  rateLimitRemaining?: number;
+  rateLimitReset?: string;
+  toolsUsed?: string[];
+  toolCount?: number;
+}
+
+/**
+ * Persist Claude API metrics to the database
+ */
+async function persistMetrics(supabase: SupabaseClient, metrics: ClaudeMetrics): Promise<void> {
+  try {
+    const { error } = await supabase.from('claude_api_metrics').insert({
+      request_id: metrics.requestId,
+      conversation_id: metrics.conversationId,
+      user_id: metrics.userId,
+      agent_type: metrics.agentType,
+      model: metrics.model,
+      latency_ms: metrics.latencyMs,
+      time_to_first_token_ms: metrics.timeToFirstTokenMs,
+      total_stream_time_ms: metrics.totalStreamTimeMs,
+      input_tokens: metrics.inputTokens,
+      output_tokens: metrics.outputTokens,
+      total_tokens: metrics.totalTokens,
+      status: metrics.status,
+      error_type: metrics.errorType,
+      error_message: metrics.errorMessage,
+      rate_limit_remaining: metrics.rateLimitRemaining,
+      rate_limit_reset: metrics.rateLimitReset,
+      tools_used: metrics.toolsUsed,
+      tool_count: metrics.toolCount || 0,
+    });
+
+    if (error) {
+      console.error('[Anthropic Metrics] Failed to persist metrics:', error);
+    } else {
+      console.log('[Anthropic Metrics] Metrics persisted successfully');
+    }
+  } catch (err) {
+    console.error('[Anthropic Metrics] Error persisting metrics:', err);
+  }
+}
+
 /**
  * Convert OpenAI-style tools to Claude format
  */
@@ -38,7 +95,8 @@ export async function streamAnthropicResponse(
   tools?: any[],
   supabase?: SupabaseClient,
   conversationId?: string,
-  userId?: string
+  userId?: string,
+  agentType: string = 'unknown'
 ): Promise<ReadableStream> {
   const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
   if (!ANTHROPIC_API_KEY) {
@@ -69,6 +127,7 @@ export async function streamAnthropicResponse(
   console.log('[Anthropic] ===== New Request =====');
   console.log('[Anthropic] Timestamp:', new Date().toISOString());
   console.log('[Anthropic] Model:', model);
+  console.log('[Anthropic] Agent Type:', agentType);
   console.log('[Anthropic] Messages:', messages.length);
   console.log('[Anthropic] System prompt length:', systemPrompt.length, 'chars');
   console.log('[Anthropic] Tools:', tools ? tools.map(t => t.function?.name).join(', ') : 'none');
@@ -86,11 +145,16 @@ export async function streamAnthropicResponse(
 
   // ===== RESPONSE-LEVEL LOGGING =====
   const requestEndTime = Date.now();
+  const requestLatency = requestEndTime - requestStartTime;
+  const rateLimitRemaining = response.headers.get('anthropic-ratelimit-requests-remaining');
+  const rateLimitReset = response.headers.get('anthropic-ratelimit-requests-reset');
+  const requestId = response.headers.get('request-id');
+  
   console.log('[Anthropic] Response status:', response.status);
-  console.log('[Anthropic] Request duration:', requestEndTime - requestStartTime, 'ms');
-  console.log('[Anthropic] Rate limit remaining:', response.headers.get('anthropic-ratelimit-requests-remaining'));
-  console.log('[Anthropic] Rate limit reset:', response.headers.get('anthropic-ratelimit-requests-reset'));
-  console.log('[Anthropic] Request ID:', response.headers.get('request-id'));
+  console.log('[Anthropic] Request duration:', requestLatency, 'ms');
+  console.log('[Anthropic] Rate limit remaining:', rateLimitRemaining);
+  console.log('[Anthropic] Rate limit reset:', rateLimitReset);
+  console.log('[Anthropic] Request ID:', requestId);
 
   if (!response.ok) {
     const errorBody = await response.text();
@@ -101,8 +165,29 @@ export async function streamAnthropicResponse(
     console.error('[Anthropic Error] Status Text:', response.statusText);
     console.error('[Anthropic Error] Body:', errorBody);
     console.error('[Anthropic Error] Model:', model);
-    console.error('[Anthropic Error] Request ID:', response.headers.get('request-id'));
-    console.error('[Anthropic Error] Request duration:', requestEndTime - requestStartTime, 'ms');
+    console.error('[Anthropic Error] Request ID:', requestId);
+    console.error('[Anthropic Error] Request duration:', requestLatency, 'ms');
+    
+    // Persist error metrics
+    if (supabase) {
+      const errorType = response.status === 429 ? 'rate_limit' : 
+                        response.status === 401 ? 'auth_error' : 
+                        response.status >= 500 ? 'server_error' : 'request_error';
+      
+      await persistMetrics(supabase, {
+        requestId: requestId || undefined,
+        conversationId,
+        userId,
+        agentType,
+        model,
+        latencyMs: requestLatency,
+        status: response.status === 429 ? 'rate_limited' : 'error',
+        errorType,
+        errorMessage: errorBody.slice(0, 500),
+        rateLimitRemaining: rateLimitRemaining ? parseInt(rateLimitRemaining) : undefined,
+        rateLimitReset: rateLimitReset || undefined,
+      });
+    }
     
     if (response.status === 429) {
       console.error('[Anthropic Error] Type: RATE_LIMIT - Too many requests');
@@ -127,15 +212,40 @@ export async function streamAnthropicResponse(
     logToolExecution(response.body!, supabase, conversationId, userId, tools);
   }
 
-  // Transform Anthropic SSE stream to match OpenAI format
-  return transformAnthropicStream(response.body!);
+  // Transform Anthropic SSE stream to match OpenAI format with metrics tracking
+  return transformAnthropicStream(response.body!, {
+    supabase,
+    requestId: requestId || undefined,
+    conversationId,
+    userId,
+    agentType,
+    model,
+    requestStartTime,
+    rateLimitRemaining: rateLimitRemaining ? parseInt(rateLimitRemaining) : undefined,
+    rateLimitReset: rateLimitReset || undefined,
+    toolNames: tools?.map(t => t.function?.name).filter(Boolean) || [],
+  });
 }
 
 /**
  * Transform Anthropic's SSE stream format to match OpenAI's format
  * This allows the rest of the system to work with a consistent stream format
  */
-function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream {
+function transformAnthropicStream(
+  sourceStream: ReadableStream,
+  options?: {
+    supabase?: SupabaseClient;
+    requestId?: string;
+    conversationId?: string;
+    userId?: string;
+    agentType?: string;
+    model?: string;
+    requestStartTime?: number;
+    rateLimitRemaining?: number;
+    rateLimitReset?: string;
+    toolNames?: string[];
+  }
+): ReadableStream {
   const reader = sourceStream.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
@@ -146,6 +256,7 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
   let chunkCount = 0;
   let totalTokensInput = 0;
   let totalTokensOutput = 0;
+  const toolsUsed: string[] = [];
 
   return new ReadableStream({
     async start(controller) {
@@ -225,6 +336,11 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
                   console.log('[Anthropic Tool] Tool name:', parsed.content_block.name);
                   console.log('[Anthropic Tool] Tool ID:', parsed.content_block.id);
                   
+                  // Track tool usage
+                  if (parsed.content_block.name) {
+                    toolsUsed.push(parsed.content_block.name);
+                  }
+                  
                   // Handle tool calls - transform to OpenAI format
                   const toolCall = {
                     id: parsed.content_block.id,
@@ -261,6 +377,8 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
                 } else if (parsed.type === 'message_stop') {
                   // ===== PERFORMANCE METRICS LOGGING =====
                   const totalTime = Date.now() - streamStartTime;
+                  const totalRequestTime = options?.requestStartTime ? Date.now() - options.requestStartTime : totalTime;
+                  
                   console.log('[Anthropic Stream] ===== Stream Complete =====');
                   console.log('[Anthropic Perf] Total chunks:', chunkCount);
                   console.log('[Anthropic Perf] Total time:', totalTime, 'ms');
@@ -273,6 +391,28 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
                   if (totalTokensOutput > 0 && firstTokenTime) {
                     const tokensPerSec = (totalTokensOutput / ((totalTime - (firstTokenTime - streamStartTime)) / 1000)).toFixed(2);
                     console.log('[Anthropic Perf] Tokens per second:', tokensPerSec);
+                  }
+                  
+                  // Persist success metrics
+                  if (options?.supabase) {
+                    persistMetrics(options.supabase, {
+                      requestId: options.requestId,
+                      conversationId: options.conversationId,
+                      userId: options.userId,
+                      agentType: options.agentType || 'unknown',
+                      model: options.model || 'claude-sonnet-4-5',
+                      latencyMs: totalRequestTime,
+                      timeToFirstTokenMs: firstTokenTime ? firstTokenTime - streamStartTime : undefined,
+                      totalStreamTimeMs: totalTime,
+                      inputTokens: totalTokensInput,
+                      outputTokens: totalTokensOutput,
+                      totalTokens: totalTokensInput + totalTokensOutput,
+                      status: 'success',
+                      rateLimitRemaining: options.rateLimitRemaining,
+                      rateLimitReset: options.rateLimitReset,
+                      toolsUsed: toolsUsed.length > 0 ? toolsUsed : undefined,
+                      toolCount: toolsUsed.length,
+                    });
                   }
                   
                   const doneChunk = new TextEncoder().encode('data: [DONE]\n\n');
@@ -293,6 +433,28 @@ function transformAnthropicStream(sourceStream: ReadableStream): ReadableStream 
         console.error('[Anthropic Stream Error] Error:', error);
         console.error('[Anthropic Stream Error] Chunks received before error:', chunkCount);
         console.error('[Anthropic Stream Error] Time before error:', Date.now() - streamStartTime, 'ms');
+        
+        // Persist error metrics
+        if (options?.supabase) {
+          const totalTime = Date.now() - streamStartTime;
+          persistMetrics(options.supabase, {
+            requestId: options.requestId,
+            conversationId: options.conversationId,
+            userId: options.userId,
+            agentType: options.agentType || 'unknown',
+            model: options.model || 'claude-sonnet-4-5',
+            latencyMs: options.requestStartTime ? Date.now() - options.requestStartTime : totalTime,
+            timeToFirstTokenMs: firstTokenTime ? firstTokenTime - streamStartTime : undefined,
+            totalStreamTimeMs: totalTime,
+            inputTokens: totalTokensInput,
+            outputTokens: totalTokensOutput,
+            totalTokens: totalTokensInput + totalTokensOutput,
+            status: 'error',
+            errorType: 'stream_error',
+            errorMessage: error instanceof Error ? error.message : 'Stream processing error',
+          });
+        }
+        
         controller.error(error);
       }
     }
