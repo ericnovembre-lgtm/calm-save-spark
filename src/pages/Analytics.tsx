@@ -1,114 +1,146 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, TrendingUp, Users, FileText } from "lucide-react";
-import { SpendingChart } from "@/components/analytics/SpendingChart";
-import { ForecastChart } from "@/components/analytics/ForecastChart";
+import { BarChart3, TrendingUp, PieChart, FileText } from "lucide-react";
+import { useAnalyticsData, useAIInsights, type Timeframe } from "@/hooks/useAnalyticsData";
+import { TimeframePicker } from "@/components/analytics/TimeframePicker";
+import { SpendingOverviewCards } from "@/components/analytics/SpendingOverviewCards";
+import { SpendingTrendsChart } from "@/components/analytics/SpendingTrendsChart";
+import { CategoryBreakdownChart } from "@/components/analytics/CategoryBreakdownChart";
+import { PredictiveInsightsPanel } from "@/components/analytics/PredictiveInsightsPanel";
+import { SpendingComparison } from "@/components/analytics/SpendingComparison";
+import { ExportButton } from "@/components/analytics/ExportButton";
 import { ReportBuilder } from "@/components/analytics/ReportBuilder";
 import { ForecastDashboard } from "@/components/analytics/ForecastDashboard";
 import { BenchmarkComparison } from "@/components/analytics/BenchmarkComparison";
-import { ExportButton } from "@/components/analytics/ExportButton";
+import { useNavigate } from "react-router-dom";
 
 export default function Analytics() {
-  // Sample export data
+  const [timeframe, setTimeframe] = useState<Timeframe>('30d');
+  const navigate = useNavigate();
+  
+  const { 
+    data: analyticsData, 
+    isLoading: isAnalyticsLoading,
+  } = useAnalyticsData(timeframe);
+  
+  const { 
+    data: insightsData, 
+    isLoading: isInsightsLoading,
+    refetch: refetchInsights,
+    isFetching: isRefreshingInsights,
+  } = useAIInsights(timeframe);
+
+  // Prepare export data
   const exportData = {
     title: "Financial Analytics Report",
     headers: ["Category", "Amount", "Percentage", "Trend"],
-    rows: [
-      ["Groceries", "$450", "25%", "↑ 5%"],
-      ["Transportation", "$280", "15%", "↓ 2%"],
-      ["Entertainment", "$200", "11%", "→ 0%"],
-      ["Utilities", "$180", "10%", "↑ 3%"],
-      ["Dining", "$320", "18%", "↑ 8%"],
-      ["Other", "$370", "21%", "↑ 4%"],
-    ],
+    rows: analyticsData?.categoryTotals.map(cat => [
+      cat.category,
+      `$${cat.amount.toFixed(2)}`,
+      `${cat.percentage.toFixed(1)}%`,
+      "—",
+    ]) || [],
     summary: [
-      { label: "Total Spending", value: "$1,800" },
-      { label: "Period", value: "Last 30 days" },
-      { label: "Average Daily", value: "$60" },
+      { label: "Total Spending", value: `$${analyticsData?.totalSpending.toFixed(2) || '0'}` },
+      { label: "Period", value: timeframe === '7d' ? 'Last 7 days' : timeframe === '30d' ? 'Last 30 days' : timeframe === '90d' ? 'Last 90 days' : timeframe === '6m' ? 'Last 6 months' : 'Last year' },
+      { label: "Transactions", value: String(analyticsData?.transactionCount || 0) },
     ],
+  };
+
+  const handleCategoryClick = (category: string) => {
+    // Navigate to transactions filtered by category
+    navigate(`/transactions?category=${encodeURIComponent(category)}`);
   };
 
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Advanced Analytics</h1>
-            <p className="text-muted-foreground mt-2">
-              Custom reports, AI forecasts, and benchmark comparisons
+            <h1 className="text-3xl font-bold text-foreground">Analytics Dashboard</h1>
+            <p className="text-muted-foreground mt-1">
+              Track spending trends, categories, and AI-powered insights
             </p>
           </div>
-          <ExportButton data={exportData} />
+          <div className="flex items-center gap-3">
+            <TimeframePicker value={timeframe} onChange={setTimeframe} />
+            <ExportButton data={exportData} />
+          </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-orbital bg-primary/10">
-                <FileText className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Custom Reports</p>
-                <p className="text-2xl font-bold">12</p>
-              </div>
-            </div>
-          </Card>
+        {/* Overview Cards */}
+        <SpendingOverviewCards
+          totalSpending={analyticsData?.totalSpending || 0}
+          transactionCount={analyticsData?.transactionCount || 0}
+          topCategory={analyticsData?.topCategory || 'None'}
+          averageTransaction={analyticsData?.averageTransaction || 0}
+          spendingChange={analyticsData?.spendingChange || 0}
+          transactionChange={analyticsData?.transactionChange || 0}
+          dailyData={analyticsData?.dailyData || []}
+          isLoading={isAnalyticsLoading}
+        />
 
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-orbital bg-primary/10">
-                <TrendingUp className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">AI Forecasts</p>
-                <p className="text-2xl font-bold">3 mo</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-orbital bg-primary/10">
-                <Users className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Peer Percentile</p>
-                <p className="text-2xl font-bold">75th</p>
-              </div>
-            </div>
-          </Card>
+        {/* Charts Row */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <SpendingTrendsChart
+            data={analyticsData?.dailyData || []}
+            isLoading={isAnalyticsLoading}
+          />
+          <CategoryBreakdownChart
+            data={analyticsData?.categoryTotals || []}
+            isLoading={isAnalyticsLoading}
+            onCategoryClick={handleCategoryClick}
+          />
         </div>
 
-        <Tabs defaultValue="reports" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="reports">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Report Builder
+        {/* AI Insights */}
+        <PredictiveInsightsPanel
+          insights={insightsData?.insights || []}
+          isLoading={isInsightsLoading}
+          onRefresh={() => refetchInsights()}
+          isRefreshing={isRefreshingInsights}
+        />
+
+        {/* Detailed Tabs */}
+        <Tabs defaultValue="comparison" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="comparison" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Comparison</span>
             </TabsTrigger>
-            <TabsTrigger value="forecasts">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              AI Forecasts
+            <TabsTrigger value="forecasts" className="gap-2">
+              <TrendingUp className="w-4 h-4" />
+              <span className="hidden sm:inline">Forecasts</span>
             </TabsTrigger>
-            <TabsTrigger value="benchmarks">
-              <Users className="w-4 h-4 mr-2" />
-              Benchmarks
+            <TabsTrigger value="benchmarks" className="gap-2">
+              <PieChart className="w-4 h-4" />
+              <span className="hidden sm:inline">Benchmarks</span>
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="gap-2">
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">Reports</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="reports" className="space-y-4">
-            <ReportBuilder />
-            <SpendingChart />
+          <TabsContent value="comparison" className="mt-6">
+            <SpendingComparison
+              monthlyData={analyticsData?.monthlyData || []}
+              isLoading={isAnalyticsLoading}
+            />
           </TabsContent>
 
-          <TabsContent value="forecasts" className="space-y-4">
+          <TabsContent value="forecasts" className="mt-6">
             <ForecastDashboard />
-            <ForecastChart />
           </TabsContent>
 
-          <TabsContent value="benchmarks" className="space-y-4">
+          <TabsContent value="benchmarks" className="mt-6">
             <BenchmarkComparison />
+          </TabsContent>
+
+          <TabsContent value="reports" className="mt-6">
+            <ReportBuilder />
           </TabsContent>
         </Tabs>
       </div>
