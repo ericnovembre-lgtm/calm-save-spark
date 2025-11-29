@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
 import { UnifiedDashboardData } from '@/lib/dashboard-data-types';
+import { differenceInDays } from 'date-fns';
 
 export interface WidgetPriority {
   id: string;
   score: number;
   size: 'hero' | 'large' | 'normal';
   urgencyReason: string;
+  isPulsing?: boolean;
+  urgencyLevel?: 'critical' | 'high' | 'medium' | 'low';
 }
 
 interface AnalysisContext {
@@ -13,6 +16,7 @@ interface AnalysisContext {
   totalBalance: number;
   monthlyChange: number;
   hasAccounts: boolean;
+  upcomingBills?: Array<{ next_expected_date: string; amount: number; merchant: string }>;
 }
 
 /**
@@ -23,7 +27,7 @@ interface AnalysisContext {
 export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPriority[] {
   return useMemo(() => {
     const priorities: WidgetPriority[] = [];
-    const { dashboardData, totalBalance, monthlyChange, hasAccounts } = context;
+    const { dashboardData, totalBalance, monthlyChange, hasAccounts, upcomingBills } = context;
 
     // 1. Account Connection (Score: 100 if no accounts)
     if (!hasAccounts) {
@@ -31,7 +35,48 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
         id: 'connect-account',
         score: 100,
         size: 'hero',
-        urgencyReason: 'Connect your first account to start tracking'
+        urgencyReason: 'Connect your first account to start tracking',
+        urgencyLevel: 'critical',
+      });
+    }
+
+    // 2. Upcoming Bills - HIGH PRIORITY when due soon
+    if (upcomingBills && upcomingBills.length > 0) {
+      const billsDueTomorrow = upcomingBills.filter(bill => {
+        const daysUntil = differenceInDays(new Date(bill.next_expected_date), new Date());
+        return daysUntil <= 1;
+      });
+
+      const billsDueThisWeek = upcomingBills.filter(bill => {
+        const daysUntil = differenceInDays(new Date(bill.next_expected_date), new Date());
+        return daysUntil <= 7;
+      });
+
+      let billsScore = 45; // Base score
+      let billsSize: 'hero' | 'large' | 'normal' = 'normal';
+      let isPulsing = false;
+      let urgencyLevel: 'critical' | 'high' | 'medium' | 'low' = 'low';
+
+      if (billsDueTomorrow.length > 0) {
+        billsScore = 95; // Critical - bill due tomorrow
+        billsSize = 'large';
+        isPulsing = true;
+        urgencyLevel = 'critical';
+      } else if (billsDueThisWeek.length > 0) {
+        billsScore = 75;
+        billsSize = 'normal';
+        urgencyLevel = 'medium';
+      }
+
+      priorities.push({
+        id: 'upcoming-bills',
+        score: billsScore,
+        size: billsSize,
+        isPulsing,
+        urgencyLevel,
+        urgencyReason: billsDueTomorrow.length > 0
+          ? `⚠️ ${billsDueTomorrow.length} bill(s) due tomorrow!`
+          : `${billsDueThisWeek.length} bill(s) due this week`,
       });
     }
 
@@ -76,7 +121,7 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       });
     }
 
-    // 4. Investments/Portfolio
+    // 4. Investments/Portfolio - HERO when big moves
     const hasInvestments = dashboardData?.investments && dashboardData.investments.length > 0;
     if (hasInvestments) {
       const totalValue = dashboardData.investments.reduce((sum, inv) => sum + inv.total_value, 0);
@@ -84,17 +129,32 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       const marketChange = totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : 0;
       
       let portfolioScore = 55;
-      if (Math.abs(marketChange) > 5) portfolioScore = 90; // Big moves
-      else if (Math.abs(marketChange) > 2) portfolioScore = 70; // Notable moves
+      let portfolioSize: 'hero' | 'large' | 'normal' = 'normal';
+      let urgencyLevel: 'critical' | 'high' | 'medium' | 'low' = 'low';
+
+      // Portfolio becomes HERO when >5% gain
+      if (marketChange > 5) {
+        portfolioScore = 92;
+        portfolioSize = 'hero'; // Full-width hero header
+        urgencyLevel = 'high';
+      } else if (marketChange < -5) {
+        portfolioScore = 90;
+        portfolioSize = 'large';
+        urgencyLevel = 'high';
+      } else if (Math.abs(marketChange) > 2) {
+        portfolioScore = 70;
+        urgencyLevel = 'medium';
+      }
       
       priorities.push({
         id: 'portfolio',
         score: portfolioScore,
-        size: portfolioScore > 85 ? 'large' : 'normal',
+        size: portfolioSize,
+        urgencyLevel,
         urgencyReason: marketChange > 5
-          ? `Portfolio up ${marketChange.toFixed(1)}% today!`
+          ? `🚀 Portfolio up ${marketChange.toFixed(1)}%!`
           : marketChange < -5
-          ? `Portfolio down ${Math.abs(marketChange).toFixed(1)}% - review positions`
+          ? `📉 Portfolio down ${Math.abs(marketChange).toFixed(1)}% - review positions`
           : `Portfolio ${marketChange > 0 ? '+' : ''}${marketChange.toFixed(1)}%`
       });
     }

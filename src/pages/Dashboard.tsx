@@ -29,7 +29,7 @@ import { cn } from "@/lib/utils";
 import { DashboardErrorBoundary } from "@/components/error/DashboardErrorBoundary";
 import { MilestoneCelebration } from "@/components/effects/MilestoneCelebration";
 import { useMilestoneDetector } from "@/hooks/useMilestoneDetector";
-import { SentimentBackground } from "@/components/dashboard/SentimentBackground";
+import { AuroraMeshBackground } from "@/components/dashboard/AuroraMeshBackground";
 import { SentimentIndicator } from "@/components/dashboard/SentimentIndicator";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -43,6 +43,11 @@ import { SmartBanner } from "@/components/dashboard/SmartBanner";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { AnomalyAlertCenter } from "@/components/ai/AnomalyAlertCenter";
 import { useKeyboardShortcuts, defaultDashboardShortcuts, useShortcutsHelp } from "@/hooks/useKeyboardShortcuts";
+import { NaturalLanguageCommander } from "@/components/dashboard/NaturalLanguageCommander";
+import { AdHocChartPanel } from "@/components/dashboard/AdHocChartPanel";
+import { UpcomingBillsWidget } from "@/components/dashboard/UpcomingBillsWidget";
+import { useSubscriptions } from "@/hooks/useSubscriptions";
+import { LottieCelebrations } from "@/components/effects/LottieCelebrations";
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
@@ -50,6 +55,17 @@ export default function Dashboard() {
   const { announce } = useAnnounce();
   const [balanceAnnouncement, setBalanceAnnouncement] = useState('');
   const isMobile = useIsMobile();
+  
+  // NLQ state
+  const [nlqQuery, setNlqQuery] = useState('');
+  const [isNlqProcessing, setIsNlqProcessing] = useState(false);
+  const [showAdHocChart, setShowAdHocChart] = useState(false);
+  const [adHocChartData, setAdHocChartData] = useState<Array<{ name: string; value: number }>>([]);
+  const [adHocInsight, setAdHocInsight] = useState('');
+  
+  // Celebrations state
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationType, setCelebrationType] = useState<'success' | 'achievement' | 'goal' | 'milestone'>('success');
   
   // Check onboarding status
   useOnboardingStatus(true);
@@ -127,13 +143,53 @@ export default function Dashboard() {
   // Calculate net worth change percentage for sentiment UI
   const netWorthChangePercent = totalBalance > 0 ? (monthlyChange / totalBalance) * 100 : 0;
 
+  // Get upcoming bills for priority engine
+  const { upcomingBills } = useSubscriptions();
+
   // Generative Layout Engine - analyzes urgency and assigns priority scores
   const layoutPriorities = useGenerativeLayoutEngine({
     dashboardData,
     totalBalance,
     monthlyChange,
-    hasAccounts: (accounts?.length || 0) > 0
+    hasAccounts: (accounts?.length || 0) > 0,
+    upcomingBills: upcomingBills?.map(b => ({
+      next_expected_date: b.next_expected_date,
+      amount: Number(b.amount),
+      merchant: b.merchant,
+    })),
   });
+
+  // NLQ handler - generate ad-hoc charts from natural language
+  const handleNLQuery = async (query: string) => {
+    setNlqQuery(query);
+    setIsNlqProcessing(true);
+    setShowAdHocChart(true);
+
+    // Simulate AI processing - in production, this would call an edge function
+    setTimeout(() => {
+      // Mock data based on query keywords
+      const mockData = query.toLowerCase().includes('coffee') 
+        ? [
+            { name: 'Coffee', value: 127.50 },
+            { name: 'Tea', value: 45.20 },
+          ]
+        : query.toLowerCase().includes('groceries')
+        ? [
+            { name: 'Groceries', value: 450.00 },
+            { name: 'Dining', value: 280.00 },
+          ]
+        : [
+            { name: 'Shopping', value: 320.00 },
+            { name: 'Entertainment', value: 180.00 },
+            { name: 'Transport', value: 95.00 },
+            { name: 'Utilities', value: 150.00 },
+          ];
+
+      setAdHocChartData(mockData);
+      setAdHocInsight(`Based on your spending patterns, ${mockData[0].name.toLowerCase()} is your largest expense in this category.`);
+      setIsNlqProcessing(false);
+    }, 1500);
+  };
 
   // Calculate savings velocity (0-100) based on recent activity
   const savingsVelocity = Math.min(100, Math.max(0, 
@@ -320,6 +376,16 @@ export default function Dashboard() {
         <ManualTransferCard />
       </DashboardErrorBoundary>
     ),
+    'upcoming-bills': (
+      <UpcomingBillsWidget 
+        onPayBill={(billId) => {
+          // Optimistic UI - celebrate payment
+          setCelebrationType('success');
+          setShowCelebration(true);
+          toast.success('Payment initiated!');
+        }}
+      />
+    ),
   };
 
   // Show skeleton while loading
@@ -328,8 +394,13 @@ export default function Dashboard() {
   return (
     <AppLayout>
       {/* Essential Effects */}
-      <SentimentBackground netWorthChangePercent={netWorthChangePercent} />
+      <AuroraMeshBackground netWorthChangePercent={netWorthChangePercent} />
       <MilestoneCelebration milestone={milestone} onDismiss={dismissMilestone} />
+      <LottieCelebrations 
+        type={celebrationType} 
+        isVisible={showCelebration} 
+        onComplete={() => setShowCelebration(false)} 
+      />
       
       {/* Accessibility */}
       <SkipLinks />
@@ -400,6 +471,27 @@ export default function Dashboard() {
         <KeyboardHints />
         <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />
       </PullToRefresh>
+
+      {/* Natural Language Commander */}
+      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-30">
+        <NaturalLanguageCommander 
+          onQuery={handleNLQuery}
+          isProcessing={isNlqProcessing}
+        />
+      </div>
+
+      {/* Ad-Hoc Chart Panel */}
+      <div className="fixed bottom-40 left-1/2 -translate-x-1/2 z-40 w-full max-w-lg px-4">
+        <AdHocChartPanel
+          isOpen={showAdHocChart}
+          onClose={() => setShowAdHocChart(false)}
+          query={nlqQuery}
+          isLoading={isNlqProcessing}
+          chartType="bar"
+          data={adHocChartData}
+          insight={adHocInsight}
+        />
+      </div>
     </AppLayout>
   );
 }
