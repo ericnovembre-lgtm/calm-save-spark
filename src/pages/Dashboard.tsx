@@ -55,8 +55,10 @@ import { DashboardTour } from "@/components/dashboard/DashboardTour";
 import { WhatsNewModal } from "@/components/dashboard/WhatsNewModal";
 import { FeatureSpotlight } from "@/components/dashboard/FeatureSpotlight";
 import { NewUserSpotlight } from "@/components/onboarding/NewUserSpotlight";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
   const { announce } = useAnnounce();
@@ -101,6 +103,32 @@ export default function Dashboard() {
   });
 
   const userId = session?.user?.id;
+  
+  // Query profile for tutorial state
+  const { data: profile, refetch: refetchProfile } = useQuery({
+    queryKey: ['profile-tutorial', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('show_dashboard_tutorial')
+        .eq('id', user.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+  
+  // Handle onboarding completion
+  const handleOnboardingComplete = async () => {
+    if (!user?.id) return;
+    await supabase
+      .from('profiles')
+      .update({ show_dashboard_tutorial: false })
+      .eq('id', user.id);
+    refetchProfile();
+  };
   
   // Accounts still queried separately (not yet in dashboardData aggregation)
   const { data: accounts, isLoading: accountsLoading } = useQuery({
@@ -418,7 +446,10 @@ export default function Dashboard() {
       <FeatureSpotlight />
       
       {/* New User Onboarding Spotlight - triggers for new users */}
-      <NewUserSpotlight />
+      <NewUserSpotlight 
+        showTutorial={profile?.show_dashboard_tutorial ?? false}
+        onComplete={handleOnboardingComplete}
+      />
       
       {/* Tour Debug Overlay - toggle with Ctrl+Shift+D */}
       <TourDebugOverlay />

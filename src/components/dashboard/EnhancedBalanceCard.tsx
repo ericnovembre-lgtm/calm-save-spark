@@ -62,7 +62,7 @@ export const EnhancedBalanceCard = ({
   };
 
   return (
-    <GlassCard enableTilt glowOnHover className="p-6 md:p-8 overflow-hidden relative">
+    <GlassCard data-tour="balance-card" enableTilt glowOnHover className="p-6 md:p-8 overflow-hidden relative">
       <NeutralConfetti show={showConfetti} duration={2500} count={35} />
       
       {/* Draggable coin for drag-to-save */}

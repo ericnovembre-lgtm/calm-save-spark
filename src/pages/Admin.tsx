@@ -1,12 +1,13 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Trophy, Gift, BarChart3, Route, AlertCircle } from "lucide-react";
+import { Shield, Trophy, Gift, BarChart3, Route, AlertCircle, Users } from "lucide-react";
 import { ChallengeManagement } from "@/components/admin/ChallengeManagement";
 import { ReferralReview } from "@/components/admin/ReferralReview";
 import { PlatformAnalytics } from "@/components/admin/PlatformAnalytics";
 import { RedirectManagement } from "@/components/admin/RedirectManagement";
 import { NotFoundAnalytics } from "@/components/admin/NotFoundAnalytics";
+import { OnboardingAnalytics } from "@/components/admin/OnboardingAnalytics";
 import { ExportButton } from "@/components/analytics/ExportButton";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -102,7 +103,7 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="challenges" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="challenges">
               <Trophy className="w-4 h-4 mr-2" />
               Challenges
@@ -115,13 +116,17 @@ export default function Admin() {
               <BarChart3 className="w-4 h-4 mr-2" />
               Analytics
             </TabsTrigger>
+            <TabsTrigger value="onboarding">
+              <Users className="w-4 h-4 mr-2" />
+              Onboarding
+            </TabsTrigger>
             <TabsTrigger value="redirects">
               <Route className="w-4 h-4 mr-2" />
               Redirects
             </TabsTrigger>
             <TabsTrigger value="404s">
               <AlertCircle className="w-4 h-4 mr-2" />
-              404 Analytics
+              404s
             </TabsTrigger>
           </TabsList>
 
@@ -135,6 +140,10 @@ export default function Admin() {
 
           <TabsContent value="analytics" className="space-y-4">
             <PlatformAnalytics />
+          </TabsContent>
+
+          <TabsContent value="onboarding" className="space-y-4">
+            <OnboardingAnalytics />
           </TabsContent>
 
           <TabsContent value="redirects" className="space-y-4">
