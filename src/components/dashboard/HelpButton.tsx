@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, Search, Keyboard } from 'lucide-react';
+import { HelpCircle, Search, Keyboard, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { defaultDashboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useDashboardTour } from '@/hooks/useDashboardTour';
 
 /**
  * Help Button Component
@@ -19,6 +20,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 export function HelpButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { resetTour } = useDashboardTour();
 
   const filteredShortcuts = defaultDashboardShortcuts.filter(
     (shortcut) =>
@@ -87,8 +89,24 @@ export function HelpButton() {
             </div>
           </ScrollArea>
 
+          {/* Restart Tour Button */}
+          <div className="pt-4 border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-2"
+              onClick={() => {
+                resetTour();
+                setIsOpen(false);
+              }}
+            >
+              <Play className="w-4 h-4" />
+              Restart Dashboard Tour
+            </Button>
+          </div>
+
           {/* Footer Tip */}
-          <div className="pt-4 border-t text-xs text-muted-foreground text-center">
+          <div className="pt-4 text-xs text-muted-foreground text-center">
             <p>
               Tip: Press <kbd className="px-1 py-0.5 bg-muted border rounded">?</kbd> anytime
               to open this dialog
