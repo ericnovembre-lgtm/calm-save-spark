@@ -1,4 +1,5 @@
 import { CreditWidget } from "@/components/dashboard/CreditWidget";
+import { CreditEmptyState } from "@/components/dashboard/CreditEmptyState";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -200,30 +201,23 @@ export default function Dashboard() {
     setIsNlqProcessing(true);
     setShowAdHocChart(true);
 
-    // Simulate AI processing - in production, this would call an edge function
-    setTimeout(() => {
-      // Mock data based on query keywords
-      const mockData = query.toLowerCase().includes('coffee') 
-        ? [
-            { name: 'Coffee', value: 127.50 },
-            { name: 'Tea', value: 45.20 },
-          ]
-        : query.toLowerCase().includes('groceries')
-        ? [
-            { name: 'Groceries', value: 450.00 },
-            { name: 'Dining', value: 280.00 },
-          ]
-        : [
-            { name: 'Shopping', value: 320.00 },
-            { name: 'Entertainment', value: 180.00 },
-            { name: 'Transport', value: 95.00 },
-            { name: 'Utilities', value: 150.00 },
-          ];
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-nlq-chart', {
+        body: { query }
+      });
 
-      setAdHocChartData(mockData);
-      setAdHocInsight(`Based on your spending patterns, ${mockData[0].name.toLowerCase()} is your largest expense in this category.`);
+      if (error) throw error;
+
+      setAdHocChartData(data.chartData || []);
+      setAdHocInsight(data.insight || 'Analysis complete.');
+    } catch (error) {
+      console.error('NLQ query failed:', error);
+      toast.error('Failed to analyze query');
+      setAdHocChartData([]);
+      setAdHocInsight('Unable to analyze your spending at this time.');
+    } finally {
       setIsNlqProcessing(false);
-    }, 1500);
+    }
   };
 
   // Calculate savings velocity (0-100) based on recent activity
@@ -231,38 +225,49 @@ export default function Dashboard() {
     Math.abs(monthlyChange) / (totalBalance || 1) * 100 * 5
   ));
 
-  // Generate 7-day trend data
+  // Generate 7-day trend data (deterministic based on balance/change)
   const weeklyTrend = [...Array(7)].map((_, i) => {
     const dayOffset = 6 - i;
     const baseAmount = totalBalance - (monthlyChange / 30 * dayOffset);
-    return Math.max(0, baseAmount + (Math.random() - 0.5) * 100);
+    // Use a deterministic variation based on day index
+    const variation = Math.sin(i * 0.8) * (totalBalance * 0.01);
+    return Math.max(0, baseAmount + variation);
   });
 
-  // Mock challenges data
-  const mockChallenges = [
-    {
-      id: '1',
-      name: 'Weekly Savings Sprint',
-      description: 'Save $500 this week',
-      type: 'weekly' as const,
-      target: 500,
-      current: 320,
-      reward: '+100 XP and 1 Streak Freeze',
-      participants: 1247,
-      endsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+  // Fetch active challenges from database
+  const { data: activeChallengesData } = useQuery({
+    queryKey: ['active-challenges'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('challenges')
+        .select('id, name, description, challenge_type, points, requirement, is_active')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+      
+      if (error) {
+        console.error('Failed to fetch challenges:', error);
+        return [];
+      }
+      return data || [];
     },
-    {
-      id: '2',
-      name: 'Monthly Goal Master',
-      description: 'Complete 3 savings goals this month',
-      type: 'monthly' as const,
-      target: 3,
-      current: 1,
-      reward: '+500 XP and Premium Badge',
-      participants: 892,
-      endsAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
-    }
-  ];
+  });
+
+  // Transform challenges data for ChallengeCard component
+  const activeChallenges = (activeChallengesData || []).map(c => {
+    const requirement = c.requirement as { target?: number; days?: number } | null;
+    return {
+      id: c.id,
+      name: c.name || 'Challenge',
+      description: c.description || '',
+      type: (c.challenge_type === 'weekly' ? 'weekly' : 'monthly') as 'weekly' | 'monthly',
+      target: requirement?.target || 100,
+      current: 0, // User progress would need a separate query
+      reward: `+${c.points || 100} XP`,
+      participants: 500,
+      endsAt: new Date(Date.now() + (requirement?.days || 7) * 24 * 60 * 60 * 1000)
+    };
+  });
 
   // Pull to refresh handler
   const handleRefresh = async () => {
@@ -360,7 +365,9 @@ export default function Dashboard() {
         change={dashboardData.creditScore.change}
         goal={dashboardData.creditGoal}
       />
-    ) : null,
+    ) : (
+      <CreditEmptyState />
+    ),
     'portfolio': dashboardData?.investments && dashboardData.investments.length > 0 ? (
       <div data-tour="portfolio-widget">
         <PortfolioWidget
@@ -405,13 +412,19 @@ export default function Dashboard() {
     ) : null,
     'challenges': (
       <div data-tour="weekly-challenges" className="space-y-4">
-        {mockChallenges.map((challenge) => (
-          <ChallengeCard
-            key={challenge.id}
-            challenge={challenge}
-            onJoin={() => toast.info(`Joined ${challenge.name}!`)}
-          />
-        ))}
+        {activeChallenges.length > 0 ? (
+          activeChallenges.map((challenge) => (
+            <ChallengeCard
+              key={challenge.id}
+              challenge={challenge}
+              onJoin={() => toast.info(`Joined ${challenge.name}!`)}
+            />
+          ))
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <p className="text-sm">No active challenges. Check back soon!</p>
+          </div>
+        )}
       </div>
     ),
     'manual-transfer': (

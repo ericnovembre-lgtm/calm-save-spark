@@ -11,8 +11,13 @@ export interface WidgetPriority {
   urgencyLevel?: 'critical' | 'high' | 'medium' | 'low';
 }
 
+interface ExtendedDashboardData extends UnifiedDashboardData {
+  creditScore?: { score: number; change: number };
+  creditGoal?: { target: number; progress: number };
+}
+
 interface AnalysisContext {
-  dashboardData?: UnifiedDashboardData;
+  dashboardData?: ExtendedDashboardData;
   totalBalance: number;
   monthlyChange: number;
   hasAccounts: boolean;
@@ -217,6 +222,64 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       score: 38,
       size: 'normal',
       urgencyReason: 'Compare with peers'
+    });
+
+    // 11. Challenges
+    priorities.push({
+      id: 'challenges',
+      score: 48,
+      size: 'normal',
+      urgencyReason: 'Active savings challenges',
+    });
+
+    // 12. Credit Score
+    if (dashboardData?.creditScore) {
+      let creditScore = 50;
+      let urgencyLevel: 'critical' | 'high' | 'medium' | 'low' = 'low';
+      
+      if (dashboardData.creditScore.change > 0) {
+        creditScore = 70;
+        urgencyLevel = 'medium';
+      } else if (dashboardData.creditScore.change < -10) {
+        creditScore = 85;
+        urgencyLevel = 'high';
+      }
+      
+      priorities.push({
+        id: 'credit',
+        score: creditScore,
+        size: creditScore > 80 ? 'large' : 'normal',
+        urgencyLevel,
+        urgencyReason: dashboardData.creditScore.change > 0
+          ? `Credit score improving (+${dashboardData.creditScore.change})`
+          : dashboardData.creditScore.change < 0
+          ? `Credit score needs attention (${dashboardData.creditScore.change})`
+          : 'Monitor your credit health',
+      });
+    } else {
+      // Show credit empty state with lower priority
+      priorities.push({
+        id: 'credit',
+        score: 35,
+        size: 'normal',
+        urgencyReason: 'Set up credit monitoring',
+      });
+    }
+
+    // 13. Manual Transfer
+    priorities.push({
+      id: 'manual-transfer',
+      score: 40,
+      size: 'normal',
+      urgencyReason: 'Quick transfer to savings',
+    });
+
+    // 14. Cash Flow Forecast
+    priorities.push({
+      id: 'cashflow',
+      score: 52,
+      size: 'normal',
+      urgencyReason: '30-day financial forecast',
     });
 
     // Sort by score descending
