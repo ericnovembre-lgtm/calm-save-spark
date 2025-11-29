@@ -6,6 +6,9 @@ import { EnhancedBalanceCard } from "@/components/dashboard/EnhancedBalanceCard"
 import { GoalsSection } from "@/components/dashboard/GoalsSection";
 import { ManualTransferCard } from "@/components/dashboard/ManualTransferCard";
 import JourneyMilestones from "@/components/dashboard/JourneyMilestones";
+import PeerInsights from "@/components/dashboard/PeerInsights";
+import SkillTreeProgress from "@/components/dashboard/SkillTreeProgress";
+import { TourDebugOverlay } from "@/components/dashboard/TourDebugOverlay";
 import { ConnectAccountCard } from "@/components/dashboard/ConnectAccountCard";
 import { ChallengeCard } from "@/components/gamification/ChallengeCard";
 import CashFlowForecast from "@/components/dashboard/CashFlowForecast";
@@ -362,6 +365,12 @@ export default function Dashboard() {
     'milestones': (
       <JourneyMilestones />
     ),
+    'peer-insights': userId ? (
+      <PeerInsights userId={userId} />
+    ) : null,
+    'skill-tree': userId ? (
+      <SkillTreeProgress userId={userId} />
+    ) : null,
     'cashflow': userId ? (
       <CashFlowForecast userId={userId} />
     ) : null,
@@ -406,6 +415,9 @@ export default function Dashboard() {
       
       {/* Feature Spotlight - shows after WhatsNew modal */}
       <FeatureSpotlight />
+      
+      {/* Tour Debug Overlay - toggle with Ctrl+Shift+D */}
+      <TourDebugOverlay />
       
       {/* Essential Effects */}
       <div data-tour="aurora-background">
