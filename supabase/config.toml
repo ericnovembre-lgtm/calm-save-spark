@@ -405,4 +405,7 @@ verify_jwt = true
 [functions.realtime-voice]
 verify_jwt = true
 
+[functions.generate-nlq-chart]
+verify_jwt = true
+
 
