@@ -53,6 +53,7 @@ const FamilyOffice = createPageLoader(() => import("./pages/FamilyOffice"), 'hea
 const Admin = createPageLoader(() => import("./pages/Admin"), 'heavy');
 const AdminMonitoring = createPageLoader(() => import("./pages/AdminMonitoring"), 'heavy');
 const SecurityMonitoring = createPageLoader(() => import("./pages/SecurityMonitoring"), 'heavy');
+const ClaudeMonitoring = createPageLoader(() => import("./pages/ClaudeMonitoring"), 'heavy');
 const Security = createPageLoader(() => import("./pages/Security"), 'heavy');
 const FinancialHealth = createPageLoader(() => import("./pages/FinancialHealth"), 'heavy');
 
@@ -274,6 +275,7 @@ function AnimatedRoutes() {
         <Route path="/admin" element={<ProtectedRoute><PageTransition><AdminRoute><Admin /></AdminRoute></PageTransition></ProtectedRoute>} />
         <Route path="/security-monitoring" element={<ProtectedRoute><PageTransition><AdminRoute><SecurityMonitoring /></AdminRoute></PageTransition></ProtectedRoute>} />
         <Route path="/admin-monitoring" element={<ProtectedRoute><PageTransition><AdminRoute><AdminMonitoring /></AdminRoute></PageTransition></ProtectedRoute>} />
+        <Route path="/claude-monitoring" element={<ProtectedRoute><PageTransition><AdminRoute><ClaudeMonitoring /></AdminRoute></PageTransition></ProtectedRoute>} />
         <Route path="/admin-agents" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         <Route path="/admin-functions" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         
