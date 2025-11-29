@@ -6,6 +6,8 @@ import { formatDistanceToNow, differenceInDays, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { toast } from 'sonner';
+import { WidgetHelpTooltip } from '@/components/dashboard/WidgetHelpTooltip';
+import { WIDGET_HELP_CONTENT } from '@/data/widgetHelpContent';
 
 interface UpcomingBillsWidgetProps {
   isUrgent?: boolean;
@@ -53,31 +55,36 @@ export function UpcomingBillsWidget({ isUrgent, onPayBill }: UpcomingBillsWidget
 
   if (isLoading) {
     return (
-      <div className="p-6 space-y-4" data-tour="upcoming-bills">
-        <div className="h-6 bg-muted rounded animate-pulse w-1/3" />
-        <div className="space-y-3">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
-          ))}
+      <WidgetHelpTooltip content={WIDGET_HELP_CONTENT.upcomingBills}>
+        <div className="p-6 space-y-4" data-tour="upcoming-bills">
+          <div className="h-6 bg-muted rounded animate-pulse w-1/3" />
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
+            ))}
+          </div>
         </div>
-      </div>
+      </WidgetHelpTooltip>
     );
   }
 
   if (sortedBills.length === 0) {
     return (
-      <div className="p-6 text-center" data-tour="upcoming-bills">
-        <CheckCircle2 className="w-12 h-12 mx-auto text-success mb-3" />
-        <h3 className="font-semibold text-foreground">All Caught Up!</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          No bills due in the next 7 days
-        </p>
-      </div>
+      <WidgetHelpTooltip content={WIDGET_HELP_CONTENT.upcomingBills}>
+        <div className="p-6 text-center" data-tour="upcoming-bills">
+          <CheckCircle2 className="w-12 h-12 mx-auto text-success mb-3" />
+          <h3 className="font-semibold text-foreground">All Caught Up!</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            No bills due in the next 7 days
+          </p>
+        </div>
+      </WidgetHelpTooltip>
     );
   }
 
   return (
-    <motion.div
+    <WidgetHelpTooltip content={WIDGET_HELP_CONTENT.upcomingBills}>
+      <motion.div
       data-tour="upcoming-bills"
       className={cn(
         "p-6 rounded-xl relative overflow-hidden",
@@ -223,5 +230,6 @@ export function UpcomingBillsWidget({ isUrgent, onPayBill }: UpcomingBillsWidget
         </motion.div>
       )}
     </motion.div>
+    </WidgetHelpTooltip>
   );
 }

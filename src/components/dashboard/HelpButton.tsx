@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, Search, Keyboard, Play } from 'lucide-react';
+import { HelpCircle, Search, Keyboard, Play, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,15 +12,20 @@ import { Input } from '@/components/ui/input';
 import { defaultDashboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useDashboardTour } from '@/hooks/useDashboardTour';
+import { useWhatsNew } from '@/hooks/useWhatsNew';
+import { WhatsNewModal } from '@/components/dashboard/WhatsNewModal';
+import { cn } from '@/lib/utils';
 
 /**
  * Help Button Component
- * Provides access to keyboard shortcuts and help documentation
+ * Provides access to keyboard shortcuts, What's New modal, and help documentation
  */
 export function HelpButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { resetTour } = useDashboardTour();
+  const { hasNewUpdates } = useWhatsNew();
 
   const filteredShortcuts = defaultDashboardShortcuts.filter(
     (shortcut) =>
@@ -28,16 +33,24 @@ export function HelpButton() {
       shortcut.key.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleOpenWhatsNew = () => {
+    setIsOpen(false);
+    setTimeout(() => setShowWhatsNew(true), 150);
+  };
+
   return (
     <>
       <Button
         variant="ghost"
         size="icon"
         onClick={() => setIsOpen(true)}
-        className="touch-target"
+        className="touch-target relative"
         aria-label="Help and keyboard shortcuts"
       >
         <HelpCircle className="w-5 h-5" />
+        {hasNewUpdates && (
+          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-primary rounded-full animate-pulse" />
+        )}
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -89,8 +102,28 @@ export function HelpButton() {
             </div>
           </ScrollArea>
 
-          {/* Restart Tour Button */}
-          <div className="pt-4 border-t">
+          {/* Action Buttons */}
+          <div className="pt-4 border-t space-y-2">
+            {/* What's New Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-2 relative"
+              onClick={handleOpenWhatsNew}
+            >
+              <Sparkles className="w-4 h-4" />
+              What's New
+              {hasNewUpdates && (
+                <span className={cn(
+                  "ml-auto px-1.5 py-0.5 text-[10px] font-medium rounded-full",
+                  "bg-primary text-primary-foreground"
+                )}>
+                  NEW
+                </span>
+              )}
+            </Button>
+
+            {/* Restart Tour Button */}
             <Button
               variant="outline"
               size="sm"
@@ -114,6 +147,9 @@ export function HelpButton() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* What's New Modal */}
+      <WhatsNewModal open={showWhatsNew} onOpenChange={setShowWhatsNew} />
     </>
   );
 }

@@ -49,6 +49,7 @@ import { UpcomingBillsWidget } from "@/components/dashboard/UpcomingBillsWidget"
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { LottieCelebrations } from "@/components/effects/LottieCelebrations";
 import { DashboardTour } from "@/components/dashboard/DashboardTour";
+import { WhatsNewModal } from "@/components/dashboard/WhatsNewModal";
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
@@ -396,6 +397,9 @@ export default function Dashboard() {
     <AppLayout>
       {/* Dashboard Tour */}
       <DashboardTour />
+      
+      {/* What's New Modal */}
+      <WhatsNewModal />
       
       {/* Essential Effects */}
       <div data-tour="aurora-background">
