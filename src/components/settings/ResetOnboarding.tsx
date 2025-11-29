@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { RotateCcw, Info, Play } from 'lucide-react';
+import { RotateCcw, Info, Play, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { resetWizard } from '@/components/onboarding/InteractiveWizard';
@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 export const ResetOnboarding = () => {
   const [isResetting, setIsResetting] = useState(false);
   const [isResettingWizard, setIsResettingWizard] = useState(false);
+  const [isResettingSpotlight, setIsResettingSpotlight] = useState(false);
   const navigate = useNavigate();
 
   const handleReset = async () => {
@@ -58,6 +59,39 @@ export const ResetOnboarding = () => {
     }
   };
 
+  const handleReplaySpotlightTour = async () => {
+    setIsResettingSpotlight(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Update profile to show dashboard tutorial again
+      const { error } = await supabase
+        .from('profiles')
+        .update({ show_dashboard_tutorial: true })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      // Clear related localStorage keys
+      localStorage.removeItem('new-user-onboarding-completed');
+      localStorage.removeItem('new-user-onboarding-step');
+
+      saveplus_audit_event('spotlight_tour_reset', { reset_from: 'settings' });
+      toast.success('Spotlight tour reset! Redirecting to dashboard...');
+      
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1000);
+    } catch (error) {
+      console.error('Error resetting spotlight tour:', error);
+      toast.error('Failed to reset the spotlight tour. Please try again.');
+    } finally {
+      setIsResettingSpotlight(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -66,6 +100,29 @@ export const ResetOnboarding = () => {
           Replay the onboarding process or interactive dashboard tour
         </p>
       </div>
+
+      {/* Spotlight Tour */}
+      <div className="space-y-3">
+        <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+          <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+          <div className="text-sm text-muted-foreground">
+            <p className="font-medium mb-1">Dashboard Spotlight Tour</p>
+            <p>A guided spotlight tour that highlights key features on your dashboard with focused overlays and tips.</p>
+          </div>
+        </div>
+
+        <Button 
+          variant="outline" 
+          className="gap-2 w-full"
+          onClick={handleReplaySpotlightTour}
+          disabled={isResettingSpotlight}
+        >
+          <Sparkles className="w-4 h-4" />
+          {isResettingSpotlight ? 'Resetting...' : 'Replay Spotlight Tour'}
+        </Button>
+      </div>
+
+      <Separator />
 
       {/* Interactive Wizard */}
       <div className="space-y-3">

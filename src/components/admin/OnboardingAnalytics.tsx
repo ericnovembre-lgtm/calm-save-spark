@@ -5,12 +5,14 @@
 
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LazyBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "@/components/charts/LazyBarChart";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { Users, TrendingDown, Clock, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
+import { Users, TrendingDown, Clock, CheckCircle2, XCircle, ArrowRight, CalendarDays, AlertCircle } from "lucide-react";
+import { useOnboardingAnalyticsData, DateRange } from "@/hooks/useOnboardingAnalyticsData";
 
-// Mock data - in production, this would come from analytics_events table
 const ONBOARDING_STEPS = [
   { id: 'welcome', name: 'Welcome', index: 0 },
   { id: 'daily-briefing', name: 'Daily Briefing', index: 1 },
@@ -21,70 +23,73 @@ const ONBOARDING_STEPS = [
   { id: 'complete', name: 'Complete', index: 6 },
 ];
 
-// Mock analytics data
-const mockFunnelData = [
-  { step: 'Welcome', users: 1247, rate: 100 },
-  { step: 'Daily Briefing', users: 1180, rate: 94.6 },
-  { step: 'Savings Balance', users: 1089, rate: 87.3 },
-  { step: 'Smart Actions', users: 967, rate: 77.5 },
-  { step: 'Ask Anything', users: 892, rate: 71.5 },
-  { step: 'Quick Actions', users: 845, rate: 67.8 },
-  { step: 'Complete', users: 798, rate: 64.0 },
-];
-
-const mockDropOffData = [
-  { step: 'Welcome → Daily', dropOff: 67, rate: 5.4 },
-  { step: 'Daily → Savings', dropOff: 91, rate: 7.7 },
-  { step: 'Savings → Smart', dropOff: 122, rate: 11.2 },
-  { step: 'Smart → Ask', dropOff: 75, rate: 7.8 },
-  { step: 'Ask → Quick', dropOff: 47, rate: 5.3 },
-  { step: 'Quick → Complete', dropOff: 47, rate: 5.6 },
-];
-
-const mockTimeData = [
-  { step: 'Welcome', avgTime: 4.2, color: 'hsl(var(--primary))' },
-  { step: 'Daily Briefing', avgTime: 8.5, color: 'hsl(var(--primary))' },
-  { step: 'Savings', avgTime: 6.1, color: 'hsl(var(--primary))' },
-  { step: 'Smart Actions', avgTime: 12.3, color: 'hsl(var(--destructive))' },
-  { step: 'Ask Anything', avgTime: 7.8, color: 'hsl(var(--primary))' },
-  { step: 'Quick Actions', avgTime: 5.4, color: 'hsl(var(--primary))' },
-];
-
 export function OnboardingAnalytics() {
   const prefersReducedMotion = useReducedMotion();
+  const { data, isLoading, error, dateRange, setDateRange } = useOnboardingAnalyticsData(30);
 
-  const totalStarted = mockFunnelData[0].users;
-  const totalCompleted = mockFunnelData[mockFunnelData.length - 1].users;
-  const completionRate = ((totalCompleted / totalStarted) * 100).toFixed(1);
-  const avgCompletionTime = mockTimeData.reduce((sum, s) => sum + s.avgTime, 0).toFixed(1);
-  const highestDropOff = mockDropOffData.reduce((max, d) => d.dropOff > max.dropOff ? d : max);
+  if (error) {
+    return (
+      <Card className="p-8 text-center">
+        <AlertCircle className="h-12 w-12 mx-auto mb-4 text-destructive" />
+        <h3 className="text-lg font-semibold mb-2">Failed to load analytics</h3>
+        <p className="text-muted-foreground">Please try again later.</p>
+      </Card>
+    );
+  }
+
+  if (isLoading) {
+    return <OnboardingAnalyticsSkeleton />;
+  }
+
+  const hasData = data && data.totalStarted > 0;
+
+  if (!hasData) {
+    return (
+      <div className="space-y-6">
+        <DateRangeSelector dateRange={dateRange} setDateRange={setDateRange} />
+        <Card className="p-8 text-center">
+          <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold mb-2">No onboarding data yet</h3>
+          <p className="text-muted-foreground">
+            Onboarding analytics will appear here once users start the spotlight tour.
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  const highestDropOff = data.dropOffData.reduce(
+    (max, d) => d.dropOff > max.dropOff ? d : max,
+    { step: 'N/A', dropOff: 0, rate: 0 }
+  );
 
   return (
     <div className="space-y-6">
+      {/* Date Range Selector */}
+      <DateRangeSelector dateRange={dateRange} setDateRange={setDateRange} />
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <SummaryCard
           icon={Users}
           label="Tours Started"
-          value={totalStarted.toLocaleString()}
-          subtext="Last 30 days"
+          value={data.totalStarted.toLocaleString()}
+          subtext={`Last ${dateRange} days`}
           delay={0}
           prefersReducedMotion={prefersReducedMotion}
         />
         <SummaryCard
           icon={CheckCircle2}
           label="Completion Rate"
-          value={`${completionRate}%`}
-          subtext={`${totalCompleted} completed`}
-          trend="+3.2%"
-          trendPositive
+          value={`${data.completionRate.toFixed(1)}%`}
+          subtext={`${data.totalCompleted} completed`}
           delay={0.1}
           prefersReducedMotion={prefersReducedMotion}
         />
         <SummaryCard
           icon={Clock}
           label="Avg. Completion Time"
-          value={`${avgCompletionTime}s`}
+          value={`${data.avgCompletionTime.toFixed(1)}s`}
           subtext="Per tour"
           delay={0.2}
           prefersReducedMotion={prefersReducedMotion}
@@ -92,8 +97,8 @@ export function OnboardingAnalytics() {
         <SummaryCard
           icon={TrendingDown}
           label="Highest Drop-off"
-          value={highestDropOff.step}
-          subtext={`${highestDropOff.rate}% drop`}
+          value={highestDropOff.step.length > 15 ? highestDropOff.step.substring(0, 15) + '…' : highestDropOff.step}
+          subtext={`${highestDropOff.rate.toFixed(1)}% drop`}
           trendPositive={false}
           delay={0.3}
           prefersReducedMotion={prefersReducedMotion}
@@ -107,14 +112,14 @@ export function OnboardingAnalytics() {
           Completion Funnel
         </h3>
         <div className="space-y-3">
-          {mockFunnelData.map((step, index) => (
+          {data.funnelData.map((step, index) => (
             <FunnelStep
               key={step.step}
               name={step.step}
               users={step.users}
               rate={step.rate}
               index={index}
-              isLast={index === mockFunnelData.length - 1}
+              isLast={index === data.funnelData.length - 1}
               prefersReducedMotion={prefersReducedMotion}
             />
           ))}
@@ -129,30 +134,36 @@ export function OnboardingAnalytics() {
             <XCircle className="h-5 w-5 text-destructive" />
             Drop-off Points
           </h3>
-          <LazyBarChart data={mockDropOffData} height={280}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="step" 
-              className="text-xs" 
-              tick={{ fontSize: 10 }}
-              interval={0}
-              angle={-20}
-              textAnchor="end"
-            />
-            <YAxis className="text-xs" />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: 'hsl(var(--background))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-              }}
-              formatter={(value: number, name: string) => [
-                name === 'dropOff' ? `${value} users` : `${value}%`,
-                name === 'dropOff' ? 'Users Lost' : 'Drop Rate'
-              ]}
-            />
-            <Bar dataKey="dropOff" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
-          </LazyBarChart>
+          {data.dropOffData.some(d => d.dropOff > 0) ? (
+            <LazyBarChart data={data.dropOffData} height={280}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis 
+                dataKey="step" 
+                className="text-xs" 
+                tick={{ fontSize: 10 }}
+                interval={0}
+                angle={-20}
+                textAnchor="end"
+              />
+              <YAxis className="text-xs" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                }}
+                formatter={(value: number, name: string) => [
+                  name === 'dropOff' ? `${value} users` : `${value.toFixed(1)}%`,
+                  name === 'dropOff' ? 'Users Lost' : 'Drop Rate'
+                ]}
+              />
+              <Bar dataKey="dropOff" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+            </LazyBarChart>
+          ) : (
+            <div className="h-[280px] flex items-center justify-center text-muted-foreground">
+              No drop-off data available
+            </div>
+          )}
         </Card>
 
         {/* Average Time per Step */}
@@ -161,35 +172,43 @@ export function OnboardingAnalytics() {
             <Clock className="h-5 w-5 text-primary" />
             Avg. Time per Step (seconds)
           </h3>
-          <LazyBarChart data={mockTimeData} height={280}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="step" 
-              className="text-xs" 
-              tick={{ fontSize: 10 }}
-              interval={0}
-              angle={-20}
-              textAnchor="end"
-            />
-            <YAxis className="text-xs" />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: 'hsl(var(--background))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-              }}
-              formatter={(value: number) => [`${value}s`, 'Avg. Time']}
-            />
-            <Bar dataKey="avgTime" radius={[4, 4, 0, 0]}>
-              {mockTimeData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Bar>
-          </LazyBarChart>
-          <p className="text-xs text-muted-foreground mt-2">
-            <span className="inline-block w-3 h-3 rounded bg-destructive mr-1" />
-            Steps with above-average time are highlighted
-          </p>
+          {data.timePerStep.some(t => t.avgTime > 0) ? (
+            <>
+              <LazyBarChart data={data.timePerStep} height={280}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis 
+                  dataKey="step" 
+                  className="text-xs" 
+                  tick={{ fontSize: 10 }}
+                  interval={0}
+                  angle={-20}
+                  textAnchor="end"
+                />
+                <YAxis className="text-xs" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                  }}
+                  formatter={(value: number) => [`${value}s`, 'Avg. Time']}
+                />
+                <Bar dataKey="avgTime" radius={[4, 4, 0, 0]}>
+                  {data.timePerStep.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </LazyBarChart>
+              <p className="text-xs text-muted-foreground mt-2">
+                <span className="inline-block w-3 h-3 rounded bg-destructive mr-1" />
+                Steps with above-average time are highlighted
+              </p>
+            </>
+          ) : (
+            <div className="h-[280px] flex items-center justify-center text-muted-foreground">
+              No timing data available
+            </div>
+          )}
         </Card>
       </div>
 
@@ -210,13 +229,13 @@ export function OnboardingAnalytics() {
             </thead>
             <tbody>
               {ONBOARDING_STEPS.slice(0, -1).map((step, index) => {
-                const funnel = mockFunnelData[index];
-                const nextFunnel = mockFunnelData[index + 1];
+                const funnel = data.funnelData[index];
+                const nextFunnel = data.funnelData[index + 1];
                 const dropOff = funnel.users - (nextFunnel?.users || funnel.users);
-                const conversion = nextFunnel 
+                const conversion = nextFunnel && funnel.users > 0
                   ? ((nextFunnel.users / funnel.users) * 100).toFixed(1)
                   : '100.0';
-                const time = mockTimeData[index];
+                const time = data.timePerStep[index];
                 
                 return (
                   <motion.tr
@@ -253,6 +272,47 @@ export function OnboardingAnalytics() {
           </table>
         </div>
       </Card>
+    </div>
+  );
+}
+
+// Date Range Selector
+function DateRangeSelector({ 
+  dateRange, 
+  setDateRange 
+}: { 
+  dateRange: DateRange; 
+  setDateRange: (range: DateRange) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <CalendarDays className="h-4 w-4 text-muted-foreground" />
+      <Tabs value={String(dateRange)} onValueChange={(v) => setDateRange(Number(v) as DateRange)}>
+        <TabsList className="h-8">
+          <TabsTrigger value="7" className="text-xs px-3 h-7">7 days</TabsTrigger>
+          <TabsTrigger value="30" className="text-xs px-3 h-7">30 days</TabsTrigger>
+          <TabsTrigger value="90" className="text-xs px-3 h-7">90 days</TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </div>
+  );
+}
+
+// Loading Skeleton
+function OnboardingAnalyticsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-8 w-48" />
+      <div className="grid gap-4 md:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} className="h-[100px]" />
+        ))}
+      </div>
+      <Skeleton className="h-[300px]" />
+      <div className="grid gap-4 md:grid-cols-2">
+        <Skeleton className="h-[350px]" />
+        <Skeleton className="h-[350px]" />
+      </div>
     </div>
   );
 }
@@ -330,7 +390,7 @@ function FunnelStep({ name, users, rate, index, isLast, prefersReducedMotion }: 
       </div>
       <div className="w-20 text-right">
         <span className="text-sm font-bold">{users.toLocaleString()}</span>
-        <span className="text-xs text-muted-foreground ml-1">({rate}%)</span>
+        <span className="text-xs text-muted-foreground ml-1">({rate.toFixed(1)}%)</span>
       </div>
       {!isLast && (
         <ArrowRight className="h-4 w-4 text-muted-foreground" />
