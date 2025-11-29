@@ -3979,6 +3979,7 @@ export type Database = {
           debt_type: string | null
           id: string
           interest_rate: number
+          is_active: boolean | null
           minimum_payment: number | null
           original_balance: number | null
           payment_due_date: number | null
@@ -3998,6 +3999,7 @@ export type Database = {
           debt_type?: string | null
           id?: string
           interest_rate: number
+          is_active?: boolean | null
           minimum_payment?: number | null
           original_balance?: number | null
           payment_due_date?: number | null
@@ -4017,6 +4019,7 @@ export type Database = {
           debt_type?: string | null
           id?: string
           interest_rate?: number
+          is_active?: boolean | null
           minimum_payment?: number | null
           original_balance?: number | null
           payment_due_date?: number | null
@@ -5044,6 +5047,7 @@ export type Database = {
           deadline: string | null
           icon: string | null
           id: string
+          is_active: boolean | null
           name: string
           target_amount: number
           time_to_goal_suggestions: Json | null
@@ -5059,6 +5063,7 @@ export type Database = {
           deadline?: string | null
           icon?: string | null
           id?: string
+          is_active?: boolean | null
           name: string
           target_amount: number
           time_to_goal_suggestions?: Json | null
@@ -5074,6 +5079,7 @@ export type Database = {
           deadline?: string | null
           icon?: string | null
           id?: string
+          is_active?: boolean | null
           name?: string
           target_amount?: number
           time_to_goal_suggestions?: Json | null
@@ -9826,6 +9832,7 @@ export type Database = {
           recurring_frequency: string | null
           tags: string[] | null
           transaction_date: string
+          transaction_type: string | null
           updated_at: string | null
           user_id: string
         }
@@ -9846,6 +9853,7 @@ export type Database = {
           recurring_frequency?: string | null
           tags?: string[] | null
           transaction_date: string
+          transaction_type?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -9866,6 +9874,7 @@ export type Database = {
           recurring_frequency?: string | null
           tags?: string[] | null
           transaction_date?: string
+          transaction_type?: string | null
           updated_at?: string | null
           user_id?: string
         }
