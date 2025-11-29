@@ -50,6 +50,7 @@ export const queryKeys = {
   // Analytics
   dashboard: (userId?: string) => ['dashboard', userId] as const,
   financialHealth: (userId?: string) => ['financial-health', userId] as const,
+  analytics: (timeframe?: string) => ['analytics', timeframe] as const,
   
   // Connected accounts
   accounts: (userId?: string) => ['accounts', userId] as const,
