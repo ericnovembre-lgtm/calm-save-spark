@@ -48,6 +48,7 @@ import { AdHocChartPanel } from "@/components/dashboard/AdHocChartPanel";
 import { UpcomingBillsWidget } from "@/components/dashboard/UpcomingBillsWidget";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { LottieCelebrations } from "@/components/effects/LottieCelebrations";
+import { DashboardTour } from "@/components/dashboard/DashboardTour";
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
@@ -393,8 +394,13 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
+      {/* Dashboard Tour */}
+      <DashboardTour />
+      
       {/* Essential Effects */}
-      <AuroraMeshBackground netWorthChangePercent={netWorthChangePercent} />
+      <div data-tour="aurora-background">
+        <AuroraMeshBackground netWorthChangePercent={netWorthChangePercent} />
+      </div>
       <MilestoneCelebration milestone={milestone} onDismiss={dismissMilestone} />
       <LottieCelebrations 
         type={celebrationType} 
@@ -434,26 +440,32 @@ export default function Dashboard() {
 
           {/* Generative Dashboard Layout */}
           <div className="space-y-6">
-            <DailyBriefingAgent
-              totalBalance={totalBalance}
-              monthlyChange={monthlyChange}
-              topPriorities={layoutPriorities.slice(0, 3)}
-            />
+            <div data-tour="daily-briefing">
+              <DailyBriefingAgent
+                totalBalance={totalBalance}
+                monthlyChange={monthlyChange}
+                topPriorities={layoutPriorities.slice(0, 3)}
+              />
+            </div>
             
-            <SmartActionChips
-              priorities={layoutPriorities}
-              onAction={handleSmartAction}
-            />
+            <div data-tour="smart-actions">
+              <SmartActionChips
+                priorities={layoutPriorities}
+                onAction={handleSmartAction}
+              />
+            </div>
             
-            <GenerativeWidgetGrid
-              priorities={layoutPriorities}
-              widgets={coreWidgets}
-              onReorder={(newOrder) => {
-                announce('Dashboard layout updated', 'polite');
-                toast.success('Widget order saved!', { duration: 2000 });
-                console.log('New widget order:', newOrder.map(p => p.id));
-              }}
-            />
+            <div data-tour="widget-grid">
+              <GenerativeWidgetGrid
+                priorities={layoutPriorities}
+                widgets={coreWidgets}
+                onReorder={(newOrder) => {
+                  announce('Dashboard layout updated', 'polite');
+                  toast.success('Widget order saved!', { duration: 2000 });
+                  console.log('New widget order:', newOrder.map(p => p.id));
+                }}
+              />
+            </div>
           </div>
           
           {/* Footer Disclaimer */}
@@ -466,14 +478,16 @@ export default function Dashboard() {
         </div>
 
         {/* Persistent UI */}
-        <UnifiedFAB />
+        <div data-tour="unified-fab">
+          <UnifiedFAB />
+        </div>
         <CommandPalette />
         <KeyboardHints />
         <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />
       </PullToRefresh>
 
       {/* Natural Language Commander */}
-      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-30">
+      <div data-tour="nlq-commander" className="fixed bottom-24 left-1/2 -translate-x-1/2 z-30">
         <NaturalLanguageCommander 
           onQuery={handleNLQuery}
           isProcessing={isNlqProcessing}

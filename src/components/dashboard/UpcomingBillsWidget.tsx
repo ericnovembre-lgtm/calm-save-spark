@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { CalendarClock, AlertTriangle, CheckCircle2, CreditCard, Bell } from 'lucide-react';
+import { CalendarClock, AlertTriangle, CheckCircle2, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { formatDistanceToNow, differenceInDays, format } from 'date-fns';
@@ -33,7 +33,6 @@ export function UpcomingBillsWidget({ isUrgent, onPayBill }: UpcomingBillsWidget
   });
 
   const handlePayBill = (billId: string, billName: string) => {
-    // Optimistic UI - show success immediately
     toast.success(`Payment initiated for ${billName}`);
     onPayBill?.(billId);
   };
@@ -54,7 +53,7 @@ export function UpcomingBillsWidget({ isUrgent, onPayBill }: UpcomingBillsWidget
 
   if (isLoading) {
     return (
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-4" data-tour="upcoming-bills">
         <div className="h-6 bg-muted rounded animate-pulse w-1/3" />
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
@@ -67,7 +66,7 @@ export function UpcomingBillsWidget({ isUrgent, onPayBill }: UpcomingBillsWidget
 
   if (sortedBills.length === 0) {
     return (
-      <div className="p-6 text-center">
+      <div className="p-6 text-center" data-tour="upcoming-bills">
         <CheckCircle2 className="w-12 h-12 mx-auto text-success mb-3" />
         <h3 className="font-semibold text-foreground">All Caught Up!</h3>
         <p className="text-sm text-muted-foreground mt-1">
@@ -79,6 +78,7 @@ export function UpcomingBillsWidget({ isUrgent, onPayBill }: UpcomingBillsWidget
 
   return (
     <motion.div
+      data-tour="upcoming-bills"
       className={cn(
         "p-6 rounded-xl relative overflow-hidden",
         hasCriticalBill && "ring-2 ring-warning/50"
