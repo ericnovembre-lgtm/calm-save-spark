@@ -2,6 +2,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AIInsightsCard } from "@/components/dashboard/AIInsightsCard";
 import { Suspense, lazy } from "react";
 import { Sparkles, Brain, Bot } from "lucide-react";
+import { WidgetHelpTooltip } from "@/components/dashboard/WidgetHelpTooltip";
+import { WIDGET_HELP_CONTENT } from "@/data/widgetHelpContent";
 
 const ProactiveRecommendations = lazy(() => import("@/components/dashboard/ProactiveRecommendations"));
 const AIAgentsCard = lazy(() => import("@/components/dashboard/AIAgentsCard").then(m => ({ default: m.AIAgentsCard })));
@@ -13,8 +15,9 @@ interface UnifiedAIInsightsProps {
 
 export function UnifiedAIInsights({ userId }: UnifiedAIInsightsProps) {
   return (
-    <div className="space-y-4">
-      <Tabs defaultValue="insights" className="w-full">
+    <WidgetHelpTooltip content={WIDGET_HELP_CONTENT.aiInsights}>
+      <div className="space-y-4">
+        <Tabs defaultValue="insights" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="insights" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
@@ -62,6 +65,7 @@ export function UnifiedAIInsights({ userId }: UnifiedAIInsightsProps) {
           </Suspense>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </WidgetHelpTooltip>
   );
 }

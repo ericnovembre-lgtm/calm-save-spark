@@ -6,6 +6,8 @@ import { TrendingUp, Calendar } from "lucide-react";
 import { addDays, format, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { WidgetHelpTooltip } from "@/components/dashboard/WidgetHelpTooltip";
+import { WIDGET_HELP_CONTENT } from "@/data/widgetHelpContent";
 
 interface CashFlowForecastProps {
   userId: string;
@@ -95,12 +97,13 @@ export default function CashFlowForecast({ userId }: CashFlowForecastProps) {
   const trend = endBalance - startBalance;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="p-6">
+    <WidgetHelpTooltip content={WIDGET_HELP_CONTENT.cashFlowForecast}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
@@ -189,5 +192,6 @@ export default function CashFlowForecast({ userId }: CashFlowForecastProps) {
         </div>
       </Card>
     </motion.div>
+    </WidgetHelpTooltip>
   );
 }
