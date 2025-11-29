@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, X, Loader2, BarChart3, PieChart, TrendingUp, ArrowRight } from 'lucide-react';
+import { Search, Sparkles, X, Loader2, BarChart3, PieChart, TrendingUp, ArrowRight, Calendar, Repeat, DollarSign, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,10 @@ const EXAMPLE_QUERIES = [
   { text: "Compare groceries vs dining", icon: PieChart },
   { text: "Show my biggest expenses", icon: TrendingUp },
   { text: "Weekly spending trend", icon: BarChart3 },
+  { text: "Show my recurring subscriptions", icon: Repeat },
+  { text: "What did I spend last weekend?", icon: Calendar },
+  { text: "How much did I save this month?", icon: DollarSign },
+  { text: "Top merchants I shop at", icon: ShoppingBag },
 ];
 
 /**
@@ -177,7 +181,7 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
               {/* Example queries */}
               <div className="px-4 pb-4">
                 <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto scrollbar-hide">
                   {EXAMPLE_QUERIES.map((example, index) => (
                     <motion.button
                       key={example.text}
