@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bug, X, Eye, EyeOff, MapPin } from 'lucide-react';
+import { Bug, X, Eye, EyeOff, MapPin, Download, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { toast } from 'sonner';
 
 interface TourTarget {
   tourStep: string;
@@ -81,6 +82,40 @@ export function TourDebugOverlay() {
     target.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     setHoveredTarget(target.tourStep);
     setTimeout(() => setHoveredTarget(null), 2000);
+  };
+
+  const exportTargets = () => {
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      page: window.location.pathname,
+      totalTargets: targets.length,
+      targets: targets.map((t, index) => ({
+        index: index + 1,
+        id: t.tourStep,
+        position: {
+          top: Math.round(t.rect.top),
+          left: Math.round(t.rect.left),
+          width: Math.round(t.rect.width),
+          height: Math.round(t.rect.height),
+        },
+      })),
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tour-targets-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Exported tour targets to JSON');
+  };
+
+  const replaySpotlight = () => {
+    localStorage.removeItem('whats-new-seen-version');
+    localStorage.removeItem('feature-spotlight-seen');
+    toast.success('Cleared spotlight data. Refreshing...');
+    setTimeout(() => window.location.reload(), 500);
   };
 
   return (
@@ -168,6 +203,15 @@ export function TourDebugOverlay() {
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7"
+                    onClick={exportTargets}
+                    title="Export targets to JSON"
+                  >
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
                     onClick={() => setIsEnabled(false)}
                   >
                     <X className="w-4 h-4" />
@@ -217,7 +261,16 @@ export function TourDebugOverlay() {
               </ScrollArea>
 
               {/* Footer */}
-              <div className="p-2 border-t border-border bg-muted/50">
+              <div className="p-2 border-t border-border bg-muted/50 space-y-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs"
+                  onClick={replaySpotlight}
+                >
+                  <RotateCcw className="w-3 h-3 mr-1" />
+                  Replay Spotlight
+                </Button>
                 <p className="text-[10px] text-muted-foreground text-center">
                   Press <kbd className="px-1 py-0.5 rounded bg-muted text-xs">Ctrl+Shift+D</kbd> to toggle
                 </p>
