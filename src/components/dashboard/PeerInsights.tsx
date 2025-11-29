@@ -93,7 +93,7 @@ export default function PeerInsights({ userId }: PeerInsightsProps) {
   const percentile = Math.min(Math.round((userMonthlySavings / peerAverageSavings) * 100), 100);
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-sm">
+    <Card data-tour="peer-insights" className="p-6 bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-sm">
       <div className="flex items-center gap-2 mb-6">
         <Users className="w-5 h-5 text-primary" />
         <h2 className="text-xl font-semibold text-foreground">Community Insights</h2>

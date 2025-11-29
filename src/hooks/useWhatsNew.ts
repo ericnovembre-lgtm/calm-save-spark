@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, Sparkles, LayoutGrid, Bell, Brain, Target, TrendingUp, Wallet, Shield, Zap, PieChart, Users } from 'lucide-react';
+import { MessageSquare, Sparkles, LayoutGrid, Bell, Brain, Target, TrendingUp, Wallet, Shield, Zap, PieChart, Users, Award, Flame, AlertTriangle, Briefcase, Trophy, Map } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 const WHATS_NEW_VERSION_KEY = 'whats-new-seen-version';
-const CURRENT_VERSION = '2.0.0';
+const CURRENT_VERSION = '2.1.0';
 
 export interface FeatureUpdate {
   version: string;
@@ -15,7 +15,57 @@ export interface FeatureUpdate {
 }
 
 export const FEATURE_UPDATES: FeatureUpdate[] = [
-  // v2.0.0 - Current Release (January 2025)
+  // v2.1.0 - Current Release (November 2025)
+  {
+    version: '2.1.0',
+    date: '2025-11-29',
+    title: 'Community Insights',
+    description: 'See how your savings compare to other $ave+ users with similar goals and get tips from top savers.',
+    icon: Users,
+    tourStep: 'peer-insights',
+  },
+  {
+    version: '2.1.0',
+    date: '2025-11-29',
+    title: 'Journey Milestones',
+    description: 'Track your financial journey with unlockable milestones and celebrate your progress along the way.',
+    icon: Map,
+    tourStep: 'journey-milestones',
+  },
+  {
+    version: '2.1.0',
+    date: '2025-11-29',
+    title: 'Financial Skills',
+    description: 'Level up your financial abilities! Track skill progress and unlock advanced features as you grow.',
+    icon: Trophy,
+    tourStep: 'skill-tree',
+  },
+  {
+    version: '2.1.0',
+    date: '2025-11-29',
+    title: 'Weekly Challenges',
+    description: 'Join community challenges to boost your savings with friendly competition and earn rewards.',
+    icon: Flame,
+    tourStep: 'weekly-challenges',
+  },
+  {
+    version: '2.1.0',
+    date: '2025-11-29',
+    title: 'Anomaly Detection',
+    description: 'AI-powered alerts notify you of unusual spending patterns or suspicious bill changes instantly.',
+    icon: AlertTriangle,
+    tourStep: 'anomaly-alerts',
+  },
+  {
+    version: '2.1.0',
+    date: '2025-11-29',
+    title: 'Portfolio Overview',
+    description: 'Track your investment performance at a glance with real-time gains, losses, and market changes.',
+    icon: Briefcase,
+    tourStep: 'portfolio-widget',
+  },
+
+  // v2.0.0 - January 2025
   {
     version: '2.0.0',
     date: '2025-01-15',

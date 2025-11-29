@@ -330,18 +330,20 @@ export default function Dashboard() {
       />
     ) : null,
     'portfolio': dashboardData?.investments && dashboardData.investments.length > 0 ? (
-      <PortfolioWidget
-        totalValue={dashboardData.investments.reduce((sum, inv) => sum + inv.total_value, 0)}
-        costBasis={dashboardData.investments.reduce((sum, inv) => sum + inv.cost_basis, 0)}
-        marketChange={
-          dashboardData.investments.length > 0
-            ? dashboardData.investments.reduce((sum, inv) => {
-                const change = inv.total_value > 0 ? ((inv.total_value - inv.cost_basis) / inv.cost_basis) * 100 : 0;
-                return sum + change;
-              }, 0) / dashboardData.investments.length
-            : 0
-        }
-      />
+      <div data-tour="portfolio-widget">
+        <PortfolioWidget
+          totalValue={dashboardData.investments.reduce((sum, inv) => sum + inv.total_value, 0)}
+          costBasis={dashboardData.investments.reduce((sum, inv) => sum + inv.cost_basis, 0)}
+          marketChange={
+            dashboardData.investments.length > 0
+              ? dashboardData.investments.reduce((sum, inv) => {
+                  const change = inv.total_value > 0 ? ((inv.total_value - inv.cost_basis) / inv.cost_basis) * 100 : 0;
+                  return sum + change;
+                }, 0) / dashboardData.investments.length
+              : 0
+          }
+        />
+      </div>
     ) : null,
     'budgets': dashboardData?.budgets && dashboardData.budgets.length > 0 ? (
       <BudgetsWidget
@@ -364,7 +366,7 @@ export default function Dashboard() {
       <CashFlowForecast userId={userId} />
     ) : null,
     'challenges': (
-      <div className="space-y-4">
+      <div data-tour="weekly-challenges" className="space-y-4">
         {mockChallenges.map((challenge) => (
           <ChallengeCard
             key={challenge.id}
@@ -431,7 +433,9 @@ export default function Dashboard() {
           <SmartBanner />
 
           {/* Anomaly Alerts */}
-          <AnomalyAlertCenter />
+          <div data-tour="anomaly-alerts">
+            <AnomalyAlertCenter />
+          </div>
 
           {/* Header */}
           <div className="flex items-center justify-between mb-6 [&_svg]:drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
