@@ -54,6 +54,7 @@ import { LottieCelebrations } from "@/components/effects/LottieCelebrations";
 import { DashboardTour } from "@/components/dashboard/DashboardTour";
 import { WhatsNewModal } from "@/components/dashboard/WhatsNewModal";
 import { FeatureSpotlight } from "@/components/dashboard/FeatureSpotlight";
+import { NewUserSpotlight } from "@/components/onboarding/NewUserSpotlight";
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
@@ -415,6 +416,9 @@ export default function Dashboard() {
       
       {/* Feature Spotlight - shows after WhatsNew modal */}
       <FeatureSpotlight />
+      
+      {/* New User Onboarding Spotlight - triggers for new users */}
+      <NewUserSpotlight />
       
       {/* Tour Debug Overlay - toggle with Ctrl+Shift+D */}
       <TourDebugOverlay />
