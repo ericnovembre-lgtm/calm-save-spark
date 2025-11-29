@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Brain, Gamepad2, BarChart3, Tag } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
@@ -16,13 +17,41 @@ interface FeatureCardProps {
   onTryFeature?: (tourStep: string) => void;
 }
 
-const categoryColors: Record<string, string> = {
-  ai: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-  gamification: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-  social: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
-  analytics: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
-  security: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
-  default: 'bg-primary/10 text-primary border-primary/20',
+const categoryConfig: Record<string, { 
+  label: string; 
+  icon: LucideIcon;
+  bgClass: string;
+  textClass: string;
+  borderClass: string;
+}> = {
+  ai: {
+    label: 'AI',
+    icon: Brain,
+    bgClass: 'bg-blue-500/10 dark:bg-blue-500/20',
+    textClass: 'text-blue-600 dark:text-blue-400',
+    borderClass: 'border-blue-500/20',
+  },
+  gamification: {
+    label: 'Gamification',
+    icon: Gamepad2,
+    bgClass: 'bg-amber-500/10 dark:bg-amber-500/20',
+    textClass: 'text-amber-600 dark:text-amber-400',
+    borderClass: 'border-amber-500/20',
+  },
+  analytics: {
+    label: 'Analytics',
+    icon: BarChart3,
+    bgClass: 'bg-green-500/10 dark:bg-green-500/20',
+    textClass: 'text-green-600 dark:text-green-400',
+    borderClass: 'border-green-500/20',
+  },
+  default: {
+    label: 'Feature',
+    icon: Tag,
+    bgClass: 'bg-primary/10',
+    textClass: 'text-primary',
+    borderClass: 'border-primary/20',
+  },
 };
 
 export function FeatureCard({
@@ -35,7 +64,8 @@ export function FeatureCard({
   onTryFeature,
 }: FeatureCardProps) {
   const prefersReducedMotion = useReducedMotion();
-  const colorClass = categoryColors[category] || categoryColors.default;
+  const config = categoryConfig[category] || categoryConfig.default;
+  const CategoryIcon = config.icon;
 
   return (
     <motion.div
@@ -53,14 +83,32 @@ export function FeatureCard({
           <div className="flex items-start gap-4">
             <div className={cn(
               "p-2.5 rounded-xl shrink-0 border",
-              colorClass
+              config.bgClass,
+              config.textClass,
+              config.borderClass
             )}>
               <Icon className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-foreground mb-1">
-                {title}
-              </h4>
+              <div className="flex items-center gap-2 mb-1.5">
+                <h4 className="font-medium text-foreground">
+                  {title}
+                </h4>
+                {category !== 'default' && (
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "text-[10px] px-1.5 py-0 h-5 font-medium gap-1",
+                      config.bgClass,
+                      config.textClass,
+                      config.borderClass
+                    )}
+                  >
+                    <CategoryIcon className="w-3 h-3" />
+                    {config.label}
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {description}
               </p>
