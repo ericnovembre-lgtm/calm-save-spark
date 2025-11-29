@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useReducedMotion } from './useReducedMotion';
+import { useSpotlightAnalytics } from './useSpotlightAnalytics';
 
 const ONBOARDING_COMPLETED_KEY = 'new-user-onboarding-completed';
 const ONBOARDING_STEP_KEY = 'new-user-onboarding-step';
@@ -83,6 +84,10 @@ export function useNewUserOnboarding(options: UseNewUserOnboardingOptions = {}) 
   const [isActive, setIsActive] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [hasCompleted, setHasCompleted] = useState(false);
+  
+  // Analytics tracking
+  const analytics = useSpotlightAnalytics(ONBOARDING_STEPS.length);
+  const hasTrackedStart = useRef(false);
 
   // Check if onboarding was already completed
   useEffect(() => {
@@ -105,10 +110,27 @@ export function useNewUserOnboarding(options: UseNewUserOnboardingOptions = {}) 
     if (showTutorial && !completed) {
       const timer = setTimeout(() => {
         setIsActive(true);
+        // Initialize analytics session
+        if (!hasTrackedStart.current) {
+          analytics.initSession();
+          hasTrackedStart.current = true;
+        }
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [showTutorial]);
+  }, [showTutorial, analytics]);
+
+  const currentStep = ONBOARDING_STEPS[currentStepIndex];
+  const totalSteps = ONBOARDING_STEPS.length;
+  const isFirstStep = currentStepIndex === 0;
+  const isLastStep = currentStepIndex === totalSteps - 1;
+
+  // Track step changes
+  useEffect(() => {
+    if (isActive && currentStep) {
+      analytics.trackStepEnter(currentStep.id, currentStepIndex);
+    }
+  }, [isActive, currentStepIndex, currentStep, analytics]);
 
   // Save current step
   useEffect(() => {
@@ -117,24 +139,28 @@ export function useNewUserOnboarding(options: UseNewUserOnboardingOptions = {}) 
     }
   }, [currentStepIndex, isActive]);
 
-  const currentStep = ONBOARDING_STEPS[currentStepIndex];
-  const totalSteps = ONBOARDING_STEPS.length;
-  const isFirstStep = currentStepIndex === 0;
-  const isLastStep = currentStepIndex === totalSteps - 1;
-
   const nextStep = useCallback(() => {
+    // Track step completion before moving
+    if (currentStep) {
+      analytics.trackStepComplete(currentStep.id, currentStepIndex);
+    }
+    
     if (currentStepIndex < totalSteps - 1) {
       setCurrentStepIndex(prev => prev + 1);
     } else {
       completeOnboarding();
     }
-  }, [currentStepIndex, totalSteps]);
+  }, [currentStepIndex, totalSteps, currentStep, analytics]);
 
   const prevStep = useCallback(() => {
     if (currentStepIndex > 0) {
+      // Track going back
+      if (currentStep) {
+        analytics.trackStepBack(currentStep.id, currentStepIndex);
+      }
       setCurrentStepIndex(prev => prev - 1);
     }
-  }, [currentStepIndex]);
+  }, [currentStepIndex, currentStep, analytics]);
 
   const goToStep = useCallback((stepIndex: number) => {
     if (stepIndex >= 0 && stepIndex < totalSteps) {
@@ -143,16 +169,30 @@ export function useNewUserOnboarding(options: UseNewUserOnboardingOptions = {}) 
   }, [totalSteps]);
 
   const completeOnboarding = useCallback(() => {
+    // Track completion
+    analytics.trackCompletion();
+    
     setIsActive(false);
     setHasCompleted(true);
     localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
     localStorage.removeItem(ONBOARDING_STEP_KEY);
+    hasTrackedStart.current = false;
     onComplete?.();
-  }, [onComplete]);
+  }, [onComplete, analytics]);
 
   const skipOnboarding = useCallback(() => {
-    completeOnboarding();
-  }, [completeOnboarding]);
+    // Track skip with current position
+    if (currentStep) {
+      analytics.trackSkip(currentStep.id, currentStepIndex);
+    }
+    
+    setIsActive(false);
+    setHasCompleted(true);
+    localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+    localStorage.removeItem(ONBOARDING_STEP_KEY);
+    hasTrackedStart.current = false;
+    onComplete?.();
+  }, [currentStep, currentStepIndex, analytics, onComplete]);
 
   const restartOnboarding = useCallback(() => {
     localStorage.removeItem(ONBOARDING_COMPLETED_KEY);
@@ -160,7 +200,11 @@ export function useNewUserOnboarding(options: UseNewUserOnboardingOptions = {}) 
     setHasCompleted(false);
     setCurrentStepIndex(0);
     setIsActive(true);
-  }, []);
+    
+    // Start new analytics session
+    analytics.initSession();
+    hasTrackedStart.current = true;
+  }, [analytics]);
 
   return {
     isActive,
