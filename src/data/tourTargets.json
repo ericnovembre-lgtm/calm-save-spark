@@ -1,0 +1,151 @@
+{
+  "version": "2.1.0",
+  "lastUpdated": "2025-11-29",
+  "description": "Documentation of all data-tour attributes used for feature spotlights and guided tours",
+  "targets": [
+    {
+      "id": "peer-insights",
+      "name": "Community Insights",
+      "description": "Compare savings to other $ave+ users with similar goals",
+      "component": "PeerInsights.tsx",
+      "location": "Dashboard widget grid",
+      "version": "2.1.0",
+      "category": "social"
+    },
+    {
+      "id": "journey-milestones",
+      "name": "Journey Milestones",
+      "description": "Track financial journey with unlockable achievements",
+      "component": "JourneyMilestones.tsx",
+      "location": "Dashboard widget grid",
+      "version": "2.1.0",
+      "category": "gamification"
+    },
+    {
+      "id": "skill-tree",
+      "name": "Financial Skills",
+      "description": "Level up financial abilities by completing goals",
+      "component": "SkillTreeProgress.tsx",
+      "location": "Dashboard widget grid",
+      "version": "2.1.0",
+      "category": "gamification"
+    },
+    {
+      "id": "weekly-challenges",
+      "name": "Weekly Challenges",
+      "description": "Community savings challenges with rewards",
+      "component": "ChallengeCard.tsx",
+      "location": "Dashboard widget grid",
+      "version": "2.1.0",
+      "category": "gamification"
+    },
+    {
+      "id": "anomaly-alerts",
+      "name": "Anomaly Detection",
+      "description": "AI-powered alerts for unusual spending patterns",
+      "component": "AnomalyAlertCenter.tsx",
+      "location": "Dashboard main content",
+      "version": "2.1.0",
+      "category": "ai"
+    },
+    {
+      "id": "portfolio-widget",
+      "name": "Portfolio Overview",
+      "description": "Track investment performance across accounts",
+      "component": "PortfolioWidget.tsx",
+      "location": "Dashboard widget grid",
+      "version": "2.1.0",
+      "category": "investments"
+    },
+    {
+      "id": "nlq-commander",
+      "name": "Natural Language Queries",
+      "description": "Ask about finances in plain English",
+      "component": "NaturalLanguageCommander.tsx",
+      "location": "Dashboard bottom center (fixed)",
+      "version": "2.0.0",
+      "category": "ai",
+      "shortcut": "⌘K"
+    },
+    {
+      "id": "smart-actions",
+      "name": "Smart Action Chips",
+      "description": "AI-powered suggestions based on spending patterns",
+      "component": "SmartActionChips.tsx",
+      "location": "Dashboard main content",
+      "version": "2.0.0",
+      "category": "ai"
+    },
+    {
+      "id": "widget-grid",
+      "name": "Generative Widget Grid",
+      "description": "Drag-and-reorder widgets with AI prioritization",
+      "component": "GenerativeWidgetGrid.tsx",
+      "location": "Dashboard main content",
+      "version": "2.0.0",
+      "category": "layout"
+    },
+    {
+      "id": "upcoming-bills",
+      "name": "Upcoming Bills",
+      "description": "Bills with urgency animations for due dates",
+      "component": "UpcomingBillsWidget.tsx",
+      "location": "Dashboard widget grid",
+      "version": "2.0.0",
+      "category": "bills"
+    },
+    {
+      "id": "daily-briefing",
+      "name": "Daily AI Briefing",
+      "description": "Personalized financial summary each day",
+      "component": "DailyBriefingAgent.tsx",
+      "location": "Dashboard main content (top)",
+      "version": "2.0.0",
+      "category": "ai"
+    },
+    {
+      "id": "unified-fab",
+      "name": "Unified FAB",
+      "description": "Floating action button for quick actions",
+      "component": "UnifiedFAB.tsx",
+      "location": "Dashboard bottom right (fixed)",
+      "version": "2.0.0",
+      "category": "navigation"
+    },
+    {
+      "id": "aurora-background",
+      "name": "Aurora Background",
+      "description": "Ambient mesh background reflecting financial health",
+      "component": "AuroraMeshBackground.tsx",
+      "location": "Dashboard background",
+      "version": "2.0.0",
+      "category": "visual"
+    },
+    {
+      "id": "cashflow",
+      "name": "Cash Flow Forecast",
+      "description": "30-day balance prediction based on patterns",
+      "component": "CashFlowForecast.tsx",
+      "location": "Dashboard widget grid",
+      "version": "1.9.0",
+      "category": "analytics"
+    }
+  ],
+  "categories": {
+    "ai": "AI-powered features and insights",
+    "gamification": "Progress tracking and rewards",
+    "social": "Community and peer comparison",
+    "investments": "Portfolio and investment tracking",
+    "bills": "Bill management and reminders",
+    "layout": "Dashboard layout and customization",
+    "navigation": "Navigation and quick actions",
+    "visual": "Visual effects and backgrounds",
+    "analytics": "Financial analytics and forecasting"
+  },
+  "usage": {
+    "addAttribute": "Add data-tour=\"target-id\" to any element",
+    "spotlight": "Features with tourStep in useWhatsNew.ts get spotlighted",
+    "debugMode": "Press Ctrl+Shift+D to see all targets",
+    "helpContent": "Add entries to widgetHelpContent.ts for tooltips"
+  }
+}
