@@ -87,7 +87,7 @@ const JourneyMilestones = () => {
   }
 
   return (
-    <Card>
+    <Card data-tour="journey-milestones">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Award className="w-5 h-5 text-primary" />

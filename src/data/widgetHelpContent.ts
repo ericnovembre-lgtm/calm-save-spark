@@ -100,4 +100,64 @@ export const WIDGET_HELP_CONTENT: Record<string, WidgetHelpContent> = {
       'Click for score factors',
     ],
   },
+  peerInsights: {
+    title: 'Community Insights',
+    description: 'Compare your savings to other $ave+ users with similar financial goals.',
+    tips: [
+      'See how you rank vs. community average',
+      'Get tips from top savers',
+      'Track goal completion rates',
+      'Benchmarks update weekly',
+    ],
+  },
+  journeyMilestones: {
+    title: 'Journey Milestones',
+    description: 'Track your financial journey with unlockable achievements and progress markers.',
+    tips: [
+      'Complete actions to unlock milestones',
+      'View your progress timeline',
+      'Expand cards for details',
+      'Celebrate your achievements!',
+    ],
+  },
+  skillTree: {
+    title: 'Financial Skills',
+    description: 'Level up your financial abilities by completing goals and milestones.',
+    tips: [
+      'Each skill has 5 levels',
+      'Progress is calculated from activity',
+      'Unlock advanced features as you level up',
+      'Keep building skills for rewards',
+    ],
+  },
+  weeklyChallenges: {
+    title: 'Weekly Challenges',
+    description: 'Join community savings challenges to boost your motivation.',
+    tips: [
+      'Compete with other savers',
+      'Earn XP and rewards',
+      'Weekly and monthly options',
+      'Track participants count',
+    ],
+  },
+  anomalyAlerts: {
+    title: 'Anomaly Detection',
+    description: 'AI-powered alerts for unusual spending patterns or bill changes.',
+    tips: [
+      'Red = high severity alert',
+      'Yellow = moderate concern',
+      'Click to view details',
+      'Dismiss resolved issues',
+    ],
+  },
+  portfolioWidget: {
+    title: 'Portfolio Overview',
+    description: 'Track your investment performance across all connected accounts.',
+    tips: [
+      'Shows total investment value',
+      'Green/red indicates gains/losses',
+      'Market change updates daily',
+      'Click for detailed breakdown',
+    ],
+  },
 };

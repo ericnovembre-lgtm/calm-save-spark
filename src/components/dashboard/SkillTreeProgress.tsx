@@ -78,7 +78,7 @@ export default function SkillTreeProgress({ userId }: SkillTreeProgressProps) {
   const totalProgress = skills.reduce((sum, skill) => sum + skill.progress, 0) / skills.length;
 
   return (
-    <Card className="p-6">
+    <Card data-tour="skill-tree" className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-foreground">Financial Skills</h2>
         <div className="px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-semibold">
