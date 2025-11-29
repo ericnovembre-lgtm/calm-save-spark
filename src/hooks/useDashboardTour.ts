@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Step, CallBackProps, STATUS } from 'react-joyride';
 
 const TOUR_STORAGE_KEY = 'dashboard-tour-completed';
+const NEW_USER_ONBOARDING_KEY = 'new-user-onboarding-completed';
 
 /**
  * Dashboard Tour Hook
  * Manages guided tour state for Next-Gen Dashboard features
+ * Prevents conflicts with NewUserSpotlight onboarding
  */
 export const useDashboardTour = () => {
   const [run, setRun] = useState(false);
@@ -55,14 +57,28 @@ export const useDashboardTour = () => {
     },
   ];
 
+  // Check if NewUserSpotlight onboarding is in progress
+  const isNewUserOnboardingActive = useCallback(() => {
+    const onboardingCompleted = localStorage.getItem(NEW_USER_ONBOARDING_KEY);
+    return onboardingCompleted !== 'true';
+  }, []);
+
   useEffect(() => {
     const hasSeenTour = localStorage.getItem(TOUR_STORAGE_KEY);
-    if (!hasSeenTour) {
-      // Delay tour start to let dashboard render
-      const timer = setTimeout(() => setRun(true), 1500);
+    const newUserOnboardingActive = isNewUserOnboardingActive();
+    
+    // Don't start tour if: already seen, or new user onboarding is still active
+    if (!hasSeenTour && !newUserOnboardingActive) {
+      // Delay tour start to let dashboard render and ensure no conflicts
+      const timer = setTimeout(() => {
+        // Double-check onboarding status before starting
+        if (!isNewUserOnboardingActive()) {
+          setRun(true);
+        }
+      }, 2000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isNewUserOnboardingActive]);
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, index, action, type } = data;

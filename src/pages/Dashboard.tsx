@@ -436,8 +436,8 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      {/* Dashboard Tour */}
-      <DashboardTour />
+      {/* Dashboard Tour - only show when NewUserSpotlight is NOT active */}
+      {!profile?.show_dashboard_tutorial && <DashboardTour />}
       
       {/* What's New Modal */}
       <WhatsNewModal />
