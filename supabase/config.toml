@@ -390,6 +390,9 @@ verify_jwt = true
 [functions.pinecone-memory]
 verify_jwt = true
 
+[functions.seed-sample-transactions]
+verify_jwt = true
+
 [functions.ai-memory-suggestions]
 verify_jwt = true
 
