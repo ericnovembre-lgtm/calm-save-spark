@@ -14,6 +14,12 @@ type HealthState = "stable" | "warning" | "critical";
 interface FinancialDNAOrbProps {
   state: HealthState;
   insight: string;
+  financialBreakdown?: {
+    spending: number;
+    savings: number;
+    debts: number;
+    investments: number;
+  };
 }
 
 function DNAOrb({ state: healthState, rotation }: { state: HealthState; rotation: { x: number; y: number } }) {
@@ -122,7 +128,7 @@ function ParticleField({ state }: { state: HealthState }) {
   );
 }
 
-export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
+export function FinancialDNAOrb({ state, insight, financialBreakdown }: FinancialDNAOrbProps) {
   const prevStateRef = useRef<HealthState>(state);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
@@ -236,6 +242,7 @@ export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
         isOpen={isFullscreenOpen}
         onClose={() => setIsFullscreenOpen(false)}
         state={state}
+        financialBreakdown={financialBreakdown}
       />
     </>
   );

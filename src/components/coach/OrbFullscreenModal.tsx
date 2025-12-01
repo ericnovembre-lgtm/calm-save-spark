@@ -16,6 +16,12 @@ interface OrbFullscreenModalProps {
   isOpen: boolean;
   onClose: () => void;
   state: HealthState;
+  financialBreakdown?: {
+    spending: number;
+    savings: number;
+    debts: number;
+    investments: number;
+  };
 }
 
 function LargeOrb({ state }: { state: HealthState }) {
@@ -62,15 +68,26 @@ function LargeOrb({ state }: { state: HealthState }) {
   );
 }
 
-export function OrbFullscreenModal({ isOpen, onClose, state }: OrbFullscreenModalProps) {
-  // Mock financial breakdown data
-  const breakdown = [
-    { category: "Spending", value: 2840, percentage: 45, trend: -5 },
-    { category: "Savings", value: 1580, percentage: 25, trend: +12 },
-    { category: "Investments", value: 950, percentage: 15, trend: +8 },
-    { category: "Debts", value: 632, percentage: 10, trend: -3 },
-    { category: "Bills", value: 316, percentage: 5, trend: 0 },
-  ];
+export function OrbFullscreenModal({ isOpen, onClose, state, financialBreakdown: breakdown }: OrbFullscreenModalProps) {
+  // Calculate breakdown data
+  const total = breakdown 
+    ? breakdown.spending + breakdown.savings + breakdown.debts + breakdown.investments
+    : 0;
+
+  const financialData = breakdown && total > 0
+    ? [
+        { category: "Spending", value: breakdown.spending, percentage: Math.round((breakdown.spending / total) * 100), trend: 0 },
+        { category: "Savings", value: breakdown.savings, percentage: Math.round((breakdown.savings / total) * 100), trend: 0 },
+        { category: "Investments", value: breakdown.investments, percentage: Math.round((breakdown.investments / total) * 100), trend: 0 },
+        { category: "Debts", value: breakdown.debts, percentage: Math.round((breakdown.debts / total) * 100), trend: 0 },
+      ]
+    : [
+        { category: "Spending", value: 2840, percentage: 45, trend: -5 },
+        { category: "Savings", value: 1580, percentage: 25, trend: +12 },
+        { category: "Investments", value: 950, percentage: 15, trend: +8 },
+        { category: "Debts", value: 632, percentage: 10, trend: -3 },
+        { category: "Bills", value: 316, percentage: 5, trend: 0 },
+      ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -132,7 +149,7 @@ export function OrbFullscreenModal({ isOpen, onClose, state }: OrbFullscreenModa
             </h3>
 
             <div className="space-y-4">
-              {breakdown.map((item, idx) => (
+              {financialData.map((item, idx) => (
                 <motion.div
                   key={item.category}
                   initial={{ opacity: 0, x: 20 }}

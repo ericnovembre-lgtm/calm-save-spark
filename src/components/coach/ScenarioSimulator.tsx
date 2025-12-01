@@ -9,6 +9,7 @@ import { TimelineProjectionChart } from "./TimelineProjectionChart";
 import { useVoiceRecording } from "@/hooks/useVoiceRecording";
 import { cn } from "@/lib/utils";
 import { coachSounds } from "@/lib/coach-sounds";
+import { useScenarioHistory } from "@/hooks/useScenarioHistory";
 
 interface ScenarioSimulatorProps {
   userId: string;
@@ -33,6 +34,7 @@ export const ScenarioSimulator = forwardRef<HTMLInputElement, ScenarioSimulatorP
     const [lastSimulation, setLastSimulation] = useState<any>(null);
     const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
     const [isTranscribing, setIsTranscribing] = useState(false);
+    const { saveScenario, isSaving } = useScenarioHistory();
 
     const handleVoiceStart = async () => {
       try {
@@ -210,12 +212,26 @@ export const ScenarioSimulator = forwardRef<HTMLInputElement, ScenarioSimulatorP
             </Button>
             {lastSimulation && (
               <Button
-                onClick={() => toast.success('Scenario saved!')}
+                onClick={() => {
+                  saveScenario({
+                    name: lastSimulation.parameters.name || lastSimulation.input,
+                    type: lastSimulation.parameters.type,
+                    parameters: lastSimulation.parameters.parameters,
+                    outcomes: lastSimulation.data.scenario,
+                    successProbability: lastSimulation.data.metadata?.successProbability || 0.5,
+                    monteCarloRuns: lastSimulation.data.metadata?.monteCarloRuns || 1000,
+                  });
+                }}
                 variant="outline"
                 size="icon"
+                disabled={isSaving}
                 className="border-white/10 text-white hover:bg-white/5"
               >
-                <Save className="w-4 h-4" />
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
               </Button>
             )}
           </div>
