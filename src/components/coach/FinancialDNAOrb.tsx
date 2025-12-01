@@ -1,10 +1,13 @@
-import { useRef, useMemo, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useRef, useMemo, useEffect, useState } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Sphere, MeshDistortMaterial } from "@react-three/drei";
 import { motion } from "framer-motion";
 import * as THREE from "three";
+import { useGesture } from "@use-gesture/react";
 import { TypewriterText } from "@/components/ui/typewriter-text";
 import { coachSounds } from "@/lib/coach-sounds";
+import { OrbFullscreenModal } from "./OrbFullscreenModal";
+import { Maximize2 } from "lucide-react";
 
 type HealthState = "stable" | "warning" | "critical";
 
@@ -13,7 +16,7 @@ interface FinancialDNAOrbProps {
   insight: string;
 }
 
-function DNAOrb({ state: healthState }: { state: HealthState }) {
+function DNAOrb({ state: healthState, rotation }: { state: HealthState; rotation: { x: number; y: number } }) {
   const meshRef = useRef<THREE.Mesh>(null);
   
   const colorMap = {
@@ -37,8 +40,10 @@ function DNAOrb({ state: healthState }: { state: HealthState }) {
   useFrame((state) => {
     if (meshRef.current) {
       const time = state.clock.getElapsedTime();
-      meshRef.current.rotation.x = time * 0.1 * speedMap[healthState];
-      meshRef.current.rotation.y = time * 0.15 * speedMap[healthState];
+      
+      // Apply manual rotation from drag gesture
+      meshRef.current.rotation.x = rotation.x + time * 0.05 * speedMap[healthState];
+      meshRef.current.rotation.y = rotation.y + time * 0.1 * speedMap[healthState];
       
       // Breathing effect for critical state
       if (healthState === "critical") {
@@ -119,6 +124,9 @@ function ParticleField({ state }: { state: HealthState }) {
 
 export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
   const prevStateRef = useRef<HealthState>(state);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   useEffect(() => {
     // Play sound on state change
@@ -132,6 +140,24 @@ export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
     }
   }, [state]);
 
+  // Drag gesture for rotation
+  const bind = useGesture(
+    {
+      onDrag: ({ delta: [dx, dy] }) => {
+        setRotation((prev) => ({
+          x: prev.x + dy * 0.01,
+          y: prev.y + dx * 0.01,
+        }));
+      },
+    },
+    { target: canvasRef }
+  );
+
+  const handleExpand = () => {
+    coachSounds.playOrbExpand();
+    setIsFullscreenOpen(true);
+  };
+
   const stateLabels = {
     stable: "Optimizing for Growth",
     warning: "Attention Needed",
@@ -139,16 +165,30 @@ export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
   };
 
   return (
-    <div className="relative w-full h-[400px] rounded-2xl overflow-hidden bg-command-surface border border-white/10">
-      {/* 3D Canvas with optional glitch effect */}
-      <div className={`w-full h-full ${state === "critical" ? "animate-glitch" : ""}`}>
-        <Canvas camera={{ position: [0, 0, 2.2], fov: 60 }}>
-          <ambientLight intensity={0.3} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
-          <DNAOrb state={state} />
-          <ParticleField state={state} />
-        </Canvas>
-      </div>
+    <>
+      <div className="relative w-full h-[400px] rounded-2xl overflow-hidden bg-command-surface border border-white/10 group">
+        {/* Expand Button */}
+        <button
+          onClick={handleExpand}
+          className="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-lg backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <Maximize2 className="w-4 h-4 text-white" />
+        </button>
+
+        {/* 3D Canvas with drag and glitch effect */}
+        <div
+          ref={canvasRef}
+          className={`w-full h-full cursor-grab active:cursor-grabbing touch-none ${
+            state === "critical" ? "animate-glitch" : ""
+          }`}
+        >
+          <Canvas camera={{ position: [0, 0, 2.2], fov: 60 }}>
+            <ambientLight intensity={0.3} />
+            <pointLight position={[10, 10, 10]} intensity={1} />
+            <DNAOrb state={state} rotation={rotation} />
+            <ParticleField state={state} />
+          </Canvas>
+        </div>
 
       {/* Overlay Content */}
       <div className="absolute inset-0 pointer-events-none">
@@ -187,8 +227,16 @@ export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
               className="text-sm text-white leading-relaxed font-mono"
             />
           </motion.div>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Fullscreen Modal */}
+      <OrbFullscreenModal
+        isOpen={isFullscreenOpen}
+        onClose={() => setIsFullscreenOpen(false)}
+        state={state}
+      />
+    </>
   );
 }
