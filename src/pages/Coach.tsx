@@ -15,7 +15,11 @@ import { CoachChatDrawer } from "@/components/coach/CoachChatDrawer";
 import { CoachQuickActionsMenu } from "@/components/coach/CoachQuickActionsMenu";
 import { CoachCommandPalette } from "@/components/coach/CoachCommandPalette";
 import { CoachKeyboardShortcutsHelp } from "@/components/coach/CoachKeyboardShortcutsHelp";
+import { ComparisonTimelineChart } from "@/components/coach/ComparisonTimelineChart";
+import { ComparisonSummaryCard } from "@/components/coach/ComparisonSummaryCard";
+import { ScenarioHistoryPanel } from "@/components/coach/ScenarioHistoryPanel";
 import { useCoachKeyboardShortcuts } from "@/hooks/useCoachKeyboardShortcuts";
+import { useScenarioHistory } from "@/hooks/useScenarioHistory";
 import { coachSounds } from "@/lib/coach-sounds";
 import { haptics } from "@/lib/haptics";
 
@@ -27,11 +31,17 @@ export default function Coach() {
   const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isCompareMode, setIsCompareMode] = useState(false);
+  const [selectedScenarioIds, setSelectedScenarioIds] = useState<string[]>([]);
+  const [showConfidenceIntervals, setShowConfidenceIntervals] = useState(true);
   const longPressTimer = useRef<NodeJS.Timeout>();
   const scenarioSimulatorRef = useRef<HTMLDivElement>(null);
   const scenarioInputRef = useRef<HTMLInputElement>(null);
   const dnaOrbRef = useRef<HTMLDivElement>(null);
   const opportunityRadarRef = useRef<HTMLDivElement>(null);
+
+  const { scenarios } = useScenarioHistory();
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -172,7 +182,46 @@ export default function Coach() {
     setIsShortcutsHelpOpen(false);
     setIsChatOpen(false);
     setIsQuickMenuOpen(false);
+    setIsHistoryOpen(false);
   };
+
+  const handleCompare = (ids: string[]) => {
+    setSelectedScenarioIds(ids);
+    setIsCompareMode(true);
+    setIsHistoryOpen(false);
+    scenarioSimulatorRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Prepare comparison data
+  const COLORS = [
+    { line: 'hsl(189, 94%, 43%)', fill: 'hsl(189, 94%, 43%, 0.15)' },
+    { line: 'hsl(258, 90%, 66%)', fill: 'hsl(258, 90%, 66%, 0.15)' },
+    { line: 'hsl(142, 71%, 45%)', fill: 'hsl(142, 71%, 45%, 0.15)' },
+    { line: 'hsl(38, 92%, 50%)', fill: 'hsl(38, 92%, 50%, 0.15)' },
+  ];
+
+  const comparisonScenarios = selectedScenarioIds
+    .map((id, index) => {
+      const scenario = scenarios.find(s => s.id === id);
+      if (!scenario) return null;
+
+      const outcomes = scenario.projected_outcomes as any[];
+      const simulated = outcomes?.map(o => ({ date: `${o.year}-01-01`, value: o.median })) || [];
+      const confidence = outcomes ? {
+        p10: outcomes.map(o => ({ date: `${o.year}-01-01`, value: o.p10 })),
+        p90: outcomes.map(o => ({ date: `${o.year}-01-01`, value: o.p90 })),
+      } : undefined;
+
+      return {
+        id: scenario.id,
+        name: scenario.scenario_name || 'Untitled',
+        color: COLORS[index % COLORS.length],
+        baseline: simulated,
+        simulated,
+        confidence,
+      };
+    })
+    .filter(Boolean) as any[];
 
   // Register keyboard shortcuts
   const { shortcuts } = useCoachKeyboardShortcuts({
@@ -181,6 +230,7 @@ export default function Coach() {
     onOpportunitiesFocus: handleScrollToRadar,
     onDNAFocus: handleScrollToDNA,
     onChatOpen: () => setIsChatOpen(true),
+    onToggleCompare: () => setIsCompareMode(prev => !prev),
     onShowShortcuts: () => setIsShortcutsHelpOpen(true),
     onEscape: handleEscape,
   });
@@ -281,9 +331,44 @@ export default function Coach() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <ScenarioSimulator userId={user.id} inputRef={scenarioInputRef} />
+            <ScenarioSimulator 
+              userId={user.id} 
+              inputRef={scenarioInputRef}
+              onOpenHistory={() => setIsHistoryOpen(true)}
+              onToggleCompare={() => setIsCompareMode(prev => !prev)}
+              isCompareMode={isCompareMode}
+            />
           </motion.div>
         </div>
+
+        {/* Comparison View */}
+        {isCompareMode && comparisonScenarios.length >= 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6 mb-6"
+          >
+            <ComparisonTimelineChart
+              scenarios={comparisonScenarios}
+              showConfidenceIntervals={showConfidenceIntervals}
+              onToggleConfidence={() => setShowConfidenceIntervals(prev => !prev)}
+            />
+            <ComparisonSummaryCard
+              scenarios={comparisonScenarios.map((s, i) => ({
+                id: s.id,
+                name: s.name,
+                color: s.color.line,
+                successProbability: scenarios.find(sc => sc.id === s.id)?.success_probability || 0,
+                finalNetWorth: {
+                  median: s.simulated[s.simulated.length - 1]?.value || 0,
+                  p10: s.confidence?.p10[s.confidence.p10.length - 1]?.value || 0,
+                  p90: s.confidence?.p90[s.confidence.p90.length - 1]?.value || 0,
+                },
+                riskLevel: i === 0 ? 'low' : i === 1 ? 'medium' : 'high',
+              }))}
+            />
+          </motion.div>
+        )}
 
         {/* Opportunity Radar */}
         <motion.div
@@ -346,6 +431,15 @@ export default function Coach() {
           open={isShortcutsHelpOpen}
           onOpenChange={setIsShortcutsHelpOpen}
           shortcuts={shortcuts}
+        />
+
+        {/* Scenario History Panel */}
+        <ScenarioHistoryPanel
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          onCompare={handleCompare}
+          selectedIds={selectedScenarioIds}
+          onSelectionChange={setSelectedScenarioIds}
         />
       </div>
     </AppLayout>
