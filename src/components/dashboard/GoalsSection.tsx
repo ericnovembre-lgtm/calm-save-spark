@@ -24,6 +24,29 @@ export const GoalsSection = () => {
     },
   });
 
+  const { data: contributions } = useQuery({
+    queryKey: ['goal-contributions', goals?.map(g => g.id)],
+    queryFn: async () => {
+      if (!goals || goals.length === 0) return {};
+      
+      const contribMap: Record<string, number[]> = {};
+      
+      await Promise.all(goals.map(async (goal) => {
+        const { data } = await supabase
+          .from('transfer_history')
+          .select('amount')
+          .eq('pot_id', goal.id)
+          .order('created_at', { ascending: false })
+          .limit(4);
+        
+        contribMap[goal.id] = data?.map(c => c.amount) || [];
+      }));
+      
+      return contribMap;
+    },
+    enabled: !!goals && goals.length > 0,
+  });
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -58,7 +81,7 @@ export const GoalsSection = () => {
               title={goal.name}
               current={parseFloat(String(goal.current_amount || 0))}
               target={parseFloat(String(goal.target_amount))}
-              contributionHistory={[150, 200, 175, 225]} // Would come from actual data
+              contributionHistory={contributions?.[goal.id] || []}
             />
           ))}
         </StaggeredList>

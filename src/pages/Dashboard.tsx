@@ -61,6 +61,8 @@ import { FeatureSpotlight } from "@/components/dashboard/FeatureSpotlight";
 import { NewUserSpotlight } from "@/components/onboarding/NewUserSpotlight";
 import { useAuth } from "@/hooks/useAuth";
 import ProactiveRecommendations from "@/components/dashboard/ProactiveRecommendations";
+import { Shield } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -277,6 +279,26 @@ export default function Dashboard() {
     enabled: !!userId,
   });
 
+  // Fetch challenge participant counts
+  const { data: challengeParticipants } = useQuery({
+    queryKey: ['challenge-participants', activeChallengesData?.map(c => c.id)],
+    queryFn: async () => {
+      if (!activeChallengesData || activeChallengesData.length === 0) return {};
+      
+      const counts: Record<string, number> = {};
+      await Promise.all(activeChallengesData.map(async (challenge) => {
+        const { count } = await supabase
+          .from('challenge_participants')
+          .select('*', { count: 'exact', head: true })
+          .eq('challenge_id', challenge.id);
+        counts[challenge.id] = count || 0;
+      }));
+      
+      return counts;
+    },
+    enabled: !!activeChallengesData && activeChallengesData.length > 0,
+  });
+
   // Transform challenges data for ChallengeCard component with user progress
   const activeChallenges = (activeChallengesData || []).map(c => {
     const requirement = c.requirement as { target?: number; days?: number } | null;
@@ -290,7 +312,7 @@ export default function Dashboard() {
       target: requirement?.target || 100,
       current: progress?.progress || 0,
       reward: `+${c.points || 100} XP`,
-      participants: 500,
+      participants: challengeParticipants?.[c.id] || 0,
       endsAt: new Date(Date.now() + (requirement?.days || 7) * 24 * 60 * 60 * 1000)
     };
   });
@@ -585,12 +607,15 @@ export default function Dashboard() {
           </div>
           
           {/* Footer Disclaimer */}
-          <div className="text-center text-xs text-muted-foreground pt-4 pb-2">
-            <p>
-              Your $ave+ account is FDIC insured up to $250,000 through our banking partners.
-              Funds are held securely and are accessible anytime.
-            </p>
-          </div>
+          <Card className="bg-muted/30 border-0 shadow-none mt-6">
+            <div className="flex items-center gap-3 p-4 text-center justify-center">
+              <Shield className="w-4 h-4 text-muted-foreground shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                Your $ave+ account is FDIC insured up to $250,000 through our banking partners. 
+                Funds are held securely and are accessible anytime.
+              </p>
+            </div>
+          </Card>
         </div>
 
         {/* Persistent UI */}
