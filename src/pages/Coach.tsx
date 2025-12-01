@@ -20,6 +20,8 @@ import { ComparisonSummaryCard } from "@/components/coach/ComparisonSummaryCard"
 import { ScenarioHistoryPanel } from "@/components/coach/ScenarioHistoryPanel";
 import { useCoachKeyboardShortcuts } from "@/hooks/useCoachKeyboardShortcuts";
 import { useScenarioHistory } from "@/hooks/useScenarioHistory";
+import { useCoachLayout } from "@/hooks/useCoachLayout";
+import { WidgetWrapper } from "@/components/coach/WidgetWrapper";
 import { coachSounds } from "@/lib/coach-sounds";
 import { haptics } from "@/lib/haptics";
 
@@ -42,6 +44,7 @@ export default function Coach() {
   const opportunityRadarRef = useRef<HTMLDivElement>(null);
 
   const { scenarios } = useScenarioHistory();
+  const { layout, toggleCollapse, togglePin, resetLayout, getWidgetState } = useCoachLayout();
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -281,6 +284,14 @@ export default function Coach() {
             <Button
               variant="outline"
               size="sm"
+              onClick={resetLayout}
+              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white" : ""} text-xs font-mono hidden sm:inline-flex`}
+            >
+              Reset Layout
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setIsCommandPaletteOpen(true)}
               className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white" : ""} flex items-center gap-2`}
             >
@@ -307,39 +318,77 @@ export default function Coach() {
           <CriticalActionsBar actions={criticalActions} />
         )}
 
-        {/* Main Grid */}
+        {/* Main Grid - Widget Customizable */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Financial DNA Orb */}
-          <motion.div
-            ref={dnaOrbRef}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            {healthLoading || insightLoading ? (
-              <ScanningLoader text="Analyzing Financial DNA..." className="h-[400px]" />
-            ) : (
-              <FinancialDNAOrb
-                state={healthState?.state || "stable"}
-                insight={dnaInsight || "Analyzing your financial health..."}
-              />
-            )}
-          </motion.div>
-
-          {/* Scenario Simulator */}
-          <motion.div
-            ref={scenarioSimulatorRef}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <ScenarioSimulator 
-              userId={user.id} 
-              inputRef={scenarioInputRef}
-              onOpenHistory={() => setIsHistoryOpen(true)}
-              onToggleCompare={() => setIsCompareMode(prev => !prev)}
-              isCompareMode={isCompareMode}
-            />
-          </motion.div>
+          {layout
+            .filter(w => w.id === "dna-orb" || w.id === "scenario-simulator")
+            .sort((a, b) => a.order - b.order)
+            .map((widget) => {
+              if (widget.id === "dna-orb") {
+                return (
+                  <motion.div
+                    key="dna-orb"
+                    ref={dnaOrbRef}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    style={{ order: widget.order }}
+                  >
+                    <WidgetWrapper
+                      id="dna-orb"
+                      title="Financial DNA"
+                      isCollapsed={widget.isCollapsed}
+                      isPinned={widget.isPinned}
+                      onToggleCollapse={() => toggleCollapse("dna-orb")}
+                      onTogglePin={() => togglePin("dna-orb")}
+                    >
+                      {healthLoading || insightLoading ? (
+                        <ScanningLoader text="Analyzing Financial DNA..." className="h-[400px]" />
+                      ) : (
+                        <FinancialDNAOrb
+                          state={healthState?.state || "stable"}
+                          insight={dnaInsight || "Analyzing your financial health..."}
+                          financialBreakdown={{
+                            spending: healthState?.weeklySpending || 0,
+                            savings: (healthState?.totalBalance || 0) * (healthState?.savingsRate || 0) / 100,
+                            debts: 0,
+                            investments: 0,
+                          }}
+                        />
+                      )}
+                    </WidgetWrapper>
+                  </motion.div>
+                );
+              } else if (widget.id === "scenario-simulator") {
+                return (
+                  <motion.div
+                    key="scenario-simulator"
+                    ref={scenarioSimulatorRef}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    style={{ order: widget.order }}
+                  >
+                    <WidgetWrapper
+                      id="scenario-simulator"
+                      title="Scenario Simulator"
+                      isCollapsed={widget.isCollapsed}
+                      isPinned={widget.isPinned}
+                      onToggleCollapse={() => toggleCollapse("scenario-simulator")}
+                      onTogglePin={() => togglePin("scenario-simulator")}
+                    >
+                      <ScenarioSimulator 
+                        userId={user.id} 
+                        inputRef={scenarioInputRef}
+                        onOpenHistory={() => setIsHistoryOpen(true)}
+                        onToggleCompare={() => setIsCompareMode(prev => !prev)}
+                        isCompareMode={isCompareMode}
+                      />
+                    </WidgetWrapper>
+                  </motion.div>
+                );
+              }
+              return null;
+            })}
         </div>
 
         {/* Comparison View */}
@@ -371,7 +420,7 @@ export default function Coach() {
           </motion.div>
         )}
 
-        {/* Opportunity Radar */}
+        {/* Opportunity Radar - Widget Customizable */}
         <motion.div
           ref={opportunityRadarRef}
           data-radar
@@ -379,7 +428,16 @@ export default function Coach() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <OpportunityRadar userId={user.id} />
+          <WidgetWrapper
+            id="opportunity-radar"
+            title="Opportunity Radar"
+            isCollapsed={getWidgetState("opportunity-radar").isCollapsed}
+            isPinned={getWidgetState("opportunity-radar").isPinned}
+            onToggleCollapse={() => toggleCollapse("opportunity-radar")}
+            onTogglePin={() => togglePin("opportunity-radar")}
+          >
+            <OpportunityRadar userId={user.id} />
+          </WidgetWrapper>
         </motion.div>
 
         {/* Floating Chat Button */}
