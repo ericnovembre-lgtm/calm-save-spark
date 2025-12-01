@@ -62,12 +62,13 @@ serve(async (req) => {
         .eq('is_active', true)
         .order('target_amount', { ascending: false }),
       supabase
-        .from('bills')
+        .from('detected_subscriptions')
         .select('*')
         .eq('user_id', user.id)
-        .gte('due_date', new Date().toISOString())
-        .lte('due_date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
-        .order('due_date', { ascending: true })
+        .neq('status', 'paused')
+        .gte('next_expected_date', new Date().toISOString())
+        .lte('next_expected_date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
+        .order('next_expected_date', { ascending: true })
         .limit(5),
       supabase
         .from('connected_accounts')
@@ -148,7 +149,7 @@ serve(async (req) => {
 
     // Identify urgent bills (due within 48 hours)
     const urgentBills = upcomingBills?.filter(bill => {
-      const daysUntilDue = (new Date(bill.due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      const daysUntilDue = (new Date(bill.next_expected_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
       return daysUntilDue <= 2;
     }) || [];
 
@@ -213,7 +214,7 @@ ${topGoal ? `- Top goal: "${topGoal.name}" at ${goalProgress.toFixed(0)}% ($${to
 
 **BILLS:**
 - Urgent bills (due ≤48h): ${urgentBills.length}
-${urgentBills.length > 0 ? `- URGENT: ${urgentBills.map(b => `"${b.name}" ($${b.amount}) due ${new Date(b.due_date).toLocaleDateString()}`).join(', ')}` : ''}
+${urgentBills.length > 0 ? `- URGENT: ${urgentBills.map(b => `"${b.merchant}" ($${b.average_charge}) due ${new Date(b.next_expected_date).toLocaleDateString()}`).join(', ')}` : ''}
 - All upcoming bills (next 7 days): ${upcomingBills?.length || 0}
 
 Generate the briefing NOW:`;

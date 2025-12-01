@@ -45,6 +45,8 @@ import { PortfolioWidget } from "@/components/dashboard/PortfolioWidget";
 import { BudgetsWidget } from "@/components/dashboard/BudgetsWidget";
 import { SmartBanner } from "@/components/dashboard/SmartBanner";
 import { ProactiveNudgesBanner } from "@/components/dashboard/ProactiveNudgesBanner";
+import { NudgesWidget } from "@/components/dashboard/NudgesWidget";
+import { SmartWidgetRecommender } from "@/components/dashboard/ai/SmartWidgetRecommender";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { AnomalyAlertCenter } from "@/components/ai/AnomalyAlertCenter";
 import { useKeyboardShortcuts, defaultDashboardShortcuts, useShortcutsHelp } from "@/hooks/useKeyboardShortcuts";
@@ -461,6 +463,11 @@ export default function Dashboard() {
         <ProactiveRecommendations userId={userId} />
       </DashboardErrorBoundary>
     ) : null,
+    'nudges': (
+      <DashboardErrorBoundary key="nudges" sectionName="AI Nudges">
+        <NudgesWidget />
+      </DashboardErrorBoundary>
+    ),
     'upcoming-bills': (
       <UpcomingBillsWidget 
         onPayBill={(billId) => {
@@ -557,6 +564,13 @@ export default function Dashboard() {
               />
             </div>
             
+            <SmartWidgetRecommender
+              currentWidgets={Object.keys(coreWidgets)}
+              onAddWidget={(widgetId) => {
+                toast.info(`Widget ${widgetId} would be added to your dashboard`);
+              }}
+            />
+
             <div data-tour="widget-grid">
               <GenerativeWidgetGrid
                 priorities={layoutPriorities}
