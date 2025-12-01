@@ -260,32 +260,88 @@ export default function Coach() {
       </Helmet>
 
       <div
-        className={`min-h-[calc(100vh-10rem)] p-6 transition-colors ${
+        className={`min-h-[calc(100vh-10rem)] p-6 transition-colors relative ${
           isDarkMode ? "bg-command-bg" : "bg-background"
         }`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-command-violet/20 border border-command-violet/30">
-              <Bot className="w-6 h-6 text-command-violet" />
+        {/* Ambient Background Effects */}
+        {isDarkMode && (
+          <>
+            {/* Grid Pattern */}
+            <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
+              <div className="absolute inset-0" style={{
+                backgroundImage: 'linear-gradient(hsl(189, 94%, 43%) 1px, transparent 1px), linear-gradient(90deg, hsl(189, 94%, 43%) 1px, transparent 1px)',
+                backgroundSize: '50px 50px'
+              }} />
             </div>
+            {/* Scan Line Effect */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <motion.div
+                animate={{ y: ['-100%', '200%'] }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-x-0 h-[200px] bg-gradient-to-b from-transparent via-command-cyan/5 to-transparent"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Header with Entrance Animation */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex items-center justify-between mb-6 relative"
+        >
+          <div className="flex items-center gap-3">
+            <motion.div 
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
+              className="p-2 rounded-lg bg-command-violet/20 border border-command-violet/30 relative overflow-hidden group"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-command-violet/20 to-transparent"
+              />
+              <Bot className="w-6 h-6 text-command-violet relative z-10" />
+            </motion.div>
             <div>
-              <h1 className={`text-2xl font-bold font-mono ${isDarkMode ? "text-white" : "text-foreground"}`}>
+              <motion.h1 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className={`text-2xl font-bold font-mono ${isDarkMode ? "text-white" : "text-foreground"}`}
+              >
                 Strategic Command Room
-              </h1>
-              <p className={`text-xs font-mono ${isDarkMode ? "text-white/40" : "text-muted-foreground"}`}>
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className={`text-xs font-mono ${isDarkMode ? "text-white/40" : "text-muted-foreground"} flex items-center gap-2`}
+              >
+                <motion.span
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="inline-block w-2 h-2 rounded-full bg-command-cyan"
+                />
                 AI-Powered Financial Analysis
-              </p>
+              </motion.p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="flex items-center gap-2"
+          >
             <Button
               variant="outline"
               size="sm"
               onClick={resetLayout}
-              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white" : ""} text-xs font-mono hidden sm:inline-flex`}
+              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white hover:border-command-cyan/50" : ""} text-xs font-mono hidden sm:inline-flex transition-all duration-300`}
             >
               Reset Layout
             </Button>
@@ -293,7 +349,7 @@ export default function Coach() {
               variant="outline"
               size="sm"
               onClick={() => setIsCommandPaletteOpen(true)}
-              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white" : ""} flex items-center gap-2`}
+              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white hover:border-command-cyan/50" : ""} flex items-center gap-2 transition-all duration-300`}
             >
               <Keyboard className="w-3.5 h-3.5" />
               <span className="text-xs font-mono hidden sm:inline">⌘K</span>
@@ -302,16 +358,22 @@ export default function Coach() {
               variant="outline"
               size="sm"
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className={isDarkMode ? "border-white/10 bg-command-surface" : ""}
+              className={`${isDarkMode ? "border-white/10 bg-command-surface hover:border-command-cyan/50" : ""} transition-all duration-300 relative overflow-hidden group`}
             >
-              {isDarkMode ? (
-                <Sun className="w-4 h-4" />
-              ) : (
-                <Moon className="w-4 h-4" />
-              )}
+              <motion.div
+                initial={false}
+                animate={{ rotate: isDarkMode ? 0 : 180 }}
+                transition={{ duration: 0.5, type: "spring" }}
+              >
+                {isDarkMode ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+              </motion.div>
             </Button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Critical Actions Bar */}
         {!actionsLoading && criticalActions.length > 0 && (
@@ -440,24 +502,47 @@ export default function Coach() {
           </WidgetWrapper>
         </motion.div>
 
-        {/* Floating Chat Button */}
+        {/* Floating Chat Button with Enhanced Animations */}
         <motion.div
           className="fixed bottom-6 right-6 z-30"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.5, type: "spring" }}
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ delay: 1, type: "spring", stiffness: 200 }}
         >
-          <Button
-            size="lg"
-            onMouseDown={handleChatButtonPress}
-            onMouseUp={handleChatButtonRelease}
-            onMouseLeave={handleChatButtonRelease}
-            onTouchStart={handleChatButtonPress}
-            onTouchEnd={handleChatButtonRelease}
-            className="rounded-full w-14 h-14 bg-gradient-to-r from-command-cyan to-command-violet hover:from-command-cyan/80 hover:to-command-violet/80 shadow-lg shadow-command-cyan/20"
+          <motion.div
+            animate={{ 
+              boxShadow: [
+                '0 0 20px rgba(6, 182, 212, 0.3)',
+                '0 0 40px rgba(6, 182, 212, 0.5)',
+                '0 0 20px rgba(6, 182, 212, 0.3)',
+              ]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="relative"
           >
-            <MessageCircle className="w-6 h-6" />
-          </Button>
+            <Button
+              size="lg"
+              onMouseDown={handleChatButtonPress}
+              onMouseUp={handleChatButtonRelease}
+              onMouseLeave={handleChatButtonRelease}
+              onTouchStart={handleChatButtonPress}
+              onTouchEnd={handleChatButtonRelease}
+              className="rounded-full w-14 h-14 bg-gradient-to-r from-command-cyan to-command-violet hover:from-command-cyan/80 hover:to-command-violet/80 shadow-lg shadow-command-cyan/20 relative overflow-hidden group"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+              />
+              <MessageCircle className="w-6 h-6 relative z-10" />
+            </Button>
+            {/* Pulse rings */}
+            <motion.div
+              animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 rounded-full border-2 border-command-cyan"
+            />
+          </motion.div>
         </motion.div>
 
         {/* Quick Actions Menu */}
