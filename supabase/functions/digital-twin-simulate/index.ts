@@ -47,17 +47,69 @@ serve(async (req) => {
     }
 
     // Get user's current financial state
-    const { data: profile } = await supabaseClient
+    let { data: profile } = await supabaseClient
       .from('digital_twin_profiles')
       .select('*')
       .eq('user_id', user.id)
       .single();
 
+    // Auto-create profile if missing
     if (!profile) {
-      return new Response(JSON.stringify({ error: 'Profile not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      console.log('No profile found, auto-creating default profile');
+
+      // Query user's connected accounts for current balance
+      const { data: accounts } = await supabaseClient
+        .from('connected_accounts')
+        .select('balance')
+        .eq('user_id', user.id);
+
+      const totalBalance = accounts?.reduce((sum, acc) => 
+        sum + (Number(acc.balance) || 0), 0) || 10000;
+
+      // Query recent transactions to estimate income/expenses
+      const { data: recentTransactions } = await supabaseClient
+        .from('transactions')
+        .select('amount, category')
+        .eq('user_id', user.id)
+        .gte('date', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
+        .limit(100);
+
+      const monthlyIncome = (recentTransactions || [])
+        .filter(t => t.amount > 0)
+        .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0) / 3 || 5000;
+      
+      const monthlyExpenses = (recentTransactions || [])
+        .filter(t => t.amount < 0)
+        .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0) / 3 || 3750;
+
+      // Create default profile
+      const { data: newProfile, error: profileError } = await supabaseClient
+        .from('digital_twin_profiles')
+        .insert({
+          user_id: user.id,
+          current_state: {
+            netWorth: totalBalance,
+            savings: totalBalance * 0.2,
+            annualIncome: monthlyIncome * 12,
+            annualExpenses: monthlyExpenses * 12,
+            age: 30
+          },
+          life_stage: 'growth',
+          risk_tolerance: 'moderate'
+        })
+        .select()
+        .single();
+
+      if (profileError) {
+        console.error('Failed to create profile:', profileError);
+        return new Response(JSON.stringify({ error: 'Failed to create profile' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      profile = newProfile;
+      console.log('Auto-created profile with netWorth:', totalBalance);
     }
 
     // Monte Carlo simulation logic
@@ -113,12 +165,32 @@ serve(async (req) => {
 
     if (scenarioError) throw scenarioError;
 
+    // Generate baseline (current trajectory) and scenario paths for chart
+    const baselineSimulation = runSingleSimulation(currentState, {
+      ...parameters,
+      scenarioType: 'baseline', // No life changes
+    });
+
+    const scenarioSimulation = simulations[Math.floor(monteCarloRuns / 2)]; // Use median simulation
+
+    // Transform timeline to {date, value} format for frontend
+    const baseline = baselineSimulation.timeline.map((point: any) => ({
+      date: `${new Date().getFullYear() + point.year}-01-01`,
+      value: point.netWorth
+    }));
+
+    const scenarioPath = scenarioSimulation.timeline.map((point: any) => ({
+      date: `${new Date().getFullYear() + point.year}-01-01`,
+      value: point.netWorth
+    }));
+
     const responseData = {
-      scenario,
-      results: {
+      baseline,
+      scenario: scenarioPath,
+      metadata: {
+        scenarioId: scenario?.id,
         successProbability,
         percentiles: { p10, p50, p90 },
-        timeline,
         simulations: simulations.length,
       },
     };
