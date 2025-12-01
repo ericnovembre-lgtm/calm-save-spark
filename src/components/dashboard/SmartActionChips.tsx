@@ -72,7 +72,7 @@ const colorToVariant: Record<string, 'default' | 'secondary' | 'outline' | 'dest
  */
 export function SmartActionChips({ priorities, onAction }: SmartActionChipsProps) {
   // Fetch AI-generated opportunities
-  const { data: opportunitiesData, isLoading } = useQuery({
+  const { data: opportunitiesData, isLoading, isError } = useQuery({
     queryKey: ['ai-opportunity-scanner'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -106,7 +106,8 @@ export function SmartActionChips({ priorities, onAction }: SmartActionChipsProps
     );
   }
 
-  if (actions.length === 0) return null;
+  // Show nothing if error or no actions
+  if (isError || actions.length === 0) return null;
 
   return (
     <TooltipProvider>
