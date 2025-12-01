@@ -123,15 +123,7 @@ export default function Coach() {
     action: () => console.log(`Action: ${action.id}`),
   }));
 
-  // Apply dark mode
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
-
+  // Handler functions (defined before hooks that use them)
   const handleChatButtonPress = () => {
     longPressTimer.current = setTimeout(() => {
       setIsQuickMenuOpen(true);
@@ -223,7 +215,7 @@ export default function Coach() {
     })
     .filter(Boolean) as any[];
 
-  // Register keyboard shortcuts
+  // Register keyboard shortcuts (must be called before any early returns)
   const { shortcuts } = useCoachKeyboardShortcuts({
     onCommandPalette: () => setIsCommandPaletteOpen(true),
     onScenarioFocus: handleScrollToScenario,
@@ -234,6 +226,15 @@ export default function Coach() {
     onShowShortcuts: () => setIsShortcutsHelpOpen(true),
     onEscape: handleEscape,
   });
+
+  // Apply dark mode (useEffect must be called after all other hooks)
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDarkMode]);
 
   if (!user) {
     return (
