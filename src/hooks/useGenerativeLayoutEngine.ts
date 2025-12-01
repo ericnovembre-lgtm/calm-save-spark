@@ -200,7 +200,15 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: 'Personalized savings tips'
     });
 
-    // 8. Milestones
+    // 8. Nudges - AI-powered financial reminders
+    priorities.push({
+      id: 'nudges',
+      score: 55,
+      size: 'normal',
+      urgencyReason: 'AI-powered financial reminders',
+    });
+
+    // 9. Milestones
     priorities.push({
       id: 'milestones',
       score: 45,
@@ -208,7 +216,7 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: 'Track your progress'
     });
 
-    // 9. Skill Tree
+    // 10. Skill Tree
     priorities.push({
       id: 'skill-tree',
       score: 42,
@@ -216,7 +224,7 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: 'Build financial skills'
     });
 
-    // 10. Peer Insights
+    // 11. Peer Insights
     priorities.push({
       id: 'peer-insights',
       score: 38,
@@ -224,7 +232,7 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: 'Compare with peers'
     });
 
-    // 11. Challenges
+    // 12. Challenges
     priorities.push({
       id: 'challenges',
       score: 48,
@@ -232,7 +240,7 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: 'Active savings challenges',
     });
 
-    // 12. Credit Score
+    // 13. Credit Score
     if (dashboardData?.creditScore) {
       let creditScore = 50;
       let urgencyLevel: 'critical' | 'high' | 'medium' | 'low' = 'low';
@@ -266,7 +274,7 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       });
     }
 
-    // 13. Manual Transfer
+    // 14. Manual Transfer
     priorities.push({
       id: 'manual-transfer',
       score: 40,
@@ -274,7 +282,7 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: 'Quick transfer to savings',
     });
 
-    // 14. Cash Flow Forecast
+    // 15. Cash Flow Forecast
     priorities.push({
       id: 'cashflow',
       score: 52,

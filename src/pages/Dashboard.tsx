@@ -44,6 +44,7 @@ import { GenerativeWidgetGrid } from "@/components/dashboard/GenerativeWidgetGri
 import { PortfolioWidget } from "@/components/dashboard/PortfolioWidget";
 import { BudgetsWidget } from "@/components/dashboard/BudgetsWidget";
 import { SmartBanner } from "@/components/dashboard/SmartBanner";
+import { ProactiveNudgesBanner } from "@/components/dashboard/ProactiveNudgesBanner";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { AnomalyAlertCenter } from "@/components/ai/AnomalyAlertCenter";
 import { useKeyboardShortcuts, defaultDashboardShortcuts, useShortcutsHelp } from "@/hooks/useKeyboardShortcuts";
@@ -57,6 +58,7 @@ import { WhatsNewModal } from "@/components/dashboard/WhatsNewModal";
 import { FeatureSpotlight } from "@/components/dashboard/FeatureSpotlight";
 import { NewUserSpotlight } from "@/components/onboarding/NewUserSpotlight";
 import { useAuth } from "@/hooks/useAuth";
+import ProactiveRecommendations from "@/components/dashboard/ProactiveRecommendations";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -454,6 +456,11 @@ export default function Dashboard() {
         <ManualTransferCard />
       </DashboardErrorBoundary>
     ),
+    'recommendations': userId ? (
+      <DashboardErrorBoundary key="recommendations" sectionName="Recommendations">
+        <ProactiveRecommendations userId={userId} />
+      </DashboardErrorBoundary>
+    ) : null,
     'upcoming-bills': (
       <UpcomingBillsWidget 
         onPayBill={(billId) => {
@@ -513,6 +520,7 @@ export default function Dashboard() {
           {/* Critical Banners */}
           <EmailVerificationBanner />
           <SmartBanner />
+          <ProactiveNudgesBanner />
 
           {/* Anomaly Alerts */}
           <div data-tour="anomaly-alerts">
