@@ -81,7 +81,7 @@ export function useCoachConversation(conversationId: string | null) {
       setIsResponding(true);
 
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-agent`,
         {
           method: 'POST',
           headers: {
@@ -90,7 +90,8 @@ export function useCoachConversation(conversationId: string | null) {
           },
           body: JSON.stringify({
             message,
-            sessionId: conversationId
+            conversationId,
+            agentType: 'financial_coach'
           })
         }
       );
