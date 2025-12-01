@@ -151,6 +151,66 @@ class CoachSoundsManager {
   }
 
   /**
+   * Batch Execute - More triumphant progression
+   */
+  async playBatchExecute() {
+    if (!this.enabled) return;
+
+    try {
+      const synth = await this.initSynth();
+      if (!synth) return;
+
+      const now = Tone.now();
+      synth.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
+      synth.triggerAttackRelease(["E4", "G4", "C5"], "8n", now + 0.15);
+      synth.triggerAttackRelease(["G4", "C5", "E5"], "4n", now + 0.3);
+    } catch (error) {
+      console.warn('Failed to play batch execute sound:', error);
+    }
+  }
+
+  /**
+   * Filter Change - Subtle click
+   */
+  async playFilterChange() {
+    if (!this.enabled) return;
+
+    try {
+      const synth = await this.initSynth();
+      if (!synth) return;
+
+      synth.triggerAttackRelease("C5", "32n", Tone.now());
+    } catch (error) {
+      console.warn('Failed to play filter change sound:', error);
+    }
+  }
+
+  /**
+   * Orb Expand - Whoosh sound
+   */
+  async playOrbExpand() {
+    if (!this.enabled) return;
+
+    try {
+      await Tone.start();
+
+      const noise = new Tone.Noise("pink").start();
+      const filter = new Tone.Filter(400, "lowpass").toDestination();
+      noise.connect(filter);
+      noise.volume.value = -18;
+
+      filter.frequency.rampTo(3000, 0.2);
+      setTimeout(() => {
+        noise.stop();
+        noise.dispose();
+        filter.dispose();
+      }, 250);
+    } catch (error) {
+      console.warn('Failed to play orb expand sound:', error);
+    }
+  }
+
+  /**
    * Dispose of all audio resources
    */
   dispose() {
