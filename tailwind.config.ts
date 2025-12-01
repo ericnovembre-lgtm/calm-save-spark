@@ -156,6 +156,28 @@ export default {
           from: { strokeDashoffset: "1000" },
           to: { strokeDashoffset: "0" },
         },
+        "glitch": {
+          "0%, 100%": { 
+            clipPath: "inset(0 0 0 0)", 
+            transform: "translate(0)" 
+          },
+          "20%": { 
+            clipPath: "inset(20% 0 30% 0)", 
+            transform: "translate(-2px, 2px)" 
+          },
+          "40%": { 
+            clipPath: "inset(50% 0 20% 0)", 
+            transform: "translate(2px, -2px)" 
+          },
+          "60%": { 
+            clipPath: "inset(10% 0 60% 0)", 
+            transform: "translate(-1px, 1px)" 
+          },
+          "80%": { 
+            clipPath: "inset(40% 0 10% 0)", 
+            transform: "translate(1px, -1px)" 
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -167,6 +189,7 @@ export default {
         "breathing": "breathing 3s ease-in-out infinite",
         "scan-line": "scan-line 2s linear infinite",
         "stroke-draw": "stroke-draw 2s ease-out forwards",
+        "glitch": "glitch 0.3s infinite",
       },
     },
   },

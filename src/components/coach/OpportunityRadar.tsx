@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { motion } from "framer-motion";
-import { TrendingUp, Zap, DollarSign, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { TrendingUp, Zap, DollarSign, X, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ScanningLoader } from "./ScanningLoader";
+import confetti from "canvas-confetti";
 
 interface OpportunityRadarProps {
   userId: string;
@@ -49,7 +50,17 @@ export function OpportunityRadar({ userId }: OpportunityRadarProps) {
   });
 
   const handleExecute = async (opportunity: Opportunity) => {
-    toast.success(`Executing: ${opportunity.title}`);
+    // Trigger confetti burst
+    confetti({
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.7 },
+      colors: ['#06b6d4', '#8b5cf6', '#10b981']
+    });
+    
+    toast.success(`Executed: ${opportunity.title}`, {
+      icon: <CheckCircle className="w-4 h-4 text-command-emerald" />
+    });
     // TODO: Implement actual execution logic
   };
 
@@ -103,47 +114,56 @@ export function OpportunityRadar({ userId }: OpportunityRadarProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {opportunities.map((opp, idx) => (
-          <motion.div
-            key={opp.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: idx * 0.05 }}
-            className={`rounded-lg border p-4 ${getColors(opp.type)}`}
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2">
-                {getIcon(opp.type)}
-                <span className="text-xs font-mono uppercase opacity-70">
-                  {opp.type}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <DollarSign className="w-3 h-3" />
-                <span className="text-lg font-bold font-mono">
-                  {opp.roi > 0 ? "+" : ""}
-                  {Math.abs(opp.roi).toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            <h4 className="font-semibold text-sm mb-2 font-mono">
-              {opp.title}
-            </h4>
-
-            <p className="text-xs opacity-80 mb-4 line-clamp-2">
-              {opp.description}
-            </p>
-
-            <Button
-              size="sm"
-              onClick={() => handleExecute(opp)}
-              className="w-full h-8 text-xs font-mono bg-white/10 hover:bg-white/20"
+        <AnimatePresence mode="popLayout">
+          {opportunities.map((opp, idx) => (
+            <motion.div
+              key={opp.id}
+              layout
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 300, 
+                damping: 30,
+                layout: { duration: 0.3 }
+              }}
+              className={`rounded-lg border p-4 ${getColors(opp.type)}`}
             >
-              {opp.action} →
-            </Button>
-          </motion.div>
-        ))}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  {getIcon(opp.type)}
+                  <span className="text-xs font-mono uppercase opacity-70">
+                    {opp.type}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <DollarSign className="w-3 h-3" />
+                  <span className="text-lg font-bold font-mono">
+                    {opp.roi > 0 ? "+" : ""}
+                    {Math.abs(opp.roi).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              <h4 className="font-semibold text-sm mb-2 font-mono">
+                {opp.title}
+              </h4>
+
+              <p className="text-xs opacity-80 mb-4 line-clamp-2">
+                {opp.description}
+              </p>
+
+              <Button
+                size="sm"
+                onClick={() => handleExecute(opp)}
+                className="w-full h-8 text-xs font-mono bg-white/10 hover:bg-white/20"
+              >
+                {opp.action} →
+              </Button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );
