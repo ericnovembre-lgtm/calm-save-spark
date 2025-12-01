@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bot, Moon, Sun } from "lucide-react";
+import { Bot, Moon, Sun, MessageCircle } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -11,11 +11,13 @@ import { ScenarioSimulator } from "@/components/coach/ScenarioSimulator";
 import { OpportunityRadar } from "@/components/coach/OpportunityRadar";
 import { CriticalActionsBar } from "@/components/coach/CriticalActionsBar";
 import { ScanningLoader } from "@/components/coach/ScanningLoader";
+import { CoachChatDrawer } from "@/components/coach/CoachChatDrawer";
 
 type HealthState = "stable" | "warning" | "critical";
 
 export default function Coach() {
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -78,30 +80,24 @@ export default function Coach() {
     enabled: !!user?.id && !!healthState,
   });
 
-  // Critical actions
-  const criticalActions = [
-    {
-      id: "1",
-      type: "urgent" as const,
-      title: "Low Liquidity Alert",
-      description: "Your available cash is below 2 weeks of spending",
-      action: () => console.log("Navigate to liquidity"),
+  // Fetch critical actions dynamically
+  const { data: criticalActionsData, isLoading: actionsLoading } = useQuery({
+    queryKey: ["critical-actions", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      const { data, error } = await supabase.functions.invoke("generate-critical-actions");
+
+      if (error) throw error;
+      return data.actions || [];
     },
-    {
-      id: "2",
-      type: "opportunity" as const,
-      title: "Yield Optimization",
-      description: "Move $2k to HYSA for +$90/yr",
-      action: () => console.log("Navigate to yield"),
-    },
-    {
-      id: "3",
-      type: "important" as const,
-      title: "Budget Review",
-      description: "3 categories over budget this month",
-      action: () => console.log("Navigate to budgets"),
-    },
-  ];
+    enabled: !!user?.id,
+  });
+
+  const criticalActions = (criticalActionsData || []).map((action: any) => ({
+    ...action,
+    action: () => console.log(`Action: ${action.id}`),
+  }));
 
   // Apply dark mode
   useEffect(() => {
@@ -168,7 +164,7 @@ export default function Coach() {
         </div>
 
         {/* Critical Actions Bar */}
-        {healthState?.state === "critical" && (
+        {!actionsLoading && criticalActions.length > 0 && (
           <CriticalActionsBar actions={criticalActions} />
         )}
 
@@ -207,6 +203,25 @@ export default function Coach() {
         >
           <OpportunityRadar userId={user.id} />
         </motion.div>
+
+        {/* Floating Chat Button */}
+        <motion.div
+          className="fixed bottom-6 right-6 z-30"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.5, type: "spring" }}
+        >
+          <Button
+            size="lg"
+            onClick={() => setIsChatOpen(true)}
+            className="rounded-full w-14 h-14 bg-gradient-to-r from-command-cyan to-command-violet hover:from-command-cyan/80 hover:to-command-violet/80 shadow-lg shadow-command-cyan/20"
+          >
+            <MessageCircle className="w-6 h-6" />
+          </Button>
+        </motion.div>
+
+        {/* Chat Drawer */}
+        <CoachChatDrawer isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       </div>
     </AppLayout>
   );
