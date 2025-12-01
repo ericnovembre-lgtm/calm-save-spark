@@ -48,7 +48,7 @@ function DNAOrb({ state: healthState }: { state: HealthState }) {
   });
 
   return (
-    <Sphere ref={meshRef} args={[1, 64, 64]}>
+    <Sphere ref={meshRef} args={[1.2, 64, 64]}>
       <MeshDistortMaterial
         color={colorMap[healthState]}
         attach="material"
@@ -74,7 +74,7 @@ function ParticleField({ state }: { state: HealthState }) {
     for (let i = 0; i < particleCount; i++) {
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.random() * Math.PI;
-      const radius = 1.5 + Math.random() * 0.5;
+      const radius = 1.8 + Math.random() * 0.6;
       
       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
@@ -126,8 +126,8 @@ export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
   return (
     <div className="relative w-full h-[400px] rounded-2xl overflow-hidden bg-command-surface border border-white/10">
       {/* 3D Canvas with optional glitch effect */}
-      <div className={state === "critical" ? "animate-glitch" : ""}>
-        <Canvas camera={{ position: [0, 0, 3], fov: 50 }}>
+      <div className={`w-full h-full ${state === "critical" ? "animate-glitch" : ""}`}>
+        <Canvas camera={{ position: [0, 0, 2.2], fov: 60 }}>
           <ambientLight intensity={0.3} />
           <pointLight position={[10, 10, 10]} intensity={1} />
           <DNAOrb state={state} />
