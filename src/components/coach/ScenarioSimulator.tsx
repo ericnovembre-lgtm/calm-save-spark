@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TimelineProjectionChart } from "./TimelineProjectionChart";
 import { useVoiceRecording } from "@/hooks/useVoiceRecording";
 import { cn } from "@/lib/utils";
+import { coachSounds } from "@/lib/coach-sounds";
 
 interface ScenarioSimulatorProps {
   userId: string;
@@ -95,6 +96,9 @@ export function ScenarioSimulator({ userId }: ScenarioSimulatorProps) {
         currentPath: simulation.baseline,
         simulatedPath: simulation.scenario,
       });
+
+      // Play completion sound
+      coachSounds.playScenarioComplete();
 
       toast.success("Scenario simulated successfully");
     } catch (error: any) {

@@ -1,11 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { TrendingUp, Zap, DollarSign, X, CheckCircle } from "lucide-react";
+import { TrendingUp, Zap, DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ScanningLoader } from "./ScanningLoader";
 import confetti from "canvas-confetti";
+import { RadarScanIcon, SuccessCheckIcon, TargetLockIcon } from "@/components/ui/animated-icons";
+import { coachSounds } from "@/lib/coach-sounds";
 
 interface OpportunityRadarProps {
   userId: string;
@@ -21,6 +23,8 @@ interface Opportunity {
 }
 
 export function OpportunityRadar({ userId }: OpportunityRadarProps) {
+  const queryClient = useQueryClient();
+
   const { data: opportunities, isLoading } = useQuery({
     queryKey: ["opportunity-radar", userId],
     queryFn: async () => {
@@ -49,19 +53,51 @@ export function OpportunityRadar({ userId }: OpportunityRadarProps) {
     staleTime: 5 * 60 * 1000,
   });
 
+  const executeMutation = useMutation({
+    mutationFn: async (opportunity: Opportunity) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase.from('agent_actions').insert([{
+        user_id: user.id,
+        action_type: 'opportunity_executed',
+        parameters: JSON.parse(JSON.stringify({ opportunity })),
+        success: true,
+        executed_at: new Date().toISOString(),
+      }]);
+
+      if (error) throw error;
+      return opportunity;
+    },
+    onSuccess: (opportunity) => {
+      // Remove from local cache - liquid layout animates the removal
+      queryClient.setQueryData(['opportunity-radar', userId], (old: Opportunity[] | undefined) =>
+        old?.filter((o) => o.id !== opportunity.id) || []
+      );
+
+      // Trigger confetti burst
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.7 },
+        colors: ['#06b6d4', '#8b5cf6', '#10b981'],
+      });
+
+      // Play success sound
+      coachSounds.playOpportunityExecuted();
+
+      // Show success toast with animated icon
+      toast.success(`Executed: ${opportunity.title}`, {
+        icon: <SuccessCheckIcon size={16} />,
+      });
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to execute: ${error.message}`);
+    },
+  });
+
   const handleExecute = async (opportunity: Opportunity) => {
-    // Trigger confetti burst
-    confetti({
-      particleCount: 80,
-      spread: 60,
-      origin: { y: 0.7 },
-      colors: ['#06b6d4', '#8b5cf6', '#10b981']
-    });
-    
-    toast.success(`Executed: ${opportunity.title}`, {
-      icon: <CheckCircle className="w-4 h-4 text-command-emerald" />
-    });
-    // TODO: Implement actual execution logic
+    executeMutation.mutate(opportunity);
   };
 
   const getIcon = (type: string) => {
@@ -104,7 +140,7 @@ export function OpportunityRadar({ userId }: OpportunityRadarProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 mb-4">
-        <TrendingUp className="w-5 h-5 text-command-cyan" />
+        <RadarScanIcon size={20} className="text-command-cyan" />
         <h3 className="text-lg font-semibold text-white font-mono">
           Opportunity Radar
         </h3>
@@ -157,9 +193,17 @@ export function OpportunityRadar({ userId }: OpportunityRadarProps) {
               <Button
                 size="sm"
                 onClick={() => handleExecute(opp)}
-                className="w-full h-8 text-xs font-mono bg-white/10 hover:bg-white/20"
+                disabled={executeMutation.isPending}
+                className="w-full h-8 text-xs font-mono bg-white/10 hover:bg-white/20 group relative"
               >
-                {opp.action} →
+                <span className="flex items-center gap-2 justify-center">
+                  <TargetLockIcon 
+                    size={14} 
+                    autoplay={false}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity" 
+                  />
+                  {executeMutation.isPending ? "Executing..." : `${opp.action} →`}
+                </span>
               </Button>
             </motion.div>
           ))}
