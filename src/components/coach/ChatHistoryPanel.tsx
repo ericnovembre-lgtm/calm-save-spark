@@ -28,7 +28,7 @@ export function ChatHistoryPanel({
       const { data, error } = await supabase
         .from('ai_conversations')
         .select('*')
-        .eq('agent_type', 'coach')
+        .eq('agent_type', 'financial_coach')
         .eq('user_id', userId)
         .order('last_message_at', { ascending: false });
 

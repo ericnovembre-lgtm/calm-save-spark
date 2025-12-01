@@ -74,9 +74,40 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
   const handleSend = async () => {
     if (!input.trim() || isSendingMessage) return;
     
-    // Conversation creation is handled automatically by useCoachConversation
-    await sendMessage(input);
-    setInput("");
+    try {
+      // Auto-create conversation if none exists
+      if (!conversationId) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast.error("Please log in to chat");
+          return;
+        }
+        
+        const { data: newConv, error } = await supabase
+          .from('ai_conversations')
+          .insert({
+            user_id: user.id,
+            agent_type: 'financial_coach',
+            conversation_history: [],
+            message_count: 0,
+            title: input.slice(0, 50) // Use first 50 chars as title
+          })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        setConversationId(newConv.id);
+        
+        // Small delay to ensure state update
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      await sendMessage(input);
+      setInput("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
+    }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
