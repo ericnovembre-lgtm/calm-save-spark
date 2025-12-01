@@ -79,6 +79,26 @@ export function TimelineProjectionChart({
               <stop offset="5%" stopColor="hsl(258, 90%, 66%)" stopOpacity={0.3} />
               <stop offset="95%" stopColor="hsl(258, 90%, 66%)" stopOpacity={0} />
             </linearGradient>
+            <style>
+              {`
+                .chart-line-current {
+                  stroke-dasharray: 2000;
+                  stroke-dashoffset: 2000;
+                  animation: stroke-draw-current 2s ease-out forwards;
+                }
+                .chart-line-simulated {
+                  stroke-dasharray: 2000;
+                  stroke-dashoffset: 2000;
+                  animation: stroke-draw-simulated 2s ease-out forwards 0.5s;
+                }
+                @keyframes stroke-draw-current {
+                  to { stroke-dashoffset: 0; }
+                }
+                @keyframes stroke-draw-simulated {
+                  to { stroke-dashoffset: 0; }
+                }
+              `}
+            </style>
           </defs>
           
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -132,7 +152,8 @@ export function TimelineProjectionChart({
             stroke="hsl(189, 94%, 43%)"
             strokeWidth={2}
             fill="url(#currentGradient)"
-            animationDuration={2000}
+            animationDuration={0}
+            className="chart-line-current"
           />
           
           <Area
@@ -142,8 +163,8 @@ export function TimelineProjectionChart({
             strokeWidth={2}
             fill="url(#simulatedGradient)"
             strokeDasharray="5 5"
-            animationDuration={2000}
-            animationBegin={500}
+            animationDuration={0}
+            className="chart-line-simulated"
           />
         </AreaChart>
       </ResponsiveContainer>

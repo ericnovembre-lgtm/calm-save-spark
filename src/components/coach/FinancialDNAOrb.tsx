@@ -3,6 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Sphere, MeshDistortMaterial } from "@react-three/drei";
 import { motion } from "framer-motion";
 import * as THREE from "three";
+import { TypewriterText } from "@/components/ui/typewriter-text";
 
 type HealthState = "stable" | "warning" | "critical";
 
@@ -124,13 +125,15 @@ export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
 
   return (
     <div className="relative w-full h-[400px] rounded-2xl overflow-hidden bg-command-surface border border-white/10">
-      {/* 3D Canvas */}
-      <Canvas camera={{ position: [0, 0, 3], fov: 50 }}>
-        <ambientLight intensity={0.3} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
-        <DNAOrb state={state} />
-        <ParticleField state={state} />
-      </Canvas>
+      {/* 3D Canvas with optional glitch effect */}
+      <div className={state === "critical" ? "animate-glitch" : ""}>
+        <Canvas camera={{ position: [0, 0, 3], fov: 50 }}>
+          <ambientLight intensity={0.3} />
+          <pointLight position={[10, 10, 10]} intensity={1} />
+          <DNAOrb state={state} />
+          <ParticleField state={state} />
+        </Canvas>
+      </div>
 
       {/* Overlay Content */}
       <div className="absolute inset-0 pointer-events-none">
@@ -163,9 +166,11 @@ export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
             transition={{ delay: 0.5 }}
             className="bg-command-bg/90 backdrop-blur-sm border border-white/10 rounded-lg p-4"
           >
-            <p className="text-sm text-white leading-relaxed font-mono">
-              {insight}
-            </p>
+            <TypewriterText 
+              text={insight}
+              speed={30}
+              className="text-sm text-white leading-relaxed font-mono"
+            />
           </motion.div>
         </div>
       </div>
