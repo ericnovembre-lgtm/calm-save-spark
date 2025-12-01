@@ -9,6 +9,7 @@ interface UseCoachKeyboardShortcutsProps {
   onChatOpen: () => void;
   onShowShortcuts: () => void;
   onEscape: () => void;
+  onToggleCompare: () => void;
 }
 
 export function useCoachKeyboardShortcuts({
@@ -19,6 +20,7 @@ export function useCoachKeyboardShortcuts({
   onChatOpen,
   onShowShortcuts,
   onEscape,
+  onToggleCompare,
 }: UseCoachKeyboardShortcutsProps) {
   // Command Palette
   useHotkeys('mod+k', (e) => {
@@ -65,6 +67,13 @@ export function useCoachKeyboardShortcuts({
     onEscape();
   }, { enableOnFormTags: true });
 
+  // Toggle Compare Mode
+  useHotkeys('mod+shift+c', (e) => {
+    e.preventDefault();
+    coachSounds.playRadarPing();
+    onToggleCompare();
+  }, { enableOnFormTags: false });
+
   return {
     shortcuts: [
       { key: 'Mod+K', action: 'Open command palette', category: 'Navigation' },
@@ -72,6 +81,7 @@ export function useCoachKeyboardShortcuts({
       { key: 'Mod+O', action: 'Focus Opportunity Radar', category: 'Navigation' },
       { key: 'Mod+D', action: 'Focus Financial DNA', category: 'Navigation' },
       { key: 'Mod+/', action: 'Open AI Chat', category: 'Actions' },
+      { key: 'Mod+Shift+C', action: 'Toggle Comparison Mode', category: 'Actions' },
       { key: '?', action: 'Show keyboard shortcuts', category: 'Help' },
       { key: 'Esc', action: 'Close dialogs', category: 'Help' },
     ],
