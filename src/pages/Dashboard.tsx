@@ -253,16 +253,38 @@ export default function Dashboard() {
     },
   });
 
-  // Transform challenges data for ChallengeCard component
+  // Fetch user's challenge progress
+  const { data: userChallengeProgress } = useQuery({
+    queryKey: ['user-challenge-progress', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      
+      const { data, error } = await supabase
+        .from('challenge_participants')
+        .select('challenge_id, progress, is_completed')
+        .eq('user_id', userId);
+      
+      if (error) {
+        console.error('Failed to fetch challenge progress:', error);
+        return [];
+      }
+      return data || [];
+    },
+    enabled: !!userId,
+  });
+
+  // Transform challenges data for ChallengeCard component with user progress
   const activeChallenges = (activeChallengesData || []).map(c => {
     const requirement = c.requirement as { target?: number; days?: number } | null;
+    const progress = userChallengeProgress?.find(p => p.challenge_id === c.id);
+    
     return {
       id: c.id,
       name: c.name || 'Challenge',
       description: c.description || '',
       type: (c.challenge_type === 'weekly' ? 'weekly' : 'monthly') as 'weekly' | 'monthly',
       target: requirement?.target || 100,
-      current: 0, // User progress would need a separate query
+      current: progress?.progress || 0,
       reward: `+${c.points || 100} XP`,
       participants: 500,
       endsAt: new Date(Date.now() + (requirement?.days || 7) * 24 * 60 * 60 * 1000)

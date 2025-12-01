@@ -740,6 +740,39 @@ export type Database = {
         }
         Relationships: []
       }
+      api_response_cache: {
+        Row: {
+          cache_key: string
+          cache_type: string
+          created_at: string
+          expires_at: string
+          hit_count: number | null
+          id: string
+          response_data: Json
+          user_id: string | null
+        }
+        Insert: {
+          cache_key: string
+          cache_type: string
+          created_at?: string
+          expires_at: string
+          hit_count?: number | null
+          id?: string
+          response_data: Json
+          user_id?: string | null
+        }
+        Update: {
+          cache_key?: string
+          cache_type?: string
+          created_at?: string
+          expires_at?: string
+          hit_count?: number | null
+          id?: string
+          response_data?: Json
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       automation_execution_log: {
         Row: {
           amount_transferred: number | null
@@ -11440,6 +11473,19 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_financial_health_score: {
+        Args: { p_user_id: string }
+        Returns: {
+          credit_component: number
+          debt_component: number
+          emergency_fund_component: number
+          goals_component: number
+          investment_component: number
+          overall_score: number
+          recommendations: Json
+          savings_component: number
+        }[]
+      }
       calculate_health_trend: { Args: { p_user_id: string }; Returns: number }
       calculate_next_billing_dates: {
         Args: { billing_day: number; from_date?: string }
@@ -11483,6 +11529,7 @@ export type Database = {
           priority: number
         }[]
       }
+      get_cached_response: { Args: { p_cache_key: string }; Returns: Json }
       grant_freeze_day_reward: {
         Args: { p_freeze_days: number; p_user_id: string }
         Returns: undefined
@@ -11503,6 +11550,16 @@ export type Database = {
       is_ip_blocked: { Args: { ip: string }; Returns: boolean }
       reset_daily_wallet_allowances: { Args: never; Returns: undefined }
       reset_inactive_streaks: { Args: never; Returns: undefined }
+      set_cached_response: {
+        Args: {
+          p_cache_key: string
+          p_cache_type: string
+          p_response_data: Json
+          p_ttl_seconds?: number
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       update_platform_stats: { Args: never; Returns: undefined }
       user_family_group_ids: {
         Args: { user_uuid: string }

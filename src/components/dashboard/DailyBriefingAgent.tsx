@@ -30,7 +30,7 @@ export function DailyBriefingAgent({ totalBalance, monthlyChange, topPriorities 
   };
 
   // Fetch AI-generated briefing
-  const { data: briefingData, isLoading, refetch } = useQuery({
+  const { data: briefingData, isLoading, isError, refetch } = useQuery({
     queryKey: ['ai-daily-briefing'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -108,6 +108,10 @@ export function DailyBriefingAgent({ totalBalance, monthlyChange, topPriorities 
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-4/5" />
               </div>
+            ) : isError ? (
+              <p className="text-sm text-muted-foreground">
+                Unable to generate briefing. Your financial summary shows ${totalBalance.toFixed(2)} with {topPriorities.length} active priorities.
+              </p>
             ) : (
               <p className="text-base leading-relaxed text-foreground min-h-[3rem]">
                 {displayedText}
