@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Lightbulb, Plus, X, Eye } from 'lucide-react';
+import { Lightbulb, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -75,6 +75,7 @@ export function SmartWidgetRecommender({ onAddWidget, currentWidgets }: SmartWid
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="mb-6"
+      data-tour="widget-suggestions"
     >
       <div className="bg-gradient-to-br from-accent/10 to-primary/5 rounded-2xl p-6 border border-accent/20">
         <div className="flex items-center gap-3 mb-4">
@@ -82,8 +83,8 @@ export function SmartWidgetRecommender({ onAddWidget, currentWidgets }: SmartWid
             <Lightbulb className="w-5 h-5 text-accent-foreground" />
           </div>
           <div>
-            <h3 className="font-semibold">Recommended for You</h3>
-            <p className="text-xs text-muted-foreground">Based on your usage patterns</p>
+            <h3 className="font-semibold">Suggested Widgets</h3>
+            <p className="text-xs text-muted-foreground">Popular among users like you</p>
           </div>
         </div>
 
@@ -121,16 +122,6 @@ export function SmartWidgetRecommender({ onAddWidget, currentWidgets }: SmartWid
                   </div>
 
                   <div className="flex gap-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8"
-                      onClick={() => {
-                        toast.info('Opening preview...');
-                      }}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
                     <Button
                       size="icon"
                       variant="ghost"

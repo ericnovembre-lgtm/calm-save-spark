@@ -48,14 +48,14 @@ export function NudgesWidget() {
   }
 
   return (
-    <Card className="p-6">
+    <Card className="p-6" data-tour="nudges-widget">
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 bg-primary/10 rounded-lg">
           <Bell className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1">
           <h3 className="font-semibold">AI Nudges</h3>
-          <p className="text-xs text-muted-foreground">{nudges.length} active recommendation{nudges.length !== 1 ? 's' : ''}</p>
+          <p className="text-xs text-muted-foreground">AI-powered insights</p>
         </div>
       </div>
 

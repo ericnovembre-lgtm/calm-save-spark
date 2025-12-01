@@ -154,7 +154,16 @@ export default function ProactiveRecommendations({ userId }: ProactiveRecommenda
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4" data-tour="recommendations">
+      <div className="flex items-center gap-3">
+        <div className="p-2 rounded-lg bg-accent/10">
+          <Lightbulb className="w-5 h-5 text-accent" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-foreground">Recommendations</h3>
+          <p className="text-xs text-muted-foreground">Personalized insights</p>
+        </div>
+      </div>
       {recommendations.slice(0, 3).map((rec, index) => {
         const Icon = getIcon(rec.icon);
         return (
