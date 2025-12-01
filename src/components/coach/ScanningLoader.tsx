@@ -1,92 +1,91 @@
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 interface ScanningLoaderProps {
   text?: string;
   className?: string;
 }
 
-/**
- * ScanningLoader - Data Futurism loading animation
- * Matrix-style scanning lines instead of generic blocks
- */
-export function ScanningLoader({ text = "Analyzing...", className = "" }: ScanningLoaderProps) {
+export function ScanningLoader({ text = "Scanning...", className = "" }: ScanningLoaderProps) {
   return (
-    <div className={`relative overflow-hidden rounded-lg bg-command-surface border border-white/10 p-6 ${className}`}>
-      {/* Horizontal scan line */}
-      <div className="absolute inset-0 overflow-hidden">
+    <div className={`flex flex-col items-center justify-center gap-6 ${className}`}>
+      <div className="relative">
+        {/* Main spinner */}
         <motion.div
-          className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-command-cyan to-transparent opacity-70"
-          animate={{
-            top: ["0%", "100%"],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "linear",
-          }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        >
+          <Loader2 className="w-8 h-8 text-command-cyan" />
+        </motion.div>
+        
+        {/* Outer pulse ring */}
+        <motion.div
+          animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute inset-0 rounded-full border-2 border-command-cyan"
+        />
+        
+        {/* Inner pulse ring */}
+        <motion.div
+          animate={{ scale: [1, 1.3, 1], opacity: [0.7, 0, 0.7] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
+          className="absolute inset-0 rounded-full border border-command-violet"
+        />
+
+        {/* Rotating gradient backdrop */}
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-[-20px] bg-gradient-to-r from-command-cyan/20 via-transparent to-command-violet/20 blur-xl"
         />
       </div>
-
-      {/* Scanning lines */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[0, 1, 2].map((i) => (
-          <motion.div
-            key={i}
-            className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-command-cyan to-transparent opacity-40"
-            style={{ top: `${30 + i * 20}%` }}
-            animate={{
-              x: ["-100%", "100%"],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              delay: i * 0.5,
-              ease: "linear",
-            }}
-          />
-        ))}
+      
+      {/* Animated text with shimmer */}
+      <div className="relative">
+        <motion.p
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="text-sm text-white/60 font-mono"
+        >
+          {text}
+        </motion.p>
+        
+        {/* Shimmer effect */}
+        <motion.div
+          animate={{ x: ['-100%', '100%'] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-command-cyan/30 to-transparent"
+        />
+        
+        {/* Animated dots */}
+        <motion.span
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="inline-block ml-1 text-command-cyan"
+        >
+          ...
+        </motion.span>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 space-y-3">
-        <div className="flex items-center gap-3">
-          <div className="flex gap-1">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-1 h-8 bg-command-cyan rounded-full"
-                animate={{
-                  scaleY: [1, 1.5, 1],
-                  opacity: [0.5, 1, 0.5],
-                }}
-                transition={{
-                  duration: 1,
-                  repeat: Infinity,
-                  delay: i * 0.2,
-                }}
-              />
-            ))}
-          </div>
-          <span className="text-sm font-mono text-command-cyan">{text}</span>
-        </div>
-
-        {/* Data stream */}
-        <div className="font-mono text-[8px] text-command-cyan/30 space-y-0.5 leading-tight">
-          {Array.from({ length: 5 }).map((_, i) => (
+      {/* Progress bars */}
+      <div className="w-48 space-y-2">
+        {[0, 0.2, 0.4].map((delay, i) => (
+          <motion.div
+            key={i}
+            className="h-1 bg-white/5 rounded-full overflow-hidden"
+          >
             <motion.div
-              key={i}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.5, 0] }}
+              animate={{ x: ['-100%', '100%'] }}
               transition={{
-                duration: 2,
+                duration: 1.5,
                 repeat: Infinity,
-                delay: i * 0.3,
+                delay,
+                ease: "easeInOut"
               }}
-            >
-              ANALYZING_SECTOR_{Math.random().toString(36).slice(2, 8).toUpperCase()}
-            </motion.div>
-          ))}
-        </div>
+              className="h-full w-1/3 bg-gradient-to-r from-transparent via-command-cyan to-transparent"
+            />
+          </motion.div>
+        ))}
       </div>
     </div>
   );

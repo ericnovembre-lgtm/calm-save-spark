@@ -47,18 +47,49 @@ export function CriticalActionsBar({ actions }: CriticalActionsBarProps) {
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
       className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"
     >
       {actions.slice(0, 3).map((action, idx) => (
         <motion.div
           key={action.id}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: idx * 0.1 }}
-          className={`rounded-lg border p-4 ${getColors(action.type)}`}
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ 
+            delay: 0.6 + idx * 0.1, 
+            type: "spring",
+            stiffness: 200,
+            damping: 20
+          }}
+          whileHover={{ scale: 1.02, y: -2 }}
+          className={`rounded-lg border p-4 ${getColors(action.type)} relative overflow-hidden group cursor-pointer transition-shadow duration-300 hover:shadow-lg`}
         >
-          <div className="flex items-start gap-3">
-            <div className="mt-1">{getIcon(action.type)}</div>
+          {/* Shimmer effect on hover */}
+          <motion.div
+            initial={{ x: '-100%' }}
+            whileHover={{ x: '100%' }}
+            transition={{ duration: 0.6 }}
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          />
+          
+          {/* Pulse indicator for urgent actions */}
+          {action.type === "urgent" && (
+            <motion.div
+              animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute top-2 right-2 w-2 h-2 rounded-full bg-command-rose"
+            />
+          )}
+
+          <div className="flex items-start gap-3 relative z-10">
+            <motion.div 
+              initial={{ rotate: 0 }}
+              whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+              transition={{ duration: 0.5 }}
+              className="mt-1"
+            >
+              {getIcon(action.type)}
+            </motion.div>
             <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-sm mb-1 font-mono truncate">
                 {action.title}
@@ -69,10 +100,19 @@ export function CriticalActionsBar({ actions }: CriticalActionsBarProps) {
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-7 text-xs font-mono"
-                onClick={action.action}
+                className="h-7 text-xs font-mono relative overflow-hidden group/btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  action.action();
+                }}
               >
-                Take Action →
+                <span className="relative z-10">Take Action →</span>
+                <motion.div
+                  whileHover={{ x: 0 }}
+                  initial={{ x: '-100%' }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute inset-0 bg-white/10"
+                />
               </Button>
             </div>
           </div>
