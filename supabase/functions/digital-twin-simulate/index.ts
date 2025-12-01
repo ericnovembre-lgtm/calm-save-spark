@@ -184,9 +184,24 @@ serve(async (req) => {
       value: point.netWorth
     }));
 
+    // Generate p10 and p90 confidence interval paths
+    const p10Path = timeline.map(point => ({
+      date: `${point.year}-01-01`,
+      value: point.p10
+    }));
+
+    const p90Path = timeline.map(point => ({
+      date: `${point.year}-01-01`,
+      value: point.p90
+    }));
+
     const responseData = {
       baseline,
       scenario: scenarioPath,
+      confidence: {
+        p10: p10Path,
+        p90: p90Path,
+      },
       metadata: {
         scenarioId: scenario?.id,
         successProbability,
