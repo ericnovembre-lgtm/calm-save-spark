@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Mic, Square } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { TimelineProjectionChart } from "./TimelineProjectionChart";
+import { useVoiceRecording } from "@/hooks/useVoiceRecording";
+import { cn } from "@/lib/utils";
 
 interface ScenarioSimulatorProps {
   userId: string;
@@ -22,6 +24,39 @@ export function ScenarioSimulator({ userId }: ScenarioSimulatorProps) {
   const [input, setInput] = useState("");
   const [isSimulating, setIsSimulating] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
+  const [isTranscribing, setIsTranscribing] = useState(false);
+
+  const handleVoiceStart = async () => {
+    try {
+      await startRecording();
+    } catch (error) {
+      console.error("Failed to start recording:", error);
+    }
+  };
+
+  const handleVoiceStop = async () => {
+    try {
+      setIsTranscribing(true);
+      const base64Audio = await stopRecording();
+
+      const { data, error } = await supabase.functions.invoke("voice-to-text", {
+        body: { audio: base64Audio },
+      });
+
+      if (error) throw error;
+
+      if (data?.text) {
+        setInput(data.text);
+        toast.success("Voice captured! Click Simulate or press Enter.");
+      }
+    } catch (error: any) {
+      console.error("Transcription error:", error);
+      toast.error("Failed to transcribe audio");
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
 
   const handleSimulate = async (prompt?: string) => {
     const scenario = prompt || input;
@@ -86,17 +121,36 @@ export function ScenarioSimulator({ userId }: ScenarioSimulatorProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !isSimulating) {
+              if (e.key === "Enter" && !isSimulating && !isRecording) {
                 handleSimulate();
               }
             }}
-            placeholder="What if I buy a $30k car next month?"
+            placeholder={isRecording ? "Listening..." : "What if I buy a $30k car next month?"}
             className="flex-1 bg-command-bg border-white/10 text-white font-mono placeholder:text-white/40"
-            disabled={isSimulating}
+            disabled={isSimulating || isRecording || isTranscribing}
           />
           <Button
+            variant="outline"
+            size="icon"
+            onClick={isRecording ? handleVoiceStop : handleVoiceStart}
+            disabled={isSimulating || isTranscribing}
+            className={cn(
+              "border-white/10",
+              isRecording && "bg-red-500/20 border-red-500/50 animate-pulse"
+            )}
+            aria-label={isRecording ? "Stop recording" : "Start voice input"}
+          >
+            {isRecording ? (
+              <Square className="w-4 h-4 text-red-400" />
+            ) : isTranscribing ? (
+              <Loader2 className="w-4 h-4 animate-spin text-command-cyan" />
+            ) : (
+              <Mic className="w-4 h-4 text-command-cyan" />
+            )}
+          </Button>
+          <Button
             onClick={() => handleSimulate()}
-            disabled={isSimulating || !input.trim()}
+            disabled={isSimulating || !input.trim() || isRecording || isTranscribing}
             className="bg-command-violet hover:bg-command-violet/80 text-white font-mono"
           >
             {isSimulating ? (
@@ -118,7 +172,7 @@ export function ScenarioSimulator({ userId }: ScenarioSimulatorProps) {
                 setInput(scenario.prompt);
                 handleSimulate(scenario.prompt);
               }}
-              disabled={isSimulating}
+              disabled={isSimulating || isRecording || isTranscribing}
               className="text-xs font-mono border-white/10 hover:border-command-violet/50 hover:bg-command-violet/10"
             >
               {scenario.label}
