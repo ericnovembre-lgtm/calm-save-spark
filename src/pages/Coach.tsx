@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Bot, Moon, Sun, MessageCircle } from "lucide-react";
+import { Bot, Moon, Sun, MessageCircle, Keyboard } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +13,9 @@ import { CriticalActionsBar } from "@/components/coach/CriticalActionsBar";
 import { ScanningLoader } from "@/components/coach/ScanningLoader";
 import { CoachChatDrawer } from "@/components/coach/CoachChatDrawer";
 import { CoachQuickActionsMenu } from "@/components/coach/CoachQuickActionsMenu";
+import { CoachCommandPalette } from "@/components/coach/CoachCommandPalette";
+import { CoachKeyboardShortcutsHelp } from "@/components/coach/CoachKeyboardShortcutsHelp";
+import { useCoachKeyboardShortcuts } from "@/hooks/useCoachKeyboardShortcuts";
 import { coachSounds } from "@/lib/coach-sounds";
 import { haptics } from "@/lib/haptics";
 
@@ -22,8 +25,13 @@ export default function Coach() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
   const longPressTimer = useRef<NodeJS.Timeout>();
   const scenarioSimulatorRef = useRef<HTMLDivElement>(null);
+  const scenarioInputRef = useRef<HTMLInputElement>(null);
+  const dnaOrbRef = useRef<HTMLDivElement>(null);
+  const opportunityRadarRef = useRef<HTMLDivElement>(null);
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -133,18 +141,49 @@ export default function Coach() {
 
   const handleScenario = (scenario: string) => {
     scenarioSimulatorRef.current?.scrollIntoView({ behavior: 'smooth' });
-    // You can also set the scenario input here if needed
+    setTimeout(() => scenarioInputRef.current?.focus(), 300);
   };
 
   const handleChatPrompt = (prompt: string) => {
     setIsChatOpen(true);
-    // The prompt can be passed to the chat drawer if needed
   };
 
   const handleScrollToRadar = () => {
-    const radarElement = document.querySelector('[data-radar]');
-    radarElement?.scrollIntoView({ behavior: 'smooth' });
+    opportunityRadarRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const handleScrollToDNA = () => {
+    dnaOrbRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleScrollToScenario = () => {
+    scenarioSimulatorRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => scenarioInputRef.current?.focus(), 300);
+  };
+
+  const handleScenarioSimulate = (prompt: string) => {
+    handleScrollToScenario();
+    // The ScenarioSimulator component will handle the actual simulation
+    // We could pass the prompt via state if needed
+  };
+
+  const handleEscape = () => {
+    setIsCommandPaletteOpen(false);
+    setIsShortcutsHelpOpen(false);
+    setIsChatOpen(false);
+    setIsQuickMenuOpen(false);
+  };
+
+  // Register keyboard shortcuts
+  const { shortcuts } = useCoachKeyboardShortcuts({
+    onCommandPalette: () => setIsCommandPaletteOpen(true),
+    onScenarioFocus: handleScrollToScenario,
+    onOpportunitiesFocus: handleScrollToRadar,
+    onDNAFocus: handleScrollToDNA,
+    onChatOpen: () => setIsChatOpen(true),
+    onShowShortcuts: () => setIsShortcutsHelpOpen(true),
+    onEscape: handleEscape,
+  });
 
   if (!user) {
     return (
@@ -187,18 +226,29 @@ export default function Coach() {
             </div>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className={isDarkMode ? "border-white/10 bg-command-surface" : ""}
-          >
-            {isDarkMode ? (
-              <Sun className="w-4 h-4" />
-            ) : (
-              <Moon className="w-4 h-4" />
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsCommandPaletteOpen(true)}
+              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white" : ""} flex items-center gap-2`}
+            >
+              <Keyboard className="w-3.5 h-3.5" />
+              <span className="text-xs font-mono hidden sm:inline">⌘K</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={isDarkMode ? "border-white/10 bg-command-surface" : ""}
+            >
+              {isDarkMode ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Critical Actions Bar */}
@@ -210,6 +260,7 @@ export default function Coach() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Financial DNA Orb */}
           <motion.div
+            ref={dnaOrbRef}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
@@ -230,12 +281,13 @@ export default function Coach() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <ScenarioSimulator userId={user.id} />
+            <ScenarioSimulator userId={user.id} inputRef={scenarioInputRef} />
           </motion.div>
         </div>
 
         {/* Opportunity Radar */}
         <motion.div
+          ref={opportunityRadarRef}
           data-radar
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -275,6 +327,26 @@ export default function Coach() {
 
         {/* Chat Drawer */}
         <CoachChatDrawer isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+
+        {/* Command Palette */}
+        <CoachCommandPalette
+          open={isCommandPaletteOpen}
+          onOpenChange={setIsCommandPaletteOpen}
+          onScenarioSimulate={handleScenarioSimulate}
+          onScrollToDNA={handleScrollToDNA}
+          onScrollToScenario={handleScrollToScenario}
+          onScrollToRadar={handleScrollToRadar}
+          onOpenChat={() => setIsChatOpen(true)}
+          onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+          isDarkMode={isDarkMode}
+        />
+
+        {/* Keyboard Shortcuts Help */}
+        <CoachKeyboardShortcutsHelp
+          open={isShortcutsHelpOpen}
+          onOpenChange={setIsShortcutsHelpOpen}
+          shortcuts={shortcuts}
+        />
       </div>
     </AppLayout>
   );
