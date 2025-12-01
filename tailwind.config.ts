@@ -31,6 +31,15 @@ export default {
           amber: '38 92% 50%',       // Orange-500 #fb923c
           red: '0 84% 60%',          // Red-400 #f87171
         },
+        command: {
+          bg: '222 47% 4%',          // Deep black #050a14
+          surface: '222 47% 8%',     // Slate-950 #0a1420
+          cyan: '189 94% 43%',       // Cyan #06b6d4
+          violet: '258 90% 66%',     // Violet #8b5cf6
+          emerald: '142 71% 45%',    // Emerald #10b981
+          amber: '38 92% 50%',       // Amber #f59e0b
+          rose: '350 89% 60%',       // Rose #f43f5e
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -135,6 +144,18 @@ export default {
           "0%": { transform: "scale(0.95)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
+        "breathing": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.05)", opacity: "0.8" },
+        },
+        "scan-line": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        "stroke-draw": {
+          from: { strokeDashoffset: "1000" },
+          to: { strokeDashoffset: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -143,6 +164,9 @@ export default {
         "glow": "glow 4s ease-in-out infinite",
         "gradient-shift": "gradient-shift 8s ease infinite",
         "scale-in": "scale-in 0.5s ease-out",
+        "breathing": "breathing 3s ease-in-out infinite",
+        "scan-line": "scan-line 2s linear infinite",
+        "stroke-draw": "stroke-draw 2s ease-out forwards",
       },
     },
   },
