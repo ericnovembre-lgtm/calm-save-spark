@@ -52,7 +52,7 @@ serve(async (req) => {
       supabase.from('connected_accounts').select('*').eq('user_id', user.id),
       supabase.from('goals').select('*').eq('user_id', user.id).eq('is_active', true),
       supabase.from('user_budgets').select('*, budget_spending(*)').eq('user_id', user.id).eq('is_active', true),
-      supabase.from('subscriptions').select('*').eq('user_id', user.id).eq('status', 'active'),
+      supabase.from('detected_subscriptions').select('*').eq('user_id', user.id).neq('status', 'paused'),
       supabase.from('transactions').select('*').eq('user_id', user.id).order('transaction_date', { ascending: false }).limit(30)
     ]);
 
@@ -129,7 +129,7 @@ serve(async (req) => {
     // Action 4: Unused subscriptions (not in transactions for 60+ days)
     const unusedSubs = subscriptions?.filter(sub => {
       const lastCharge = recentTransactions?.find(t => 
-        t.description?.toLowerCase().includes(sub.name.toLowerCase())
+        t.merchant?.toLowerCase().includes(sub.merchant.toLowerCase())
       );
       if (!lastCharge) return true;
       const daysSince = (Date.now() - new Date(lastCharge.transaction_date).getTime()) / (1000 * 60 * 60 * 24);
@@ -137,7 +137,7 @@ serve(async (req) => {
     });
 
     if (unusedSubs && unusedSubs.length > 0) {
-      const potentialSavings = unusedSubs.reduce((sum, sub) => sum + Number(sub.amount), 0);
+      const potentialSavings = unusedSubs.reduce((sum, sub) => sum + Number(sub.average_charge || 0), 0);
       actions.push({
         id: 'cancel_subs',
         label: `Cancel ${unusedSubs.length} unused sub${unusedSubs.length > 1 ? 's' : ''}`,
