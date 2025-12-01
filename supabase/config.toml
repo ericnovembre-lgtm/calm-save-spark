@@ -408,4 +408,13 @@ verify_jwt = true
 [functions.generate-nlq-chart]
 verify_jwt = true
 
+[functions.generate-dna-insight]
+verify_jwt = true
+
+[functions.interpret-scenario]
+verify_jwt = true
+
+[functions.generate-critical-actions]
+verify_jwt = true
+
 
