@@ -12,6 +12,7 @@ import { coachSounds } from "@/lib/coach-sounds";
 
 interface ScenarioSimulatorProps {
   userId: string;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 const PRESET_SCENARIOS = [
@@ -21,7 +22,7 @@ const PRESET_SCENARIOS = [
   { label: "Move", prompt: "What if I move to a new city?" },
 ];
 
-export function ScenarioSimulator({ userId }: ScenarioSimulatorProps) {
+export function ScenarioSimulator({ userId, inputRef }: ScenarioSimulatorProps) {
   const [input, setInput] = useState("");
   const [isSimulating, setIsSimulating] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -122,6 +123,7 @@ export function ScenarioSimulator({ userId }: ScenarioSimulatorProps) {
         {/* What If Command Bar */}
         <div className="flex gap-2 mb-4">
           <Input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
