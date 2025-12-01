@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Bot, Moon, Sun, MessageCircle } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,18 @@ import { OpportunityRadar } from "@/components/coach/OpportunityRadar";
 import { CriticalActionsBar } from "@/components/coach/CriticalActionsBar";
 import { ScanningLoader } from "@/components/coach/ScanningLoader";
 import { CoachChatDrawer } from "@/components/coach/CoachChatDrawer";
+import { CoachQuickActionsMenu } from "@/components/coach/CoachQuickActionsMenu";
+import { coachSounds } from "@/lib/coach-sounds";
+import { haptics } from "@/lib/haptics";
 
 type HealthState = "stable" | "warning" | "critical";
 
 export default function Coach() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
+  const longPressTimer = useRef<NodeJS.Timeout>();
+  const scenarioSimulatorRef = useRef<HTMLDivElement>(null);
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -108,6 +114,38 @@ export default function Coach() {
     }
   }, [isDarkMode]);
 
+  const handleChatButtonPress = () => {
+    longPressTimer.current = setTimeout(() => {
+      setIsQuickMenuOpen(true);
+      haptics.vibrate('medium');
+      coachSounds.playQuickMenuOpen();
+    }, 500);
+  };
+
+  const handleChatButtonRelease = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      if (!isQuickMenuOpen) {
+        setIsChatOpen(true);
+      }
+    }
+  };
+
+  const handleScenario = (scenario: string) => {
+    scenarioSimulatorRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // You can also set the scenario input here if needed
+  };
+
+  const handleChatPrompt = (prompt: string) => {
+    setIsChatOpen(true);
+    // The prompt can be passed to the chat drawer if needed
+  };
+
+  const handleScrollToRadar = () => {
+    const radarElement = document.querySelector('[data-radar]');
+    radarElement?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   if (!user) {
     return (
       <AppLayout>
@@ -187,6 +225,7 @@ export default function Coach() {
 
           {/* Scenario Simulator */}
           <motion.div
+            ref={scenarioSimulatorRef}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
@@ -197,6 +236,7 @@ export default function Coach() {
 
         {/* Opportunity Radar */}
         <motion.div
+          data-radar
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -213,12 +253,25 @@ export default function Coach() {
         >
           <Button
             size="lg"
-            onClick={() => setIsChatOpen(true)}
+            onMouseDown={handleChatButtonPress}
+            onMouseUp={handleChatButtonRelease}
+            onMouseLeave={handleChatButtonRelease}
+            onTouchStart={handleChatButtonPress}
+            onTouchEnd={handleChatButtonRelease}
             className="rounded-full w-14 h-14 bg-gradient-to-r from-command-cyan to-command-violet hover:from-command-cyan/80 hover:to-command-violet/80 shadow-lg shadow-command-cyan/20"
           >
             <MessageCircle className="w-6 h-6" />
           </Button>
         </motion.div>
+
+        {/* Quick Actions Menu */}
+        <CoachQuickActionsMenu
+          isOpen={isQuickMenuOpen}
+          onClose={() => setIsQuickMenuOpen(false)}
+          onScenario={handleScenario}
+          onChatPrompt={handleChatPrompt}
+          onScrollToRadar={handleScrollToRadar}
+        />
 
         {/* Chat Drawer */}
         <CoachChatDrawer isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />

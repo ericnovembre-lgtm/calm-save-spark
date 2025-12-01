@@ -1,9 +1,10 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Sphere, MeshDistortMaterial } from "@react-three/drei";
 import { motion } from "framer-motion";
 import * as THREE from "three";
 import { TypewriterText } from "@/components/ui/typewriter-text";
+import { coachSounds } from "@/lib/coach-sounds";
 
 type HealthState = "stable" | "warning" | "critical";
 
@@ -117,6 +118,20 @@ function ParticleField({ state }: { state: HealthState }) {
 }
 
 export function FinancialDNAOrb({ state, insight }: FinancialDNAOrbProps) {
+  const prevStateRef = useRef<HealthState>(state);
+
+  useEffect(() => {
+    // Play sound on state change
+    if (prevStateRef.current !== state) {
+      if (state === "critical") {
+        coachSounds.playStateCritical();
+      } else if (state === "warning") {
+        coachSounds.playStateWarning();
+      }
+      prevStateRef.current = state;
+    }
+  }, [state]);
+
   const stateLabels = {
     stable: "Optimizing for Growth",
     warning: "Attention Needed",
