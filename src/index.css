@@ -127,6 +127,21 @@ All colors MUST be HSL.
     --cyber-glow-amber: 0 0 8px hsla(38, 92%, 50%, 0.5);
     --cyber-glow-red: 0 0 8px hsla(0, 84%, 60%, 0.5);
 
+    /* Data Futurism Design Tokens for AI Coach Command Room */
+    --command-bg: 222 47% 4%; /* Deep black #050a14 */
+    --command-surface: 222 47% 8%; /* Slate-950 #0a1420 */
+    --command-border: 0 0% 100% / 0.1; /* White 10% opacity */
+    --command-cyan: 189 94% 43%; /* Cyan #06b6d4 for Analysis */
+    --command-violet: 258 90% 66%; /* Violet #8b5cf6 for Prediction */
+    --command-emerald: 142 71% 45%; /* Emerald #10b981 for Success */
+    --command-amber: 38 92% 50%; /* Amber #f59e0b for Warning */
+    --command-rose: 350 89% 60%; /* Rose #f43f5e for Danger */
+    
+    /* Command room specific effects */
+    --command-glow-cyan: 0 0 20px hsla(189, 94%, 43%, 0.4);
+    --command-glow-violet: 0 0 20px hsla(258, 90%, 66%, 0.4);
+    --command-hairline: 1px solid hsla(0, 0%, 100%, 0.1);
+
     /* Backward-compat: orbital vars mapped to neutral palette */
     --orbital-space: var(--color-bg);
     --orbital-nebula: #F4F0E6;
@@ -172,6 +187,21 @@ All colors MUST be HSL.
   @keyframes scale-in {
     0% { transform: scale(0.95); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes breathing {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+  }
+
+  @keyframes scan-line {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes stroke-draw {
+    from { stroke-dashoffset: 1000; }
+    to { stroke-dashoffset: 0; }
   }
 
   @media (prefers-reduced-motion: no-preference) {
