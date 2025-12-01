@@ -57,10 +57,11 @@ serve(async (req) => {
       supabase.from('connected_accounts').select('*').eq('user_id', user.id),
       supabase.from('goals').select('*').eq('user_id', user.id).eq('is_active', true),
       supabase.from('user_budgets').select('*, budget_spending(*)').eq('user_id', user.id).eq('is_active', true),
-      supabase.from('bills').select('*').eq('user_id', user.id)
-        .gte('due_date', new Date().toISOString())
-        .lte('due_date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
-        .order('due_date', { ascending: true }),
+      supabase.from('detected_subscriptions').select('*').eq('user_id', user.id)
+        .neq('status', 'paused')
+        .gte('next_expected_date', new Date().toISOString())
+        .lte('next_expected_date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
+        .order('next_expected_date', { ascending: true }),
       supabase.from('pots').select('*').eq('user_id', user.id).eq('is_active', true),
       supabase.from('investment_accounts').select('*').eq('user_id', user.id),
       supabase.from('transactions').select('*').eq('user_id', user.id)
@@ -109,7 +110,7 @@ serve(async (req) => {
 
     // Urgent bills
     const urgentBills = bills?.filter(bill => {
-      const daysUntilDue = (new Date(bill.due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      const daysUntilDue = (new Date(bill.next_expected_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
       return daysUntilDue <= 2;
     }) || [];
 
@@ -209,8 +210,8 @@ ${overspentBudgets.map(b => {
 **BILLS:**
 - Urgent bills (due ≤48h): ${urgentBills.length}
 ${urgentBills.map(bill => {
-  const daysUntilDue = Math.ceil((new Date(bill.due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-  return `  - "${bill.name}": $${bill.amount} due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`;
+  const daysUntilDue = Math.ceil((new Date(bill.next_expected_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  return `  - "${bill.merchant}": $${bill.average_charge} due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`;
 }).join('\n')}
 
 **INVESTMENTS:**
