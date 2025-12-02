@@ -9,6 +9,7 @@ import { GenerativeChatMessage } from "./GenerativeChatMessage";
 import { ChatHistoryPanel } from "./ChatHistoryPanel";
 import { ContextualSuggestions } from "./ContextualSuggestions";
 import { useVoiceRecording } from "@/hooks/useVoiceRecording";
+import { ModelIndicatorBadge } from "./ModelIndicatorBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -24,7 +25,7 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
   const [showHistory, setShowHistory] = useState(false);
   const [userId, setUserId] = useState<string>("");
   
-  const { messages, sendMessage, isResponding, isSendingMessage, createConversation } = useCoachConversation(conversationId);
+  const { messages, sendMessage, isResponding, isSendingMessage, createConversation, currentModel } = useCoachConversation(conversationId);
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
   const [isTranscribing, setIsTranscribing] = useState(false);
 
@@ -228,6 +229,19 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
                       content={message.content}
                     />
                   ))}
+                  
+                  {/* Model Indicator */}
+                  {currentModel && isResponding && (
+                    <div className="flex justify-center py-2">
+                      <ModelIndicatorBadge
+                        model={currentModel.model}
+                        modelName={currentModel.modelName}
+                        queryType={currentModel.queryType}
+                        isLoading={true}
+                      />
+                    </div>
+                  )}
+                  
                   {isResponding && (
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center flex-shrink-0">
