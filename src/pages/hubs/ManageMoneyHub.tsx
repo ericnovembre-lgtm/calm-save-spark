@@ -1,5 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Wallet, PieChart, DollarSign, Receipt, CreditCard, Coins, Zap, BadgeDollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -173,7 +174,22 @@ export default function ManageMoneyHub() {
         </motion.div>
 
         {/* AI Command Center - Compact */}
-        <Suspense fallback={<MoneyHubSkeleton />}>
+        <Suspense fallback={
+          <Card className="p-4 mb-4 animate-pulse">
+            <div className="flex items-center gap-3 mb-4">
+              <Skeleton className="w-6 h-6 rounded-full" />
+              <div className="flex-1">
+                <Skeleton className="h-5 w-48 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <Skeleton className="w-12 h-14 rounded-lg" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-full rounded-lg" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+            </div>
+          </Card>
+        }>
           <AICommandCenter />
         </Suspense>
 
