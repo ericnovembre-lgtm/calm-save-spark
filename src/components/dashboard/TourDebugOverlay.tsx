@@ -14,7 +14,7 @@ interface TourTarget {
 
 /**
  * Debug overlay that shows all data-tour attributes on the page
- * Toggle with Ctrl+Shift+D or via the floating button
+ * Toggle via the floating button
  */
 export function TourDebugOverlay() {
   const [isEnabled, setIsEnabled] = useState(false);
