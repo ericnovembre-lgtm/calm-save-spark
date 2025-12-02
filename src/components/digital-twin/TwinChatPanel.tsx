@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Send, X, Sparkles, Loader2, Brain, Wand2 } from 'lucide-react';
+import { MessageSquare, Send, X, Sparkles, Loader2, Brain, Wand2, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { ModelIndicatorBadge } from '@/components/coach/ModelIndicatorBadge';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { WaveformVisualizer } from '@/components/voice/WaveformVisualizer';
 
 interface ParsedLifeEvent {
   event_type: string;
@@ -31,8 +33,10 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isParsing, setIsParsing] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, isStreaming, currentModel, sendMessage, clearChat } = useDigitalTwinChat();
+  const { isRecording, isProcessing, startRecording, stopRecording, cancelRecording } = useVoiceRecording();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -123,6 +127,71 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  // Voice recording handlers
+  const handleVoiceToggle = async () => {
+    if (isRecording) {
+      try {
+        const audioBase64 = await stopRecording();
+        if (audioBase64) {
+          await transcribeAudio(audioBase64);
+        }
+      } catch (error) {
+        console.error('Voice recording error:', error);
+        toast.error('Failed to process voice recording');
+      }
+    } else {
+      try {
+        await startRecording();
+        toast.info('Listening...', { duration: 2000 });
+      } catch (error) {
+        console.error('Failed to start recording:', error);
+        toast.error('Microphone access denied');
+      }
+    }
+  };
+
+  const transcribeAudio = async (audioBase64: string) => {
+    setIsTranscribing(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-to-text`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ audio: audioBase64 }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Transcription failed');
+      }
+
+      const result = await response.json();
+      if (result.text) {
+        setInput(result.text);
+        toast.success('Voice transcribed!', { duration: 1500 });
+        
+        // Auto-send if it's a scenario request
+        if (isScenarioRequest(result.text)) {
+          setTimeout(() => {
+            handleSend();
+          }, 500);
+        }
+      }
+    } catch (error) {
+      console.error('Transcription error:', error);
+      toast.error('Failed to transcribe audio');
+    } finally {
+      setIsTranscribing(false);
     }
   };
 
@@ -270,6 +339,34 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                 <div ref={messagesEndRef} />
               </div>
 
+              {/* Voice Indicator */}
+              <AnimatePresence>
+                {(isRecording || isTranscribing) && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="px-4 py-3 border-t border-white/10 bg-gradient-to-r from-cyan-500/10 to-violet-500/10"
+                  >
+                    <div className="flex items-center justify-center gap-3">
+                      {isRecording && (
+                        <>
+                          <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+                          <span className="text-sm text-white/80 font-mono">Listening...</span>
+                          <WaveformVisualizer isActive={isRecording} state="listening" />
+                        </>
+                      )}
+                      {isTranscribing && (
+                        <>
+                          <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
+                          <span className="text-sm text-white/80 font-mono">Transcribing...</span>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Input */}
               <div className="p-4 border-t border-white/10">
                 <div className="flex gap-2">
@@ -277,13 +374,31 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Describe a 'what if' scenario..."
-                    disabled={isStreaming || isParsing}
+                    placeholder={isRecording ? "Listening..." : "Describe a 'what if' scenario..."}
+                    disabled={isStreaming || isParsing || isRecording || isTranscribing}
                     className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
                   />
                   <Button
+                    onClick={handleVoiceToggle}
+                    disabled={isStreaming || isParsing || isTranscribing}
+                    size="icon"
+                    variant="outline"
+                    className={cn(
+                      "border-white/10 transition-all",
+                      isRecording 
+                        ? "bg-red-500/20 border-red-500/50 text-red-400 hover:bg-red-500/30" 
+                        : "bg-white/5 hover:bg-white/10 text-white/60 hover:text-white"
+                    )}
+                  >
+                    {isRecording ? (
+                      <MicOff className="w-4 h-4" />
+                    ) : (
+                      <Mic className="w-4 h-4" />
+                    )}
+                  </Button>
+                  <Button
                     onClick={handleSend}
-                    disabled={isStreaming || isParsing || !input.trim()}
+                    disabled={isStreaming || isParsing || isRecording || isTranscribing || !input.trim()}
                     size="icon"
                     className="bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400"
                   >
