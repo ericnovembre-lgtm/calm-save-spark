@@ -13,11 +13,16 @@ import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
 import { useDigitalTwinProfile } from "@/hooks/useDigitalTwinProfile";
 import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequiredPrompt";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play } from "lucide-react";
+import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScenarioExportModal } from "@/components/digital-twin/ScenarioExportModal";
 import { ShareScenarioModal } from "@/components/digital-twin/ShareScenarioModal";
 import { ScenarioPlayback } from "@/components/digital-twin/ScenarioPlayback";
+import { SaveScenarioModal } from "@/components/digital-twin/SaveScenarioModal";
+import { SavedScenariosPanel } from "@/components/digital-twin/SavedScenariosPanel";
+import { DigitalTwinTour } from "@/components/digital-twin/DigitalTwinTour";
+import { useDigitalTwinTour } from "@/hooks/useDigitalTwinTour";
+import { SavedScenario } from "@/hooks/useScenarioHistory";
 import { toast } from "sonner";
 import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
 import "@/styles/digital-twin-theme.css";
@@ -41,16 +46,22 @@ export default function DigitalTwin() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showPlayback, setShowPlayback] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showSavedPanel, setShowSavedPanel] = useState(false);
 
   const {
     injectedEvents,
     calculateNetWorth,
     addEvent,
     clearEvents,
+    loadScenario,
     calculateRetirementImpact,
     monteCarloTimeline,
     generateMonteCarloProjection,
   } = useLifeEventSimulation(currentAge, initialNetWorth, annualReturn, annualSavings);
+
+  // Digital Twin Tour
+  const { run: tourRun, steps: tourSteps, stepIndex: tourStepIndex, handleJoyrideCallback } = useDigitalTwinTour(addEvent);
 
   // Generate Monte Carlo on mount and when events change
   useEffect(() => {
@@ -109,6 +120,16 @@ export default function DigitalTwin() {
   };
 
   const handleSaveScenario = () => {
+    setShowSaveModal(true);
+  };
+
+  const handleLoadScenario = (scenario: SavedScenario) => {
+    const events = (scenario.parameters as any)?.events || [];
+    loadScenario(events);
+    toast.success(`Loaded: ${scenario.scenario_name}`);
+  };
+
+  const handleSaveForComparison = () => {
     const timeline = Array.from({ length: 40 }, (_, i) => ({
       year: currentAge + i,
       netWorth: calculateNetWorth(currentAge + i),
@@ -130,7 +151,7 @@ export default function DigitalTwin() {
 
   const handleCompare = () => {
     if (!savedScenario) {
-      handleSaveScenario();
+      handleSaveForComparison();
       return;
     }
     setShowComparison(true);
@@ -206,6 +227,7 @@ export default function DigitalTwin() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
+          data-tour="dt-avatar"
         >
           <HUDOverlay>
             <div className="h-96 relative">
@@ -245,7 +267,27 @@ export default function DigitalTwin() {
           <Button
             variant="outline"
             size="sm"
+            onClick={handleSaveScenario}
+            data-tour="dt-save"
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-green-500 hover:bg-green-500/10"
+          >
+            <FileDown className="w-4 h-4 mr-2" />
+            Save
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowSavedPanel(true)}
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-blue-500 hover:bg-blue-500/10"
+          >
+            <FolderOpen className="w-4 h-4 mr-2" />
+            My Scenarios
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setShowMonteCarlo(!showMonteCarlo)}
+            data-tour="dt-projections"
             className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-cyan-500 hover:bg-cyan-500/10"
           >
             <BarChart3 className="w-4 h-4 mr-2" />
@@ -273,6 +315,7 @@ export default function DigitalTwin() {
             variant="outline"
             size="sm"
             onClick={() => setShowShareModal(true)}
+            data-tour="dt-share"
             className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-violet-500 hover:bg-violet-500/10"
           >
             <Share2 className="w-4 h-4 mr-2" />
@@ -282,7 +325,7 @@ export default function DigitalTwin() {
             variant="outline"
             size="sm"
             onClick={() => setShowExportModal(true)}
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-green-500 hover:bg-green-500/10"
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-violet-500 hover:bg-violet-500/10"
           >
             <FileDown className="w-4 h-4 mr-2" />
             Export PDF
@@ -322,7 +365,9 @@ export default function DigitalTwin() {
       </div>
 
       {/* Life Events Sidebar */}
-      <LifeEventsSidebar onEventSelect={handleEventSelect} />
+      <div data-tour="dt-events">
+        <LifeEventsSidebar onEventSelect={handleEventSelect} />
+      </div>
 
       {/* Narrative Overlay */}
       <NarrativeOverlay
@@ -332,17 +377,19 @@ export default function DigitalTwin() {
       />
 
       {/* Timeline Slider */}
-      <TimelineSlider
-        currentAge={currentAge}
-        retirementAge={retirementAge}
-        onAgeChange={handleAgeChange}
-        onScrub={() => digitalTwinSounds.playTimelineScrub()}
-        lifeEvents={injectedEvents.map(e => ({
-          year: e.year,
-          label: e.event.label,
-          icon: e.event.icon,
-        }))}
-      />
+      <div data-tour="dt-timeline">
+        <TimelineSlider
+          currentAge={currentAge}
+          retirementAge={retirementAge}
+          onAgeChange={handleAgeChange}
+          onScrub={() => digitalTwinSounds.playTimelineScrub()}
+          lifeEvents={injectedEvents.map(e => ({
+            year: e.year,
+            label: e.event.label,
+            icon: e.event.icon,
+          }))}
+        />
+      </div>
 
       {/* Monte Carlo Panel */}
       <AnimatePresence>
@@ -418,6 +465,37 @@ export default function DigitalTwin() {
         initialNetWorth={initialNetWorth}
         events={injectedEvents}
         calculateNetWorth={calculateNetWorth}
+      />
+
+      {/* Save Scenario Modal */}
+      <SaveScenarioModal
+        open={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        scenarioData={{
+          events: injectedEvents,
+          timeline: Array.from({ length: retirementAge - currentAge }, (_, i) => ({
+            year: currentAge + i,
+            netWorth: calculateNetWorth(currentAge + i),
+          })),
+          monteCarloData: monteCarloTimeline,
+          currentAge,
+          retirementAge,
+        }}
+      />
+
+      {/* Saved Scenarios Panel */}
+      <SavedScenariosPanel
+        open={showSavedPanel}
+        onClose={() => setShowSavedPanel(false)}
+        onLoadScenario={handleLoadScenario}
+      />
+
+      {/* Digital Twin Tour */}
+      <DigitalTwinTour
+        run={tourRun}
+        steps={tourSteps}
+        stepIndex={tourStepIndex}
+        onCallback={handleJoyrideCallback}
       />
     </div>
   );
