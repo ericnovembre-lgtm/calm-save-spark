@@ -8676,6 +8676,45 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_scenario_links: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_public: boolean | null
+          preview_image_url: string | null
+          scenario_data: Json
+          scenario_name: string
+          share_token: string
+          user_id: string | null
+          views_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          preview_image_url?: string | null
+          scenario_data: Json
+          scenario_name: string
+          share_token: string
+          user_id?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          preview_image_url?: string | null
+          scenario_data?: Json
+          scenario_name?: string
+          share_token?: string
+          user_id?: string | null
+          views_count?: number | null
+        }
+        Relationships: []
+      }
       slo_breaches: {
         Row: {
           breach_duration_seconds: number | null
