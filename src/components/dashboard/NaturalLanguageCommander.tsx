@@ -41,15 +41,9 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
     }
   }, [isExpanded]);
 
-  // Handle keyboard shortcuts
+  // Handle escape key to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl + K to open
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsExpanded(true);
-      }
-      // Escape to close
       if (e.key === 'Escape') {
         setIsExpanded(false);
         setQuery('');
@@ -95,9 +89,6 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
           >
             <Search className="w-4 h-4" />
             <span>Ask anything about your finances...</span>
-            <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-muted rounded">
-              ⌘K
-            </kbd>
           </motion.button>
         )}
       </AnimatePresence>

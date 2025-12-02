@@ -64,8 +64,7 @@
       "component": "NaturalLanguageCommander.tsx",
       "location": "Dashboard bottom center (fixed)",
       "version": "2.0.0",
-      "category": "ai",
-      "shortcut": "⌘K"
+      "category": "ai"
     },
     {
       "id": "smart-actions",

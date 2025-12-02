@@ -70,7 +70,7 @@ export const FEATURE_UPDATES: FeatureUpdate[] = [
     version: '2.0.0',
     date: '2025-01-15',
     title: 'Natural Language Queries',
-    description: 'Ask anything about your finances in plain English! Try "Show me coffee spending" or press ⌘K.',
+    description: 'Ask anything about your finances in plain English! Try "Show me coffee spending".',
     icon: MessageSquare,
     tourStep: 'nlq-commander',
   },

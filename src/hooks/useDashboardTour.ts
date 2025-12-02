@@ -32,7 +32,7 @@ export const useDashboardTour = () => {
     },
     {
       target: '[data-tour="nlq-commander"]',
-      content: 'Ask anything about your finances in plain English! Try "Show me coffee spending" or press ⌘K to open the command palette.',
+      content: 'Ask anything about your finances in plain English! Try "Show me coffee spending" or click to open.',
       placement: 'top',
     },
     {

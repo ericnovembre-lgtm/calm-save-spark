@@ -60,18 +60,6 @@ export function QuickBudgetCreator({ onSuccess, userId }: QuickBudgetCreatorProp
     return () => clearTimeout(timer);
   }, [input]);
 
-  // Keyboard shortcut (Cmd/Ctrl + K)
-  useEffect(() => {
-    const handleKeydown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
-  }, []);
-
   const analyzeInput = async () => {
     setIsProcessing(true);
     try {
@@ -202,14 +190,8 @@ export function QuickBudgetCreator({ onSuccess, userId }: QuickBudgetCreatorProp
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <h3 className="text-lg font-semibold">
                     Quick Budget Creator
-                    <motion.kbd 
-                      className="px-2 py-1 text-xs rounded bg-muted"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      ⌘K
-                    </motion.kbd>
                   </h3>
                   <motion.p 
                     className="text-sm text-muted-foreground"

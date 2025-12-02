@@ -12,7 +12,6 @@ interface Action {
   id: string;
   label: string;
   icon: React.ReactNode;
-  shortcut?: string;
   action: () => void;
   category: "navigation" | "actions" | "recent";
 }
@@ -212,15 +211,6 @@ export function CommandPalette() {
       // Escape to close
       if (e.key === "Escape" && isOpen) {
         setIsOpen(false);
-      }
-
-      // Individual shortcuts when palette is closed
-      if (!isOpen && (e.metaKey || e.ctrlKey)) {
-        const action = allActions.find(a => a.shortcut?.toLowerCase() === e.key.toLowerCase());
-        if (action) {
-          e.preventDefault();
-          executeAction(action);
-        }
       }
     };
 
