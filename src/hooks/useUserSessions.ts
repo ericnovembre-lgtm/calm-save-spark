@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { logSessionRevoked } from '@/lib/security-logger';
 
 export interface UserSession {
   id: string;
@@ -66,17 +67,22 @@ export function useRevokeSession() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (sessionId: string) => {
+    mutationFn: async ({ sessionId, deviceName, location }: { 
+      sessionId: string; 
+      deviceName?: string; 
+      location?: string;
+    }) => {
       const { error } = await supabase
         .from('user_login_sessions')
         .delete()
         .eq('id', sessionId);
 
       if (error) throw error;
-      return sessionId;
+      return { sessionId, deviceName, location };
     },
-    onSuccess: () => {
+    onSuccess: ({ deviceName, location }) => {
       queryClient.invalidateQueries({ queryKey: ['user-sessions'] });
+      logSessionRevoked({ device_name: deviceName, location });
     },
   });
 }

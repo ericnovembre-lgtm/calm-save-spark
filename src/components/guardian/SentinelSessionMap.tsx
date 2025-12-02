@@ -261,7 +261,13 @@ export function SentinelSessionMap() {
   };
 
   const handleRevoke = async (id: string) => {
-    await revokeMutation.mutateAsync(id);
+    const session = selectedSession;
+    const location = session ? [session.city, session.country].filter(Boolean).join(', ') : undefined;
+    await revokeMutation.mutateAsync({ 
+      sessionId: id, 
+      deviceName: session?.device_name || undefined,
+      location 
+    });
     soundEffects.success();
     setIsModalOpen(false);
     setSelectedSession(null);

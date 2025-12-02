@@ -5,12 +5,25 @@ import { ConnectedAppsScanner } from '@/components/security/ConnectedAppsScanner
 import { PanicMode } from '@/components/security/PanicMode';
 import { ThreatMonitor } from '@/components/security/ThreatMonitor';
 import { SecurityEventLog } from '@/components/security/SecurityEventLog';
-import { Shield, Activity } from 'lucide-react';
+import { Shield, Activity, Database, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useSeedTestData } from '@/hooks/useSeedTestData';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export default function Security() {
   const prefersReducedMotion = useReducedMotion();
+  const seedMutation = useSeedTestData();
+
+  const handleSeedData = async () => {
+    try {
+      await seedMutation.mutateAsync();
+      toast.success('Test data loaded! Check the session map and event log.');
+    } catch (error) {
+      toast.error('Failed to load test data');
+    }
+  };
 
   return (
     <AppLayout>
@@ -52,6 +65,22 @@ export default function Security() {
                   Real-time account protection
                 </p>
               </div>
+              
+              {/* Load Test Data Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSeedData}
+                disabled={seedMutation.isPending}
+                className="ml-auto text-xs font-mono border-dashed"
+              >
+                {seedMutation.isPending ? (
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                ) : (
+                  <Database className="w-3 h-3 mr-1" />
+                )}
+                Load Test Data
+              </Button>
             </div>
           </motion.div>
 

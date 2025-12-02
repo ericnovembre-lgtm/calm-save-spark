@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { logConnectionSevered } from '@/lib/security-logger';
 
 export interface ConnectedIntegration {
   id: string;
@@ -101,7 +102,7 @@ export function useSeverIntegration() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ id, provider }: { id: string; provider: string }) => {
+    mutationFn: async ({ id, provider, name }: { id: string; provider: string; name?: string }) => {
       if (provider === 'plaid') {
         const { error } = await supabase
           .from('plaid_items')
@@ -115,10 +116,11 @@ export function useSeverIntegration() {
           .eq('id', id);
         if (error) throw error;
       }
-      return id;
+      return { id, name };
     },
-    onSuccess: () => {
+    onSuccess: ({ name }) => {
       queryClient.invalidateQueries({ queryKey: ['connected-integrations'] });
+      if (name) logConnectionSevered(name);
     },
   });
 }
