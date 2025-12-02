@@ -12,6 +12,8 @@ import { SearchToggle } from "./SearchToggle";
 import { VoiceToggle } from "./VoiceToggle";
 import { UserChip } from "./UserChip";
 import { MobileDrawer } from "./MobileDrawer";
+import { NotificationBell } from "./NotificationBell";
+import { QuickStatsChip } from "./QuickStatsChip";
 import { getClientUser, AppUser } from "@/lib/session";
 import { FEATURE_FLAGS } from "@/lib/flags";
 import { supabase } from "@/integrations/supabase/client";
@@ -114,7 +116,9 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
+      <header className="sticky top-0 z-30 glass-bg-strong backdrop-blur-xl border-b border-accent/20 shadow-glass">
+        {/* Premium gradient accent line */}
+        <div className="h-0.5 bg-gradient-accent" />
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Left: Menu + Logo */}
@@ -129,21 +133,28 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 <Menu className="w-5 h-5" />
               </Button>
 
-              <Link to="/" className="flex items-center gap-2">
+              <Link to="/" className="flex items-center gap-2 group">
                 <motion.div
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.6 }}
-                  className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center"
+                  whileHover={{ rotate: 360, scale: 1.05 }}
+                  transition={{ duration: 0.6, type: "spring" }}
+                  className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center relative"
+                  style={{ boxShadow: "0 0 20px hsla(var(--accent), 0.3)" }}
                 >
                   <span className="text-background font-bold text-sm">$+</span>
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-2 border-accent"
+                    animate={{ scale: [1, 1.2, 1], opacity: [1, 0, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  />
                 </motion.div>
                 <div className="hidden sm:flex flex-col">
-                  <span className="font-bold text-lg leading-none">$ave+</span>
+                  <span className="font-bold text-lg leading-none group-hover:text-accent transition-colors">$ave+</span>
                   <motion.span
                     key={taglineIndex}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     className="text-[10px] text-muted-foreground leading-none"
                   >
                     {taglines[taglineIndex]}
@@ -164,22 +175,35 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
               ))}
             </nav>
 
-            {/* Right: Search, Theme, Help, User */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/search')}
-                className="gap-2"
-              >
-                <Search className="w-4 h-4" />
-                <span className="hidden md:inline">Search</span>
-              </Button>
-              {FEATURE_FLAGS.SEARCH_ENABLED && <SearchToggle />}
-              <VoiceToggle />
-              <HelpButton />
-              <ThemeToggle />
+            {/* Right: Quick Stats, Actions, User */}
+            <div className="flex items-center gap-3">
+              {/* Quick Stats Chip */}
+              {user && <QuickStatsChip />}
+
+              {/* Divider */}
+              {user && <div className="hidden lg:block h-6 w-px bg-border" />}
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/search')}
+                  className="hover:bg-accent/10"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5" />
+                </Button>
+                {user && <NotificationBell />}
+                <VoiceToggle />
+                <HelpButton />
+                <ThemeToggle />
+              </div>
+
+              {/* Divider */}
+              <div className="hidden md:block h-6 w-px bg-border" />
               
+              {/* User Chip */}
               {user ? (
                 <UserChip user={user} />
               ) : (
@@ -187,6 +211,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                   variant="default"
                   size="sm"
                   onClick={() => navigate("/auth")}
+                  className="bg-foreground text-background hover:bg-foreground/90"
                 >
                   Sign In
                 </Button>
