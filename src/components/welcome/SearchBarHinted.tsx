@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 
 const hints = [
   "How much have I saved this month?",
-  "Show my investment goals",
+  "Show my savings progress",
   "What's my current APY?",
   "Track my spending habits"
 ];
