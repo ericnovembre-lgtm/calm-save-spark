@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { VoidBackground } from "@/components/digital-twin/VoidBackground";
 import { HUDOverlay } from "@/components/digital-twin/HUDOverlay";
 import { HolographicAvatar } from "@/components/digital-twin/HolographicAvatar";
@@ -7,11 +7,13 @@ import { NetWorthCounter } from "@/components/digital-twin/NetWorthCounter";
 import { BackgroundMorpher } from "@/components/digital-twin/BackgroundMorpher";
 import { LifeEventsSidebar, LifeEvent } from "@/components/digital-twin/LifeEventsSidebar";
 import { NarrativeOverlay } from "@/components/digital-twin/NarrativeOverlay";
+import { MonteCarloChart } from "@/components/digital-twin/MonteCarloChart";
+import { ScenarioComparisonMode } from "@/components/digital-twin/ScenarioComparisonMode";
 import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
 import { useDigitalTwinProfile } from "@/hooks/useDigitalTwinProfile";
 import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequiredPrompt";
-import { motion } from "framer-motion";
-import { Sparkles, RotateCcw, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
@@ -30,6 +32,9 @@ export default function DigitalTwin() {
   const [selectedAge, setSelectedAge] = useState(currentAge);
   const [selectedEvent, setSelectedEvent] = useState<LifeEvent | null>(null);
   const [eventReaction, setEventReaction] = useState<{ type: 'positive' | 'negative'; timestamp: number } | null>(null);
+  const [showMonteCarlo, setShowMonteCarlo] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [savedScenario, setSavedScenario] = useState<any>(null);
 
   const {
     injectedEvents,
@@ -37,7 +42,14 @@ export default function DigitalTwin() {
     addEvent,
     clearEvents,
     calculateRetirementImpact,
+    monteCarloTimeline,
+    generateMonteCarloProjection,
   } = useLifeEventSimulation(currentAge, initialNetWorth, annualReturn, annualSavings);
+
+  // Generate Monte Carlo on mount and when events change
+  useEffect(() => {
+    generateMonteCarloProjection();
+  }, [injectedEvents, generateMonteCarloProjection]);
 
   const currentNetWorth = calculateNetWorth(selectedAge);
 
@@ -88,6 +100,49 @@ export default function DigitalTwin() {
     clearEvents();
     setSelectedAge(currentAge);
     toast.info('Timeline reset to baseline');
+  };
+
+  const handleSaveScenario = () => {
+    const timeline = Array.from({ length: 40 }, (_, i) => ({
+      year: currentAge + i,
+      netWorth: calculateNetWorth(currentAge + i),
+    }));
+    
+    setSavedScenario({
+      id: 'path-a',
+      name: 'Current Path',
+      events: injectedEvents.map(e => ({
+        year: e.year,
+        label: e.event.label,
+        impact: e.event.impact,
+      })),
+      timeline,
+    });
+    
+    toast.success('Current scenario saved as Path A');
+  };
+
+  const handleCompare = () => {
+    if (!savedScenario) {
+      handleSaveScenario();
+      return;
+    }
+    setShowComparison(true);
+  };
+
+  // Create alternate scenario for comparison
+  const alternateScenario = {
+    id: 'path-b',
+    name: 'Alternate Path',
+    events: injectedEvents.map(e => ({
+      year: e.year,
+      label: e.event.label,
+      impact: e.event.impact,
+    })),
+    timeline: Array.from({ length: 40 }, (_, i) => ({
+      year: currentAge + i,
+      netWorth: calculateNetWorth(currentAge + i),
+    })),
   };
 
   // Show loading state
@@ -175,20 +230,38 @@ export default function DigitalTwin() {
           </HUDOverlay>
         </motion.div>
 
-        {/* Reset button */}
+        {/* Action buttons */}
         <motion.div
-          className="fixed top-8 right-8 z-50"
+          className="fixed top-8 right-8 z-50 flex gap-2"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
         >
           <Button
             variant="outline"
             size="sm"
-            onClick={handleReset}
+            onClick={() => setShowMonteCarlo(!showMonteCarlo)}
             className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-cyan-500 hover:bg-cyan-500/10"
           >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            {showMonteCarlo ? 'Hide' : 'Show'} Projections
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCompare}
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-magenta-500 hover:bg-magenta-500/10"
+          >
+            <GitBranch className="w-4 h-4 mr-2" />
+            Compare Paths
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleReset}
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-white/30"
+          >
             <RotateCcw className="w-4 h-4 mr-2" />
-            Reset Timeline
+            Reset
           </Button>
         </motion.div>
 
@@ -237,6 +310,31 @@ export default function DigitalTwin() {
           icon: e.event.icon,
         }))}
       />
+
+      {/* Monte Carlo Panel */}
+      <AnimatePresence>
+        {showMonteCarlo && monteCarloTimeline.length > 0 && (
+          <motion.div
+            className="fixed bottom-32 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl z-40"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+          >
+            <MonteCarloChart timeline={monteCarloTimeline} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Scenario Comparison Mode */}
+      <AnimatePresence>
+        {showComparison && savedScenario && (
+          <ScenarioComparisonMode
+            onClose={() => setShowComparison(false)}
+            baseScenario={savedScenario}
+            alternateScenario={alternateScenario}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
