@@ -38,12 +38,15 @@ export function useSyncStatus() {
       if (event?.type === 'observerResultsUpdated') {
         const isFetching = queryClient.isFetching() > 0;
         
-        if (isFetching && isOnline) {
-          setStatus('syncing');
-        } else if (isOnline) {
-          setStatus('synced');
-          setLastSynced(new Date());
-        }
+        // Defer state updates to avoid setState during render
+        setTimeout(() => {
+          if (isFetching && isOnline) {
+            setStatus('syncing');
+          } else if (isOnline) {
+            setStatus('synced');
+            setLastSynced(new Date());
+          }
+        }, 0);
       }
     });
 
