@@ -199,16 +199,9 @@ export function CommandPalette() {
     }
   ];
 
-  // Keyboard shortcut handler
+  // Escape key handler to close palette
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd+K or Ctrl+K to open
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setIsOpen(prev => !prev);
-      }
-      
-      // Escape to close
       if (e.key === "Escape" && isOpen) {
         setIsOpen(false);
       }
