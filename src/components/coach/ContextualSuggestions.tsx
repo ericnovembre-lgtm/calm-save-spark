@@ -117,7 +117,7 @@ export function ContextualSuggestions({
     }
 
     // Health-based suggestions
-    if (healthData && healthData.score < 60) {
+    if (healthData && healthData.overallScore < 60) {
       contextualSuggestions.push("How can I improve my financial health?");
     }
 
