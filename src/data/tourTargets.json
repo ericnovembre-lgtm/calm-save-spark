@@ -144,7 +144,7 @@
   "usage": {
     "addAttribute": "Add data-tour=\"target-id\" to any element",
     "spotlight": "Features with tourStep in useWhatsNew.ts get spotlighted",
-    "debugMode": "Press Ctrl+Shift+D to see all targets",
+    "debugMode": "Click the debug button to see all targets",
     "helpContent": "Add entries to widgetHelpContent.ts for tooltips"
   }
 }

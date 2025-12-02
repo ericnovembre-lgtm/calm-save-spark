@@ -508,7 +508,7 @@ export default function Dashboard() {
         onComplete={handleOnboardingComplete}
       />
       
-      {/* Tour Debug Overlay - toggle with Ctrl+Shift+D */}
+      {/* Tour Debug Overlay */}
       <TourDebugOverlay />
       
       {/* Essential Effects */}
