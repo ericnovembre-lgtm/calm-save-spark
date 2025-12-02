@@ -17,24 +17,24 @@ export function BackgroundMorpher({ netWorth }: BackgroundMorpherProps) {
 
   const sceneConfigs = {
     starter: {
-      gradient: 'radial-gradient(circle at 30% 50%, rgba(100, 100, 150, 0.1) 0%, rgba(5, 5, 5, 0) 50%)',
+      gradient: 'radial-gradient(circle at 30% 50%, rgba(100, 100, 150, 0.2) 0%, rgba(5, 5, 5, 0) 50%)',
       particles: 20,
-      color: 'rgba(100, 100, 150, 0.3)',
+      color: 'rgba(100, 100, 150, 0.4)',
     },
     growth: {
-      gradient: 'radial-gradient(circle at 50% 50%, rgba(0, 200, 200, 0.15) 0%, rgba(5, 5, 5, 0) 50%)',
+      gradient: 'radial-gradient(circle at 50% 50%, rgba(0, 200, 200, 0.25) 0%, rgba(5, 5, 5, 0) 50%)',
       particles: 40,
-      color: 'rgba(0, 255, 255, 0.4)',
+      color: 'rgba(0, 255, 255, 0.5)',
     },
     prosperity: {
-      gradient: 'radial-gradient(circle at 60% 40%, rgba(0, 255, 100, 0.2) 0%, rgba(5, 5, 5, 0) 50%)',
+      gradient: 'radial-gradient(circle at 60% 40%, rgba(0, 255, 100, 0.3) 0%, rgba(5, 5, 5, 0) 50%)',
       particles: 60,
-      color: 'rgba(0, 255, 100, 0.5)',
+      color: 'rgba(0, 255, 100, 0.6)',
     },
     freedom: {
-      gradient: 'radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.2) 0%, rgba(5, 5, 5, 0) 60%)',
+      gradient: 'radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.3) 0%, rgba(5, 5, 5, 0) 60%)',
       particles: 80,
-      color: 'rgba(255, 215, 0, 0.6)',
+      color: 'rgba(255, 215, 0, 0.7)',
     },
   };
 

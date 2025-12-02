@@ -72,7 +72,7 @@ export function NarrativeOverlay({ age, netWorth, lifeEvents }: NarrativeOverlay
       {displayedText && (
         <motion.div
           key={narrative}
-          className="fixed bottom-32 left-1/2 -translate-x-1/2 max-w-3xl w-full px-8"
+          className="fixed bottom-40 left-1/2 -translate-x-1/2 max-w-2xl w-full px-8 z-50"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
