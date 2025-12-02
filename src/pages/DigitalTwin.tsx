@@ -512,11 +512,14 @@ export default function DigitalTwin() {
         currentAge={currentAge}
         onScenarioCreated={(event) => {
           // Add the parsed event to timeline
+          const totalImpact = event.financial_impact + (event.ongoing_impact * 12);
           addEvent({
             id: event.event_type,
             label: event.label,
             icon: event.icon,
-            impact: event.financial_impact + (event.ongoing_impact * 12),
+            impact: totalImpact,
+            description: `${totalImpact >= 0 ? '+' : ''}$${Math.abs(totalImpact).toLocaleString()} impact`,
+            color: totalImpact >= 0 ? 'border-green-500' : 'border-red-500',
           }, event.year);
           
           // Recalculate Monte Carlo
