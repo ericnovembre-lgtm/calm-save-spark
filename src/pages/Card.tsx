@@ -34,6 +34,7 @@ import { useCardControls } from '@/hooks/useCardControls';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AppLayout } from '@/components/layout/AppLayout';
 
 export default function CardPage() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -152,65 +153,70 @@ export default function CardPage() {
 
   if (accountLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-pulse text-muted-foreground">Loading your card account...</div>
-      </div>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="animate-pulse text-muted-foreground">Loading your card account...</div>
+        </div>
+      </AppLayout>
     );
   }
 
   if (!hasAccount) {
     return (
-      <div className="max-w-2xl mx-auto mt-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card>
-            <CardContent className="pt-6 text-center space-y-6">
-              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                <CreditCard className="w-8 h-8 text-primary" />
-              </div>
-              
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">
-                  Get Your $ave+ Credit Card
-                </h2>
-                <p className="text-muted-foreground">
-                  Start building credit while earning rewards on every purchase
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-                <div className="p-4 bg-muted rounded-lg">
-                  <h3 className="font-semibold text-foreground mb-1">Secured Card</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Build credit with your own collateral
+      <AppLayout>
+        <div className="max-w-2xl mx-auto mt-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card>
+              <CardContent className="pt-6 text-center space-y-6">
+                <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                  <CreditCard className="w-8 h-8 text-primary" />
+                </div>
+                
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">
+                    Get Your $ave+ Credit Card
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Start building credit while earning rewards on every purchase
                   </p>
                 </div>
-                <div className="p-4 bg-muted rounded-lg">
-                  <h3 className="font-semibold text-foreground mb-1">No Annual Fee</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Keep more of your money
-                  </p>
-                </div>
-              </div>
 
-              <Link to="/card/apply">
-                <Button size="lg" className="w-full sm:w-auto">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Apply for Card
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h3 className="font-semibold text-foreground mb-1">Secured Card</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Build credit with your own collateral
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h3 className="font-semibold text-foreground mb-1">No Annual Fee</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Keep more of your money
+                    </p>
+                  </div>
+                </div>
+
+                <Link to="/card/apply">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Apply for Card
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <AppLayout>
+      <div className="space-y-6">
       {/* Premium Header */}
       <Card className="border-2">
         <CardHeader>

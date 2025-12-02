@@ -10,6 +10,7 @@ import { DocumentCenter } from '@/components/life-events/DocumentCenter';
 import { Heart, CheckCircle2, FileText } from 'lucide-react';
 import { PageLoadingSkeleton } from '@/components/ui/page-loading-skeleton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { AppLayout } from '@/components/layout/AppLayout';
 
 export default function LifeEvents() {
   const [selectedExecution, setSelectedExecution] = useState<string | null>(null);
@@ -48,77 +49,79 @@ export default function LifeEvents() {
   const completedCount = executions?.filter((e: any) => e.status === 'completed').length || 0;
 
   return (
-    <ErrorBoundary>
-      <div className="container mx-auto p-4 sm:p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Life Event Orchestrator</h1>
-          <p className="text-muted-foreground mt-2">
-            Automated playbooks for major life milestones - marriage, home buying, new children, and more
-          </p>
+    <AppLayout>
+      <ErrorBoundary>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Life Event Orchestrator</h1>
+              <p className="text-muted-foreground mt-2">
+                Automated playbooks for major life milestones - marriage, home buying, new children, and more
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <Card className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Active Events</p>
+                  <p className="text-2xl font-bold mt-1">{activeExecutions.length}</p>
+                </div>
+                <Heart className="w-8 h-8 text-primary" />
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Completed Events</p>
+                  <p className="text-2xl font-bold mt-1">{completedCount}</p>
+                </div>
+                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Available Playbooks</p>
+                  <p className="text-2xl font-bold mt-1">{playbooks?.length || 0}</p>
+                </div>
+                <FileText className="w-8 h-8 text-primary" />
+              </div>
+            </Card>
+          </div>
+
+          <Tabs defaultValue="active" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="active">Active Events</TabsTrigger>
+              <TabsTrigger value="playbooks">Playbook Library</TabsTrigger>
+              <TabsTrigger value="tasks">Task Dashboard</TabsTrigger>
+              <TabsTrigger value="documents">Documents</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="active">
+              <ActiveExecutions 
+                executions={activeExecutions}
+                onSelectExecution={setSelectedExecution}
+              />
+            </TabsContent>
+
+            <TabsContent value="playbooks">
+              <PlaybookLibrary playbooks={playbooks || []} />
+            </TabsContent>
+
+            <TabsContent value="tasks">
+              <TaskDashboard executionId={selectedExecution} />
+            </TabsContent>
+
+            <TabsContent value="documents">
+              <DocumentCenter executionId={selectedExecution} />
+            </TabsContent>
+          </Tabs>
         </div>
-      </div>
-
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Active Events</p>
-              <p className="text-2xl font-bold mt-1">{activeExecutions.length}</p>
-            </div>
-            <Heart className="w-8 h-8 text-primary" />
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Completed Events</p>
-              <p className="text-2xl font-bold mt-1">{completedCount}</p>
-            </div>
-            <CheckCircle2 className="w-8 h-8 text-green-600" />
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Available Playbooks</p>
-              <p className="text-2xl font-bold mt-1">{playbooks?.length || 0}</p>
-            </div>
-            <FileText className="w-8 h-8 text-primary" />
-          </div>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="active" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="active">Active Events</TabsTrigger>
-          <TabsTrigger value="playbooks">Playbook Library</TabsTrigger>
-          <TabsTrigger value="tasks">Task Dashboard</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="active">
-          <ActiveExecutions 
-            executions={activeExecutions}
-            onSelectExecution={setSelectedExecution}
-          />
-        </TabsContent>
-
-        <TabsContent value="playbooks">
-          <PlaybookLibrary playbooks={playbooks || []} />
-        </TabsContent>
-
-        <TabsContent value="tasks">
-          <TaskDashboard executionId={selectedExecution} />
-        </TabsContent>
-
-        <TabsContent value="documents">
-          <DocumentCenter executionId={selectedExecution} />
-        </TabsContent>
-      </Tabs>
-      </div>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </AppLayout>
   );
 }

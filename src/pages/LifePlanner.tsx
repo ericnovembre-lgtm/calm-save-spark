@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { EventTimeline } from "@/components/life-planner/EventTimeline";
 import { EventCard } from "@/components/life-planner/EventCard";
 import { ScenarioComparison } from "@/components/life-planner/ScenarioComparison";
@@ -22,7 +22,7 @@ export default function LifePlanner() {
         <meta name="description" content="Plan major life events with AI-powered insights" />
       </Helmet>
 
-      <PageLayout>
+      <AppLayout>
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -117,7 +117,7 @@ export default function LifePlanner() {
             />
           )}
         </div>
-      </PageLayout>
+      </AppLayout>
     </>
   );
 }

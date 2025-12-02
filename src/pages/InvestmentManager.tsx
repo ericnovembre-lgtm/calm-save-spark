@@ -11,6 +11,7 @@ import { PageLoadingSkeleton } from '@/components/ui/page-loading-skeleton';
 import { FeatureEmptyState } from '@/components/ui/feature-empty-state';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { withErrorHandling } from '@/lib/errorHandling';
+import { AppLayout } from '@/components/layout/AppLayout';
 
 export default function InvestmentManager() {
   const { data: mandate, isLoading } = useQuery({
@@ -73,97 +74,101 @@ export default function InvestmentManager() {
   const potentialTaxSavings = tlhOpportunities?.reduce((sum, o) => sum + Number(o.potential_tax_savings), 0) || 0;
 
   return (
-    <ErrorBoundary>
-      <div className="container mx-auto p-4 sm:p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Autonomous Investment Manager</h1>
-          <p className="text-muted-foreground mt-2">
-            24/7 portfolio optimization, tax-loss harvesting, and automatic rebalancing
-          </p>
+    <AppLayout>
+      <ErrorBoundary>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Autonomous Investment Manager</h1>
+              <p className="text-muted-foreground mt-2">
+                24/7 portfolio optimization, tax-loss harvesting, and automatic rebalancing
+              </p>
+            </div>
+          </div>
+
+          {!hasPortfolio ? (
+            <FeatureEmptyState
+              icon={TrendingUp}
+              title="Start Your Investment Journey"
+              description="Set up your investment mandate and connect your brokerage accounts to enable 24/7 autonomous portfolio management."
+              actionLabel="Configure Mandate"
+              features={[
+                { icon: Target, label: 'Set your risk tolerance & goals' },
+                { icon: Zap, label: 'Automatic tax-loss harvesting' },
+                { icon: Shield, label: 'Continuous rebalancing' },
+                { icon: BarChart3, label: 'Performance tracking' },
+              ]}
+            />
+          ) : (
+            <>
+              <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                <Card className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Portfolio Value</p>
+                      <p className="text-2xl font-bold mt-1">
+                        ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                    <TrendingUp className="w-8 h-8 text-primary" />
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Unrealized Gain/Loss</p>
+                      <p className={`text-2xl font-bold mt-1 ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {totalGainLoss >= 0 ? '+' : ''}${totalGainLoss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                    <Scale className="w-8 h-8 text-primary" />
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Potential Tax Savings</p>
+                      <p className="text-2xl font-bold mt-1 text-green-600">
+                        ${potentialTaxSavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                    <Receipt className="w-8 h-8 text-primary" />
+                  </div>
+                </Card>
+              </div>
+
+              <Tabs defaultValue="portfolio" className="space-y-6">
+                <TabsList>
+                  <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+                  <TabsTrigger value="tlh">Tax-Loss Harvesting</TabsTrigger>
+                  <TabsTrigger value="rebalancing">Rebalancing</TabsTrigger>
+                  <TabsTrigger value="mandate">Settings</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="portfolio">
+                  <PortfolioOverview holdings={portfolio || []} />
+                </TabsContent>
+
+                <TabsContent value="tlh">
+                  <TaxLossHarvesting opportunities={tlhOpportunities || []} />
+                </TabsContent>
+
+                <TabsContent value="rebalancing">
+                  <RebalancingActions mandate={mandate} />
+                </TabsContent>
+
+                <TabsContent value="mandate">
+                  <MandateConfig existingMandate={mandate} />
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
         </div>
-      </div>
-
-      {!hasPortfolio ? (
-        <FeatureEmptyState
-          icon={TrendingUp}
-          title="Start Your Investment Journey"
-          description="Set up your investment mandate and connect your brokerage accounts to enable 24/7 autonomous portfolio management."
-          actionLabel="Configure Mandate"
-          features={[
-            { icon: Target, label: 'Set your risk tolerance & goals' },
-            { icon: Zap, label: 'Automatic tax-loss harvesting' },
-            { icon: Shield, label: 'Continuous rebalancing' },
-            { icon: BarChart3, label: 'Performance tracking' },
-          ]}
-        />
-      ) : (
-        <>
-          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Portfolio Value</p>
-              <p className="text-2xl font-bold mt-1">
-                ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-primary" />
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Unrealized Gain/Loss</p>
-              <p className={`text-2xl font-bold mt-1 ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {totalGainLoss >= 0 ? '+' : ''}${totalGainLoss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-            <Scale className="w-8 h-8 text-primary" />
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Potential Tax Savings</p>
-              <p className="text-2xl font-bold mt-1 text-green-600">
-                ${potentialTaxSavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-            <Receipt className="w-8 h-8 text-primary" />
-          </div>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="portfolio" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-          <TabsTrigger value="tlh">Tax-Loss Harvesting</TabsTrigger>
-          <TabsTrigger value="rebalancing">Rebalancing</TabsTrigger>
-          <TabsTrigger value="mandate">Settings</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="portfolio">
-          <PortfolioOverview holdings={portfolio || []} />
-        </TabsContent>
-
-        <TabsContent value="tlh">
-          <TaxLossHarvesting opportunities={tlhOpportunities || []} />
-        </TabsContent>
-
-        <TabsContent value="rebalancing">
-          <RebalancingActions mandate={mandate} />
-        </TabsContent>
-
-        <TabsContent value="mandate">
-          <MandateConfig existingMandate={mandate} />
-        </TabsContent>
-          </Tabs>
-        </>
-      )}
-      </div>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </AppLayout>
   );
-}
+};
+
+export default Help;
