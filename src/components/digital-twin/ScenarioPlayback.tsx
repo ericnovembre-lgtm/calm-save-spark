@@ -109,25 +109,24 @@ export function ScenarioPlayback({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl h-[90vh] bg-slate-950/95 backdrop-blur-xl border-cyan-500/20 text-white p-0 overflow-hidden">
+      <DialogContent className="max-w-6xl h-[90vh] bg-card/95 backdrop-blur-xl border-border text-foreground p-0 overflow-hidden">
         {/* Close Button */}
         <Button
           variant="ghost"
           size="icon"
           onClick={onClose}
-          className="absolute top-4 right-4 z-50 text-white/60 hover:text-white hover:bg-white/10"
-        >
+          className="absolute top-4 right-4 z-50 text-muted-foreground hover:text-foreground hover:bg-muted/50">
           <X className="w-5 h-5" />
         </Button>
 
         {/* Main Playback Area */}
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-8 border-b border-white/10">
-            <h2 className="text-3xl font-mono font-bold text-cyan-500 text-center">
-              ◢◤ SCENARIO PLAYBACK ◥◣
+          <div className="p-8 border-b border-border">
+            <h2 className="text-3xl font-mono font-bold text-accent text-center">
+              SCENARIO PLAYBACK
             </h2>
-            <p className="text-center text-white/60 text-sm mt-2">
+            <p className="text-center text-muted-foreground text-sm mt-2">
               Watch your financial future unfold over time
             </p>
           </div>
@@ -140,8 +139,8 @@ export function ScenarioPlayback({
               animate={{ scale: isPlaying ? [1, 1.02, 1] : 1 }}
               transition={{ duration: 1, repeat: isPlaying ? Infinity : 0 }}
             >
-              <div className="text-white/40 text-sm font-mono mb-2">CURRENT AGE</div>
-              <div className="text-6xl font-bold font-mono text-white">
+              <div className="text-muted-foreground text-sm font-mono mb-2">CURRENT AGE</div>
+              <div className="text-6xl font-bold font-mono text-foreground">
                 {Math.floor(playbackAge)}
               </div>
             </motion.div>
@@ -151,13 +150,13 @@ export function ScenarioPlayback({
               className={`relative p-12 rounded-2xl bg-gradient-to-br ${healthColors[healthState]} bg-opacity-10 border-2 border-current backdrop-blur-sm`}
               animate={{
                 boxShadow: isPlaying 
-                  ? ['0 0 20px rgba(0,255,255,0.3)', '0 0 40px rgba(0,255,255,0.6)', '0 0 20px rgba(0,255,255,0.3)']
-                  : '0 0 20px rgba(0,255,255,0.2)'
+                  ? ['0 0 20px hsl(var(--accent) / 0.3)', '0 0 40px hsl(var(--accent) / 0.6)', '0 0 20px hsl(var(--accent) / 0.3)']
+                  : '0 0 20px hsl(var(--accent) / 0.2)'
               }}
               transition={{ duration: 2, repeat: isPlaying ? Infinity : 0 }}
             >
               <div className="text-center">
-                <div className="text-white/60 text-sm font-mono mb-2">NET WORTH</div>
+                <div className="text-muted-foreground text-sm font-mono mb-2">NET WORTH</div>
                 <div className="text-5xl font-bold font-mono">
                   $
                   <CountUp
@@ -193,11 +192,11 @@ export function ScenarioPlayback({
                   initial={{ opacity: 0, y: 50, scale: 0.8 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -50, scale: 0.8 }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-8 bg-black/90 backdrop-blur-xl border-2 border-cyan-500 rounded-2xl shadow-2xl"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-8 bg-background/95 backdrop-blur-xl border-2 border-accent rounded-2xl shadow-2xl"
                 >
                   <div className="text-center space-y-4">
                     <div className="text-6xl">{events[activeEventIndex].event.icon}</div>
-                    <div className="text-2xl font-bold text-white">
+                    <div className="text-2xl font-bold text-foreground">
                       {events[activeEventIndex].event.label}
                     </div>
                     <div className={`text-xl font-mono ${events[activeEventIndex].event.impact >= 0 ? 'text-green-500' : 'text-red-500'}`}>
@@ -210,8 +209,7 @@ export function ScenarioPlayback({
             </AnimatePresence>
           </div>
 
-          {/* Controls Area */}
-          <div className="p-6 space-y-4 border-t border-white/10 bg-black/40">
+          <div className="p-6 space-y-4 border-t border-border bg-muted/30">
             {/* Timeline */}
             <PlaybackTimeline
               currentAge={currentAge}
@@ -228,7 +226,7 @@ export function ScenarioPlayback({
                 onClick={handleReset}
                 variant="outline"
                 size="icon"
-                className="border-white/20 hover:border-cyan-500 hover:bg-cyan-500/10"
+                className="border-border hover:border-accent hover:bg-accent/10"
               >
                 <RotateCcw className="w-4 h-4" />
               </Button>
@@ -236,8 +234,7 @@ export function ScenarioPlayback({
               <Button
                 onClick={() => setIsPlaying(!isPlaying)}
                 size="lg"
-                className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 px-8"
-              >
+                className="bg-accent hover:bg-accent/90 text-accent-foreground px-8">
                 {isPlaying ? (
                   <>
                     <Pause className="w-5 h-5 mr-2" />
@@ -254,15 +251,14 @@ export function ScenarioPlayback({
               <Button
                 onClick={handleSpeedChange}
                 variant="outline"
-                className="border-white/20 hover:border-cyan-500 hover:bg-cyan-500/10"
-              >
+                className="border-border hover:border-accent hover:bg-accent/10">
                 <FastForward className="w-4 h-4 mr-2" />
                 {playbackSpeed}x
               </Button>
             </div>
 
             {/* Progress Indicator */}
-            <div className="text-center text-sm font-mono text-white/40">
+            <div className="text-center text-sm font-mono text-muted-foreground">
               Progress: {Math.round(progress)}% • 
               {retirementAge - Math.floor(playbackAge)} years to retirement
             </div>

@@ -42,12 +42,12 @@ export function PlaybackTimeline({
     <div className="space-y-2">
       {/* Timeline Track */}
       <div
-        className="relative h-16 bg-black/60 rounded-lg border border-white/10 cursor-pointer overflow-hidden"
+        className="relative h-16 bg-muted/30 rounded-lg border border-border cursor-pointer overflow-hidden"
         onClick={handleClick}
       >
         {/* Progress Fill */}
         <motion.div
-          className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500/30 to-cyan-500/50"
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-accent/30 to-accent/50"
           style={{ width: `${progress}%` }}
         />
 
@@ -88,17 +88,17 @@ export function PlaybackTimeline({
 
         {/* Playhead */}
         <motion.div
-          className="absolute inset-y-0 w-1 bg-cyan-500 shadow-[0_0_10px_rgba(0,255,255,0.8)]"
+          className="absolute inset-y-0 w-1 bg-accent shadow-[0_0_10px_hsl(var(--accent)_/_0.8)]"
           style={{ left: `${progress}%` }}
           animate={{
             boxShadow: isPlaying
-              ? ['0 0 10px rgba(0,255,255,0.8)', '0 0 20px rgba(0,255,255,1)', '0 0 10px rgba(0,255,255,0.8)']
-              : '0 0 10px rgba(0,255,255,0.8)'
+              ? ['0 0 10px hsl(var(--accent) / 0.8)', '0 0 20px hsl(var(--accent) / 1)', '0 0 10px hsl(var(--accent) / 0.8)']
+              : '0 0 10px hsl(var(--accent) / 0.8)'
           }}
           transition={{ duration: 1, repeat: isPlaying ? Infinity : 0 }}
         >
           {/* Playhead Handle */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-cyan-500 rounded-full border-2 border-white shadow-lg" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-accent rounded-full border-2 border-background shadow-lg" />
         </motion.div>
 
         {/* Milestone Labels */}
@@ -110,8 +110,8 @@ export function PlaybackTimeline({
               className="absolute top-0 flex flex-col items-center"
               style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
             >
-              <div className="w-px h-3 bg-white/30" />
-              <div className="text-xs font-mono text-white/40 mt-1 whitespace-nowrap">
+              <div className="w-px h-3 bg-border" />
+              <div className="text-xs font-mono text-muted-foreground mt-1 whitespace-nowrap">
                 {milestone.label}
               </div>
             </div>
@@ -120,7 +120,7 @@ export function PlaybackTimeline({
       </div>
 
       {/* Age Labels */}
-      <div className="flex justify-between text-xs font-mono text-white/40 px-2">
+      <div className="flex justify-between text-xs font-mono text-muted-foreground px-2">
         <div>Age {currentAge}</div>
         <div>Age {Math.floor(playbackAge)}</div>
         <div>Age {retirementAge}</div>

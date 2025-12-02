@@ -92,35 +92,34 @@ export function ScenarioExportModal({ open, onClose, scenarioData }: ScenarioExp
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="backdrop-blur-xl bg-slate-950/95 border-white/10 max-w-md">
+      <DialogContent className="backdrop-blur-xl bg-card border-border max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
-            <FileDown className="w-5 h-5 text-cyan-400" />
+          <DialogTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+            <FileDown className="w-5 h-5 text-accent" />
             Export Scenario Report
           </DialogTitle>
-          <DialogDescription className="text-white/60">
+          <DialogDescription className="text-muted-foreground">
             Generate a comprehensive report of your financial scenario
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
-          {/* Scenario Name */}
           <div className="space-y-2">
-            <Label htmlFor="scenario-name" className="text-white/80">
+            <Label htmlFor="scenario-name" className="text-muted-foreground">
               Report Title
             </Label>
             <Input
               id="scenario-name"
               value={scenarioName}
               onChange={(e) => setScenarioName(e.target.value)}
-              className="bg-white/5 border-white/10 text-white"
+              className="bg-muted/50 border-border"
               placeholder="My Financial Scenario"
             />
           </div>
 
           {/* Format Selection */}
           <div className="space-y-2">
-            <Label className="text-white/80">Export Format</Label>
+            <Label className="text-muted-foreground">Export Format</Label>
             <div className="flex gap-2">
               <Button
                 variant={exportFormat === 'pdf' ? 'default' : 'outline'}
@@ -146,17 +145,17 @@ export function ScenarioExportModal({ open, onClose, scenarioData }: ScenarioExp
           {/* Section Selection (PDF only) */}
           {exportFormat === 'pdf' && (
             <div className="space-y-3">
-              <Label className="text-white/80">Include Sections</Label>
+              <Label className="text-muted-foreground">Include Sections</Label>
               
-              <div className="space-y-3 p-4 rounded-lg bg-white/5 border border-white/10">
+              <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border">
                 <div className="flex items-center gap-3">
                   <Checkbox
                     id="summary"
                     checked={selectedSections.summary}
                     onCheckedChange={() => toggleSection('summary')}
-                    className="border-white/20"
+                    className="border-border"
                   />
-                  <Label htmlFor="summary" className="text-white/90 cursor-pointer">
+                  <Label htmlFor="summary" className="text-foreground cursor-pointer">
                     Executive Summary
                   </Label>
                 </div>
@@ -166,9 +165,9 @@ export function ScenarioExportModal({ open, onClose, scenarioData }: ScenarioExp
                     id="events"
                     checked={selectedSections.events}
                     onCheckedChange={() => toggleSection('events')}
-                    className="border-white/20"
+                    className="border-border"
                   />
-                  <Label htmlFor="events" className="text-white/90 cursor-pointer">
+                  <Label htmlFor="events" className="text-foreground cursor-pointer">
                     Life Events Table
                   </Label>
                 </div>
@@ -178,9 +177,9 @@ export function ScenarioExportModal({ open, onClose, scenarioData }: ScenarioExp
                     id="timeline"
                     checked={selectedSections.timeline}
                     onCheckedChange={() => toggleSection('timeline')}
-                    className="border-white/20"
+                    className="border-border"
                   />
-                  <Label htmlFor="timeline" className="text-white/90 cursor-pointer">
+                  <Label htmlFor="timeline" className="text-foreground cursor-pointer">
                     Timeline Chart
                   </Label>
                 </div>
@@ -191,9 +190,9 @@ export function ScenarioExportModal({ open, onClose, scenarioData }: ScenarioExp
                       id="monteCarlo"
                       checked={selectedSections.monteCarlo}
                       onCheckedChange={() => toggleSection('monteCarlo')}
-                      className="border-white/20"
+                      className="border-border"
                     />
-                    <Label htmlFor="monteCarlo" className="text-white/90 cursor-pointer">
+                    <Label htmlFor="monteCarlo" className="text-foreground cursor-pointer">
                       Monte Carlo Projections
                     </Label>
                   </div>
@@ -205,9 +204,9 @@ export function ScenarioExportModal({ open, onClose, scenarioData }: ScenarioExp
                       id="comparison"
                       checked={selectedSections.comparison}
                       onCheckedChange={() => toggleSection('comparison')}
-                      className="border-white/20"
+                      className="border-border"
                     />
-                    <Label htmlFor="comparison" className="text-white/90 cursor-pointer">
+                    <Label htmlFor="comparison" className="text-foreground cursor-pointer">
                       Scenario Comparison
                     </Label>
                   </div>
@@ -216,15 +215,14 @@ export function ScenarioExportModal({ open, onClose, scenarioData }: ScenarioExp
             </div>
           )}
 
-          {/* Stats Preview */}
-          <div className="grid grid-cols-2 gap-3 p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+          <div className="grid grid-cols-2 gap-3 p-4 rounded-lg bg-accent/10 border border-accent/20">
             <div>
-              <p className="text-xs text-white/60">Events</p>
-              <p className="text-lg font-bold text-cyan-400">{scenarioData.events.length}</p>
+              <p className="text-xs text-muted-foreground">Events</p>
+              <p className="text-lg font-bold text-accent">{scenarioData.events.length}</p>
             </div>
             <div>
-              <p className="text-xs text-white/60">Years</p>
-              <p className="text-lg font-bold text-cyan-400">
+              <p className="text-xs text-muted-foreground">Years</p>
+              <p className="text-lg font-bold text-accent">
                 {scenarioData.retirementAge - scenarioData.currentAge}
               </p>
             </div>
@@ -236,15 +234,14 @@ export function ScenarioExportModal({ open, onClose, scenarioData }: ScenarioExp
               variant="outline"
               onClick={onClose}
               disabled={isExporting}
-              className="flex-1 border-white/10 hover:bg-white/5"
+              className="flex-1 border-border hover:bg-muted/50"
             >
               Cancel
             </Button>
             <Button
               onClick={handleExport}
               disabled={isExporting}
-              className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-black"
-            >
+              className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground">
               {isExporting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

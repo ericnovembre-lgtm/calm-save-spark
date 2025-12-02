@@ -80,9 +80,9 @@ export function SaveScenarioModal({ open, onClose, scenarioData }: SaveScenarioM
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-950 border-cyan-500/30">
+      <DialogContent className="bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-cyan-500 font-mono flex items-center gap-2">
+          <DialogTitle className="text-accent font-mono flex items-center gap-2">
             <Save className="w-5 h-5" />
             Save Scenario to Database
           </DialogTitle>
@@ -90,20 +90,20 @@ export function SaveScenarioModal({ open, onClose, scenarioData }: SaveScenarioM
 
         <div className="space-y-4">
           {/* Scenario Preview */}
-          <div className="p-4 bg-black/40 border border-white/10 rounded-lg space-y-2">
+          <div className="p-4 bg-muted/30 border border-border rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-white/60">Life Events:</span>
-              <span className="text-white font-mono">{scenarioData.events.length} events</span>
+              <span className="text-muted-foreground">Life Events:</span>
+              <span className="text-foreground font-mono">{scenarioData.events.length} events</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-white/60">Final Net Worth:</span>
+              <span className="text-muted-foreground">Final Net Worth:</span>
               <span className="text-green-500 font-mono">
                 ${(finalNetWorth / 1000).toFixed(0)}K
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-white/60">Retirement Age:</span>
-              <span className="text-white font-mono">{scenarioData.retirementAge}</span>
+              <span className="text-muted-foreground">Retirement Age:</span>
+              <span className="text-foreground font-mono">{scenarioData.retirementAge}</span>
             </div>
           </div>
 
@@ -111,10 +111,10 @@ export function SaveScenarioModal({ open, onClose, scenarioData }: SaveScenarioM
           {scenarioData.events.length > 0 && (
             <div className="max-h-32 overflow-y-auto space-y-1">
               {scenarioData.events.map((e) => (
-                <div key={e.id} className="text-xs font-mono text-white/70 flex items-center gap-2">
+                <div key={e.id} className="text-xs font-mono text-muted-foreground flex items-center gap-2">
                   <span>{e.event.icon}</span>
                   <span>{e.event.label}</span>
-                  <span className="text-white/40">Age {e.year}</span>
+                  <span className="text-muted-foreground/60">Age {e.year}</span>
                 </div>
               ))}
             </div>
@@ -122,7 +122,7 @@ export function SaveScenarioModal({ open, onClose, scenarioData }: SaveScenarioM
 
           {/* Name Input */}
           <div className="space-y-2">
-            <Label htmlFor="scenario-name" className="text-white/80">
+            <Label htmlFor="scenario-name" className="text-muted-foreground">
               Scenario Name
             </Label>
             <Input
@@ -130,7 +130,7 @@ export function SaveScenarioModal({ open, onClose, scenarioData }: SaveScenarioM
               value={scenarioName}
               onChange={(e) => setScenarioName(e.target.value)}
               placeholder="e.g., Conservative Path, High Growth Strategy"
-              className="bg-black/40 border-white/20 text-white"
+              className="bg-muted/50 border-border"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSave();
               }}
@@ -142,14 +142,14 @@ export function SaveScenarioModal({ open, onClose, scenarioData }: SaveScenarioM
             <Button
               variant="outline"
               onClick={onClose}
-              className="border-white/20"
+              className="border-border"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSave}
               disabled={isSaving || !scenarioName.trim()}
-              className="bg-cyan-500 hover:bg-cyan-600 text-black"
+              className="bg-accent hover:bg-accent/90 text-accent-foreground"
             >
               {isSaving ? (
                 <>
