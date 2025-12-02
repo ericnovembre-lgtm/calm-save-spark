@@ -13,8 +13,9 @@ import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
 import { useDigitalTwinProfile } from "@/hooks/useDigitalTwinProfile";
 import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequiredPrompt";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch } from "lucide-react";
+import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScenarioExportModal } from "@/components/digital-twin/ScenarioExportModal";
 import { toast } from "sonner";
 import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
 import "@/styles/digital-twin-theme.css";
@@ -35,6 +36,7 @@ export default function DigitalTwin() {
   const [showMonteCarlo, setShowMonteCarlo] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [savedScenario, setSavedScenario] = useState<any>(null);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const {
     injectedEvents,
@@ -257,6 +259,15 @@ export default function DigitalTwin() {
           <Button
             variant="outline"
             size="sm"
+            onClick={() => setShowExportModal(true)}
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-green-500 hover:bg-green-500/10"
+          >
+            <FileDown className="w-4 h-4 mr-2" />
+            Export PDF
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleReset}
             className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-white/30"
           >
@@ -335,6 +346,28 @@ export default function DigitalTwin() {
           />
         )}
       </AnimatePresence>
+
+      {/* Export Modal */}
+      <ScenarioExportModal
+        open={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        scenarioData={{
+          name: 'Digital Twin Scenario',
+          currentAge,
+          retirementAge,
+          initialNetWorth,
+          events: injectedEvents,
+          timeline: Array.from({ length: retirementAge - currentAge }, (_, i) => ({
+            year: currentAge + i,
+            netWorth: calculateNetWorth(currentAge + i),
+          })),
+          monteCarloData: monteCarloTimeline,
+          comparison: savedScenario && alternateScenario ? {
+            pathA: savedScenario,
+            pathB: alternateScenario,
+          } : undefined,
+        }}
+      />
     </div>
   );
 }
