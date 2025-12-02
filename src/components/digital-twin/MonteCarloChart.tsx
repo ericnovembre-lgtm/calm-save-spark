@@ -1,5 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
-import { Card } from "@/components/ui/card";
+import { motion } from "framer-motion";
 
 interface MonteCarloChartProps {
   timeline: Array<{
@@ -13,68 +13,125 @@ interface MonteCarloChartProps {
 
 export function MonteCarloChart({ timeline }: MonteCarloChartProps) {
   return (
-    <Card className="p-6">
-      <h3 className="text-lg font-semibold mb-4">Projection Cone</h3>
-      <ResponsiveContainer width="100%" height={400}>
-        <AreaChart data={timeline}>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-          <XAxis 
-            dataKey="year" 
-            className="text-xs"
-            label={{ value: 'Year', position: 'insideBottom', offset: -5 }}
-          />
-          <YAxis 
-            className="text-xs"
-            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-            label={{ value: 'Net Worth', angle: -90, position: 'insideLeft' }}
-          />
-          <Tooltip
-            formatter={(value: number) => [`$${value.toLocaleString()}`, 'Net Worth']}
-            labelFormatter={(label) => `Year ${label}`}
-            contentStyle={{
-              backgroundColor: 'hsl(var(--background))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '8px',
-            }}
-          />
-          <Area
-            type="monotone"
-            dataKey="p90"
-            stroke="hsl(var(--success))"
-            fill="hsl(var(--success) / 0.2)"
-            name="Optimistic (90th)"
-          />
-          <Area
-            type="monotone"
-            dataKey="p10"
-            stroke="hsl(var(--destructive))"
-            fill="hsl(var(--destructive) / 0.2)"
-            name="Pessimistic (10th)"
-          />
-          <Line
-            type="monotone"
-            dataKey="median"
-            stroke="hsl(var(--primary))"
-            strokeWidth={3}
-            name="Expected (50th)"
-            dot={false}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-      <div className="mt-4 flex items-center justify-center gap-6 text-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-success/30" />
-          <span className="text-muted-foreground">Optimistic</span>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="relative rounded-xl bg-slate-950/90 backdrop-blur-xl border border-white/10 p-6 shadow-[0_0_40px_hsl(var(--accent)/0.15)]"
+    >
+      {/* Subtle glow overlay */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-accent/5 to-transparent pointer-events-none" />
+      
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-mono uppercase tracking-wider text-white/60">Projection Cone</h3>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="text-xs font-mono text-white/40">Monte Carlo</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-primary" />
-          <span className="text-muted-foreground">Expected</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-destructive/30" />
-          <span className="text-muted-foreground">Pessimistic</span>
+        
+        <ResponsiveContainer width="100%" height={320}>
+          <AreaChart data={timeline}>
+            <defs>
+              <linearGradient id="optimisticGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(180, 100%, 50%)" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="hsl(180, 100%, 50%)" stopOpacity={0.05} />
+              </linearGradient>
+              <linearGradient id="pessimisticGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(0, 70%, 50%)" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="hsl(0, 70%, 50%)" stopOpacity={0.05} />
+              </linearGradient>
+              <linearGradient id="medianGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="hsl(var(--accent))" />
+                <stop offset="100%" stopColor="hsl(45, 90%, 60%)" />
+              </linearGradient>
+            </defs>
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              stroke="hsl(0, 0%, 100%)" 
+              strokeOpacity={0.06}
+              vertical={false}
+            />
+            <XAxis 
+              dataKey="year" 
+              tick={{ fill: 'hsl(0, 0%, 100%)', fillOpacity: 0.4, fontSize: 11, fontFamily: 'monospace' }}
+              axisLine={{ stroke: 'hsl(0, 0%, 100%)', strokeOpacity: 0.1 }}
+              tickLine={{ stroke: 'hsl(0, 0%, 100%)', strokeOpacity: 0.1 }}
+            />
+            <YAxis 
+              tick={{ fill: 'hsl(0, 0%, 100%)', fillOpacity: 0.4, fontSize: 11, fontFamily: 'monospace' }}
+              axisLine={{ stroke: 'hsl(0, 0%, 100%)', strokeOpacity: 0.1 }}
+              tickLine={{ stroke: 'hsl(0, 0%, 100%)', strokeOpacity: 0.1 }}
+              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+              width={60}
+            />
+            <Tooltip
+              formatter={(value: number, name: string) => {
+                const labels: Record<string, string> = {
+                  p90: 'Optimistic (90th)',
+                  median: 'Expected (50th)',
+                  p10: 'Pessimistic (10th)'
+                };
+                return [`$${value.toLocaleString()}`, labels[name] || name];
+              }}
+              labelFormatter={(label) => `Year ${label}`}
+              contentStyle={{
+                backgroundColor: 'hsl(222, 47%, 8%)',
+                border: '1px solid hsl(0, 0%, 100%, 0.1)',
+                borderRadius: '8px',
+                fontFamily: 'monospace',
+                fontSize: '12px',
+                color: 'white',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+              }}
+              itemStyle={{ color: 'white' }}
+              labelStyle={{ color: 'white', opacity: 0.6, marginBottom: '4px' }}
+            />
+            <Area
+              type="monotone"
+              dataKey="p90"
+              stroke="hsl(180, 100%, 50%)"
+              strokeWidth={1.5}
+              fill="url(#optimisticGradient)"
+              name="p90"
+            />
+            <Area
+              type="monotone"
+              dataKey="p10"
+              stroke="hsl(0, 70%, 50%)"
+              strokeWidth={1.5}
+              fill="url(#pessimisticGradient)"
+              name="p10"
+            />
+            <Line
+              type="monotone"
+              dataKey="median"
+              stroke="url(#medianGradient)"
+              strokeWidth={3}
+              name="median"
+              dot={false}
+              style={{ filter: 'drop-shadow(0 0 6px hsl(var(--accent) / 0.5))' }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+        
+        {/* Legend */}
+        <div className="mt-4 flex items-center justify-center gap-8 text-xs font-mono">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-0.5 bg-gradient-to-r from-cyan-400 to-cyan-300 rounded-full shadow-[0_0_8px_hsl(180,100%,50%,0.5)]" />
+            <span className="text-white/50">Optimistic</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-0.5 bg-gradient-to-r from-accent to-yellow-400 rounded-full shadow-[0_0_8px_hsl(var(--accent)/0.5)]" />
+            <span className="text-white/50">Expected</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-0.5 bg-gradient-to-r from-red-500 to-red-400 rounded-full shadow-[0_0_8px_hsl(0,70%,50%,0.5)]" />
+            <span className="text-white/50">Pessimistic</span>
+          </div>
         </div>
       </div>
-    </Card>
+    </motion.div>
   );
 }
