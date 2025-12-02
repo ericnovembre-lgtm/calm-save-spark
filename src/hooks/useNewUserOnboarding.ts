@@ -52,7 +52,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'nlq-commander',
     title: 'Ask Anything',
-    description: 'Type questions in plain English like "How much did I spend on food?" or press ⌘K anytime.',
+    description: 'Type questions in plain English like "How much did I spend on food?".',
     target: 'nlq-commander',
     position: 'top',
   },
