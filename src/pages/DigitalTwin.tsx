@@ -14,8 +14,15 @@ import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
 import { useDigitalTwinProfile } from "@/hooks/useDigitalTwinProfile";
 import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequiredPrompt";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen, Brain } from "lucide-react";
+import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen, Brain, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ScenarioExportModal } from "@/components/digital-twin/ScenarioExportModal";
 import { ShareScenarioModal } from "@/components/digital-twin/ShareScenarioModal";
 import { ScenarioPlayback } from "@/components/digital-twin/ScenarioPlayback";
@@ -33,6 +40,7 @@ import "@/styles/digital-twin-theme.css";
 
 export default function DigitalTwin() {
   const { profile, isLoading, hasProfile } = useDigitalTwinProfile();
+  const isMobile = useIsMobile();
   
   // Use real user data from profile
   const currentAge = profile?.currentAge || 30;
@@ -271,12 +279,13 @@ export default function DigitalTwin() {
           </HUDOverlay>
         </motion.div>
 
-        {/* Action buttons */}
+        {/* Action buttons - Responsive layout */}
         <motion.div
-          className="fixed top-24 right-8 z-50 flex gap-2"
+          className={`fixed top-24 z-50 ${isMobile ? 'right-4 flex flex-col gap-2' : 'right-8 flex gap-2'}`}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
         >
+          {/* Primary buttons - always visible */}
           <Button
             variant="outline"
             size="sm"
@@ -286,24 +295,6 @@ export default function DigitalTwin() {
           >
             <FileDown className="w-4 h-4 mr-2" />
             Save
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowMemoryExplorer(true)}
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-cyan-500 hover:bg-cyan-500/10"
-          >
-            <Brain className="w-4 h-4 mr-2" />
-            Memories
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSavedPanel(true)}
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-blue-500 hover:bg-blue-500/10"
-          >
-            <FolderOpen className="w-4 h-4 mr-2" />
-            My Scenarios
           </Button>
           <Button
             variant="outline"
@@ -318,49 +309,115 @@ export default function DigitalTwin() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowEnhancedComparison(true)}
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-magenta-500 hover:bg-magenta-500/10"
-          >
-            <GitBranch className="w-4 h-4 mr-2" />
-            Compare Paths
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPlayback(true)}
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-magenta-500 hover:bg-magenta-500/10"
-          >
-            <Play className="w-4 h-4 mr-2" />
-            Play
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowShareModal(true)}
-            data-tour="dt-share"
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-violet-500 hover:bg-violet-500/10"
-          >
-            <Share2 className="w-4 h-4 mr-2" />
-            Share
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowExportModal(true)}
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-violet-500 hover:bg-violet-500/10"
-          >
-            <FileDown className="w-4 h-4 mr-2" />
-            Export PDF
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
             onClick={handleReset}
             className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-white/30"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
             Reset
           </Button>
+
+          {/* Desktop: show all buttons / Mobile: dropdown for secondary */}
+          {isMobile ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-accent hover:bg-accent/10"
+                >
+                  <MoreVertical className="w-4 h-4 mr-2" />
+                  More
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                align="end" 
+                className="w-48 backdrop-blur-xl bg-black/90 border-white/10"
+              >
+                <DropdownMenuItem onClick={() => setShowMemoryExplorer(true)} className="gap-2">
+                  <Brain className="w-4 h-4" />
+                  Memories
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowSavedPanel(true)} className="gap-2">
+                  <FolderOpen className="w-4 h-4" />
+                  My Scenarios
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowEnhancedComparison(true)} className="gap-2">
+                  <GitBranch className="w-4 h-4" />
+                  Compare Paths
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowPlayback(true)} className="gap-2">
+                  <Play className="w-4 h-4" />
+                  Play
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowShareModal(true)} className="gap-2">
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowExportModal(true)} className="gap-2">
+                  <FileDown className="w-4 h-4" />
+                  Export PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMemoryExplorer(true)}
+                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-cyan-500 hover:bg-cyan-500/10"
+              >
+                <Brain className="w-4 h-4 mr-2" />
+                Memories
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSavedPanel(true)}
+                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-blue-500 hover:bg-blue-500/10"
+              >
+                <FolderOpen className="w-4 h-4 mr-2" />
+                My Scenarios
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowEnhancedComparison(true)}
+                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-magenta-500 hover:bg-magenta-500/10"
+              >
+                <GitBranch className="w-4 h-4 mr-2" />
+                Compare Paths
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPlayback(true)}
+                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-magenta-500 hover:bg-magenta-500/10"
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Play
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowShareModal(true)}
+                data-tour="dt-share"
+                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-violet-500 hover:bg-violet-500/10"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowExportModal(true)}
+                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-violet-500 hover:bg-violet-500/10"
+              >
+                <FileDown className="w-4 h-4 mr-2" />
+                Export PDF
+              </Button>
+            </>
+          )}
         </motion.div>
 
         {/* Injected events display */}
