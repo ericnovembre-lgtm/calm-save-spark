@@ -114,6 +114,9 @@ verify_jwt = true
 [functions.calculate-financial-health]
 verify_jwt = true
 
+[functions.predict-health-score]
+verify_jwt = true
+
 [functions.send-weekly-digest]
 verify_jwt = true
 
