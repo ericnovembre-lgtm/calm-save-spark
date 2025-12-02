@@ -432,4 +432,7 @@ verify_jwt = true
 [functions.parse-life-event-nl]
 verify_jwt = true
 
+[functions.translate-permissions]
+verify_jwt = true
+
 
