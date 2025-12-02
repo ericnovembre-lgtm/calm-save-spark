@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { useNetWorthData } from "@/hooks/useNetWorthData";
 import { useGoalsProgress } from "@/hooks/useGoalsProgress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface QuickStatsChipProps {
   netWorth?: number;
@@ -25,7 +26,24 @@ export const QuickStatsChip = () => {
   const TrendIcon = trend === "up" ? TrendingUp : TrendingDown;
 
   if (netWorthLoading || goalsLoading) {
-    return null;
+    return (
+      <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-full glass-bg-strong backdrop-blur-xl border border-accent/20 shadow-glass">
+        {/* Trend Icon Skeleton */}
+        <Skeleton className="w-3.5 h-3.5 rounded-full" />
+        
+        {/* Net Worth & Trend Skeleton */}
+        <div className="flex flex-col gap-1">
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-2 w-10" />
+        </div>
+
+        {/* Divider */}
+        <div className="h-6 w-px bg-border" />
+
+        {/* Progress Ring Skeleton */}
+        <Skeleton className="w-8 h-8 rounded-full" />
+      </div>
+    );
   }
   
   return (
