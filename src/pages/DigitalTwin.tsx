@@ -18,6 +18,7 @@ import { useVisibleSection } from "@/hooks/useVisibleSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen, Brain, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   DropdownMenu,
@@ -339,145 +340,87 @@ export default function DigitalTwin() {
           </HUDOverlay>
         </motion.div>
 
-        {/* Action buttons - Responsive layout */}
+        {/* Compact Action Toolbar */}
         <motion.div
-          className={`fixed top-24 z-50 ${isMobile ? 'right-4 flex flex-col gap-2' : 'right-8 flex gap-2'}`}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
+          className="fixed top-20 right-16 z-50 flex items-center gap-1.5"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
         >
-          {/* Primary buttons - always visible */}
+          {/* Primary action icons */}
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={handleSaveScenario}
             data-tour="dt-save"
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-green-500 hover:bg-green-500/10"
+            className="h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10 hover:border-green-500 hover:bg-green-500/10"
+            title="Save Scenario"
           >
-            <FileDown className="w-4 h-4 mr-2" />
-            Save
+            <FileDown className="w-4 h-4" />
           </Button>
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={() => setShowMonteCarlo(!showMonteCarlo)}
             data-tour="dt-projections"
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-cyan-500 hover:bg-cyan-500/10"
+            className={cn(
+              "h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10",
+              showMonteCarlo ? "border-cyan-500 bg-cyan-500/20" : "hover:border-cyan-500 hover:bg-cyan-500/10"
+            )}
+            title={showMonteCarlo ? 'Hide Projections' : 'Show Projections'}
           >
-            <BarChart3 className="w-4 h-4 mr-2" />
-            {showMonteCarlo ? 'Hide' : 'Show'} Projections
+            <BarChart3 className="w-4 h-4" />
           </Button>
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={handleReset}
-            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-white/30"
+            className="h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10 hover:border-white/30"
+            title="Reset Timeline"
           >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Reset
+            <RotateCcw className="w-4 h-4" />
           </Button>
 
-          {/* Desktop: show all buttons / Mobile: dropdown for secondary */}
-          {isMobile ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-accent hover:bg-accent/10"
-                >
-                  <MoreVertical className="w-4 h-4 mr-2" />
-                  More
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                align="end" 
-                className="w-48 backdrop-blur-xl bg-black/90 border-white/10"
-              >
-                <DropdownMenuItem onClick={() => setShowMemoryExplorer(true)} className="gap-2">
-                  <Brain className="w-4 h-4" />
-                  Memories
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowSavedPanel(true)} className="gap-2">
-                  <FolderOpen className="w-4 h-4" />
-                  My Scenarios
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowEnhancedComparison(true)} className="gap-2">
-                  <GitBranch className="w-4 h-4" />
-                  Compare Paths
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowPlayback(true)} className="gap-2">
-                  <Play className="w-4 h-4" />
-                  Play
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowShareModal(true)} className="gap-2">
-                  <Share2 className="w-4 h-4" />
-                  Share
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowExportModal(true)} className="gap-2">
-                  <FileDown className="w-4 h-4" />
-                  Export PDF
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
+          {/* Dropdown for all secondary actions */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                size="sm"
-                onClick={() => setShowMemoryExplorer(true)}
-                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-cyan-500 hover:bg-cyan-500/10"
+                size="icon"
+                className="h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10 hover:border-accent hover:bg-accent/10"
               >
-                <Brain className="w-4 h-4 mr-2" />
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align="end" 
+              className="w-48 backdrop-blur-xl bg-slate-950/95 border-white/10"
+            >
+              <DropdownMenuItem onClick={() => setShowMemoryExplorer(true)} className="gap-2 text-white/80 hover:text-white">
+                <Brain className="w-4 h-4" />
                 Memories
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSavedPanel(true)}
-                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-blue-500 hover:bg-blue-500/10"
-              >
-                <FolderOpen className="w-4 h-4 mr-2" />
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowSavedPanel(true)} className="gap-2 text-white/80 hover:text-white">
+                <FolderOpen className="w-4 h-4" />
                 My Scenarios
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowEnhancedComparison(true)}
-                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-magenta-500 hover:bg-magenta-500/10"
-              >
-                <GitBranch className="w-4 h-4 mr-2" />
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowEnhancedComparison(true)} className="gap-2 text-white/80 hover:text-white">
+                <GitBranch className="w-4 h-4" />
                 Compare Paths
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowPlayback(true)}
-                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-magenta-500 hover:bg-magenta-500/10"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Play
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowShareModal(true)}
-                data-tour="dt-share"
-                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-violet-500 hover:bg-violet-500/10"
-              >
-                <Share2 className="w-4 h-4 mr-2" />
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowPlayback(true)} className="gap-2 text-white/80 hover:text-white">
+                <Play className="w-4 h-4" />
+                Play Timeline
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowShareModal(true)} data-tour="dt-share" className="gap-2 text-white/80 hover:text-white">
+                <Share2 className="w-4 h-4" />
                 Share
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowExportModal(true)}
-                className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-violet-500 hover:bg-violet-500/10"
-              >
-                <FileDown className="w-4 h-4 mr-2" />
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowExportModal(true)} className="gap-2 text-white/80 hover:text-white">
+                <FileDown className="w-4 h-4" />
                 Export PDF
-              </Button>
-            </>
-          )}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </motion.div>
 
         {/* Injected events display */}
