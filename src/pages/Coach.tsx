@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Bot, Moon, Sun, MessageCircle, Keyboard } from "lucide-react";
+import { Bot, Moon, Sun, MessageCircle } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -14,11 +14,9 @@ import { ScanningLoader } from "@/components/coach/ScanningLoader";
 import { CoachChatDrawer } from "@/components/coach/CoachChatDrawer";
 import { CoachQuickActionsMenu } from "@/components/coach/CoachQuickActionsMenu";
 import { CoachCommandPalette } from "@/components/coach/CoachCommandPalette";
-import { CoachKeyboardShortcutsHelp } from "@/components/coach/CoachKeyboardShortcutsHelp";
 import { ComparisonTimelineChart } from "@/components/coach/ComparisonTimelineChart";
 import { ComparisonSummaryCard } from "@/components/coach/ComparisonSummaryCard";
 import { ScenarioHistoryPanel } from "@/components/coach/ScenarioHistoryPanel";
-import { useCoachKeyboardShortcuts } from "@/hooks/useCoachKeyboardShortcuts";
 import { useScenarioHistory } from "@/hooks/useScenarioHistory";
 import { useCoachLayout } from "@/hooks/useCoachLayout";
 import { WidgetWrapper } from "@/components/coach/WidgetWrapper";
@@ -32,7 +30,6 @@ export default function Coach() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isCompareMode, setIsCompareMode] = useState(false);
   const [selectedScenarioIds, setSelectedScenarioIds] = useState<string[]>([]);
@@ -174,7 +171,6 @@ export default function Coach() {
 
   const handleEscape = () => {
     setIsCommandPaletteOpen(false);
-    setIsShortcutsHelpOpen(false);
     setIsChatOpen(false);
     setIsQuickMenuOpen(false);
     setIsHistoryOpen(false);
@@ -217,18 +213,6 @@ export default function Coach() {
       };
     })
     .filter(Boolean) as any[];
-
-  // Register keyboard shortcuts (must be called before any early returns)
-  const { shortcuts } = useCoachKeyboardShortcuts({
-    onCommandPalette: () => setIsCommandPaletteOpen(true),
-    onScenarioFocus: handleScrollToScenario,
-    onOpportunitiesFocus: handleScrollToRadar,
-    onDNAFocus: handleScrollToDNA,
-    onChatOpen: () => setIsChatOpen(true),
-    onToggleCompare: () => setIsCompareMode(prev => !prev),
-    onShowShortcuts: () => setIsShortcutsHelpOpen(true),
-    onEscape: handleEscape,
-  });
 
   // Apply dark mode (useEffect must be called after all other hooks)
   useEffect(() => {
@@ -349,10 +333,9 @@ export default function Coach() {
               variant="outline"
               size="sm"
               onClick={() => setIsCommandPaletteOpen(true)}
-              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white hover:border-command-cyan/50" : ""} flex items-center gap-2 transition-all duration-300`}
+              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white hover:border-command-cyan/50" : ""} transition-all duration-300`}
             >
-              <Keyboard className="w-3.5 h-3.5" />
-              <span className="text-xs font-mono hidden sm:inline">⌘K</span>
+              <span className="text-xs font-mono">Command Palette</span>
             </Button>
             <Button
               variant="outline"
@@ -568,13 +551,6 @@ export default function Coach() {
           onOpenChat={() => setIsChatOpen(true)}
           onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
           isDarkMode={isDarkMode}
-        />
-
-        {/* Keyboard Shortcuts Help */}
-        <CoachKeyboardShortcutsHelp
-          open={isShortcutsHelpOpen}
-          onOpenChange={setIsShortcutsHelpOpen}
-          shortcuts={shortcuts}
         />
 
         {/* Scenario History Panel */}
