@@ -79,6 +79,10 @@ export default function DigitalTwin() {
   // Digital Twin Tour
   const { run: tourRun, steps: tourSteps, stepIndex: tourStepIndex, handleJoyrideCallback } = useDigitalTwinTour(addEvent);
 
+  // Mini-map section tracking - must be before any early returns to follow React hooks rules
+  const sectionIds = DESKTOP_SECTIONS.map(s => s.id);
+  const activeSection = useVisibleSection(sectionIds);
+
   // Generate Monte Carlo on mount and when events change
   useEffect(() => {
     generateMonteCarloProjection();
@@ -251,10 +255,6 @@ export default function DigitalTwin() {
       </AppLayout>
     );
   }
-
-  // Mini-map section tracking
-  const sectionIds = DESKTOP_SECTIONS.map(s => s.id);
-  const activeSection = useVisibleSection(sectionIds);
 
   const handleMinimapNavigate = (sectionId: string) => {
     const element = document.getElementById(sectionId);
