@@ -1,12 +1,13 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildFinancialContext } from "../utils/context-builder.ts";
-import { streamAIResponse, formatContextForAI } from "../utils/ai-client.ts";
+import { formatContextForAI } from "../utils/ai-client.ts";
 import { loadConversation, saveConversation, getAgentSystemPrompt } from "../utils/conversation-manager.ts";
 import { determineSubscriptionTier, getSubscriptionMessage } from "../utils/subscription-utils.ts";
 import { UI_TOOLS } from "../utils/ui-tools.ts";
 import { retrieveMemories, formatMemoriesForContext } from "../utils/memory-manager.ts";
 import { getUserDocuments, formatDocumentsForContext } from "../utils/document-processor.ts";
 import { consultAgent, shouldConsultAgent } from "../utils/agent-orchestrator.ts";
+import { routeToOptimalModel } from "../utils/model-router.ts";
 
 interface HandlerParams {
   supabase: SupabaseClient;
@@ -109,17 +110,17 @@ Analyze user message tone. If detecting financial stress, anxiety, or frustratio
 Remember user preferences from memory. If documents were uploaded, analyze and reference them.
 Use this context to provide personalized advice. Reference specific data points when relevant.`;
 
-  // Stream AI response with UI tools
-  const aiStream = await streamAIResponse(
-    enhancedPrompt, 
-    history, 
-    message,
-    'claude/claude-sonnet-4-5',
-    UI_TOOLS,
+  // Route to optimal AI model with hybrid routing
+  const aiStream = await routeToOptimalModel({
+    systemPrompt: enhancedPrompt,
+    conversationHistory: history,
+    userMessage: message,
+    tools: UI_TOOLS,
     supabase,
     conversationId,
-    userId
-  );
+    userId,
+    userTier: tier as 'free' | 'pro' | 'premium'
+  });
 
   // Create a transform stream to capture the full response
   let fullResponse = '';

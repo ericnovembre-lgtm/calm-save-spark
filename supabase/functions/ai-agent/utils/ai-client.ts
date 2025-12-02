@@ -32,7 +32,7 @@ export async function streamAIResponse(
   // Route to appropriate AI provider based on model prefix
   if (model.startsWith('claude/')) {
     const claudeModel = model.replace('claude/', '');
-    console.log(`Routing to Anthropic Claude: ${claudeModel}`);
+    console.log(`[AI Router] Routing to Anthropic Claude: ${claudeModel}`);
     
     try {
       return await streamAnthropicResponse(
@@ -48,12 +48,18 @@ export async function streamAIResponse(
     } catch (error) {
       // Fallback to Lovable AI Gateway if Anthropic fails
       if (error instanceof Error && error.message.includes('ANTHROPIC')) {
-        console.warn('Anthropic unavailable, falling back to Lovable AI Gateway');
+        console.warn('[AI Router] Anthropic unavailable, falling back to Gemini');
         model = 'google/gemini-2.5-pro'; // Use equivalent model
       } else {
         throw error;
       }
     }
+  }
+
+  // Route to Perplexity for market data queries (handled externally)
+  if (model.startsWith('perplexity/')) {
+    console.log('[AI Router] Perplexity routing should be handled by caller');
+    throw new Error('Perplexity routing not implemented in streamAIResponse');
   }
 
   // Use Lovable AI Gateway for OpenAI/Google models
