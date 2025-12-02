@@ -2,11 +2,15 @@ import { useState, useMemo } from 'react';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
 import { AegisShield } from "@/components/guardian/AegisShield";
+import { SentinelSessionMap } from "@/components/guardian/SentinelSessionMap";
+import { PrivacyPulseScanner } from "@/components/guardian/PrivacyPulseScanner";
+import { PanicLockdown } from "@/components/guardian/PanicLockdown";
 import { Shield, Activity, Eye, AlertTriangle, Lock, Smartphone, Globe, Key } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { toast } from 'sonner';
 
 // Scanline background effect
 function ScanlineOverlay() {
@@ -279,66 +283,58 @@ export default function GuardianSecurityCenter() {
             </motion.div>
           </div>
 
-          {/* Placeholder sections for future components */}
+          {/* Session Map & Privacy Pulse */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Sentinel Session Map Placeholder */}
+            {/* Sentinel Session Map */}
             <motion.div
               initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
             >
-              <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5 min-h-[300px] flex flex-col">
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5 min-h-[340px] flex flex-col">
                 <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <Globe className="w-4 h-4" />
                   SENTINEL SESSION MAP
                 </h3>
-                <div className="flex-1 flex items-center justify-center border border-dashed border-white/10 rounded-lg">
-                  <p className="text-white/30 text-sm font-mono">Session Map Component</p>
+                <div className="flex-1 relative">
+                  <SentinelSessionMap />
                 </div>
               </Card>
             </motion.div>
 
-            {/* Privacy Pulse Placeholder */}
+            {/* Privacy Pulse Scanner */}
             <motion.div
               initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.5 }}
             >
-              <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5 min-h-[300px] flex flex-col">
+              <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5 min-h-[340px] flex flex-col">
                 <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <Eye className="w-4 h-4" />
                   PRIVACY PULSE SCANNER
                 </h3>
-                <div className="flex-1 flex items-center justify-center border border-dashed border-white/10 rounded-lg">
-                  <p className="text-white/30 text-sm font-mono">AI Scanner Component</p>
+                <div className="flex-1">
+                  <PrivacyPulseScanner />
                 </div>
               </Card>
             </motion.div>
           </div>
 
-          {/* Panic Lockdown Placeholder */}
+          {/* Panic Lockdown */}
           <motion.div
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.5 }}
           >
             <Card className="bg-rose-950/30 backdrop-blur-xl border-rose-500/20 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-rose-500/20">
-                    <AlertTriangle className="w-5 h-5 text-rose-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-mono text-rose-400 uppercase tracking-widest">
-                      EMERGENCY LOCKDOWN
-                    </h3>
-                    <p className="text-xs text-white/40">Freeze all accounts and revoke access</p>
-                  </div>
-                </div>
-              </div>
-              <div className="h-14 border border-dashed border-rose-500/20 rounded-lg flex items-center justify-center">
-                <p className="text-rose-400/50 text-sm font-mono">Slide-to-Lock Component</p>
-              </div>
+              <PanicLockdown 
+                onLockdown={() => {
+                  toast.error('🚨 EMERGENCY LOCKDOWN ACTIVATED', {
+                    description: 'All cards frozen. API access revoked.',
+                    duration: 5000,
+                  });
+                }}
+              />
             </Card>
           </motion.div>
         </div>
