@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { age, netWorth, lifeEvents } = await req.json();
+    const { age, netWorth, lifeEvents, personalityTone = 'balanced' } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
@@ -22,13 +22,36 @@ serve(async (req) => {
       ? lifeEvents.map((e: any) => `${e.label} at age ${e.year}`).join(', ')
       : 'no major life events';
 
+    // Determine emotional tone based on net worth trajectory
+    let emotionalTone = 'neutral and factual';
+    if (netWorth >= 1000000) {
+      emotionalTone = 'celebratory and empowering';
+    } else if (netWorth >= 500000) {
+      emotionalTone = 'optimistic and encouraging';
+    } else if (netWorth >= 100000) {
+      emotionalTone = 'supportive and motivating';
+    } else if (netWorth < 0) {
+      emotionalTone = 'compassionate but solution-focused';
+    }
+
+    // Adjust tone based on personality
+    const toneAdjustments: Record<string, string> = {
+      conservative: 'Use cautious language, emphasize security and risk management',
+      balanced: 'Balance optimism with realism, acknowledge both opportunities and challenges',
+      aggressive: 'Be bold and ambitious, focus on growth potential and upside scenarios',
+    };
+
+    const toneInstruction = toneAdjustments[personalityTone] || toneAdjustments.balanced;
+
     const prompt = `Generate a single, story-driven narrative sentence (max 40 words) about a person's financial future:
     
 - Current age: ${age}
 - Net worth: $${netWorth.toLocaleString()}
 - Life events: ${eventsDescription}
+- Emotional tone: ${emotionalTone}
+- Personality adjustment: ${toneInstruction}
 
-Focus on what this means for their life, not just numbers. Be inspiring if they're doing well, or motivating if they face challenges. Use phrases like "You are free" or "Financial independence" for milestones.`;
+Focus on what this means for their life, not just numbers. Be inspiring if they're doing well, or motivating if they face challenges. Use phrases like "You are free" or "Financial independence" for milestones above $1M. For challenging situations, focus on the path forward.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -41,14 +64,14 @@ Focus on what this means for their life, not just numbers. Be inspiring if they'
         messages: [
           {
             role: 'system',
-            content: 'You are a financial storyteller. Create concise, impactful narratives about financial futures.',
+            content: 'You are a financial storyteller. Create concise, impactful, emotion-aware narratives about financial futures. Adapt your tone to the user\'s financial state and personality.',
           },
           {
             role: 'user',
             content: prompt,
           },
         ],
-        temperature: 0.7,
+        temperature: 0.8,
         max_tokens: 100,
       }),
     });
@@ -63,7 +86,10 @@ Focus on what this means for their life, not just numbers. Be inspiring if they'
     const narrative = data.choices[0]?.message?.content || 
       `At age ${age}, your net worth stands at $${(netWorth / 1000).toFixed(0)}K. Your future is taking shape.`;
 
-    return new Response(JSON.stringify({ narrative }), {
+    return new Response(JSON.stringify({ 
+      narrative,
+      emotional_tone: emotionalTone,
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {

@@ -7,6 +7,7 @@ import { investmentResearchHandler } from "./handlers/investment-research.ts";
 import { debtAdvisorHandler } from "./handlers/debt-advisor.ts";
 import { lifePlannerHandler } from "./handlers/life-planner.ts";
 import { helpAgentHandler } from "./handlers/help-agent.ts";
+import { digitalTwinAdvisorHandler } from "./handlers/digital-twin-advisor.ts";
 import { checkAnthropicHealth } from "./utils/anthropic-client.ts";
 
 const corsHeaders = {
@@ -29,6 +30,7 @@ const AGENT_HANDLERS = {
   debt_advisor: debtAdvisorHandler,
   life_planner: lifePlannerHandler,
   help_agent: helpAgentHandler,
+  digital_twin_advisor: digitalTwinAdvisorHandler,
 };
 
 serve(async (req) => {
