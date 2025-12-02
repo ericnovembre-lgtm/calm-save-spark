@@ -8669,6 +8669,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          created_at: string | null
+          event_message: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          severity: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_message: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          severity?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_message?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          severity?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       security_error_logs: {
         Row: {
           created_at: string

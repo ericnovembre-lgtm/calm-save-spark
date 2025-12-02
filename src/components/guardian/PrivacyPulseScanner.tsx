@@ -208,7 +208,8 @@ export function PrivacyPulseScanner() {
   };
 
   const handleSever = async (id: string, provider: string) => {
-    await severMutation.mutateAsync({ id, provider });
+    const app = enrichedApps.find(a => a.id === id);
+    await severMutation.mutateAsync({ id, provider, name: app?.name });
     setEnrichedApps(prev => prev.filter(app => app.id !== id));
     toast.success('Connection severed');
   };

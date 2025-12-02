@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { markSessionActive } from '@/lib/session';
+import { logLoginEvent } from '@/lib/security-logger';
 
 interface AuthContextType {
   user: User | null;
@@ -31,13 +32,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
         if (session) {
           markSessionActive();
+          
+          // Track session and log security event on sign in
+          if (event === 'SIGNED_IN') {
+            // Track session in background (fire-and-forget)
+            supabase.functions.invoke('track-session').catch(console.error);
+            
+            // Log security event
+            logLoginEvent();
+          }
         }
       }
     );

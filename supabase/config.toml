@@ -438,4 +438,7 @@ verify_jwt = true
 [functions.track-session]
 verify_jwt = true
 
+[functions.seed-test-sessions]
+verify_jwt = true
+
 

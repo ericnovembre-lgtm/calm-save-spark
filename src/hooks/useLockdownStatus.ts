@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useEffect } from 'react';
+import { logLockdownActivated, logLockdownDeactivated } from '@/lib/security-logger';
 
 export interface LockdownStatus {
   id: string;
@@ -77,6 +78,9 @@ export function useActivateLockdown() {
       setLockdownActivatedAt(data.activated_at);
       queryClient.invalidateQueries({ queryKey: ['lockdown-status'] });
       
+      // Log security event
+      logLockdownActivated(data.reason);
+      
       // Broadcast to other tabs
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
         const channel = new BroadcastChannel('lockdown-sync');
@@ -113,6 +117,9 @@ export function useDeactivateLockdown() {
       setLockdownActive(false);
       setLockdownActivatedAt(null);
       queryClient.invalidateQueries({ queryKey: ['lockdown-status'] });
+      
+      // Log security event
+      logLockdownDeactivated();
       
       // Broadcast to other tabs
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
