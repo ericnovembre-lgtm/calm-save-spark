@@ -335,7 +335,7 @@ const sections: Section[] = [
         description: "Automated playbooks for major life milestones",
         details: "End-to-end automation of financial, administrative, and legal tasks for marriage, home purchase, or having a child. Handles everything from updating beneficiaries to opening 529 plans.",
         status: "beta",
-        route: "/life-events"
+        route: "/life-planner"
       },
       {
         id: "business-of-one",
