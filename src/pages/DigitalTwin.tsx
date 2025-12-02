@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { VoidBackground } from "@/components/digital-twin/VoidBackground";
 import { HUDOverlay } from "@/components/digital-twin/HUDOverlay";
 import { HolographicAvatar } from "@/components/digital-twin/HolographicAvatar";
@@ -16,7 +17,7 @@ import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequired
 import { DigitalTwinMinimap, DESKTOP_SECTIONS } from "@/components/digital-twin/DigitalTwinMinimap";
 import { useVisibleSection } from "@/hooks/useVisibleSection";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen, Brain, MoreVertical } from "lucide-react";
+import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen, Brain, MoreVertical, LineChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -25,6 +26,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { ScenarioExportModal } from "@/components/digital-twin/ScenarioExportModal";
 import { ShareScenarioModal } from "@/components/digital-twin/ShareScenarioModal";
@@ -42,6 +44,7 @@ import { TwinChatPanel } from "@/components/digital-twin/TwinChatPanel";
 import "@/styles/digital-twin-theme.css";
 
 export default function DigitalTwin() {
+  const navigate = useNavigate();
   const { profile, isLoading, hasProfile } = useDigitalTwinProfile();
   const isMobile = useIsMobile();
   
@@ -252,6 +255,10 @@ export default function DigitalTwin() {
           selectedEvent={selectedEvent}
           eventReaction={eventReaction}
           onScenarioCreated={handleMobileScenarioCreated}
+          onShowMemories={() => setShowMemoryExplorer(true)}
+          onShowSavedScenarios={() => setShowSavedPanel(true)}
+          onShowComparison={() => setShowEnhancedComparison(true)}
+          onShowShare={() => setShowShareModal(true)}
         />
       </AppLayout>
     );
@@ -419,14 +426,19 @@ export default function DigitalTwin() {
                 <FileDown className="w-4 h-4" />
                 Export PDF
               </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuItem onClick={() => navigate('/digital-twin/analytics')} className="gap-2 text-white/80 hover:text-white">
+                <LineChart className="w-4 h-4" />
+                Analytics Dashboard
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </motion.div>
 
-        {/* Injected events display */}
+        {/* Injected events display - positioned below toolbar */}
         {injectedEvents.length > 0 && (
           <motion.div
-            className="fixed top-40 right-8 max-w-xs"
+            className="fixed top-32 right-16 max-w-xs z-40"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
           >

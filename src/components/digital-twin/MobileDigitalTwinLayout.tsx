@@ -1,7 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, RotateCcw, BarChart3, FileDown, MessageSquare, TrendingUp, User, Clock, Layers } from 'lucide-react';
+import { Sparkles, RotateCcw, BarChart3, FileDown, MessageSquare, TrendingUp, User, Clock, Layers, MoreVertical, Brain, FolderOpen, Share2, GitBranch, LineChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { MobileCollapsibleSection } from './MobileCollapsibleSection';
 import { HorizontalLifeEvents, LifeEvent } from './HorizontalLifeEvents';
 import { HolographicAvatar } from './HolographicAvatar';
@@ -39,6 +47,10 @@ interface MobileDigitalTwinLayoutProps {
   selectedEvent: LifeEvent | null;
   eventReaction: { type: 'positive' | 'negative'; timestamp: number } | null;
   onScenarioCreated?: (event: any) => void;
+  onShowMemories?: () => void;
+  onShowSavedScenarios?: () => void;
+  onShowComparison?: () => void;
+  onShowShare?: () => void;
 }
 
 export function MobileDigitalTwinLayout({
@@ -56,8 +68,13 @@ export function MobileDigitalTwinLayout({
   onSaveScenario,
   selectedEvent,
   eventReaction,
-  onScenarioCreated
+  onScenarioCreated,
+  onShowMemories,
+  onShowSavedScenarios,
+  onShowComparison,
+  onShowShare
 }: MobileDigitalTwinLayoutProps) {
+  const navigate = useNavigate();
   const [showMonteCarlo, setShowMonteCarlo] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [sectionStates, setSectionStates] = useState<Record<string, boolean>>({
@@ -298,6 +315,53 @@ export function MobileDigitalTwinLayout({
             <RotateCcw className="w-4 h-4 mr-2" />
             Reset
           </Button>
+          
+          {/* More options dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="backdrop-blur-xl bg-black/60 border-white/10"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align="end" 
+              className="w-48 backdrop-blur-xl bg-slate-950/95 border-white/10"
+            >
+              {onShowMemories && (
+                <DropdownMenuItem onClick={onShowMemories} className="gap-2 text-white/80 hover:text-white">
+                  <Brain className="w-4 h-4" />
+                  Memories
+                </DropdownMenuItem>
+              )}
+              {onShowSavedScenarios && (
+                <DropdownMenuItem onClick={onShowSavedScenarios} className="gap-2 text-white/80 hover:text-white">
+                  <FolderOpen className="w-4 h-4" />
+                  My Scenarios
+                </DropdownMenuItem>
+              )}
+              {onShowComparison && (
+                <DropdownMenuItem onClick={onShowComparison} className="gap-2 text-white/80 hover:text-white">
+                  <GitBranch className="w-4 h-4" />
+                  Compare Paths
+                </DropdownMenuItem>
+              )}
+              {onShowShare && (
+                <DropdownMenuItem onClick={onShowShare} className="gap-2 text-white/80 hover:text-white">
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuItem onClick={() => navigate('/digital-twin/analytics')} className="gap-2 text-white/80 hover:text-white">
+                <LineChart className="w-4 h-4" />
+                Analytics
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
