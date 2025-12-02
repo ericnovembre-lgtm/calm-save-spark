@@ -61,7 +61,7 @@ export const RecommendationCard = ({ recommendation, onDismiss }: Recommendation
         <div className="relative">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <Badge className={`${getPriorityColor(recommendation.priority)} border`}>
-              {recommendation.priority.toUpperCase()}
+              {recommendation.priority?.toUpperCase() || 'INFO'}
             </Badge>
             {recommendation.impact > 0 && (
               <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
