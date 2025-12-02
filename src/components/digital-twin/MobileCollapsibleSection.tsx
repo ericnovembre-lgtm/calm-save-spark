@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,6 +12,9 @@ interface MobileCollapsibleSectionProps {
   defaultOpen?: boolean;
   children: React.ReactNode;
   className?: string;
+  id?: string;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function MobileCollapsibleSection({
@@ -19,24 +22,42 @@ export function MobileCollapsibleSection({
   icon: Icon,
   defaultOpen = true,
   children,
-  className
+  className,
+  id,
+  isOpen: controlledIsOpen,
+  onOpenChange
 }: MobileCollapsibleSectionProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [internalIsOpen, setInternalIsOpen] = useState(defaultOpen);
   const prefersReducedMotion = useReducedMotion();
+  
+  // Support both controlled and uncontrolled modes
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+  
+  // Sync internal state with controlled state
+  useEffect(() => {
+    if (controlledIsOpen !== undefined) {
+      setInternalIsOpen(controlledIsOpen);
+    }
+  }, [controlledIsOpen]);
 
   const handleToggle = () => {
     if (!prefersReducedMotion) {
       haptics.buttonPress();
       soundEffects.click();
     }
-    setIsOpen(!isOpen);
+    const newState = !isOpen;
+    setInternalIsOpen(newState);
+    onOpenChange?.(newState);
   };
 
   return (
-    <div className={cn(
-      "backdrop-blur-xl bg-slate-950/80 border border-cyan-500/20 rounded-xl overflow-hidden",
-      className
-    )}>
+    <div 
+      id={id}
+      className={cn(
+        "backdrop-blur-xl bg-slate-950/80 border border-cyan-500/20 rounded-xl overflow-hidden",
+        className
+      )}
+    >
       {/* Header */}
       <button
         onClick={handleToggle}
