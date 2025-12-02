@@ -4348,6 +4348,51 @@ export type Database = {
         }
         Relationships: []
       }
+      digital_twin_analytics: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          insight_summary: string | null
+          model_used: string | null
+          outcome_metrics: Json | null
+          query_text: string | null
+          response_time_ms: number | null
+          scenario_parameters: Json | null
+          session_id: string | null
+          token_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          insight_summary?: string | null
+          model_used?: string | null
+          outcome_metrics?: Json | null
+          query_text?: string | null
+          response_time_ms?: number | null
+          scenario_parameters?: Json | null
+          session_id?: string | null
+          token_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          insight_summary?: string | null
+          model_used?: string | null
+          outcome_metrics?: Json | null
+          query_text?: string | null
+          response_time_ms?: number | null
+          scenario_parameters?: Json | null
+          session_id?: string | null
+          token_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       digital_twin_profiles: {
         Row: {
           created_at: string | null
