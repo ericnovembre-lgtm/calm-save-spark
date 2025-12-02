@@ -113,7 +113,7 @@ Focus on providing up-to-date financial market information.`;
     );
     
     // Log successful routing
-    await logModelUsage(supabase, userId, conversationId, 'perplexity', 'success');
+    await logModelUsage(supabase, userId, conversationId, 'perplexity', 'success', undefined, queryType, userMessage.length);
     
     // Inject model metadata
     return injectModelMetadata(stream, {
@@ -125,7 +125,16 @@ Focus on providing up-to-date financial market information.`;
     console.error('[Model Router] Perplexity failed, falling back to Gemini Flash:', error);
     
     // Log fallback
-    await logModelUsage(supabase, userId, conversationId, 'perplexity', 'fallback', error instanceof Error ? error.message : String(error));
+    await logModelUsage(
+      supabase, 
+      userId, 
+      conversationId, 
+      'perplexity', 
+      'fallback', 
+      error instanceof Error ? error.message : String(error),
+      queryType,
+      userMessage.length
+    );
     
     // Fallback to Gemini Flash
     return await routeToGeminiFlash(
@@ -156,7 +165,7 @@ async function routeToGeminiFlash(
 ): Promise<ReadableStream> {
   console.log('[Model Router] → Gemini 2.5 Flash (Fast & Efficient)');
   
-  await logModelUsage(supabase, userId, conversationId, 'gemini-flash', 'success');
+  await logModelUsage(supabase, userId, conversationId, 'gemini-flash', 'success', undefined, queryType, userMessage.length);
   
   const stream = await streamAIResponse(
     systemPrompt,
@@ -191,7 +200,7 @@ async function routeToClaude(
 ): Promise<ReadableStream> {
   console.log('[Model Router] → Claude Sonnet 4.5 (Advanced Reasoning)');
   
-  await logModelUsage(supabase, userId, conversationId, 'claude-sonnet', 'success');
+  await logModelUsage(supabase, userId, conversationId, 'claude-sonnet', 'success', undefined, queryType, userMessage.length);
   
   const enhancedSystemPrompt = `${systemPrompt}
 
@@ -225,7 +234,9 @@ async function logModelUsage(
   conversationId: string | undefined,
   model: string,
   status: 'success' | 'fallback' | 'error',
-  errorMessage?: string
+  errorMessage?: string,
+  queryType?: string,
+  queryLength?: number
 ): Promise<void> {
   console.log('[Model Router] Usage:', {
     model,
@@ -236,8 +247,27 @@ async function logModelUsage(
     timestamp: new Date().toISOString()
   });
   
-  // Could insert into analytics table if needed
-  // For now, structured logging is sufficient
+  // Persist to analytics table
+  if (supabase && userId) {
+    try {
+      const { error } = await supabase.from('ai_model_routing_analytics').insert({
+        user_id: userId,
+        conversation_id: conversationId,
+        query_type: queryType || 'unknown',
+        model_used: model,
+        was_fallback: status === 'fallback',
+        fallback_reason: errorMessage,
+        query_length: queryLength,
+        confidence_score: status === 'success' ? 0.9 : 0.5,
+      });
+      
+      if (error) {
+        console.error('[Model Router] Failed to log analytics:', error);
+      }
+    } catch (err) {
+      console.error('[Model Router] Analytics logging error:', err);
+    }
+  }
 }
 
 /**
