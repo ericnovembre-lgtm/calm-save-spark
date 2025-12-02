@@ -83,7 +83,6 @@ const WalletSettings = createPageLoader(() => import("./pages/WalletSettings"), 
 const Card = createPageLoader(() => import("./pages/Card"), 'medium');
 const TaxDocuments = createPageLoader(() => import("./pages/TaxDocuments"), 'medium');
 const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
-const Gamification = createPageLoader(() => import("./pages/Gamification"), 'medium');
 
 // Hub pages (Medium complexity)
 const ManageMoneyHub = createPageLoader(() => import("./pages/hubs/ManageMoneyHub"), 'medium');
@@ -105,7 +104,6 @@ const NotFound = createPageLoader(() => import("./pages/NotFound"), 'light');
 const Maintenance = createPageLoader(() => import("./pages/Maintenance"), 'light');
 const Search = createPageLoader(() => import("./pages/Search"), 'light');
 const Install = createPageLoader(() => import("./pages/Install"), 'light');
-const IconDemo = createPageLoader(() => import("./pages/IconDemo"), 'light');
 const Onboarding = createPageLoader(() => import("./pages/Onboarding"), 'light');
 const ConversationalWelcome = createPageLoader(() => import("./pages/ConversationalWelcome"), 'light');
 const Checkout = createPageLoader(() => import("./pages/Checkout"), 'light');
@@ -115,7 +113,6 @@ const CoolingOff = createPageLoader(() => import("./pages/CoolingOff"), 'light')
 const AlternativesPortal = createPageLoader(() => import("./pages/AlternativesPortal"), 'light');
 const CorporateWellness = createPageLoader(() => import("./pages/CorporateWellness"), 'light');
 const CardApply = createPageLoader(() => import("./pages/CardApply"), 'light');
-const LifeEvents = createPageLoader(() => import("./pages/LifeEvents"), 'light');
 const SharedScenario = createPageLoader(() => import("./pages/SharedScenario"), 'light');
 
 const queryClient = new QueryClient(queryConfig);
@@ -253,8 +250,7 @@ function AnimatedRoutes() {
         <Route path="/goals" element={<ProtectedRoute><PageTransition><Goals /></PageTransition></ProtectedRoute>} />
         <Route path="/pots" element={<ProtectedRoute><PageTransition><Pots /></PageTransition></ProtectedRoute>} />
         <Route path="/automations" element={<ProtectedRoute><PageTransition><Automations /></PageTransition></ProtectedRoute>} />
-        <Route path="/rewards" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Rewards - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
-        <Route path="/analytics" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Analytics - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
+        <Route path="/rewards" element={<Navigate to="/achievements" replace />} />
         <Route path="/card" element={<ProtectedRoute><PageTransition><Card /></PageTransition></ProtectedRoute>} />
         <Route path="/card/apply" element={<ProtectedRoute><PageTransition><CardApply /></PageTransition></ProtectedRoute>} />
         <Route path="/coach" element={<ProtectedRoute><PageTransition><Coach /></PageTransition></ProtectedRoute>} />
@@ -273,6 +269,7 @@ function AnimatedRoutes() {
         <Route path="/literacy" element={<ProtectedRoute><PageTransition><FinancialLiteracy /></PageTransition></ProtectedRoute>} />
         <Route path="/sustainability" element={<ProtectedRoute><PageTransition><Sustainability /></PageTransition></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><PageTransition><Analytics /></PageTransition></ProtectedRoute>} />
+        <Route path="/advanced-analytics" element={<Navigate to="/analytics" replace />} />
         <Route path="/social" element={<ProtectedRoute><PageTransition><Social /></PageTransition></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><PageTransition><Leaderboard /></PageTransition></ProtectedRoute>} />
         <Route path="/integrations" element={<ProtectedRoute><PageTransition><Integrations /></PageTransition></ProtectedRoute>} />
@@ -280,8 +277,6 @@ function AnimatedRoutes() {
         <Route path="/security-monitoring" element={<ProtectedRoute><PageTransition><AdminRoute><SecurityMonitoring /></AdminRoute></PageTransition></ProtectedRoute>} />
         <Route path="/admin-monitoring" element={<ProtectedRoute><PageTransition><AdminRoute><AdminMonitoring /></AdminRoute></PageTransition></ProtectedRoute>} />
         <Route path="/claude-monitoring" element={<ProtectedRoute><PageTransition><AdminRoute><ClaudeMonitoring /></AdminRoute></PageTransition></ProtectedRoute>} />
-        <Route path="/admin-agents" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Agents - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
-        <Route path="/admin-functions" element={<ProtectedRoute><PageTransition><AppLayout><div className="container mx-auto p-8">Admin Functions - Coming Soon</div></AppLayout></PageTransition></ProtectedRoute>} />
         
         {/* Premium Solutions */}
         <Route path="/alternatives-portal" element={<ProtectedRoute><PageTransition><AlternativesPortal /></PageTransition></ProtectedRoute>} />
@@ -303,16 +298,13 @@ function AnimatedRoutes() {
         <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />
         <Route path="/lifesim" element={<ProtectedRoute><PageTransition><LifeSim /></PageTransition></ProtectedRoute>} />
         <Route path="/life-planner" element={<ProtectedRoute><PageTransition><LifePlanner /></PageTransition></ProtectedRoute>} />
-        <Route path="/gamification" element={<ProtectedRoute><PageTransition><Gamification /></PageTransition></ProtectedRoute>} />
+        <Route path="/gamification" element={<Navigate to="/achievements" replace />} />
+        <Route path="/life-events" element={<Navigate to="/life-planner" replace />} />
         <Route path="/tax-documents" element={<ProtectedRoute><PageTransition><TaxDocuments /></PageTransition></ProtectedRoute>} />
         <Route path="/investment-manager" element={<ProtectedRoute><PageTransition><InvestmentManager /></PageTransition></ProtectedRoute>} />
         <Route path="/refinancing-hub" element={<ProtectedRoute><PageTransition><RefinancingHub /></PageTransition></ProtectedRoute>} />
-        <Route path="/life-events" element={<ProtectedRoute><PageTransition><LifeEvents /></PageTransition></ProtectedRoute>} />
         <Route path="/business-os" element={<ProtectedRoute><PageTransition><BusinessOS /></PageTransition></ProtectedRoute>} />
         <Route path="/defi-manager" element={<ProtectedRoute><PageTransition><DeFiManager /></PageTransition></ProtectedRoute>} />
-        
-        {/* Icon System Demo */}
-        <Route path="/icon-demo" element={<PageTransition><IconDemo /></PageTransition>} />
         
         {/* Maintenance Page */}
         <Route path="/maintenance" element={<PageTransition><Maintenance /></PageTransition>} />

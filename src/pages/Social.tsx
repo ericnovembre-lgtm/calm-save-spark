@@ -1,11 +1,12 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Target, Gift, Share2 } from "lucide-react";
-import { LeaderboardView } from "@/components/social/LeaderboardView";
+import { Trophy, Target, Gift, Share2, ArrowRight } from "lucide-react";
 import { ChallengesGrid } from "@/components/social/ChallengesGrid";
 import { ReferralProgram } from "@/components/social/ReferralProgram";
 import { SocialSharing } from "@/components/social/SocialSharing";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 export default function Social() {
   return (
@@ -68,12 +69,8 @@ export default function Social() {
           </Card>
         </div>
 
-        <Tabs defaultValue="leaderboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="leaderboard">
-              <Trophy className="w-4 h-4 mr-2" />
-              Leaderboard
-            </TabsTrigger>
+        <Tabs defaultValue="challenges" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="challenges">
               <Target className="w-4 h-4 mr-2" />
               Challenges
@@ -88,10 +85,6 @@ export default function Social() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="leaderboard" className="space-y-4">
-            <LeaderboardView />
-          </TabsContent>
-
           <TabsContent value="challenges" className="space-y-4">
             <ChallengesGrid />
           </TabsContent>
@@ -104,6 +97,29 @@ export default function Social() {
             <SocialSharing />
           </TabsContent>
         </Tabs>
+
+        {/* Leaderboard CTA Card */}
+        <Card className="p-6 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 border-yellow-200 dark:border-yellow-900">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500">
+                <Trophy className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Compete on the Leaderboard</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  See how you rank against other $ave+ users and climb to the top
+                </p>
+              </div>
+            </div>
+            <Button asChild variant="default" size="lg">
+              <Link to="/leaderboard">
+                View Leaderboard
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
+        </Card>
       </div>
     </AppLayout>
   );
