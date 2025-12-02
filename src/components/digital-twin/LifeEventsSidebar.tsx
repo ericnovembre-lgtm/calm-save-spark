@@ -1,12 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { haptics } from '@/lib/haptics';
+import { soundEffects } from '@/lib/sound-effects';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 export interface LifeEvent {
   id: string;
@@ -38,8 +41,48 @@ export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
   const [draggedEvent, setDraggedEvent] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const lastHoverFeedbackTime = useRef<number>(0);
+  const HOVER_FEEDBACK_DELAY = 300;
 
   const isExpanded = !isCollapsed || isHovering;
+
+  // Haptic + sound feedback handlers
+  const playExpandFeedback = useCallback(() => {
+    if (prefersReducedMotion) return;
+    haptics.swipe();
+    soundEffects.swipe();
+  }, [prefersReducedMotion]);
+
+  const playCollapseFeedback = useCallback(() => {
+    if (prefersReducedMotion) return;
+    haptics.vibrate('light');
+    soundEffects.click();
+  }, [prefersReducedMotion]);
+
+  const playToggleFeedback = useCallback(() => {
+    if (prefersReducedMotion) return;
+    haptics.buttonPress();
+    soundEffects.click();
+  }, [prefersReducedMotion]);
+
+  const handleMouseEnter = useCallback(() => {
+    setIsHovering(true);
+    const now = Date.now();
+    if (isCollapsed && now - lastHoverFeedbackTime.current > HOVER_FEEDBACK_DELAY) {
+      playExpandFeedback();
+      lastHoverFeedbackTime.current = now;
+    }
+  }, [isCollapsed, playExpandFeedback]);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovering(false);
+    const now = Date.now();
+    if (isCollapsed && now - lastHoverFeedbackTime.current > HOVER_FEEDBACK_DELAY) {
+      playCollapseFeedback();
+      lastHoverFeedbackTime.current = now;
+    }
+  }, [isCollapsed, playCollapseFeedback]);
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -56,8 +99,8 @@ export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
           opacity: { delay: 0.5 },
           width: { type: 'spring', stiffness: 300, damping: 30 }
         }}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div className="backdrop-blur-xl bg-card/80 border border-border rounded-r-2xl p-3">
           {/* Header with toggle */}
@@ -87,7 +130,10 @@ export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
             </AnimatePresence>
             
             <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={() => {
+                setIsCollapsed(!isCollapsed);
+                playToggleFeedback();
+              }}
               className="p-1 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
               aria-label={isCollapsed ? "Pin sidebar open" : "Allow sidebar to collapse"}
             >
