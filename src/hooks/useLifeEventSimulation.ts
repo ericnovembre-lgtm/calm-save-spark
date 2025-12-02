@@ -14,6 +14,7 @@ interface UseLifeEventSimulationReturn {
   addEvent: (event: LifeEvent, year: number) => void;
   removeEvent: (id: string) => void;
   clearEvents: () => void;
+  loadScenario: (events: Array<{ id: string; year: number; label: string; impact: number; icon: string }>) => void;
   calculateNetWorth: (age: number) => number;
   calculateRetirementImpact: (targetRetirementWorth: number) => { baselineAge: number; simulatedAge: number; delay: number };
   monteCarloTimeline: MonteCarloTimeline[];
@@ -90,6 +91,23 @@ export function useLifeEventSimulation(
 
   const clearEvents = useCallback(() => {
     setInjectedEvents([]);
+  }, []);
+
+  const loadScenario = useCallback((events: Array<{ id: string; year: number; label: string; impact: number; icon: string }>) => {
+    const loadedEvents: InjectedEvent[] = events.map(e => ({
+      event: {
+        id: e.id,
+        icon: e.icon,
+        label: e.label,
+        impact: e.impact,
+        description: '',
+        color: 'border-cyan-500',
+      },
+      year: e.year,
+      id: `${e.id}-${e.year}-${Date.now()}`,
+    }));
+    
+    setInjectedEvents(loadedEvents);
   }, []);
 
   const calculateRetirementImpact = useCallback((targetRetirementWorth: number = 1000000) => {
@@ -176,6 +194,7 @@ export function useLifeEventSimulation(
     addEvent,
     removeEvent,
     clearEvents,
+    loadScenario,
     calculateNetWorth: calculateSimulatedNetWorth,
     calculateRetirementImpact,
     monteCarloTimeline,
