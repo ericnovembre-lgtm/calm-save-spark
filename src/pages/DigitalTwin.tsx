@@ -9,6 +9,7 @@ import { LifeEventsSidebar, LifeEvent } from "@/components/digital-twin/LifeEven
 import { NarrativeOverlay } from "@/components/digital-twin/NarrativeOverlay";
 import { MonteCarloChart } from "@/components/digital-twin/MonteCarloChart";
 import { ScenarioComparisonMode } from "@/components/digital-twin/ScenarioComparisonMode";
+import { EnhancedScenarioComparison } from "@/components/digital-twin/EnhancedScenarioComparison";
 import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
 import { useDigitalTwinProfile } from "@/hooks/useDigitalTwinProfile";
 import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequiredPrompt";
@@ -52,6 +53,7 @@ export default function DigitalTwin() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showSavedPanel, setShowSavedPanel] = useState(false);
   const [showMemoryExplorer, setShowMemoryExplorer] = useState(false);
+  const [showEnhancedComparison, setShowEnhancedComparison] = useState(false);
 
   const {
     injectedEvents,
@@ -316,7 +318,7 @@ export default function DigitalTwin() {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleCompare}
+            onClick={() => setShowEnhancedComparison(true)}
             className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-magenta-500 hover:bg-magenta-500/10"
           >
             <GitBranch className="w-4 h-4 mr-2" />
@@ -514,6 +516,16 @@ export default function DigitalTwin() {
       <MemoryExplorerPanel
         open={showMemoryExplorer}
         onClose={() => setShowMemoryExplorer(false)}
+      />
+
+      {/* Enhanced Scenario Comparison */}
+      <EnhancedScenarioComparison
+        open={showEnhancedComparison}
+        onClose={() => setShowEnhancedComparison(false)}
+        currentAge={currentAge}
+        initialNetWorth={initialNetWorth}
+        annualReturn={annualReturn}
+        annualSavings={annualSavings}
       />
 
       {/* Digital Twin Tour */}

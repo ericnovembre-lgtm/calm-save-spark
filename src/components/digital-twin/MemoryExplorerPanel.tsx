@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Brain, Search, Trash2, Plus, Loader2 } from 'lucide-react';
+import { X, Brain, Search, Trash2, Plus, Loader2, Download, List, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,7 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { useDigitalTwinMemory, TwinMemory } from '@/hooks/useDigitalTwinMemory';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
-import { format } from 'date-fns';
+import { ImportanceGlow } from './ImportanceGlow';
+import { MemoryTimelineView } from './MemoryTimelineView';
+import { format as formatDate } from 'date-fns';
+import { toast } from 'sonner';
 
 interface MemoryExplorerPanelProps {
   open: boolean;
@@ -41,11 +44,70 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
   const [isSearching, setIsSearching] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'timeline'>('list');
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   // Add memory form state
   const [newContent, setNewContent] = useState('');
   const [newCategory, setNewCategory] = useState<TwinMemory['category']>('insight');
   const [newImportance, setNewImportance] = useState([0.5]);
+
+  // Export functionality
+  const exportMemories = useCallback((format: 'json' | 'csv') => {
+    if (allMemories.length === 0) {
+      toast.error('No memories to export');
+      return;
+    }
+
+    let content: string;
+    let filename: string;
+    let mimeType: string;
+
+    if (format === 'json') {
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        version: '1.0',
+        totalMemories: allMemories.length,
+        memories: allMemories.map(m => ({
+          id: m.id,
+          content: m.content,
+          category: m.category,
+          importance: m.importance,
+          createdAt: m.createdAt,
+        })),
+      };
+      content = JSON.stringify(exportData, null, 2);
+      filename = `digital-twin-memories-${formatDate(new Date(), 'yyyy-MM-dd')}.json`;
+      mimeType = 'application/json';
+    } else {
+      // CSV format
+      const headers = ['ID', 'Content', 'Category', 'Importance', 'Created At'];
+      const rows = allMemories.map(m => [
+        m.id,
+        `"${m.content.replace(/"/g, '""')}"`,
+        m.category,
+        m.importance.toString(),
+        m.createdAt,
+      ]);
+      content = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      filename = `digital-twin-memories-${formatDate(new Date(), 'yyyy-MM-dd')}.csv`;
+      mimeType = 'text/csv';
+    }
+
+    // Download file
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success(`Exported ${allMemories.length} memories as ${format.toUpperCase()}`);
+    setShowExportMenu(false);
+  }, [allMemories]);
 
   // Load memories when panel opens
   useEffect(() => {
@@ -131,9 +193,45 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
                   {allMemories.length}
                 </span>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="w-5 h-5" />
-              </Button>
+              <div className="flex items-center gap-2">
+                {/* Export Button */}
+                <div className="relative">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => setShowExportMenu(!showExportMenu)}
+                    className="text-white/60 hover:text-white"
+                  >
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <AnimatePresence>
+                    {showExportMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="absolute right-0 top-full mt-1 bg-slate-900 border border-white/10 rounded-lg shadow-xl z-10"
+                      >
+                        <button
+                          onClick={() => exportMemories('json')}
+                          className="block w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 text-left"
+                        >
+                          Export as JSON
+                        </button>
+                        <button
+                          onClick={() => exportMemories('csv')}
+                          className="block w-full px-4 py-2 text-sm text-white/80 hover:bg-white/10 text-left"
+                        >
+                          Export as CSV
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <Button variant="ghost" size="icon" onClick={onClose}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
 
             {/* Search */}
@@ -156,8 +254,25 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
               </div>
             </div>
 
-            {/* Category Tabs */}
-            <div className="flex gap-1 p-2 border-b border-white/10 overflow-x-auto">
+            {/* View Toggle + Category Tabs */}
+            <div className="flex items-center gap-2 p-2 border-b border-white/10 overflow-x-auto">
+              {/* View Mode Toggle */}
+              <div className="flex bg-white/5 rounded-lg p-0.5 mr-2">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-white/40'}`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('timeline')}
+                  className={`p-1.5 rounded ${viewMode === 'timeline' ? 'bg-white/10 text-white' : 'text-white/40'}`}
+                >
+                  <Clock className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Category Tabs */}
               <Button
                 variant="ghost"
                 size="sm"
@@ -179,8 +294,8 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
               ))}
             </div>
 
-            {/* Memory List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {/* Memory Content */}
+            <div className="flex-1 overflow-y-auto p-4">
               {isLoading && !isSearching ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
@@ -191,62 +306,65 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
                   <p>No memories found</p>
                   <p className="text-xs mt-2">Chat with your Digital Twin to create memories</p>
                 </div>
+              ) : viewMode === 'timeline' ? (
+                <MemoryTimelineView 
+                  memories={displayMemories} 
+                  onDelete={(id) => setDeleteTarget(id)} 
+                />
               ) : (
-                displayMemories.map((memory, index) => (
-                  <motion.div
-                    key={memory.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="group relative p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
-                  >
-                    {/* Category Badge */}
-                    <div className="flex items-start justify-between mb-2">
-                      <span className={`px-2 py-0.5 text-xs font-mono rounded border ${categoryColors[memory.category]}`}>
-                        {memory.category}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteTarget(memory.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 text-red-400 hover:text-red-300 hover:bg-red-500/20"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-
-                    {/* Content */}
-                    <p className="text-sm text-white/80 mb-2 line-clamp-3">
-                      {memory.content}
-                    </p>
-
-                    {/* Footer */}
-                    <div className="flex items-center justify-between text-xs text-white/40 font-mono">
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              i < Math.round(memory.importance * 5)
-                                ? 'bg-cyan-400'
-                                : 'bg-white/20'
-                            }`}
-                          />
-                        ))}
+                <div className="space-y-3">
+                  {displayMemories.map((memory, index) => (
+                    <motion.div
+                      key={memory.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="group relative p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      {/* Category Badge with Importance Glow */}
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <ImportanceGlow importance={memory.importance}>
+                            <div className="w-2 h-2 rounded-full bg-current" />
+                          </ImportanceGlow>
+                          <span className={`px-2 py-0.5 text-xs font-mono rounded border ${categoryColors[memory.category]}`}>
+                            {memory.category}
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteTarget(memory.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
                       </div>
-                      <span>
-                        {memory.createdAt ? format(new Date(memory.createdAt), 'MMM d, yyyy') : 'Unknown'}
-                      </span>
-                    </div>
 
-                    {/* Similarity score if from search */}
-                    {memory.score && (
-                      <div className="absolute top-3 right-10 text-xs font-mono text-cyan-400">
-                        {Math.round(memory.score * 100)}% match
+                      {/* Content */}
+                      <p className="text-sm text-white/80 mb-2 line-clamp-3">
+                        {memory.content}
+                      </p>
+
+                      {/* Footer */}
+                      <div className="flex items-center justify-between text-xs text-white/40 font-mono">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px]">{Math.round(memory.importance * 100)}%</span>
+                        </div>
+                        <span>
+                          {memory.createdAt ? formatDate(new Date(memory.createdAt), 'MMM d, yyyy') : 'Unknown'}
+                        </span>
                       </div>
-                    )}
-                  </motion.div>
-                ))
+
+                      {/* Similarity score if from search */}
+                      {memory.score && (
+                        <div className="absolute top-3 right-10 text-xs font-mono text-cyan-400">
+                          {Math.round(memory.score * 100)}% match
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
               )}
             </div>
 
