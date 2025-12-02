@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, RotateCcw, BarChart3, FileDown, MessageSquare, TrendingUp, User, Clock } from 'lucide-react';
+import { Sparkles, RotateCcw, BarChart3, FileDown, MessageSquare, TrendingUp, User, Clock, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MobileCollapsibleSection } from './MobileCollapsibleSection';
 import { HorizontalLifeEvents, LifeEvent } from './HorizontalLifeEvents';
@@ -10,6 +10,8 @@ import { MonteCarloChart } from './MonteCarloChart';
 import { MobileTwinChatSheet } from './MobileTwinChatSheet';
 import { VoidBackground } from './VoidBackground';
 import { BackgroundMorpher } from './BackgroundMorpher';
+import { DigitalTwinMinimap, MOBILE_SECTIONS } from './DigitalTwinMinimap';
+import { useVisibleSection } from '@/hooks/useVisibleSection';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/lib/haptics';
 import { soundEffects } from '@/lib/sound-effects';
@@ -58,7 +60,18 @@ export function MobileDigitalTwinLayout({
 }: MobileDigitalTwinLayoutProps) {
   const [showMonteCarlo, setShowMonteCarlo] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [sectionStates, setSectionStates] = useState<Record<string, boolean>>({
+    'financial-status-section': true,
+    'twin-avatar-section': true,
+    'life-events-section': true,
+    'timeline-section': true,
+    'projections-section': false,
+  });
   const prefersReducedMotion = useReducedMotion();
+
+  // Mini-map section tracking
+  const sectionIds = MOBILE_SECTIONS.map(s => s.id);
+  const activeSection = useVisibleSection(sectionIds);
 
   const progress = ((selectedAge - currentAge) / (retirementAge - currentAge)) * 100;
 
@@ -74,14 +87,34 @@ export function MobileDigitalTwinLayout({
     setIsChatOpen(true);
   };
 
+  const handleMinimapNavigate = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Open the section if it's collapsed
+      setSectionStates(prev => ({ ...prev, [sectionId]: true }));
+    }
+  };
+
+  const handleSectionOpenChange = (sectionId: string, isOpen: boolean) => {
+    setSectionStates(prev => ({ ...prev, [sectionId]: isOpen }));
+  };
+
   return (
     <div className="relative min-h-screen bg-[#050505] overflow-hidden">
       {/* Background */}
       <VoidBackground />
       <BackgroundMorpher netWorth={currentNetWorth} />
 
+      {/* Mini-map Navigation */}
+      <DigitalTwinMinimap
+        sections={MOBILE_SECTIONS}
+        activeSection={activeSection}
+        onSectionClick={handleMinimapNavigate}
+      />
+
       {/* Scrollable content */}
-      <div className="relative z-10 pb-24 px-4 pt-4 space-y-4">
+      <div className="relative z-10 pb-24 px-4 pl-14 pt-4 space-y-4">
         {/* Header */}
         <motion.div
           className="text-center"
@@ -97,9 +130,12 @@ export function MobileDigitalTwinLayout({
 
         {/* Financial Status Section */}
         <MobileCollapsibleSection 
+          id="financial-status-section"
           title="Financial Status" 
           icon={TrendingUp}
           defaultOpen={true}
+          isOpen={sectionStates['financial-status-section']}
+          onOpenChange={(open) => handleSectionOpenChange('financial-status-section', open)}
         >
           <div className="scale-75 origin-center -my-4">
             <NetWorthCounter value={currentNetWorth} age={selectedAge} />
@@ -108,9 +144,12 @@ export function MobileDigitalTwinLayout({
 
         {/* Avatar Section */}
         <MobileCollapsibleSection 
+          id="twin-avatar-section"
           title="Your Digital Twin" 
           icon={User}
           defaultOpen={true}
+          isOpen={sectionStates['twin-avatar-section']}
+          onOpenChange={(open) => handleSectionOpenChange('twin-avatar-section', open)}
         >
           <div className="h-64 relative">
             <HolographicAvatar 
@@ -153,7 +192,7 @@ export function MobileDigitalTwinLayout({
         </MobileCollapsibleSection>
 
         {/* Life Events Strip */}
-        <div className="backdrop-blur-xl bg-slate-950/80 border border-cyan-500/20 rounded-xl overflow-hidden">
+        <div id="life-events-section" className="backdrop-blur-xl bg-slate-950/80 border border-cyan-500/20 rounded-xl overflow-hidden">
           <HorizontalLifeEvents 
             onEventSelect={onEventSelect}
             selectedEvent={selectedEvent}
@@ -162,9 +201,12 @@ export function MobileDigitalTwinLayout({
 
         {/* Timeline Section */}
         <MobileCollapsibleSection 
+          id="timeline-section"
           title="Timeline" 
           icon={Clock}
           defaultOpen={true}
+          isOpen={sectionStates['timeline-section']}
+          onOpenChange={(open) => handleSectionOpenChange('timeline-section', open)}
         >
           <div className="space-y-4">
             {/* Slider */}
@@ -218,9 +260,12 @@ export function MobileDigitalTwinLayout({
 
         {/* Projections Section */}
         <MobileCollapsibleSection 
+          id="projections-section"
           title="Monte Carlo Projections" 
           icon={BarChart3}
           defaultOpen={false}
+          isOpen={sectionStates['projections-section']}
+          onOpenChange={(open) => handleSectionOpenChange('projections-section', open)}
         >
           {monteCarloTimeline && monteCarloTimeline.length > 0 ? (
             <div className="h-48">

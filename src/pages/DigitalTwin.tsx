@@ -13,6 +13,8 @@ import { EnhancedScenarioComparison } from "@/components/digital-twin/EnhancedSc
 import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
 import { useDigitalTwinProfile } from "@/hooks/useDigitalTwinProfile";
 import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequiredPrompt";
+import { DigitalTwinMinimap, DESKTOP_SECTIONS } from "@/components/digital-twin/DigitalTwinMinimap";
+import { useVisibleSection } from "@/hooks/useVisibleSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen, Brain, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -250,6 +252,15 @@ export default function DigitalTwin() {
     );
   }
 
+  // Mini-map section tracking
+  const sectionIds = DESKTOP_SECTIONS.map(s => s.id);
+  const activeSection = useVisibleSection(sectionIds);
+
+  const handleMinimapNavigate = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   return (
     <AppLayout>
       <div className="relative min-h-screen overflow-hidden bg-[#050505]">
@@ -257,10 +268,17 @@ export default function DigitalTwin() {
       <VoidBackground />
       <BackgroundMorpher netWorth={currentNetWorth} />
 
+      {/* Mini-map Navigation */}
+      <DigitalTwinMinimap
+        activeSection={activeSection}
+        onSectionClick={handleMinimapNavigate}
+      />
+
       {/* Main content */}
       <div className="relative z-10 container mx-auto px-4 pt-4 pb-8">
         {/* Header */}
         <motion.div
+          id="header-section"
           className="text-center mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -278,12 +296,13 @@ export default function DigitalTwin() {
         </motion.div>
 
         {/* Net Worth Counter */}
-        <motion.div layoutId="net-worth-counter" className="mb-12">
+        <motion.div id="net-worth-section" layoutId="net-worth-counter" className="mb-12">
           <NetWorthCounter value={currentNetWorth} age={selectedAge} />
         </motion.div>
 
         {/* 3D Avatar Container */}
         <motion.div
+          id="avatar-section"
           layoutId="avatar-container"
           className="mx-auto max-w-4xl mb-12"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -485,7 +504,7 @@ export default function DigitalTwin() {
       </div>
 
       {/* Life Events Sidebar */}
-      <div data-tour="dt-events">
+      <div id="events-section" data-tour="dt-events">
         <LifeEventsSidebar onEventSelect={handleEventSelect} />
       </div>
 
@@ -497,7 +516,7 @@ export default function DigitalTwin() {
       />
 
       {/* Timeline Slider */}
-      <div data-tour="dt-timeline">
+      <div id="timeline-section" data-tour="dt-timeline">
         <TimelineSlider
           currentAge={currentAge}
           retirementAge={retirementAge}
@@ -515,6 +534,7 @@ export default function DigitalTwin() {
       <AnimatePresence>
         {showMonteCarlo && monteCarloTimeline.length > 0 && (
           <motion.div
+            id="projections-section"
             className="fixed bottom-32 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl z-40"
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
@@ -635,24 +655,26 @@ export default function DigitalTwin() {
       />
 
       {/* AI Chat Panel with NL Scenario Creation */}
-      <TwinChatPanel 
-        currentAge={currentAge}
-        onScenarioCreated={(event) => {
-          // Add the parsed event to timeline
-          const totalImpact = event.financial_impact + (event.ongoing_impact * 12);
-          addEvent({
-            id: event.event_type,
-            label: event.label,
-            icon: event.icon,
-            impact: totalImpact,
-            description: `${totalImpact >= 0 ? '+' : ''}$${Math.abs(totalImpact).toLocaleString()} impact`,
-            color: totalImpact >= 0 ? 'border-green-500' : 'border-red-500',
-          }, event.year);
-          
-          // Recalculate Monte Carlo
-          generateMonteCarloProjection();
-        }}
-      />
+      <div id="chat-section">
+        <TwinChatPanel 
+          currentAge={currentAge}
+          onScenarioCreated={(event) => {
+            // Add the parsed event to timeline
+            const totalImpact = event.financial_impact + (event.ongoing_impact * 12);
+            addEvent({
+              id: event.event_type,
+              label: event.label,
+              icon: event.icon,
+              impact: totalImpact,
+              description: `${totalImpact >= 0 ? '+' : ''}$${Math.abs(totalImpact).toLocaleString()} impact`,
+              color: totalImpact >= 0 ? 'border-green-500' : 'border-red-500',
+            }, event.year);
+            
+            // Recalculate Monte Carlo
+            generateMonteCarloProjection();
+          }}
+        />
+      </div>
     </div>
     </AppLayout>
   );
