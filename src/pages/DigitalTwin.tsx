@@ -506,5 +506,6 @@ export default function DigitalTwin() {
         onCallback={handleJoyrideCallback}
       />
     </div>
+    </AppLayout>
   );
 }

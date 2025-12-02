@@ -169,6 +169,4 @@ export default function InvestmentManager() {
       </ErrorBoundary>
     </AppLayout>
   );
-};
-
-export default Help;
+}
