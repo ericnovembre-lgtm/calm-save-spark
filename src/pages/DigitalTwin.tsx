@@ -507,8 +507,22 @@ export default function DigitalTwin() {
         onCallback={handleJoyrideCallback}
       />
 
-      {/* AI Chat Panel */}
-      <TwinChatPanel />
+      {/* AI Chat Panel with NL Scenario Creation */}
+      <TwinChatPanel 
+        currentAge={currentAge}
+        onScenarioCreated={(event) => {
+          // Add the parsed event to timeline
+          addEvent({
+            id: event.event_type,
+            label: event.label,
+            icon: event.icon,
+            impact: event.financial_impact + (event.ongoing_impact * 12),
+          }, event.year);
+          
+          // Recalculate Monte Carlo
+          generateMonteCarloProjection();
+        }}
+      />
     </div>
     </AppLayout>
   );

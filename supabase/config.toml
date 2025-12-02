@@ -423,4 +423,13 @@ verify_jwt = true
 [functions.digital-twin-narrative]
 verify_jwt = false
 
+[functions.digital-twin-memory]
+verify_jwt = true
+
+[functions.get-digital-twin-analytics]
+verify_jwt = true
+
+[functions.parse-life-event-nl]
+verify_jwt = true
+
 

@@ -1,20 +1,36 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Send, X, Sparkles, Loader2 } from 'lucide-react';
+import { MessageSquare, Send, X, Sparkles, Loader2, Brain, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useDigitalTwinChat } from '@/hooks/useDigitalTwinChat';
 import { ModelIndicatorBadge } from '@/components/coach/ModelIndicatorBadge';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+interface ParsedLifeEvent {
+  event_type: string;
+  label: string;
+  icon: string;
+  year: number;
+  financial_impact: number;
+  ongoing_impact: number;
+  description: string;
+  confidence: number;
+}
 
 interface TwinChatPanelProps {
   className?: string;
+  currentAge?: number;
+  onScenarioCreated?: (event: ParsedLifeEvent) => void;
 }
 
-export function TwinChatPanel({ className }: TwinChatPanelProps) {
+export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }: TwinChatPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [isParsing, setIsParsing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, isStreaming, currentModel, sendMessage, clearChat } = useDigitalTwinChat();
 
@@ -23,10 +39,84 @@ export function TwinChatPanel({ className }: TwinChatPanelProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim() || isStreaming) return;
-    sendMessage(input);
+  // Parse natural language scenario
+  const parseNLScenario = useCallback(async (description: string) => {
+    setIsParsing(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-life-event-nl`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ description, currentAge }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to parse scenario');
+      }
+
+      const result = await response.json();
+      if (result.event && onScenarioCreated) {
+        onScenarioCreated(result.event);
+        toast.success(`Created: ${result.event.label} at age ${result.event.year}`, {
+          description: result.event.description,
+        });
+      }
+      return result.event;
+    } catch (error) {
+      console.error('Parse NL scenario error:', error);
+      toast.error('Failed to create scenario from description');
+      return null;
+    } finally {
+      setIsParsing(false);
+    }
+  }, [currentAge, onScenarioCreated]);
+
+  // Check if message is a scenario request
+  const isScenarioRequest = (text: string): boolean => {
+    const patterns = [
+      /what if/i,
+      /what happens if/i,
+      /simulate/i,
+      /add.*event/i,
+      /create.*scenario/i,
+      /show.*impact/i,
+      /buy.*house/i,
+      /get.*raise/i,
+      /lose.*job/i,
+      /have.*child/i,
+      /get married/i,
+      /start.*business/i,
+      /retire.*early/i,
+    ];
+    return patterns.some(p => p.test(text));
+  };
+
+  const handleSend = async () => {
+    if (!input.trim() || isStreaming || isParsing) return;
+    
+    const userInput = input;
     setInput('');
+    
+    // If it looks like a scenario request, try to parse and visualize it
+    if (isScenarioRequest(userInput) && onScenarioCreated) {
+      // First send to AI for response, then try to parse for visualization
+      sendMessage(userInput);
+      
+      // Delayed parse for visualization (let AI respond first)
+      setTimeout(async () => {
+        await parseNLScenario(userInput);
+      }, 500);
+    } else {
+      sendMessage(userInput);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -37,10 +127,10 @@ export function TwinChatPanel({ className }: TwinChatPanelProps) {
   };
 
   const quickPrompts = [
-    "What if I lose my job next year?",
-    "How does buying a home affect my timeline?",
+    "What if I buy a $400k house in 2 years?",
+    "How does having a child affect my timeline?",
     "What's my probability of early retirement?",
-    "Compare aggressive vs conservative saving",
+    "Simulate getting a 20% raise next year",
   ];
 
   return (
@@ -85,7 +175,13 @@ export function TwinChatPanel({ className }: TwinChatPanelProps) {
                   <h3 className="font-semibold text-white">Digital Twin Advisor</h3>
                 </div>
                 <div className="flex items-center gap-2">
-                  {currentModel && (
+                  {isParsing && (
+                    <div className="flex items-center gap-1.5 px-2 py-1 bg-violet-500/20 rounded-full">
+                      <Wand2 className="w-3 h-3 text-violet-400 animate-pulse" />
+                      <span className="text-[10px] text-violet-300">Creating...</span>
+                    </div>
+                  )}
+                  {currentModel && !isParsing && (
                     <ModelIndicatorBadge
                       model={currentModel.includes('claude') ? 'claude-sonnet' : 'gemini-flash'}
                       modelName={currentModel}
@@ -108,15 +204,22 @@ export function TwinChatPanel({ className }: TwinChatPanelProps) {
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 && (
                   <div className="text-center text-white/40 text-sm mt-8">
-                    <Sparkles className="w-12 h-12 mx-auto mb-3 text-cyan-500/40" />
-                    <p className="mb-4">Ask me anything about your financial future</p>
+                    <Brain className="w-12 h-12 mx-auto mb-3 text-cyan-500/40" />
+                    <p className="mb-2">Ask me anything about your financial future</p>
+                    <p className="text-xs text-white/30 mb-4">
+                      Tip: Describe "what if" scenarios and I'll visualize them on your timeline!
+                    </p>
                     <div className="space-y-2">
                       {quickPrompts.map((prompt, i) => (
                         <button
                           key={i}
-                          onClick={() => sendMessage(prompt)}
+                          onClick={() => {
+                            setInput(prompt);
+                            setTimeout(() => handleSend(), 100);
+                          }}
                           className="block w-full text-left px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/60 hover:text-white"
                         >
+                          <Wand2 className="w-3 h-3 inline mr-2 text-violet-400" />
                           {prompt}
                         </button>
                       ))}
@@ -174,13 +277,13 @@ export function TwinChatPanel({ className }: TwinChatPanelProps) {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Ask about your financial future..."
-                    disabled={isStreaming}
+                    placeholder="Describe a 'what if' scenario..."
+                    disabled={isStreaming || isParsing}
                     className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
                   />
                   <Button
                     onClick={handleSend}
-                    disabled={isStreaming || !input.trim()}
+                    disabled={isStreaming || isParsing || !input.trim()}
                     size="icon"
                     className="bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400"
                   >

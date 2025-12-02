@@ -44,6 +44,7 @@ const Insights = createPageLoader(() => import("./pages/Insights"), 'heavy');
 const Pricing = createPageLoader(() => import("./pages/Pricing"), 'heavy');
 const Coach = createPageLoader(() => import("./pages/Coach"), 'heavy');
 const DigitalTwin = createPageLoader(() => import("./pages/DigitalTwin"), 'heavy');
+const DigitalTwinAnalytics = createPageLoader(() => import("./pages/DigitalTwinAnalytics"), 'heavy');
 const LifeSim = createPageLoader(() => import("./pages/LifeSim"), 'heavy');
 const LifePlanner = createPageLoader(() => import("./pages/LifePlanner"), 'heavy');
 const InvestmentManager = createPageLoader(() => import("./pages/InvestmentManager"), 'heavy');
@@ -289,6 +290,7 @@ function AnimatedRoutes() {
         <Route path="/hubs/manage-money" element={<ProtectedRoute><PageTransition><ManageMoneyHub /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/grow-wealth" element={<ProtectedRoute><PageTransition><GrowWealthHub /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/ai-insights" element={<ProtectedRoute><PageTransition><AIInsightsHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/digital-twin/analytics" element={<ProtectedRoute><PageTransition><DigitalTwinAnalytics /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/lifestyle" element={<ProtectedRoute><PageTransition><LifestyleHub /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/premium" element={<ProtectedRoute><PageTransition><PremiumHub /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/memory" element={<ProtectedRoute><PageTransition><MemoryHub /></PageTransition></ProtectedRoute>} />
