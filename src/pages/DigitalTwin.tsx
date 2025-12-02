@@ -209,6 +209,47 @@ export default function DigitalTwin() {
     );
   }
 
+  // Mobile layout handler for scenario creation
+  const handleMobileScenarioCreated = (event: any) => {
+    if (event) {
+      const lifeEvent: LifeEvent = {
+        id: event.event_type || 'custom',
+        icon: event.icon || '⭐',
+        label: event.label || 'Custom Event',
+        impact: event.financial_impact || 0,
+        description: event.description || '',
+        color: 'border-cyan-500'
+      };
+      addEvent(lifeEvent, event.year || selectedAge);
+    }
+  };
+
+  // Mobile layout
+  if (isMobile) {
+    const { MobileDigitalTwinLayout } = require('@/components/digital-twin/MobileDigitalTwinLayout');
+    return (
+      <AppLayout>
+        <MobileDigitalTwinLayout
+          currentAge={currentAge}
+          retirementAge={retirementAge}
+          selectedAge={selectedAge}
+          currentNetWorth={currentNetWorth}
+          healthState={healthState}
+          injectedEvents={injectedEvents}
+          monteCarloTimeline={monteCarloTimeline}
+          onAgeChange={handleAgeChange}
+          onEventSelect={handleEventSelect}
+          onEventDrop={handleEventDrop}
+          onReset={handleReset}
+          onSaveScenario={handleSaveScenario}
+          selectedEvent={selectedEvent}
+          eventReaction={eventReaction}
+          onScenarioCreated={handleMobileScenarioCreated}
+        />
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
       <div className="relative min-h-screen overflow-hidden bg-[#050505]">
