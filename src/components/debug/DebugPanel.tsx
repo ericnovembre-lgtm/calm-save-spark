@@ -18,7 +18,7 @@ interface DebugPanelProps {
  * - Loading state visualization
  * - Render count tracking
  * - Performance metrics
- * - Keyboard shortcut: Ctrl+Shift+D to toggle
+ * - Toggle via button click
  */
 export const DebugPanel = ({ loadingStates = {}, onClose }: DebugPanelProps) => {
   const [fps, setFps] = useState(60);
@@ -87,18 +87,6 @@ export const DebugPanel = ({ loadingStates = {}, onClose }: DebugPanelProps) => 
     }
   }, []);
 
-  // Keyboard shortcut: Ctrl+Shift+D
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-        e.preventDefault();
-        setIsVisible(prev => !prev);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   const handleClose = () => {
     setIsVisible(false);
@@ -119,12 +107,6 @@ export const DebugPanel = ({ loadingStates = {}, onClose }: DebugPanelProps) => 
 
   return (
     <>
-      {/* Toggle hint */}
-      {!isVisible && (
-        <div className="fixed bottom-4 left-4 z-[9999] text-xs text-muted-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded border border-border">
-          Press <kbd className="px-1 py-0.5 bg-muted rounded">Ctrl+Shift+D</kbd> for debug panel
-        </div>
-      )}
 
       {/* Debug Panel */}
       <AnimatePresence>
@@ -267,10 +249,6 @@ export const DebugPanel = ({ loadingStates = {}, onClose }: DebugPanelProps) => 
                 </>
               )}
 
-              {/* Footer */}
-              <div className="border-t border-border mt-3 pt-3 text-xs text-muted-foreground">
-                <p>Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+Shift+D</kbd> to toggle</p>
-              </div>
             </Card>
           </motion.div>
         )}

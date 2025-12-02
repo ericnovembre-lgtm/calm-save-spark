@@ -22,18 +22,6 @@ export function TourDebugOverlay() {
   const [targets, setTargets] = useState<TourTarget[]>([]);
   const [hoveredTarget, setHoveredTarget] = useState<string | null>(null);
 
-  // Keyboard shortcut to toggle debug mode
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-        e.preventDefault();
-        setIsEnabled(prev => !prev);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   // Find all data-tour elements
   useEffect(() => {
@@ -130,7 +118,7 @@ export function TourDebugOverlay() {
             ? 'bg-primary text-primary-foreground' 
             : 'bg-muted text-muted-foreground hover:bg-accent'
         }`}
-        title="Toggle Tour Debug Mode (Ctrl+Shift+D)"
+        title="Toggle Tour Debug Mode"
       >
         <Bug className="w-5 h-5" />
       </motion.button>
@@ -271,9 +259,6 @@ export function TourDebugOverlay() {
                   <RotateCcw className="w-3 h-3 mr-1" />
                   Replay Spotlight
                 </Button>
-                <p className="text-[10px] text-muted-foreground text-center">
-                  Press <kbd className="px-1 py-0.5 rounded bg-muted text-xs">Ctrl+Shift+D</kbd> to toggle
-                </p>
               </div>
             </motion.div>
           </>
