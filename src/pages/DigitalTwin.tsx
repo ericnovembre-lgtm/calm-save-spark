@@ -13,9 +13,11 @@ import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
 import { useDigitalTwinProfile } from "@/hooks/useDigitalTwinProfile";
 import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequiredPrompt";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown } from "lucide-react";
+import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScenarioExportModal } from "@/components/digital-twin/ScenarioExportModal";
+import { ShareScenarioModal } from "@/components/digital-twin/ShareScenarioModal";
+import { ScenarioPlayback } from "@/components/digital-twin/ScenarioPlayback";
 import { toast } from "sonner";
 import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
 import "@/styles/digital-twin-theme.css";
@@ -37,6 +39,8 @@ export default function DigitalTwin() {
   const [showComparison, setShowComparison] = useState(false);
   const [savedScenario, setSavedScenario] = useState<any>(null);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showPlayback, setShowPlayback] = useState(false);
 
   const {
     injectedEvents,
@@ -259,6 +263,24 @@ export default function DigitalTwin() {
           <Button
             variant="outline"
             size="sm"
+            onClick={() => setShowPlayback(true)}
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-magenta-500 hover:bg-magenta-500/10"
+          >
+            <Play className="w-4 h-4 mr-2" />
+            Play
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowShareModal(true)}
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-violet-500 hover:bg-violet-500/10"
+          >
+            <Share2 className="w-4 h-4 mr-2" />
+            Share
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setShowExportModal(true)}
             className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-green-500 hover:bg-green-500/10"
           >
@@ -367,6 +389,35 @@ export default function DigitalTwin() {
             pathB: alternateScenario,
           } : undefined,
         }}
+      />
+
+      {/* Share Modal */}
+      <ShareScenarioModal
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        scenarioData={{
+          name: 'Digital Twin Scenario',
+          currentAge,
+          retirementAge,
+          initialNetWorth,
+          events: injectedEvents,
+          timeline: Array.from({ length: retirementAge - currentAge }, (_, i) => ({
+            year: currentAge + i,
+            netWorth: calculateNetWorth(currentAge + i),
+          })),
+          monteCarloData: monteCarloTimeline,
+        }}
+      />
+
+      {/* Playback Modal */}
+      <ScenarioPlayback
+        open={showPlayback}
+        onClose={() => setShowPlayback(false)}
+        currentAge={currentAge}
+        retirementAge={retirementAge}
+        initialNetWorth={initialNetWorth}
+        events={injectedEvents}
+        calculateNetWorth={calculateNetWorth}
       />
     </div>
   );

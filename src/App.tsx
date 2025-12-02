@@ -116,6 +116,7 @@ const AlternativesPortal = createPageLoader(() => import("./pages/AlternativesPo
 const CorporateWellness = createPageLoader(() => import("./pages/CorporateWellness"), 'light');
 const CardApply = createPageLoader(() => import("./pages/CardApply"), 'light');
 const LifeEvents = createPageLoader(() => import("./pages/LifeEvents"), 'light');
+const SharedScenario = createPageLoader(() => import("./pages/SharedScenario"), 'light');
 
 const queryClient = new QueryClient(queryConfig);
 
@@ -226,6 +227,7 @@ function AnimatedRoutes() {
           } 
         />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/shared/:token" element={<PageTransition><SharedScenario /></PageTransition>} />
         <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
         <Route path="/features" element={<Navigate to="/features-hub" replace />} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
