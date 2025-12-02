@@ -19,6 +19,7 @@ interface UserChipProps {
   user: AppUser;
 }
 
+// Premium user chip with savings streak and glassmorphic dropdown
 export const UserChip = ({ user }: UserChipProps) => {
   const navigate = useNavigate();
 
