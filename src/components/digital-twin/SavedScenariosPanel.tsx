@@ -99,6 +99,7 @@ export function SavedScenariosPanel({ open, onClose, onLoadScenario }: SavedScen
                 </div>
               ) : (
                 <div className="space-y-3">
+                  {scenarios.map((scenario, idx) => (
                     <motion.div
                       key={scenario.id}
                       className="p-4 bg-muted/30 border border-border rounded-lg hover:border-accent/50 transition-colors"
