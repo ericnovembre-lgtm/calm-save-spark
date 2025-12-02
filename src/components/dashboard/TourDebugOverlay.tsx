@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 
 interface TourTarget {
   tourStep: string;
@@ -17,10 +18,16 @@ interface TourTarget {
  * Toggle via the floating button
  */
 export function TourDebugOverlay() {
+  const { isAdmin, loading: adminLoading } = useIsAdmin();
   const [isEnabled, setIsEnabled] = useState(false);
   const [showLabels, setShowLabels] = useState(true);
   const [targets, setTargets] = useState<TourTarget[]>([]);
   const [hoveredTarget, setHoveredTarget] = useState<string | null>(null);
+
+  // Don't render anything for non-admin users
+  if (adminLoading || !isAdmin) {
+    return null;
+  }
 
 
   // Find all data-tour elements
