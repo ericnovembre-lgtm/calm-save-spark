@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 export interface TwinMemory {
   id: string;
-  score: number;
+  score?: number;
   content: string;
   category: 'scenario' | 'insight' | 'preference' | 'pattern' | 'conversation';
   importance: number;
@@ -14,6 +14,7 @@ export interface TwinMemory {
 export function useDigitalTwinMemory() {
   const [isLoading, setIsLoading] = useState(false);
   const [memories, setMemories] = useState<TwinMemory[]>([]);
+  const [allMemories, setAllMemories] = useState<TwinMemory[]>([]);
 
   const storeMemory = useCallback(async (
     content: string,
@@ -48,9 +49,11 @@ export function useDigitalTwinMemory() {
       }
 
       const result = await response.json();
+      toast.success('Memory stored successfully');
       return result.memoryId;
     } catch (error) {
       console.error('Store memory error:', error);
+      toast.error('Failed to store memory');
       return null;
     } finally {
       setIsLoading(false);
@@ -98,6 +101,90 @@ export function useDigitalTwinMemory() {
     }
   }, []);
 
+  const listMemories = useCallback(async (
+    filterCategory?: TwinMemory['category']
+  ): Promise<TwinMemory[]> => {
+    setIsLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/digital-twin-memory`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            action: 'list',
+            filterCategory,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to list memories');
+      }
+
+      const result = await response.json();
+      setAllMemories(result.memories || []);
+      return result.memories || [];
+    } catch (error) {
+      console.error('List memories error:', error);
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const deleteMemory = useCallback(async (memoryId: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/digital-twin-memory`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            action: 'delete',
+            memoryId,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete memory');
+      }
+
+      // Remove from local state
+      setAllMemories(prev => prev.filter(m => m.id !== memoryId));
+      setMemories(prev => prev.filter(m => m.id !== memoryId));
+      
+      toast.success('Memory deleted');
+      return true;
+    } catch (error) {
+      console.error('Delete memory error:', error);
+      toast.error('Failed to delete memory');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const refreshMemories = useCallback(async () => {
+    return listMemories();
+  }, [listMemories]);
+
   const rememberScenario = useCallback(async (
     scenarioName: string,
     events: any[],
@@ -132,8 +219,12 @@ export function useDigitalTwinMemory() {
   return {
     isLoading,
     memories,
+    allMemories,
     storeMemory,
     retrieveMemories,
+    listMemories,
+    deleteMemory,
+    refreshMemories,
     rememberScenario,
     rememberInsight,
     rememberPreference,

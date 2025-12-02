@@ -13,7 +13,7 @@ import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
 import { useDigitalTwinProfile } from "@/hooks/useDigitalTwinProfile";
 import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequiredPrompt";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen } from "lucide-react";
+import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScenarioExportModal } from "@/components/digital-twin/ScenarioExportModal";
 import { ShareScenarioModal } from "@/components/digital-twin/ShareScenarioModal";
@@ -21,6 +21,7 @@ import { ScenarioPlayback } from "@/components/digital-twin/ScenarioPlayback";
 import { SaveScenarioModal } from "@/components/digital-twin/SaveScenarioModal";
 import { SavedScenariosPanel } from "@/components/digital-twin/SavedScenariosPanel";
 import { DigitalTwinTour } from "@/components/digital-twin/DigitalTwinTour";
+import { MemoryExplorerPanel } from "@/components/digital-twin/MemoryExplorerPanel";
 import { useDigitalTwinTour } from "@/hooks/useDigitalTwinTour";
 import { SavedScenario } from "@/hooks/useScenarioHistory";
 import { toast } from "sonner";
@@ -50,6 +51,7 @@ export default function DigitalTwin() {
   const [showPlayback, setShowPlayback] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showSavedPanel, setShowSavedPanel] = useState(false);
+  const [showMemoryExplorer, setShowMemoryExplorer] = useState(false);
 
   const {
     injectedEvents,
@@ -286,6 +288,15 @@ export default function DigitalTwin() {
           <Button
             variant="outline"
             size="sm"
+            onClick={() => setShowMemoryExplorer(true)}
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-cyan-500 hover:bg-cyan-500/10"
+          >
+            <Brain className="w-4 h-4 mr-2" />
+            Memories
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setShowSavedPanel(true)}
             className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-blue-500 hover:bg-blue-500/10"
           >
@@ -497,6 +508,12 @@ export default function DigitalTwin() {
         open={showSavedPanel}
         onClose={() => setShowSavedPanel(false)}
         onLoadScenario={handleLoadScenario}
+      />
+
+      {/* Memory Explorer Panel */}
+      <MemoryExplorerPanel
+        open={showMemoryExplorer}
+        onClose={() => setShowMemoryExplorer(false)}
       />
 
       {/* Digital Twin Tour */}

@@ -7,12 +7,14 @@ const corsHeaders = {
 };
 
 interface MemoryPayload {
-  action: 'store' | 'retrieve';
+  action: 'store' | 'retrieve' | 'list' | 'delete';
   content?: string;
   category?: 'scenario' | 'insight' | 'preference' | 'pattern' | 'conversation';
   importance?: number;
   query?: string;
   topK?: number;
+  memoryId?: string;
+  filterCategory?: string;
 }
 
 serve(async (req) => {
@@ -38,7 +40,90 @@ serve(async (req) => {
     }
 
     const payload: MemoryPayload = await req.json();
-    const { action, content, category = 'conversation', importance = 0.5, query, topK = 5 } = payload;
+    const { action, content, category = 'conversation', importance = 0.5, query, topK = 5, memoryId, filterCategory } = payload;
+
+    // LIST: Get all memories for the user
+    if (action === 'list') {
+      let dbQuery = supabase
+        .from('agent_memory')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('agent_type', 'digital_twin')
+        .order('created_at', { ascending: false });
+
+      if (filterCategory) {
+        dbQuery = dbQuery.eq('memory_type', filterCategory);
+      }
+
+      const { data: memories, error: listError } = await dbQuery;
+
+      if (listError) {
+        console.error('List memories error:', listError);
+        throw new Error('Failed to list memories');
+      }
+
+      const formattedMemories = (memories || []).map((m: any) => ({
+        id: m.key,
+        content: m.value?.content || '',
+        category: m.memory_type,
+        importance: m.confidence_score || 0.5,
+        createdAt: m.created_at,
+      }));
+
+      console.log(`Listed ${formattedMemories.length} Digital Twin memories`);
+
+      return new Response(JSON.stringify({ memories: formattedMemories }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // DELETE: Remove a memory by ID
+    if (action === 'delete' && memoryId) {
+      // Delete from Pinecone
+      const PINECONE_API_KEY = Deno.env.get('PINECONE_API_KEY');
+      const PINECONE_INDEX_URL = Deno.env.get('PINECONE_INDEX_URL');
+      
+      if (PINECONE_API_KEY && PINECONE_INDEX_URL) {
+        try {
+          const pineconeResponse = await fetch(`${PINECONE_INDEX_URL}/vectors/delete`, {
+            method: 'POST',
+            headers: {
+              'Api-Key': PINECONE_API_KEY,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              ids: [memoryId],
+              namespace: 'digital_twin_memories',
+            }),
+          });
+
+          if (!pineconeResponse.ok) {
+            console.warn('Pinecone delete warning:', await pineconeResponse.text());
+          }
+        } catch (e) {
+          console.warn('Pinecone delete failed, continuing with local delete:', e);
+        }
+      }
+
+      // Delete from local database
+      const { error: deleteError } = await supabase
+        .from('agent_memory')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('key', memoryId)
+        .eq('agent_type', 'digital_twin');
+
+      if (deleteError) {
+        console.error('Delete memory error:', deleteError);
+        throw new Error('Failed to delete memory');
+      }
+
+      console.log(`Deleted Digital Twin memory: ${memoryId}`);
+
+      return new Response(JSON.stringify({ success: true, memoryId }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     if (action === 'store' && content) {
       // Generate embedding via Cohere
@@ -73,7 +158,7 @@ serve(async (req) => {
         throw new Error('Pinecone not configured');
       }
 
-      const memoryId = `dt_${user.id}_${Date.now()}`;
+      const newMemoryId = `dt_${user.id}_${Date.now()}`;
       
       const pineconeResponse = await fetch(`${PINECONE_INDEX_URL}/vectors/upsert`, {
         method: 'POST',
@@ -83,7 +168,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           vectors: [{
-            id: memoryId,
+            id: newMemoryId,
             values: vector,
             metadata: {
               user_id: user.id,
@@ -108,14 +193,14 @@ serve(async (req) => {
         user_id: user.id,
         agent_type: 'digital_twin',
         memory_type: category,
-        key: memoryId,
+        key: newMemoryId,
         value: { content, importance },
         confidence_score: importance,
       });
 
-      console.log(`Stored Digital Twin memory: ${memoryId}`);
+      console.log(`Stored Digital Twin memory: ${newMemoryId}`);
 
-      return new Response(JSON.stringify({ success: true, memoryId }), {
+      return new Response(JSON.stringify({ success: true, memoryId: newMemoryId }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
