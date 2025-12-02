@@ -21,6 +21,8 @@ import { Breadcrumbs } from "./Breadcrumbs";
 import { FABMenu } from "@/components/navigation/FABMenu";
 import { GlobalAIAssistant } from "@/components/global-ai/GlobalAIAssistant";
 import { usePageContext } from "@/hooks/usePageContext";
+import { RedAlertOverlay } from "@/components/guardian/RedAlertOverlay";
+import { useSettingsStore } from "@/stores/settingsStore";
 
 const taglines = [
   "Navigate Your Financial Universe",
@@ -114,8 +116,10 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
     ...(isAdmin && FEATURE_FLAGS.ADMIN_FEATURES_ENABLED ? adminNavLinks : []),
   ];
 
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
+    return (
+    <>
+      <RedAlertOverlay />
+      <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-30 glass-bg-strong backdrop-blur-xl border-b border-accent/20 shadow-glass">
         {/* Premium gradient accent line */}
@@ -263,6 +267,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
           ))}
         </div>
       </nav>
-    </div>
+      </div>
+    </>
   );
 };

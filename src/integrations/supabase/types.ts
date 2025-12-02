@@ -10583,6 +10583,99 @@ export type Database = {
           },
         ]
       }
+      user_lockdown_status: {
+        Row: {
+          activated_at: string | null
+          created_at: string | null
+          deactivated_at: string | null
+          id: string
+          is_active: boolean | null
+          reason: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string | null
+          deactivated_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          reason?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string | null
+          deactivated_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          reason?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_login_sessions: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          country_code: string | null
+          created_at: string | null
+          device_name: string | null
+          device_type: string | null
+          id: string
+          ip_address: string | null
+          is_authorized: boolean | null
+          is_current: boolean | null
+          last_active_at: string | null
+          latitude: number | null
+          longitude: number | null
+          os: string | null
+          session_token: string
+          user_id: string
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          device_name?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          is_authorized?: boolean | null
+          is_current?: boolean | null
+          last_active_at?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          os?: string | null
+          session_token: string
+          user_id: string
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          device_name?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          is_authorized?: boolean | null
+          is_current?: boolean | null
+          last_active_at?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          os?: string | null
+          session_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_milestones: {
         Row: {
           completed_at: string

@@ -8,56 +8,15 @@ import { haptics } from '@/lib/haptics';
 import { soundEffects } from '@/lib/sound-effects';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useConnectedIntegrations, useSeverIntegration, ConnectedIntegration } from '@/hooks/useConnectedIntegrations';
 
-interface ConnectedApp {
-  id: string;
-  name: string;
-  icon: string;
-  permissions: string[];
-  connectedAt: string;
-  lastAccess: string;
+interface EnrichedIntegration extends ConnectedIntegration {
   aiWarning?: string;
   riskLevel?: 'low' | 'medium' | 'high';
 }
 
-// Mock connected apps - would come from plaid_items or integrations table
-const mockApps: ConnectedApp[] = [
-  {
-    id: '1',
-    name: 'Plaid',
-    icon: '🏦',
-    permissions: ['read_transactions', 'view_balance', 'account_info'],
-    connectedAt: '2024-01-15',
-    lastAccess: '2 min ago',
-  },
-  {
-    id: '2',
-    name: 'Rocket Money',
-    icon: '🚀',
-    permissions: ['read_transactions', 'view_balance', 'recurring_transactions', 'categorization'],
-    connectedAt: '2024-02-20',
-    lastAccess: '1 hour ago',
-  },
-  {
-    id: '3',
-    name: 'Stripe',
-    icon: '💳',
-    permissions: ['payment_processing', 'customer_info', 'subscription_management'],
-    connectedAt: '2024-03-01',
-    lastAccess: '3 hours ago',
-  },
-  {
-    id: '4',
-    name: 'Venmo',
-    icon: '💸',
-    permissions: ['send_money', 'read_transactions', 'contact_list', 'social_feed'],
-    connectedAt: '2024-01-05',
-    lastAccess: '1 day ago',
-  },
-];
-
 // Translate permissions using AI
-async function translatePermissions(app: ConnectedApp): Promise<{ warning: string; riskLevel: 'low' | 'medium' | 'high' }> {
+async function translatePermissions(app: ConnectedIntegration): Promise<{ warning: string; riskLevel: 'low' | 'medium' | 'high' }> {
   try {
     const { data, error } = await supabase.functions.invoke('translate-permissions', {
       body: { 
@@ -84,31 +43,43 @@ function AppCard({
   app, 
   onSever,
   isScanning,
+  isSevering,
 }: { 
-  app: ConnectedApp; 
-  onSever: (id: string) => void;
+  app: EnrichedIntegration; 
+  onSever: (id: string, provider: string) => void;
   isScanning: boolean;
+  isSevering: boolean;
 }) {
   const prefersReducedMotion = useReducedMotion();
-  const [isSevering, setIsSevering] = useState(false);
 
   const handleSever = async () => {
-    setIsSevering(true);
     haptics.vibrate('heavy');
     soundEffects.error();
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    onSever(app.id);
-    setIsSevering(false);
-    toast.success(`Disconnected ${app.name}`);
+    onSever(app.id, app.provider);
   };
 
   const riskColors = {
     low: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     medium: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
     high: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+  };
+
+  const formatLastAccess = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMins < 5) return 'Just now';
+      if (diffMins < 60) return `${diffMins} min ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    } catch {
+      return 'Unknown';
+    }
   };
 
   return (
@@ -156,7 +127,7 @@ function AppCard({
             </p>
           ) : (
             <p className="text-xs text-white/40 font-mono">
-              {app.permissions.length} permissions • Last access: {app.lastAccess}
+              {app.permissions.length} permissions • Last access: {formatLastAccess(app.lastAccess)}
             </p>
           )}
         </div>
@@ -195,25 +166,32 @@ function AppCard({
 }
 
 export function PrivacyPulseScanner() {
-  const [apps, setApps] = useState<ConnectedApp[]>(mockApps);
+  const { data: integrations = [], isLoading } = useConnectedIntegrations();
+  const severMutation = useSeverIntegration();
+  const [enrichedApps, setEnrichedApps] = useState<EnrichedIntegration[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [hasScanned, setHasScanned] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
-  // Auto-scan on mount
+  // Update enriched apps when integrations change
   useEffect(() => {
-    if (!hasScanned) {
+    if (integrations.length > 0 && !hasScanned) {
+      setEnrichedApps(integrations);
       runScan();
+    } else if (integrations.length === 0) {
+      setEnrichedApps([]);
     }
-  }, []);
+  }, [integrations]);
 
   const runScan = async () => {
+    if (integrations.length === 0) return;
+    
     setIsScanning(true);
     soundEffects.click();
     
     // Translate permissions for each app
     const updatedApps = await Promise.all(
-      apps.map(async (app) => {
+      integrations.map(async (app) => {
         const result = await translatePermissions(app);
         return {
           ...app,
@@ -223,18 +201,28 @@ export function PrivacyPulseScanner() {
       })
     );
     
-    setApps(updatedApps);
+    setEnrichedApps(updatedApps);
     setIsScanning(false);
     setHasScanned(true);
     soundEffects.success();
   };
 
-  const handleSever = (id: string) => {
-    setApps(prev => prev.filter(app => app.id !== id));
+  const handleSever = async (id: string, provider: string) => {
+    await severMutation.mutateAsync({ id, provider });
+    setEnrichedApps(prev => prev.filter(app => app.id !== id));
+    toast.success('Connection severed');
   };
 
-  const highRiskCount = apps.filter(a => a.riskLevel === 'high').length;
-  const mediumRiskCount = apps.filter(a => a.riskLevel === 'medium').length;
+  const highRiskCount = enrichedApps.filter(a => a.riskLevel === 'high').length;
+  const mediumRiskCount = enrichedApps.filter(a => a.riskLevel === 'medium').length;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="w-6 h-6 animate-spin text-white/40" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -251,23 +239,25 @@ export function PrivacyPulseScanner() {
               ? 'SCANNING PERMISSIONS...' 
               : hasScanned 
                 ? 'SCAN COMPLETE' 
-                : 'READY TO SCAN'}
+                : enrichedApps.length > 0 ? 'READY TO SCAN' : 'NO CONNECTIONS'}
           </span>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-xs font-mono"
-          onClick={runScan}
-          disabled={isScanning}
-        >
-          {isScanning ? (
-            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-          ) : (
-            <Scan className="w-3 h-3 mr-1" />
-          )}
-          {isScanning ? 'Scanning' : 'Re-scan'}
-        </Button>
+        {enrichedApps.length > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs font-mono"
+            onClick={runScan}
+            disabled={isScanning}
+          >
+            {isScanning ? (
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+            ) : (
+              <Scan className="w-3 h-3 mr-1" />
+            )}
+            {isScanning ? 'Scanning' : 'Re-scan'}
+          </Button>
+        )}
       </div>
 
       {/* Risk Summary */}
@@ -290,8 +280,8 @@ export function PrivacyPulseScanner() {
       {/* Apps List */}
       <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
         <AnimatePresence mode="popLayout">
-          {apps.length > 0 ? (
-            apps.map((app, i) => (
+          {enrichedApps.length > 0 ? (
+            enrichedApps.map((app, i) => (
               <motion.div
                 key={app.id}
                 initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
@@ -302,6 +292,7 @@ export function PrivacyPulseScanner() {
                   app={app} 
                   onSever={handleSever}
                   isScanning={isScanning}
+                  isSevering={severMutation.isPending}
                 />
               </motion.div>
             ))

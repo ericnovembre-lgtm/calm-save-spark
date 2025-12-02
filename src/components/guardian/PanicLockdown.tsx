@@ -6,13 +6,15 @@ import { haptics } from '@/lib/haptics';
 import { soundEffects } from '@/lib/sound-effects';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useSettingsStore } from '@/stores/settingsStore';
+import { useActivateLockdown, useDeactivateLockdown, useLockdownStatus } from '@/hooks/useLockdownStatus';
 
 interface PanicLockdownProps {
   onLockdown?: () => void;
 }
 
 // Emergency Support Card shown after lockdown
-function EmergencySupportCard({ onDeactivate }: { onDeactivate: () => void }) {
+function EmergencySupportCard({ onDeactivate, isDeactivating }: { onDeactivate: () => void; isDeactivating: boolean }) {
   const prefersReducedMotion = useReducedMotion();
   
   return (
@@ -54,9 +56,10 @@ function EmergencySupportCard({ onDeactivate }: { onDeactivate: () => void }) {
           variant="ghost"
           className="w-full border border-white/10 hover:bg-white/5"
           onClick={onDeactivate}
+          disabled={isDeactivating}
         >
           <Shield className="w-4 h-4 mr-2" />
-          Deactivate Lockdown
+          {isDeactivating ? 'Deactivating...' : 'Deactivate Lockdown'}
         </Button>
       </div>
     </motion.div>
@@ -66,8 +69,12 @@ function EmergencySupportCard({ onDeactivate }: { onDeactivate: () => void }) {
 export function PanicLockdown({ onLockdown }: PanicLockdownProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragX, setDragX] = useState(0);
-  const [isLocked, setIsLocked] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  
+  const { isLockdownActive } = useSettingsStore();
+  const { data: lockdownStatus } = useLockdownStatus();
+  const activateMutation = useActivateLockdown();
+  const deactivateMutation = useDeactivateLockdown();
   
   const trackWidth = 280;
   const handleWidth = 56;
@@ -82,23 +89,29 @@ export function PanicLockdown({ onLockdown }: PanicLockdownProps) {
     setDragX(0);
   };
 
-  const activateLockdown = () => {
-    setIsLocked(true);
+  const activateLockdown = async () => {
     haptics.pattern('error');
     soundEffects.error();
+    await activateMutation.mutateAsync('Manual emergency lockdown');
     onLockdown?.();
   };
 
-  const deactivateLockdown = () => {
-    setIsLocked(false);
+  const deactivateLockdown = async () => {
     haptics.vibrate('medium');
     soundEffects.success();
+    await deactivateMutation.mutateAsync();
   };
 
   const progress = Math.min(dragX / threshold, 1);
 
-  if (isLocked) {
-    return <EmergencySupportCard onDeactivate={deactivateLockdown} />;
+  // Show emergency card if lockdown is active (from store or database)
+  if (isLockdownActive || lockdownStatus?.is_active) {
+    return (
+      <EmergencySupportCard 
+        onDeactivate={deactivateLockdown} 
+        isDeactivating={deactivateMutation.isPending}
+      />
+    );
   }
 
   return (
