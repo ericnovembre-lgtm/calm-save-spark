@@ -118,12 +118,13 @@ export function DigitalTwinMinimap({
     <TooltipProvider delayDuration={100}>
       <motion.div
         className={cn(
-          "fixed z-50",
-          isMobile ? "left-3 top-1/2 -translate-y-1/2" : "right-4 top-1/2 -translate-y-1/2",
+          "fixed z-40",
+          isMobile ? "left-3 top-1/2 -translate-y-1/2" : "right-3 top-1/2 -translate-y-1/2",
           className
         )}
         initial={{ opacity: 0, x: isMobile ? -20 : 20 }}
-        animate={{ opacity: 1, x: 0 }}
+        animate={{ opacity: isExpanded ? 1 : 0.6, x: 0 }}
+        whileHover={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
         <motion.div
