@@ -26,6 +26,7 @@ import { SavedScenario } from "@/hooks/useScenarioHistory";
 import { toast } from "sonner";
 import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { TwinChatPanel } from "@/components/digital-twin/TwinChatPanel";
 import "@/styles/digital-twin-theme.css";
 
 export default function DigitalTwin() {
@@ -505,6 +506,9 @@ export default function DigitalTwin() {
         stepIndex={tourStepIndex}
         onCallback={handleJoyrideCallback}
       />
+
+      {/* AI Chat Panel */}
+      <TwinChatPanel />
     </div>
     </AppLayout>
   );
