@@ -1,15 +1,23 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Sphere } from '@react-three/drei';
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
 
 interface HolographicAvatarProps {
   healthState: 'thriving' | 'neutral' | 'struggling';
+  onEventDrop?: { type: 'positive' | 'negative'; timestamp: number } | null;
 }
 
-function WireframeHuman({ healthState }: { healthState: 'thriving' | 'neutral' | 'struggling' }) {
+function WireframeHuman({ 
+  healthState, 
+  onEventDrop 
+}: { 
+  healthState: 'thriving' | 'neutral' | 'struggling';
+  onEventDrop?: { type: 'positive' | 'negative'; timestamp: number } | null;
+}) {
   const groupRef = useRef<THREE.Group>(null);
   const glitchOffset = useRef(0);
+  const reactionProgress = useRef(0);
 
   const colors = {
     thriving: new THREE.Color('#00ffff'),
@@ -23,7 +31,27 @@ function WireframeHuman({ healthState }: { healthState: 'thriving' | 'neutral' |
   useFrame((state) => {
     if (!groupRef.current) return;
     
-    if (shouldGlitch) {
+    // Handle reaction animations
+    if (onEventDrop && reactionProgress.current < 1) {
+      reactionProgress.current += 0.05;
+      
+      if (onEventDrop.type === 'positive') {
+        // Celebrate: scale up and glow
+        const scale = 1 + Math.sin(reactionProgress.current * Math.PI) * 0.3;
+        groupRef.current.scale.set(scale, scale, scale);
+      } else {
+        // Wince: shake and dim
+        const shake = Math.sin(reactionProgress.current * Math.PI * 8) * 0.1;
+        groupRef.current.position.x = shake;
+        groupRef.current.rotation.z = shake * 0.2;
+      }
+      
+      if (reactionProgress.current >= 1) {
+        groupRef.current.scale.set(1, 1, 1);
+        groupRef.current.position.x = 0;
+        groupRef.current.rotation.z = 0;
+      }
+    } else if (shouldGlitch) {
       glitchOffset.current = Math.sin(state.clock.elapsedTime * 10) * 0.02;
       groupRef.current.position.x = glitchOffset.current;
       groupRef.current.rotation.y += 0.005;
@@ -31,6 +59,13 @@ function WireframeHuman({ healthState }: { healthState: 'thriving' | 'neutral' |
       groupRef.current.rotation.y += 0.002;
     }
   });
+
+  // Reset reaction on new event
+  useEffect(() => {
+    if (onEventDrop) {
+      reactionProgress.current = 0;
+    }
+  }, [onEventDrop?.timestamp]);
 
   // Create wireframe humanoid structure
   const wireframeMaterial = useMemo(
@@ -103,7 +138,7 @@ function DataPoint({ angle, color }: { angle: number; color: THREE.Color }) {
   );
 }
 
-export function HolographicAvatar({ healthState }: HolographicAvatarProps) {
+export function HolographicAvatar({ healthState, onEventDrop }: HolographicAvatarProps) {
   return (
     <div className="w-full h-full">
       <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
@@ -111,7 +146,7 @@ export function HolographicAvatar({ healthState }: HolographicAvatarProps) {
         <pointLight position={[10, 10, 10]} intensity={1} color="#00ffff" />
         <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ff0066" />
         
-        <WireframeHuman healthState={healthState} />
+        <WireframeHuman healthState={healthState} onEventDrop={onEventDrop} />
         
         <OrbitControls
           enableZoom={false}

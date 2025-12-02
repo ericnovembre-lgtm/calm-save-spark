@@ -15,6 +15,7 @@ interface UseLifeEventSimulationReturn {
   removeEvent: (id: string) => void;
   clearEvents: () => void;
   calculateNetWorth: (age: number) => number;
+  calculateRetirementImpact: (targetRetirementWorth: number) => { baselineAge: number; simulatedAge: number; delay: number };
 }
 
 export function useLifeEventSimulation(
@@ -80,6 +81,28 @@ export function useLifeEventSimulation(
     setInjectedEvents([]);
   }, []);
 
+  const calculateRetirementImpact = useCallback((targetRetirementWorth: number = 1000000) => {
+    // Find retirement age for baseline
+    let baselineAge = currentAge;
+    while (calculateBaselineNetWorth(baselineAge) < targetRetirementWorth && baselineAge < 100) {
+      baselineAge++;
+    }
+
+    // Find retirement age with events
+    let simulatedAge = currentAge;
+    while (calculateSimulatedNetWorth(simulatedAge) < targetRetirementWorth && simulatedAge < 100) {
+      simulatedAge++;
+    }
+
+    const delay = simulatedAge - baselineAge;
+
+    return {
+      baselineAge,
+      simulatedAge,
+      delay
+    };
+  }, [currentAge, calculateBaselineNetWorth, calculateSimulatedNetWorth]);
+
   return {
     injectedEvents,
     baselineNetWorth: calculateBaselineNetWorth(currentAge),
@@ -88,5 +111,6 @@ export function useLifeEventSimulation(
     removeEvent,
     clearEvents,
     calculateNetWorth: calculateSimulatedNetWorth,
+    calculateRetirementImpact,
   };
 }
