@@ -3,6 +3,8 @@ import * as Tone from 'tone';
 class DigitalTwinSounds {
   private synth: Tone.Synth | null = null;
   private initialized = false;
+  private lastScrubTime = 0;
+  private scrubThrottleMs = 100; // Max 1 sound per 100ms
 
   async init() {
     if (this.initialized) return;
@@ -12,6 +14,11 @@ class DigitalTwinSounds {
   }
 
   async playTimelineScrub() {
+    // Throttle scrub sounds to avoid overwhelming audio
+    const now = Date.now();
+    if (now - this.lastScrubTime < this.scrubThrottleMs) return;
+    
+    this.lastScrubTime = now;
     await this.init();
     if (!this.synth) return;
     this.synth.triggerAttackRelease('C5', '0.01');

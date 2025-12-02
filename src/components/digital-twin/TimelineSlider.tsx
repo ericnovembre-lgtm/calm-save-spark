@@ -6,13 +6,15 @@ interface TimelineSliderProps {
   retirementAge: number;
   onAgeChange: (age: number) => void;
   lifeEvents?: Array<{ year: number; label: string; icon: string }>;
+  onScrub?: () => void;
 }
 
 export function TimelineSlider({ 
   currentAge, 
   retirementAge, 
   onAgeChange,
-  lifeEvents = []
+  lifeEvents = [],
+  onScrub
 }: TimelineSliderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedAge, setSelectedAge] = useState(currentAge);
@@ -29,6 +31,7 @@ export function TimelineSlider({
     const age = parseInt(e.target.value);
     setSelectedAge(age);
     onAgeChange(age);
+    onScrub?.();
   };
 
   const progress = ((selectedAge - currentAge) / (retirementAge - currentAge)) * 100;
