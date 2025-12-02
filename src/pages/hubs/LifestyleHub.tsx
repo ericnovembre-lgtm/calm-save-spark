@@ -56,9 +56,9 @@ const features = [
   },
   {
     icon: MapPin,
-    title: "Life Events",
-    description: "Plan for major life changes",
-    path: "/life-events",
+    title: "Life Planner",
+    description: "Plan and execute major life events",
+    path: "/life-planner",
     color: "text-pink-500"
   },
 ];

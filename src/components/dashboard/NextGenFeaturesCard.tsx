@@ -29,10 +29,10 @@ const nextGenFeatures = [
     color: "text-green-600"
   },
   {
-    title: "Life Events",
+    title: "Life Planner",
     description: "Automated life milestone management",
     icon: MapPin,
-    route: "/life-events",
+    route: "/life-planner",
     status: "beta" as const,
     color: "text-blue-600"
   },
