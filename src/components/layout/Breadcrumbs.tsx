@@ -38,7 +38,7 @@ const routeNameMap: Record<string, string> = {
   literacy: "Financial Literacy",
   sustainability: "Sustainability",
   "financial-health": "Financial Health",
-  "life-events": "Life Events",
+  "life-planner": "Life Planner",
   settings: "Settings",
   help: "Help",
 };

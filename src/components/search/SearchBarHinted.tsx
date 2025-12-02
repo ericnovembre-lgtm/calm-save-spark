@@ -14,7 +14,7 @@ const searchHints: SearchHint[] = [
   { label: 'Goals', path: '/goals', keywords: ['targets', 'objectives', 'savings'] },
   { label: 'Pots', path: '/pots', keywords: ['savings', 'buckets', 'funds'] },
   { label: 'Automations', path: '/automations', keywords: ['rules', 'auto', 'schedule'] },
-  { label: 'Rewards', path: '/rewards', keywords: ['points', 'cashback', 'perks'] },
+  { label: 'Achievements', path: '/achievements', keywords: ['points', 'cashback', 'perks', 'badges', 'streaks'] },
   { label: 'Insights', path: '/insights', keywords: ['analytics', 'reports', 'data'] },
   { label: 'Analytics', path: '/analytics', keywords: ['stats', 'metrics', 'charts'] },
   { label: 'Card', path: '/card', keywords: ['debit', 'payment', 'spending'] },
