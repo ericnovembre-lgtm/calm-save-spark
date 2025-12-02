@@ -28,8 +28,8 @@ export function useDigitalTwinChat() {
     setIsStreaming(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
         throw new Error('Not authenticated');
       }
 
@@ -40,7 +40,7 @@ export function useDigitalTwinChat() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             agent_type: 'digital_twin_advisor',
@@ -124,8 +124,8 @@ export function useDigitalTwinChat() {
       }
 
       // Generate conversation ID from first exchange
-      if (!conversationId && assistantMessage) {
-        const newConvId = `dt_${Date.now()}_${user.id.slice(0, 8)}`;
+      if (!conversationId && assistantMessage && session?.user) {
+        const newConvId = `dt_${Date.now()}_${session.user.id.slice(0, 8)}`;
         setConversationId(newConvId);
       }
 
