@@ -1,6 +1,12 @@
-import { motion } from 'framer-motion';
-import { Home, Baby, Briefcase, TrendingDown, Car, Heart, Plane, Zap, Gift, Activity } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { useState } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export interface LifeEvent {
   id: string;
@@ -30,62 +36,157 @@ interface LifeEventsSidebarProps {
 
 export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
   const [draggedEvent, setDraggedEvent] = useState<string | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const isExpanded = !isCollapsed || isHovering;
 
   return (
-    <motion.div
-      className="fixed left-0 top-1/2 -translate-y-1/2 w-72 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-accent/30 scrollbar-track-transparent z-40"
-      initial={{ x: -300, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ delay: 0.5, type: 'spring' }}
-    >
-      <div className="backdrop-blur-xl bg-card/80 border border-border rounded-r-2xl p-4">
-        <h3 className="text-sm font-mono text-muted-foreground mb-4 flex items-center gap-2">
-          <Zap className="w-4 h-4" />
-          LIFE EVENTS
-        </h3>
-        
-        <div className="space-y-2">
-          {lifeEvents.map((event, idx) => (
-            <motion.div
-              key={event.id}
-              className={`p-3 rounded-lg border-2 ${event.color} bg-muted/40 backdrop-blur cursor-move hover:scale-105 transition-transform`}
-              draggable
-              onDragStart={() => {
-                setDraggedEvent(event.id);
-                onEventSelect(event);
-              }}
-              onDragEnd={() => setDraggedEvent(null)}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              whileHover={{ x: 10 }}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{event.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm text-foreground">{event.label}</div>
-                  <div className="text-xs text-muted-foreground truncate">{event.description}</div>
-                  <div className={`text-xs font-mono mt-1 ${event.impact >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {event.impact >= 0 ? '+' : ''}{(event.impact / 1000).toFixed(0)}K
-                  </div>
-                </div>
-              </div>
-
-              {draggedEvent === event.id && (
+    <TooltipProvider delayDuration={200}>
+      <motion.div
+        className="fixed left-0 top-1/2 -translate-y-1/2 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-accent/30 scrollbar-track-transparent z-40"
+        initial={{ x: -300, opacity: 0 }}
+        animate={{ 
+          x: 0, 
+          opacity: 1,
+          width: isExpanded ? 288 : 64,
+        }}
+        transition={{ 
+          x: { delay: 0.5, type: 'spring' },
+          opacity: { delay: 0.5 },
+          width: { type: 'spring', stiffness: 300, damping: 30 }
+        }}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
+        <div className="backdrop-blur-xl bg-card/80 border border-border rounded-r-2xl p-3">
+          {/* Header with toggle */}
+          <div className="flex items-center justify-between mb-3">
+            <AnimatePresence mode="wait">
+              {isExpanded ? (
+                <motion.h3
+                  key="full-header"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-xs font-mono text-muted-foreground flex items-center gap-2"
+                >
+                  <Zap className="w-3 h-3" />
+                  LIFE EVENTS
+                </motion.h3>
+              ) : (
                 <motion.div
-                  className="absolute inset-0 bg-accent/20 rounded-lg pointer-events-none"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                />
+                  key="icon-header"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Zap className="w-4 h-4 text-muted-foreground" />
+                </motion.div>
               )}
-            </motion.div>
-          ))}
-        </div>
+            </AnimatePresence>
+            
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-1 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+              aria-label={isCollapsed ? "Pin sidebar open" : "Allow sidebar to collapse"}
+            >
+              {isCollapsed ? (
+                <ChevronRight className="w-4 h-4" />
+              ) : (
+                <ChevronLeft className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+          
+          <div className="space-y-2">
+            {lifeEvents.map((event, idx) => (
+              <AnimatePresence key={event.id} mode="wait">
+                {isExpanded ? (
+                  /* Expanded: Full card */
+                  <motion.div
+                    key={`${event.id}-full`}
+                    className={`p-3 rounded-lg border-2 ${event.color} bg-muted/40 backdrop-blur cursor-move hover:scale-105 transition-transform relative`}
+                    draggable
+                    onDragStart={() => {
+                      setDraggedEvent(event.id);
+                      onEventSelect(event);
+                    }}
+                    onDragEnd={() => setDraggedEvent(null)}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ delay: idx * 0.03 }}
+                    whileHover={{ x: 10 }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{event.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm text-foreground">{event.label}</div>
+                        <div className="text-xs text-muted-foreground truncate">{event.description}</div>
+                        <div className={`text-xs font-mono mt-1 ${event.impact >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                          {event.impact >= 0 ? '+' : ''}{(event.impact / 1000).toFixed(0)}K
+                        </div>
+                      </div>
+                    </div>
 
-        <div className="mt-4 p-3 bg-accent/10 border border-accent/30 rounded-lg text-xs text-muted-foreground">
-          💡 Drag events onto the timeline to see their impact
+                    {draggedEvent === event.id && (
+                      <motion.div
+                        className="absolute inset-0 bg-accent/20 rounded-lg pointer-events-none"
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      />
+                    )}
+                  </motion.div>
+                ) : (
+                  /* Collapsed: Icon only with tooltip */
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <motion.div
+                        key={`${event.id}-icon`}
+                        className={`p-2 rounded-lg border-2 ${event.color} bg-muted/40 backdrop-blur cursor-move hover:scale-110 transition-transform flex items-center justify-center`}
+                        draggable
+                        onDragStart={() => {
+                          setDraggedEvent(event.id);
+                          onEventSelect(event);
+                        }}
+                        onDragEnd={() => setDraggedEvent(null)}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ delay: idx * 0.02 }}
+                      >
+                        <span className="text-xl">{event.icon}</span>
+                      </motion.div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="bg-popover border-border">
+                      <div className="text-sm font-medium">{event.label}</div>
+                      <div className="text-xs text-muted-foreground">{event.description}</div>
+                      <div className={`text-xs font-mono ${event.impact >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {event.impact >= 0 ? '+' : ''}{(event.impact / 1000).toFixed(0)}K
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </AnimatePresence>
+            ))}
+          </div>
+
+          {/* Hint - only when expanded */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 p-2 bg-accent/10 border border-accent/30 rounded-lg text-xs text-muted-foreground"
+              >
+                💡 Drag events onto the timeline
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </TooltipProvider>
   );
 }
