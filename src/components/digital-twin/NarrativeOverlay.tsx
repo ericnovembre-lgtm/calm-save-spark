@@ -1,6 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
+import { Button } from '@/components/ui/button';
+import { Volume2, VolumeX, Loader2 } from 'lucide-react';
 
 interface NarrativeOverlayProps {
   age: number;
@@ -12,6 +15,16 @@ export function NarrativeOverlay({ age, netWorth, lifeEvents }: NarrativeOverlay
   const [narrative, setNarrative] = useState('');
   const [displayedText, setDisplayedText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const { isSpeaking, isLoading: voiceLoading, speak, stop } = useElevenLabsVoice();
+
+  const handleSpeak = () => {
+    if (isSpeaking) {
+      stop();
+    } else {
+      speak(narrative, 'EXAVITQu4vr4xnSDxMaL'); // Sarah voice
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -78,19 +91,37 @@ export function NarrativeOverlay({ age, netWorth, lifeEvents }: NarrativeOverlay
           exit={{ opacity: 0, y: -20 }}
         >
           <div className="backdrop-blur-xl bg-black/60 border border-cyan-500/30 rounded-lg p-6 shadow-[0_0_30px_rgba(0,255,255,0.2)]">
-            <motion.p
-              className="text-lg text-white font-light leading-relaxed"
-              style={{
-                textShadow: '0 0 10px rgba(0, 255, 255, 0.3)',
-              }}
-            >
-              {displayedText}
-              <motion.span
-                animate={{ opacity: [0, 1, 0] }}
-                transition={{ duration: 0.8, repeat: Infinity }}
-                className="inline-block w-2 h-5 bg-cyan-500 ml-1"
-              />
-            </motion.p>
+            <div className="flex items-start gap-4">
+              <motion.p
+                className="flex-1 text-lg text-white font-light leading-relaxed"
+                style={{
+                  textShadow: '0 0 10px rgba(0, 255, 255, 0.3)',
+                }}
+              >
+                {displayedText}
+                <motion.span
+                  animate={{ opacity: [0, 1, 0] }}
+                  transition={{ duration: 0.8, repeat: Infinity }}
+                  className="inline-block w-2 h-5 bg-cyan-500 ml-1"
+                />
+              </motion.p>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSpeak}
+                disabled={voiceLoading}
+                className="shrink-0 hover:bg-cyan-500/10 hover:text-cyan-400"
+              >
+                {voiceLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : isSpeaking ? (
+                  <VolumeX className="w-5 h-5" />
+                ) : (
+                  <Volume2 className="w-5 h-5" />
+                )}
+              </Button>
+            </div>
           </div>
         </motion.div>
       )}

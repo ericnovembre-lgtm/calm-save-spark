@@ -16,6 +16,16 @@ interface UseLifeEventSimulationReturn {
   clearEvents: () => void;
   calculateNetWorth: (age: number) => number;
   calculateRetirementImpact: (targetRetirementWorth: number) => { baselineAge: number; simulatedAge: number; delay: number };
+  monteCarloTimeline: MonteCarloTimeline[];
+  generateMonteCarloProjection: () => void;
+}
+
+interface MonteCarloTimeline {
+  year: number;
+  age: number;
+  median: number;
+  p10: number;
+  p90: number;
 }
 
 export function useLifeEventSimulation(
@@ -25,6 +35,7 @@ export function useLifeEventSimulation(
   annualSavings: number = 20000
 ): UseLifeEventSimulationReturn {
   const [injectedEvents, setInjectedEvents] = useState<InjectedEvent[]>([]);
+  const [monteCarloTimeline, setMonteCarloTimeline] = useState<MonteCarloTimeline[]>([]);
 
   const calculateBaselineNetWorth = useCallback((targetAge: number): number => {
     const years = targetAge - currentAge;
@@ -103,6 +114,61 @@ export function useLifeEventSimulation(
     };
   }, [currentAge, calculateBaselineNetWorth, calculateSimulatedNetWorth]);
 
+  const generateMonteCarloProjection = useCallback(() => {
+    const numSimulations = 1000;
+    const volatility = 0.03; // ±3% volatility
+    const timeHorizon = 40; // Project 40 years into future
+    
+    const allSimulations: number[][] = [];
+    
+    // Run Monte Carlo simulations
+    for (let sim = 0; sim < numSimulations; sim++) {
+      const simulationPath: number[] = [];
+      let netWorth = initialNetWorth;
+      
+      for (let year = 0; year < timeHorizon; year++) {
+        const currentYear = currentAge + year;
+        
+        // Apply random return rate with volatility
+        const randomReturn = annualReturn + (Math.random() - 0.5) * 2 * volatility;
+        netWorth = netWorth * (1 + randomReturn);
+        
+        // Apply annual savings
+        netWorth += annualSavings;
+        
+        // Apply life events
+        const eventsThisYear = injectedEvents.filter(e => e.year === currentYear);
+        eventsThisYear.forEach(event => {
+          netWorth += event.event.impact;
+        });
+        
+        simulationPath.push(netWorth);
+      }
+      
+      allSimulations.push(simulationPath);
+    }
+    
+    // Calculate percentiles for each year
+    const timeline: MonteCarloTimeline[] = [];
+    for (let year = 0; year < timeHorizon; year++) {
+      const valuesAtYear = allSimulations.map(sim => sim[year]).sort((a, b) => a - b);
+      
+      const p10Index = Math.floor(numSimulations * 0.1);
+      const p50Index = Math.floor(numSimulations * 0.5);
+      const p90Index = Math.floor(numSimulations * 0.9);
+      
+      timeline.push({
+        year: currentAge + year,
+        age: currentAge + year,
+        median: Math.round(valuesAtYear[p50Index]),
+        p10: Math.round(valuesAtYear[p10Index]),
+        p90: Math.round(valuesAtYear[p90Index]),
+      });
+    }
+    
+    setMonteCarloTimeline(timeline);
+  }, [currentAge, initialNetWorth, annualReturn, annualSavings, injectedEvents]);
+
   return {
     injectedEvents,
     baselineNetWorth: calculateBaselineNetWorth(currentAge),
@@ -112,5 +178,7 @@ export function useLifeEventSimulation(
     clearEvents,
     calculateNetWorth: calculateSimulatedNetWorth,
     calculateRetirementImpact,
+    monteCarloTimeline,
+    generateMonteCarloProjection,
   };
 }
