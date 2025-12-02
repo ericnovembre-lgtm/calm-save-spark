@@ -34,7 +34,7 @@ export function TimelineSlider({
   const progress = ((selectedAge - currentAge) / (retirementAge - currentAge)) * 100;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-white/10 p-8">
+    <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-white/10 py-4 px-8">
       <div className="container mx-auto">
         {/* Timeline track */}
         <div className="relative h-2 bg-white/5 rounded-full mb-8">

@@ -27,13 +27,15 @@ export function HUDOverlay({ children, className = '' }: HUDOverlayProps) {
         transition={{ delay: 0.3 }}
       />
       <motion.div
-        className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-magenta-500"
+        className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2"
+        style={{ borderColor: '#ff0066' }}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.4 }}
       />
       <motion.div
-        className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-magenta-500"
+        className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2"
+        style={{ borderColor: '#ff0066' }}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.5 }}

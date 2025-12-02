@@ -33,7 +33,7 @@ export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
 
   return (
     <motion.div
-      className="fixed left-0 top-1/2 -translate-y-1/2 w-72 max-h-[70vh] overflow-y-auto"
+      className="fixed left-0 top-1/2 -translate-y-1/2 w-72 max-h-[75vh] overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent"
       initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ delay: 0.5, type: 'spring' }}
