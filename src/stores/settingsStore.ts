@@ -72,6 +72,10 @@ interface SettingsState {
   // AI Model Preferences
   aiModelPreferences: AIModelPreferences;
   
+  // Lockdown State
+  isLockdownActive: boolean;
+  lockdownActivatedAt: string | null;
+  
   // Actions
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setAccentColor: (color: string) => void;
@@ -83,6 +87,8 @@ interface SettingsState {
   setConnectedApps: (apps: ConnectedApp[]) => void;
   setSpendingPersona: (persona: any) => void;
   setAIModelPreferences: (prefs: Partial<AIModelPreferences>) => void;
+  setLockdownActive: (active: boolean) => void;
+  setLockdownActivatedAt: (timestamp: string | null) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -119,6 +125,8 @@ export const useSettingsStore = create<SettingsState>()(
         forceModelForMarket: null,
         costOptimizationLevel: 'balanced',
       },
+      isLockdownActive: false,
+      lockdownActivatedAt: null,
       
       // Actions
       setTheme: (theme) => set({ theme }),
@@ -140,6 +148,8 @@ export const useSettingsStore = create<SettingsState>()(
         set((state) => ({
           aiModelPreferences: { ...state.aiModelPreferences, ...prefs },
         })),
+      setLockdownActive: (active) => set({ isLockdownActive: active }),
+      setLockdownActivatedAt: (timestamp) => set({ lockdownActivatedAt: timestamp }),
     }),
     {
       name: 'settings-storage',
