@@ -609,6 +609,65 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_model_routing_analytics: {
+        Row: {
+          actual_cost: number | null
+          confidence_score: number | null
+          conversation_id: string | null
+          created_at: string | null
+          estimated_cost: number | null
+          fallback_reason: string | null
+          id: string
+          model_used: string
+          query_length: number | null
+          query_type: string
+          response_time_ms: number | null
+          token_count: number | null
+          user_id: string | null
+          was_fallback: boolean | null
+        }
+        Insert: {
+          actual_cost?: number | null
+          confidence_score?: number | null
+          conversation_id?: string | null
+          created_at?: string | null
+          estimated_cost?: number | null
+          fallback_reason?: string | null
+          id?: string
+          model_used: string
+          query_length?: number | null
+          query_type: string
+          response_time_ms?: number | null
+          token_count?: number | null
+          user_id?: string | null
+          was_fallback?: boolean | null
+        }
+        Update: {
+          actual_cost?: number | null
+          confidence_score?: number | null
+          conversation_id?: string | null
+          created_at?: string | null
+          estimated_cost?: number | null
+          fallback_reason?: string | null
+          id?: string
+          model_used?: string
+          query_length?: number | null
+          query_type?: string
+          response_time_ms?: number | null
+          token_count?: number | null
+          user_id?: string | null
+          was_fallback?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_model_routing_analytics_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_model_test_results: {
         Row: {
           agent_type: string
@@ -10518,6 +10577,7 @@ export type Database = {
       user_preferences: {
         Row: {
           accent_color: string | null
+          ai_model_preferences: Json | null
           created_at: string | null
           dashboard_card_order: string[] | null
           id: string
@@ -10532,6 +10592,7 @@ export type Database = {
         }
         Insert: {
           accent_color?: string | null
+          ai_model_preferences?: Json | null
           created_at?: string | null
           dashboard_card_order?: string[] | null
           id?: string
@@ -10546,6 +10607,7 @@ export type Database = {
         }
         Update: {
           accent_color?: string | null
+          ai_model_preferences?: Json | null
           created_at?: string | null
           dashboard_card_order?: string[] | null
           id?: string

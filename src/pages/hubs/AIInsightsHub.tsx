@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { Bot, Brain, Lightbulb, BarChart3, Users, Shield, Sparkles } from "lucide-react";
+import { Bot, Brain, Lightbulb, BarChart3, Users, Shield, Sparkles, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -53,6 +53,13 @@ const features = [
     description: "Behavioral spending protection",
     path: "/guardian",
     color: "text-red-500"
+  },
+  {
+    icon: Activity,
+    title: "AI Model Analytics",
+    description: "Track routing performance & cost optimization",
+    path: "/ai-model-analytics",
+    color: "text-cyan-500"
   },
 ];
 

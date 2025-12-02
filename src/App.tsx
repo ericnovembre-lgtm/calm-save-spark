@@ -84,6 +84,8 @@ const Card = createPageLoader(() => import("./pages/Card"), 'medium');
 const TaxDocuments = createPageLoader(() => import("./pages/TaxDocuments"), 'medium');
 const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
 
+const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
+
 // Hub pages (Medium complexity)
 const ManageMoneyHub = createPageLoader(() => import("./pages/hubs/ManageMoneyHub"), 'medium');
 const GrowWealthHub = createPageLoader(() => import("./pages/hubs/GrowWealthHub"), 'medium');
@@ -294,6 +296,7 @@ function AnimatedRoutes() {
         {/* Next-Gen Features */}
         <Route path="/digital-twin" element={<ProtectedRoute><PageTransition><DigitalTwin /></PageTransition></ProtectedRoute>} />
         <Route path="/agent-hub" element={<ProtectedRoute><PageTransition><AgentHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/ai-model-analytics" element={<ProtectedRoute><PageTransition><AIModelAnalytics /></PageTransition></ProtectedRoute>} />
         <Route path="/guardian" element={<ProtectedRoute><PageTransition><BehavioralGuardian /></PageTransition></ProtectedRoute>} />
         <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />
         <Route path="/lifesim" element={<ProtectedRoute><PageTransition><LifeSim /></PageTransition></ProtectedRoute>} />

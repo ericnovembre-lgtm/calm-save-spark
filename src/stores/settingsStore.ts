@@ -29,6 +29,15 @@ interface ConnectedApp {
   risk_level?: 'high' | 'standard' | 'limited';
 }
 
+interface AIModelPreferences {
+  autoRoutingEnabled: boolean;
+  preferredModel: 'gemini-flash' | 'claude-sonnet' | 'perplexity' | null;
+  forceModelForSimple: 'gemini-flash' | 'claude-sonnet' | 'perplexity' | null;
+  forceModelForComplex: 'gemini-flash' | 'claude-sonnet' | 'perplexity' | null;
+  forceModelForMarket: 'gemini-flash' | 'claude-sonnet' | 'perplexity' | null;
+  costOptimizationLevel: 'fastest' | 'balanced' | 'highest_quality';
+}
+
 interface SettingsState {
   // Theme
   theme: 'light' | 'dark' | 'system';
@@ -60,6 +69,9 @@ interface SettingsState {
     };
   } | null;
   
+  // AI Model Preferences
+  aiModelPreferences: AIModelPreferences;
+  
   // Actions
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setAccentColor: (color: string) => void;
@@ -70,6 +82,7 @@ interface SettingsState {
   setSecuritySettings: (settings: Partial<SecuritySettings>) => void;
   setConnectedApps: (apps: ConnectedApp[]) => void;
   setSpendingPersona: (persona: any) => void;
+  setAIModelPreferences: (prefs: Partial<AIModelPreferences>) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -98,6 +111,14 @@ export const useSettingsStore = create<SettingsState>()(
       },
       connectedApps: [],
       spendingPersona: null,
+      aiModelPreferences: {
+        autoRoutingEnabled: true,
+        preferredModel: null,
+        forceModelForSimple: null,
+        forceModelForComplex: null,
+        forceModelForMarket: null,
+        costOptimizationLevel: 'balanced',
+      },
       
       // Actions
       setTheme: (theme) => set({ theme }),
@@ -115,6 +136,10 @@ export const useSettingsStore = create<SettingsState>()(
         })),
       setConnectedApps: (apps) => set({ connectedApps: apps }),
       setSpendingPersona: (persona) => set({ spendingPersona: persona }),
+      setAIModelPreferences: (prefs) =>
+        set((state) => ({
+          aiModelPreferences: { ...state.aiModelPreferences, ...prefs },
+        })),
     }),
     {
       name: 'settings-storage',
@@ -123,6 +148,7 @@ export const useSettingsStore = create<SettingsState>()(
         accentColor: state.accentColor,
         fontSize: state.fontSize,
         notificationRules: state.notificationRules,
+        aiModelPreferences: state.aiModelPreferences,
       }),
     }
   )

@@ -31,6 +31,7 @@ import { SupportConcierge } from '@/components/settings/SupportConcierge';
 import { LiveThemePreview } from '@/components/settings/LiveThemePreview';
 import { ConnectedAppsPrivacy } from '@/components/settings/ConnectedAppsPrivacy';
 import { useSettingsSync } from '@/hooks/useSettingsSync';
+import { AIModelPreferences } from '@/components/settings/AIModelPreferences';
 
 export default function Settings() {
   // Initialize settings sync
@@ -71,6 +72,22 @@ export default function Settings() {
             <ConnectedAppsPrivacy />
             <Separator />
             <SupportConcierge />
+          </CardContent>
+        </Card>
+
+        {/* AI Model Preferences Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-primary" />
+              AI Model Preferences
+            </CardTitle>
+            <CardDescription>
+              Control which AI models power your financial assistant
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AIModelPreferences />
           </CardContent>
         </Card>
 
