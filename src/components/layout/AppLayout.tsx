@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug, Heart, Search, Sparkles, Brain, Gamepad2, RefreshCw, MapPin, Coins } from "lucide-react";
+import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug, Heart, Search, Sparkles, Brain, Gamepad2, RefreshCw, MapPin, Coins, Activity, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -55,8 +55,9 @@ const bottomNavLinks = [
 
 const adminNavLinks = [
   { name: "Admin", path: "/admin", icon: Shield },
-  { name: "Admin Agents", path: "/admin-agents", icon: Users },
-  { name: "Admin Functions", path: "/admin-functions", icon: Code },
+  { name: "Admin Monitoring", path: "/admin-monitoring", icon: Activity },
+  { name: "Security Monitoring", path: "/security-monitoring", icon: ShieldCheck },
+  { name: "Claude Monitoring", path: "/claude-monitoring", icon: Bot },
 ];
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {

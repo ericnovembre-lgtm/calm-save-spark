@@ -61,6 +61,13 @@ export function CommandPalette() {
       action: () => navigate("/hubs/premium"),
       category: "navigation"
     },
+    {
+      id: "hub-memory",
+      label: "Memory Hub",
+      icon: <Users className="w-4 h-4" />,
+      action: () => navigate("/hubs/memory"),
+      category: "navigation"
+    },
     // Money Management
     {
       id: "view-budget",

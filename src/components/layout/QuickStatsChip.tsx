@@ -7,6 +7,7 @@ import { useGoalsProgress } from "@/hooks/useGoalsProgress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 interface QuickStatsChipProps {
   netWorth?: number;
@@ -17,6 +18,7 @@ interface QuickStatsChipProps {
 
 export const QuickStatsChip = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: netWorthData, isLoading: netWorthLoading, isError: netWorthError, error: netWorthErrorMsg } = useNetWorthData();
   const { data: goalsData, isLoading: goalsLoading, isError: goalsError, error: goalsErrorMsg } = useGoalsProgress();
 
@@ -102,7 +104,8 @@ export const QuickStatsChip = () => {
         <TooltipTrigger asChild>
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="hidden md:flex items-center gap-3 px-4 py-2 rounded-full glass-bg-strong backdrop-blur-xl border border-accent/20 shadow-glass"
+            onClick={() => navigate('/financial-health')}
+            className="hidden md:flex items-center gap-3 px-4 py-2 rounded-full glass-bg-strong backdrop-blur-xl border border-accent/20 shadow-glass cursor-pointer"
           >
             {/* Net Worth */}
       <div className="flex items-center gap-1.5">
@@ -190,6 +193,11 @@ export const QuickStatsChip = () => {
               <p>└ Saved: ${totalSaved.toLocaleString()} / ${totalTarget.toLocaleString()}</p>
               <p>└ Active Goals: {activeGoalsCount}</p>
             </div>
+          </div>
+          <div className="border-t border-border pt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <span>Click to view details or press</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px]">⌘</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px]">F</kbd>
           </div>
         </div>
       </TooltipContent>

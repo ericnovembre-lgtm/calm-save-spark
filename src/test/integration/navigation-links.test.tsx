@@ -131,9 +131,18 @@ describe('Navigation Component Links', () => {
       '/achievements', // Updated from /rewards
       '/insights',
       '/analytics',
-      '/card',
-      '/settings',
-    ];
+  '/card',
+  '/settings',
+  // Admin routes
+  '/admin',
+  '/admin-monitoring',
+  '/security-monitoring',
+  '/claude-monitoring',
+  // Hub routes
+  '/hubs/lifestyle',
+  '/hubs/premium',
+  '/hubs/memory',
+];
 
     // All search routes should be in validRoutes
     searchRoutes.forEach(route => {
@@ -205,5 +214,21 @@ describe('Navigation Component Links', () => {
     fabMenuRoutes.forEach(route => {
       expect(validRoutes).toContain(route);
     });
+  });
+
+  it('admin nav links should reference valid routes', () => {
+    const adminRoutes = ['/admin', '/admin-monitoring', '/security-monitoring', '/claude-monitoring'];
+    adminRoutes.forEach(route => {
+      expect(validRoutes).toContain(route);
+    });
+  });
+
+  it('should not reference non-existent admin routes', () => {
+    expect(validRoutes).not.toContain('/admin-agents');
+    expect(validRoutes).not.toContain('/admin-functions');
+  });
+
+  it('Memory Hub should be accessible via Command Palette', () => {
+    expect(validRoutes).toContain('/hubs/memory');
   });
 });
