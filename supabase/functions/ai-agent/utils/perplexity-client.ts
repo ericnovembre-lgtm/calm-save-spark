@@ -30,7 +30,55 @@ export const PERPLEXITY_MODELS = {
 } as const;
 
 /**
+ * Transform Perplexity stream to OpenAI-compatible format
+ */
+function createOpenAICompatibleStream(
+  perplexityStream: ReadableStream,
+  modelName: string
+): ReadableStream {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  
+  const transformStream = new TransformStream({
+    transform(chunk, controller) {
+      const text = decoder.decode(chunk);
+      const lines = text.split('\n');
+      
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          
+          if (data === '[DONE]') {
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            continue;
+          }
+          
+          try {
+            const parsed = JSON.parse(data);
+            // Add model metadata to match OpenAI format
+            if (!parsed.model) {
+              parsed.model = modelName;
+            }
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(parsed)}\n\n`));
+          } catch {
+            // Pass through invalid JSON as-is
+            controller.enqueue(encoder.encode(line + '\n'));
+          }
+        } else {
+          controller.enqueue(encoder.encode(line + '\n'));
+        }
+      }
+    }
+  });
+  
+  return perplexityStream.pipeThrough(transformStream);
+}
+
+/**
  * Stream responses from Perplexity API for real-time market data
+ * Returns OpenAI-compatible stream format
  */
 export async function streamPerplexityResponse(
   systemPrompt: string,
@@ -58,7 +106,7 @@ export async function streamPerplexityResponse(
     top_p: 0.9,
     return_images: false,
     return_related_questions: false,
-    search_recency_filter: 'day', // Most recent data
+    search_recency_filter: 'day',
     frequency_penalty: 1,
     presence_penalty: 0,
     stream: true
@@ -85,7 +133,8 @@ export async function streamPerplexityResponse(
     throw new Error('No response body from Perplexity');
   }
 
-  return response.body;
+  // Transform to OpenAI-compatible format
+  return createOpenAICompatibleStream(response.body, model);
 }
 
 /**

@@ -8,6 +8,7 @@ import { classifyQuery, applyClassificationOverrides, logClassification, ModelRo
 import { streamAIResponse } from "./ai-client.ts";
 import { streamPerplexityResponse } from "./perplexity-client.ts";
 import { CLAUDE_MAIN_BRAIN, CLAUDE_35_SONNET } from "./ai-client.ts";
+import { injectModelMetadata } from "./stream-enhancer.ts";
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -68,18 +69,18 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
   // Route to appropriate model
   switch (classification.model) {
     case 'perplexity':
-      return await routeToPerplexity(systemPrompt, conversationHistory, userMessage);
+      return await routeToPerplexity(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
     
     case 'gemini-flash':
-      return await routeToGeminiFlash(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId);
+      return await routeToGeminiFlash(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
     
     case 'claude-sonnet':
-      return await routeToClaude(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId);
+      return await routeToClaude(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
     
     default:
       // Fallback to Gemini Flash
       console.warn('[Model Router] Unknown model, defaulting to Gemini Flash');
-      return await routeToGeminiFlash(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId);
+      return await routeToGeminiFlash(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
   }
 }
 
@@ -89,22 +90,55 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
 async function routeToPerplexity(
   systemPrompt: string,
   conversationHistory: Message[],
-  userMessage: string
+  userMessage: string,
+  supabase?: SupabaseClient,
+  conversationId?: string,
+  userId?: string,
+  queryType?: string
 ): Promise<ReadableStream> {
   console.log('[Model Router] → Perplexity (Real-time Market Data)');
   
-  const enhancedSystemPrompt = `${systemPrompt}
+  try {
+    const enhancedSystemPrompt = `${systemPrompt}
 
 **IMPORTANT:** You have access to real-time market data and current information. 
 Always cite your sources and include timestamps for data accuracy.
 Focus on providing up-to-date financial market information.`;
 
-  return await streamPerplexityResponse(
-    enhancedSystemPrompt,
-    conversationHistory,
-    userMessage,
-    'llama-3.1-sonar-small-128k-online'
-  );
+    const stream = await streamPerplexityResponse(
+      enhancedSystemPrompt,
+      conversationHistory,
+      userMessage,
+      'llama-3.1-sonar-small-128k-online'
+    );
+    
+    // Log successful routing
+    await logModelUsage(supabase, userId, conversationId, 'perplexity', 'success');
+    
+    // Inject model metadata
+    return injectModelMetadata(stream, {
+      model: 'perplexity',
+      modelName: 'Perplexity Sonar',
+      queryType: queryType || 'market_data'
+    });
+  } catch (error) {
+    console.error('[Model Router] Perplexity failed, falling back to Gemini Flash:', error);
+    
+    // Log fallback
+    await logModelUsage(supabase, userId, conversationId, 'perplexity', 'fallback', error instanceof Error ? error.message : String(error));
+    
+    // Fallback to Gemini Flash
+    return await routeToGeminiFlash(
+      systemPrompt + '\n\nNote: Real-time market data unavailable. Provide guidance based on recent knowledge.',
+      conversationHistory,
+      userMessage,
+      undefined, // no tools
+      supabase,
+      conversationId,
+      userId,
+      queryType
+    );
+  }
 }
 
 /**
@@ -117,20 +151,29 @@ async function routeToGeminiFlash(
   tools?: any[],
   supabase?: SupabaseClient,
   conversationId?: string,
-  userId?: string
+  userId?: string,
+  queryType?: string
 ): Promise<ReadableStream> {
   console.log('[Model Router] → Gemini 2.5 Flash (Fast & Efficient)');
   
-  return await streamAIResponse(
+  await logModelUsage(supabase, userId, conversationId, 'gemini-flash', 'success');
+  
+  const stream = await streamAIResponse(
     systemPrompt,
     conversationHistory,
     userMessage,
-    'google/gemini-2.5-flash', // Fast and cost-effective
+    'google/gemini-2.5-flash',
     tools,
     supabase,
     conversationId,
     userId
   );
+  
+  return injectModelMetadata(stream, {
+    model: 'gemini-flash',
+    modelName: 'Gemini 2.5 Flash',
+    queryType: queryType || 'simple'
+  });
 }
 
 /**
@@ -143,25 +186,58 @@ async function routeToClaude(
   tools?: any[],
   supabase?: SupabaseClient,
   conversationId?: string,
-  userId?: string
+  userId?: string,
+  queryType?: string
 ): Promise<ReadableStream> {
   console.log('[Model Router] → Claude Sonnet 4.5 (Advanced Reasoning)');
+  
+  await logModelUsage(supabase, userId, conversationId, 'claude-sonnet', 'success');
   
   const enhancedSystemPrompt = `${systemPrompt}
 
 **ADVANCED REASONING MODE:** You are using Claude Sonnet 4.5 for complex financial analysis.
 Provide deep, strategic insights with multi-step reasoning and comprehensive recommendations.`;
 
-  return await streamAIResponse(
+  const stream = await streamAIResponse(
     enhancedSystemPrompt,
     conversationHistory,
     userMessage,
-    CLAUDE_MAIN_BRAIN, // Claude Sonnet 4.5
+    CLAUDE_MAIN_BRAIN,
     tools,
     supabase,
     conversationId,
     userId
   );
+  
+  return injectModelMetadata(stream, {
+    model: 'claude-sonnet',
+    modelName: 'Claude Sonnet 4.5',
+    queryType: queryType || 'complex'
+  });
+}
+
+/**
+ * Log model usage for analytics
+ */
+async function logModelUsage(
+  supabase: SupabaseClient | undefined,
+  userId: string | undefined,
+  conversationId: string | undefined,
+  model: string,
+  status: 'success' | 'fallback' | 'error',
+  errorMessage?: string
+): Promise<void> {
+  console.log('[Model Router] Usage:', {
+    model,
+    status,
+    userId,
+    conversationId,
+    errorMessage,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Could insert into analytics table if needed
+  // For now, structured logging is sufficient
 }
 
 /**

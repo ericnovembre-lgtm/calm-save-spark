@@ -7,6 +7,11 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: string;
+  modelUsed?: {
+    model: string;
+    modelName: string;
+    queryType: string;
+  };
 }
 
 interface Conversation {
@@ -23,6 +28,12 @@ interface Conversation {
 export function useCoachConversation(conversationId: string | null) {
   const queryClient = useQueryClient();
   const [isResponding, setIsResponding] = useState(false);
+  const [currentModel, setCurrentModel] = useState<{
+    model: string;
+    modelName: string;
+    queryType: string;
+  } | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const { data: conversation, isLoading } = useQuery({
     queryKey: ['coach-conversation', conversationId],
@@ -43,6 +54,13 @@ export function useCoachConversation(conversationId: string | null) {
       return data;
     },
     enabled: !!conversationId,
+  });
+
+  // Sync messages from conversation
+  useState(() => {
+    if (conversation?.conversation_history) {
+      setMessages((conversation.conversation_history as any as Message[]) || []);
+    }
   });
 
   const createConversationMutation = useMutation({
@@ -79,6 +97,15 @@ export function useCoachConversation(conversationId: string | null) {
       if (!session) throw new Error('Not authenticated');
 
       setIsResponding(true);
+      setCurrentModel(null);
+      
+      // Add user message immediately
+      const userMessage: Message = {
+        role: 'user',
+        content: message,
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, userMessage]);
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-agent`,
@@ -101,16 +128,81 @@ export function useCoachConversation(conversationId: string | null) {
         throw new Error(errorData.error || 'Failed to send message');
       }
 
-      const data = await response.json();
-      return data;
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let currentMessage = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const text = decoder.decode(value);
+        const lines = text.split('\n');
+        
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const data = line.slice(6);
+          if (data === '[DONE]') {
+            setIsResponding(false);
+            setCurrentModel(null);
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(data);
+            
+            // Check for model indicator
+            if (parsed.type === 'model_indicator') {
+              setCurrentModel({
+                model: parsed.model,
+                modelName: parsed.modelName,
+                queryType: parsed.queryType
+              });
+              continue;
+            }
+            
+            const content = parsed.choices?.[0]?.delta?.content || '';
+            if (content) {
+              currentMessage += content;
+              setMessages(prev => {
+                const newMessages = [...prev];
+                if (newMessages[newMessages.length - 1]?.role === 'assistant') {
+                  newMessages[newMessages.length - 1].content = currentMessage;
+                  if (currentModel) {
+                    newMessages[newMessages.length - 1].modelUsed = currentModel;
+                  }
+                } else {
+                  newMessages.push({
+                    role: 'assistant',
+                    content: currentMessage,
+                    timestamp: new Date().toISOString(),
+                    modelUsed: currentModel || undefined
+                  });
+                }
+                return newMessages;
+              });
+            }
+          } catch (e) {
+            console.error('Error parsing SSE:', e);
+          }
+        }
+      }
+
+      return { success: true };
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coach-conversation', conversationId] });
       queryClient.invalidateQueries({ queryKey: ['coach-conversations'] });
       setIsResponding(false);
     },
     onError: (error) => {
       setIsResponding(false);
+      setCurrentModel(null);
       console.error('Error sending message:', error);
       toast.error('Failed to send message. Please try again.');
     },
@@ -131,13 +223,12 @@ export function useCoachConversation(conversationId: string | null) {
     },
   });
 
-  const messages = (conversation?.conversation_history as any as Message[]) || [];
-
   return {
     conversation,
     messages,
     isLoading,
     isResponding,
+    currentModel,
     sendMessage: sendMessageMutation.mutate,
     createConversation: createConversationMutation.mutate,
     deleteConversation: deleteConversationMutation.mutate,
