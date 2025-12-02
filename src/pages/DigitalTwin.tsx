@@ -8,6 +8,7 @@ import { BackgroundMorpher } from "@/components/digital-twin/BackgroundMorpher";
 import { LifeEventsSidebar, LifeEvent } from "@/components/digital-twin/LifeEventsSidebar";
 import { NarrativeOverlay } from "@/components/digital-twin/NarrativeOverlay";
 import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
+import { useDigitalTwin } from "@/hooks/useDigitalTwin";
 import { motion } from "framer-motion";
 import { Sparkles, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,17 +17,26 @@ import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
 import "@/styles/digital-twin-theme.css";
 
 export default function DigitalTwin() {
-  const currentAge = 30;
+  const { twinState } = useDigitalTwin();
+  
+  // Use real user data if available, fallback to defaults
+  const currentAge = 30; // TODO: Get from user profile
   const retirementAge = 65;
+  const initialNetWorth = 50000; // TODO: Calculate from user's actual accounts
+  const riskTolerance = twinState?.risk_tolerance || 0.5;
+  const annualReturn = 0.05 + (riskTolerance * 0.05); // 5-10% based on risk
+  
   const [selectedAge, setSelectedAge] = useState(currentAge);
   const [selectedEvent, setSelectedEvent] = useState<LifeEvent | null>(null);
+  const [eventReaction, setEventReaction] = useState<{ type: 'positive' | 'negative'; timestamp: number } | null>(null);
 
   const {
     injectedEvents,
     calculateNetWorth,
     addEvent,
     clearEvents,
-  } = useLifeEventSimulation(currentAge, 50000, 0.07, 20000);
+    calculateRetirementImpact,
+  } = useLifeEventSimulation(currentAge, initialNetWorth, annualReturn, 20000);
 
   const currentNetWorth = calculateNetWorth(selectedAge);
 
@@ -55,7 +65,22 @@ export default function DigitalTwin() {
     
     addEvent(selectedEvent, selectedAge);
     digitalTwinSounds.playLifeEventDrop(selectedEvent.impact >= 0);
-    toast.success(`${selectedEvent.icon} ${selectedEvent.label} added at age ${selectedAge}`);
+    
+    // Trigger avatar reaction
+    setEventReaction({
+      type: selectedEvent.impact >= 0 ? 'positive' : 'negative',
+      timestamp: Date.now()
+    });
+    
+    // Calculate retirement impact
+    const impact = calculateRetirementImpact(1000000);
+    const delayText = impact.delay > 0
+      ? `delays retirement by ${Math.abs(impact.delay)} years`
+      : impact.delay < 0
+      ? `accelerates retirement by ${Math.abs(impact.delay)} years`
+      : `has minimal impact on retirement`;
+    
+    toast.success(`${selectedEvent.icon} ${selectedEvent.label} added at age ${selectedAge} - ${delayText}`);
     setSelectedEvent(null);
   };
 
@@ -92,12 +117,13 @@ export default function DigitalTwin() {
         </motion.div>
 
         {/* Net Worth Counter */}
-        <div className="mb-12">
+        <motion.div layoutId="net-worth-counter" className="mb-12">
           <NetWorthCounter value={currentNetWorth} age={selectedAge} />
-        </div>
+        </motion.div>
 
         {/* 3D Avatar Container */}
         <motion.div
+          layoutId="avatar-container"
           className="mx-auto max-w-4xl mb-12"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -105,7 +131,10 @@ export default function DigitalTwin() {
         >
           <HUDOverlay>
             <div className="h-96 relative">
-              <HolographicAvatar healthState={healthState} />
+              <HolographicAvatar 
+                healthState={healthState} 
+                onEventDrop={eventReaction}
+              />
               
               {/* Drop zone overlay */}
               {selectedEvent && (

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface NarrativeOverlayProps {
   age: number;
@@ -10,18 +11,53 @@ interface NarrativeOverlayProps {
 export function NarrativeOverlay({ age, netWorth, lifeEvents }: NarrativeOverlayProps) {
   const [narrative, setNarrative] = useState('');
   const [displayedText, setDisplayedText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Generate narrative based on age and financial state
-    const newNarrative = generateNarrative(age, netWorth, lifeEvents);
-    setNarrative(newNarrative);
-    setDisplayedText('');
+    let isMounted = true;
 
-    // Typewriter effect
+    async function fetchNarrative() {
+      setIsLoading(true);
+      
+      try {
+        const { data, error } = await supabase.functions.invoke('digital-twin-narrative', {
+          body: { age, netWorth, lifeEvents }
+        });
+
+        if (error) throw error;
+        
+        if (isMounted && data?.narrative) {
+          setNarrative(data.narrative);
+          setDisplayedText('');
+        }
+      } catch (error) {
+        console.error('AI narrative error:', error);
+        // Fallback to local generation
+        const fallbackNarrative = generateNarrative(age, netWorth, lifeEvents);
+        if (isMounted) {
+          setNarrative(fallbackNarrative);
+          setDisplayedText('');
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    fetchNarrative();
+
+    return () => { isMounted = false; };
+  }, [age, netWorth, lifeEvents]);
+
+  // Typewriter effect
+  useEffect(() => {
+    if (!narrative) return;
+    
+    setDisplayedText('');
     let currentIndex = 0;
+    
     const interval = setInterval(() => {
-      if (currentIndex < newNarrative.length) {
-        setDisplayedText(newNarrative.slice(0, currentIndex + 1));
+      if (currentIndex < narrative.length) {
+        setDisplayedText(narrative.slice(0, currentIndex + 1));
         currentIndex++;
       } else {
         clearInterval(interval);
@@ -29,7 +65,7 @@ export function NarrativeOverlay({ age, netWorth, lifeEvents }: NarrativeOverlay
     }, 30);
 
     return () => clearInterval(interval);
-  }, [age, netWorth, lifeEvents]);
+  }, [narrative]);
 
   return (
     <AnimatePresence mode="wait">

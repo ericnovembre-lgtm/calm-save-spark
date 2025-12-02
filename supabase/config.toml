@@ -417,4 +417,7 @@ verify_jwt = true
 [functions.generate-critical-actions]
 verify_jwt = true
 
+[functions.digital-twin-narrative]
+verify_jwt = false
+
 
