@@ -34,3 +34,31 @@
   backdrop-filter: var(--glass-blur-subtle);
   -webkit-backdrop-filter: var(--glass-blur-subtle);
 }
+
+/* Strong glassmorphism for headers */
+.glass-bg-strong {
+  background: hsla(var(--orbital-bg) / 0.7);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+}
+
+/* Gold accent gradient for premium elements */
+.bg-gradient-accent {
+  background: linear-gradient(135deg, 
+    hsl(45, 60%, 70%) 0%, 
+    hsl(40, 55%, 65%) 50%, 
+    hsl(35, 50%, 60%) 100%
+  );
+}
+
+/* Mobile safe-area support for bottom navigation */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Elevated glass shadow */
+.shadow-glass-elevated {
+  box-shadow: 
+    0 8px 32px -8px hsla(var(--orbital-text) / 0.1),
+    0 0 0 1px hsla(var(--orbital-text) / 0.05);
+}
