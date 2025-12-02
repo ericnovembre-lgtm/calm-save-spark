@@ -17,7 +17,6 @@ import { UnifiedAIInsights } from "@/components/dashboard/UnifiedAIInsights";
 import { CommandPalette } from "@/components/dashboard/CommandPalette";
 import { UnifiedFAB } from "@/components/dashboard/UnifiedFAB";
 import { EmailVerificationBanner } from "@/components/dashboard/EmailVerificationBanner";
-import { KeyboardHints } from "@/components/dashboard/KeyboardHints";
 import { SkipLinks } from "@/components/accessibility/SkipLinks";
 import { LiveRegionAnnouncer, useAnnounce } from "@/components/accessibility/LiveRegionAnnouncer";
 import { SyncIndicator } from "@/components/ui/sync-indicator";
@@ -49,7 +48,6 @@ import { NudgesWidget } from "@/components/dashboard/NudgesWidget";
 import { SmartWidgetRecommender } from "@/components/dashboard/ai/SmartWidgetRecommender";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { AnomalyAlertCenter } from "@/components/ai/AnomalyAlertCenter";
-import { useKeyboardShortcuts, defaultDashboardShortcuts, useShortcutsHelp } from "@/hooks/useKeyboardShortcuts";
 import { NaturalLanguageCommander } from "@/components/dashboard/NaturalLanguageCommander";
 import { AdHocChartPanel } from "@/components/dashboard/AdHocChartPanel";
 import { UpcomingBillsWidget } from "@/components/dashboard/UpcomingBillsWidget";
@@ -85,18 +83,6 @@ export default function Dashboard() {
   
   // Check onboarding status
   useOnboardingStatus(true);
-  
-  // Keyboard shortcuts
-  const shortcuts = useKeyboardShortcuts([
-    ...defaultDashboardShortcuts,
-    {
-      key: '?',
-      shift: true,
-      description: 'Show shortcuts',
-      action: () => showHelp()
-    }
-  ]);
-  const { showHelp } = useShortcutsHelp(shortcuts);
   
   // Sync status
   const { status: syncStatus, lastSynced, forceRefresh } = useSyncStatus();
@@ -623,7 +609,6 @@ export default function Dashboard() {
           <UnifiedFAB />
         </div>
         <CommandPalette />
-        <KeyboardHints />
         <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />
       </PullToRefresh>
 

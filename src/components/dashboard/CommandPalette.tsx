@@ -73,7 +73,6 @@ export function CommandPalette() {
       id: "view-budget",
       label: "Budget",
       icon: <PieChart className="w-4 h-4" />,
-      shortcut: "B",
       action: () => navigate("/budget"),
       category: "navigation"
     },
@@ -81,7 +80,6 @@ export function CommandPalette() {
       id: "view-transactions",
       label: "Transactions",
       icon: <CreditCard className="w-4 h-4" />,
-      shortcut: "T",
       action: () => navigate("/transactions"),
       category: "navigation"
     },
@@ -118,7 +116,6 @@ export function CommandPalette() {
       id: "view-goals",
       label: "Goals",
       icon: <Target className="w-4 h-4" />,
-      shortcut: "G",
       action: () => navigate("/goals"),
       category: "navigation"
     },
@@ -155,7 +152,6 @@ export function CommandPalette() {
       id: "view-coach",
       label: "AI Coach",
       icon: <Users className="w-4 h-4" />,
-      shortcut: "C",
       action: () => navigate("/coach"),
       category: "navigation"
     },
@@ -177,7 +173,6 @@ export function CommandPalette() {
       id: "view-analytics",
       label: "Analytics",
       icon: <PieChart className="w-4 h-4" />,
-      shortcut: "A",
       action: () => navigate("/analytics"),
       category: "navigation"
     },
@@ -200,7 +195,6 @@ export function CommandPalette() {
       id: "settings",
       label: "Settings",
       icon: <Settings className="w-4 h-4" />,
-      shortcut: "S",
       action: () => navigate("/settings"),
       category: "navigation"
     }
@@ -409,11 +403,6 @@ function ActionItem({ action, onClick, delay }: ActionItemProps) {
         {action.icon}
       </div>
       <span className="flex-1 text-foreground font-medium">{action.label}</span>
-      {action.shortcut && (
-        <kbd className="px-2 py-1 rounded bg-muted/50 text-xs text-muted-foreground">
-          ⌘{action.shortcut}
-        </kbd>
-      )}
     </motion.button>
   );
 }

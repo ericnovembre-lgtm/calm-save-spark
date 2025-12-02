@@ -28,12 +28,10 @@ import { EditGoalDialog } from "@/components/goals/EditGoalDialog";
 import { GoalAnalytics } from "@/components/goals/GoalAnalytics";
 import { GoalCelebration } from "@/components/goals/GoalCelebration";
 import { EnhancedEmptyState } from "@/components/goals/EnhancedEmptyState";
-import { KeyboardShortcutsDialog } from "@/components/goals/KeyboardShortcutsDialog";
 import { HelpButton } from "@/components/goals/HelpButton";
 import { TimeToGoalInsight } from "@/components/goals/TimeToGoalInsight";
 import { goalSchema, GoalFormData } from "@/lib/validations/goal-schemas";
 import { useGoalTour } from "@/hooks/useGoalTour";
-import { useGoalKeyboardShortcuts } from "@/hooks/useGoalKeyboardShortcuts";
 import { useDragToSave } from "@/hooks/useDragToSave";
 import { useOptimisticGoalUpdate } from "@/hooks/useOptimisticGoalUpdate";
 
@@ -52,18 +50,11 @@ const Goals = () => {
   const [selectedGoal, setSelectedGoal] = useState<any>(null);
   const [contributeDialogOpen, setContributeDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
   const [celebrationOpen, setCelebrationOpen] = useState(false);
   const [completedGoal, setCompletedGoal] = useState<any>(null);
 
   // Tour setup
   const { run, steps, stepIndex, handleJoyrideCallback, resetTour } = useGoalTour();
-
-  // Keyboard shortcuts
-  const { shortcuts } = useGoalKeyboardShortcuts({
-    onNewGoal: () => setIsDialogOpen(true),
-    onHelp: () => setShortcutsDialogOpen(true),
-  });
 
   // Drag-to-save setup
   const { isDragging, hoveredZone, registerDropZone, unregisterDropZone, getDragHandlers } = useDragToSave({
@@ -228,24 +219,14 @@ const Goals = () => {
           
           <div className="flex items-center gap-2">
             <HelpButton
-              onShowShortcuts={() => setShortcutsDialogOpen(true)}
               onResetTour={resetTour}
             />
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button className="gap-2" data-tour="new-goal-button">
-                      <Plus className="w-4 h-4" />
-                      New Goal
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>⌘/Ctrl + N</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Button className="gap-2" data-tour="new-goal-button">
+                <Plus className="w-4 h-4" />
+                New Goal
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -439,12 +420,6 @@ const Goals = () => {
           goal={selectedGoal}
           onSubmit={(id, data) => updateGoalMutation.mutate({ id, data })}
           isSubmitting={updateGoalMutation.isPending}
-        />
-
-        <KeyboardShortcutsDialog
-          open={shortcutsDialogOpen}
-          onOpenChange={setShortcutsDialogOpen}
-          shortcuts={shortcuts}
         />
 
         <GoalCelebration

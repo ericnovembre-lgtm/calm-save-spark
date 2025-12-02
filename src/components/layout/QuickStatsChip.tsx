@@ -194,11 +194,6 @@ export const QuickStatsChip = () => {
               <p>└ Active Goals: {activeGoalsCount}</p>
             </div>
           </div>
-          <div className="border-t border-border pt-2 flex items-center gap-2 text-xs text-muted-foreground">
-            <span>Click to view details or press</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px]">⌘</kbd>
-            <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px]">F</kbd>
-          </div>
         </div>
       </TooltipContent>
     </Tooltip>

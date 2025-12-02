@@ -12,11 +12,10 @@ import { useWhatsNew } from "@/hooks/useWhatsNew";
 import { Badge } from "@/components/ui/badge";
 
 interface HelpButtonProps {
-  onShowShortcuts: () => void;
   onResetTour: () => void;
 }
 
-export const HelpButton = ({ onShowShortcuts, onResetTour }: HelpButtonProps) => {
+export const HelpButton = ({ onResetTour }: HelpButtonProps) => {
   const navigate = useNavigate();
   const { openWhatsNew, hasNewUpdates } = useWhatsNew();
 
@@ -32,10 +31,6 @@ export const HelpButton = ({ onShowShortcuts, onResetTour }: HelpButtonProps) =>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={onShowShortcuts}>
-          <span>Keyboard Shortcuts</span>
-          <span className="ml-auto text-xs text-muted-foreground">?</span>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={openWhatsNew} className="flex items-center gap-2">
           <span>What's New</span>
           {hasNewUpdates && (

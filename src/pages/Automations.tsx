@@ -15,8 +15,6 @@ import { AutomationActivityFeed } from "@/components/automations/AutomationActiv
 import { LogicBlockBuilder } from "@/components/automations/logic-builder/LogicBlockBuilder";
 import { LogicBlockBuilderMobile } from "@/components/automations/logic-builder/LogicBlockBuilderMobile";
 import { AutomationAnalyticsDashboard } from "@/components/automations/AutomationAnalyticsDashboard";
-import { KeyboardShortcutsHelp } from "@/components/automations/KeyboardShortcutsHelp";
-import { useAutomationKeyboardShortcuts } from "@/hooks/useAutomationKeyboardShortcuts";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
@@ -29,8 +27,6 @@ export default function Automations() {
   const [showModal, setShowModal] = useState(false);
   const [editingAutomation, setEditingAutomation] = useState<any>(null);
   const [showLogicBuilder, setShowLogicBuilder] = useState(false);
-  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
-  const conversationalInputRef = useRef<HTMLTextAreaElement>(null);
   const recipesRef = useRef<HTMLDivElement>(null);
   
   const {
@@ -44,15 +40,6 @@ export default function Automations() {
     create,
     toggle,
   } = useAutomations();
-
-  const { shortcuts } = useAutomationKeyboardShortcuts({
-    onNewRule: () => conversationalInputRef.current?.focus(),
-    onToggleEmergencyBrake: () => {}, // Handled in EmergencyBrake component
-    onOpenRecipes: () => recipesRef.current?.scrollIntoView({ behavior: 'smooth' }),
-    onOpenLogicBuilder: () => setShowLogicBuilder(true),
-    onShowShortcuts: () => setShowShortcutsHelp(true),
-    conversationalInputRef,
-  });
 
   useEffect(() => {
     trackEvent('page_view', { page: 'automations' });
@@ -368,12 +355,6 @@ export default function Automations() {
         open={showLogicBuilder && isMobile}
         onOpenChange={setShowLogicBuilder}
         onSave={() => queryClient.invalidateQueries({ queryKey: ['automations'] })}
-      />
-
-      <KeyboardShortcutsHelp
-        open={showShortcutsHelp}
-        onOpenChange={setShowShortcutsHelp}
-        shortcuts={shortcuts}
       />
     </AppLayout>
   );
