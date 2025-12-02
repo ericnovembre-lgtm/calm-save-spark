@@ -8,18 +8,18 @@ const validRoutes = [
   '/dashboard',
   '/achievements',
   '/life-planner',
-  '/analytics',
   '/goals',
   '/budget',
+  '/analytics',
   '/transactions',
   '/settings',
   '/ai-agents',
   '/coach',
-  // Hub routes (from BottomNav)
+  // Hub routes (from BottomNav in AppLayout.tsx)
   '/hubs/manage-money',
   '/hubs/grow-wealth',
   '/hubs/ai-insights',
-  '/hubs/lifestyle',
+  '/features-hub', // BottomNav "More" button
   // FAB menu routes
   '/accounts',
   // Search bar routes (from SearchBarHinted)
@@ -27,6 +27,14 @@ const validRoutes = [
   '/automations',
   '/insights',
   '/card',
+  // Additional routes from App.tsx
+  '/subscriptions',
+  '/debts',
+  '/investments',
+  '/credit',
+  '/wallet',
+  '/financial-health',
+  '/help',
 ];
 
 // Mock pages
@@ -170,12 +178,13 @@ describe('Navigation Component Links', () => {
   });
 
   it('BottomNav should reference hub routes correctly', () => {
+    // Actual routes from AppLayout.tsx bottomNavLinks (lines 48-54)
     const bottomNavRoutes = [
       '/dashboard',
       '/hubs/manage-money',
       '/hubs/grow-wealth',
       '/hubs/ai-insights',
-      '/hubs/lifestyle',
+      '/features-hub', // "More" button - NOT /hubs/lifestyle
     ];
 
     // All bottom nav routes should be valid
