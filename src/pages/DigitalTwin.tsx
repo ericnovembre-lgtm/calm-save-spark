@@ -1,62 +1,195 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TwinDashboard } from "@/components/digital-twin/TwinDashboard";
-import { ScenarioBuilder } from "@/components/digital-twin/ScenarioBuilder";
-import { ScenarioList } from "@/components/digital-twin/ScenarioList";
-import { ComparisonView } from "@/components/digital-twin/ComparisonView";
+import { VoidBackground } from "@/components/digital-twin/VoidBackground";
+import { HUDOverlay } from "@/components/digital-twin/HUDOverlay";
+import { HolographicAvatar } from "@/components/digital-twin/HolographicAvatar";
+import { TimelineSlider } from "@/components/digital-twin/TimelineSlider";
+import { NetWorthCounter } from "@/components/digital-twin/NetWorthCounter";
+import { BackgroundMorpher } from "@/components/digital-twin/BackgroundMorpher";
+import { LifeEventsSidebar, LifeEvent } from "@/components/digital-twin/LifeEventsSidebar";
+import { NarrativeOverlay } from "@/components/digital-twin/NarrativeOverlay";
+import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
+import { motion } from "framer-motion";
+import { Sparkles, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
+import "@/styles/digital-twin-theme.css";
 
 export default function DigitalTwin() {
-  const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
+  const currentAge = 30;
+  const retirementAge = 65;
+  const [selectedAge, setSelectedAge] = useState(currentAge);
+  const [selectedEvent, setSelectedEvent] = useState<LifeEvent | null>(null);
+
+  const {
+    injectedEvents,
+    calculateNetWorth,
+    addEvent,
+    clearEvents,
+  } = useLifeEventSimulation(currentAge, 50000, 0.07, 20000);
+
+  const currentNetWorth = calculateNetWorth(selectedAge);
+
+  const healthState = 
+    currentNetWorth >= 500000 ? 'thriving' : 
+    currentNetWorth >= 0 ? 'neutral' : 
+    'struggling';
+
+  const handleAgeChange = (age: number) => {
+    setSelectedAge(age);
+    digitalTwinSounds.playTimelineScrub();
+    
+    // Check for milestones
+    const netWorth = calculateNetWorth(age);
+    if (netWorth >= 1000000 && calculateNetWorth(age - 1) < 1000000) {
+      digitalTwinSounds.playMilestone();
+    }
+  };
+
+  const handleEventSelect = (event: LifeEvent) => {
+    setSelectedEvent(event);
+  };
+
+  const handleEventDrop = () => {
+    if (!selectedEvent) return;
+    
+    addEvent(selectedEvent, selectedAge);
+    digitalTwinSounds.playLifeEventDrop(selectedEvent.impact >= 0);
+    toast.success(`${selectedEvent.icon} ${selectedEvent.label} added at age ${selectedAge}`);
+    setSelectedEvent(null);
+  };
+
+  const handleReset = () => {
+    clearEvents();
+    setSelectedAge(currentAge);
+    toast.info('Timeline reset to baseline');
+  };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Personal Financial Digital Twin</h1>
-          <p className="text-muted-foreground mt-2">
-            Model your entire financial life and visualize the long-term impact of major decisions
+    <div className="relative min-h-screen overflow-hidden bg-[#050505]">
+      {/* Background layers */}
+      <VoidBackground />
+      <BackgroundMorpher netWorth={currentNetWorth} />
+
+      {/* Main content */}
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.div
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Sparkles className="w-8 h-8 text-cyan-500" />
+            <h1 className="text-4xl font-bold cinematic-text additive-text">
+              ◢◤ DIGITAL TWIN ◥◣
+            </h1>
+            <Sparkles className="w-8 h-8 text-magenta-500" />
+          </div>
+          <p className="text-white/60 font-mono text-sm">
+            Your Financial Future as a Living Entity
           </p>
+        </motion.div>
+
+        {/* Net Worth Counter */}
+        <div className="mb-12">
+          <NetWorthCounter value={currentNetWorth} age={selectedAge} />
         </div>
+
+        {/* 3D Avatar Container */}
+        <motion.div
+          className="mx-auto max-w-4xl mb-12"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <HUDOverlay>
+            <div className="h-96 relative">
+              <HolographicAvatar healthState={healthState} />
+              
+              {/* Drop zone overlay */}
+              {selectedEvent && (
+                <motion.div
+                  className="absolute inset-0 flex items-center justify-center bg-cyan-500/10 backdrop-blur-sm border-2 border-dashed border-cyan-500 rounded-lg cursor-pointer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  onClick={handleEventDrop}
+                  onDrop={handleEventDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                  <div className="text-center">
+                    <div className="text-4xl mb-2">{selectedEvent.icon}</div>
+                    <div className="text-white font-mono text-sm">
+                      Drop here to add {selectedEvent.label} at age {selectedAge}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </HUDOverlay>
+        </motion.div>
+
+        {/* Reset button */}
+        <motion.div
+          className="fixed top-8 right-8 z-50"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleReset}
+            className="backdrop-blur-xl bg-black/60 border-white/10 hover:border-cyan-500 hover:bg-cyan-500/10"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Reset Timeline
+          </Button>
+        </motion.div>
+
+        {/* Injected events display */}
+        {injectedEvents.length > 0 && (
+          <motion.div
+            className="fixed top-24 right-8 max-w-xs"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-lg p-4">
+              <h3 className="text-xs font-mono text-white/60 mb-2">ACTIVE EVENTS</h3>
+              <div className="space-y-2">
+                {injectedEvents.map((e) => (
+                  <div key={e.id} className="text-xs font-mono text-white flex items-center gap-2">
+                    <span>{e.event.icon}</span>
+                    <span>{e.event.label}</span>
+                    <span className="text-white/40">Age {e.year}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
 
-      <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="scenarios">Scenarios</TabsTrigger>
-          <TabsTrigger value="builder">Create Scenario</TabsTrigger>
-          <TabsTrigger value="compare">Compare</TabsTrigger>
-        </TabsList>
+      {/* Life Events Sidebar */}
+      <LifeEventsSidebar onEventSelect={handleEventSelect} />
 
-        <TabsContent value="dashboard" className="space-y-6">
-          <TwinDashboard />
-        </TabsContent>
+      {/* Narrative Overlay */}
+      <NarrativeOverlay
+        age={selectedAge}
+        netWorth={currentNetWorth}
+        lifeEvents={injectedEvents.map(e => ({ year: e.year, label: e.event.label }))}
+      />
 
-        <TabsContent value="scenarios" className="space-y-6">
-          <ScenarioList 
-            selectedScenarios={selectedScenarios}
-            onSelectionChange={setSelectedScenarios}
-          />
-        </TabsContent>
-
-        <TabsContent value="builder" className="space-y-6">
-          <Card className="p-6">
-            <ScenarioBuilder />
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="compare" className="space-y-6">
-          {selectedScenarios.length >= 2 ? (
-            <ComparisonView scenarioIds={selectedScenarios} />
-          ) : (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground">
-                Select at least 2 scenarios from the Scenarios tab to compare them
-              </p>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+      {/* Timeline Slider */}
+      <TimelineSlider
+        currentAge={currentAge}
+        retirementAge={retirementAge}
+        onAgeChange={handleAgeChange}
+        lifeEvents={injectedEvents.map(e => ({
+          year: e.year,
+          label: e.event.label,
+          icon: e.event.icon,
+        }))}
+      />
     </div>
   );
 }
