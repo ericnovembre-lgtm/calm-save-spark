@@ -48,6 +48,7 @@ export function MoneyFlowParticles() {
     }
 
     const particles: Particle[] = Array.from({ length: 50 }, () => new Particle());
+    let animationFrameId: number;
 
     const animate = () => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
@@ -58,7 +59,7 @@ export function MoneyFlowParticles() {
         particle.draw(ctx);
       });
 
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
@@ -69,7 +70,10 @@ export function MoneyFlowParticles() {
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   return (

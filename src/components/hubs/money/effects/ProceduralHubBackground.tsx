@@ -34,7 +34,8 @@ export function ProceduralHubBackground() {
       }
     };
 
-    draw();
+    // Defer heavy computation to avoid blocking initial render
+    const timeoutId = setTimeout(draw, 100);
 
     const handleResize = () => {
       canvas.width = window.innerWidth;
@@ -43,7 +44,10 @@ export function ProceduralHubBackground() {
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleResize);
+    };
   }, [seed]);
 
   return (
