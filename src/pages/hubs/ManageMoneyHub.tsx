@@ -1,22 +1,20 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Wallet, PieChart, DollarSign, Receipt, CreditCard, Coins, Zap, BadgeDollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Suspense, lazy, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { MoneyHubSkeleton } from "@/components/hubs/money/MoneyHubSkeleton";
 
 // Layer 1: Background Effects
 const ProceduralHubBackground = lazy(() => import("@/components/hubs/money/effects/ProceduralHubBackground").then(m => ({ default: m.ProceduralHubBackground })));
 const MoneyFlowParticles = lazy(() => import("@/components/hubs/money/effects/MoneyFlowParticles").then(m => ({ default: m.MoneyFlowParticles })));
 
-// Layer 2: Core Features
-const AICommandCenter = lazy(() => import("@/components/hubs/money/ai/AICommandCenter").then(m => ({ default: m.AICommandCenter })));
-const SmartFeatureRecommender = lazy(() => import("@/components/hubs/money/ai/SmartFeatureRecommender").then(m => ({ default: m.SmartFeatureRecommender })));
-const LazyLiquidCardMorph = lazy(() => import("@/components/hubs/money/effects/LiquidCardMorph").then(m => ({ default: m.LiquidCardMorph })));
+// Layer 2: Core Features - Direct imports (always visible)
+import { AICommandCenter } from "@/components/hubs/money/ai/AICommandCenter";
+import { SmartFeatureRecommender } from "@/components/hubs/money/ai/SmartFeatureRecommender";
+import { LiquidCardMorph } from "@/components/hubs/money/effects/LiquidCardMorph";
 
 // Layer 3: Interactive Overlays
 const HubConversationAssistant = lazy(() => import("@/components/hubs/money/ai/HubConversationAssistant").then(m => ({ default: m.HubConversationAssistant })));
@@ -174,32 +172,13 @@ export default function ManageMoneyHub() {
         </motion.div>
 
         {/* AI Command Center - Compact */}
-        <Suspense fallback={
-          <Card className="p-4 mb-4 animate-pulse">
-            <div className="flex items-center gap-3 mb-4">
-              <Skeleton className="w-6 h-6 rounded-full" />
-              <div className="flex-1">
-                <Skeleton className="h-5 w-48 mb-2" />
-                <Skeleton className="h-3 w-32" />
-              </div>
-              <Skeleton className="w-12 h-14 rounded-lg" />
-            </div>
-            <div className="space-y-2">
-              <Skeleton className="h-10 w-full rounded-lg" />
-              <Skeleton className="h-10 w-full rounded-lg" />
-            </div>
-          </Card>
-        }>
-          <AICommandCenter />
-        </Suspense>
+        <AICommandCenter />
 
         {/* Smart Feature Recommender - Invisible, Just Reorders */}
-        <Suspense fallback={null}>
-          <SmartFeatureRecommender 
-            features={features}
-            onReorder={setOrderedFeatures}
-          />
-        </Suspense>
+        <SmartFeatureRecommender 
+          features={features}
+          onReorder={setOrderedFeatures}
+        />
 
         {/* Feature Grid - Optimized responsive breakpoints */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
@@ -214,11 +193,8 @@ export default function ManageMoneyHub() {
                 ease: [0.22, 1, 0.36, 1]
               }}
             >
-              <Suspense fallback={
-                <Card className="p-4 md:p-5 lg:p-6 h-full animate-pulse bg-muted" />
-              }>
-                <LazyLiquidCardMorph>
-                  <Link 
+              <LiquidCardMorph>
+                <Link
                     to={feature.path}
                     className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg"
                   >
@@ -299,8 +275,7 @@ export default function ManageMoneyHub() {
                       </div>
                     </Card>
                   </Link>
-                </LazyLiquidCardMorph>
-              </Suspense>
+                </LiquidCardMorph>
             </motion.div>
           ))}
         </div>
