@@ -209,7 +209,7 @@ export default function DigitalTwin() {
       <BackgroundMorpher netWorth={currentNetWorth} />
 
       {/* Main content */}
-      <div className="relative z-10 container mx-auto px-4 py-8">
+      <div className="relative z-10 container mx-auto px-4 pt-4 pb-8">
         {/* Header */}
         <motion.div
           className="text-center mb-8"
@@ -273,7 +273,7 @@ export default function DigitalTwin() {
 
         {/* Action buttons */}
         <motion.div
-          className="fixed top-8 right-8 z-50 flex gap-2"
+          className="fixed top-24 right-8 z-50 flex gap-2"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
         >
@@ -366,7 +366,7 @@ export default function DigitalTwin() {
         {/* Injected events display */}
         {injectedEvents.length > 0 && (
           <motion.div
-            className="fixed top-24 right-8 max-w-xs"
+            className="fixed top-40 right-8 max-w-xs"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
           >
