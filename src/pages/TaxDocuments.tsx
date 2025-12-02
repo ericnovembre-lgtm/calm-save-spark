@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { DocumentUploadZone } from "@/components/tax/DocumentUploadZone";
 import { DocumentViewer } from "@/components/tax/DocumentViewer";
 import { TaxSummaryDashboard } from "@/components/tax/TaxSummaryDashboard";
@@ -25,7 +25,7 @@ export default function TaxDocuments() {
         <meta name="description" content="Manage your tax documents with AI-powered categorization" />
       </Helmet>
 
-      <PageLayout>
+      <AppLayout>
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -127,7 +127,7 @@ export default function TaxDocuments() {
             </div>
           )}
         </div>
-      </PageLayout>
+      </AppLayout>
     </>
   );
 }

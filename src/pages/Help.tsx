@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWhatsNew } from "@/hooks/useWhatsNew";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 interface FAQItem {
   question: string;
@@ -80,192 +81,194 @@ const Help = () => {
   });
 
   return (
-    <div className="container mx-auto p-6 max-w-5xl">
-      {/* SEO Meta */}
-      <title>Help Center | $ave+</title>
-      <meta 
-        name="description" 
-        content="Find answers to frequently asked questions about $ave+. Learn about savings goals, automations, security, rewards, and more." 
-      />
-
-      {/* Header */}
-      <header className="text-center mb-12">
-        <div className="inline-flex p-4 rounded-2xl bg-primary/10 mb-4">
-          <HelpCircle className="w-12 h-12 text-primary" />
-        </div>
-        <h1 className="text-4xl font-bold tracking-tight mb-3">
-          How can we help you?
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Search our knowledge base or browse common questions
-        </p>
-      </header>
-
-      {/* Search Bar */}
-      <div className="relative max-w-2xl mx-auto mb-8">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search for help..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 h-12 text-base"
+    <AppLayout>
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* SEO Meta */}
+        <title>Help Center | $ave+</title>
+        <meta 
+          name="description" 
+          content="Find answers to frequently asked questions about $ave+. Learn about savings goals, automations, security, rewards, and more." 
         />
-      </div>
 
-      {/* Category Filters */}
-      <div className="flex flex-wrap gap-2 justify-center mb-12">
-        <Button
-          variant={selectedCategory === null ? "default" : "outline"}
-          size="sm"
-          onClick={() => setSelectedCategory(null)}
-        >
-          All Topics
-        </Button>
-        {categories.map(category => (
+        {/* Header */}
+        <header className="text-center mb-12">
+          <div className="inline-flex p-4 rounded-2xl bg-primary/10 mb-4">
+            <HelpCircle className="w-12 h-12 text-primary" />
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight mb-3">
+            How can we help you?
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            Search our knowledge base or browse common questions
+          </p>
+        </header>
+
+        {/* Search Bar */}
+        <div className="relative max-w-2xl mx-auto mb-8">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search for help..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-12 text-base"
+          />
+        </div>
+
+        {/* Category Filters */}
+        <div className="flex flex-wrap gap-2 justify-center mb-12">
           <Button
-            key={category}
-            variant={selectedCategory === category ? "default" : "outline"}
+            variant={selectedCategory === null ? "default" : "outline"}
             size="sm"
-            onClick={() => setSelectedCategory(category)}
+            onClick={() => setSelectedCategory(null)}
           >
-            {category}
+            All Topics
           </Button>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <section className="grid md:grid-cols-4 gap-4 mb-12" aria-label="Quick help actions">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <MessageCircle className="w-8 h-8 text-primary mb-2" />
-            <CardTitle className="text-lg">Chat with Coach</CardTitle>
-            <CardDescription>
-              Get instant AI-powered answers to your questions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" onClick={() => navigate('/coach')}>
-              Start Chat
+          {categories.map(category => (
+            <Button
+              key={category}
+              variant={selectedCategory === category ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
             </Button>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <Book className="w-8 h-8 text-primary mb-2" />
-            <CardTitle className="text-lg">User Guide</CardTitle>
-            <CardDescription>
-              Comprehensive documentation and tutorials
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full">
-              View Guides
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow relative">
-          <CardHeader>
-            <History className="w-8 h-8 text-primary mb-2" />
-            <CardTitle className="text-lg">Changelog</CardTitle>
-            <CardDescription>
-              See what's new in each release
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full" onClick={() => navigate('/changelog')}>
-              View Updates
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow relative">
-          {hasNewUpdates && (
-            <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">
-              NEW
-            </Badge>
-          )}
-          <CardHeader>
-            <Sparkles className="w-8 h-8 text-primary mb-2" />
-            <CardTitle className="text-lg">What's New</CardTitle>
-            <CardDescription>
-              Discover the latest features
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full" onClick={openWhatsNew}>
-              See Features
-            </Button>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* FAQs */}
-      <section>
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <FileText className="w-6 h-6 text-primary" />
-          Frequently Asked Questions
-        </h2>
-
-        {filteredFAQs.length > 0 ? (
-          <Accordion type="single" collapsible className="space-y-2">
-            {filteredFAQs.map((faq, index) => (
-              <AccordionItem
-                key={index}
-                value={`item-${index}`}
-                className="border rounded-lg px-4 bg-card"
-              >
-                <AccordionTrigger className="hover:no-underline">
-                  <div className="flex items-start gap-3 text-left">
-                    <Badge variant="outline" className="mt-1 text-xs">
-                      {faq.category}
-                    </Badge>
-                    <span className="font-medium">{faq.question}</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pt-2 pb-4">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        ) : (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Search className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-              <p className="text-muted-foreground mb-4">
-                No results found for "{searchQuery}"
-              </p>
-              <Button variant="outline" onClick={() => setSearchQuery("")}>
-                Clear Search
+        {/* Quick Actions */}
+        <section className="grid md:grid-cols-4 gap-4 mb-12" aria-label="Quick help actions">
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <MessageCircle className="w-8 h-8 text-primary mb-2" />
+              <CardTitle className="text-lg">Chat with Coach</CardTitle>
+              <CardDescription>
+                Get instant AI-powered answers to your questions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" onClick={() => navigate('/coach')}>
+                Start Chat
               </Button>
             </CardContent>
           </Card>
-        )}
-      </section>
 
-      {/* Still Need Help */}
-      <Card className="mt-12 bg-muted/50">
-        <CardHeader className="text-center">
-          <CardTitle>Still need help?</CardTitle>
-          <CardDescription>
-            Our support team is here to assist you
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex gap-3 justify-center">
-          <Button onClick={() => navigate('/coach')}>
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Chat Now
-          </Button>
-          <Button variant="outline">
-            <Mail className="w-4 h-4 mr-2" />
-            Email Support
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <Book className="w-8 h-8 text-primary mb-2" />
+              <CardTitle className="text-lg">User Guide</CardTitle>
+              <CardDescription>
+                Comprehensive documentation and tutorials
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">
+                View Guides
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow relative">
+            <CardHeader>
+              <History className="w-8 h-8 text-primary mb-2" />
+              <CardTitle className="text-lg">Changelog</CardTitle>
+              <CardDescription>
+                See what's new in each release
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full" onClick={() => navigate('/changelog')}>
+                View Updates
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow relative">
+            {hasNewUpdates && (
+              <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">
+                NEW
+              </Badge>
+            )}
+            <CardHeader>
+              <Sparkles className="w-8 h-8 text-primary mb-2" />
+              <CardTitle className="text-lg">What's New</CardTitle>
+              <CardDescription>
+                Discover the latest features
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full" onClick={openWhatsNew}>
+                See Features
+              </Button>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* FAQs */}
+        <section>
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-primary" />
+            Frequently Asked Questions
+          </h2>
+
+          {filteredFAQs.length > 0 ? (
+            <Accordion type="single" collapsible className="space-y-2">
+              {filteredFAQs.map((faq, index) => (
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  className="border rounded-lg px-4 bg-card"
+                >
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-start gap-3 text-left">
+                      <Badge variant="outline" className="mt-1 text-xs">
+                        {faq.category}
+                      </Badge>
+                      <span className="font-medium">{faq.question}</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pt-2 pb-4">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Search className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                <p className="text-muted-foreground mb-4">
+                  No results found for "{searchQuery}"
+                </p>
+                <Button variant="outline" onClick={() => setSearchQuery("")}>
+                  Clear Search
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </section>
+
+        {/* Still Need Help */}
+        <Card className="mt-12 bg-muted/50">
+          <CardHeader className="text-center">
+            <CardTitle>Still need help?</CardTitle>
+            <CardDescription>
+              Our support team is here to assist you
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex gap-3 justify-center">
+            <Button onClick={() => navigate('/coach')}>
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Chat Now
+            </Button>
+            <Button variant="outline">
+              <Mail className="w-4 h-4 mr-2" />
+              Email Support
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </AppLayout>
   );
 };
 

@@ -25,6 +25,7 @@ import { useDigitalTwinTour } from "@/hooks/useDigitalTwinTour";
 import { SavedScenario } from "@/hooks/useScenarioHistory";
 import { toast } from "sonner";
 import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
+import { AppLayout } from "@/components/layout/AppLayout";
 import "@/styles/digital-twin-theme.css";
 
 export default function DigitalTwin() {
@@ -175,22 +176,29 @@ export default function DigitalTwin() {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mx-auto mb-4" />
-          <p className="text-white/60 font-mono">Initializing Digital Twin...</p>
+      <AppLayout>
+        <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mx-auto mb-4" />
+            <p className="text-white/60 font-mono">Initializing Digital Twin...</p>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   // Show setup prompt if no profile
   if (!hasProfile) {
-    return <ProfileRequiredPrompt />;
+    return (
+      <AppLayout>
+        <ProfileRequiredPrompt />
+      </AppLayout>
+    );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050505]">
+    <AppLayout>
+      <div className="relative min-h-screen overflow-hidden bg-[#050505]">
       {/* Background layers */}
       <VoidBackground />
       <BackgroundMorpher netWorth={currentNetWorth} />

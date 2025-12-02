@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { Play, Trophy } from 'lucide-react';
 import { PageLoadingSkeleton } from '@/components/ui/page-loading-skeleton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { AppLayout } from '@/components/layout/AppLayout';
 
 export default function LifeSim() {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -66,87 +67,89 @@ export default function LifeSim() {
   }
 
   return (
-    <ErrorBoundary>
-      <div className="container mx-auto p-4 sm:p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">LifeSim Financial Simulator</h1>
-          <p className="text-muted-foreground mt-2">
-            SimCity for personal finance - learn by living a simulated financial life
-          </p>
-        </div>
-        <NewGameDialog onCreateGame={createSession.mutate} />
-      </div>
-
-      {!activeSession ? (
-        <Card className="p-12 text-center space-y-4">
-          <Trophy className="w-16 h-16 mx-auto text-muted-foreground" />
-          <h2 className="text-2xl font-semibold">Start Your Financial Journey</h2>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Experience life from graduation to retirement. Make complex financial choices and learn
-            about compound interest, taxes, and risk through visceral gameplay.
-          </p>
-          <NewGameDialog onCreateGame={createSession.mutate}>
-            <Button size="lg" className="gap-2">
-              <Play className="w-5 h-5" />
-              Start New Simulation
-            </Button>
-          </NewGameDialog>
-        </Card>
-      ) : (
-        <Tabs defaultValue="game" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="game">Game Board</TabsTrigger>
-            <TabsTrigger value="stats">Statistics</TabsTrigger>
-            <TabsTrigger value="history">Session History</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="game" className="space-y-6">
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold">{(activeSession as any).session_name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Age {activeSession.current_age} / {(activeSession as any).target_age}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Financial State</p>
-                  <p className="text-2xl font-bold">
-                    ${((activeSession.financial_state as any)?.net_worth || 0).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <Progress 
-                value={(activeSession.current_age - (activeSession as any).starting_age) / ((activeSession as any).target_age - (activeSession as any).starting_age) * 100}
-                className="h-2"
-              />
-            </Card>
-
-            <div className="grid gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <GameBoard session={activeSession} />
-              </div>
-              <div>
-                <DecisionCard session={activeSession} />
-              </div>
+    <AppLayout>
+      <ErrorBoundary>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">LifeSim Financial Simulator</h1>
+              <p className="text-muted-foreground mt-2">
+                SimCity for personal finance - learn by living a simulated financial life
+              </p>
             </div>
-          </TabsContent>
+            <NewGameDialog onCreateGame={createSession.mutate} />
+          </div>
 
-          <TabsContent value="stats">
-            <StatsPanel sessionId={activeSession?.id || ''} />
-          </TabsContent>
+          {!activeSession ? (
+            <Card className="p-12 text-center space-y-4">
+              <Trophy className="w-16 h-16 mx-auto text-muted-foreground" />
+              <h2 className="text-2xl font-semibold">Start Your Financial Journey</h2>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Experience life from graduation to retirement. Make complex financial choices and learn
+                about compound interest, taxes, and risk through visceral gameplay.
+              </p>
+              <NewGameDialog onCreateGame={createSession.mutate}>
+                <Button size="lg" className="gap-2">
+                  <Play className="w-5 h-5" />
+                  Start New Simulation
+                </Button>
+              </NewGameDialog>
+            </Card>
+          ) : (
+            <Tabs defaultValue="game" className="space-y-6">
+              <TabsList>
+                <TabsTrigger value="game">Game Board</TabsTrigger>
+                <TabsTrigger value="stats">Statistics</TabsTrigger>
+                <TabsTrigger value="history">Session History</TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="history">
-            <SessionHistory 
-              sessions={activeSessions || []} 
-              onSelectSession={setActiveSessionId}
-              currentSessionId={activeSessionId}
-            />
-          </TabsContent>
-        </Tabs>
-      )}
-      </div>
-    </ErrorBoundary>
+              <TabsContent value="game" className="space-y-6">
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-semibold">{(activeSession as any).session_name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Age {activeSession.current_age} / {(activeSession as any).target_age}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground">Financial State</p>
+                      <p className="text-2xl font-bold">
+                        ${((activeSession.financial_state as any)?.net_worth || 0).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <Progress 
+                    value={(activeSession.current_age - (activeSession as any).starting_age) / ((activeSession as any).target_age - (activeSession as any).starting_age) * 100}
+                    className="h-2"
+                  />
+                </Card>
+
+                <div className="grid gap-6 lg:grid-cols-3">
+                  <div className="lg:col-span-2">
+                    <GameBoard session={activeSession} />
+                  </div>
+                  <div>
+                    <DecisionCard session={activeSession} />
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="stats">
+                <StatsPanel sessionId={activeSession?.id || ''} />
+              </TabsContent>
+
+              <TabsContent value="history">
+                <SessionHistory 
+                  sessions={activeSessions || []} 
+                  onSelectSession={setActiveSessionId}
+                  currentSessionId={activeSessionId}
+                />
+              </TabsContent>
+            </Tabs>
+          )}
+        </div>
+      </ErrorBoundary>
+    </AppLayout>
   );
 }

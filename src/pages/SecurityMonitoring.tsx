@@ -9,6 +9,7 @@ import { Shield, AlertTriangle, TrendingUp, Activity, Clock, Users } from "lucid
 import { LazyBarChart } from "@/components/charts/LazyBarChart";
 import { LazyLineChart } from "@/components/charts/LazyLineChart";
 import { format } from "date-fns";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 export default function SecurityMonitoring() {
   // Fetch rate limit data
@@ -89,29 +90,32 @@ export default function SecurityMonitoring() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center gap-2">
-          <Shield className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Security Monitoring</h1>
+      <AppLayout>
+        <div className="space-y-6">
+          <div className="flex items-center gap-2">
+            <Shield className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Security Monitoring</h1>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader className="pb-2">
+                  <div className="h-4 bg-muted rounded w-24" />
+                </CardHeader>
+                <CardContent>
+                  <div className="h-8 bg-muted rounded w-16" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader className="pb-2">
-                <div className="h-4 bg-muted rounded w-24" />
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 bg-muted rounded w-16" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <AppLayout>
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -452,6 +456,7 @@ export default function SecurityMonitoring() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
