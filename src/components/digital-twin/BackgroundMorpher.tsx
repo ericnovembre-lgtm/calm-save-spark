@@ -17,24 +17,24 @@ export function BackgroundMorpher({ netWorth }: BackgroundMorpherProps) {
 
   const sceneConfigs = {
     starter: {
-      gradient: 'radial-gradient(circle at 30% 50%, rgba(100, 100, 150, 0.2) 0%, rgba(5, 5, 5, 0) 50%)',
+      gradient: 'radial-gradient(circle at 30% 50%, hsla(var(--muted) / 0.2) 0%, transparent 50%)',
       particles: 20,
-      color: 'rgba(100, 100, 150, 0.4)',
+      color: 'hsla(var(--muted-foreground) / 0.3)',
     },
     growth: {
-      gradient: 'radial-gradient(circle at 50% 50%, rgba(0, 200, 200, 0.25) 0%, rgba(5, 5, 5, 0) 50%)',
+      gradient: 'radial-gradient(circle at 50% 50%, hsla(var(--accent) / 0.15) 0%, transparent 50%)',
       particles: 40,
-      color: 'rgba(0, 255, 255, 0.5)',
+      color: 'hsla(var(--accent) / 0.4)',
     },
     prosperity: {
-      gradient: 'radial-gradient(circle at 60% 40%, rgba(0, 255, 100, 0.3) 0%, rgba(5, 5, 5, 0) 50%)',
+      gradient: 'radial-gradient(circle at 60% 40%, hsla(var(--accent) / 0.25) 0%, transparent 50%)',
       particles: 60,
-      color: 'rgba(0, 255, 100, 0.6)',
+      color: 'hsla(var(--accent) / 0.5)',
     },
     freedom: {
-      gradient: 'radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.3) 0%, rgba(5, 5, 5, 0) 60%)',
+      gradient: 'radial-gradient(circle at 50% 50%, hsla(var(--accent) / 0.3) 0%, transparent 60%)',
       particles: 80,
-      color: 'rgba(255, 215, 0, 0.7)',
+      color: 'hsla(var(--accent) / 0.6)',
     },
   };
 
@@ -87,7 +87,7 @@ export function BackgroundMorpher({ netWorth }: BackgroundMorpherProps) {
 
         {/* Scene label */}
         <motion.div
-          className="absolute top-8 left-8 text-xs font-mono text-white/40"
+          className="absolute top-8 left-8 text-xs font-mono text-muted-foreground"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}

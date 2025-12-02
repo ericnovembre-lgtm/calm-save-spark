@@ -90,19 +90,19 @@ export function NarrativeOverlay({ age, netWorth, lifeEvents }: NarrativeOverlay
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
         >
-          <div className="backdrop-blur-xl bg-black/60 border border-cyan-500/30 rounded-lg p-6 shadow-[0_0_30px_rgba(0,255,255,0.2)]">
+          <div className="backdrop-blur-xl bg-card/80 border border-accent/30 rounded-lg p-6 shadow-[0_0_30px_hsl(var(--accent)_/_0.2)]">
             <div className="flex items-start gap-4">
               <motion.p
-                className="flex-1 text-lg text-white font-light leading-relaxed"
+                className="flex-1 text-lg text-foreground font-light leading-relaxed"
                 style={{
-                  textShadow: '0 0 10px rgba(0, 255, 255, 0.3)',
+                  textShadow: '0 0 10px hsl(var(--accent) / 0.3)',
                 }}
               >
                 {displayedText}
                 <motion.span
                   animate={{ opacity: [0, 1, 0] }}
                   transition={{ duration: 0.8, repeat: Infinity }}
-                  className="inline-block w-2 h-5 bg-cyan-500 ml-1"
+                  className="inline-block w-2 h-5 bg-accent ml-1"
                 />
               </motion.p>
               
@@ -111,8 +111,7 @@ export function NarrativeOverlay({ age, netWorth, lifeEvents }: NarrativeOverlay
                 size="icon"
                 onClick={handleSpeak}
                 disabled={voiceLoading}
-                className="shrink-0 hover:bg-cyan-500/10 hover:text-cyan-400"
-              >
+                className="shrink-0 hover:bg-accent/10 hover:text-accent">
                 {voiceLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : isSpeaking ? (

@@ -33,13 +33,13 @@ export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
 
   return (
     <motion.div
-      className="fixed left-0 top-1/2 -translate-y-1/2 w-72 max-h-[75vh] overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent"
+      className="fixed left-0 top-1/2 -translate-y-1/2 w-72 max-h-[75vh] overflow-y-auto scrollbar-thin scrollbar-thumb-accent/30 scrollbar-track-transparent"
       initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ delay: 0.5, type: 'spring' }}
     >
-      <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-r-2xl p-4">
-        <h3 className="text-sm font-mono text-white/60 mb-4 flex items-center gap-2">
+      <div className="backdrop-blur-xl bg-card/80 border border-border rounded-r-2xl p-4">
+        <h3 className="text-sm font-mono text-muted-foreground mb-4 flex items-center gap-2">
           <Zap className="w-4 h-4" />
           LIFE EVENTS
         </h3>
@@ -48,7 +48,7 @@ export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
           {lifeEvents.map((event, idx) => (
             <motion.div
               key={event.id}
-              className={`p-3 rounded-lg border-2 ${event.color} bg-black/40 backdrop-blur cursor-move hover:scale-105 transition-transform`}
+              className={`p-3 rounded-lg border-2 ${event.color} bg-muted/40 backdrop-blur cursor-move hover:scale-105 transition-transform`}
               draggable
               onDragStart={() => {
                 setDraggedEvent(event.id);
@@ -63,8 +63,8 @@ export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{event.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm text-white">{event.label}</div>
-                  <div className="text-xs text-white/60 truncate">{event.description}</div>
+                  <div className="font-medium text-sm text-foreground">{event.label}</div>
+                  <div className="text-xs text-muted-foreground truncate">{event.description}</div>
                   <div className={`text-xs font-mono mt-1 ${event.impact >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                     {event.impact >= 0 ? '+' : ''}{(event.impact / 1000).toFixed(0)}K
                   </div>
@@ -73,7 +73,7 @@ export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
 
               {draggedEvent === event.id && (
                 <motion.div
-                  className="absolute inset-0 bg-cyan-500/20 rounded-lg pointer-events-none"
+                  className="absolute inset-0 bg-accent/20 rounded-lg pointer-events-none"
                   animate={{ opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 1, repeat: Infinity }}
                 />
@@ -82,7 +82,7 @@ export function LifeEventsSidebar({ onEventSelect }: LifeEventsSidebarProps) {
           ))}
         </div>
 
-        <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-xs text-white/70">
+        <div className="mt-4 p-3 bg-accent/10 border border-accent/30 rounded-lg text-xs text-muted-foreground">
           💡 Drag events onto the timeline to see their impact
         </div>
       </div>

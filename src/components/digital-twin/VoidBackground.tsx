@@ -32,11 +32,12 @@ export function VoidBackground() {
     function animate() {
       if (!canvas || !ctx) return;
       
-      ctx.fillStyle = '#050505';
+      // Use dark background
+      ctx.fillStyle = 'hsl(0, 0%, 0%)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw grid lines
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      // Draw grid lines with warm tone
+      ctx.strokeStyle = 'hsla(42, 54%, 72%, 0.05)';
       ctx.lineWidth = 1;
 
       // Vertical lines
@@ -57,7 +58,7 @@ export function VoidBackground() {
 
       gridOffset = (gridOffset + 0.5) % gridSize;
 
-      // Draw particles with depth blur
+      // Draw particles with warm gold color
       particles.forEach(particle => {
         particle.y -= particle.speed;
         if (particle.y < 0) {
@@ -67,7 +68,7 @@ export function VoidBackground() {
 
         const size = particle.z * 3;
         const alpha = particle.z * 0.6;
-        ctx.fillStyle = `rgba(0, 255, 255, ${alpha})`;
+        ctx.fillStyle = `hsla(42, 54%, 72%, ${alpha})`;
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
         ctx.fill();
@@ -93,11 +94,10 @@ export function VoidBackground() {
         ref={canvasRef}
         className="fixed inset-0 -z-10"
       />
-      {/* Scan-line effect */}
       <motion.div
         className="fixed inset-0 -z-10 pointer-events-none"
         style={{
-          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 255, 0.03) 2px, rgba(0, 255, 255, 0.03) 4px)',
+          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, hsla(var(--accent) / 0.03) 2px, hsla(var(--accent) / 0.03) 4px)',
         }}
         animate={{
           opacity: [0.5, 0.8, 0.5],

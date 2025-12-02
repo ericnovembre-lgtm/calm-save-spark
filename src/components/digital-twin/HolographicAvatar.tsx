@@ -20,9 +20,9 @@ function WireframeHuman({
   const reactionProgress = useRef(0);
 
   const colors = {
-    thriving: new THREE.Color('#00ffff'),
-    neutral: new THREE.Color('hsl(var(--primary))'),
-    struggling: new THREE.Color('#ff0066'),
+    thriving: new THREE.Color('hsl(42, 54%, 72%)'), // warm gold
+    neutral: new THREE.Color('hsl(42, 54%, 60%)'), // beige
+    struggling: new THREE.Color('hsl(15, 75%, 55%)'), // warm orange
   };
 
   const color = colors[healthState];

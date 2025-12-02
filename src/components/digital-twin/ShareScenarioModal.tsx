@@ -171,12 +171,12 @@ export function ShareScenarioModal({ open, onClose, scenarioData }: ShareScenari
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-slate-950 border-cyan-500/20 text-white">
+        <DialogContent className="max-w-2xl bg-card border-border text-foreground">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-mono text-cyan-500">
-            ◢◤ Share Scenario ◥◣
+          <DialogTitle className="text-2xl font-mono text-accent">
+            Share Scenario
           </DialogTitle>
-          <DialogDescription className="text-white/60">
+          <DialogDescription className="text-muted-foreground">
             Generate a shareable link and preview image for "{scenarioData.name}"
           </DialogDescription>
         </DialogHeader>
@@ -188,8 +188,7 @@ export function ShareScenarioModal({ open, onClose, scenarioData }: ShareScenari
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="relative rounded-lg overflow-hidden border border-cyan-500/20"
-              >
+                className="relative rounded-lg overflow-hidden border border-border">
                 <img src={previewImageUrl} alt="Scenario preview" className="w-full" />
               </motion.div>
             )}
@@ -198,7 +197,7 @@ export function ShareScenarioModal({ open, onClose, scenarioData }: ShareScenari
           {/* Expiration Selector */}
           {!shareLink && (
             <div>
-              <Label className="text-white/80">Link Expiration</Label>
+              <Label className="text-muted-foreground">Link Expiration</Label>
               <div className="flex gap-2 mt-2">
                 <Button
                   variant={expiresIn === "1week" ? "default" : "outline"}
@@ -233,8 +232,7 @@ export function ShareScenarioModal({ open, onClose, scenarioData }: ShareScenari
             <Button
               onClick={generateShareLink}
               disabled={isGenerating}
-              className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700"
-            >
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
               {isGenerating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -257,14 +255,13 @@ export function ShareScenarioModal({ open, onClose, scenarioData }: ShareScenari
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-4"
               >
-                {/* Link Display */}
                 <div>
-                  <Label className="text-white/80">Share Link</Label>
+                  <Label className="text-muted-foreground">Share Link</Label>
                   <div className="flex gap-2 mt-2">
                     <Input
                       value={shareLink}
                       readOnly
-                      className="font-mono text-sm bg-black/40 border-cyan-500/30"
+                      className="font-mono text-sm bg-muted/50 border-border"
                     />
                     <Button onClick={copyToClipboard} variant="outline" size="icon">
                       <Copy className="w-4 h-4" />
@@ -272,9 +269,8 @@ export function ShareScenarioModal({ open, onClose, scenarioData }: ShareScenari
                   </div>
                 </div>
 
-                {/* Social Sharing */}
                 <div>
-                  <Label className="text-white/80">Share on Social Media</Label>
+                  <Label className="text-muted-foreground">Share on Social Media</Label>
                   <div className="flex gap-2 mt-2">
                     <Button
                       variant="outline"
@@ -303,22 +299,21 @@ export function ShareScenarioModal({ open, onClose, scenarioData }: ShareScenari
                   </div>
                 </div>
 
-                {/* Email Sharing */}
                 <div>
-                  <Label className="text-white/80">Share via Email</Label>
+                  <Label className="text-muted-foreground">Share via Email</Label>
                   <div className="flex gap-2 mt-2">
                     <Input
                       placeholder="Recipient name (optional)"
                       value={recipientName}
                       onChange={(e) => setRecipientName(e.target.value)}
-                      className="flex-1 bg-black/40 border-cyan-500/30"
+                      className="flex-1 bg-muted/50 border-border"
                     />
                     <Input
                       type="email"
                       placeholder="Recipient email"
                       value={recipientEmail}
                       onChange={(e) => setRecipientEmail(e.target.value)}
-                      className="flex-1 bg-black/40 border-cyan-500/30"
+                      className="flex-1 bg-muted/50 border-border"
                     />
                     <Button
                       onClick={sendEmail}
