@@ -654,5 +654,6 @@ export default function CardPage() {
         document.body
       )}
     </div>
+    </AppLayout>
   );
 }
