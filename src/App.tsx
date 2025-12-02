@@ -111,7 +111,7 @@ const Onboarding = createPageLoader(() => import("./pages/Onboarding"), 'light')
 const ConversationalWelcome = createPageLoader(() => import("./pages/ConversationalWelcome"), 'light');
 const Checkout = createPageLoader(() => import("./pages/Checkout"), 'light');
 const SubscriptionManagement = createPageLoader(() => import("./pages/SubscriptionManagement"), 'light');
-const BehavioralGuardian = createPageLoader(() => import("./pages/BehavioralGuardian"), 'light');
+const GuardianSecurityCenter = createPageLoader(() => import("./pages/GuardianSecurityCenter"), 'heavy');
 const CoolingOff = createPageLoader(() => import("./pages/CoolingOff"), 'light');
 const AlternativesPortal = createPageLoader(() => import("./pages/AlternativesPortal"), 'light');
 const CorporateWellness = createPageLoader(() => import("./pages/CorporateWellness"), 'light');
@@ -299,7 +299,7 @@ function AnimatedRoutes() {
         <Route path="/digital-twin" element={<ProtectedRoute><PageTransition><DigitalTwin /></PageTransition></ProtectedRoute>} />
         <Route path="/agent-hub" element={<ProtectedRoute><PageTransition><AgentHub /></PageTransition></ProtectedRoute>} />
         <Route path="/ai-model-analytics" element={<ProtectedRoute><PageTransition><AIModelAnalytics /></PageTransition></ProtectedRoute>} />
-        <Route path="/guardian" element={<ProtectedRoute><PageTransition><BehavioralGuardian /></PageTransition></ProtectedRoute>} />
+        <Route path="/guardian" element={<ProtectedRoute><PageTransition><GuardianSecurityCenter /></PageTransition></ProtectedRoute>} />
         <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />
         <Route path="/lifesim" element={<ProtectedRoute><PageTransition><LifeSim /></PageTransition></ProtectedRoute>} />
         <Route path="/life-planner" element={<ProtectedRoute><PageTransition><LifePlanner /></PageTransition></ProtectedRoute>} />
