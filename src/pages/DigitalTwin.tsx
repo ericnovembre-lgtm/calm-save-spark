@@ -8,23 +8,24 @@ import { BackgroundMorpher } from "@/components/digital-twin/BackgroundMorpher";
 import { LifeEventsSidebar, LifeEvent } from "@/components/digital-twin/LifeEventsSidebar";
 import { NarrativeOverlay } from "@/components/digital-twin/NarrativeOverlay";
 import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
-import { useDigitalTwin } from "@/hooks/useDigitalTwin";
+import { useDigitalTwinProfile } from "@/hooks/useDigitalTwinProfile";
+import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequiredPrompt";
 import { motion } from "framer-motion";
-import { Sparkles, RotateCcw } from "lucide-react";
+import { Sparkles, RotateCcw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
 import "@/styles/digital-twin-theme.css";
 
 export default function DigitalTwin() {
-  const { twinState } = useDigitalTwin();
+  const { profile, isLoading, hasProfile } = useDigitalTwinProfile();
   
-  // Use real user data if available, fallback to defaults
-  const currentAge = 30; // TODO: Get from user profile
-  const retirementAge = 65;
-  const initialNetWorth = 50000; // TODO: Calculate from user's actual accounts
-  const riskTolerance = twinState?.risk_tolerance || 0.5;
-  const annualReturn = 0.05 + (riskTolerance * 0.05); // 5-10% based on risk
+  // Use real user data from profile
+  const currentAge = profile?.currentAge || 30;
+  const retirementAge = profile?.retirementAge || 65;
+  const initialNetWorth = profile?.initialNetWorth || 50000;
+  const annualReturn = profile?.annualReturn || 0.07;
+  const annualSavings = profile?.annualSavings || 20000;
   
   const [selectedAge, setSelectedAge] = useState(currentAge);
   const [selectedEvent, setSelectedEvent] = useState<LifeEvent | null>(null);
@@ -36,7 +37,7 @@ export default function DigitalTwin() {
     addEvent,
     clearEvents,
     calculateRetirementImpact,
-  } = useLifeEventSimulation(currentAge, initialNetWorth, annualReturn, 20000);
+  } = useLifeEventSimulation(currentAge, initialNetWorth, annualReturn, annualSavings);
 
   const currentNetWorth = calculateNetWorth(selectedAge);
 
@@ -47,7 +48,6 @@ export default function DigitalTwin() {
 
   const handleAgeChange = (age: number) => {
     setSelectedAge(age);
-    digitalTwinSounds.playTimelineScrub();
     
     // Check for milestones
     const netWorth = calculateNetWorth(age);
@@ -89,6 +89,23 @@ export default function DigitalTwin() {
     setSelectedAge(currentAge);
     toast.info('Timeline reset to baseline');
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mx-auto mb-4" />
+          <p className="text-white/60 font-mono">Initializing Digital Twin...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show setup prompt if no profile
+  if (!hasProfile) {
+    return <ProfileRequiredPrompt />;
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050505]">
@@ -213,6 +230,7 @@ export default function DigitalTwin() {
         currentAge={currentAge}
         retirementAge={retirementAge}
         onAgeChange={handleAgeChange}
+        onScrub={() => digitalTwinSounds.playTimelineScrub()}
         lifeEvents={injectedEvents.map(e => ({
           year: e.year,
           label: e.event.label,
