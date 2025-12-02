@@ -436,26 +436,64 @@ export default function DigitalTwin() {
         </motion.div>
 
         {/* Injected events display - positioned below toolbar */}
-        {injectedEvents.length > 0 && (
-          <motion.div
-            className="fixed top-32 right-16 max-w-xs z-40"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-lg p-4">
-              <h3 className="text-xs font-mono text-white/60 mb-2">ACTIVE EVENTS</h3>
-              <div className="space-y-2">
-                {injectedEvents.map((e) => (
-                  <div key={e.id} className="text-xs font-mono text-white flex items-center gap-2">
-                    <span>{e.event.icon}</span>
-                    <span>{e.event.label}</span>
-                    <span className="text-white/40">Age {e.year}</span>
-                  </div>
-                ))}
+        <AnimatePresence>
+          {injectedEvents.length > 0 && (
+            <motion.div
+              className="fixed top-32 right-16 max-w-xs z-40"
+              initial={{ opacity: 0, x: 20, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 20, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="backdrop-blur-xl bg-slate-950/80 border border-white/10 rounded-xl p-4 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-white/50">Active Events</h3>
+                  <div className="w-2 h-2 rounded-full bg-accent animate-pulse shadow-[0_0_8px_hsl(var(--accent)/0.6)]" />
+                </div>
+                <div className="space-y-2">
+                  {injectedEvents.slice(0, 4).map((e, index) => (
+                    <motion.div
+                      key={e.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.08, duration: 0.25 }}
+                      className="group flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <div className="relative">
+                        <span className="text-base">{e.event.icon}</span>
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full ${
+                          e.event.impact > 0 ? 'bg-emerald-400 shadow-[0_0_6px_hsl(160,84%,39%,0.6)]' : 
+                          e.event.impact < 0 ? 'bg-rose-400 shadow-[0_0_6px_hsl(350,89%,60%,0.6)]' : 
+                          'bg-white/40'
+                        }`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-white truncate">{e.event.label}</p>
+                        <p className="text-[10px] font-mono text-white/40">Age {e.year}</p>
+                      </div>
+                      {e.event.impact !== 0 && (
+                        <span className={`text-[10px] font-mono ${
+                          e.event.impact > 0 ? 'text-emerald-400' : 'text-rose-400'
+                        }`}>
+                          {e.event.impact > 0 ? '+' : ''}{(e.event.impact / 1000).toFixed(0)}k
+                        </span>
+                      )}
+                    </motion.div>
+                  ))}
+                  {injectedEvents.length > 4 && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-[10px] font-mono text-white/30 text-center pt-1"
+                    >
+                      +{injectedEvents.length - 4} more events
+                    </motion.p>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Life Events Sidebar */}
