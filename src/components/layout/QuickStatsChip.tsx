@@ -2,6 +2,8 @@ import { TrendingUp, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { useNetWorthData } from "@/hooks/useNetWorthData";
+import { useGoalsProgress } from "@/hooks/useGoalsProgress";
 
 interface QuickStatsChipProps {
   netWorth?: number;
@@ -10,13 +12,21 @@ interface QuickStatsChipProps {
   savingsProgress?: number;
 }
 
-export const QuickStatsChip = ({ 
-  netWorth = 24580, 
-  trend = "up", 
-  trendPercent = 12.5,
-  savingsProgress = 75 
-}: QuickStatsChipProps) => {
+export const QuickStatsChip = () => {
+  const { data: netWorthData, isLoading: netWorthLoading } = useNetWorthData();
+  const { data: goalsData, isLoading: goalsLoading } = useGoalsProgress();
+
+  const netWorth = netWorthData?.currentNetWorth ?? 0;
+  const monthlyChangePercent = netWorthData?.monthlyChangePercent ?? 0;
+  const trend = monthlyChangePercent >= 0 ? "up" : "down";
+  const trendPercent = Math.abs(monthlyChangePercent);
+  const savingsProgress = goalsData?.overallProgress ?? 0;
+
   const TrendIcon = trend === "up" ? TrendingUp : TrendingDown;
+
+  if (netWorthLoading || goalsLoading) {
+    return null;
+  }
   
   return (
     <motion.div

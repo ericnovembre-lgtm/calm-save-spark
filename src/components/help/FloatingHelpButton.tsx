@@ -48,7 +48,7 @@ export function FloatingHelpButton() {
       '/investments': 'Investments',
       '/crypto': 'Crypto',
       '/cards': 'Cards',
-      '/rewards': 'Rewards',
+      '/achievements': 'Achievements',
       '/insights': 'Insights',
       '/reports': 'Reports',
       '/forecasts': 'Forecasts',
