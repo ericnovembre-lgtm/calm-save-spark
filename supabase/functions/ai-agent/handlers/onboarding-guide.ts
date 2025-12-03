@@ -49,7 +49,7 @@ Guide the user through their next steps based on their current progress.`;
     enhancedPrompt, 
     history, 
     message,
-    'google/gemini-3-pro',
+    'google/gemini-2.5-flash',
     UI_TOOLS
   );
 

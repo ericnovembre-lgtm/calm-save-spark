@@ -129,7 +129,7 @@ Always provide specific numbers and reasoning. Be concise but mathematically pre
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages,
       }),
     });

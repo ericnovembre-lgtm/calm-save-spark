@@ -26,7 +26,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [{
           role: 'user',
           content: `Generate for a ${eventType} event with $${estimatedCost} budget: 1) 3 cost categories with amounts, 2) 10 checklist tasks with priorities. Return JSON with {costs: [{category, amount}], checklist: [{task, priority}]}`

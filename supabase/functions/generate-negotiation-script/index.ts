@@ -168,7 +168,7 @@ Generate 4-6 exchanges. End with: "Economically, switching makes more sense unle
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-3-pro',
+            model: 'google/gemini-2.5-flash',
             messages: [
               { role: 'system', content: aggressivePrompt },
               { role: 'user', content: userPrompt },
@@ -184,7 +184,7 @@ Generate 4-6 exchanges. End with: "Economically, switching makes more sense unle
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-3-pro',
+            model: 'google/gemini-2.5-flash',
             messages: [
               { role: 'system', content: friendlyPrompt },
               { role: 'user', content: userPrompt },
@@ -200,7 +200,7 @@ Generate 4-6 exchanges. End with: "Economically, switching makes more sense unle
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-3-pro',
+            model: 'google/gemini-2.5-flash',
             messages: [
               { role: 'system', content: dataDrivenPrompt },
               { role: 'user', content: userPrompt },
@@ -308,7 +308,7 @@ TONE: Confident, polite but firm, data-driven. You're not angry, just informed a
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },

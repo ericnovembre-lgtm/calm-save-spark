@@ -69,7 +69,7 @@ Provide a plain-English explanation that's helpful and specific.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'user', content: prompt }
         ],

@@ -87,7 +87,7 @@ Format as JSON array with structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: 'You are a financial insights assistant. Generate concise, actionable insights.' },
           { role: 'user', content: prompt }

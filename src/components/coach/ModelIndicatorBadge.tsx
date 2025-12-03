@@ -18,13 +18,13 @@ const MODEL_CONFIG = {
   },
   'gemini-flash': {
     icon: Zap,
-    label: 'Gemini 3 Pro',
+    label: 'Gemini 2.5 Flash',
     color: 'from-cyan-500 to-blue-600',
     description: 'Fast & efficient'
   },
-  'gemini-3-pro': {
+  'gemini-2.5-flash': {
     icon: Zap,
-    label: 'Gemini 3 Pro',
+    label: 'Gemini 2.5 Flash',
     color: 'from-cyan-500 to-blue-600',
     description: 'Fast & efficient'
   },

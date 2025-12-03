@@ -69,7 +69,7 @@ Return as JSON with: { covered: boolean, coverageAmount: number, benefit: string
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompts[mode] },
           { role: 'user', content: query }

@@ -23,7 +23,7 @@ export async function streamAIResponse(
   systemPrompt: string,
   conversationHistory: Message[],
   userMessage: string,
-  model: string = 'google/gemini-3-pro',
+  model: string = 'google/gemini-2.5-flash',
   tools?: any[],
   supabase?: SupabaseClient,
   conversationId?: string,
@@ -49,7 +49,7 @@ export async function streamAIResponse(
       // Fallback to Lovable AI Gateway if Anthropic fails
       if (error instanceof Error && error.message.includes('ANTHROPIC')) {
         console.warn('[AI Router] Anthropic unavailable, falling back to Gemini');
-        model = 'google/gemini-3-pro'; // Use equivalent model
+        model = 'google/gemini-2.5-flash'; // Use equivalent model
       } else {
         throw error;
       }

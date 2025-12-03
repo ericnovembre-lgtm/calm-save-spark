@@ -169,15 +169,15 @@ async function routeToGeminiFlash(
   userId?: string,
   queryType?: string
 ): Promise<ReadableStream> {
-  console.log('[Model Router] → Gemini 3 Pro (Fast & Efficient)');
+  console.log('[Model Router] → Gemini 2.5 Flash (Fast & Efficient)');
   
-  await logModelUsage(supabase, userId, conversationId, 'gemini-3-pro', 'success', undefined, queryType, userMessage.length);
+  await logModelUsage(supabase, userId, conversationId, 'gemini-flash', 'success', undefined, queryType, userMessage.length);
   
   const stream = await streamAIResponse(
     systemPrompt,
     conversationHistory,
     userMessage,
-    'google/gemini-3-pro',
+    'google/gemini-2.5-flash',
     tools,
     supabase,
     conversationId,
@@ -185,8 +185,8 @@ async function routeToGeminiFlash(
   );
   
   return injectModelMetadata(stream, {
-    model: 'gemini-3-pro',
-    modelName: 'Gemini 3 Pro',
+    model: 'gemini-flash',
+    modelName: 'Gemini 2.5 Flash',
     queryType: queryType || 'simple'
   });
 }
@@ -275,7 +275,7 @@ Always cite specific sections of documents when referencing information.`;
       queryType: queryType || 'document_analysis'
     });
   } catch (error) {
-    console.error('[Model Router] GPT-5 failed, falling back to Gemini 3 Pro:', error);
+    console.error('[Model Router] GPT-5 failed, falling back to Gemini 2.5 Flash:', error);
     
     // Log fallback
     await logModelUsage(

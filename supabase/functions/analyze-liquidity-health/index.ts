@@ -143,7 +143,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown formatting or extra text.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: 'You are a financial health analyst. Return only valid JSON without markdown.' },
           { role: 'user', content: prompt }

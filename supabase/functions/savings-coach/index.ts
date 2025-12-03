@@ -76,7 +76,7 @@ ${currentPace > 0 ? `Current daily pace: $${currentPace.toFixed(2)}` : ''}
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userContext }

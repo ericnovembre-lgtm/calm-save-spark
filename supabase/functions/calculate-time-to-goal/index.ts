@@ -98,7 +98,7 @@ Focus on the top spending categories. Make suggestions practical and specific wi
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'user',

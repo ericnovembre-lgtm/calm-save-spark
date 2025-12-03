@@ -49,7 +49,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-3-pro',
+          model: 'google/gemini-2.5-flash',
           messages: [{
             role: 'system',
             content: `You are a geocoding assistant. Given a merchant name, infer the most likely city and state in the US. 
