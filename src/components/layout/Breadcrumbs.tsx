@@ -41,14 +41,25 @@ const routeNameMap: Record<string, string> = {
   "life-planner": "Life Planner",
   settings: "Settings",
   help: "Help",
+  // Admin routes
+  sitemap: "Sitemap",
+  "page-analytics": "Page Analytics",
+  admin: "Admin",
+  "admin-monitoring": "Admin Monitoring",
+  "security-monitoring": "Security Monitoring",
+  "claude-monitoring": "Claude Monitoring",
 };
 
 export const Breadcrumbs = () => {
   const location = useLocation();
   const pathnames = location.pathname.split("/").filter((x) => x);
 
-  // Don't show breadcrumbs on dashboard or single-level routes
-  if (pathnames.length <= 1) return null;
+  // Admin routes that should always show breadcrumbs even if single-level
+  const adminRoutes = ['sitemap', 'page-analytics', 'admin', 'admin-monitoring', 'security-monitoring', 'claude-monitoring'];
+  const isAdminRoute = pathnames.length === 1 && adminRoutes.includes(pathnames[0]);
+
+  // Don't show breadcrumbs on dashboard or regular single-level routes (but DO show for admin)
+  if (pathnames.length <= 1 && !isAdminRoute) return null;
 
   return (
     <nav aria-label="Breadcrumb" className="mb-4">
