@@ -441,4 +441,7 @@ verify_jwt = true
 [functions.seed-test-sessions]
 verify_jwt = true
 
+[functions.send-user-security-alert]
+verify_jwt = false
+
 
