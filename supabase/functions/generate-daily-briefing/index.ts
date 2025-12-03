@@ -231,7 +231,8 @@ Generate the briefing NOW:`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_completion_tokens: 300
+        max_tokens: 300,
+        temperature: 0.7
       }),
     });
 
