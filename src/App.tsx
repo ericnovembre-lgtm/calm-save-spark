@@ -121,6 +121,8 @@ const SharedScenario = createPageLoader(() => import("./pages/SharedScenario"), 
 
 // Preview routes for visual debugging (development only)
 const GuardianPreview = createPageLoader(() => import("./pages/preview/GuardianPreview"), 'heavy');
+const SecuritySettingsPreview = createPageLoader(() => import("./pages/preview/SecuritySettingsPreview"), 'medium');
+const DashboardPreview = createPageLoader(() => import("./pages/preview/DashboardPreview"), 'heavy');
 
 const queryClient = new QueryClient(queryConfig);
 
@@ -236,6 +238,8 @@ function AnimatedRoutes() {
         
         {/* Preview routes for visual debugging - NO authentication required */}
         <Route path="/preview/guardian" element={<PageTransition><GuardianPreview /></PageTransition>} />
+        <Route path="/preview/security-settings" element={<PageTransition><SecuritySettingsPreview /></PageTransition>} />
+        <Route path="/preview/dashboard" element={<PageTransition><DashboardPreview /></PageTransition>} />
         <Route path="/features" element={<Navigate to="/features-hub" replace />} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
         <Route path="/welcome" element={<PageTransition><ConversationalWelcome /></PageTransition>} />
