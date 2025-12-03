@@ -7,6 +7,7 @@ import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { classifyQuery, applyClassificationOverrides, logClassification, ModelRoute } from "./query-classifier.ts";
 import { streamAIResponse } from "./ai-client.ts";
 import { streamPerplexityResponse } from "./perplexity-client.ts";
+import { streamOpenAI, GPT5_MODEL, DOCUMENT_ANALYSIS_SYSTEM_PROMPT } from "./openai-client.ts";
 import { CLAUDE_MAIN_BRAIN, CLAUDE_35_SONNET } from "./ai-client.ts";
 import { injectModelMetadata } from "./stream-enhancer.ts";
 
@@ -25,6 +26,7 @@ interface RouterOptions {
   userId?: string;
   userTier?: 'free' | 'pro' | 'premium';
   forceModel?: ModelRoute;
+  hasAttachment?: boolean;
 }
 
 /**
@@ -40,11 +42,12 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
     conversationId,
     userId,
     userTier = 'pro',
-    forceModel
+    forceModel,
+    hasAttachment = false
   } = options;
 
   // Classify the query
-  let classification = classifyQuery(userMessage, conversationHistory);
+  let classification = classifyQuery(userMessage, conversationHistory, hasAttachment);
   
   // Apply overrides based on user tier and other factors
   classification = applyClassificationOverrides(classification, {
@@ -76,6 +79,9 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
     
     case 'claude-sonnet':
       return await routeToClaude(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
+    
+    case 'gpt-5':
+      return await routeToGPT5(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
     
     default:
       // Fallback to Gemini Flash
@@ -226,6 +232,78 @@ Provide deep, strategic insights with multi-step reasoning and comprehensive rec
 }
 
 /**
+ * Route to GPT-5 for document analysis and complex financial documents
+ */
+async function routeToGPT5(
+  systemPrompt: string,
+  conversationHistory: Message[],
+  userMessage: string,
+  tools?: any[],
+  supabase?: SupabaseClient,
+  conversationId?: string,
+  userId?: string,
+  queryType?: string
+): Promise<ReadableStream> {
+  console.log('[Model Router] → GPT-5 (Document Analysis Expert)');
+  
+  try {
+    await logModelUsage(supabase, userId, conversationId, 'gpt-5', 'success', undefined, queryType, userMessage.length);
+    
+    const enhancedSystemPrompt = `${systemPrompt}
+
+${DOCUMENT_ANALYSIS_SYSTEM_PROMPT}
+
+**DOCUMENT ANALYSIS MODE:** You are using GPT-5 for precise document extraction and analysis.
+Provide accurate, structured data extraction with confidence scores.
+Always cite specific sections of documents when referencing information.`;
+
+    const messages = [
+      { role: 'system' as const, content: enhancedSystemPrompt },
+      ...conversationHistory,
+      { role: 'user' as const, content: userMessage }
+    ];
+
+    const stream = await streamOpenAI(messages, {
+      model: GPT5_MODEL,
+      maxTokens: 4000,
+      tools
+    });
+    
+    return injectModelMetadata(stream, {
+      model: 'gpt-5',
+      modelName: 'GPT-5',
+      queryType: queryType || 'document_analysis'
+    });
+  } catch (error) {
+    console.error('[Model Router] GPT-5 failed, falling back to Gemini 3 Pro:', error);
+    
+    // Log fallback
+    await logModelUsage(
+      supabase, 
+      userId, 
+      conversationId, 
+      'gpt-5', 
+      'fallback', 
+      error instanceof Error ? error.message : String(error),
+      queryType,
+      userMessage.length
+    );
+    
+    // Fallback to Gemini 3 Pro
+    return await routeToGeminiFlash(
+      systemPrompt + '\n\nNote: GPT-5 unavailable. Using Gemini for document analysis.',
+      conversationHistory,
+      userMessage,
+      tools,
+      supabase,
+      conversationId,
+      userId,
+      queryType
+    );
+  }
+}
+
+/**
  * Log model usage for analytics
  */
 async function logModelUsage(
@@ -279,6 +357,7 @@ export function calculateCostSavings(
     simple: number; // percentage
     complex: number;
     marketData: number;
+    documentAnalysis: number;
   }
 ): {
   totalCost: number;
@@ -290,14 +369,16 @@ export function calculateCostSavings(
   const COSTS = {
     gemini: 0.05,
     claude: 0.50,
-    perplexity: 0.30
+    perplexity: 0.30,
+    gpt5: 0.40
   };
 
   // With routing
   const routedCost = 
     (queriesProcessed * averageComplexityDistribution.simple / 100 * COSTS.gemini) +
     (queriesProcessed * averageComplexityDistribution.complex / 100 * COSTS.claude) +
-    (queriesProcessed * averageComplexityDistribution.marketData / 100 * COSTS.perplexity);
+    (queriesProcessed * averageComplexityDistribution.marketData / 100 * COSTS.perplexity) +
+    (queriesProcessed * averageComplexityDistribution.documentAnalysis / 100 * COSTS.gpt5);
 
   // Without routing (all Claude)
   const allClaudeCost = queriesProcessed * COSTS.claude;

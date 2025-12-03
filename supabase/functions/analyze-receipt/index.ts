@@ -7,6 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// GPT-5 for receipt analysis
+const GPT5_MODEL = 'gpt-5-2025-08-07';
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -48,10 +51,119 @@ serve(async (req) => {
       )
     );
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
+    // Try GPT-5 first for superior receipt analysis
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    
+    let receiptData;
+    let modelUsed = 'gpt-5';
 
-    const prompt = `Analyze this receipt and extract information in JSON format:
+    if (openaiApiKey) {
+      console.log('[Receipt] Using GPT-5 for analysis');
+      
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: GPT5_MODEL,
+            messages: [{
+              role: 'system',
+              content: `You are an expert receipt and invoice analyst. Extract all purchase information accurately.
+
+For receipts, always extract:
+- merchant (store/restaurant name)
+- purchase_date (YYYY-MM-DD format)
+- total_amount (final total)
+- subtotal (before tax)
+- tax_amount
+- category (Groceries, Dining, Transport, Shopping, Bills, Entertainment, Health, Other)
+- items (array of {name, price, quantity})
+- payment_method (if visible)
+- confidence (0-1 score)
+
+Be precise with amounts. If text is unclear, provide best estimate with lower confidence.`
+            }, {
+              role: 'user',
+              content: [
+                { type: 'text', text: 'Analyze this receipt and extract all purchase information.' },
+                { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+              ]
+            }],
+            max_completion_tokens: 3000,
+            tools: [{
+              type: 'function',
+              function: {
+                name: 'extract_receipt_data',
+                description: 'Extract structured receipt data',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    amount: { type: 'number', description: 'Total amount' },
+                    merchant: { type: 'string' },
+                    date: { type: 'string', description: 'YYYY-MM-DD format' },
+                    category: { 
+                      type: 'string',
+                      enum: ['Groceries', 'Dining', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Health', 'Other']
+                    },
+                    items: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          name: { type: 'string' },
+                          price: { type: 'number' },
+                          quantity: { type: 'integer' }
+                        }
+                      }
+                    },
+                    subtotal: { type: 'number' },
+                    tax: { type: 'number' },
+                    confidence: { type: 'number' }
+                  },
+                  required: ['amount', 'merchant', 'category', 'confidence']
+                }
+              }
+            }],
+            tool_choice: { type: 'function', function: { name: 'extract_receipt_data' } }
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[Receipt] GPT-5 error:', response.status, errorText);
+          throw new Error(`GPT-5 API error: ${response.status}`);
+        }
+
+        const aiData = await response.json();
+        const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+        
+        if (toolCall && toolCall.function.arguments) {
+          receiptData = JSON.parse(toolCall.function.arguments);
+        } else {
+          const content = aiData.choices?.[0]?.message?.content;
+          if (content) {
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              receiptData = JSON.parse(jsonMatch[0]);
+            }
+          }
+        }
+      } catch (gptError) {
+        console.error('[Receipt] GPT-5 failed, falling back to Gemini:', gptError);
+        modelUsed = 'gemini-3-pro';
+      }
+    }
+
+    // Fallback to Lovable AI (Gemini) if GPT-5 unavailable or failed
+    if (!receiptData && lovableApiKey) {
+      console.log('[Receipt] Using Gemini 3 Pro fallback');
+      modelUsed = 'gemini-3-pro';
+
+      const prompt = `Analyze this receipt and extract information in JSON format:
 {
   "amount": <total as number>,
   "merchant": "<store name>",
@@ -64,35 +176,45 @@ serve(async (req) => {
 }
 Return ONLY valid JSON.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-3-pro',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: prompt },
-              { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64Image}` } },
-            ],
-          },
-        ],
-      }),
-    });
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-3-pro',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64Image}` } },
+              ],
+            },
+          ],
+        }),
+      });
 
-    if (!response.ok) throw new Error(`AI API error: ${response.status}`);
+      if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
 
-    const aiData = await response.json();
-    const content = aiData.choices?.[0]?.message?.content;
-    const jsonMatch = content?.match(/\{[\s\S]*\}/);
-    
-    if (!jsonMatch) throw new Error('Could not parse receipt data');
+      const aiData = await response.json();
+      const content = aiData.choices?.[0]?.message?.content;
+      const jsonMatch = content?.match(/\{[\s\S]*\}/);
+      
+      if (!jsonMatch) throw new Error('Could not parse receipt data');
+      receiptData = JSON.parse(jsonMatch[0]);
+    }
 
-    const receiptData = JSON.parse(jsonMatch[0]);
+    if (!receiptData) {
+      throw new Error('Failed to extract data from receipt');
+    }
+
+    // Add metadata
+    receiptData.model_used = modelUsed;
+    receiptData.analyzed_at = new Date().toISOString();
+
+    console.log('[Receipt] Analysis complete:', { modelUsed, merchant: receiptData.merchant, amount: receiptData.amount });
 
     return new Response(JSON.stringify(receiptData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

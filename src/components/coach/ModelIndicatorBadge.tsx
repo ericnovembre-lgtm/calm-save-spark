@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Brain, Zap, Globe } from 'lucide-react';
+import { Brain, Zap, Globe, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ModelIndicatorBadgeProps {
@@ -18,7 +18,13 @@ const MODEL_CONFIG = {
   },
   'gemini-flash': {
     icon: Zap,
-    label: 'Gemini Flash',
+    label: 'Gemini 3 Pro',
+    color: 'from-cyan-500 to-blue-600',
+    description: 'Fast & efficient'
+  },
+  'gemini-3-pro': {
+    icon: Zap,
+    label: 'Gemini 3 Pro',
     color: 'from-cyan-500 to-blue-600',
     description: 'Fast & efficient'
   },
@@ -27,6 +33,12 @@ const MODEL_CONFIG = {
     label: 'Perplexity',
     color: 'from-green-500 to-emerald-600',
     description: 'Real-time data'
+  },
+  'gpt-5': {
+    icon: FileText,
+    label: 'GPT-5',
+    color: 'from-emerald-500 to-teal-600',
+    description: 'Document expert'
   }
 };
 
