@@ -149,14 +149,14 @@ Be thorough and accurate. Include all financial figures you can identify.`
         }
       } catch (gptError) {
         console.error('[Document] GPT-5 failed, falling back to Gemini:', gptError);
-        modelUsed = 'gemini-3-pro';
+        modelUsed = 'gemini-2.5-flash';
       }
     }
 
     // Fallback to Lovable AI (Gemini) if GPT-5 unavailable or failed
-    if (modelUsed === 'gemini-3-pro' || (!openaiApiKey && lovableApiKey)) {
-      console.log('[Document] Using Gemini 3 Pro');
-      modelUsed = 'gemini-3-pro';
+    if (modelUsed === 'gemini-2.5-flash' || (!openaiApiKey && lovableApiKey)) {
+      console.log('[Document] Using Gemini 2.5 Flash');
+      modelUsed = 'gemini-2.5-flash';
 
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',

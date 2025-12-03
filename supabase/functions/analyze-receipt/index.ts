@@ -154,14 +154,14 @@ Be precise with amounts. If text is unclear, provide best estimate with lower co
         }
       } catch (gptError) {
         console.error('[Receipt] GPT-5 failed, falling back to Gemini:', gptError);
-        modelUsed = 'gemini-3-pro';
+        modelUsed = 'gemini-2.5-flash';
       }
     }
 
     // Fallback to Lovable AI (Gemini) if GPT-5 unavailable or failed
     if (!receiptData && lovableApiKey) {
-      console.log('[Receipt] Using Gemini 3 Pro fallback');
-      modelUsed = 'gemini-3-pro';
+      console.log('[Receipt] Using Gemini 2.5 Flash fallback');
+      modelUsed = 'gemini-2.5-flash';
 
       const prompt = `Analyze this receipt and extract information in JSON format:
 {

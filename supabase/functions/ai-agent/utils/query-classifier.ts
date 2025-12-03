@@ -42,14 +42,27 @@ const COMPLEX_QUERY_KEYWORDS = [
 
 // Keywords indicating document analysis - routes to GPT-5
 const DOCUMENT_ANALYSIS_KEYWORDS = [
+  // Tax documents
   'tax document', 'w-2', 'w2', '1099', '1040', 'k-1', 'k1',
+  '1099-div', '1099-b', '1099-int', '1099-misc', '1099-nec', '1099-r',
+  'schedule c', 'schedule d', 'schedule e', 'schedule k-1',
+  'tax form', 'tax return', 'irs form',
+  // Financial statements
+  'bank statement', 'brokerage statement', 'investment statement',
+  'portfolio statement', 'account statement', 'financial statement',
+  // Investment documents
+  'capital gains', 'dividend', 'stock sale', 'securities',
+  'cost basis', 'realized gains', 'unrealized gains',
+  'trading statement', 'trade confirmation', 'annual report',
+  // Receipts and bills
   'receipt', 'invoice', 'bill', 'statement',
-  'scan', 'upload', 'document', 'form', 'kyc',
-  'analyze document', 'extract from', 'read this',
+  // Identity documents
   'identity document', 'passport', 'driver license', 'drivers license',
-  'bank statement', 'pay stub', 'paystub',
-  'uploaded file', 'attached document', 'this image',
-  'schedule c', 'schedule d', 'tax form'
+  'pay stub', 'paystub', 'kyc',
+  // General document actions
+  'scan', 'upload', 'document', 'form',
+  'analyze document', 'extract from', 'read this',
+  'uploaded file', 'attached document', 'this image'
 ];
 
 /**
