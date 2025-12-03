@@ -123,6 +123,8 @@ const SharedScenario = createPageLoader(() => import("./pages/SharedScenario"), 
 const GuardianPreview = createPageLoader(() => import("./pages/preview/GuardianPreview"), 'heavy');
 const SecuritySettingsPreview = createPageLoader(() => import("./pages/preview/SecuritySettingsPreview"), 'medium');
 const DashboardPreview = createPageLoader(() => import("./pages/preview/DashboardPreview"), 'heavy');
+const CoachPreview = createPageLoader(() => import("./pages/preview/CoachPreview"), 'heavy');
+const DigitalTwinPreview = createPageLoader(() => import("./pages/preview/DigitalTwinPreview"), 'heavy');
 
 const queryClient = new QueryClient(queryConfig);
 
@@ -240,6 +242,8 @@ function AnimatedRoutes() {
         <Route path="/preview/guardian" element={<PageTransition><GuardianPreview /></PageTransition>} />
         <Route path="/preview/security-settings" element={<PageTransition><SecuritySettingsPreview /></PageTransition>} />
         <Route path="/preview/dashboard" element={<PageTransition><DashboardPreview /></PageTransition>} />
+        <Route path="/preview/coach" element={<PageTransition><CoachPreview /></PageTransition>} />
+        <Route path="/preview/digital-twin" element={<PageTransition><DigitalTwinPreview /></PageTransition>} />
         <Route path="/features" element={<Navigate to="/features-hub" replace />} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
         <Route path="/welcome" element={<PageTransition><ConversationalWelcome /></PageTransition>} />
