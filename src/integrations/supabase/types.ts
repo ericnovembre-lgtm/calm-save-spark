@@ -7162,6 +7162,45 @@ export type Database = {
         }
         Relationships: []
       }
+      page_views: {
+        Row: {
+          created_at: string
+          device_type: string | null
+          id: string
+          query_params: Json | null
+          referrer: string | null
+          route: string
+          session_id: string | null
+          timestamp: string
+          title: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          query_params?: Json | null
+          referrer?: string | null
+          route: string
+          session_id?: string | null
+          timestamp?: string
+          title?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          query_params?: Json | null
+          referrer?: string | null
+          route?: string
+          session_id?: string | null
+          timestamp?: string
+          title?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       payment_accounts: {
         Row: {
           account_identifier: string
@@ -11783,6 +11822,7 @@ export type Database = {
       cleanup_old_analytics_events: { Args: never; Returns: undefined }
       cleanup_old_financial_health_history: { Args: never; Returns: undefined }
       cleanup_old_monitoring_data: { Args: never; Returns: undefined }
+      cleanup_old_page_views: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       cleanup_old_security_logs: { Args: never; Returns: undefined }
       compute_user_features: { Args: { sub_amount: number }; Returns: Json }
