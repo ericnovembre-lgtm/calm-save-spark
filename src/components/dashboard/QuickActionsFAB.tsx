@@ -15,7 +15,7 @@ interface QuickAction {
 
 /**
  * QuickActionsFAB - Floating action button for quick financial actions
- * Provides quick access to Transfer Money, Add Goal, and View Insights
+ * Provides quick access to Transfer Money, Add Goal, and View Analytics
  */
 export function QuickActionsFAB() {
   const [isOpen, setIsOpen] = useState(false);

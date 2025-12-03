@@ -54,7 +54,7 @@ describe('UnifiedFAB', () => {
       
       expect(await findByText('Transfer Money')).toBeInTheDocument();
       expect(await findByText('Add Goal')).toBeInTheDocument();
-      expect(await findByText('View Insights')).toBeInTheDocument();
+      expect(await findByText('View Analytics')).toBeInTheDocument();
       expect(await findByText('AI Coach')).toBeInTheDocument();
     });
 
@@ -86,7 +86,7 @@ describe('UnifiedFAB', () => {
       
       expect(await findByText('Transfer Money')).toBeInTheDocument();
       expect(await findByText('Add Goal')).toBeInTheDocument();
-      expect(await findByText('View Insights')).toBeInTheDocument();
+      expect(await findByText('View Analytics')).toBeInTheDocument();
       expect(await findByText('AI Coach')).toBeInTheDocument();
     });
 
@@ -129,7 +129,7 @@ describe('UnifiedFAB', () => {
       );
       
       await user.click(container.querySelector('button')!);
-      await user.click(await findByText('View Insights'));
+      await user.click(await findByText('View Analytics'));
       
       expect(mockNavigate).toHaveBeenCalledWith('/analytics');
     });

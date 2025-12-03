@@ -61,7 +61,7 @@ describe('QuickActionsFAB', () => {
       
       expect(await findByText('Transfer Money')).toBeInTheDocument();
       expect(await findByText('Add Goal')).toBeInTheDocument();
-      expect(await findByText('View Insights')).toBeInTheDocument();
+      expect(await findByText('View Analytics')).toBeInTheDocument();
     });
 
     it('should show backdrop when menu is open', async () => {
@@ -107,7 +107,7 @@ describe('QuickActionsFAB', () => {
       
       expect(await findByText('Transfer Money')).toBeInTheDocument();
       expect(await findByText('Add Goal')).toBeInTheDocument();
-      expect(await findByText('View Insights')).toBeInTheDocument();
+      expect(await findByText('View Analytics')).toBeInTheDocument();
     });
 
     it('should show correct icons for each action', async () => {
@@ -155,7 +155,7 @@ describe('QuickActionsFAB', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/goals');
     });
 
-    it('should navigate to insights page', async () => {
+    it('should navigate to analytics page', async () => {
       const user = userEvent.setup();
       const { container, findByText } = renderWithProviders(
         <BrowserRouter>
@@ -164,10 +164,10 @@ describe('QuickActionsFAB', () => {
       );
       
       await user.click(container.querySelector('button')!);
-      const insightsButton = await findByText('View Insights');
-      await user.click(insightsButton);
+      const analyticsButton = await findByText('View Analytics');
+      await user.click(analyticsButton);
       
-      expect(mockNavigate).toHaveBeenCalledWith('/insights');
+      expect(mockNavigate).toHaveBeenCalledWith('/analytics');
     });
 
     it('should close menu after navigation', async () => {
