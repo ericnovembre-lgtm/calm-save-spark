@@ -290,6 +290,14 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: '30-day financial forecast',
     });
 
+    // 16. Tax Documents Upload
+    priorities.push({
+      id: 'tax-documents',
+      score: 45,
+      size: 'normal',
+      urgencyReason: 'Upload and analyze tax documents with GPT-5',
+    });
+
     // Sort by score descending
     return priorities.sort((a, b) => b.score - a.score);
   }, [context]);
