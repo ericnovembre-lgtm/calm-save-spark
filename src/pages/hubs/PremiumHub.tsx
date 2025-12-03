@@ -34,7 +34,7 @@ const features = [
     icon: TrendingUp,
     title: "Investment Manager",
     description: "Advanced portfolio management",
-    path: "/investment-manager",
+    path: "/investments?tab=tax-optimization",
     color: "text-indigo-500"
   },
   {
@@ -46,9 +46,9 @@ const features = [
   },
   {
     icon: CalendarClock,
-    title: "Life Planner",
+    title: "Digital Twin",
     description: "Long-term financial planning",
-    path: "/life-planner",
+    path: "/digital-twin",
     color: "text-orange-500"
   },
   {

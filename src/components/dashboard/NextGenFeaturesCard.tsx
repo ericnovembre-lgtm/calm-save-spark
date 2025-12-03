@@ -24,7 +24,7 @@ const nextGenFeatures = [
     title: "Investment Manager",
     description: "Autonomous portfolio optimization",
     icon: BarChart3,
-    route: "/investment-manager",
+    route: "/investments?tab=tax-optimization",
     status: "beta" as const,
     color: "text-green-600"
   },
@@ -32,7 +32,7 @@ const nextGenFeatures = [
     title: "Life Planner",
     description: "Automated life milestone management",
     icon: MapPin,
-    route: "/life-planner",
+    route: "/digital-twin?tab=playbooks",
     status: "beta" as const,
     color: "text-blue-600"
   },

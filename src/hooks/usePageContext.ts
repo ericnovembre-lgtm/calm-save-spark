@@ -9,12 +9,14 @@ const routeTitles: Record<string, string> = {
   '/pots': 'Pots',
   '/transactions': 'Transactions',
   '/automation': 'Automation',
-  '/hubs/memory': 'Memory Hub',
+  '/digital-twin': 'Digital Twin',
   '/hubs/ai-insights': 'AI Insights',
   '/budget': 'Budget',
   '/cards': 'Cards',
   '/investments': 'Investments',
   '/settings': 'Settings',
+  '/analytics': 'Analytics',
+  '/business-os': 'Business OS',
 };
 
 export function usePageContext(additionalData?: any) {
