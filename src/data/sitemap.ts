@@ -59,6 +59,7 @@ export const SITEMAP_PAGES: SitemapPage[] = [
   { route: '/goals', title: 'Goals', description: 'Financial goals tracking', category: 'manage-money', icon: 'Target', protected: true },
   { route: '/financial-health', title: 'Financial Health', description: 'Overall financial wellness score', category: 'manage-money', icon: 'HeartPulse', protected: true },
   { route: '/tax-documents', title: 'Tax Documents', description: 'Tax-related documents and reports', category: 'manage-money', icon: 'FileText', protected: true },
+  { route: '/tax-analysis', title: 'Tax Document Analysis', description: 'AI-powered tax document analysis dashboard', category: 'manage-money', icon: 'BarChart3', protected: true },
 
   // =====================
   // GROW WEALTH (8)

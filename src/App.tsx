@@ -83,6 +83,7 @@ const Wallet = createPageLoader(() => import("./pages/Wallet"), 'medium');
 const WalletSettings = createPageLoader(() => import("./pages/WalletSettings"), 'medium');
 const Card = createPageLoader(() => import("./pages/Card"), 'medium');
 const TaxDocuments = createPageLoader(() => import("./pages/TaxDocuments"), 'medium');
+const TaxDocumentAnalysis = createPageLoader(() => import("./pages/TaxDocumentAnalysis"), 'medium');
 const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
 
 const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
@@ -326,6 +327,7 @@ function AnimatedRoutes() {
         <Route path="/gamification" element={<Navigate to="/achievements" replace />} />
         <Route path="/life-events" element={<Navigate to="/digital-twin?tab=playbooks" replace />} />
         <Route path="/tax-documents" element={<ProtectedRoute><PageTransition><TaxDocuments /></PageTransition></ProtectedRoute>} />
+        <Route path="/tax-analysis" element={<ProtectedRoute><PageTransition><TaxDocumentAnalysis /></PageTransition></ProtectedRoute>} />
         <Route path="/investment-manager" element={<Navigate to="/investments?tab=tax-optimization" replace />} />
         <Route path="/refinancing-hub" element={<ProtectedRoute><PageTransition><RefinancingHub /></PageTransition></ProtectedRoute>} />
         <Route path="/business-os" element={<ProtectedRoute><PageTransition><BusinessOS /></PageTransition></ProtectedRoute>} />
