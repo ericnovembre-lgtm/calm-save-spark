@@ -117,8 +117,8 @@ export function useCoachConversation(conversationId: string | null) {
           },
           body: JSON.stringify({
             message,
-            conversationId,
-            agentType: 'financial_coach'
+            conversation_id: conversationId,
+            agent_type: 'financial_coach'
           })
         }
       );
