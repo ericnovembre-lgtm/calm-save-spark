@@ -189,7 +189,7 @@ const sections: Section[] = [
         description: "Financial management for small businesses",
         details: "Track business expenses, manage invoices, separate personal and business finances, and prepare for tax season.",
         status: "available",
-        route: "/business"
+        route: "/business-os"
       },
       {
         id: "sustainability",
@@ -290,7 +290,7 @@ const sections: Section[] = [
         description: "24/7 portfolio optimization and tax-loss harvesting",
         details: "Executes your investment mandate with continuous tax-loss harvesting and automatic rebalancing based on goals defined in your Digital Twin. Maximizes returns while minimizing tax burden.",
         status: "beta",
-        route: "/investment-manager"
+        route: "/investments?tab=tax-optimization"
       },
       {
         id: "liability-agent",
@@ -335,7 +335,7 @@ const sections: Section[] = [
         description: "Automated playbooks for major life milestones",
         details: "End-to-end automation of financial, administrative, and legal tasks for marriage, home purchase, or having a child. Handles everything from updating beneficiaries to opening 529 plans.",
         status: "beta",
-        route: "/life-planner"
+        route: "/digital-twin?tab=playbooks"
       },
       {
         id: "business-of-one",

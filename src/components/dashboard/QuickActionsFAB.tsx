@@ -42,9 +42,9 @@ export function QuickActionsFAB() {
       color: 'bg-accent text-accent-foreground',
     },
     {
-      label: 'View Insights',
+      label: 'View Analytics',
       icon: <TrendingUp className="w-5 h-5" />,
-      path: '/insights',
+      path: '/analytics',
       color: 'bg-secondary text-secondary-foreground',
     },
   ];
