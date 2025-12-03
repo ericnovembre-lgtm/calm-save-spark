@@ -130,7 +130,7 @@ export const SITEMAP_PAGES: SitemapPage[] = [
   { route: '/sitemap', title: 'Sitemap', description: 'Navigation sitemap', category: 'utility', icon: 'Map', protected: true, adminOnly: true },
 ];
 
-// Redirects (11 total)
+// Redirects (13 total)
 export const SITEMAP_REDIRECTS: Array<{ from: string; to: string; reason: string }> = [
   { from: '/security', to: '/guardian', reason: 'Consolidated into Guardian Security Center' },
   { from: '/agent-hub', to: '/ai-agents', reason: 'Merged autonomous delegations into AI Agents' },
