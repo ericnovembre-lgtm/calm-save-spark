@@ -26,7 +26,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-pro',
         messages: [{
           role: 'user',
           content: `Analyze this tax document. Extract: document_type (w2/1099/receipt), tax_year, payer_name, amounts, deduction_categories. Return JSON. URL: ${documentUrl}`

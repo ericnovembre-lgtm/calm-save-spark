@@ -467,7 +467,7 @@ ${UI_TOOLS.map(t => `- ${t.function.name}: ${t.function.description}`).join('\n'
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-pro',
         messages: [
           { role: 'system', content: systemPrompt },
           ...conversationHistory,

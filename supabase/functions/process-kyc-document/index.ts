@@ -27,7 +27,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-pro',
         messages: [{
           role: 'user',
           content: `Analyze this KYC document and extract: document_type, name, date_of_birth, address, document_number. Return as JSON. Document URL: ${documentUrl}`

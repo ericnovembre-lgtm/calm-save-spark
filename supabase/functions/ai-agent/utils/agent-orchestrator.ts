@@ -63,7 +63,7 @@ export async function consultAgent(
         'Authorization': `Bearer ${lovableApiKey}`,
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-pro',
         messages: [
           {
             role: 'system',
