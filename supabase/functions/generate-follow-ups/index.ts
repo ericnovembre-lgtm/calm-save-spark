@@ -45,7 +45,7 @@ Return ONLY a JSON array of strings, no explanation:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: 'You generate natural follow-up questions for transaction searches. Return only JSON array.' },
           { role: 'user', content: prompt }

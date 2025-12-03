@@ -60,7 +60,7 @@ Focus on what this means for their life, not just numbers. Be inspiring if they'
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'system',

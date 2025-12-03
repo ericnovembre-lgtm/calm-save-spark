@@ -49,7 +49,7 @@ Provide strategic, empathetic debt management guidance. Focus on actionable step
     enhancedPrompt, 
     history, 
     message,
-    'google/gemini-3-pro',
+    'google/gemini-2.5-flash',
     UI_TOOLS
   );
 

@@ -51,7 +51,7 @@ Return ONLY valid JSON: { "provider": "", "amount": 0, "category": "", "bloat_it
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-3-pro',
+          model: 'google/gemini-2.5-flash',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: 'Generate a realistic bill negotiation scenario for a random provider with bloat fees and leverage points.' },
@@ -120,7 +120,7 @@ Return JSON only: { "provider": "", "amount": 0, "bloat_items": [], "contract_en
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { 

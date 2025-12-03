@@ -77,7 +77,7 @@ Return ONLY a JSON array with this exact structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: 'You are a financial advisor specializing in goal-setting. Return only valid JSON arrays.' },
           { role: 'user', content: prompt }
