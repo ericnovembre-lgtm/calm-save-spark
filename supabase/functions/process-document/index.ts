@@ -6,10 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// GPT-5 for document analysis
+const GPT5_MODEL = 'gpt-5-2025-08-07';
+
 async function processDocument(
   supabase: any,
   documentId: string,
   userId: string,
+  openaiApiKey: string | undefined,
   lovableApiKey: string
 ) {
   // Get document details
@@ -47,57 +51,166 @@ async function processDocument(
       new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
     );
 
-    // Use Gemini Vision for document understanding
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${lovableApiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: `Analyze this financial document. Extract all relevant information and return structured data. 
-                Include: document type, key figures, dates, parties involved, and any other relevant details.
-                Format as JSON with clear field names.`
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:${doc.file_type};base64,${base64}`
+    let extractedText = '';
+    let structuredData: Record<string, any> = {};
+    let modelUsed = 'gpt-5';
+
+    // Try GPT-5 first for superior document analysis
+    if (openaiApiKey) {
+      console.log('[Document] Using GPT-5 for analysis');
+      
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${openaiApiKey}`,
+          },
+          body: JSON.stringify({
+            model: GPT5_MODEL,
+            messages: [{
+              role: 'system',
+              content: `You are an expert financial document analyst. Extract all relevant information from documents and return structured JSON data.
+
+For any financial document, extract:
+- document_type (tax form, bank statement, invoice, receipt, etc.)
+- key_figures (object with all numeric values found)
+- dates (array of relevant dates)
+- parties (object with names of involved parties)
+- summary (brief description of the document)
+- confidence (0-1 score)
+- relevant_details (any other important information)
+
+Be thorough and accurate. Include all financial figures you can identify.`
+            }, {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: `Analyze this financial document and extract all relevant information. File name: ${doc.file_name}`
+                },
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: `data:${doc.file_type};base64,${base64}`
+                  }
+                }
+              ]
+            }],
+            max_completion_tokens: 4000,
+            tools: [{
+              type: 'function',
+              function: {
+                name: 'extract_document_data',
+                description: 'Extract structured data from financial document',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    document_type: { type: 'string' },
+                    key_figures: { type: 'object', additionalProperties: { type: 'number' } },
+                    dates: { type: 'array', items: { type: 'string' } },
+                    parties: { type: 'object', additionalProperties: { type: 'string' } },
+                    summary: { type: 'string' },
+                    confidence: { type: 'number' },
+                    relevant_details: { type: 'object' }
+                  },
+                  required: ['document_type', 'summary', 'confidence']
                 }
               }
-            ]
+            }],
+            tool_choice: { type: 'function', function: { name: 'extract_document_data' } }
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[Document] GPT-5 error:', response.status, errorText);
+          throw new Error(`GPT-5 API error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const toolCall = result.choices?.[0]?.message?.tool_calls?.[0];
+        
+        if (toolCall && toolCall.function.arguments) {
+          structuredData = JSON.parse(toolCall.function.arguments);
+          extractedText = structuredData.summary || '';
+        } else {
+          extractedText = result.choices?.[0]?.message?.content || '';
+          const jsonMatch = extractedText.match(/```json\n([\s\S]*?)\n```/);
+          if (jsonMatch) {
+            structuredData = JSON.parse(jsonMatch[1]);
+          } else {
+            try {
+              structuredData = JSON.parse(extractedText);
+            } catch {
+              structuredData = { extractedText, confidence: 0.6 };
+            }
           }
-        ],
-        max_completion_tokens: 2000
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Document analysis failed');
-    }
-
-    const result = await response.json();
-    const extractedText = result.choices[0].message.content;
-
-    // Try to parse structured data from response
-    let structuredData: Record<string, any> = {};
-    try {
-      const jsonMatch = extractedText.match(/```json\n([\s\S]*?)\n```/);
-      if (jsonMatch) {
-        structuredData = JSON.parse(jsonMatch[1]);
-      } else {
-        structuredData = JSON.parse(extractedText);
+        }
+      } catch (gptError) {
+        console.error('[Document] GPT-5 failed, falling back to Gemini:', gptError);
+        modelUsed = 'gemini-3-pro';
       }
-    } catch {
-      structuredData = { extractedText };
     }
+
+    // Fallback to Lovable AI (Gemini) if GPT-5 unavailable or failed
+    if (modelUsed === 'gemini-3-pro' || (!openaiApiKey && lovableApiKey)) {
+      console.log('[Document] Using Gemini 3 Pro');
+      modelUsed = 'gemini-3-pro';
+
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${lovableApiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-3-pro',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: `Analyze this financial document. Extract all relevant information and return structured data. 
+Include: document type, key figures, dates, parties involved, and any other relevant details.
+Format as JSON with clear field names.`
+                },
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: `data:${doc.file_type};base64,${base64}`
+                  }
+                }
+              ]
+            }
+          ],
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Document analysis failed');
+      }
+
+      const result = await response.json();
+      extractedText = result.choices?.[0]?.message?.content || '';
+
+      // Try to parse structured data from response
+      try {
+        const jsonMatch = extractedText.match(/```json\n([\s\S]*?)\n```/);
+        if (jsonMatch) {
+          structuredData = JSON.parse(jsonMatch[1]);
+        } else {
+          structuredData = JSON.parse(extractedText);
+        }
+      } catch {
+        structuredData = { extractedText, confidence: 0.5 };
+      }
+    }
+
+    // Add metadata
+    structuredData.model_used = modelUsed;
+    structuredData.analyzed_at = new Date().toISOString();
 
     // Update document with results
     await supabase
@@ -109,13 +222,16 @@ async function processDocument(
       })
       .eq('id', documentId);
 
+    console.log('[Document] Processing complete:', { documentId, modelUsed });
+
     return {
       id: doc.id,
       fileName: doc.file_name,
       fileType: doc.file_type,
       extractedText,
       structuredData,
-      analysisStatus: 'completed'
+      analysisStatus: 'completed',
+      modelUsed
     };
 
   } catch (error) {
@@ -138,6 +254,7 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -161,7 +278,7 @@ serve(async (req) => {
     }
 
     // Process the document
-    const result = await processDocument(supabase, documentId, user.id, lovableApiKey);
+    const result = await processDocument(supabase, documentId, user.id, openaiApiKey, lovableApiKey);
 
     return new Response(
       JSON.stringify({ success: true, document: result }),

@@ -3,8 +3,8 @@
  * Determines the optimal AI model based on query complexity and type
  */
 
-export type QueryType = 'simple' | 'complex' | 'market_data' | 'analytical';
-export type ModelRoute = 'gemini-flash' | 'claude-sonnet' | 'perplexity';
+export type QueryType = 'simple' | 'complex' | 'market_data' | 'analytical' | 'document_analysis';
+export type ModelRoute = 'gemini-flash' | 'claude-sonnet' | 'perplexity' | 'gpt-5';
 
 export interface ClassificationResult {
   type: QueryType;
@@ -40,17 +40,45 @@ const COMPLEX_QUERY_KEYWORDS = [
   'investment strategy', 'financial plan'
 ];
 
+// Keywords indicating document analysis - routes to GPT-5
+const DOCUMENT_ANALYSIS_KEYWORDS = [
+  'tax document', 'w-2', 'w2', '1099', '1040', 'k-1', 'k1',
+  'receipt', 'invoice', 'bill', 'statement',
+  'scan', 'upload', 'document', 'form', 'kyc',
+  'analyze document', 'extract from', 'read this',
+  'identity document', 'passport', 'driver license', 'drivers license',
+  'bank statement', 'pay stub', 'paystub',
+  'uploaded file', 'attached document', 'this image',
+  'schedule c', 'schedule d', 'tax form'
+];
+
 /**
  * Classify a user query to determine the optimal model
  */
 export function classifyQuery(
   query: string,
-  conversationHistory: Array<{ role: string; content: string }> = []
+  conversationHistory: Array<{ role: string; content: string }> = [],
+  hasAttachment: boolean = false
 ): ClassificationResult {
   const lowerQuery = query.toLowerCase();
   const wordCount = query.split(/\s+/).length;
   
-  // Check for market data queries first (highest priority)
+  // Check for document analysis first (highest priority when documents are involved)
+  const hasDocumentKeywords = DOCUMENT_ANALYSIS_KEYWORDS.some(keyword => 
+    lowerQuery.includes(keyword)
+  );
+  
+  if (hasDocumentKeywords || hasAttachment) {
+    return {
+      type: 'document_analysis',
+      model: 'gpt-5',
+      confidence: 0.95,
+      reasoning: 'Query involves document analysis requiring GPT-5 vision capabilities',
+      estimatedCost: 0.40 // GPT-5 cost per document
+    };
+  }
+  
+  // Check for market data queries
   const hasMarketKeywords = MARKET_DATA_KEYWORDS.some(keyword => 
     lowerQuery.includes(keyword)
   );
@@ -139,7 +167,7 @@ export function applyClassificationOverrides(
   }
   
   // Downgrade to Gemini if user is on free tier and query isn't critical
-  if (options.userTier === 'free' && classification.type !== 'market_data') {
+  if (options.userTier === 'free' && classification.type !== 'market_data' && classification.type !== 'document_analysis') {
     return {
       ...classification,
       model: 'gemini-flash',
@@ -154,6 +182,16 @@ export function applyClassificationOverrides(
         ...classification,
         model: 'gemini-flash',
         reasoning: 'Fallback to Gemini due to Claude availability issues'
+      };
+    }
+  }
+  
+  if (options.previousErrors?.some(err => err.includes('openai') || err.includes('gpt'))) {
+    if (classification.model === 'gpt-5') {
+      return {
+        ...classification,
+        model: 'gemini-flash',
+        reasoning: 'Fallback to Gemini due to GPT-5 availability issues'
       };
     }
   }
