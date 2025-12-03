@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useSeedTestData } from '@/hooks/useSeedTestData';
 import { toast } from 'sonner';
+import { useUserSessions } from '@/hooks/useUserSessions';
+import { useConnectedIntegrations } from '@/hooks/useConnectedIntegrations';
 
 // Scanline background effect
 function ScanlineOverlay() {
@@ -173,9 +175,18 @@ function calculateSecurityScore(settings: {
 export default function GuardianSecurityCenter() {
   const prefersReducedMotion = useReducedMotion();
   const { securitySettings } = useSettingsStore();
-  const [activeSessionCount] = useState(3);
-  const [connectedAppsCount] = useState(4);
+  const { data: sessions = [] } = useUserSessions();
+  const { data: integrations = [] } = useConnectedIntegrations();
   const seedTestData = useSeedTestData();
+
+  // Calculate dynamic counts
+  const activeSessionCount = sessions.length;
+  const connectedAppsCount = integrations.length;
+  
+  // Calculate apps requiring review (medium or high risk)
+  const appsRequiringReview = integrations.filter(
+    app => app.riskLevel === 'medium' || app.riskLevel === 'high'
+  ).length;
 
   const handleSeedData = async () => {
     try {
@@ -323,13 +334,27 @@ export default function GuardianSecurityCenter() {
                     <p className="text-2xl font-mono font-bold text-white">{connectedAppsCount}</p>
                     <p className="text-xs text-white/40">Third-party integrations</p>
                   </div>
-                  <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <AlertTriangle className="w-5 h-5 text-amber-400" />
+                  <div className={`p-3 rounded-lg ${appsRequiringReview > 0 ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-emerald-500/10 border border-emerald-500/20'}`}>
+                    {appsRequiringReview > 0 ? (
+                      <AlertTriangle className="w-5 h-5 text-amber-400" />
+                    ) : (
+                      <Lock className="w-5 h-5 text-emerald-400" />
+                    )}
                   </div>
                 </div>
-                <p className="text-xs text-amber-400/80 mt-3 font-mono">
-                  2 apps require permission review
-                </p>
+                {appsRequiringReview > 0 ? (
+                  <p className="text-xs text-amber-400/80 mt-3 font-mono">
+                    {appsRequiringReview} app{appsRequiringReview !== 1 ? 's' : ''} require permission review
+                  </p>
+                ) : connectedAppsCount > 0 ? (
+                  <p className="text-xs text-emerald-400/80 mt-3 font-mono">
+                    All apps have appropriate permissions
+                  </p>
+                ) : (
+                  <p className="text-xs text-white/40 mt-3 font-mono">
+                    No third-party apps connected
+                  </p>
+                )}
               </Card>
             </motion.div>
 
