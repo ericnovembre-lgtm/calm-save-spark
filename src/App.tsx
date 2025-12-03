@@ -314,7 +314,7 @@ function AnimatedRoutes() {
         {/* Next-Gen Features */}
         <Route path="/digital-twin" element={<ProtectedRoute><PageTransition><DigitalTwin /></PageTransition></ProtectedRoute>} />
         <Route path="/agent-hub" element={<ProtectedRoute><PageTransition><AgentHub /></PageTransition></ProtectedRoute>} />
-        <Route path="/ai-model-analytics" element={<ProtectedRoute><PageTransition><AIModelAnalytics /></PageTransition></ProtectedRoute>} />
+        <Route path="/ai-model-analytics" element={<ProtectedRoute><AdminRoute><PageTransition><AIModelAnalytics /></PageTransition></AdminRoute></ProtectedRoute>} />
         <Route path="/guardian" element={<ProtectedRoute><PageTransition><GuardianSecurityCenter /></PageTransition></ProtectedRoute>} />
         <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />
         <Route path="/lifesim" element={<ProtectedRoute><PageTransition><LifeSim /></PageTransition></ProtectedRoute>} />
