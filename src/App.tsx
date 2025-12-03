@@ -119,6 +119,9 @@ const CorporateWellness = createPageLoader(() => import("./pages/CorporateWellne
 const CardApply = createPageLoader(() => import("./pages/CardApply"), 'light');
 const SharedScenario = createPageLoader(() => import("./pages/SharedScenario"), 'light');
 
+// Preview routes for visual debugging (development only)
+const GuardianPreview = createPageLoader(() => import("./pages/preview/GuardianPreview"), 'heavy');
+
 const queryClient = new QueryClient(queryConfig);
 
 // Performance monitoring with per-page tracking
@@ -230,6 +233,9 @@ function AnimatedRoutes() {
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/shared/:token" element={<PageTransition><SharedScenario /></PageTransition>} />
         <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
+        
+        {/* Preview routes for visual debugging - NO authentication required */}
+        <Route path="/preview/guardian" element={<PageTransition><GuardianPreview /></PageTransition>} />
         <Route path="/features" element={<Navigate to="/features-hub" replace />} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
         <Route path="/welcome" element={<PageTransition><ConversationalWelcome /></PageTransition>} />
