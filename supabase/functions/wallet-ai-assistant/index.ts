@@ -54,7 +54,7 @@ For SWAP: Extract amount, fromToken, toToken.`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-3-pro',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: `Input: "${input}"\nContacts: ${JSON.stringify(contacts || [])}` }
@@ -122,7 +122,7 @@ Return JSON: { "isValid": bool, "type": string, "label": string, "warning": stri
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-3-pro',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: `Analyze address: ${address}` }
@@ -180,7 +180,7 @@ Return format: { "fee": "~$X.XX", "tip": "your witty message" }`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-3-pro',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: `Generate witty gas advice for ${gasGwei} gwei` }
@@ -257,7 +257,7 @@ Provide:
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-3-pro',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: 'Analyze this portfolio' }
@@ -327,7 +327,7 @@ Be fun and engaging - use crypto slang like "diamond hands", "floor", "HODL"`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-3-pro',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: 'Generate NFT sentiment analysis' }
