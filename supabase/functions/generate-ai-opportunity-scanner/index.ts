@@ -257,9 +257,22 @@ Generate 3-4 actions NOW (return ONLY valid JSON):`;
     
     let parsedResponse;
     try {
-      parsedResponse = JSON.parse(responseText);
+      // Strip markdown code blocks if present
+      let cleanJson = responseText.trim();
+      if (cleanJson.startsWith('```json')) {
+        cleanJson = cleanJson.slice(7);
+      } else if (cleanJson.startsWith('```')) {
+        cleanJson = cleanJson.slice(3);
+      }
+      if (cleanJson.endsWith('```')) {
+        cleanJson = cleanJson.slice(0, -3);
+      }
+      cleanJson = cleanJson.trim();
+      
+      parsedResponse = JSON.parse(cleanJson);
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
+      console.error('Raw response:', responseText);
       throw new Error('AI returned invalid JSON');
     }
 
