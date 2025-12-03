@@ -68,7 +68,7 @@ All routes organized by hub:
 - `/investment-manager` → `/investments?tab=tax-optimization`
 - `/business` → `/business-os`
 
-### Deleted Pages (14 total)
+### Deleted Pages (9 total)
 - `BehavioralGuardian.tsx`, `Security.tsx`, `AgentHub.tsx`, `Insights.tsx`
 - `DigitalTwinAnalytics.tsx`, `LifePlanner.tsx`, `MemoryHub.tsx`
 - `InvestmentManager.tsx`, `Business.tsx`

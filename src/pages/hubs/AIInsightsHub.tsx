@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { Bot, Brain, Lightbulb, BarChart3, Users, Shield, Sparkles } from "lucide-react";
+import { Bot, Brain, Lightbulb, Shield, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -27,25 +27,11 @@ const features = [
     color: "text-pink-500"
   },
   {
-    icon: Users,
-    title: "AI Agents",
-    description: "Chat & autonomous agents",
-    path: "/ai-agents",
-    color: "text-indigo-500"
-  },
-  {
     icon: Lightbulb,
     title: "Analytics & Insights",
     description: "Financial insights and forecasting",
     path: "/analytics",
     color: "text-yellow-500"
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics",
-    description: "Advanced financial analytics",
-    path: "/analytics",
-    color: "text-green-500"
   },
   {
     icon: Shield,
