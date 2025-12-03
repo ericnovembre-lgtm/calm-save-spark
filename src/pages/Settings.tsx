@@ -18,7 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
-import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain } from 'lucide-react';
+import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
 import { SoundSettings } from '@/components/settings/SoundSettings';
 import { PerformanceDashboard } from '@/components/settings/PerformanceDashboard';
@@ -108,6 +109,22 @@ export default function Settings() {
             <TwoFactorAuth />
             <Separator />
             <BiometricSetup />
+            <Separator />
+            <Link 
+              to="/security-settings" 
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <Shield className="h-5 w-5 text-cyan-500" />
+                <div>
+                  <p className="font-medium">Security Notifications & Guardian</p>
+                  <p className="text-sm text-muted-foreground">
+                    Configure security alerts, view active sessions, and access emergency controls
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
           </CardContent>
         </Card>
 
