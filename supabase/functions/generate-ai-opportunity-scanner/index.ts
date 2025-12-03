@@ -239,8 +239,8 @@ Generate 3-4 actions NOW (return ONLY valid JSON):`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_completion_tokens: 800,
-        response_format: { type: "json_object" }
+        max_tokens: 800,
+        temperature: 0.7
       }),
     });
 
