@@ -46,20 +46,31 @@ All routes organized by hub:
 - Consistent mobile/desktop experience
 - ~68 pages accessible and discoverable
 
-## Page Consolidation
+## Page Consolidation (Complete)
 
 ### Completed Merges
-- `/security` → `/guardian` (Security Command Center merged into Guardian Security Center)
-- `/agent-hub` → `/ai-agents` (Autonomous Agent Hub merged into AI Agents)
-- `/insights` → `/analytics` (Insights merged into Analytics with tabs)
+- `/security` → `/guardian` (merged into Guardian Security Center)
+- `/agent-hub` → `/ai-agents` (merged as Delegations tab)
+- `/insights` → `/analytics` (merged as Cash Flow, Behavioral, What-If tabs)
+- `/digital-twin/analytics` → `/digital-twin` (merged as Analytics panel)
+- `/life-planner` → `/digital-twin` (merged as Life Planner panel)
+- `/hubs/memory` → `/digital-twin` (uses Memory Explorer panel)
+- `/investment-manager` → `/investments` (merged as Tax Optimization, Rebalancing tabs)
+- `/business` → `/business-os` (merged as Expenses, Vendors, Invoices tabs)
 
 ### Redirects Active
 - `/security` → `/guardian`
 - `/agent-hub` → `/ai-agents`
 - `/insights` → `/analytics?tab=cashflow`
+- `/digital-twin/analytics` → `/digital-twin?tab=analytics`
+- `/life-planner` → `/digital-twin?tab=playbooks`
+- `/hubs/memory` → `/digital-twin?panel=memory`
+- `/investment-manager` → `/investments?tab=tax-optimization`
+- `/business` → `/business-os`
 
-### Deleted Pages
-- `BehavioralGuardian.tsx` (orphaned, not routed)
-- `Security.tsx` (merged into Guardian)
-- `AgentHub.tsx` (merged into AIAgents)
-- `Insights.tsx` (merged into Analytics)
+### Deleted Pages (14 total)
+- `BehavioralGuardian.tsx`, `Security.tsx`, `AgentHub.tsx`, `Insights.tsx`
+- `DigitalTwinAnalytics.tsx`, `LifePlanner.tsx`, `MemoryHub.tsx`
+- `InvestmentManager.tsx`, `Business.tsx`
+
+### Page Count: 76 → 62 pages

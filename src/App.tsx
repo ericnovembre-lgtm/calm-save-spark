@@ -44,11 +44,11 @@ const Goals = createPageLoader(() => import("./pages/Goals"), 'heavy');
 const Pricing = createPageLoader(() => import("./pages/Pricing"), 'heavy');
 const Coach = createPageLoader(() => import("./pages/Coach"), 'heavy');
 const DigitalTwin = createPageLoader(() => import("./pages/DigitalTwin"), 'heavy');
-const DigitalTwinAnalytics = createPageLoader(() => import("./pages/DigitalTwinAnalytics"), 'heavy');
+// DigitalTwinAnalytics.tsx, LifePlanner.tsx, MemoryHub.tsx merged into DigitalTwin.tsx
 const LifeSim = createPageLoader(() => import("./pages/LifeSim"), 'heavy');
-const LifePlanner = createPageLoader(() => import("./pages/LifePlanner"), 'heavy');
-const InvestmentManager = createPageLoader(() => import("./pages/InvestmentManager"), 'heavy');
+// InvestmentManager.tsx merged into Investments.tsx
 const DeFiManager = createPageLoader(() => import("./pages/DeFiManager"), 'heavy');
+// Business.tsx merged into BusinessOS.tsx
 const BusinessOS = createPageLoader(() => import("./pages/BusinessOS"), 'heavy');
 const FamilyOffice = createPageLoader(() => import("./pages/FamilyOffice"), 'heavy');
 const Admin = createPageLoader(() => import("./pages/Admin"), 'heavy');
@@ -71,7 +71,7 @@ const Achievements = createPageLoader(() => import("./pages/Achievements"), 'med
 const BillNegotiation = createPageLoader(() => import("./pages/BillNegotiation"), 'medium');
 const Family = createPageLoader(() => import("./pages/Family"), 'medium');
 const Student = createPageLoader(() => import("./pages/Student"), 'medium');
-const Business = createPageLoader(() => import("./pages/Business"), 'medium');
+// Business.tsx merged into BusinessOS.tsx
 const WhiteLabel = createPageLoader(() => import("./pages/WhiteLabel"), 'medium');
 const FinancialLiteracy = createPageLoader(() => import("./pages/FinancialLiteracy"), 'medium');
 const Sustainability = createPageLoader(() => import("./pages/Sustainability"), 'medium');
@@ -96,7 +96,7 @@ const PremiumHub = createPageLoader(() => import("./pages/hubs/PremiumHub"), 'me
 const FeaturesHub = createPageLoader(() => import("./pages/FeaturesHub"), 'medium');
 // AgentHub.tsx merged into AIAgents.tsx
 const RefinancingHub = createPageLoader(() => import("./pages/RefinancingHub"), 'medium');
-const MemoryHub = createPageLoader(() => import("./pages/MemoryHub"), 'medium');
+// MemoryHub.tsx merged into DigitalTwin.tsx
 
 // LIGHT PAGES - Auth, static content, simple UI
 const Landing = createPageLoader(() => import("./pages/Landing"), 'light');
@@ -283,7 +283,7 @@ function AnimatedRoutes() {
         <Route path="/bill-negotiation" element={<ProtectedRoute><PageTransition><BillNegotiation /></PageTransition></ProtectedRoute>} />
         <Route path="/family" element={<ProtectedRoute><PageTransition><Family /></PageTransition></ProtectedRoute>} />
         <Route path="/student" element={<ProtectedRoute><PageTransition><Student /></PageTransition></ProtectedRoute>} />
-        <Route path="/business" element={<ProtectedRoute><PageTransition><Business /></PageTransition></ProtectedRoute>} />
+        <Route path="/business" element={<Navigate to="/business-os" replace />} />
         <Route path="/whitelabel" element={<ProtectedRoute><PageTransition><WhiteLabel /></PageTransition></ProtectedRoute>} />
         <Route path="/literacy" element={<ProtectedRoute><PageTransition><FinancialLiteracy /></PageTransition></ProtectedRoute>} />
         <Route path="/sustainability" element={<ProtectedRoute><PageTransition><Sustainability /></PageTransition></ProtectedRoute>} />
@@ -306,10 +306,10 @@ function AnimatedRoutes() {
         <Route path="/hubs/manage-money" element={<ProtectedRoute><PageTransition><ManageMoneyHub /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/grow-wealth" element={<ProtectedRoute><PageTransition><GrowWealthHub /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/ai-insights" element={<ProtectedRoute><PageTransition><AIInsightsHub /></PageTransition></ProtectedRoute>} />
-        <Route path="/digital-twin/analytics" element={<ProtectedRoute><PageTransition><DigitalTwinAnalytics /></PageTransition></ProtectedRoute>} />
+        <Route path="/digital-twin/analytics" element={<Navigate to="/digital-twin?tab=analytics" replace />} />
         <Route path="/hubs/lifestyle" element={<ProtectedRoute><PageTransition><LifestyleHub /></PageTransition></ProtectedRoute>} />
         <Route path="/hubs/premium" element={<ProtectedRoute><PageTransition><PremiumHub /></PageTransition></ProtectedRoute>} />
-        <Route path="/hubs/memory" element={<ProtectedRoute><PageTransition><MemoryHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/hubs/memory" element={<Navigate to="/digital-twin?panel=memory" replace />} />
         
         {/* Next-Gen Features */}
         <Route path="/digital-twin" element={<ProtectedRoute><PageTransition><DigitalTwin /></PageTransition></ProtectedRoute>} />
@@ -318,11 +318,11 @@ function AnimatedRoutes() {
         <Route path="/guardian" element={<ProtectedRoute><PageTransition><GuardianSecurityCenter /></PageTransition></ProtectedRoute>} />
         <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />
         <Route path="/lifesim" element={<ProtectedRoute><PageTransition><LifeSim /></PageTransition></ProtectedRoute>} />
-        <Route path="/life-planner" element={<ProtectedRoute><PageTransition><LifePlanner /></PageTransition></ProtectedRoute>} />
+        <Route path="/life-planner" element={<Navigate to="/digital-twin?tab=playbooks" replace />} />
         <Route path="/gamification" element={<Navigate to="/achievements" replace />} />
-        <Route path="/life-events" element={<Navigate to="/life-planner" replace />} />
+        <Route path="/life-events" element={<Navigate to="/digital-twin?tab=playbooks" replace />} />
         <Route path="/tax-documents" element={<ProtectedRoute><PageTransition><TaxDocuments /></PageTransition></ProtectedRoute>} />
-        <Route path="/investment-manager" element={<ProtectedRoute><PageTransition><InvestmentManager /></PageTransition></ProtectedRoute>} />
+        <Route path="/investment-manager" element={<Navigate to="/investments?tab=tax-optimization" replace />} />
         <Route path="/refinancing-hub" element={<ProtectedRoute><PageTransition><RefinancingHub /></PageTransition></ProtectedRoute>} />
         <Route path="/business-os" element={<ProtectedRoute><PageTransition><BusinessOS /></PageTransition></ProtectedRoute>} />
         <Route path="/defi-manager" element={<ProtectedRoute><PageTransition><DeFiManager /></PageTransition></ProtectedRoute>} />

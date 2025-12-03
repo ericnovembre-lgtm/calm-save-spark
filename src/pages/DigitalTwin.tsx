@@ -17,7 +17,7 @@ import { ProfileRequiredPrompt } from "@/components/digital-twin/ProfileRequired
 import { DigitalTwinMinimap, DESKTOP_SECTIONS } from "@/components/digital-twin/DigitalTwinMinimap";
 import { useVisibleSection } from "@/hooks/useVisibleSection";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen, Brain, MoreVertical, LineChart } from "lucide-react";
+import { Sparkles, RotateCcw, Loader2, BarChart3, GitBranch, FileDown, Share2, Play, FolderOpen, Brain, MoreVertical, LineChart, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -41,6 +41,9 @@ import { toast } from "sonner";
 import { digitalTwinSounds } from "@/lib/digital-twin-sounds";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { TwinChatPanel } from "@/components/digital-twin/TwinChatPanel";
+import { DigitalTwinAnalyticsDashboard } from "@/components/digital-twin/DigitalTwinAnalyticsDashboard";
+import { LifePlannerPanel } from "@/components/digital-twin/LifePlannerPanel";
+import { useSearchParams } from "react-router-dom";
 import "@/styles/digital-twin-theme.css";
 
 export default function DigitalTwin() {
@@ -68,6 +71,18 @@ export default function DigitalTwin() {
   const [showSavedPanel, setShowSavedPanel] = useState(false);
   const [showMemoryExplorer, setShowMemoryExplorer] = useState(false);
   const [showEnhancedComparison, setShowEnhancedComparison] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showLifePlanner, setShowLifePlanner] = useState(false);
+  
+  // Handle URL params for tab/panel switching (from redirects)
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const panel = searchParams.get('panel');
+    if (tab === 'analytics') setShowAnalytics(true);
+    if (tab === 'playbooks') setShowLifePlanner(true);
+    if (panel === 'memory') setShowMemoryExplorer(true);
+  }, [searchParams]);
 
   const {
     injectedEvents,
@@ -427,7 +442,11 @@ export default function DigitalTwin() {
                 Export PDF
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem onClick={() => navigate('/digital-twin/analytics')} className="gap-2 text-white/80 hover:text-white">
+              <DropdownMenuItem onClick={() => setShowLifePlanner(true)} className="gap-2 text-white/80 hover:text-white">
+                <Calendar className="w-4 h-4" />
+                Life Planner
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowAnalytics(true)} className="gap-2 text-white/80 hover:text-white">
                 <LineChart className="w-4 h-4" />
                 Analytics Dashboard
               </DropdownMenuItem>
@@ -669,6 +688,52 @@ export default function DigitalTwin() {
         />
       </div>
     </div>
+
+      {/* Analytics Panel */}
+      <AnimatePresence>
+        {showAnalytics && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAnalytics(false)}
+            />
+            <motion.div
+              className="fixed inset-y-4 right-4 w-[90vw] max-w-5xl bg-slate-950/95 backdrop-blur-xl border border-white/10 rounded-2xl z-50 flex flex-col overflow-hidden shadow-2xl"
+              initial={{ opacity: 0, x: 100, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 100, scale: 0.95 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            >
+              <div className="flex items-center justify-between p-6 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-6 h-6 text-cyan-500" />
+                  <h2 className="text-xl font-bold text-white">Digital Twin Analytics</h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowAnalytics(false)}
+                  className="text-white/60 hover:text-white hover:bg-white/10"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                </Button>
+              </div>
+              <div className="flex-1 overflow-auto p-6">
+                <DigitalTwinAnalyticsDashboard />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Life Planner Panel */}
+      <LifePlannerPanel 
+        isOpen={showLifePlanner} 
+        onClose={() => setShowLifePlanner(false)} 
+      />
     </AppLayout>
   );
 }

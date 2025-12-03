@@ -1,22 +1,81 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { EnhancedInvestments } from "@/components/investments/EnhancedInvestments";
 import { LoadingState } from "@/components/LoadingState";
 import { EmotionDetectionBar } from "@/components/guardian/EmotionDetectionBar";
 import { InterventionModal } from "@/components/guardian/InterventionModal";
+import { PortfolioOverview } from "@/components/investment-manager/PortfolioOverview";
+import { TaxLossHarvesting } from "@/components/investment-manager/TaxLossHarvesting";
+import { RebalancingActions } from "@/components/investment-manager/RebalancingActions";
+import { MandateConfig } from "@/components/investment-manager/MandateConfig";
 import { motion } from "framer-motion";
 import { useDemoMode } from "@/contexts/DemoModeContext";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, X } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertTriangle, X, TrendingUp, Receipt, Scale, Settings } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { withErrorHandling } from "@/lib/errorHandling";
 
 export default function Investments() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'overview';
   const [userId, setUserId] = useState<string | null>(null);
   const [interventionData, setInterventionData] = useState<any>(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const { isDemoMode, disableDemoMode } = useDemoMode();
+
+  // Investment Manager data
+  const { data: mandate } = useQuery({
+    queryKey: ['investment-mandate'],
+    queryFn: () => withErrorHandling(
+      async () => {
+        const { data, error } = await supabase
+          .from('investment_mandates')
+          .select('*')
+          .single();
+        
+        if (error && error.code !== 'PGRST116') throw error;
+        return data;
+      },
+      { action: 'loading investment mandate', component: 'Investments' }
+    ),
+  });
+
+  const { data: portfolio } = useQuery({
+    queryKey: ['portfolio-holdings'],
+    queryFn: () => withErrorHandling(
+      async () => {
+        const { data, error } = await supabase
+          .from('portfolio_holdings')
+          .select('*')
+          .order('market_value', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+      },
+      { action: 'loading portfolio holdings', component: 'Investments' }
+    ),
+  });
+
+  const { data: tlhOpportunities } = useQuery({
+    queryKey: ['tlh-opportunities'],
+    queryFn: () => withErrorHandling(
+      async () => {
+        const { data, error } = await supabase
+          .from('tax_loss_harvest_opportunities')
+          .select('*')
+          .eq('status', 'pending')
+          .order('potential_tax_savings', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+      },
+      { action: 'loading tax-loss harvesting opportunities', component: 'Investments' }
+    ),
+  });
 
   useEffect(() => {
     const getUser = async () => {
@@ -46,7 +105,6 @@ export default function Investments() {
 
     checkCoolingOff();
 
-    // Update last updated time every 30 seconds
     const interval = setInterval(() => {
       setLastUpdated(new Date());
     }, 30000);
@@ -141,11 +199,49 @@ export default function Investments() {
             Investment Command Center
           </h1>
           <p className="text-muted-foreground text-sm">
-            Real-time portfolio analytics · Market intelligence · Risk assessment
+            Real-time portfolio analytics · Tax optimization · Automatic rebalancing
           </p>
         </div>
 
-        <EnhancedInvestments userId={userId} />
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList>
+            <TabsTrigger value="overview">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="tax-optimization">
+              <Receipt className="w-4 h-4 mr-2" />
+              Tax Optimization
+            </TabsTrigger>
+            <TabsTrigger value="rebalancing">
+              <Scale className="w-4 h-4 mr-2" />
+              Rebalancing
+            </TabsTrigger>
+            <TabsTrigger value="mandate">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="mt-6 space-y-6">
+            <EnhancedInvestments userId={userId} />
+            {portfolio && portfolio.length > 0 && (
+              <PortfolioOverview holdings={portfolio || []} />
+            )}
+          </TabsContent>
+
+          <TabsContent value="tax-optimization" className="mt-6">
+            <TaxLossHarvesting opportunities={tlhOpportunities || []} />
+          </TabsContent>
+
+          <TabsContent value="rebalancing" className="mt-6">
+            <RebalancingActions mandate={mandate} />
+          </TabsContent>
+
+          <TabsContent value="mandate" className="mt-6">
+            <MandateConfig existingMandate={mandate} />
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
     </div>
