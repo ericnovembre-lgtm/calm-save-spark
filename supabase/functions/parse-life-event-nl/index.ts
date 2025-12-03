@@ -150,7 +150,7 @@ ONLY return the JSON object, no other text.`;
     await supabase.from('digital_twin_analytics').insert({
       user_id: user.id,
       event_type: 'scenario_created_nl',
-      model_used: 'google/gemini-2.5-flash',
+      model_used: 'google/gemini-3-pro',
       query_text: description,
       scenario_parameters: parsed,
     });

@@ -186,7 +186,7 @@ ${context?.recentCategories?.length > 0 ? `Recent usage: ${context.recentCategor
       JSON.stringify({ 
         budget: budgetData,
         confidence,
-        source: 'gemini-2.5-flash'
+        source: 'gemini-3-pro'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
