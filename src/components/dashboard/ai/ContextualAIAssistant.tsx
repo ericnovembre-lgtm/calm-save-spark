@@ -130,7 +130,7 @@ export function ContextualAIAssistant() {
               <div className="p-4 border-t border-border bg-background/50 backdrop-blur-sm">
                 <div className="text-xs text-muted-foreground mb-2">Quick actions:</div>
                 <div className="flex flex-wrap gap-2">
-                  {['Transfer $100', 'Create Goal', 'View Insights'].map((action) => (
+                  {['Transfer $100', 'Create Goal', 'View Analytics'].map((action) => (
                     <Button
                       key={action}
                       size="sm"

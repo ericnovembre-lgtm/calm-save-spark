@@ -62,7 +62,7 @@ export function UnifiedFAB() {
     },
     {
       id: 'insights',
-      label: 'View Insights',
+      label: 'View Analytics',
       icon: TrendingUp,
       action: () => {
         haptics.triggerHaptic('light');
