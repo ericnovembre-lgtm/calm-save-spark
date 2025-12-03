@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Brain, Zap, Globe, FileText } from 'lucide-react';
+import { Brain, Zap, Globe, FileText, Bolt } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ModelIndicatorBadgeProps {
@@ -10,6 +10,12 @@ interface ModelIndicatorBadgeProps {
 }
 
 const MODEL_CONFIG = {
+  'groq-instant': {
+    icon: Bolt,
+    label: 'Groq LPU',
+    color: 'from-orange-500 to-amber-600',
+    description: 'Ultra-fast'
+  },
   'claude-sonnet': {
     icon: Brain,
     label: 'Claude Sonnet 4.5',

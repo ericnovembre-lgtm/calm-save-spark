@@ -21,6 +21,7 @@ export interface DailyTrend {
   gemini: number;
   claude: number;
   perplexity: number;
+  groq: number;
   total: number;
 }
 

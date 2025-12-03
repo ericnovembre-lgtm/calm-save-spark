@@ -453,4 +453,11 @@ verify_jwt = true
 [functions.process-kyc-document]
 verify_jwt = true
 
+[functions.smart-category-suggest]
+verify_jwt = true
 
+[functions.instant-transaction-alert]
+verify_jwt = false
+
+[functions.get-ai-routing-analytics]
+verify_jwt = true
