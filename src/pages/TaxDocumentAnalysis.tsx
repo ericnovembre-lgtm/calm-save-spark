@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useDropzone } from 'react-dropzone';
 import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FileText, Search, Download, Eye, Trash2, Upload, 
   PieChart, BarChart3, TrendingUp, Calendar, Filter,
-  ChevronDown, ChevronUp, Sparkles, Clock
+  ChevronDown, ChevronUp, Sparkles, Clock, Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ModelAttributionBadge, ModelBadgeInline } from '@/components/tax/ModelAttributionBadge';
@@ -40,6 +41,8 @@ export default function TaxDocumentAnalysis() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedDocument, setSelectedDocument] = useState<TaxDocument | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [isUploading, setIsUploading] = useState(false);
+  const [showUploadZone, setShowUploadZone] = useState(false);
 
   const { data: documents, isLoading, refetch } = useQuery({
     queryKey: ['tax-documents-analysis'],
@@ -141,13 +144,142 @@ export default function TaxDocumentAnalysis() {
     }
   };
 
+  // Upload handler
+  const handleUpload = useCallback(async (files: File[]) => {
+    if (files.length === 0) return;
+    
+    setIsUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      for (const file of files) {
+        const fileName = `${user.id}/${Date.now()}_${file.name}`;
+        
+        // Upload to storage
+        const { error: uploadError } = await supabase.storage
+          .from('tax-documents')
+          .upload(fileName, file);
+        
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('tax-documents')
+          .getPublicUrl(fileName);
+
+        // Create document record
+        const { data: docData, error: insertError } = await supabase
+          .from('tax_documents')
+          .insert({
+            user_id: user.id,
+            file_url: publicUrl,
+            storage_path: fileName,
+            document_type: 'unknown',
+            tax_year: new Date().getFullYear(),
+            processing_status: 'processing',
+          })
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+
+        // Process with AI
+        toast.info('Processing with GPT-5...', { id: `processing-${docData.id}` });
+        
+        const { error: processError } = await supabase.functions.invoke('process-tax-document', {
+          body: { documentId: docData.id, fileUrl: publicUrl },
+        });
+
+        if (processError) {
+          toast.error('Processing failed', { description: processError.message });
+        } else {
+          toast.success('Document analyzed successfully', { id: `processing-${docData.id}` });
+        }
+      }
+      
+      refetch();
+      setShowUploadZone(false);
+    } catch (error: any) {
+      toast.error('Upload failed', { description: error.message });
+    } finally {
+      setIsUploading(false);
+    }
+  }, [refetch]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: handleUpload,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'image/*': ['.png', '.jpg', '.jpeg'],
+    },
+    disabled: isUploading,
+  });
+
   return (
     <AppLayout>
       <div className="space-y-6 p-4 md:p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Tax Document Analysis</h1>
-          <p className="text-muted-foreground">View and analyze processed tax documents</p>
+        {/* Header with Upload Button */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Tax Document Analysis</h1>
+            <p className="text-muted-foreground">View and analyze processed tax documents</p>
+          </div>
+          <Button 
+            onClick={() => setShowUploadZone(!showUploadZone)}
+            className="gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Upload Documents
+          </Button>
         </div>
+
+        {/* Quick Upload Zone */}
+        <AnimatePresence>
+          {showUploadZone && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className={cn(
+                "border-2 border-dashed transition-colors mb-6",
+                isDragActive ? "border-primary bg-primary/5" : "border-border"
+              )}>
+                <CardContent className="pt-6">
+                  <div
+                    {...getRootProps()}
+                    className="flex flex-col items-center justify-center py-8 cursor-pointer"
+                  >
+                    <input {...getInputProps()} />
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-10 h-10 text-primary animate-spin mb-3" />
+                        <p className="text-sm text-muted-foreground">Processing with GPT-5...</p>
+                      </>
+                    ) : isDragActive ? (
+                      <>
+                        <Upload className="w-10 h-10 text-primary mb-3" />
+                        <p className="text-sm font-medium text-primary">Drop files here</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-10 h-10 text-muted-foreground mb-3" />
+                        <p className="text-sm font-medium text-foreground mb-1">
+                          Drag & drop tax documents here
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          W-2, 1099, and other tax forms • PDF or images
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {/* Summary Statistics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
