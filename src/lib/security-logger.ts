@@ -3,6 +3,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 
 export type SecurityEventType = 
   | 'login'
@@ -22,8 +23,47 @@ export type SecuritySeverity = 'info' | 'success' | 'warning' | 'critical';
 interface LogSecurityEventParams {
   event_type: SecurityEventType;
   event_message: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, Json>;
   severity?: SecuritySeverity;
+}
+
+// Events that should trigger email alerts
+const EMAIL_ALERT_EVENTS: SecurityEventType[] = [
+  'lockdown_activated',
+  'lockdown_deactivated',
+  'suspicious_activity',
+  'session_revoked',
+  'connection_severed',
+];
+
+/**
+ * Send security alert email via edge function
+ */
+async function sendSecurityAlertEmail(
+  user_id: string,
+  event_type: SecurityEventType,
+  event_message: string,
+  severity: SecuritySeverity,
+  metadata: Record<string, Json>
+): Promise<void> {
+  try {
+    // Only send emails for critical/warning severity OR specific event types
+    const shouldSendEmail = 
+      severity === 'critical' || 
+      (severity === 'warning' && EMAIL_ALERT_EVENTS.includes(event_type));
+
+    if (!shouldSendEmail) return;
+
+    const { error } = await supabase.functions.invoke('send-user-security-alert', {
+      body: { user_id, event_type, event_message, severity, metadata },
+    });
+
+    if (error) {
+      console.error('[SecurityLogger] Failed to send alert email:', error);
+    }
+  } catch (err) {
+    console.error('[SecurityLogger] Error sending alert email:', err);
+  }
 }
 
 /**
@@ -45,17 +85,20 @@ export async function logSecurityEvent({
 
     const { error } = await supabase
       .from('security_audit_log')
-      .insert({
+      .insert([{
         user_id: session.user.id,
         event_type,
         event_message,
-        metadata,
+        metadata: metadata as Json,
         severity,
-      });
+      }]);
 
     if (error) {
       console.error('[SecurityLogger] Failed to log event:', error);
     }
+
+    // Send email alert for critical events (fire-and-forget)
+    sendSecurityAlertEmail(session.user.id, event_type, event_message, severity, metadata);
   } catch (err) {
     console.error('[SecurityLogger] Error logging security event:', err);
   }

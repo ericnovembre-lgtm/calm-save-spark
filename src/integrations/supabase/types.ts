@@ -6790,6 +6790,10 @@ export type Database = {
           id: string
           marketing_emails: boolean | null
           push_notifications: boolean | null
+          security_lockdown_alerts: boolean | null
+          security_login_alerts: boolean | null
+          security_session_revoked: boolean | null
+          security_suspicious_activity: boolean | null
           transfer_alerts: boolean | null
           updated_at: string | null
           user_id: string
@@ -6807,6 +6811,10 @@ export type Database = {
           id?: string
           marketing_emails?: boolean | null
           push_notifications?: boolean | null
+          security_lockdown_alerts?: boolean | null
+          security_login_alerts?: boolean | null
+          security_session_revoked?: boolean | null
+          security_suspicious_activity?: boolean | null
           transfer_alerts?: boolean | null
           updated_at?: string | null
           user_id: string
@@ -6824,6 +6832,10 @@ export type Database = {
           id?: string
           marketing_emails?: boolean | null
           push_notifications?: boolean | null
+          security_lockdown_alerts?: boolean | null
+          security_login_alerts?: boolean | null
+          security_session_revoked?: boolean | null
+          security_suspicious_activity?: boolean | null
           transfer_alerts?: boolean | null
           updated_at?: string | null
           user_id?: string

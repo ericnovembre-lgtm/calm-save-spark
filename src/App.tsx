@@ -112,6 +112,7 @@ const ConversationalWelcome = createPageLoader(() => import("./pages/Conversatio
 const Checkout = createPageLoader(() => import("./pages/Checkout"), 'light');
 const SubscriptionManagement = createPageLoader(() => import("./pages/SubscriptionManagement"), 'light');
 const GuardianSecurityCenter = createPageLoader(() => import("./pages/GuardianSecurityCenter"), 'heavy');
+const SecuritySettings = createPageLoader(() => import("./pages/SecuritySettings"), 'medium');
 const CoolingOff = createPageLoader(() => import("./pages/CoolingOff"), 'light');
 const AlternativesPortal = createPageLoader(() => import("./pages/AlternativesPortal"), 'light');
 const CorporateWellness = createPageLoader(() => import("./pages/CorporateWellness"), 'light');
@@ -262,6 +263,7 @@ function AnimatedRoutes() {
         <Route path="/help" element={<ProtectedRoute><PageTransition><Help /></PageTransition></ProtectedRoute>} />
         <Route path="/changelog" element={<ProtectedRoute><PageTransition><Changelog /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
+        <Route path="/security-settings" element={<ProtectedRoute><PageTransition><SecuritySettings /></PageTransition></ProtectedRoute>} />
         <Route path="/security" element={<ProtectedRoute><PageTransition><Security /></PageTransition></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><PageTransition><Achievements /></PageTransition></ProtectedRoute>} />
         <Route path="/bill-negotiation" element={<ProtectedRoute><PageTransition><BillNegotiation /></PageTransition></ProtectedRoute>} />
