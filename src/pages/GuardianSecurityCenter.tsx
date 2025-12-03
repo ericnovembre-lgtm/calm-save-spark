@@ -1,15 +1,17 @@
 import { useState, useMemo } from 'react';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AegisShield } from "@/components/guardian/AegisShield";
 import { SentinelSessionMap } from "@/components/guardian/SentinelSessionMap";
 import { PrivacyPulseScanner } from "@/components/guardian/PrivacyPulseScanner";
 import { PanicLockdown } from "@/components/guardian/PanicLockdown";
-import { Shield, Activity, Eye, AlertTriangle, Lock, Smartphone, Globe, Key } from "lucide-react";
+import { Shield, Activity, Eye, AlertTriangle, Lock, Smartphone, Globe, Key, Database } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { useSeedTestData } from '@/hooks/useSeedTestData';
 import { toast } from 'sonner';
 
 // Scanline background effect
@@ -107,6 +109,18 @@ export default function GuardianSecurityCenter() {
   const { securitySettings } = useSettingsStore();
   const [activeSessionCount] = useState(3);
   const [connectedAppsCount] = useState(4);
+  const seedTestData = useSeedTestData();
+
+  const handleSeedData = async () => {
+    try {
+      await seedTestData.mutateAsync();
+      toast.success('Test data loaded', {
+        description: '4 sessions and 5 security events created',
+      });
+    } catch (error) {
+      toast.error('Failed to load test data');
+    }
+  };
 
   // Calculate security score from settings
   const securityScore = useMemo(() => 
@@ -146,9 +160,21 @@ export default function GuardianSecurityCenter() {
                 THREAT DEFENSE DASHBOARD • STATUS: {securityScore >= 70 ? 'SECURE' : securityScore >= 40 ? 'ATTENTION REQUIRED' : 'CRITICAL'}
               </p>
             </div>
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-white/10">
-              <div className={`w-2 h-2 rounded-full ${securityScore >= 70 ? 'bg-emerald-400' : securityScore >= 40 ? 'bg-amber-400' : 'bg-rose-400'} animate-pulse`} />
-              <span className="text-xs font-mono text-white/70">MONITORING</span>
+            <div className="hidden sm:flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSeedData}
+                disabled={seedTestData.isPending}
+                className="border-white/10 bg-slate-800/50 hover:bg-slate-700/50 text-white/70 font-mono text-xs"
+              >
+                <Database className="w-3 h-3 mr-1.5" />
+                {seedTestData.isPending ? 'Loading...' : 'Load Test Data'}
+              </Button>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-white/10">
+                <div className={`w-2 h-2 rounded-full ${securityScore >= 70 ? 'bg-emerald-400' : securityScore >= 40 ? 'bg-amber-400' : 'bg-rose-400'} animate-pulse`} />
+                <span className="text-xs font-mono text-white/70">MONITORING</span>
+              </div>
             </div>
           </motion.div>
 
