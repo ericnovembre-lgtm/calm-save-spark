@@ -113,14 +113,14 @@ Be precise and flag any signs of tampering, poor quality, or inconsistencies.`
         }
       } catch (gptError) {
         console.error('[KYC Document] GPT-5 failed, falling back to Gemini:', gptError);
-        modelUsed = 'gemini-3-pro';
+        modelUsed = 'gemini-2.5-flash';
       }
     }
 
     // Fallback to Lovable AI (Gemini) if GPT-5 unavailable or failed
     if (!extractedData && lovableApiKey) {
-      console.log('[KYC Document] Using Gemini 3 Pro fallback');
-      modelUsed = 'gemini-3-pro';
+      console.log('[KYC Document] Using Gemini 2.5 Flash fallback');
+      modelUsed = 'gemini-2.5-flash';
       
       const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
