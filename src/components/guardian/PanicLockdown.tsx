@@ -11,6 +11,8 @@ import { useActivateLockdown, useDeactivateLockdown, useLockdownStatus } from '@
 
 interface PanicLockdownProps {
   onLockdown?: () => void;
+  /** Preview mode uses local state instead of database hooks */
+  previewMode?: boolean;
 }
 
 // Emergency Support Card shown after lockdown
@@ -66,9 +68,10 @@ function EmergencySupportCard({ onDeactivate, isDeactivating }: { onDeactivate: 
   );
 }
 
-export function PanicLockdown({ onLockdown }: PanicLockdownProps) {
+export function PanicLockdown({ onLockdown, previewMode = false }: PanicLockdownProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragX, setDragX] = useState(0);
+  const [previewLockdownActive, setPreviewLockdownActive] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   
   const { isLockdownActive } = useSettingsStore();
@@ -92,24 +95,37 @@ export function PanicLockdown({ onLockdown }: PanicLockdownProps) {
   const activateLockdown = async () => {
     haptics.pattern('error');
     soundEffects.error();
-    await activateMutation.mutateAsync('Manual emergency lockdown');
+    if (previewMode) {
+      setPreviewLockdownActive(true);
+    } else {
+      await activateMutation.mutateAsync('Manual emergency lockdown');
+    }
     onLockdown?.();
   };
 
   const deactivateLockdown = async () => {
     haptics.vibrate('medium');
     soundEffects.success();
-    await deactivateMutation.mutateAsync();
+    if (previewMode) {
+      setPreviewLockdownActive(false);
+    } else {
+      await deactivateMutation.mutateAsync();
+    }
   };
 
   const progress = Math.min(dragX / threshold, 1);
+  
+  // Determine if lockdown is active (preview uses local state)
+  const isCurrentlyLocked = previewMode 
+    ? previewLockdownActive 
+    : (isLockdownActive || lockdownStatus?.is_active);
 
-  // Show emergency card if lockdown is active (from store or database)
-  if (isLockdownActive || lockdownStatus?.is_active) {
+  // Show emergency card if lockdown is active
+  if (isCurrentlyLocked) {
     return (
       <EmergencySupportCard 
         onDeactivate={deactivateLockdown} 
-        isDeactivating={deactivateMutation.isPending}
+        isDeactivating={previewMode ? false : deactivateMutation.isPending}
       />
     );
   }

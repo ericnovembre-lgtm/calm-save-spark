@@ -388,15 +388,22 @@ const CONTINENT_PATHS = {
   greenland: "M32,4 L38,2 L42,4 L40,8 L36,10 L32,8 Z",
 };
 
-export function SentinelSessionMap() {
-  const { data: sessions = [], isLoading } = useUserSessions();
+interface SentinelSessionMapProps {
+  /** Optional sessions data for preview mode - when provided, skips useUserSessions hook */
+  sessions?: SessionWithCoords[];
+  /** Preview mode disables revocation functionality */
+  previewMode?: boolean;
+}
+
+export function SentinelSessionMap({ sessions: propSessions, previewMode = false }: SentinelSessionMapProps = {}) {
+  const { data: hookSessions = [], isLoading } = useUserSessions();
   const revokeMutation = useRevokeSession();
   const [selectedSession, setSelectedSession] = useState<SessionWithCoords | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
-  // Cast sessions to include coordinates
-  const sessionsWithCoords = sessions as SessionWithCoords[];
+  // Use prop sessions if provided (preview mode), otherwise use hook data
+  const sessionsWithCoords = (propSessions || hookSessions) as SessionWithCoords[];
   
   // Group sessions by location
   const stackedSessions = useMemo(() => 
@@ -424,7 +431,8 @@ export function SentinelSessionMap() {
     setSelectedSession(null);
   };
 
-  if (isLoading) {
+  // Only show loading if using hook data (not preview mode)
+  if (!propSessions && isLoading) {
     return (
       <div className="relative w-full h-full min-h-[280px] flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-white/40" />

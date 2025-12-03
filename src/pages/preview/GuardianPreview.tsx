@@ -7,6 +7,8 @@ import { useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AegisShield } from "@/components/guardian/AegisShield";
+import { SentinelSessionMap } from "@/components/guardian/SentinelSessionMap";
+import { PanicLockdown } from "@/components/guardian/PanicLockdown";
 import { Shield, Activity, Eye, AlertTriangle, Lock, Smartphone, Globe, Key, Database } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -147,135 +149,6 @@ function SecurityMetric({ icon, label, value, status, delay = 0 }: SecurityMetri
   );
 }
 
-// Mock Session Map Component
-function MockSentinelSessionMap() {
-  const { data: sessions } = useMockUserSessions();
-
-  const getSessionColor = (session: MockSession) => {
-    if (session.is_current) return '#3b82f6'; // Blue for current
-    if (!session.is_authorized) return '#ef4444'; // Red for suspicious
-    return '#22c55e'; // Green for authorized
-  };
-
-  return (
-    <div className="relative w-full h-full min-h-[200px]">
-      {/* Simple world map SVG */}
-      <svg 
-        viewBox="0 0 100 50" 
-        className="w-full h-full"
-        style={{ background: 'radial-gradient(ellipse at center, rgba(30,41,59,0.8) 0%, rgba(15,23,42,1) 100%)' }}
-      >
-        {/* Grid lines */}
-        <defs>
-          <pattern id="grid-preview" width="10" height="10" patternUnits="userSpaceOnUse">
-            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.2"/>
-          </pattern>
-        </defs>
-        <rect width="100" height="50" fill="url(#grid-preview)" />
-        
-        {/* Simplified continent outlines */}
-        <g fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" strokeWidth="0.3">
-          {/* North America */}
-          <ellipse cx="22" cy="18" rx="12" ry="8" />
-          {/* South America */}
-          <ellipse cx="28" cy="35" rx="6" ry="10" />
-          {/* Europe */}
-          <ellipse cx="50" cy="14" rx="8" ry="5" />
-          {/* Africa */}
-          <ellipse cx="52" cy="28" rx="7" ry="10" />
-          {/* Asia */}
-          <ellipse cx="72" cy="18" rx="15" ry="10" />
-          {/* Australia */}
-          <ellipse cx="82" cy="38" rx="5" ry="4" />
-        </g>
-
-        {/* Session beacons */}
-        {sessions.map((session) => (
-          <g key={session.id}>
-            {/* Outer pulse ring */}
-            <circle
-              cx={session.coordinates.x}
-              cy={session.coordinates.y}
-              r="3"
-              fill="none"
-              stroke={getSessionColor(session)}
-              strokeWidth="0.5"
-              opacity="0.3"
-            >
-              <animate
-                attributeName="r"
-                from="1"
-                to="4"
-                dur="2s"
-                repeatCount="indefinite"
-              />
-              <animate
-                attributeName="opacity"
-                from="0.5"
-                to="0"
-                dur="2s"
-                repeatCount="indefinite"
-              />
-            </circle>
-            
-            {/* Inner beacon */}
-            <circle
-              cx={session.coordinates.x}
-              cy={session.coordinates.y}
-              r="1.5"
-              fill={getSessionColor(session)}
-              opacity="0.9"
-            />
-            
-            {/* Glow effect */}
-            <circle
-              cx={session.coordinates.x}
-              cy={session.coordinates.y}
-              r="2"
-              fill={getSessionColor(session)}
-              opacity="0.3"
-              filter="blur(1px)"
-            />
-          </g>
-        ))}
-      </svg>
-
-      {/* Legend */}
-      <div className="absolute bottom-2 left-2 flex gap-3 text-[10px] font-mono">
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-blue-500" />
-          <span className="text-white/50">Current</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
-          <span className="text-white/50">Authorized</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-red-500" />
-          <span className="text-white/50">Suspicious</span>
-        </div>
-      </div>
-
-      {/* Session details */}
-      <div className="absolute top-2 right-2 space-y-1">
-        {sessions.map(s => (
-          <div 
-            key={s.id} 
-            className="flex items-center gap-2 text-[10px] font-mono bg-slate-900/80 px-2 py-1 rounded"
-          >
-            <div 
-              className="w-1.5 h-1.5 rounded-full" 
-              style={{ backgroundColor: getSessionColor(s) }}
-            />
-            <span className="text-white/70">{s.city}</span>
-            <span className="text-white/30">({s.coordinates.x.toFixed(1)}, {s.coordinates.y.toFixed(1)})</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // Mock Privacy Pulse Scanner
 function MockPrivacyPulseScanner() {
   const { data: integrations } = useMockConnectedIntegrations();
@@ -316,32 +189,6 @@ function MockPrivacyPulseScanner() {
           </div>
         </motion.div>
       ))}
-    </div>
-  );
-}
-
-// Mock Panic Lockdown
-function MockPanicLockdown() {
-  return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div className="flex items-center gap-4">
-        <div className="p-3 rounded-full bg-rose-500/20">
-          <AlertTriangle className="w-6 h-6 text-rose-400" />
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">Emergency Lockdown</h3>
-          <p className="text-sm text-white/50">Instantly freeze all cards and revoke API access</p>
-        </div>
-      </div>
-      <Button 
-        variant="destructive" 
-        size="lg"
-        className="bg-rose-600 hover:bg-rose-700 font-mono"
-        disabled
-      >
-        <Lock className="w-4 h-4 mr-2" />
-        SLIDE TO LOCK (Preview)
-      </Button>
     </div>
   );
 }
@@ -540,7 +387,7 @@ export default function GuardianPreview() {
                 SENTINEL SESSION MAP
               </h3>
               <div className="flex-1 relative">
-                <MockSentinelSessionMap />
+                <SentinelSessionMap sessions={sessions} previewMode />
               </div>
             </Card>
           </motion.div>
@@ -570,7 +417,7 @@ export default function GuardianPreview() {
           transition={{ delay: 0.8, duration: 0.5 }}
         >
           <Card className="bg-rose-950/30 backdrop-blur-xl border-rose-500/20 p-6">
-            <MockPanicLockdown />
+            <PanicLockdown previewMode />
           </Card>
         </motion.div>
       </div>
