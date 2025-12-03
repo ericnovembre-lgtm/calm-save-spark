@@ -179,20 +179,45 @@ serve(async (req) => {
       query_length: JSON.stringify(transaction).length
     });
 
-    // If anomaly detected, create a notification
+    // If anomaly detected, create a wallet notification for real-time delivery
     if (alert.isAnomaly) {
-      await supabase.from('notifications').insert({
+      const { error: notifError } = await supabase.from('wallet_notifications').insert({
         user_id: userId,
-        title: `Transaction Alert: ${transaction.merchant}`,
-        body: alert.message,
-        type: 'transaction_alert',
-        priority: alert.riskLevel === 'high' ? 'high' : 'medium',
+        notification_type: 'transaction_alert',
+        title: `⚠️ ${alert.alertType === 'unusual_amount' ? 'Unusual Transaction' : 'Transaction Alert'}: ${transaction.merchant}`,
+        message: alert.message,
+        priority: alert.riskLevel,
+        read: false,
         metadata: {
-          transactionAmount: transaction.amount,
+          transaction_amount: transaction.amount,
           merchant: transaction.merchant,
-          alertType: alert.alertType,
-          riskLevel: alert.riskLevel
+          alert_type: alert.alertType,
+          risk_level: alert.riskLevel,
+          latency_ms: alert.latencyMs,
+          model: 'groq-instant'
         }
+      });
+
+      if (notifError) {
+        console.error('[InstantAlert] Notification insert error:', notifError);
+      }
+
+      // Also queue for push notification
+      await supabase.from('notification_queue').insert({
+        user_id: userId,
+        notification_type: 'transaction_anomaly',
+        subject: `⚠️ ${transaction.merchant}`,
+        content: {
+          title: `Unusual Transaction: ${transaction.merchant}`,
+          body: alert.message,
+          data: {
+            type: 'transaction_anomaly',
+            riskLevel: alert.riskLevel,
+            model: 'groq-instant',
+            latencyMs: alert.latencyMs
+          }
+        },
+        status: 'pending'
       });
     }
 
