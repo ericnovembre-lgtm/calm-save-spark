@@ -32,7 +32,7 @@ const premiumFeatures = [
     icon: BarChart3,
     title: "Investment Manager",
     description: "Advanced portfolio analytics and rebalancing automation",
-    path: "/investment-manager",
+    path: "/investments?tab=tax-optimization",
     badge: "Pro"
   },
   {
@@ -46,7 +46,7 @@ const premiumFeatures = [
     icon: Calendar,
     title: "Life Planner",
     description: "30-year financial roadmap with milestone tracking",
-    path: "/life-planner",
+    path: "/digital-twin?tab=playbooks",
     badge: "Pro"
   },
   {

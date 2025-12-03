@@ -61,10 +61,10 @@ export function CommandPalette() {
       category: "navigation"
     },
     {
-      id: "hub-memory",
-      label: "Memory Hub",
+      id: "digital-twin",
+      label: "Digital Twin",
       icon: <Users className="w-4 h-4" />,
-      action: () => navigate("/hubs/memory"),
+      action: () => navigate("/digital-twin"),
       category: "navigation"
     },
     // Money Management

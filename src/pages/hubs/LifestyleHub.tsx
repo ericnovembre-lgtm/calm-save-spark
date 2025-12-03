@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { UsersRound, GraduationCap, Building2, BookOpen, Leaf, Heart, Briefcase, MapPin } from "lucide-react";
+import { UsersRound, GraduationCap, BookOpen, Leaf, Heart, Briefcase, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -18,13 +18,6 @@ const features = [
     description: "Student budgeting and loans",
     path: "/student",
     color: "text-purple-500"
-  },
-  {
-    icon: Building2,
-    title: "Business",
-    description: "Small business financial tools",
-    path: "/business",
-    color: "text-green-500"
   },
   {
     icon: Briefcase,
@@ -56,9 +49,9 @@ const features = [
   },
   {
     icon: MapPin,
-    title: "Life Planner",
-    description: "Plan and execute major life events",
-    path: "/life-planner",
+    title: "Digital Twin",
+    description: "Plan and simulate major life events",
+    path: "/digital-twin",
     color: "text-pink-500"
   },
 ];
