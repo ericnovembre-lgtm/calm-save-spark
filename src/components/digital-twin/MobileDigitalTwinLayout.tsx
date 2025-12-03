@@ -356,7 +356,7 @@ export function MobileDigitalTwinLayout({
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem onClick={() => navigate('/digital-twin/analytics')} className="gap-2 text-white/80 hover:text-white">
+              <DropdownMenuItem onClick={() => navigate('/digital-twin?tab=analytics')} className="gap-2 text-white/80 hover:text-white">
                 <LineChart className="w-4 h-4" />
                 Analytics
               </DropdownMenuItem>
