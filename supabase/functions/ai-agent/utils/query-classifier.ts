@@ -3,8 +3,8 @@
  * Determines the optimal AI model based on query complexity and type
  */
 
-export type QueryType = 'simple' | 'complex' | 'market_data' | 'analytical' | 'document_analysis';
-export type ModelRoute = 'gemini-flash' | 'claude-sonnet' | 'perplexity' | 'gpt-5';
+export type QueryType = 'simple' | 'complex' | 'market_data' | 'analytical' | 'document_analysis' | 'speed_critical';
+export type ModelRoute = 'gemini-flash' | 'claude-sonnet' | 'perplexity' | 'gpt-5' | 'groq-instant';
 
 export interface ClassificationResult {
   type: QueryType;
@@ -13,6 +13,21 @@ export interface ClassificationResult {
   reasoning: string;
   estimatedCost: number; // in credits/tokens
 }
+
+// Keywords that indicate speed-critical queries (route to Groq)
+const SPEED_CRITICAL_KEYWORDS = [
+  'categorize', 'classify', 'what category', 'which category',
+  'quick', 'instant', 'fast', 'urgent', 'immediately',
+  'alert', 'notify', 'warning', 'flag',
+  'transaction type', 'spending type', 'expense type'
+];
+
+// Transaction-related keywords that benefit from instant processing
+const TRANSACTION_ALERT_KEYWORDS = [
+  'new transaction', 'just spent', 'just paid', 'just bought',
+  'payment alert', 'spending alert', 'charge alert',
+  'is this normal', 'unusual', 'suspicious', 'fraud'
+];
 
 // Keywords that indicate market data queries
 const MARKET_DATA_KEYWORDS = [
@@ -76,7 +91,26 @@ export function classifyQuery(
   const lowerQuery = query.toLowerCase();
   const wordCount = query.split(/\s+/).length;
   
-  // Check for document analysis first (highest priority when documents are involved)
+  // Check for speed-critical queries first (route to Groq for <100ms response)
+  const hasSpeedCriticalKeywords = SPEED_CRITICAL_KEYWORDS.some(keyword => 
+    lowerQuery.includes(keyword)
+  );
+  const hasTransactionAlertKeywords = TRANSACTION_ALERT_KEYWORDS.some(keyword => 
+    lowerQuery.includes(keyword)
+  );
+  
+  // Short categorization/alert queries go to Groq
+  if ((hasSpeedCriticalKeywords || hasTransactionAlertKeywords) && wordCount <= 20) {
+    return {
+      type: 'speed_critical',
+      model: 'groq-instant',
+      confidence: 0.95,
+      reasoning: 'Speed-critical query requiring sub-100ms response via Groq LPU',
+      estimatedCost: 0.01 // Groq is very cheap
+    };
+  }
+  
+  // Check for document analysis (highest priority when documents are involved)
   const hasDocumentKeywords = DOCUMENT_ANALYSIS_KEYWORDS.some(keyword => 
     lowerQuery.includes(keyword)
   );

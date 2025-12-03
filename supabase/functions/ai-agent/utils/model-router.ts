@@ -9,6 +9,7 @@ import { streamAIResponse } from "./ai-client.ts";
 import { streamPerplexityResponse } from "./perplexity-client.ts";
 import { streamOpenAI, GPT5_MODEL, DOCUMENT_ANALYSIS_SYSTEM_PROMPT } from "./openai-client.ts";
 import { CLAUDE_MAIN_BRAIN, CLAUDE_35_SONNET } from "./ai-client.ts";
+import { streamGroq, GROQ_MODELS } from "./groq-client.ts";
 import { injectModelMetadata } from "./stream-enhancer.ts";
 
 interface Message {
@@ -71,6 +72,9 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
 
   // Route to appropriate model
   switch (classification.model) {
+    case 'groq-instant':
+      return await routeToGroq(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
+    
     case 'perplexity':
       return await routeToPerplexity(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
     
@@ -87,6 +91,81 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
       // Fallback to Gemini Flash
       console.warn('[Model Router] Unknown model, defaulting to Gemini Flash');
       return await routeToGeminiFlash(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
+  }
+}
+
+/**
+ * Route to Groq LPU for ultra-fast inference (<100ms)
+ */
+async function routeToGroq(
+  systemPrompt: string,
+  conversationHistory: Message[],
+  userMessage: string,
+  supabase?: SupabaseClient,
+  conversationId?: string,
+  userId?: string,
+  queryType?: string
+): Promise<ReadableStream> {
+  console.log('[Model Router] → Groq LPU (Ultra-Fast Inference)');
+  
+  const startTime = Date.now();
+  
+  try {
+    const enhancedSystemPrompt = `${systemPrompt}
+
+**SPEED MODE:** You are using Groq LPU for instant responses.
+Be concise and direct. Prioritize speed over verbosity.`;
+
+    const messages: Message[] = [
+      { role: 'system', content: enhancedSystemPrompt },
+      ...conversationHistory,
+      { role: 'user', content: userMessage }
+    ];
+
+    const stream = await streamGroq(messages, {
+      model: GROQ_MODELS.LLAMA_8B,
+      maxTokens: 1024,
+      temperature: 0.3
+    });
+    
+    const responseTime = Date.now() - startTime;
+    console.log(`[Model Router] Groq response started in ${responseTime}ms`);
+    
+    // Log successful routing with response time
+    await logModelUsage(supabase, userId, conversationId, 'groq-instant', 'success', undefined, queryType, userMessage.length, responseTime);
+    
+    // Inject model metadata
+    return injectModelMetadata(stream, {
+      model: 'groq-instant',
+      modelName: 'Groq LPU',
+      queryType: queryType || 'speed_critical'
+    });
+  } catch (error) {
+    console.error('[Model Router] Groq failed, falling back to Gemini Flash:', error);
+    
+    // Log fallback
+    await logModelUsage(
+      supabase, 
+      userId, 
+      conversationId, 
+      'groq-instant', 
+      'fallback', 
+      error instanceof Error ? error.message : String(error),
+      queryType,
+      userMessage.length
+    );
+    
+    // Fallback to Gemini Flash
+    return await routeToGeminiFlash(
+      systemPrompt,
+      conversationHistory,
+      userMessage,
+      undefined,
+      supabase,
+      conversationId,
+      userId,
+      queryType
+    );
   }
 }
 
@@ -314,7 +393,8 @@ async function logModelUsage(
   status: 'success' | 'fallback' | 'error',
   errorMessage?: string,
   queryType?: string,
-  queryLength?: number
+  queryLength?: number,
+  responseTimeMs?: number
 ): Promise<void> {
   console.log('[Model Router] Usage:', {
     model,
@@ -337,6 +417,7 @@ async function logModelUsage(
         fallback_reason: errorMessage,
         query_length: queryLength,
         confidence_score: status === 'success' ? 0.9 : 0.5,
+        response_time_ms: responseTimeMs,
       });
       
       if (error) {
@@ -358,6 +439,7 @@ export function calculateCostSavings(
     complex: number;
     marketData: number;
     documentAnalysis: number;
+    speedCritical: number;
   }
 ): {
   totalCost: number;
@@ -370,7 +452,8 @@ export function calculateCostSavings(
     gemini: 0.05,
     claude: 0.50,
     perplexity: 0.30,
-    gpt5: 0.40
+    gpt5: 0.40,
+    groq: 0.01 // Groq is extremely cheap
   };
 
   // With routing
@@ -378,7 +461,8 @@ export function calculateCostSavings(
     (queriesProcessed * averageComplexityDistribution.simple / 100 * COSTS.gemini) +
     (queriesProcessed * averageComplexityDistribution.complex / 100 * COSTS.claude) +
     (queriesProcessed * averageComplexityDistribution.marketData / 100 * COSTS.perplexity) +
-    (queriesProcessed * averageComplexityDistribution.documentAnalysis / 100 * COSTS.gpt5);
+    (queriesProcessed * averageComplexityDistribution.documentAnalysis / 100 * COSTS.gpt5) +
+    (queriesProcessed * (averageComplexityDistribution.speedCritical || 0) / 100 * COSTS.groq);
 
   // Without routing (all Claude)
   const allClaudeCost = queriesProcessed * COSTS.claude;
