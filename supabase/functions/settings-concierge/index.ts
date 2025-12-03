@@ -83,7 +83,7 @@ Be concise and helpful. Provide actionable next steps when possible.`
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-pro',
         messages,
         stream: true,
       }),

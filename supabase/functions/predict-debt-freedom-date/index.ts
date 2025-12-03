@@ -139,7 +139,7 @@ Be realistic but motivating. Factor in both optimistic and conservative scenario
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-pro',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: 'Predict my debt freedom date based on the data provided.' }

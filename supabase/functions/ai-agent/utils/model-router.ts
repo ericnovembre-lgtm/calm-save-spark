@@ -163,15 +163,15 @@ async function routeToGeminiFlash(
   userId?: string,
   queryType?: string
 ): Promise<ReadableStream> {
-  console.log('[Model Router] → Gemini 2.5 Flash (Fast & Efficient)');
+  console.log('[Model Router] → Gemini 3 Pro (Fast & Efficient)');
   
-  await logModelUsage(supabase, userId, conversationId, 'gemini-flash', 'success', undefined, queryType, userMessage.length);
+  await logModelUsage(supabase, userId, conversationId, 'gemini-3-pro', 'success', undefined, queryType, userMessage.length);
   
   const stream = await streamAIResponse(
     systemPrompt,
     conversationHistory,
     userMessage,
-    'google/gemini-2.5-flash',
+    'google/gemini-3-pro',
     tools,
     supabase,
     conversationId,
@@ -179,8 +179,8 @@ async function routeToGeminiFlash(
   );
   
   return injectModelMetadata(stream, {
-    model: 'gemini-flash',
-    modelName: 'Gemini 2.5 Flash',
+    model: 'gemini-3-pro',
+    modelName: 'Gemini 3 Pro',
     queryType: queryType || 'simple'
   });
 }

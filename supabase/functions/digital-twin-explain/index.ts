@@ -134,7 +134,7 @@ Provide 2-3 paragraphs of actionable insights.`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-3-pro',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage },
@@ -153,7 +153,7 @@ Provide 2-3 paragraphs of actionable insights.`;
     return new Response(
       JSON.stringify({ 
         explanation,
-        model_used: isComplexQuery && ANTHROPIC_API_KEY ? 'claude-sonnet-4-5' : 'gemini-2.5-flash',
+        model_used: isComplexQuery && ANTHROPIC_API_KEY ? 'claude-sonnet-4-5' : 'gemini-3-pro',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

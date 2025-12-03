@@ -123,7 +123,7 @@ Provide personalized, actionable financial advice. Be encouraging and specific.`
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-pro',
         messages: [
           { role: 'system', content: context },
           ...conversationHistory
