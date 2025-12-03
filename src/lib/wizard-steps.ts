@@ -45,7 +45,7 @@ export const DASHBOARD_WIZARD_STEPS: WizardStepWithIcon[] = [
   {
     id: "quick-actions",
     title: "Quick Actions",
-    description: "Access common actions quickly with this floating menu. Create new goals, make transfers, or view insights with a single tap.",
+    description: "Access common actions quickly with this floating menu. Create new goals, make transfers, or view analytics with a single tap.",
     targetSelector: "[data-wizard='quick-actions']",
     position: "left",
     iconComponent: Zap
