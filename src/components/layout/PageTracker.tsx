@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecentPages } from '@/hooks/useRecentPages';
+import { trackPageViewToDb } from '@/lib/page-tracker';
 
 /**
  * PageTracker - Global component that tracks page visits
- * Automatically populates recent pages history for 404 page enhancement
+ * - Populates recent pages history for 404 page enhancement
+ * - Tracks page views to database for analytics
  */
 export function PageTracker() {
   const location = useLocation();
@@ -15,8 +17,8 @@ export function PageTracker() {
     // Prevent duplicate tracking
     if (isTracking.current) return;
     
-    // Don't track 404 pages or auth pages
-    if (location.pathname === '*' || location.pathname.startsWith('/auth')) {
+    // Don't track 404 pages
+    if (location.pathname === '*') {
       return;
     }
 
@@ -52,14 +54,29 @@ export function PageTracker() {
       '/bill-negotiation': 'Bill Negotiation',
       '/admin': 'Admin',
       '/whitelabel': 'White Label',
+      '/guardian': 'Guardian Security',
+      '/ai-agents': 'AI Agents',
+      '/wallet': 'Wallet',
+      '/card': 'Card',
+      '/accounts': 'Accounts',
+      '/lifesim': 'LifeSim',
+      '/security-settings': 'Security Settings',
+      '/changelog': 'Changelog',
+      '/search': 'Search',
+      '/sitemap': 'Sitemap',
+      '/page-analytics': 'Page Analytics',
     };
 
     const title = pathTitleMap[location.pathname] || 'Page';
     
-    // Add page to recent history
+    // Track page view
     isTracking.current = true;
     try {
+      // Add to recent pages (session storage)
       addPage(location.pathname, title);
+      
+      // Track to database for analytics
+      trackPageViewToDb(location.pathname, title);
     } catch (error) {
       console.error('PageTracker error:', error);
     } finally {
