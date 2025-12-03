@@ -14,6 +14,7 @@ export interface WidgetPriority {
 interface ExtendedDashboardData extends UnifiedDashboardData {
   creditScore?: { score: number; change: number };
   creditGoal?: { target: number; progress: number };
+  taxDocumentCount?: number;
 }
 
 interface AnalysisContext {
@@ -290,12 +291,37 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: '30-day financial forecast',
     });
 
-    // 16. Tax Documents Upload
+    // 16. Tax Documents Upload - Dynamic priority based on tax season
+    const currentMonth = new Date().getMonth() + 1; // 1-12
+    const isTaxSeason = currentMonth >= 1 && currentMonth <= 4;
+    
+    // Base score varies by tax season
+    let taxDocsScore = isTaxSeason ? 72 : 45;
+    let taxDocsSize: 'hero' | 'large' | 'normal' = isTaxSeason ? 'large' : 'normal';
+    let taxUrgencyLevel: 'critical' | 'high' | 'medium' | 'low' = isTaxSeason ? 'medium' : 'low';
+    let taxUrgencyReason = isTaxSeason 
+      ? '📋 Tax season! Upload W-2s and 1099s for GPT-5 analysis'
+      : 'Upload and analyze tax documents with GPT-5';
+    
+    // If no documents exist yet, boost priority further
+    const hasTaxDocs = dashboardData?.taxDocumentCount && dashboardData.taxDocumentCount > 0;
+    if (!hasTaxDocs) {
+      taxDocsScore = isTaxSeason ? 85 : 55;
+      taxUrgencyReason = isTaxSeason
+        ? '⚠️ Tax season! Upload your first tax document'
+        : 'Get started: Upload your first tax document';
+      if (isTaxSeason) {
+        taxDocsSize = 'large';
+        taxUrgencyLevel = 'high';
+      }
+    }
+
     priorities.push({
       id: 'tax-documents',
-      score: 45,
-      size: 'normal',
-      urgencyReason: 'Upload and analyze tax documents with GPT-5',
+      score: taxDocsScore,
+      size: taxDocsSize,
+      urgencyLevel: taxUrgencyLevel,
+      urgencyReason: taxUrgencyReason,
     });
 
     // Sort by score descending
