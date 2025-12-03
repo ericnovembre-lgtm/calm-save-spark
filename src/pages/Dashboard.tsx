@@ -61,6 +61,7 @@ import { useAuth } from "@/hooks/useAuth";
 import ProactiveRecommendations from "@/components/dashboard/ProactiveRecommendations";
 import { Shield } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { TaxDocumentUploadWidget } from "@/components/dashboard/TaxDocumentUploadWidget";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -485,6 +486,11 @@ export default function Dashboard() {
           toast.success('Payment initiated!');
         }}
       />
+    ),
+    'tax-documents': (
+      <DashboardErrorBoundary key="tax-documents" sectionName="Tax Documents">
+        <TaxDocumentUploadWidget />
+      </DashboardErrorBoundary>
     ),
   };
 
