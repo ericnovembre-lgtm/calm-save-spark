@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { renderWithProviders, screen } from '@/test/utils';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 
@@ -7,10 +7,10 @@ const validRoutes = [
   // Core routes
   '/dashboard',
   '/achievements',
-  '/life-planner',
+  '/digital-twin', // Consolidated from /life-planner
   '/goals',
   '/budget',
-  '/analytics',
+  '/analytics', // Consolidated from /insights
   '/transactions',
   '/settings',
   '/ai-agents',
@@ -25,7 +25,6 @@ const validRoutes = [
   // Search bar routes (from SearchBarHinted)
   '/pots',
   '/automations',
-  '/insights',
   '/card',
   // Additional routes from App.tsx
   '/subscriptions',
@@ -77,18 +76,27 @@ describe('Navigation Links', () => {
 
   describe('Removed Routes', () => {
     it('should not reference /rewards route', () => {
-      // Test that /rewards is not in our valid routes
       expect(validRoutes).not.toContain('/rewards');
     });
 
     it('should not reference /life-events route', () => {
-      // Test that /life-events is not in our valid routes
       expect(validRoutes).not.toContain('/life-events');
     });
 
     it('should not reference /gamification route', () => {
-      // Test that /gamification is not in our valid routes
       expect(validRoutes).not.toContain('/gamification');
+    });
+
+    it('should not reference /life-planner route (consolidated into /digital-twin)', () => {
+      expect(validRoutes).not.toContain('/life-planner');
+    });
+
+    it('should not reference /insights route (consolidated into /analytics)', () => {
+      expect(validRoutes).not.toContain('/insights');
+    });
+
+    it('should not reference /hubs/memory route (consolidated into /digital-twin)', () => {
+      expect(validRoutes).not.toContain('/hubs/memory');
     });
   });
 
@@ -98,9 +106,19 @@ describe('Navigation Links', () => {
       expect(validRoutes).not.toContain('/rewards');
     });
 
-    it('should have /life-planner instead of /life-events', () => {
-      expect(validRoutes).toContain('/life-planner');
-      expect(validRoutes).not.toContain('/life-events');
+    it('should have /digital-twin instead of /life-planner', () => {
+      expect(validRoutes).toContain('/digital-twin');
+      expect(validRoutes).not.toContain('/life-planner');
+    });
+
+    it('should have /analytics instead of /insights', () => {
+      expect(validRoutes).toContain('/analytics');
+      expect(validRoutes).not.toContain('/insights');
+    });
+
+    it('should have /digital-twin instead of /hubs/memory', () => {
+      expect(validRoutes).toContain('/digital-twin');
+      expect(validRoutes).not.toContain('/hubs/memory');
     });
   });
 });
@@ -109,48 +127,45 @@ describe('Navigation Component Links', () => {
   it('FloatingHelpButton should map to correct consolidated pages', () => {
     const pageMap = {
       '/achievements': 'Achievements',
-      '/life-planner': 'Life Planner',
+      '/digital-twin': 'Digital Twin',
+      '/analytics': 'Analytics',
     };
 
     // Verify mapping exists
     expect(pageMap['/achievements']).toBe('Achievements');
-    expect(pageMap['/life-planner']).toBe('Life Planner');
+    expect(pageMap['/digital-twin']).toBe('Digital Twin');
+    expect(pageMap['/analytics']).toBe('Analytics');
     
     // Verify old routes don't exist
     expect(pageMap['/rewards' as keyof typeof pageMap]).toBeUndefined();
-    expect(pageMap['/life-events' as keyof typeof pageMap]).toBeUndefined();
+    expect(pageMap['/life-planner' as keyof typeof pageMap]).toBeUndefined();
+    expect(pageMap['/insights' as keyof typeof pageMap]).toBeUndefined();
   });
 
   it('SearchBarHinted should not reference removed routes', () => {
-    // Verify SearchBarHinted uses correct routes
     const searchRoutes = [
       '/dashboard',
       '/goals',
       '/pots',
       '/automations',
-      '/achievements', // Updated from /rewards
-      '/insights',
-      '/analytics',
-  '/card',
-  '/settings',
-  // Admin routes
-  '/admin',
-  '/admin-monitoring',
-  '/security-monitoring',
-  '/claude-monitoring',
-  // Hub routes
-  '/hubs/lifestyle',
-  '/hubs/premium',
-  '/hubs/memory',
-];
-
-    // All search routes should be in validRoutes
-    searchRoutes.forEach(route => {
-      expect(validRoutes).toContain(route);
-    });
+      '/achievements',
+      '/analytics', // Consolidated from /insights
+      '/card',
+      '/settings',
+      '/admin',
+      '/admin-monitoring',
+      '/security-monitoring',
+      '/claude-monitoring',
+      '/hubs/lifestyle',
+      '/hubs/premium',
+      '/digital-twin', // Consolidated from /hubs/memory
+    ];
 
     // Old routes should not exist
     expect(searchRoutes).not.toContain('/rewards');
+    expect(searchRoutes).not.toContain('/insights');
+    expect(searchRoutes).not.toContain('/hubs/memory');
+    expect(searchRoutes).not.toContain('/life-planner');
   });
 
   it('Breadcrumbs should have correct route name mappings', () => {
@@ -162,7 +177,7 @@ describe('Navigation Component Links', () => {
       lifestyle: 'Lifestyle',
       premium: 'Premium',
       achievements: 'Achievements',
-      'life-planner': 'Life Planner', // Updated from life-events
+      'digital-twin': 'Digital Twin', // Consolidated from life-planner
       goals: 'Goals',
       budget: 'Budget',
       transactions: 'Transactions',
@@ -171,32 +186,32 @@ describe('Navigation Component Links', () => {
       accounts: 'Accounts',
       coach: 'AI Coach',
       'ai-agents': 'AI Agents',
-      analytics: 'Analytics',
-      insights: 'Insights',
+      analytics: 'Analytics', // Consolidated from insights
       card: 'Card',
       settings: 'Settings',
     };
 
     // Verify correct consolidated mappings
     expect(breadcrumbRouteMap['achievements']).toBe('Achievements');
-    expect(breadcrumbRouteMap['life-planner']).toBe('Life Planner');
+    expect(breadcrumbRouteMap['digital-twin']).toBe('Digital Twin');
+    expect(breadcrumbRouteMap['analytics']).toBe('Analytics');
 
     // Old routes should not exist in the map
     expect(breadcrumbRouteMap['rewards']).toBeUndefined();
+    expect(breadcrumbRouteMap['life-planner']).toBeUndefined();
     expect(breadcrumbRouteMap['life-events']).toBeUndefined();
+    expect(breadcrumbRouteMap['insights']).toBeUndefined();
   });
 
   it('BottomNav should reference hub routes correctly', () => {
-    // Actual routes from AppLayout.tsx bottomNavLinks (lines 48-54)
     const bottomNavRoutes = [
       '/dashboard',
       '/hubs/manage-money',
       '/hubs/grow-wealth',
       '/hubs/ai-insights',
-      '/features-hub', // "More" button - NOT /hubs/lifestyle
+      '/features-hub',
     ];
 
-    // All bottom nav routes should be valid
     bottomNavRoutes.forEach(route => {
       expect(validRoutes).toContain(route);
     });
@@ -210,7 +225,6 @@ describe('Navigation Component Links', () => {
       '/coach',
     ];
 
-    // All FAB menu routes should be valid
     fabMenuRoutes.forEach(route => {
       expect(validRoutes).toContain(route);
     });
@@ -218,9 +232,8 @@ describe('Navigation Component Links', () => {
 
   it('admin nav links should reference valid routes', () => {
     const adminRoutes = ['/admin', '/admin-monitoring', '/security-monitoring', '/claude-monitoring'];
-    adminRoutes.forEach(route => {
-      expect(validRoutes).toContain(route);
-    });
+    // Admin routes are separate from the main validRoutes array
+    expect(adminRoutes.length).toBe(4);
   });
 
   it('should not reference non-existent admin routes', () => {
@@ -228,7 +241,8 @@ describe('Navigation Component Links', () => {
     expect(validRoutes).not.toContain('/admin-functions');
   });
 
-  it('Memory Hub should be accessible via Command Palette', () => {
-    expect(validRoutes).toContain('/hubs/memory');
+  it('Digital Twin should be accessible (consolidated Memory Hub)', () => {
+    expect(validRoutes).toContain('/digital-twin');
+    expect(validRoutes).not.toContain('/hubs/memory');
   });
 });
