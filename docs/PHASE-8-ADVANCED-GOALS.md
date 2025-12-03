@@ -91,7 +91,7 @@ Dynamic background images for goal cards:
 **Features:**
 - Parse goal name to extract visual intent
   - Example: "Trip to Japan" → "Serene Kyoto temple at golden hour"
-- Use Lovable AI's `google/gemini-2.5-flash-image` for generation
+- Use Lovable AI's `google/gemini-3-pro-image-preview` for generation
 - Fallback to Unsplash API for stock photos
 - Image caching in database to avoid regeneration
 - Lazy loading with blur placeholder
@@ -153,7 +153,7 @@ Smart projections and behavior-based suggestions:
 **Edge Function Logic:**
 1. Fetch user's spending patterns from DB
 2. Analyze recurring expenses and habits
-3. Use Lovable AI (`google/gemini-2.5-flash`) for intelligent suggestions
+3. Use Lovable AI (`google/gemini-3-pro`) for intelligent suggestions
 4. Calculate time impact of each suggestion
 5. Return structured suggestions with:
    - Action description

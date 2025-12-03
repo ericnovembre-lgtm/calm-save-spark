@@ -127,7 +127,7 @@ Response: {
 ```
 
 **Features**:
-- Lovable AI (google/gemini-2.5-flash) integration
+- Lovable AI (google/gemini-3-pro) integration
 - Cache-first approach
 - Confidence scoring
 - Learning from user behavior
@@ -215,7 +215,7 @@ CREATE TABLE spending_predictions (
 ## AI Integration
 
 ### Lovable AI Models Used
-1. **google/gemini-2.5-flash**: Fast, balanced model for:
+1. **google/gemini-3-pro**: Fast, balanced model for:
    - Smart category suggestions
    - Predictive budgeting
    - Real-time analysis

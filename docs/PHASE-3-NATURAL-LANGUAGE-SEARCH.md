@@ -11,7 +11,7 @@ Implemented AI-powered natural language search that allows users to search trans
 **Purpose:** Processes natural language queries into structured transaction filters using Lovable AI.
 
 **Features:**
-- Uses `google/gemini-2.5-flash` model for fast parsing
+- Uses `google/gemini-3-pro` model for fast parsing
 - Provides user context (recent categories & merchants) for better accuracy
 - Extracts structured filters: searchQuery, category, merchant, amount ranges, date ranges
 - Stores search queries in history for quick access
@@ -145,7 +145,7 @@ verify_jwt = true
 
 - Search history limited to 10 recent queries
 - Suggestions generated from last 200 transactions
-- AI model: `google/gemini-2.5-flash` for fast responses
+- AI model: `google/gemini-3-pro` for fast responses
 - Proper query key management for React Query caching
 
 ## Next Steps
