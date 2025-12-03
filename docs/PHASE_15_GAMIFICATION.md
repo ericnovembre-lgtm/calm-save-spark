@@ -239,7 +239,7 @@ Response: {
 ### AI Integration
 
 **Lovable AI Model Used**:
-- `google/gemini-2.5-flash`: Fast insights generation
+- `google/gemini-3-pro`: Fast insights generation
 
 **Insight Generation**:
 - Context: Weekly financial data

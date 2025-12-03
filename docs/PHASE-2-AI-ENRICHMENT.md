@@ -10,7 +10,7 @@ Successfully implemented AI-powered transaction enrichment system using Lovable 
 
 ### 1. **Merchant Name Cleaning**
 - Automatically cleans messy bank data (e.g., "ACH WID 9942 WAL-MART" → "Walmart")
-- Uses Lovable AI (google/gemini-2.5-flash) for intelligent parsing
+- Uses Lovable AI (google/gemini-3-pro) for intelligent parsing
 - Caches results in `merchant_enrichment` table to reduce API calls
 
 ### 2. **AI Confidence Indicators**
