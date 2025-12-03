@@ -162,13 +162,6 @@ export function CommandPalette() {
       category: "navigation"
     },
     {
-      id: "view-insights",
-      label: "Insights",
-      icon: <PieChart className="w-4 h-4" />,
-      action: () => navigate("/insights"),
-      category: "navigation"
-    },
-    {
       id: "view-analytics",
       label: "Analytics",
       icon: <PieChart className="w-4 h-4" />,
