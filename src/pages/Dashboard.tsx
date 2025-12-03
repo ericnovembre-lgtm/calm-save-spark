@@ -62,6 +62,8 @@ import ProactiveRecommendations from "@/components/dashboard/ProactiveRecommenda
 import { Shield } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { TaxDocumentUploadWidget } from "@/components/dashboard/TaxDocumentUploadWidget";
+import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
+import { TransactionAlertBanner } from "@/components/alerts/TransactionAlertToast";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -174,6 +176,9 @@ export default function Dashboard() {
 
   // Get upcoming bills for priority engine
   const { upcomingBills } = useSubscriptions();
+
+  // Real-time transaction alerts (Groq-powered anomaly detection)
+  const { alerts: transactionAlerts, unreadCount: alertUnreadCount, markAllAsRead: markAlertsRead } = useTransactionAlerts();
 
   // Generative Layout Engine - analyzes urgency and assigns priority scores
   const layoutPriorities = useGenerativeLayoutEngine({
@@ -547,6 +552,15 @@ export default function Dashboard() {
           <div data-tour="anomaly-alerts">
             <AnomalyAlertCenter />
           </div>
+
+          {/* Real-time Transaction Alerts (Groq-powered) */}
+          {transactionAlerts.filter(a => !a.read).length > 0 && (
+            <TransactionAlertBanner
+              alerts={transactionAlerts.filter(a => !a.read)}
+              onViewAll={() => document.getElementById('transactions')?.scrollIntoView({ behavior: 'smooth' })}
+              onDismissAll={markAlertsRead}
+            />
+          )}
 
           {/* Header */}
           <div className="flex items-center justify-between mb-6 [&_svg]:drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
