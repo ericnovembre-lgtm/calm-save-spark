@@ -38,13 +38,13 @@ All routes organized by hub:
 - `/hubs/grow-wealth` → `/goals`, `/investments`, etc.
 - `/hubs/ai-insights` → `/coach`, `/ai-agents`, etc.
 - `/hubs/lifestyle` → `/family`, `/student`, etc.
-- `/hubs/premium` → `/alternatives-portal`, `/investment-manager`, etc.
+- `/hubs/premium` → `/alternatives-portal`, etc.
 
 ## Benefits
 - 85% reduction in primary nav items (from 41 to 6)
 - <3 clicks to any feature
 - Consistent mobile/desktop experience
-- ~68 pages accessible and discoverable
+- 67 pages accessible and discoverable
 
 ## Page Consolidation (Complete)
 
@@ -58,7 +58,7 @@ All routes organized by hub:
 - `/investment-manager` → `/investments` (merged as Tax Optimization, Rebalancing tabs)
 - `/business` → `/business-os` (merged as Expenses, Vendors, Invoices tabs)
 
-### Redirects Active
+### Redirects Active (13 total)
 - `/security` → `/guardian`
 - `/agent-hub` → `/ai-agents`
 - `/insights` → `/analytics?tab=cashflow`
@@ -67,10 +67,30 @@ All routes organized by hub:
 - `/hubs/memory` → `/digital-twin?panel=memory`
 - `/investment-manager` → `/investments?tab=tax-optimization`
 - `/business` → `/business-os`
+- `/features` → `/features-hub`
+- `/rewards` → `/achievements`
+- `/gamification` → `/achievements`
+- `/life-events` → `/digital-twin?tab=playbooks`
+- `/advanced-analytics` → `/analytics`
 
 ### Deleted Pages (9 total)
 - `BehavioralGuardian.tsx`, `Security.tsx`, `AgentHub.tsx`, `Insights.tsx`
 - `DigitalTwinAnalytics.tsx`, `LifePlanner.tsx`, `MemoryHub.tsx`
 - `InvestmentManager.tsx`, `Business.tsx`
 
-### Page Count: 76 → 62 pages
+### Page Count: 76 → 67 pages
+
+## Admin Tools
+
+### `/sitemap` - Interactive Visual Sitemap
+- Stats dashboard showing total pages, categories, and redirect counts
+- Collapsible categories with page counts and protection indicators
+- Search functionality across all pages
+- Visual indicators for auth-protected and admin-only routes
+- Redirect mapping display
+
+### `/page-analytics` - Page Usage Analytics
+- Daily page view trends with time-series chart
+- Top pages ranked by view count
+- Category breakdown statistics
+- Date range filtering
