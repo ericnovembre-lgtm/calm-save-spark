@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { BarChart3, TrendingUp, PieChart, FileText, Sparkles, Loader2 } from "lucide-react";
+import { BarChart3, TrendingUp, PieChart, FileText, Sparkles, Loader2, DollarSign, Brain, Play } from "lucide-react";
 import { useAnalyticsData, useAIInsights, type Timeframe } from "@/hooks/useAnalyticsData";
 import { useSeedSampleData } from "@/hooks/useSeedSampleData";
 import { TimeframePicker } from "@/components/analytics/TimeframePicker";
@@ -15,10 +15,20 @@ import { ExportButton } from "@/components/analytics/ExportButton";
 import { ReportBuilder } from "@/components/analytics/ReportBuilder";
 import { ForecastDashboard } from "@/components/analytics/ForecastDashboard";
 import { BenchmarkComparison } from "@/components/analytics/BenchmarkComparison";
-import { useNavigate } from "react-router-dom";
+import { CashflowChart } from "@/components/insights/CashflowChart";
+import { ScenarioPlayground } from "@/components/insights/ScenarioPlayground";
+import { BehavioralInsightsPanel } from "@/components/ai/BehavioralInsightsPanel";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { LoadingState } from "@/components/LoadingState";
 
 export default function Analytics() {
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'overview';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [timeframe, setTimeframe] = useState<Timeframe>('30d');
+  const [forecastDays, setForecastDays] = useState(30);
   const navigate = useNavigate();
   
   const { 
@@ -33,12 +43,34 @@ export default function Analytics() {
     isFetching: isRefreshingInsights,
   } = useAIInsights(timeframe);
 
+  // Cash flow forecast data
+  const { data: forecast, isLoading: forecastLoading } = useQuery({
+    queryKey: ['cashflow_forecast', forecastDays],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cashflow-forecast`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ days: forecastDays })
+        }
+      );
+
+      if (!response.ok) throw new Error('Forecast failed');
+      return response.json();
+    },
+  });
+
   const { mutate: seedSampleData, isPending: isSeeding } = useSeedSampleData();
 
-  // Check if there's no data to show empty state
   const hasNoData = !isAnalyticsLoading && (!analyticsData?.transactionCount || analyticsData.transactionCount === 0);
 
-  // Prepare export data
   const exportData = {
     title: "Financial Analytics Report",
     headers: ["Category", "Amount", "Percentage", "Trend"],
@@ -56,7 +88,6 @@ export default function Analytics() {
   };
 
   const handleCategoryClick = (category: string) => {
-    // Navigate to transactions filtered by category
     navigate(`/transactions?category=${encodeURIComponent(category)}`);
   };
 
@@ -66,9 +97,9 @@ export default function Analytics() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Analytics Dashboard</h1>
+            <h1 className="text-3xl font-bold text-foreground">Analytics & Insights</h1>
             <p className="text-muted-foreground mt-1">
-              Track spending trends, categories, and AI-powered insights
+              Track spending, forecasts, and AI-powered financial insights
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -107,53 +138,28 @@ export default function Analytics() {
           </div>
         )}
 
-        {/* Overview Cards */}
-        <SpendingOverviewCards
-          totalSpending={analyticsData?.totalSpending || 0}
-          transactionCount={analyticsData?.transactionCount || 0}
-          topCategory={analyticsData?.topCategory || 'None'}
-          averageTransaction={analyticsData?.averageTransaction || 0}
-          spendingChange={analyticsData?.spendingChange || 0}
-          transactionChange={analyticsData?.transactionChange || 0}
-          dailyData={analyticsData?.dailyData || []}
-          isLoading={isAnalyticsLoading}
-        />
-
-        {/* Charts Row */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <SpendingTrendsChart
-            data={analyticsData?.dailyData || []}
-            isLoading={isAnalyticsLoading}
-          />
-          <CategoryBreakdownChart
-            data={analyticsData?.categoryTotals || []}
-            isLoading={isAnalyticsLoading}
-            onCategoryClick={handleCategoryClick}
-          />
-        </div>
-
-        {/* AI Insights */}
-        <PredictiveInsightsPanel
-          insights={insightsData?.insights || []}
-          isLoading={isInsightsLoading}
-          onRefresh={() => refetchInsights()}
-          isRefreshing={isRefreshingInsights}
-        />
-
-        {/* Detailed Tabs */}
-        <Tabs defaultValue="comparison" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="comparison" className="gap-2">
+        {/* Main Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 mb-6">
+            <TabsTrigger value="overview" className="gap-2">
               <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Comparison</span>
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="cashflow" className="gap-2">
+              <DollarSign className="w-4 h-4" />
+              <span className="hidden sm:inline">Cash Flow</span>
             </TabsTrigger>
             <TabsTrigger value="forecasts" className="gap-2">
               <TrendingUp className="w-4 h-4" />
               <span className="hidden sm:inline">Forecasts</span>
             </TabsTrigger>
-            <TabsTrigger value="benchmarks" className="gap-2">
-              <PieChart className="w-4 h-4" />
-              <span className="hidden sm:inline">Benchmarks</span>
+            <TabsTrigger value="behavioral" className="gap-2">
+              <Brain className="w-4 h-4" />
+              <span className="hidden sm:inline">Behavioral</span>
+            </TabsTrigger>
+            <TabsTrigger value="scenarios" className="gap-2">
+              <Play className="w-4 h-4" />
+              <span className="hidden sm:inline">What-If</span>
             </TabsTrigger>
             <TabsTrigger value="reports" className="gap-2">
               <FileText className="w-4 h-4" />
@@ -161,21 +167,118 @@ export default function Analytics() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="comparison" className="mt-6">
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <SpendingOverviewCards
+              totalSpending={analyticsData?.totalSpending || 0}
+              transactionCount={analyticsData?.transactionCount || 0}
+              topCategory={analyticsData?.topCategory || 'None'}
+              averageTransaction={analyticsData?.averageTransaction || 0}
+              spendingChange={analyticsData?.spendingChange || 0}
+              transactionChange={analyticsData?.transactionChange || 0}
+              dailyData={analyticsData?.dailyData || []}
+              isLoading={isAnalyticsLoading}
+            />
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <SpendingTrendsChart
+                data={analyticsData?.dailyData || []}
+                isLoading={isAnalyticsLoading}
+              />
+              <CategoryBreakdownChart
+                data={analyticsData?.categoryTotals || []}
+                isLoading={isAnalyticsLoading}
+                onCategoryClick={handleCategoryClick}
+              />
+            </div>
+
+            <PredictiveInsightsPanel
+              insights={insightsData?.insights || []}
+              isLoading={isInsightsLoading}
+              onRefresh={() => refetchInsights()}
+              isRefreshing={isRefreshingInsights}
+            />
+          </TabsContent>
+
+          {/* Cash Flow Tab (from Insights) */}
+          <TabsContent value="cashflow" className="space-y-4">
+            {forecastLoading ? (
+              <LoadingState />
+            ) : forecast?.forecast ? (
+              <>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
+                    <p className="text-sm text-muted-foreground mb-1">Current Balance</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      ${forecast.summary?.current_balance?.toFixed(2) || 0}
+                    </p>
+                  </div>
+                  <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
+                    <p className="text-sm text-muted-foreground mb-1">Projected ({forecastDays} days)</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      ${forecast.summary?.projected_end_balance?.toFixed(2) || 0}
+                    </p>
+                  </div>
+                  <div className="bg-card rounded-lg p-6 shadow-[var(--shadow-card)]">
+                    <p className="text-sm text-muted-foreground mb-1">Avg Daily Spending</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      ${Math.abs(forecast.summary?.avg_daily_spending || 0).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+
+                <CashflowChart data={forecast.forecast} />
+
+                <div className="flex gap-2">
+                  <Button
+                    variant={forecastDays === 30 ? "default" : "outline"}
+                    onClick={() => setForecastDays(30)}
+                  >
+                    30 Days
+                  </Button>
+                  <Button
+                    variant={forecastDays === 60 ? "default" : "outline"}
+                    onClick={() => setForecastDays(60)}
+                  >
+                    60 Days
+                  </Button>
+                  <Button
+                    variant={forecastDays === 90 ? "default" : "outline"}
+                    onClick={() => setForecastDays(90)}
+                  >
+                    90 Days
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <p>Not enough transaction history for forecasting</p>
+                <p className="text-sm mt-2">Add transactions to see cash flow predictions</p>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Forecasts Tab */}
+          <TabsContent value="forecasts" className="space-y-6">
+            <ForecastDashboard />
             <SpendingComparison
               monthlyData={analyticsData?.monthlyData || []}
               isLoading={isAnalyticsLoading}
             />
-          </TabsContent>
-
-          <TabsContent value="forecasts" className="mt-6">
-            <ForecastDashboard />
-          </TabsContent>
-
-          <TabsContent value="benchmarks" className="mt-6">
             <BenchmarkComparison />
           </TabsContent>
 
+          {/* Behavioral Insights Tab (from Insights) */}
+          <TabsContent value="behavioral">
+            <BehavioralInsightsPanel />
+          </TabsContent>
+
+          {/* Scenarios Tab (from Insights) */}
+          <TabsContent value="scenarios">
+            <ScenarioPlayground />
+          </TabsContent>
+
+          {/* Reports Tab */}
           <TabsContent value="reports" className="mt-6">
             <ReportBuilder />
           </TabsContent>

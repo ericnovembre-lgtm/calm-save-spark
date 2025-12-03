@@ -52,7 +52,7 @@ export function FloatingHelpButton() {
       '/insights': 'Insights',
       '/reports': 'Reports',
       '/forecasts': 'Forecasts',
-      '/security': 'Security',
+      '/guardian': 'Guardian Security Center',
       '/privacy': 'Privacy',
       '/notifications': 'Notifications',
       '/profile': 'Profile',

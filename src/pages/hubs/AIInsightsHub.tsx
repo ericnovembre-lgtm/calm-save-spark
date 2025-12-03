@@ -28,16 +28,16 @@ const features = [
   },
   {
     icon: Users,
-    title: "Agent Hub",
-    description: "Manage all your AI agents",
-    path: "/agent-hub",
+    title: "AI Agents",
+    description: "Chat & autonomous agents",
+    path: "/ai-agents",
     color: "text-indigo-500"
   },
   {
     icon: Lightbulb,
-    title: "Insights",
-    description: "Get financial insights and analytics",
-    path: "/insights",
+    title: "Analytics & Insights",
+    description: "Financial insights and forecasting",
+    path: "/analytics",
     color: "text-yellow-500"
   },
   {

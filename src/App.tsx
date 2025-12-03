@@ -40,7 +40,7 @@ const Dashboard = createPageLoader(() => import("./pages/Dashboard"), 'heavy');
 const Analytics = createPageLoader(() => import("./pages/Analytics"), 'heavy');
 const Budget = createPageLoader(() => import("./pages/Budget"), 'heavy');
 const Goals = createPageLoader(() => import("./pages/Goals"), 'heavy');
-const Insights = createPageLoader(() => import("./pages/Insights"), 'heavy');
+// Insights.tsx merged into Analytics.tsx
 const Pricing = createPageLoader(() => import("./pages/Pricing"), 'heavy');
 const Coach = createPageLoader(() => import("./pages/Coach"), 'heavy');
 const DigitalTwin = createPageLoader(() => import("./pages/DigitalTwin"), 'heavy');
@@ -55,7 +55,7 @@ const Admin = createPageLoader(() => import("./pages/Admin"), 'heavy');
 const AdminMonitoring = createPageLoader(() => import("./pages/AdminMonitoring"), 'heavy');
 const SecurityMonitoring = createPageLoader(() => import("./pages/SecurityMonitoring"), 'heavy');
 const ClaudeMonitoring = createPageLoader(() => import("./pages/ClaudeMonitoring"), 'heavy');
-const Security = createPageLoader(() => import("./pages/Security"), 'heavy');
+// Security.tsx merged into GuardianSecurityCenter.tsx
 const FinancialHealth = createPageLoader(() => import("./pages/FinancialHealth"), 'heavy');
 
 // MEDIUM PAGES - Lists, transactions, moderate complexity
@@ -94,7 +94,7 @@ const AIInsightsHub = createPageLoader(() => import("./pages/hubs/AIInsightsHub"
 const LifestyleHub = createPageLoader(() => import("./pages/hubs/LifestyleHub"), 'medium');
 const PremiumHub = createPageLoader(() => import("./pages/hubs/PremiumHub"), 'medium');
 const FeaturesHub = createPageLoader(() => import("./pages/FeaturesHub"), 'medium');
-const AgentHub = createPageLoader(() => import("./pages/AgentHub"), 'medium');
+// AgentHub.tsx merged into AIAgents.tsx
 const RefinancingHub = createPageLoader(() => import("./pages/RefinancingHub"), 'medium');
 const MemoryHub = createPageLoader(() => import("./pages/MemoryHub"), 'medium');
 
@@ -258,7 +258,7 @@ function AnimatedRoutes() {
         <Route path="/financial-health" element={<ProtectedRoute><PageTransition><FinancialHealth /></PageTransition></ProtectedRoute>} />
         <Route path="/transactions" element={<ProtectedRoute><PageTransition><Transactions /></PageTransition></ProtectedRoute>} />
         <Route path="/subscriptions" element={<ProtectedRoute><PageTransition><Subscriptions /></PageTransition></ProtectedRoute>} />
-        <Route path="/insights" element={<ProtectedRoute><PageTransition><Insights /></PageTransition></ProtectedRoute>} />
+        <Route path="/insights" element={<Navigate to="/analytics?tab=cashflow" replace />} />
         <Route path="/budget" element={<ProtectedRoute><PageTransition><Budget /></PageTransition></ProtectedRoute>} />
         <Route path="/debts" element={<ProtectedRoute><PageTransition><Debts /></PageTransition></ProtectedRoute>} />
         <Route path="/investments" element={<ProtectedRoute><PageTransition><Investments /></PageTransition></ProtectedRoute>} />
@@ -278,7 +278,7 @@ function AnimatedRoutes() {
         <Route path="/changelog" element={<ProtectedRoute><PageTransition><Changelog /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
         <Route path="/security-settings" element={<ProtectedRoute><PageTransition><SecuritySettings /></PageTransition></ProtectedRoute>} />
-        <Route path="/security" element={<ProtectedRoute><PageTransition><Security /></PageTransition></ProtectedRoute>} />
+        <Route path="/security" element={<Navigate to="/guardian" replace />} />
         <Route path="/achievements" element={<ProtectedRoute><PageTransition><Achievements /></PageTransition></ProtectedRoute>} />
         <Route path="/bill-negotiation" element={<ProtectedRoute><PageTransition><BillNegotiation /></PageTransition></ProtectedRoute>} />
         <Route path="/family" element={<ProtectedRoute><PageTransition><Family /></PageTransition></ProtectedRoute>} />
@@ -313,7 +313,7 @@ function AnimatedRoutes() {
         
         {/* Next-Gen Features */}
         <Route path="/digital-twin" element={<ProtectedRoute><PageTransition><DigitalTwin /></PageTransition></ProtectedRoute>} />
-        <Route path="/agent-hub" element={<ProtectedRoute><PageTransition><AgentHub /></PageTransition></ProtectedRoute>} />
+        <Route path="/agent-hub" element={<Navigate to="/ai-agents" replace />} />
         <Route path="/ai-model-analytics" element={<ProtectedRoute><AdminRoute><PageTransition><AIModelAnalytics /></PageTransition></AdminRoute></ProtectedRoute>} />
         <Route path="/guardian" element={<ProtectedRoute><PageTransition><GuardianSecurityCenter /></PageTransition></ProtectedRoute>} />
         <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />

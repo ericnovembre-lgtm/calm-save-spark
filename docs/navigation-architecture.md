@@ -44,4 +44,22 @@ All routes organized by hub:
 - 85% reduction in primary nav items (from 41 to 6)
 - <3 clicks to any feature
 - Consistent mobile/desktop experience
-- All 63+ pages accessible and discoverable
+- ~68 pages accessible and discoverable
+
+## Page Consolidation
+
+### Completed Merges
+- `/security` → `/guardian` (Security Command Center merged into Guardian Security Center)
+- `/agent-hub` → `/ai-agents` (Autonomous Agent Hub merged into AI Agents)
+- `/insights` → `/analytics` (Insights merged into Analytics with tabs)
+
+### Redirects Active
+- `/security` → `/guardian`
+- `/agent-hub` → `/ai-agents`
+- `/insights` → `/analytics?tab=cashflow`
+
+### Deleted Pages
+- `BehavioralGuardian.tsx` (orphaned, not routed)
+- `Security.tsx` (merged into Guardian)
+- `AgentHub.tsx` (merged into AIAgents)
+- `Insights.tsx` (merged into Analytics)

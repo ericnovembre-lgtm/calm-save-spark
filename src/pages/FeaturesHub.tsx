@@ -249,11 +249,11 @@ const sections: Section[] = [
       {
         id: "agent-hub",
         icon: <Bot className="w-6 h-6" />,
-        title: "Autonomous Agent Delegation Hub",
-        description: "Central control for your team of AI financial agents",
+        title: "AI Agents Hub",
+        description: "Chat with AI assistants & delegate to autonomous agents",
         details: "Review goals validated by your Digital Twin and grant specific permissions to autonomous AI agents to execute tasks on your behalf with pre-authorized constraints.",
         status: "beta",
-        route: "/agent-hub"
+        route: "/ai-agents"
       },
       {
         id: "wallet",
