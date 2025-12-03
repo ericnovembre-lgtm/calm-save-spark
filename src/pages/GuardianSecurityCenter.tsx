@@ -6,7 +6,9 @@ import { AegisShield } from "@/components/guardian/AegisShield";
 import { SentinelSessionMap } from "@/components/guardian/SentinelSessionMap";
 import { PrivacyPulseScanner } from "@/components/guardian/PrivacyPulseScanner";
 import { PanicLockdown } from "@/components/guardian/PanicLockdown";
-import { Shield, Activity, Eye, AlertTriangle, Lock, Smartphone, Globe, Key, Database } from "lucide-react";
+import { Shield, Activity, Eye, AlertTriangle, Lock, Smartphone, Globe, Key, Database, Loader2 } from "lucide-react";
+import { useSecurityAuditLog } from '@/hooks/useSecurityAuditLog';
+import { formatDistanceToNow } from 'date-fns';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
@@ -51,6 +53,70 @@ function HexPattern() {
       </defs>
       <rect width="100%" height="100%" fill="url(#hex-pattern)" />
     </svg>
+  );
+}
+
+// Security Log Card with real-time data
+function SecurityLogCard({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const { data: securityEvents = [], isLoading, newEventIds } = useSecurityAuditLog(5);
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'critical': return 'bg-rose-400';
+      case 'warning': return 'bg-amber-400';
+      case 'success': return 'bg-emerald-400';
+      default: return 'bg-white/40';
+    }
+  };
+
+  return (
+    <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5 h-full">
+      <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <Activity className="w-4 h-4" />
+        SECURITY LOG
+        {newEventIds.length > 0 && (
+          <span className="ml-auto px-1.5 py-0.5 text-[10px] font-mono bg-cyan-500/20 text-cyan-400 rounded-full animate-pulse">
+            {newEventIds.length} NEW
+          </span>
+        )}
+      </h3>
+      <div className="space-y-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-5 h-5 text-white/30 animate-spin" />
+          </div>
+        ) : securityEvents.length === 0 ? (
+          <div className="text-center py-8 text-white/30 text-sm">
+            No security events recorded
+          </div>
+        ) : (
+          securityEvents.map((event, i) => {
+            const isNew = newEventIds.includes(event.id);
+            return (
+              <motion.div
+                key={event.id}
+                initial={prefersReducedMotion ? {} : { opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + i * 0.05 }}
+                className={`flex items-start gap-3 p-2 rounded-lg transition-colors ${
+                  isNew 
+                    ? 'bg-cyan-500/10 border border-cyan-500/20' 
+                    : 'bg-white/[0.02] hover:bg-white/[0.04]'
+                }`}
+              >
+                <div className={`w-1.5 h-1.5 rounded-full mt-1.5 ${getSeverityColor(event.severity)} ${isNew ? 'animate-pulse' : ''}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white/80 truncate">{event.event_message}</p>
+                  <p className="text-xs text-white/30 font-mono">
+                    {formatDistanceToNow(new Date(event.created_at), { addSuffix: true })}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })
+        )}
+      </div>
+    </Card>
   );
 }
 
@@ -274,38 +340,7 @@ export default function GuardianSecurityCenter() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
             >
-              <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5 h-full">
-                <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <Activity className="w-4 h-4" />
-                  SECURITY LOG
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    { event: 'Login from Chrome/Mac', time: '2 min ago', type: 'info' as const },
-                    { event: '2FA verification passed', time: '2 min ago', type: 'success' as const },
-                    { event: 'Session refreshed', time: '15 min ago', type: 'info' as const },
-                    { event: 'API key rotated', time: '1 hour ago', type: 'success' as const },
-                    { event: 'New device detected', time: '3 hours ago', type: 'warning' as const },
-                  ].map((log, i) => (
-                    <motion.div
-                      key={i}
-                      initial={prefersReducedMotion ? {} : { opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5 + i * 0.1 }}
-                      className="flex items-start gap-3 p-2 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
-                    >
-                      <div className={`w-1.5 h-1.5 rounded-full mt-1.5 ${
-                        log.type === 'success' ? 'bg-emerald-400' : 
-                        log.type === 'warning' ? 'bg-amber-400' : 'bg-white/40'
-                      }`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white/80 truncate">{log.event}</p>
-                        <p className="text-xs text-white/30 font-mono">{log.time}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </Card>
+              <SecurityLogCard prefersReducedMotion={prefersReducedMotion} />
             </motion.div>
           </div>
 
