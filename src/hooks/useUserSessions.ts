@@ -22,20 +22,20 @@ export interface UserSession {
   created_at: string;
 }
 
-// Convert lat/lng to map percentage coordinates (0-100)
+// Convert lat/lng to map percentage coordinates for SVG viewBox 100x50
 function geoToMapCoords(lat: number | null, lng: number | null): { x: number; y: number } {
   if (lat === null || lng === null) {
-    // Default to center if no coordinates
-    return { x: 50, y: 50 };
+    // Default to center of 100x50 viewBox
+    return { x: 50, y: 25 };
   }
   
-  // Map coordinates: x = 0-100 (left to right), y = 0-100 (top to bottom)
+  // Map coordinates: x = 0-100 (left to right), y = 0-50 (top to bottom)
   // Longitude: -180 to 180 -> 0 to 100
   const x = ((lng + 180) / 360) * 100;
-  // Latitude: 90 to -90 -> 0 to 100 (inverted because y increases downward)
-  const y = ((90 - lat) / 180) * 100;
+  // Latitude: 90 to -90 -> 0 to 50 (scaled to match SVG viewBox height)
+  const y = ((90 - lat) / 180) * 50;
   
-  return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
+  return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(50, y)) };
 }
 
 export function useUserSessions() {
