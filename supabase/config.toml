@@ -485,3 +485,6 @@ verify_jwt = true
 
 [functions.get-social-sentiment]
 verify_jwt = true
+
+[functions.check-sentiment-alerts]
+verify_jwt = false

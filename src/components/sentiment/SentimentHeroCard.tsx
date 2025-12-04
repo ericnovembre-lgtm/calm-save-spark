@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import type { SocialSentimentData } from '@/hooks/useSocialSentiment';
+import { SentimentAlertButton } from './SentimentAlertButton';
 
 interface SentimentHeroCardProps {
   data: SocialSentimentData | undefined;
@@ -58,6 +59,9 @@ export function SentimentHeroCard({ data, isLoading, onTickerChange, currentTick
           <Button onClick={handleSearch} variant="outline" size="sm" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10">
             Analyze
           </Button>
+          {currentTicker && (
+            <SentimentAlertButton ticker={currentTicker} />
+          )}
           <span className="ml-auto text-xs text-slate-500 flex items-center gap-1">
             Powered by <span className="font-bold">𝕏</span>
           </span>
