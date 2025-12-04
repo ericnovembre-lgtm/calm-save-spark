@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Brain, Zap, Globe, FileText, Bolt, Calculator } from 'lucide-react';
+import { Brain, Zap, Globe, FileText, Bolt, Calculator, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ModelIndicatorBadgeProps {
@@ -10,6 +10,12 @@ interface ModelIndicatorBadgeProps {
 }
 
 const MODEL_CONFIG = {
+  'grok-sentiment': {
+    icon: MessageCircle,
+    label: 'Grok 2',
+    color: 'from-neutral-700 to-neutral-900',
+    description: 'Social sentiment'
+  },
   'groq-instant': {
     icon: Bolt,
     label: 'Groq LPU',

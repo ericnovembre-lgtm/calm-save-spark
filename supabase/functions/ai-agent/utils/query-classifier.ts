@@ -3,8 +3,8 @@
  * Determines the optimal AI model based on query complexity and type
  */
 
-export type QueryType = 'simple' | 'complex' | 'market_data' | 'analytical' | 'document_analysis' | 'speed_critical' | 'mathematical_reasoning';
-export type ModelRoute = 'gemini-flash' | 'claude-sonnet' | 'perplexity' | 'gpt-5' | 'groq-instant' | 'deepseek-reasoner';
+export type QueryType = 'simple' | 'complex' | 'market_data' | 'analytical' | 'document_analysis' | 'speed_critical' | 'mathematical_reasoning' | 'social_sentiment';
+export type ModelRoute = 'gemini-flash' | 'claude-sonnet' | 'perplexity' | 'gpt-5' | 'groq-instant' | 'deepseek-reasoner' | 'grok-sentiment';
 
 export interface ClassificationResult {
   type: QueryType;
@@ -49,6 +49,16 @@ const TRANSACTION_ALERT_KEYWORDS = [
   'new transaction', 'just spent', 'just paid', 'just bought',
   'payment alert', 'spending alert', 'charge alert',
   'is this normal', 'unusual', 'suspicious', 'fraud'
+];
+
+// Keywords that indicate social sentiment analysis (route to Grok)
+const SOCIAL_SENTIMENT_KEYWORDS = [
+  'sentiment', 'social media', 'twitter', 'x posts', 'trending',
+  'viral', 'buzz', 'hype', 'fomo', 'fud', 'retail sentiment',
+  'what are people saying', 'market mood', 'crowd opinion',
+  'bullish sentiment', 'bearish sentiment', 'social trends',
+  'reddit', 'wallstreetbets', 'wsb', 'meme stock',
+  'social analysis', 'public opinion', 'investor sentiment'
 ];
 
 // Keywords that indicate market data queries
@@ -112,7 +122,22 @@ export function classifyQuery(
   const lowerQuery = query.toLowerCase();
   const wordCount = query.split(/\s+/).length;
   
-  // Check for speed-critical queries first (route to Groq for <100ms response)
+  // Check for social sentiment queries (route to Grok for real-time social data)
+  const hasSocialSentimentKeywords = SOCIAL_SENTIMENT_KEYWORDS.some(keyword => 
+    lowerQuery.includes(keyword)
+  );
+  
+  if (hasSocialSentimentKeywords) {
+    return {
+      type: 'social_sentiment',
+      model: 'grok-sentiment',
+      confidence: 0.95,
+      reasoning: 'Query requires real-time social sentiment analysis via xAI Grok',
+      estimatedCost: 0.15 // Grok pricing
+    };
+  }
+  
+  // Check for speed-critical queries (route to Groq for <100ms response)
   const hasSpeedCriticalKeywords = SPEED_CRITICAL_KEYWORDS.some(keyword => 
     lowerQuery.includes(keyword)
   );

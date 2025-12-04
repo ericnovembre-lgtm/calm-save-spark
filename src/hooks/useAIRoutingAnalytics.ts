@@ -23,6 +23,7 @@ export interface DailyTrend {
   perplexity: number;
   groq: number;
   deepseek: number;
+  grok: number;
   total: number;
 }
 
