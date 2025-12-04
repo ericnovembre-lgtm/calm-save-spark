@@ -6995,6 +6995,7 @@ export type Database = {
           security_login_alerts: boolean | null
           security_session_revoked: boolean | null
           security_suspicious_activity: boolean | null
+          sentiment_alerts: boolean | null
           transfer_alerts: boolean | null
           updated_at: string | null
           user_id: string
@@ -7016,6 +7017,7 @@ export type Database = {
           security_login_alerts?: boolean | null
           security_session_revoked?: boolean | null
           security_suspicious_activity?: boolean | null
+          sentiment_alerts?: boolean | null
           transfer_alerts?: boolean | null
           updated_at?: string | null
           user_id: string
@@ -7037,6 +7039,7 @@ export type Database = {
           security_login_alerts?: boolean | null
           security_session_revoked?: boolean | null
           security_suspicious_activity?: boolean | null
+          sentiment_alerts?: boolean | null
           transfer_alerts?: boolean | null
           updated_at?: string | null
           user_id?: string
@@ -9116,6 +9119,78 @@ export type Database = {
           ip_address?: string | null
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      sentiment_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          from_state: string | null
+          id: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          threshold_value: number | null
+          ticker: string
+          to_state: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          from_state?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          threshold_value?: number | null
+          ticker: string
+          to_state?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          from_state?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          threshold_value?: number | null
+          ticker?: string
+          to_state?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sentiment_history: {
+        Row: {
+          confidence: number
+          id: string
+          label: string
+          recorded_at: string | null
+          score: number
+          ticker: string
+          trending_topics: Json | null
+          volume: string
+        }
+        Insert: {
+          confidence: number
+          id?: string
+          label: string
+          recorded_at?: string | null
+          score: number
+          ticker: string
+          trending_topics?: Json | null
+          volume: string
+        }
+        Update: {
+          confidence?: number
+          id?: string
+          label?: string
+          recorded_at?: string | null
+          score?: number
+          ticker?: string
+          trending_topics?: Json | null
+          volume?: string
         }
         Relationships: []
       }
