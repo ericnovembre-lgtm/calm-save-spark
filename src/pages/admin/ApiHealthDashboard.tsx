@@ -11,6 +11,7 @@ import { BatchProcessingMonitor } from '@/components/alerts/BatchProcessingMonit
 import { LatencyTrendChart } from '@/components/admin/LatencyTrendChart';
 import { CircuitBreakerTimeline } from '@/components/admin/CircuitBreakerTimeline';
 import { DeepseekMetricsPanel } from '@/components/admin/DeepseekMetricsPanel';
+import { DeepseekQuotaMonitor } from '@/components/admin/DeepseekQuotaMonitor';
 import { useApiHealthMetrics } from '@/hooks/useApiHealthMetrics';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -179,7 +180,10 @@ export default function ApiHealthDashboard() {
                 Deepseek Reasoner Metrics
               </h2>
             )}
-            <DeepseekMetricsPanel timeRange={timeRange} />
+            <div className="grid md:grid-cols-2 gap-6">
+              <DeepseekQuotaMonitor />
+              <DeepseekMetricsPanel timeRange={timeRange} />
+            </div>
           </div>
         )}
 

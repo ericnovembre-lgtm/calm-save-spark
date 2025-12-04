@@ -470,3 +470,6 @@ verify_jwt = true
 
 [functions.monte-carlo-explain]
 verify_jwt = true
+
+[functions.optimize-debt-strategy]
+verify_jwt = true
