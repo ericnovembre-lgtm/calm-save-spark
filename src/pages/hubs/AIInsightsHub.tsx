@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { Bot, Brain, Lightbulb, Shield, Sparkles } from "lucide-react";
+import { Activity, Bot, Brain, Lightbulb, Shield, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -18,6 +18,13 @@ const features = [
     description: "Autonomous financial assistants",
     path: "/ai-agents",
     color: "text-purple-500"
+  },
+  {
+    icon: Activity,
+    title: "Social Sentiment",
+    description: "Real-time market sentiment by Grok",
+    path: "/social-sentiment",
+    color: "text-orange-500"
   },
   {
     icon: Sparkles,
