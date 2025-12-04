@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,9 +6,13 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useUserAIUsageSummary } from '@/hooks/useUserAIUsageSummary';
 import { Link } from 'react-router-dom';
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
+type ViewMode = 'daily' | 'weekly';
 
 export function AIUsageSummaryWidget() {
   const { data: usage, isLoading } = useUserAIUsageSummary();
+  const [viewMode, setViewMode] = useState<ViewMode>('daily');
 
   if (isLoading) {
     return (
@@ -18,8 +23,19 @@ export function AIUsageSummaryWidget() {
   }
 
   if (!usage || usage.totalAnalyses === 0) {
-    return null; // Don't show if no AI usage
+    return null;
   }
+
+  const chartData = viewMode === 'daily' ? usage.dailyTrends : usage.weeklyTrends;
+  const xKey = viewMode === 'daily' ? 'date' : 'week';
+
+  const formatXAxis = (value: string) => {
+    if (viewMode === 'daily') {
+      const date = new Date(value);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+    return value;
+  };
 
   return (
     <motion.div
@@ -61,6 +77,75 @@ export function AIUsageSummaryWidget() {
             )}
           </div>
 
+          {/* Interactive Chart */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Usage Trends</span>
+              <div className="flex gap-1">
+                <Button
+                  variant={viewMode === 'daily' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setViewMode('daily')}
+                  aria-pressed={viewMode === 'daily'}
+                >
+                  Daily
+                </Button>
+                <Button
+                  variant={viewMode === 'weekly' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setViewMode('weekly')}
+                  aria-pressed={viewMode === 'weekly'}
+                >
+                  Weekly
+                </Button>
+              </div>
+            </div>
+            
+            <div className="h-20" role="img" aria-label={`AI usage ${viewMode} trends chart`}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="aiUsageGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis 
+                    dataKey={xKey} 
+                    tickFormatter={formatXAxis}
+                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval="preserveStartEnd"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--popover))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                    }}
+                    labelFormatter={formatXAxis}
+                    formatter={(value: number, name: string) => [
+                      value,
+                      name === 'analyses' ? 'Analyses' : 'Savings ($)'
+                    ]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="analyses"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    fill="url(#aiUsageGradient)"
+                    animationDuration={300}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
           {/* Efficiency Bar */}
           <div className="space-y-1">
             <div className="flex items-center justify-between text-xs">
@@ -72,6 +157,7 @@ export function AIUsageSummaryWidget() {
             <Progress 
               value={usage.efficiencyPercent} 
               className="h-1.5 bg-muted/30"
+              aria-label={`AI efficiency: ${usage.efficiencyPercent}%`}
             />
           </div>
 
