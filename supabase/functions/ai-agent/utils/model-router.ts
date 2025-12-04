@@ -11,6 +11,7 @@ import { streamOpenAI, GPT5_MODEL, DOCUMENT_ANALYSIS_SYSTEM_PROMPT } from "./ope
 import { CLAUDE_MAIN_BRAIN, CLAUDE_35_SONNET } from "./ai-client.ts";
 import { streamGroq, GROQ_MODELS } from "./groq-client.ts";
 import { streamDeepseek, DEEPSEEK_MODELS } from "../../_shared/deepseek-client.ts";
+import { streamGrok, GROK_MODELS } from "./grok-client.ts";
 import { injectModelMetadata } from "./stream-enhancer.ts";
 
 interface Message {
@@ -73,8 +74,11 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
 
   // Route to appropriate model
   switch (classification.model) {
+    case 'grok-sentiment':
+      return await routeToGrok(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
+    
     case 'groq-instant':
-      return await routeToGroq(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
+      return await routeToGroqLPU(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
     
     case 'deepseek-reasoner':
       return await routeToDeepseek(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
@@ -99,9 +103,87 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
 }
 
 /**
+ * Route to xAI Grok for social sentiment analysis
+ */
+async function routeToGrok(
+  systemPrompt: string,
+  conversationHistory: Message[],
+  userMessage: string,
+  supabase?: SupabaseClient,
+  conversationId?: string,
+  userId?: string,
+  queryType?: string
+): Promise<ReadableStream> {
+  console.log('[Model Router] → xAI Grok 2 (Social Sentiment Analysis)');
+  
+  const startTime = Date.now();
+  
+  try {
+    const enhancedSystemPrompt = `${systemPrompt}
+
+**SOCIAL SENTIMENT MODE:** You are using xAI Grok with real-time social media intelligence.
+- Analyze current social media sentiment and trends
+- Identify viral financial topics and retail investor sentiment
+- Provide sentiment scores with confidence levels
+- Reference trending discussions and market mood
+- Include volume indicators (low/moderate/high/viral)`;
+
+    const messages: Message[] = [
+      { role: 'system', content: enhancedSystemPrompt },
+      ...conversationHistory,
+      { role: 'user', content: userMessage }
+    ];
+
+    const stream = await streamGrok(messages, {
+      model: GROK_MODELS.GROK_3_MINI,
+      maxTokens: 2048,
+      temperature: 0.5
+    });
+    
+    const responseTime = Date.now() - startTime;
+    console.log(`[Model Router] Grok response started in ${responseTime}ms`);
+    
+    // Log successful routing
+    await logModelUsage(supabase, userId, conversationId, 'grok-sentiment', 'success', undefined, queryType, userMessage.length, responseTime);
+    
+    // Inject model metadata
+    return injectModelMetadata(stream, {
+      model: 'grok-sentiment',
+      modelName: 'Grok 2',
+      queryType: queryType || 'social_sentiment'
+    });
+  } catch (error) {
+    console.error('[Model Router] Grok failed, falling back to Perplexity:', error);
+    
+    // Log fallback
+    await logModelUsage(
+      supabase, 
+      userId, 
+      conversationId, 
+      'grok-sentiment', 
+      'fallback', 
+      error instanceof Error ? error.message : String(error),
+      queryType,
+      userMessage.length
+    );
+    
+    // Fallback to Perplexity for real-time data
+    return await routeToPerplexity(
+      systemPrompt + '\n\nNote: Analyzing market sentiment using available data.',
+      conversationHistory,
+      userMessage,
+      supabase,
+      conversationId,
+      userId,
+      queryType
+    );
+  }
+}
+
+/**
  * Route to Groq LPU for ultra-fast inference (<100ms)
  */
-async function routeToGroq(
+async function routeToGroqLPU(
   systemPrompt: string,
   conversationHistory: Message[],
   userMessage: string,
