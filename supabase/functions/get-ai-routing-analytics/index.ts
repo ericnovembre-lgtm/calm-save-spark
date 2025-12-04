@@ -100,12 +100,16 @@ function processModelDistribution(analytics: any[]) {
   const modelColors: Record<string, string> = {
     'gemini-flash': 'hsl(var(--chart-3))',
     'claude-sonnet': 'hsl(var(--chart-1))',
-    'perplexity': 'hsl(var(--chart-2))'
+    'perplexity': 'hsl(var(--chart-2))',
+    'groq-llama': 'hsl(var(--chart-4))',
+    'deepseek-reasoner': 'hsl(210, 100%, 50%)' // Deep blue for Deepseek
   };
   const modelNames: Record<string, string> = {
     'gemini-flash': 'Gemini 2.5 Flash',
     'claude-sonnet': 'Claude Sonnet 4.5',
-    'perplexity': 'Perplexity Sonar'
+    'perplexity': 'Perplexity Sonar',
+    'groq-llama': 'Groq LPU',
+    'deepseek-reasoner': 'Deepseek Reasoner'
   };
 
   analytics.forEach(item => {
@@ -123,10 +127,12 @@ function processModelDistribution(analytics: any[]) {
 }
 
 function calculateCostSavings(analytics: any[]) {
-  const COSTS = {
+  const COSTS: Record<string, number> = {
     'gemini-flash': 0.05,
     'claude-sonnet': 0.50,
-    'perplexity': 0.30
+    'perplexity': 0.30,
+    'groq-llama': 0.01,
+    'deepseek-reasoner': 0.02
   };
 
   let totalCost = 0;
@@ -147,23 +153,25 @@ function calculateCostSavings(analytics: any[]) {
 }
 
 function processDailyTrends(analytics: any[]) {
-  const dailyData: Record<string, { gemini: number; claude: number; perplexity: number }> = {};
+  const dailyData: Record<string, { gemini: number; claude: number; perplexity: number; groq: number; deepseek: number }> = {};
 
   analytics.forEach(item => {
     const date = new Date(item.created_at).toISOString().split('T')[0];
     if (!dailyData[date]) {
-      dailyData[date] = { gemini: 0, claude: 0, perplexity: 0 };
+      dailyData[date] = { gemini: 0, claude: 0, perplexity: 0, groq: 0, deepseek: 0 };
     }
 
     if (item.model_used === 'gemini-flash') dailyData[date].gemini++;
     else if (item.model_used === 'claude-sonnet') dailyData[date].claude++;
     else if (item.model_used === 'perplexity') dailyData[date].perplexity++;
+    else if (item.model_used === 'groq-llama') dailyData[date].groq++;
+    else if (item.model_used === 'deepseek-reasoner') dailyData[date].deepseek++;
   });
 
   return Object.entries(dailyData).map(([date, counts]) => ({
     date,
     ...counts,
-    total: counts.gemini + counts.claude + counts.perplexity
+    total: counts.gemini + counts.claude + counts.perplexity + counts.groq + counts.deepseek
   }));
 }
 

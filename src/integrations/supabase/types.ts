@@ -621,6 +621,7 @@ export type Database = {
           model_used: string
           query_length: number | null
           query_type: string
+          reasoning_tokens: number | null
           response_time_ms: number | null
           token_count: number | null
           user_id: string | null
@@ -637,6 +638,7 @@ export type Database = {
           model_used: string
           query_length?: number | null
           query_type: string
+          reasoning_tokens?: number | null
           response_time_ms?: number | null
           token_count?: number | null
           user_id?: string | null
@@ -653,6 +655,7 @@ export type Database = {
           model_used?: string
           query_length?: number | null
           query_type?: string
+          reasoning_tokens?: number | null
           response_time_ms?: number | null
           token_count?: number | null
           user_id?: string | null

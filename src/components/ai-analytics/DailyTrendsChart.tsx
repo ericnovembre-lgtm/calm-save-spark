@@ -37,6 +37,8 @@ export function DailyTrendsChart({ data }: Props) {
             <Bar dataKey="gemini" stackId="a" fill="hsl(var(--chart-3))" name="Gemini Flash" />
             <Bar dataKey="claude" stackId="a" fill="hsl(var(--chart-1))" name="Claude Sonnet" />
             <Bar dataKey="perplexity" stackId="a" fill="hsl(var(--chart-2))" name="Perplexity" />
+            <Bar dataKey="groq" stackId="a" fill="hsl(var(--chart-4))" name="Groq LPU" />
+            <Bar dataKey="deepseek" stackId="a" fill="hsl(210, 100%, 50%)" name="Deepseek Reasoner" />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
