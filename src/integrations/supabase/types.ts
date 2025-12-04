@@ -5371,6 +5371,69 @@ export type Database = {
         }
         Relationships: []
       }
+      grok_quota_state: {
+        Row: {
+          avg_latency_ms: number | null
+          circuit_opened_at: string | null
+          circuit_state: string | null
+          consecutive_failures: number | null
+          created_at: string | null
+          id: string
+          last_request_at: string | null
+          latency_samples: number | null
+          requests_limit_rpm: number | null
+          requests_remaining_rpm: number | null
+          requests_reset_at: string | null
+          sentiment_queries_count: number | null
+          tokens_limit_tpm: number | null
+          tokens_remaining_tpm: number | null
+          tokens_reset_at: string | null
+          total_cost_estimate: number | null
+          total_requests_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          avg_latency_ms?: number | null
+          circuit_opened_at?: string | null
+          circuit_state?: string | null
+          consecutive_failures?: number | null
+          created_at?: string | null
+          id?: string
+          last_request_at?: string | null
+          latency_samples?: number | null
+          requests_limit_rpm?: number | null
+          requests_remaining_rpm?: number | null
+          requests_reset_at?: string | null
+          sentiment_queries_count?: number | null
+          tokens_limit_tpm?: number | null
+          tokens_remaining_tpm?: number | null
+          tokens_reset_at?: string | null
+          total_cost_estimate?: number | null
+          total_requests_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          avg_latency_ms?: number | null
+          circuit_opened_at?: string | null
+          circuit_state?: string | null
+          consecutive_failures?: number | null
+          created_at?: string | null
+          id?: string
+          last_request_at?: string | null
+          latency_samples?: number | null
+          requests_limit_rpm?: number | null
+          requests_remaining_rpm?: number | null
+          requests_reset_at?: string | null
+          sentiment_queries_count?: number | null
+          tokens_limit_tpm?: number | null
+          tokens_remaining_tpm?: number | null
+          tokens_reset_at?: string | null
+          total_cost_estimate?: number | null
+          total_requests_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       groq_quota_state: {
         Row: {
           avg_latency_ms: number | null
@@ -12330,6 +12393,24 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      update_grok_circuit_state: {
+        Args: { p_state: string }
+        Returns: undefined
+      }
+      update_grok_quota_state: {
+        Args: {
+          p_is_sentiment?: boolean
+          p_latency_ms: number
+          p_requests_limit: number
+          p_requests_remaining: number
+          p_requests_reset: string
+          p_success: boolean
+          p_tokens_limit: number
+          p_tokens_remaining: number
+          p_tokens_reset: string
+        }
+        Returns: undefined
       }
       update_groq_circuit_state: {
         Args: { p_state: string }
