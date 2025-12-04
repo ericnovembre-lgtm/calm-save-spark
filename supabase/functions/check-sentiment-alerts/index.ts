@@ -6,17 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface SentimentData {
-  ticker: string;
-  sentiment: {
-    score: number;
-    label: string;
-    confidence: number;
-  };
-  volume: string;
-  trendingTopics: string[];
-}
-
 interface SentimentAlert {
   id: string;
   user_id: string;
@@ -62,7 +51,7 @@ serve(async (req) => {
     const triggeredAlerts: any[] = [];
 
     for (const ticker of uniqueTickers) {
-      // Fetch current sentiment
+      // Fetch current sentiment (this will also record to history via get-social-sentiment)
       const { data: currentSentiment, error: sentimentError } = await supabase.functions.invoke(
         'get-social-sentiment',
         { body: { ticker } }
@@ -73,24 +62,14 @@ serve(async (req) => {
         continue;
       }
 
-      // Get last recorded sentiment for this ticker
+      // Get last recorded sentiment for this ticker (skip the one just recorded)
       const { data: lastHistory } = await supabase
         .from('sentiment_history')
         .select('*')
         .eq('ticker', ticker)
         .order('recorded_at', { ascending: false })
-        .limit(1)
+        .range(1, 1)
         .single();
-
-      // Record current sentiment to history
-      await supabase.from('sentiment_history').insert({
-        ticker,
-        score: currentSentiment.sentiment.score,
-        label: currentSentiment.sentiment.label,
-        confidence: currentSentiment.sentiment.confidence,
-        volume: currentSentiment.volume,
-        trending_topics: currentSentiment.trendingTopics,
-      });
 
       // Check alerts for this ticker
       const tickerAlerts = alerts.filter((a: SentimentAlert) => a.ticker === ticker);
@@ -143,14 +122,14 @@ serve(async (req) => {
         if (shouldTrigger) {
           console.log(`[check-sentiment-alerts] Alert triggered: ${alertMessage}`);
           
-          // Create smart_alert notification
+          // Create smart_alert notification with correct schema (severity, data)
           await supabase.from('smart_alerts').insert({
             user_id: alert.user_id,
             alert_type: `sentiment_${alert.alert_type}`,
             title: `Sentiment Alert: ${ticker}`,
             message: alertMessage,
-            priority: alert.alert_type === 'state_change' ? 'high' : 'medium',
-            metadata: {
+            severity: alert.alert_type === 'state_change' ? 'high' : 'medium',
+            data: {
               ticker,
               alert_id: alert.id,
               previous: lastHistory ? {
