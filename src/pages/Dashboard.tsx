@@ -64,6 +64,7 @@ import { Card } from "@/components/ui/card";
 import { TaxDocumentUploadWidget } from "@/components/dashboard/TaxDocumentUploadWidget";
 import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
 import { TransactionAlertBanner } from "@/components/alerts/TransactionAlertToast";
+import { TransactionAlertTester } from "@/components/debug/TransactionAlertTester";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -547,6 +548,9 @@ export default function Dashboard() {
           <EmailVerificationBanner />
           <SmartBanner />
           <ProactiveNudgesBanner />
+
+          {/* Dev-only Transaction Alert Tester */}
+          <TransactionAlertTester />
 
           {/* Anomaly Alerts */}
           <div data-tour="anomaly-alerts">
