@@ -10,6 +10,7 @@ import { streamPerplexityResponse } from "./perplexity-client.ts";
 import { streamOpenAI, GPT5_MODEL, DOCUMENT_ANALYSIS_SYSTEM_PROMPT } from "./openai-client.ts";
 import { CLAUDE_MAIN_BRAIN, CLAUDE_35_SONNET } from "./ai-client.ts";
 import { streamGroq, GROQ_MODELS } from "./groq-client.ts";
+import { streamDeepseek, DEEPSEEK_MODELS } from "../../_shared/deepseek-client.ts";
 import { injectModelMetadata } from "./stream-enhancer.ts";
 
 interface Message {
@@ -74,6 +75,9 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
   switch (classification.model) {
     case 'groq-instant':
       return await routeToGroq(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
+    
+    case 'deepseek-reasoner':
+      return await routeToDeepseek(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
     
     case 'perplexity':
       return await routeToPerplexity(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
@@ -158,6 +162,85 @@ Be concise and direct. Prioritize speed over verbosity.`;
     // Fallback to Gemini Flash
     return await routeToGeminiFlash(
       systemPrompt,
+      conversationHistory,
+      userMessage,
+      undefined,
+      supabase,
+      conversationId,
+      userId,
+      queryType
+    );
+  }
+}
+
+/**
+ * Route to Deepseek Reasoner for mathematical/financial calculations
+ */
+async function routeToDeepseek(
+  systemPrompt: string,
+  conversationHistory: Message[],
+  userMessage: string,
+  supabase?: SupabaseClient,
+  conversationId?: string,
+  userId?: string,
+  queryType?: string
+): Promise<ReadableStream> {
+  console.log('[Model Router] → Deepseek Reasoner (Mathematical Reasoning)');
+  
+  const startTime = Date.now();
+  
+  try {
+    const enhancedSystemPrompt = `${systemPrompt}
+
+**MATHEMATICAL REASONING MODE:** You are using Deepseek Reasoner for precise financial calculations.
+- Use step-by-step chain-of-thought reasoning
+- Show all mathematical work and formulas
+- Provide exact numerical results with proper precision
+- Break complex problems into clear, verifiable steps
+- Include confidence levels for probabilistic calculations`;
+
+    const messages: Message[] = [
+      { role: 'system', content: enhancedSystemPrompt },
+      ...conversationHistory,
+      { role: 'user', content: userMessage }
+    ];
+
+    const stream = await streamDeepseek(messages, {
+      model: DEEPSEEK_MODELS.REASONER,
+      maxTokens: 4096,
+      temperature: 0.1 // Low temp for mathematical precision
+    });
+    
+    const responseTime = Date.now() - startTime;
+    console.log(`[Model Router] Deepseek response started in ${responseTime}ms`);
+    
+    // Log successful routing
+    await logModelUsage(supabase, userId, conversationId, 'deepseek-reasoner', 'success', undefined, queryType, userMessage.length, responseTime);
+    
+    // Inject model metadata
+    return injectModelMetadata(stream, {
+      model: 'deepseek-reasoner',
+      modelName: 'Deepseek Reasoner',
+      queryType: queryType || 'mathematical_reasoning'
+    });
+  } catch (error) {
+    console.error('[Model Router] Deepseek failed, falling back to Gemini Flash:', error);
+    
+    // Log fallback
+    await logModelUsage(
+      supabase, 
+      userId, 
+      conversationId, 
+      'deepseek-reasoner', 
+      'fallback', 
+      error instanceof Error ? error.message : String(error),
+      queryType,
+      userMessage.length
+    );
+    
+    // Fallback to Gemini Flash
+    return await routeToGeminiFlash(
+      systemPrompt + '\n\nNote: Using Gemini for mathematical calculations.',
       conversationHistory,
       userMessage,
       undefined,
@@ -440,6 +523,7 @@ export function calculateCostSavings(
     marketData: number;
     documentAnalysis: number;
     speedCritical: number;
+    mathematicalReasoning?: number;
   }
 ): {
   totalCost: number;
@@ -453,7 +537,8 @@ export function calculateCostSavings(
     claude: 0.50,
     perplexity: 0.30,
     gpt5: 0.40,
-    groq: 0.01 // Groq is extremely cheap
+    groq: 0.01, // Groq is extremely cheap
+    deepseek: 0.02 // Deepseek is ~95% cheaper than Claude for math
   };
 
   // With routing
@@ -462,7 +547,8 @@ export function calculateCostSavings(
     (queriesProcessed * averageComplexityDistribution.complex / 100 * COSTS.claude) +
     (queriesProcessed * averageComplexityDistribution.marketData / 100 * COSTS.perplexity) +
     (queriesProcessed * averageComplexityDistribution.documentAnalysis / 100 * COSTS.gpt5) +
-    (queriesProcessed * (averageComplexityDistribution.speedCritical || 0) / 100 * COSTS.groq);
+    (queriesProcessed * (averageComplexityDistribution.speedCritical || 0) / 100 * COSTS.groq) +
+    (queriesProcessed * (averageComplexityDistribution.mathematicalReasoning || 0) / 100 * COSTS.deepseek);
 
   // Without routing (all Claude)
   const allClaudeCost = queriesProcessed * COSTS.claude;
