@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import { FileText, Sparkles } from 'lucide-react';
+import { FileText, Sparkles, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ModelAttributionBadgeProps {
-  model: 'gpt-5' | 'gemini-2.5-flash' | 'gemini-flash' | string;
+  model: 'gpt-5' | 'gemini-2.5-flash' | 'gemini-flash' | 'deepseek-reasoner' | string;
   showLabel?: boolean;
   size?: 'sm' | 'md' | 'lg';
 }
@@ -30,6 +30,13 @@ const MODEL_CONFIG = {
     bgColor: 'bg-cyan-500/10',
     textColor: 'text-cyan-500',
   },
+  'deepseek-reasoner': {
+    icon: Calculator,
+    label: 'Deepseek Reasoner',
+    gradient: 'from-blue-600 to-indigo-700',
+    bgColor: 'bg-blue-600/10',
+    textColor: 'text-blue-500',
+  },
 };
 
 export function ModelAttributionBadge({ 
@@ -39,6 +46,7 @@ export function ModelAttributionBadge({
 }: ModelAttributionBadgeProps) {
   // Normalize model name
   const normalizedModel = model.toLowerCase().includes('gpt') ? 'gpt-5' : 
+                          model.toLowerCase().includes('deepseek') ? 'deepseek-reasoner' :
                           model.toLowerCase().includes('gemini') ? 'gemini-2.5-flash' : 
                           'gemini-2.5-flash';
   
@@ -77,14 +85,19 @@ export function ModelAttributionBadge({
 // Compact inline version for tables
 export function ModelBadgeInline({ model }: { model: string }) {
   const isGPT5 = model.toLowerCase().includes('gpt');
+  const isDeepseek = model.toLowerCase().includes('deepseek');
   
   return (
     <span className={cn(
       "inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded",
-      isGPT5 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
+      isGPT5 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : 
+      isDeepseek ? "bg-blue-600/10 text-blue-600 dark:text-blue-400" :
+      "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
     )}>
-      {isGPT5 ? <FileText className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-      {isGPT5 ? 'GPT-5' : 'Gemini'}
+      {isGPT5 ? <FileText className="w-3 h-3" /> : 
+       isDeepseek ? <Calculator className="w-3 h-3" /> : 
+       <Sparkles className="w-3 h-3" />}
+      {isGPT5 ? 'GPT-5' : isDeepseek ? 'Deepseek' : 'Gemini'}
     </span>
   );
 }
