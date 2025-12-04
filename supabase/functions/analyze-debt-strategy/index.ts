@@ -1,5 +1,6 @@
-// Edge function to analyze debt strategy using AI
+// Edge function to analyze debt strategy using Deepseek Reasoner for mathematical reasoning
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callDeepseek, estimateDeepseekCost } from "../_shared/deepseek-client.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { debts, avalancheSummary, snowballSummary, currentStrategy } = await req.json();
+    const { debts, avalancheSummary, snowballSummary, currentStrategy, extraPayment = 0 } = await req.json();
 
     if (!debts || !avalancheSummary || !snowballSummary) {
       return new Response(
@@ -21,130 +22,100 @@ serve(async (req) => {
       );
     }
 
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const deepseekApiKey = Deno.env.get('DEEPSEEK_API_KEY');
+    if (!deepseekApiKey) {
+      throw new Error('DEEPSEEK_API_KEY not configured');
     }
 
-    const systemPrompt = `You are a financial strategy analyst helping users optimize their debt payoff strategy.
+    console.log('[Analyze Debt Strategy] Using Deepseek Reasoner for mathematical analysis');
 
-Analyze the user's specific debt portfolio and simulation results to provide personalized, actionable insights.
+    const systemPrompt = `You are a financial mathematics expert specializing in debt optimization.
+Your task is to analyze a debt portfolio and provide mathematically-proven recommendations.
 
-Your insight should:
-- Be concise (under 50 words)
-- Identify which strategy is optimal and why
-- Call out specific debts by name when relevant
-- Mention exact dollar savings
-- Be motivating and encouraging
-- Use urgency when significant savings are possible
+Key analysis requirements:
+1. Calculate exact interest savings between strategies
+2. Identify the mathematically optimal approach
+3. Consider psychological factors (quick wins vs. pure math)
+4. Provide specific debt prioritization
+5. Calculate breakeven points for extra payments
 
-Focus on what makes THEIR situation unique, not generic advice.`;
+Return your analysis as JSON with this exact structure:
+{
+  "recommended_strategy": "avalanche" | "snowball" | "hybrid",
+  "insight_message": "Concise personalized insight (max 60 words)",
+  "savings_amount": <dollar amount saved with optimal strategy>,
+  "time_difference_months": <months saved vs alternative>,
+  "highlighted_debt": "<name of priority debt>",
+  "urgency_level": "low" | "medium" | "high",
+  "optimal_payment_allocation": [
+    { "debt_name": "<name>", "recommended_extra_payment": <amount>, "mathematical_reasoning": "<brief explanation>" }
+  ],
+  "interest_rate_vs_balance_tradeoff": "<analysis of avalanche vs snowball for this portfolio>",
+  "psychological_factor_score": <0-100>,
+  "breakeven_extra_payment": <amount where switching strategies matters>
+}`;
 
     const debtDetails = debts.map((d: any) => 
-      `- ${d.debt_name}: $${d.current_balance} @ ${d.interest_rate}% APR (${d.debt_type})`
+      `- ${d.debt_name}: $${d.current_balance} @ ${d.interest_rate}% APR, min payment: $${d.minimum_payment || 0} (${d.debt_type})`
     ).join('\n');
 
-    const userPrompt = `Analyze this debt portfolio and provide a personalized strategy insight:
+    const userPrompt = `Analyze this debt portfolio with mathematical precision:
 
 DEBT PORTFOLIO:
 ${debtDetails}
 
 SIMULATION RESULTS:
-Avalanche Method:
+Avalanche Method (highest interest first):
 - Time to payoff: ${avalancheSummary.months_to_payoff} months (${avalancheSummary.years_to_payoff} years)
 - Total interest: $${avalancheSummary.total_interest_paid}
 - Total paid: $${avalancheSummary.total_paid}
 
-Snowball Method:
+Snowball Method (smallest balance first):
 - Time to payoff: ${snowballSummary.months_to_payoff} months (${snowballSummary.years_to_payoff} years)
 - Total interest: $${snowballSummary.total_interest_paid}
 - Total paid: $${snowballSummary.total_paid}
 
 Current Strategy: ${currentStrategy}
+Available Extra Payment: $${extraPayment}/month
 
-Generate a concise, personalized insight that explains which strategy is better for this specific portfolio and why.`;
+Provide your mathematically-proven analysis.`;
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        tools: [{
-          type: "function",
-          function: {
-            name: "analyze_strategy",
-            description: "Analyze debt repayment strategy and provide personalized insight",
-            parameters: {
-              type: "object",
-              properties: {
-                recommended_strategy: { 
-                  type: "string", 
-                  enum: ["avalanche", "snowball", "equal"],
-                  description: "Which strategy is optimal"
-                },
-                insight_message: { 
-                  type: "string", 
-                  description: "Personalized insight message (max 50 words)"
-                },
-                savings_amount: { 
-                  type: "number", 
-                  description: "Dollar amount saved with optimal strategy"
-                },
-                time_difference_months: {
-                  type: "number",
-                  description: "Months difference between strategies"
-                },
-                highlighted_debt: {
-                  type: "string",
-                  description: "Name of the debt to focus on (if applicable)"
-                },
-                urgency_level: {
-                  type: "string",
-                  enum: ["low", "medium", "high"],
-                  description: "How urgently they should consider switching"
-                }
-              },
-              required: ["recommended_strategy", "insight_message", "savings_amount"],
-              additionalProperties: false
-            }
-          }
-        }],
-        tool_choice: { type: "function", function: { name: "analyze_strategy" } }
-      }),
-    });
+    const startTime = Date.now();
+    const response = await callDeepseek([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ], { maxTokens: 2048, temperature: 0.1 });
 
-    if (!aiResponse.ok) {
-      if (aiResponse.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      if (aiResponse.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'AI credits exhausted. Please upgrade or try later.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      console.error('AI error:', aiResponse.status, await aiResponse.text());
-      throw new Error('Failed to analyze debt strategy');
+    const responseTime = Date.now() - startTime;
+    console.log('[Analyze Debt Strategy] Deepseek response time:', responseTime, 'ms');
+
+    const content = response.choices[0].message.content;
+    const reasoningContent = response.choices[0].message.reasoning_content;
+
+    // Parse JSON from response
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('Failed to parse AI response');
     }
 
-    const aiData = await aiResponse.json();
-    const toolCall = aiData.choices[0].message.tool_calls?.[0];
-    
-    if (!toolCall) {
-      throw new Error('No tool call in AI response');
+    const analysis = JSON.parse(jsonMatch[0]);
+
+    // Add reasoning chain if available
+    if (reasoningContent) {
+      analysis.reasoning_chain = reasoningContent;
     }
 
-    const analysis = JSON.parse(toolCall.function.arguments);
+    // Log cost
+    const cost = estimateDeepseekCost(
+      response.usage.prompt_tokens,
+      response.usage.completion_tokens,
+      response.usage.reasoning_tokens || 0
+    );
+    console.log('[Analyze Debt Strategy] Deepseek cost:', `$${cost.toFixed(4)}`);
+
+    // Add model attribution
+    analysis.model = 'deepseek-reasoner';
+    analysis.response_time_ms = responseTime;
 
     return new Response(
       JSON.stringify(analysis),
@@ -153,9 +124,12 @@ Generate a concise, personalized insight that explains which strategy is better 
 
   } catch (error) {
     console.error('Error in analyze-debt-strategy:', error);
+    
+    // Fallback to basic analysis if Deepseek fails
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        fallback: true
       }),
       { 
         status: 500, 
