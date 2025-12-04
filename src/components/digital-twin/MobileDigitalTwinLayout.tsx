@@ -15,6 +15,8 @@ import { HorizontalLifeEvents, LifeEvent } from './HorizontalLifeEvents';
 import { HolographicAvatar } from './HolographicAvatar';
 import { NetWorthCounter } from './NetWorthCounter';
 import { MonteCarloChart } from './MonteCarloChart';
+import { MonteCarloInsights } from './MonteCarloInsights';
+import { useMonteCarloExplanation } from '@/hooks/useMonteCarloExplanation';
 import { MobileTwinChatSheet } from './MobileTwinChatSheet';
 import { VoidBackground } from './VoidBackground';
 import { BackgroundMorpher } from './BackgroundMorpher';
@@ -51,6 +53,8 @@ interface MobileDigitalTwinLayoutProps {
   onShowSavedScenarios?: () => void;
   onShowComparison?: () => void;
   onShowShare?: () => void;
+  initialNetWorth?: number;
+  annualSavings?: number;
 }
 
 export function MobileDigitalTwinLayout({
@@ -72,7 +76,9 @@ export function MobileDigitalTwinLayout({
   onShowMemories,
   onShowSavedScenarios,
   onShowComparison,
-  onShowShare
+  onShowShare,
+  initialNetWorth = 50000,
+  annualSavings = 20000
 }: MobileDigitalTwinLayoutProps) {
   const navigate = useNavigate();
   const [showMonteCarlo, setShowMonteCarlo] = useState(false);
@@ -275,7 +281,7 @@ export function MobileDigitalTwinLayout({
           </div>
         </MobileCollapsibleSection>
 
-        {/* Projections Section */}
+        {/* Projections Section with AI Insights */}
         <MobileCollapsibleSection 
           id="projections-section"
           title="Monte Carlo Projections" 
@@ -285,9 +291,13 @@ export function MobileDigitalTwinLayout({
           onOpenChange={(open) => handleSectionOpenChange('projections-section', open)}
         >
           {monteCarloTimeline && monteCarloTimeline.length > 0 ? (
-            <div className="h-48">
-              <MonteCarloChart timeline={monteCarloTimeline} />
-            </div>
+            <MobileMonteCarloWithInsights 
+              monteCarloTimeline={monteCarloTimeline}
+              injectedEvents={injectedEvents}
+              initialNetWorth={initialNetWorth}
+              currentAge={currentAge}
+              annualSavings={annualSavings}
+            />
           ) : (
             <div className="h-48 flex items-center justify-center text-white/40 text-sm">
               Loading projections...
@@ -386,6 +396,57 @@ export function MobileDigitalTwinLayout({
         currentAge={currentAge}
         onScenarioCreated={onScenarioCreated}
       />
+    </div>
+  );
+}
+
+// Helper component to use the hook for Monte Carlo AI insights on mobile
+function MobileMonteCarloWithInsights({
+  monteCarloTimeline,
+  injectedEvents,
+  initialNetWorth,
+  currentAge,
+  annualSavings
+}: {
+  monteCarloTimeline: any[];
+  injectedEvents: any[];
+  initialNetWorth: number;
+  currentAge: number;
+  annualSavings: number;
+}) {
+  const lastPoint = monteCarloTimeline[monteCarloTimeline.length - 1];
+  
+  const { explanation, isLoading } = useMonteCarloExplanation({
+    simulationMetadata: {
+      successProbability: 0.7,
+      percentiles: {
+        p10: lastPoint?.p10 || 0,
+        p50: lastPoint?.median || 0,
+        p90: lastPoint?.p90 || 0,
+      },
+      simulations: 1000
+    },
+    timeline: monteCarloTimeline,
+    lifeEvents: injectedEvents.map((e: any) => ({
+      type: e.event?.label || 'event',
+      year: e.year,
+      impact: e.event?.impact || 0
+    })),
+    currentState: {
+      netWorth: initialNetWorth,
+      age: currentAge,
+      annualIncome: annualSavings * 3,
+      annualExpenses: annualSavings * 2
+    },
+    enabled: monteCarloTimeline.length > 0
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="h-48">
+        <MonteCarloChart timeline={monteCarloTimeline} />
+      </div>
+      <MonteCarloInsights explanation={explanation} isLoading={isLoading} />
     </div>
   );
 }

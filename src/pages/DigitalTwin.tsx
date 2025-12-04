@@ -9,6 +9,8 @@ import { BackgroundMorpher } from "@/components/digital-twin/BackgroundMorpher";
 import { LifeEventsSidebar, LifeEvent } from "@/components/digital-twin/LifeEventsSidebar";
 import { NarrativeOverlay } from "@/components/digital-twin/NarrativeOverlay";
 import { MonteCarloChart } from "@/components/digital-twin/MonteCarloChart";
+import { MonteCarloInsights } from "@/components/digital-twin/MonteCarloInsights";
+import { useMonteCarloExplanation } from "@/hooks/useMonteCarloExplanation";
 import { ScenarioComparisonMode } from "@/components/digital-twin/ScenarioComparisonMode";
 import { EnhancedScenarioComparison } from "@/components/digital-twin/EnhancedScenarioComparison";
 import { useLifeEventSimulation } from "@/hooks/useLifeEventSimulation";
@@ -274,6 +276,8 @@ export default function DigitalTwin() {
           onShowSavedScenarios={() => setShowSavedPanel(true)}
           onShowComparison={() => setShowEnhancedComparison(true)}
           onShowShare={() => setShowShareModal(true)}
+          initialNetWorth={initialNetWorth}
+          annualSavings={annualSavings}
         />
       </AppLayout>
     );
@@ -542,17 +546,24 @@ export default function DigitalTwin() {
         />
       </div>
 
-      {/* Monte Carlo Panel */}
+      {/* Monte Carlo Panel with AI Insights */}
       <AnimatePresence>
         {showMonteCarlo && monteCarloTimeline.length > 0 && (
           <motion.div
             id="projections-section"
-            className="fixed bottom-32 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl z-40"
+            className="fixed bottom-32 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl z-40 space-y-4"
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
           >
             <MonteCarloChart timeline={monteCarloTimeline} />
+            <MonteCarloInsightsWrapper
+              monteCarloTimeline={monteCarloTimeline}
+              injectedEvents={injectedEvents}
+              initialNetWorth={initialNetWorth}
+              currentAge={currentAge}
+              annualSavings={annualSavings}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -736,4 +747,48 @@ export default function DigitalTwin() {
       />
     </AppLayout>
   );
+}
+
+// Helper component to use the hook for Monte Carlo AI insights
+function MonteCarloInsightsWrapper({
+  monteCarloTimeline,
+  injectedEvents,
+  initialNetWorth,
+  currentAge,
+  annualSavings
+}: {
+  monteCarloTimeline: any[];
+  injectedEvents: any[];
+  initialNetWorth: number;
+  currentAge: number;
+  annualSavings: number;
+}) {
+  const lastPoint = monteCarloTimeline[monteCarloTimeline.length - 1];
+  
+  const { explanation, isLoading } = useMonteCarloExplanation({
+    simulationMetadata: {
+      successProbability: 0.7, // Default, will be refined by simulation
+      percentiles: {
+        p10: lastPoint?.p10 || 0,
+        p50: lastPoint?.median || 0,
+        p90: lastPoint?.p90 || 0,
+      },
+      simulations: 1000
+    },
+    timeline: monteCarloTimeline,
+    lifeEvents: injectedEvents.map((e: any) => ({
+      type: e.event?.label || 'event',
+      year: e.year,
+      impact: e.event?.impact || 0
+    })),
+    currentState: {
+      netWorth: initialNetWorth,
+      age: currentAge,
+      annualIncome: annualSavings * 3, // Estimate
+      annualExpenses: annualSavings * 2 // Estimate
+    },
+    enabled: monteCarloTimeline.length > 0
+  });
+
+  return <MonteCarloInsights explanation={explanation} isLoading={isLoading} />;
 }
