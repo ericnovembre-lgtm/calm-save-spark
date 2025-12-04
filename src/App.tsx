@@ -57,6 +57,7 @@ const SecurityMonitoring = createPageLoader(() => import("./pages/SecurityMonito
 const ClaudeMonitoring = createPageLoader(() => import("./pages/ClaudeMonitoring"), 'heavy');
 // Security.tsx merged into GuardianSecurityCenter.tsx
 const FinancialHealth = createPageLoader(() => import("./pages/FinancialHealth"), 'heavy');
+const RetirementPlanner = createPageLoader(() => import("./pages/RetirementPlanner"), 'heavy');
 
 // MEDIUM PAGES - Lists, transactions, moderate complexity
 const Transactions = createPageLoader(() => import("./pages/Transactions"), 'medium');
@@ -331,6 +332,7 @@ function AnimatedRoutes() {
         <Route path="/tax-documents" element={<ProtectedRoute><PageTransition><TaxDocuments /></PageTransition></ProtectedRoute>} />
         <Route path="/tax-analysis" element={<ProtectedRoute><PageTransition><TaxDocumentAnalysis /></PageTransition></ProtectedRoute>} />
         <Route path="/investment-manager" element={<Navigate to="/investments?tab=tax-optimization" replace />} />
+        <Route path="/retirement-planner" element={<ProtectedRoute><PageTransition><RetirementPlanner /></PageTransition></ProtectedRoute>} />
         <Route path="/refinancing-hub" element={<ProtectedRoute><PageTransition><RefinancingHub /></PageTransition></ProtectedRoute>} />
         <Route path="/business-os" element={<ProtectedRoute><PageTransition><BusinessOS /></PageTransition></ProtectedRoute>} />
         <Route path="/defi-manager" element={<ProtectedRoute><PageTransition><DeFiManager /></PageTransition></ProtectedRoute>} />

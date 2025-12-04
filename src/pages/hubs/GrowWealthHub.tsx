@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIcon, CreditCard, Trophy, ArrowRight, ChevronUp, PiggyBank, Shield, Sparkles } from "lucide-react";
+import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIcon, CreditCard, Trophy, ArrowRight, ChevronUp, PiggyBank, Shield, Sparkles, Calculator } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LiquidCardMorph } from "@/components/hubs/money/effects/LiquidCardMorph";
@@ -36,13 +36,21 @@ const features = [
     gradient: "from-green-500/20 to-emerald-500/20",
   },
   {
+    icon: Calculator,
+    title: "Retirement Planner",
+    description: "Monte Carlo projections & Social Security optimization",
+    path: "/retirement-planner",
+    color: "text-cyan-500",
+    gradient: "from-cyan-500/20 to-teal-500/20",
+    badge: "New",
+  },
+  {
     icon: BadgeDollarSign,
     title: "Credit Score",
     description: "Monitor your credit health",
     path: "/credit",
     color: "text-purple-500",
     gradient: "from-purple-500/20 to-pink-500/20",
-    badge: "New",
   },
   {
     icon: WalletIcon,
