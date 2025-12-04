@@ -467,3 +467,6 @@ verify_jwt = false
 
 [functions.get-ai-routing-analytics]
 verify_jwt = true
+
+[functions.monte-carlo-explain]
+verify_jwt = true
