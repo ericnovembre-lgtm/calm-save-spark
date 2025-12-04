@@ -1038,6 +1038,51 @@ export type Database = {
         }
         Relationships: []
       }
+      batch_processing_analytics: {
+        Row: {
+          anomalies_detected: number | null
+          batch_id: string
+          batch_size: number
+          created_at: string | null
+          error_message: string | null
+          groq_latency_ms: number
+          id: string
+          queue_depth: number
+          retry_count: number | null
+          tokens_used: number | null
+          total_processing_ms: number
+          transactions_processed: number
+        }
+        Insert: {
+          anomalies_detected?: number | null
+          batch_id: string
+          batch_size: number
+          created_at?: string | null
+          error_message?: string | null
+          groq_latency_ms: number
+          id?: string
+          queue_depth: number
+          retry_count?: number | null
+          tokens_used?: number | null
+          total_processing_ms: number
+          transactions_processed: number
+        }
+        Update: {
+          anomalies_detected?: number | null
+          batch_id?: string
+          batch_size?: number
+          created_at?: string | null
+          error_message?: string | null
+          groq_latency_ms?: number
+          id?: string
+          queue_depth?: number
+          retry_count?: number | null
+          tokens_used?: number | null
+          total_processing_ms?: number
+          transactions_processed?: number
+        }
+        Relationships: []
+      }
       behavioral_guardrails: {
         Row: {
           created_at: string | null

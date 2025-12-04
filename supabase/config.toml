@@ -462,5 +462,8 @@ verify_jwt = false
 [functions.process-transaction-alerts]
 verify_jwt = false
 
+[functions.batch-process-alerts]
+verify_jwt = false
+
 [functions.get-ai-routing-analytics]
 verify_jwt = true
