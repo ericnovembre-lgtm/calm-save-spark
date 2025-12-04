@@ -4172,6 +4172,66 @@ export type Database = {
         }
         Relationships: []
       }
+      deepseek_quota_state: {
+        Row: {
+          avg_latency_ms: number | null
+          circuit_opened_at: string | null
+          circuit_state: string | null
+          consecutive_failures: number | null
+          created_at: string | null
+          id: string
+          last_request_at: string | null
+          latency_samples: number | null
+          reasoning_tokens_used: number | null
+          requests_limit_rpm: number | null
+          requests_remaining_rpm: number | null
+          requests_reset_at: string | null
+          tokens_limit_tpm: number | null
+          tokens_remaining_tpm: number | null
+          tokens_reset_at: string | null
+          total_cost_estimate: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          avg_latency_ms?: number | null
+          circuit_opened_at?: string | null
+          circuit_state?: string | null
+          consecutive_failures?: number | null
+          created_at?: string | null
+          id?: string
+          last_request_at?: string | null
+          latency_samples?: number | null
+          reasoning_tokens_used?: number | null
+          requests_limit_rpm?: number | null
+          requests_remaining_rpm?: number | null
+          requests_reset_at?: string | null
+          tokens_limit_tpm?: number | null
+          tokens_remaining_tpm?: number | null
+          tokens_reset_at?: string | null
+          total_cost_estimate?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          avg_latency_ms?: number | null
+          circuit_opened_at?: string | null
+          circuit_state?: string | null
+          consecutive_failures?: number | null
+          created_at?: string | null
+          id?: string
+          last_request_at?: string | null
+          latency_samples?: number | null
+          reasoning_tokens_used?: number | null
+          requests_limit_rpm?: number | null
+          requests_remaining_rpm?: number | null
+          requests_reset_at?: string | null
+          tokens_limit_tpm?: number | null
+          tokens_remaining_tpm?: number | null
+          tokens_reset_at?: string | null
+          total_cost_estimate?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       defi_positions: {
         Row: {
           apy: number | null
@@ -12026,6 +12086,49 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      update_deepseek_circuit_state: {
+        Args: { p_state: string }
+        Returns: undefined
+      }
+      update_deepseek_quota_state: {
+        Args: {
+          p_cost_estimate: number
+          p_latency_ms: number
+          p_reasoning_tokens: number
+          p_requests_limit: number
+          p_requests_remaining: number
+          p_requests_reset: string
+          p_success: boolean
+          p_tokens_limit: number
+          p_tokens_remaining: number
+          p_tokens_reset: string
+        }
+        Returns: {
+          avg_latency_ms: number | null
+          circuit_opened_at: string | null
+          circuit_state: string | null
+          consecutive_failures: number | null
+          created_at: string | null
+          id: string
+          last_request_at: string | null
+          latency_samples: number | null
+          reasoning_tokens_used: number | null
+          requests_limit_rpm: number | null
+          requests_remaining_rpm: number | null
+          requests_reset_at: string | null
+          tokens_limit_tpm: number | null
+          tokens_remaining_tpm: number | null
+          tokens_reset_at: string | null
+          total_cost_estimate: number | null
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "deepseek_quota_state"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       update_groq_circuit_state: {
         Args: { p_state: string }
