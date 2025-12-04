@@ -12,12 +12,22 @@ import { LatencyTrendChart } from '@/components/admin/LatencyTrendChart';
 import { CircuitBreakerTimeline } from '@/components/admin/CircuitBreakerTimeline';
 import { DeepseekMetricsPanel } from '@/components/admin/DeepseekMetricsPanel';
 import { DeepseekQuotaMonitor } from '@/components/admin/DeepseekQuotaMonitor';
+import { GrokQuotaMonitor } from '@/components/admin/GrokQuotaMonitor';
 import { useApiHealthMetrics } from '@/hooks/useApiHealthMetrics';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 
 type TimeRange = '24h' | '7d' | '30d';
-type ModelTab = 'groq' | 'deepseek' | 'all';
+type ModelTab = 'groq' | 'deepseek' | 'grok' | 'all';
+
+// X/Grok brand icon component
+function GrokIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
 
 export default function ApiHealthDashboard() {
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
@@ -30,6 +40,7 @@ export default function ApiHealthDashboard() {
     queryClient.invalidateQueries({ queryKey: ['groq-quota-status'] });
     queryClient.invalidateQueries({ queryKey: ['batch-processing-stats'] });
     queryClient.invalidateQueries({ queryKey: ['deepseek-metrics'] });
+    queryClient.invalidateQueries({ queryKey: ['grok-quota-status'] });
     refetch();
   };
 
@@ -63,6 +74,10 @@ export default function ApiHealthDashboard() {
                 <TabsTrigger value="deepseek" className="text-xs gap-1">
                   <Brain className="w-3 h-3" />
                   Deepseek
+                </TabsTrigger>
+                <TabsTrigger value="grok" className="text-xs gap-1">
+                  <GrokIcon className="w-3 h-3" />
+                  Grok
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -170,6 +185,36 @@ export default function ApiHealthDashboard() {
             </Card>
           </motion.div>
         </div>
+
+        {/* Grok Section */}
+        {(modelTab === 'grok' || modelTab === 'all') && (
+          <div className="space-y-4">
+            {modelTab === 'all' && (
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <GrokIcon className="w-5 h-5 text-foreground" />
+                Grok (xAI) Metrics
+              </h2>
+            )}
+            <div className="grid md:grid-cols-2 gap-6">
+              <GrokQuotaMonitor />
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <GrokIcon className="w-4 h-4 text-foreground" />
+                    Grok Usage Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xs text-muted-foreground text-center py-8">
+                    Grok is used for real-time social sentiment analysis on X (Twitter).
+                    <br />
+                    Track trending topics, ticker sentiment, and market mood.
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
 
         {/* Deepseek Section */}
         {(modelTab === 'deepseek' || modelTab === 'all') && (
