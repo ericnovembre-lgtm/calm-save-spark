@@ -1,6 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface Phase4FunctionMetrics {
+  functionName: string;
+  displayName: string;
+  queryCount: number;
+  avgLatency: number;
+  totalReasoningTokens: number;
+  estimatedCost: number;
+  color: string;
+  icon: string;
+}
+
 export interface DeepseekMetrics {
   totalQueries: number;
   totalReasoningTokens: number;
@@ -25,6 +36,7 @@ export interface DeepseekMetrics {
     savings: number;
     savingsPercentage: number;
   };
+  phase4Functions: Phase4FunctionMetrics[];
 }
 
 export function useDeepseekMetrics(timeRange: '24h' | '7d' | '30d' = '7d') {
@@ -118,6 +130,55 @@ export function useDeepseekMetrics(timeRange: '24h' | '7d' | '30d' = '7d') {
         queryCount: data.count
       }));
 
+      // Phase 4 Function Breakdown
+      const phase4Config = [
+        { 
+          queryType: 'portfolio_optimization', 
+          functionName: 'optimize-portfolio', 
+          displayName: 'Portfolio Optimization',
+          color: 'emerald',
+          icon: '🎯'
+        },
+        { 
+          queryType: 'retirement_planning', 
+          functionName: 'retirement-planner', 
+          displayName: 'Retirement Planner',
+          color: 'blue',
+          icon: '📊'
+        },
+        { 
+          queryType: 'budget_optimization', 
+          functionName: 'optimize-budget-zbb', 
+          displayName: 'Budget Optimization',
+          color: 'violet',
+          icon: '💰'
+        },
+      ];
+
+      const phase4Functions: Phase4FunctionMetrics[] = phase4Config.map(config => {
+        const functionItems = items.filter(item => 
+          item.query_type === config.queryType
+        );
+        const count = functionItems.length;
+        const avgLat = count > 0 
+          ? Math.round(functionItems.reduce((s, i) => s + (i.response_time_ms || 0), 0) / count)
+          : 0;
+        const reasoningToks = functionItems.reduce((s, i) => 
+          s + ((i as any).reasoning_tokens || 0), 0);
+        const estCost = Number((count * DEEPSEEK_COST_PER_QUERY).toFixed(2));
+
+        return {
+          functionName: config.functionName,
+          displayName: config.displayName,
+          queryCount: count,
+          avgLatency: avgLat,
+          totalReasoningTokens: reasoningToks,
+          estimatedCost: estCost,
+          color: config.color,
+          icon: config.icon,
+        };
+      });
+
       return {
         totalQueries,
         totalReasoningTokens,
@@ -133,7 +194,8 @@ export function useDeepseekMetrics(timeRange: '24h' | '7d' | '30d' = '7d') {
           claudeEquivalentCost,
           savings,
           savingsPercentage
-        }
+        },
+        phase4Functions,
       };
     },
     staleTime: 5 * 60 * 1000,

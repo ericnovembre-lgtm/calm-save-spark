@@ -324,6 +324,14 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: taxUrgencyReason,
     });
 
+    // 17. AI Usage Summary - User-friendly AI insights
+    priorities.push({
+      id: 'ai-usage',
+      score: 46,
+      size: 'normal',
+      urgencyReason: 'AI working for you',
+    });
+
     // Sort by score descending
     return priorities.sort((a, b) => b.score - a.score);
   }, [context]);
