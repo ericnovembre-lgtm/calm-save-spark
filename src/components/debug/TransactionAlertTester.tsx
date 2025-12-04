@@ -200,8 +200,11 @@ export function TransactionAlertTester() {
     }
   };
 
-  // Only show in development
-  if (import.meta.env.PROD) return null;
+  // Show in development OR when ?debug=true is present
+  const urlParams = new URLSearchParams(window.location.search);
+  const debugMode = urlParams.get('debug') === 'true';
+  
+  if (import.meta.env.PROD && !debugMode) return null;
 
   return (
     <Card className="border-dashed border-amber-500/50 bg-amber-950/10">
