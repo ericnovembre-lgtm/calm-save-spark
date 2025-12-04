@@ -89,6 +89,7 @@ const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
 const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
 const Sitemap = createPageLoader(() => import("./pages/Sitemap"), 'medium');
 const PageAnalytics = createPageLoader(() => import("./pages/admin/PageAnalytics"), 'medium');
+const ApiHealthDashboard = createPageLoader(() => import("./pages/admin/ApiHealthDashboard"), 'medium');
 
 // Hub pages (Medium complexity)
 const ManageMoneyHub = createPageLoader(() => import("./pages/hubs/ManageMoneyHub"), 'medium');
@@ -320,6 +321,7 @@ function AnimatedRoutes() {
         <Route path="/ai-model-analytics" element={<ProtectedRoute><AdminRoute><PageTransition><AIModelAnalytics /></PageTransition></AdminRoute></ProtectedRoute>} />
         <Route path="/sitemap" element={<ProtectedRoute><AdminRoute><PageTransition><Sitemap /></PageTransition></AdminRoute></ProtectedRoute>} />
         <Route path="/page-analytics" element={<ProtectedRoute><AdminRoute><PageTransition><PageAnalytics /></PageTransition></AdminRoute></ProtectedRoute>} />
+        <Route path="/admin/api-health" element={<ProtectedRoute><AdminRoute><PageTransition><ApiHealthDashboard /></PageTransition></AdminRoute></ProtectedRoute>} />
         <Route path="/guardian" element={<ProtectedRoute><PageTransition><GuardianSecurityCenter /></PageTransition></ProtectedRoute>} />
         <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />
         <Route path="/lifesim" element={<ProtectedRoute><PageTransition><LifeSim /></PageTransition></ProtectedRoute>} />

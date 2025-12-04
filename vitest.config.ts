@@ -20,10 +20,34 @@ export default defineConfig({
         '**/mockData',
       ],
       thresholds: {
+        // Global thresholds
         branches: 80,
         functions: 80,
         lines: 80,
         statements: 80,
+      },
+      // Per-file thresholds for critical transaction alert code
+      perFile: true,
+      '100': {
+        // Stricter thresholds for transaction alert system
+        'src/hooks/useTransactionAlerts.ts': {
+          branches: 85,
+          functions: 90,
+          lines: 90,
+          statements: 90,
+        },
+        'src/components/alerts/TransactionAlertToast.tsx': {
+          branches: 85,
+          functions: 90,
+          lines: 90,
+          statements: 90,
+        },
+        'src/components/alerts/TransactionAlertBanner.tsx': {
+          branches: 85,
+          functions: 90,
+          lines: 90,
+          statements: 90,
+        },
       },
     },
   },
