@@ -332,6 +332,14 @@ export function useGenerativeLayoutEngine(context: AnalysisContext): WidgetPrior
       urgencyReason: 'AI working for you',
     });
 
+    // 18. Social Sentiment - Grok-powered market sentiment
+    priorities.push({
+      id: 'social-sentiment',
+      score: 54,
+      size: 'normal',
+      urgencyReason: 'Real-time market sentiment via Grok',
+    });
+
     // Sort by score descending
     return priorities.sort((a, b) => b.score - a.score);
   }, [context]);

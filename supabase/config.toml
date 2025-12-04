@@ -482,3 +482,6 @@ verify_jwt = true
 
 [functions.optimize-budget-zbb]
 verify_jwt = true
+
+[functions.get-social-sentiment]
+verify_jwt = true

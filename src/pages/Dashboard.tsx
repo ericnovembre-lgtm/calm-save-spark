@@ -66,6 +66,7 @@ import { TaxDocumentUploadWidget } from "@/components/dashboard/TaxDocumentUploa
 import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
 import { TransactionAlertBanner } from "@/components/alerts/TransactionAlertToast";
 import { TransactionAlertTester } from "@/components/debug/TransactionAlertTester";
+import { SocialSentimentWidget } from "@/components/dashboard/SocialSentimentWidget";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -502,6 +503,11 @@ export default function Dashboard() {
     'ai-usage': (
       <DashboardErrorBoundary key="ai-usage" sectionName="AI Usage">
         <AIUsageSummaryWidget />
+      </DashboardErrorBoundary>
+    ),
+    'social-sentiment': (
+      <DashboardErrorBoundary key="social-sentiment" sectionName="Social Sentiment">
+        <SocialSentimentWidget />
       </DashboardErrorBoundary>
     ),
   };
