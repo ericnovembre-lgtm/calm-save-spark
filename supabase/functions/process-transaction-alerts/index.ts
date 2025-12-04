@@ -6,6 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Threshold for switching to batch processing
+const BATCH_THRESHOLD = 3;
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -19,6 +22,38 @@ serve(async (req) => {
 
   try {
     console.log('[ProcessAlerts] Starting queue processing...');
+
+    // Check queue depth to determine processing mode
+    const { count: queueDepth } = await supabase
+      .from('transaction_alert_queue')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending');
+
+    const actualQueueDepth = queueDepth || 0;
+    console.log(`[ProcessAlerts] Queue depth: ${actualQueueDepth}`);
+
+    // Use batch processing for high volume
+    if (actualQueueDepth > BATCH_THRESHOLD) {
+      console.log(`[ProcessAlerts] Queue depth ${actualQueueDepth} > ${BATCH_THRESHOLD}, using batch processing`);
+      
+      const batchResponse = await supabase.functions.invoke('batch-process-alerts');
+      
+      if (batchResponse.error) {
+        console.error('[ProcessAlerts] Batch processing error:', batchResponse.error);
+        throw new Error(batchResponse.error.message || 'Batch processing failed');
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          mode: 'batch',
+          ...batchResponse.data 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Single processing mode for low volume
+    console.log(`[ProcessAlerts] Queue depth ${actualQueueDepth} <= ${BATCH_THRESHOLD}, using single processing`);
 
     // Fetch pending alerts from queue
     const { data: pendingAlerts, error: fetchError } = await supabase
@@ -36,12 +71,12 @@ serve(async (req) => {
     if (!pendingAlerts || pendingAlerts.length === 0) {
       console.log('[ProcessAlerts] No pending alerts to process');
       return new Response(
-        JSON.stringify({ processed: 0, message: 'No pending alerts' }),
+        JSON.stringify({ mode: 'single', processed: 0, message: 'No pending alerts' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`[ProcessAlerts] Processing ${pendingAlerts.length} alerts`);
+    console.log(`[ProcessAlerts] Processing ${pendingAlerts.length} alerts in single mode`);
 
     const results = [];
 
@@ -170,10 +205,11 @@ serve(async (req) => {
       }
     }
 
-    console.log(`[ProcessAlerts] Completed processing ${results.length} alerts`);
+    console.log(`[ProcessAlerts] Completed processing ${results.length} alerts in single mode`);
 
     return new Response(
       JSON.stringify({ 
+        mode: 'single',
         processed: results.length,
         results 
       }),
