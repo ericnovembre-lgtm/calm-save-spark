@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Brain, Calculator, DollarSign, Zap, TrendingUp, BarChart3 } from 'lucide-react';
+import { Brain, Calculator, DollarSign, Zap, TrendingUp, BarChart3, Target, PieChart, Wallet } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -9,6 +9,18 @@ import { cn } from '@/lib/utils';
 interface DeepseekMetricsPanelProps {
   timeRange: '24h' | '7d' | '30d';
 }
+
+const phase4Icons: Record<string, React.ReactNode> = {
+  'optimize-portfolio': <Target className="w-4 h-4" />,
+  'retirement-planner': <PieChart className="w-4 h-4" />,
+  'optimize-budget-zbb': <Wallet className="w-4 h-4" />,
+};
+
+const phase4Colors: Record<string, string> = {
+  emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
+  blue: 'text-blue-400 border-blue-500/30 bg-blue-500/10',
+  violet: 'text-violet-400 border-violet-500/30 bg-violet-500/10',
+};
 
 export function DeepseekMetricsPanel({ timeRange }: DeepseekMetricsPanelProps) {
   const { data: metrics, isLoading } = useDeepseekMetrics(timeRange);
@@ -26,6 +38,8 @@ export function DeepseekMetricsPanel({ timeRange }: DeepseekMetricsPanelProps) {
   }
 
   if (!metrics) return null;
+
+  const totalPhase4Queries = metrics.phase4Functions.reduce((sum, f) => sum + f.queryCount, 0);
 
   return (
     <div className="space-y-6">
@@ -106,6 +120,67 @@ export function DeepseekMetricsPanel({ timeRange }: DeepseekMetricsPanelProps) {
           </Card>
         </motion.div>
       </div>
+
+      {/* Phase 4 Function Breakdown */}
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Brain className="w-4 h-4 text-primary" />
+            Phase 4: Financial Intelligence Functions
+            {totalPhase4Queries > 0 && (
+              <Badge variant="outline" className="ml-auto font-mono text-xs">
+                {totalPhase4Queries} total queries
+              </Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {totalPhase4Queries === 0 ? (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              No Phase 4 function calls yet
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-4">
+              {metrics.phase4Functions.map((func, index) => (
+                <motion.div
+                  key={func.functionName}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 * index }}
+                  className={cn(
+                    "p-4 rounded-lg border",
+                    phase4Colors[func.color]
+                  )}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    {phase4Icons[func.functionName]}
+                    <span className="font-medium text-sm">{func.displayName}</span>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">{func.icon} Queries</span>
+                      <span className="font-mono font-bold">{func.queryCount}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">⚡ Avg Latency</span>
+                      <span className="font-mono">{func.avgLatency}ms</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">🧠 Reasoning</span>
+                      <span className="font-mono">{func.totalReasoningTokens.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">💵 Cost</span>
+                      <span className="font-mono font-bold">${func.estimatedCost.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Reasoning Token Analysis */}

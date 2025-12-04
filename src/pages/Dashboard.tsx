@@ -51,6 +51,7 @@ import { AnomalyAlertCenter } from "@/components/ai/AnomalyAlertCenter";
 import { NaturalLanguageCommander } from "@/components/dashboard/NaturalLanguageCommander";
 import { AdHocChartPanel } from "@/components/dashboard/AdHocChartPanel";
 import { UpcomingBillsWidget } from "@/components/dashboard/UpcomingBillsWidget";
+import { AIUsageSummaryWidget } from "@/components/dashboard/AIUsageSummaryWidget";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { LottieCelebrations } from "@/components/effects/LottieCelebrations";
 import { DashboardTour } from "@/components/dashboard/DashboardTour";
@@ -496,6 +497,11 @@ export default function Dashboard() {
     'tax-documents': (
       <DashboardErrorBoundary key="tax-documents" sectionName="Tax Documents">
         <TaxDocumentUploadWidget />
+      </DashboardErrorBoundary>
+    ),
+    'ai-usage': (
+      <DashboardErrorBoundary key="ai-usage" sectionName="AI Usage">
+        <AIUsageSummaryWidget />
       </DashboardErrorBoundary>
     ),
   };
