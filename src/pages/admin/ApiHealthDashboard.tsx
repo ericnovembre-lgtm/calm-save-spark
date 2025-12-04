@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Zap, Shield, AlertTriangle, TrendingUp, BarChart3, RefreshCw } from 'lucide-react';
+import { Activity, Zap, Shield, AlertTriangle, TrendingUp, BarChart3, RefreshCw, Brain } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,14 +10,17 @@ import { GroqQuotaMonitor } from '@/components/alerts/GroqQuotaMonitor';
 import { BatchProcessingMonitor } from '@/components/alerts/BatchProcessingMonitor';
 import { LatencyTrendChart } from '@/components/admin/LatencyTrendChart';
 import { CircuitBreakerTimeline } from '@/components/admin/CircuitBreakerTimeline';
+import { DeepseekMetricsPanel } from '@/components/admin/DeepseekMetricsPanel';
 import { useApiHealthMetrics } from '@/hooks/useApiHealthMetrics';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 
 type TimeRange = '24h' | '7d' | '30d';
+type ModelTab = 'groq' | 'deepseek' | 'all';
 
 export default function ApiHealthDashboard() {
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
+  const [modelTab, setModelTab] = useState<ModelTab>('all');
   const { data: metrics, isLoading, refetch } = useApiHealthMetrics(timeRange);
   const queryClient = useQueryClient();
 
@@ -25,6 +28,7 @@ export default function ApiHealthDashboard() {
     queryClient.invalidateQueries({ queryKey: ['api-health-metrics'] });
     queryClient.invalidateQueries({ queryKey: ['groq-quota-status'] });
     queryClient.invalidateQueries({ queryKey: ['batch-processing-stats'] });
+    queryClient.invalidateQueries({ queryKey: ['deepseek-metrics'] });
     refetch();
   };
 
@@ -41,10 +45,26 @@ export default function ApiHealthDashboard() {
               API Health Dashboard
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Monitor Groq API performance, quota usage, and system health
+              Monitor API performance, quota usage, and system health across all AI models
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <Tabs value={modelTab} onValueChange={(v) => setModelTab(v as ModelTab)}>
+              <TabsList className="bg-muted/50">
+                <TabsTrigger value="all" className="text-xs gap-1">
+                  <BarChart3 className="w-3 h-3" />
+                  All
+                </TabsTrigger>
+                <TabsTrigger value="groq" className="text-xs gap-1">
+                  <Zap className="w-3 h-3" />
+                  Groq
+                </TabsTrigger>
+                <TabsTrigger value="deepseek" className="text-xs gap-1">
+                  <Brain className="w-3 h-3" />
+                  Deepseek
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
             <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
               <TabsList className="bg-muted/50">
                 <TabsTrigger value="24h" className="text-xs">24h</TabsTrigger>
@@ -150,17 +170,40 @@ export default function ApiHealthDashboard() {
           </motion.div>
         </div>
 
-        {/* Real-time Monitors */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <GroqQuotaMonitor />
-          <BatchProcessingMonitor />
-        </div>
+        {/* Deepseek Section */}
+        {(modelTab === 'deepseek' || modelTab === 'all') && (
+          <div className="space-y-4">
+            {modelTab === 'all' && (
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <Brain className="w-5 h-5 text-blue-400" />
+                Deepseek Reasoner Metrics
+              </h2>
+            )}
+            <DeepseekMetricsPanel timeRange={timeRange} />
+          </div>
+        )}
 
-        {/* Latency Trend Chart */}
-        <LatencyTrendChart 
-          data={metrics?.latencyTrends || []} 
-          isLoading={isLoading}
-        />
+        {/* Groq Section */}
+        {(modelTab === 'groq' || modelTab === 'all') && (
+          <>
+            {modelTab === 'all' && (
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mt-6">
+                <Zap className="w-5 h-5 text-amber-400" />
+                Groq LPU Metrics
+              </h2>
+            )}
+            
+            {/* Real-time Monitors */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <GroqQuotaMonitor />
+              <BatchProcessingMonitor />
+            </div>
+
+            {/* Latency Trend Chart */}
+            <LatencyTrendChart 
+              data={metrics?.latencyTrends || []} 
+              isLoading={isLoading}
+            />
 
         {/* Throughput & Circuit Breaker */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -229,6 +272,8 @@ export default function ApiHealthDashboard() {
             isLoading={isLoading}
           />
         </div>
+          </>
+        )}
       </div>
     </AppLayout>
   );
