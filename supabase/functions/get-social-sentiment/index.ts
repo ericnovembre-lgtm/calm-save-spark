@@ -140,14 +140,51 @@ function generateMockSentiment(ticker: string): SentimentResponse {
   };
 }
 
+function generateMockHistory(ticker: string, days: number) {
+  const history = [];
+  const now = new Date();
+  
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    
+    // Generate somewhat correlated scores with random walk
+    const baseScore = Math.floor(Math.random() * 60) - 10;
+    const noise = Math.floor(Math.random() * 30) - 15;
+    const score = Math.max(-100, Math.min(100, baseScore + noise));
+    
+    history.push({
+      date: date.toISOString().split('T')[0],
+      score,
+      volume: ['low', 'moderate', 'high'][Math.floor(Math.random() * 3)],
+      confidence: 0.6 + Math.random() * 0.3,
+    });
+  }
+  
+  return history;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { ticker = 'market' } = await req.json();
+    const { ticker = 'market', action, range = '7d' } = await req.json();
     
+    // Handle history request
+    if (action === 'history') {
+      const days = range === '30d' ? 30 : 7;
+      console.log(`Fetching sentiment history for ${ticker}, range: ${range}`);
+      
+      const history = generateMockHistory(ticker, days);
+      
+      return new Response(JSON.stringify({ history }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    // Default: fetch current sentiment
     console.log(`Fetching social sentiment for: ${ticker}`);
     
     const sentimentData = await callGrokAPI(ticker.toUpperCase());

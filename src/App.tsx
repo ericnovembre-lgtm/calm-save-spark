@@ -86,6 +86,7 @@ const Card = createPageLoader(() => import("./pages/Card"), 'medium');
 const TaxDocuments = createPageLoader(() => import("./pages/TaxDocuments"), 'medium');
 const TaxDocumentAnalysis = createPageLoader(() => import("./pages/TaxDocumentAnalysis"), 'medium');
 const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
+const SocialSentiment = createPageLoader(() => import("./pages/SocialSentiment"), 'medium');
 
 const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
 const Sitemap = createPageLoader(() => import("./pages/Sitemap"), 'medium');
@@ -336,6 +337,7 @@ function AnimatedRoutes() {
         <Route path="/refinancing-hub" element={<ProtectedRoute><PageTransition><RefinancingHub /></PageTransition></ProtectedRoute>} />
         <Route path="/business-os" element={<ProtectedRoute><PageTransition><BusinessOS /></PageTransition></ProtectedRoute>} />
         <Route path="/defi-manager" element={<ProtectedRoute><PageTransition><DeFiManager /></PageTransition></ProtectedRoute>} />
+        <Route path="/social-sentiment" element={<ProtectedRoute><PageTransition><SocialSentiment /></PageTransition></ProtectedRoute>} />
         
         {/* Maintenance Page */}
         <Route path="/maintenance" element={<PageTransition><Maintenance /></PageTransition>} />
