@@ -1672,6 +1672,42 @@ export type Database = {
         }
         Relationships: []
       }
+      budget_optimization_history: {
+        Row: {
+          applied_at: string | null
+          created_at: string | null
+          id: string
+          input_data: Json
+          optimization_type: string
+          reasoning_chain: Json | null
+          recommendations: Json
+          savings_potential: number | null
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string | null
+          created_at?: string | null
+          id?: string
+          input_data: Json
+          optimization_type: string
+          reasoning_chain?: Json | null
+          recommendations: Json
+          savings_potential?: number | null
+          user_id: string
+        }
+        Update: {
+          applied_at?: string | null
+          created_at?: string | null
+          id?: string
+          input_data?: Json
+          optimization_type?: string
+          reasoning_chain?: Json | null
+          recommendations?: Json
+          savings_potential?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       budget_rebalancing_feedback: {
         Row: {
           action: string
@@ -7785,6 +7821,42 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_optimization_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          optimization_type: string
+          portfolio_data: Json
+          reasoning_chain: Json | null
+          recommendations: Json
+          risk_metrics: Json | null
+          tax_analysis: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          optimization_type: string
+          portfolio_data: Json
+          reasoning_chain?: Json | null
+          recommendations: Json
+          risk_metrics?: Json | null
+          tax_analysis?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          optimization_type?: string
+          portfolio_data?: Json
+          reasoning_chain?: Json | null
+          recommendations?: Json
+          risk_metrics?: Json | null
+          tax_analysis?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolio_snapshots: {
         Row: {
           created_at: string | null
@@ -8531,6 +8603,60 @@ export type Database = {
           template_config?: Json
           template_name?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      retirement_plans: {
+        Row: {
+          created_at: string | null
+          current_age: number
+          current_savings: number | null
+          deepseek_reasoning: Json | null
+          id: string
+          monte_carlo_results: Json | null
+          monthly_contribution: number | null
+          retirement_age: number
+          risk_tolerance: string | null
+          social_security_estimate: number | null
+          ss_claiming_age: number | null
+          target_retirement_income: number | null
+          updated_at: string | null
+          user_id: string
+          withdrawal_strategy: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_age: number
+          current_savings?: number | null
+          deepseek_reasoning?: Json | null
+          id?: string
+          monte_carlo_results?: Json | null
+          monthly_contribution?: number | null
+          retirement_age?: number
+          risk_tolerance?: string | null
+          social_security_estimate?: number | null
+          ss_claiming_age?: number | null
+          target_retirement_income?: number | null
+          updated_at?: string | null
+          user_id: string
+          withdrawal_strategy?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          current_age?: number
+          current_savings?: number | null
+          deepseek_reasoning?: Json | null
+          id?: string
+          monte_carlo_results?: Json | null
+          monthly_contribution?: number | null
+          retirement_age?: number
+          risk_tolerance?: string | null
+          social_security_estimate?: number | null
+          ss_claiming_age?: number | null
+          target_retirement_income?: number | null
+          updated_at?: string | null
+          user_id?: string
+          withdrawal_strategy?: Json | null
         }
         Relationships: []
       }
