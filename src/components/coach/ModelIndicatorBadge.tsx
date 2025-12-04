@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Brain, Zap, Globe, FileText, Bolt } from 'lucide-react';
+import { Brain, Zap, Globe, FileText, Bolt, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ModelIndicatorBadgeProps {
@@ -45,6 +45,12 @@ const MODEL_CONFIG = {
     label: 'GPT-5',
     color: 'from-emerald-500 to-teal-600',
     description: 'Document expert'
+  },
+  'deepseek-reasoner': {
+    icon: Calculator,
+    label: 'Deepseek Reasoner',
+    color: 'from-blue-600 to-indigo-700',
+    description: 'Math expert'
   }
 };
 

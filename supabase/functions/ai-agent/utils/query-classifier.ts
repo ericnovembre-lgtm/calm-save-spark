@@ -3,8 +3,8 @@
  * Determines the optimal AI model based on query complexity and type
  */
 
-export type QueryType = 'simple' | 'complex' | 'market_data' | 'analytical' | 'document_analysis' | 'speed_critical';
-export type ModelRoute = 'gemini-flash' | 'claude-sonnet' | 'perplexity' | 'gpt-5' | 'groq-instant';
+export type QueryType = 'simple' | 'complex' | 'market_data' | 'analytical' | 'document_analysis' | 'speed_critical' | 'mathematical_reasoning';
+export type ModelRoute = 'gemini-flash' | 'claude-sonnet' | 'perplexity' | 'gpt-5' | 'groq-instant' | 'deepseek-reasoner';
 
 export interface ClassificationResult {
   type: QueryType;
@@ -13,6 +13,28 @@ export interface ClassificationResult {
   reasoning: string;
   estimatedCost: number; // in credits/tokens
 }
+
+// Keywords that indicate mathematical/financial reasoning (route to Deepseek)
+const MATHEMATICAL_REASONING_KEYWORDS = [
+  // Core math operations
+  'calculate', 'compute', 'solve', 'formula', 'equation',
+  // Financial calculations
+  'compound interest', 'simple interest', 'amortization', 'amortize',
+  'npv', 'net present value', 'irr', 'internal rate of return',
+  'roi', 'return on investment', 'break-even', 'breakeven',
+  'payoff strategy', 'debt payoff', 'payoff order', 'optimal payoff',
+  'avalanche method', 'snowball method', 'debt avalanche', 'debt snowball',
+  // Simulations & optimization
+  'monte carlo', 'simulation', 'probability distribution', 'confidence interval',
+  'optimization', 'optimize', 'optimal allocation', 'maximize', 'minimize',
+  'sensitivity analysis', 'what-if calculation', 'scenario calculation',
+  // Time value of money
+  'future value', 'present value', 'time value', 'discount rate',
+  'annuity', 'perpetuity', 'cash flow', 'dcf',
+  // Statistical
+  'standard deviation', 'variance', 'correlation', 'regression',
+  'percentile', 'probability', 'expected value', 'risk-adjusted'
+];
 
 // Keywords that indicate speed-critical queries (route to Groq)
 const SPEED_CRITICAL_KEYWORDS = [
@@ -47,11 +69,11 @@ const SIMPLE_QUERY_KEYWORDS = [
 
 // Keywords indicating complex analysis
 const COMPLEX_QUERY_KEYWORDS = [
-  'analyze', 'strategy', 'optimize', 'recommend', 'plan',
+  'analyze', 'strategy', 'recommend', 'plan',
   'should i', 'help me decide', 'compare', 'evaluate',
   'forecast', 'predict', 'scenario', 'what if',
   'deep dive', 'comprehensive', 'detailed analysis',
-  'retirement plan', 'tax strategy', 'debt payoff',
+  'retirement plan', 'tax strategy',
   'investment strategy', 'financial plan'
 ];
 
@@ -75,7 +97,6 @@ const DOCUMENT_ANALYSIS_KEYWORDS = [
   'identity document', 'passport', 'driver license', 'drivers license',
   'pay stub', 'paystub', 'kyc',
   // General document actions
-  'scan', 'upload', 'document', 'form',
   'analyze document', 'extract from', 'read this',
   'uploaded file', 'attached document', 'this image'
 ];
@@ -107,6 +128,22 @@ export function classifyQuery(
       confidence: 0.95,
       reasoning: 'Speed-critical query requiring sub-100ms response via Groq LPU',
       estimatedCost: 0.01 // Groq is very cheap
+    };
+  }
+  
+  // Check for mathematical reasoning queries (route to Deepseek for cost-effective math)
+  const hasMathKeywords = MATHEMATICAL_REASONING_KEYWORDS.some(keyword => 
+    lowerQuery.includes(keyword)
+  );
+  
+  // Route to Deepseek for mathematical/financial calculations
+  if (hasMathKeywords) {
+    return {
+      type: 'mathematical_reasoning',
+      model: 'deepseek-reasoner',
+      confidence: 0.95,
+      reasoning: 'Mathematical/financial calculation requiring Deepseek Reasoner chain-of-thought',
+      estimatedCost: 0.02 // Deepseek is very cost-effective (~95% cheaper than Claude)
     };
   }
   
