@@ -488,3 +488,6 @@ verify_jwt = true
 
 [functions.check-sentiment-alerts]
 verify_jwt = false
+
+[functions.generate-dashboard-layout]
+verify_jwt = true
