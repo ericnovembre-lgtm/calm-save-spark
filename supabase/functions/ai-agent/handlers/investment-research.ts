@@ -4,6 +4,7 @@ import { streamAIResponse, formatContextForAI } from "../utils/ai-client.ts";
 import { loadConversation, saveConversation, getAgentSystemPrompt } from "../utils/conversation-manager.ts";
 import { determineSubscriptionTier, getSubscriptionMessage } from "../utils/subscription-utils.ts";
 import { UI_TOOLS } from "../utils/ui-tools.ts";
+import { analyzeSocialSentiment } from "../utils/grok-client.ts";
 
 async function fetchMarketData(query: string): Promise<string> {
   const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
@@ -89,6 +90,23 @@ export async function investmentResearchHandler(params: HandlerParams): Promise<
     marketData = await fetchMarketData(message);
   }
 
+  // Fetch social sentiment data with Grok if query suggests it
+  let sentimentData = '';
+  const needsSentiment = /sentiment|social|twitter|trending|buzz|hype|fomo|fud|mood|bullish|bearish|retail/i.test(message);
+  if (needsSentiment) {
+    console.log('Fetching social sentiment data from Grok...');
+    try {
+      // Extract potential ticker symbols from message
+      const tickerMatch = message.match(/\b[A-Z]{1,5}\b/g);
+      const primaryTicker = tickerMatch?.[0] || 'market';
+      
+      const sentiment = await analyzeSocialSentiment(primaryTicker, message);
+      sentimentData = JSON.stringify(sentiment, null, 2);
+    } catch (error) {
+      console.error('Failed to fetch sentiment data from Grok:', error);
+    }
+  }
+
   const enhancedPrompt = `${systemPrompt}
 
 **User Subscription Tier:** ${tier}${subscriptionMsg}
@@ -96,7 +114,7 @@ export async function investmentResearchHandler(params: HandlerParams): Promise<
 **Current Investment Portfolio:**
 ${contextString}
 
-${marketData ? `**Real-Time Market Data & News:**\n${marketData}\n\n` : ''}
+${marketData ? `**Real-Time Market Data & News:**\n${marketData}\n\n` : ''}${sentimentData ? `**Social Sentiment Analysis (via Grok):**\n${sentimentData}\n\n` : ''}
 
 Provide objective analysis and educational insights. Always emphasize this is not financial advice.`;
 
