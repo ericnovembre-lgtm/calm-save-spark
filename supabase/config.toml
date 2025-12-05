@@ -503,3 +503,6 @@ verify_jwt = true
 
 [functions.copilot-respond]
 verify_jwt = false
+
+[functions.multi-factor-anomaly]
+verify_jwt = false
