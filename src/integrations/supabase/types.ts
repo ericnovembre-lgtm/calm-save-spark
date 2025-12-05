@@ -12001,6 +12001,39 @@ export type Database = {
           },
         ]
       }
+      voice_command_history: {
+        Row: {
+          command_text: string
+          command_type: string
+          created_at: string
+          executed_at: string
+          frequency: number
+          id: string
+          result_action: string | null
+          user_id: string
+        }
+        Insert: {
+          command_text: string
+          command_type: string
+          created_at?: string
+          executed_at?: string
+          frequency?: number
+          id?: string
+          result_action?: string | null
+          user_id: string
+        }
+        Update: {
+          command_text?: string
+          command_type?: string
+          created_at?: string
+          executed_at?: string
+          frequency?: number
+          id?: string
+          result_action?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       voice_sessions: {
         Row: {
           conversation_id: string | null

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, X, Loader2, BarChart3, PieChart, TrendingUp, ArrowRight, Calendar, Repeat, DollarSign, ShoppingBag, Mic, MicOff } from 'lucide-react';
+import { Search, Sparkles, X, Loader2, BarChart3, PieChart, TrendingUp, ArrowRight, Calendar, Repeat, DollarSign, ShoppingBag, Mic, MicOff, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,10 @@ import { useMobilePreferences } from '@/hooks/useMobilePreferences';
 import { notificationSounds } from '@/lib/notification-sounds';
 import { WaveformVisualizer } from '@/components/voice/WaveformVisualizer';
 import { useAudioAnalyzer } from '@/hooks/useAudioAnalyzer';
+import { useVoiceCommandHistory } from '@/hooks/useVoiceCommandHistory';
+import { useVoiceCommandTutorial } from '@/hooks/useVoiceCommandTutorial';
+import { VoiceCommandTutorial } from '@/components/voice/VoiceCommandTutorial';
+import { CommandHistoryChips } from '@/components/voice/CommandHistoryChips';
 
 interface NaturalLanguageCommanderProps {
   onQuery?: (query: string) => void;
@@ -28,11 +32,6 @@ const EXAMPLE_QUERIES = [
   { text: "Top merchants I shop at", icon: ShoppingBag },
 ];
 
-/**
- * Natural Language Commander
- * Floating command bar for natural language financial queries
- * "Show me spending on coffee vs. tea" → generates ad-hoc chart
- */
 // Check for Speech Recognition support
 const SpeechRecognition = typeof window !== 'undefined' 
   ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition 
@@ -50,6 +49,12 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
   const { preferences } = useMobilePreferences();
+
+  // Voice command history
+  const { recentCommands, frequentCommands, addCommand, deleteCommand } = useVoiceCommandHistory();
+  
+  // Tutorial state
+  const tutorial = useVoiceCommandTutorial();
 
   // Voice settings from preferences
   const voiceEnabled = preferences?.voice_enabled ?? true;
@@ -97,6 +102,8 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
             if (feedbackSound) {
               notificationSounds.message();
             }
+            // Add to history
+            addCommand(transcript.trim(), 'voice', 'query');
             onQuery(transcript.trim());
             setIsListening(false);
           }
@@ -125,10 +132,16 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
       }
       recognition.abort();
     };
-  }, [onQuery, autoSubmitDelay, feedbackSound, showTranscript]);
+  }, [onQuery, autoSubmitDelay, feedbackSound, showTranscript, addCommand]);
 
   const startListening = useCallback(() => {
     if (!recognitionRef.current || isListening) return;
+    
+    // Show tutorial on first voice tap
+    if (tutorial.shouldShowOnFirstVoiceTap) {
+      tutorial.openTutorial();
+      return;
+    }
     
     setVoiceError(null);
     setQuery('');
@@ -145,7 +158,7 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
       console.error('Failed to start voice recognition:', err);
       setVoiceError('Failed to start voice input');
     }
-  }, [isListening, feedbackSound]);
+  }, [isListening, feedbackSound, tutorial]);
 
   const stopListening = useCallback(() => {
     if (!recognitionRef.current) return;
@@ -182,6 +195,8 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim() && onQuery) {
+      // Add to history
+      addCommand(query.trim(), 'typed', 'query');
       onQuery(query.trim());
     }
   };
@@ -189,12 +204,38 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
   const handleExampleClick = (text: string) => {
     setQuery(text);
     if (onQuery) {
+      addCommand(text, 'example', 'query');
       onQuery(text);
+    }
+  };
+
+  const handleHistoryCommandClick = (commandText: string) => {
+    setQuery(commandText);
+    if (onQuery) {
+      onQuery(commandText);
+    }
+  };
+
+  const handleTryCommand = (command: string) => {
+    setQuery(command);
+    // Start listening with the example pre-filled
+    if (recognitionRef.current && !isListening) {
+      startListening();
     }
   };
 
   return (
     <>
+      {/* Tutorial overlay */}
+      <VoiceCommandTutorial
+        isOpen={tutorial.isOpen}
+        currentStep={tutorial.currentStep}
+        onClose={tutorial.closeTutorial}
+        onNext={tutorial.nextStep}
+        onPrev={tutorial.prevStep}
+        onTryCommand={handleTryCommand}
+      />
+
       {/* Collapsed state - Floating pill button with pulse */}
       <AnimatePresence>
         {!isExpanded && (
@@ -265,7 +306,7 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className={cn(
-                "fixed top-[20%] left-1/2 -translate-x-1/2 w-full max-w-xl z-50",
+                "fixed top-[15%] left-1/2 -translate-x-1/2 w-full max-w-xl z-50",
                 "bg-background/95 backdrop-blur-xl rounded-2xl",
                 "border border-border/50 shadow-2xl overflow-hidden"
               )}
@@ -279,6 +320,18 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
                   <h3 className="font-semibold text-foreground">Financial Assistant</h3>
                   <p className="text-xs text-muted-foreground">Ask in plain English</p>
                 </div>
+                {/* Help button */}
+                {isVoiceSupported && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={tutorial.openTutorial}
+                    aria-label="Voice command help"
+                  >
+                    <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -399,6 +452,19 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
                   )}
                 </AnimatePresence>
               </form>
+
+              {/* Command history section */}
+              {(recentCommands.length > 0 || frequentCommands.length > 0) && (
+                <div className="px-4 pb-3">
+                  <CommandHistoryChips
+                    recentCommands={recentCommands}
+                    frequentCommands={frequentCommands}
+                    onCommandClick={handleHistoryCommandClick}
+                    onDeleteCommand={deleteCommand}
+                    maxItems={4}
+                  />
+                </div>
+              )}
 
               {/* Example queries */}
               <div className="px-4 pb-4">
