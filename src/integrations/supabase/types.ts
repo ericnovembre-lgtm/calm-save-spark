@@ -7164,6 +7164,81 @@ export type Database = {
         }
         Relationships: []
       }
+      mobile_device_tokens: {
+        Row: {
+          created_at: string | null
+          device_name: string | null
+          device_token: string
+          enabled: boolean | null
+          id: string
+          last_used_at: string | null
+          platform: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_name?: string | null
+          device_token: string
+          enabled?: boolean | null
+          id?: string
+          last_used_at?: string | null
+          platform: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_name?: string | null
+          device_token?: string
+          enabled?: boolean | null
+          id?: string
+          last_used_at?: string | null
+          platform?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mobile_preferences: {
+        Row: {
+          biometric_required_for_transactions: boolean | null
+          created_at: string | null
+          default_camera_mode: string | null
+          haptic_enabled: boolean | null
+          haptic_intensity: string | null
+          home_widget_order: string[] | null
+          id: string
+          quick_glance_widgets: string[] | null
+          updated_at: string | null
+          user_id: string
+          voice_enabled: boolean | null
+        }
+        Insert: {
+          biometric_required_for_transactions?: boolean | null
+          created_at?: string | null
+          default_camera_mode?: string | null
+          haptic_enabled?: boolean | null
+          haptic_intensity?: string | null
+          home_widget_order?: string[] | null
+          id?: string
+          quick_glance_widgets?: string[] | null
+          updated_at?: string | null
+          user_id: string
+          voice_enabled?: boolean | null
+        }
+        Update: {
+          biometric_required_for_transactions?: boolean | null
+          created_at?: string | null
+          default_camera_mode?: string | null
+          haptic_enabled?: boolean | null
+          haptic_intensity?: string | null
+          home_widget_order?: string[] | null
+          id?: string
+          quick_glance_widgets?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          voice_enabled?: boolean | null
+        }
+        Relationships: []
+      }
       negotiation_script_outcomes: {
         Row: {
           actual_savings: number | null
@@ -7399,6 +7474,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      offline_transaction_queue: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          retry_count: number | null
+          sync_status: string | null
+          synced_at: string | null
+          transaction_data: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          retry_count?: number | null
+          sync_status?: string | null
+          synced_at?: string | null
+          transaction_data: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          retry_count?: number | null
+          sync_status?: string | null
+          synced_at?: string | null
+          transaction_data?: Json
+          user_id?: string
+        }
+        Relationships: []
       }
       onboarding_conversations: {
         Row: {
