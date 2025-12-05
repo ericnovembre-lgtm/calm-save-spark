@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { triggerHaptic } from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 
 type GestureType = 'swipe-horizontal' | 'swipe-vertical' | 'tap' | 'drag' | 'pull-down' | 'pinch';
 
@@ -19,10 +19,10 @@ export function GestureGuide({ type, onComplete, completed }: { type: GestureTyp
     else if (type === 'pull-down' || type === 'swipe-vertical') p = Math.min(Math.abs(dy) / 80, 1);
     else if (type === 'drag') p = Math.min((Math.abs(dx) + Math.abs(dy)) / 120, 1);
     setProgress(p);
-    if (p >= 1) { triggerHaptic('success'); onComplete(); setPracticing(false); }
+    if (p >= 1) { haptics.pattern('success'); onComplete(); setPracticing(false); }
   };
   const handleTouchEnd = () => { setPracticing(false); if (progress < 1) setProgress(0); };
-  const handleTap = () => { if (type === 'tap' && !completed) { triggerHaptic('light'); setProgress(1); onComplete(); } };
+  const handleTap = () => { if (type === 'tap' && !completed) { haptics.vibrate('light'); setProgress(1); onComplete(); } };
 
   return (
     <div className="flex flex-col items-center">

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { triggerHaptic } from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 
 const NAVIGATION_ROUTES = [
   { path: '/dashboard', label: 'Dashboard' },
@@ -50,7 +50,7 @@ export function useSwipeNavigation(options: { threshold?: number; edgeWidth?: nu
     if ((direction === 'left' && !canSwipeLeft) || (direction === 'right' && !canSwipeRight)) { setSwipeProgress(progress * 0.3); return; }
     setSwipeState(prev => ({ ...prev, currentX: touch.clientX, currentY: touch.clientY, direction }));
     setSwipeProgress(progress);
-    if (progress >= 1 && !reducedMotion) triggerHaptic('light');
+    if (progress >= 1 && !reducedMotion) haptics.vibrate('light');
   }, [swipeState.isSwiping, swipeState.startX, swipeState.startY, threshold, canSwipeLeft, canSwipeRight, reducedMotion]);
 
   const handleTouchEnd = useCallback(() => {
@@ -58,14 +58,14 @@ export function useSwipeNavigation(options: { threshold?: number; edgeWidth?: nu
     const deltaX = swipeState.currentX - swipeState.startX;
     const velocity = Math.abs(deltaX) / (Date.now() - startTimeRef.current);
     if (Math.abs(deltaX) >= threshold || velocity >= velocityThreshold) {
-      if (swipeState.direction === 'left' && canSwipeLeft) { triggerHaptic('medium'); navigate(NAVIGATION_ROUTES[currentIndex + 1].path); }
-      else if (swipeState.direction === 'right' && canSwipeRight) { triggerHaptic('medium'); navigate(NAVIGATION_ROUTES[currentIndex - 1].path); }
+if (swipeState.direction === 'left' && canSwipeLeft) { haptics.swipe(); navigate(NAVIGATION_ROUTES[currentIndex + 1].path); }
+      else if (swipeState.direction === 'right' && canSwipeRight) { haptics.swipe(); navigate(NAVIGATION_ROUTES[currentIndex - 1].path); }
     }
     setSwipeState({ startX: 0, startY: 0, currentX: 0, currentY: 0, isSwiping: false, direction: null });
     setSwipeProgress(0);
   }, [swipeState, threshold, velocityThreshold, canSwipeLeft, canSwipeRight, currentIndex, navigate]);
 
-  const navigateToIndex = useCallback((index: number) => { if (index >= 0 && index < NAVIGATION_ROUTES.length) { triggerHaptic('light'); navigate(NAVIGATION_ROUTES[index].path); } }, [navigate]);
+  const navigateToIndex = useCallback((index: number) => { if (index >= 0 && index < NAVIGATION_ROUTES.length) { haptics.vibrate('light'); navigate(NAVIGATION_ROUTES[index].path); } }, [navigate]);
 
   return { swipeState, swipeProgress, currentIndex, routes: NAVIGATION_ROUTES, canSwipeLeft, canSwipeRight, navigateToIndex, handlers: { onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleTouchEnd } };
 }
