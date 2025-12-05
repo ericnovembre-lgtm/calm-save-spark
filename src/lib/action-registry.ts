@@ -12,6 +12,30 @@ interface ActionRegistryConfig {
   spotlight: SpotlightFunction;
 }
 
+// Modal registration callbacks for CoPilot integration
+const modalCallbacks = new Map<string, () => void>();
+
+/**
+ * Register a modal opener callback for CoPilot to trigger
+ */
+export function registerModalCallback(modalId: string, openFn: () => void) {
+  modalCallbacks.set(modalId, openFn);
+}
+
+/**
+ * Unregister a modal callback
+ */
+export function unregisterModalCallback(modalId: string) {
+  modalCallbacks.delete(modalId);
+}
+
+/**
+ * Get a registered modal callback
+ */
+export function getModalCallback(modalId: string): (() => void) | undefined {
+  return modalCallbacks.get(modalId);
+}
+
 /**
  * Creates the action registry with injected dependencies
  */

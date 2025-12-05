@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCoPilot } from '@/contexts/CoPilotContext';
-import { createActionRegistry, findMatchingAction } from '@/lib/action-registry';
+import { createActionRegistry, findMatchingAction, getModalCallback } from '@/lib/action-registry';
 import { useTheme } from '@/lib/theme';
 import type { CoPilotAction } from '@/types/copilot';
 
@@ -10,17 +10,6 @@ interface UseCoPilotActionsReturn {
   executeAction: (actionId: string, params?: Record<string, unknown>) => Promise<boolean>;
   parseAndExecute: (input: string) => Promise<{ executed: boolean; action?: CoPilotAction }>;
   getAction: (actionId: string) => CoPilotAction | undefined;
-}
-
-// Modal state management (will be connected to actual modal system)
-const modalCallbacks = new Map<string, () => void>();
-
-export function registerModal(modalId: string, openFn: () => void) {
-  modalCallbacks.set(modalId, openFn);
-}
-
-export function unregisterModal(modalId: string) {
-  modalCallbacks.delete(modalId);
 }
 
 // Spotlight state management
@@ -45,7 +34,7 @@ export function useCoPilotActions(): UseCoPilotActionsReturn {
       navigate,
       setTheme,
       openModal: (modalId: string) => {
-        const callback = modalCallbacks.get(modalId);
+        const callback = getModalCallback(modalId);
         if (callback) {
           callback();
         } else {
