@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useMemo, useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useMemo, useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { DashboardLayout, GenerativeWidgetSpec, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
@@ -13,6 +13,8 @@ import { WidgetQuickActions } from '@/components/dashboard/WidgetQuickActions';
 import { useWidgetAnalytics } from '@/hooks/useWidgetAnalytics';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { StreamingWidgetSkeleton } from '@/components/dashboard/skeletons/StreamingWidgetSkeleton';
+import { SwipeableWidget } from '@/components/dashboard/gestures/SwipeableWidget';
+import { toast } from 'sonner';
 
 // Real widget components
 import { EnhancedBalanceCard } from '@/components/dashboard/EnhancedBalanceCard';
@@ -303,7 +305,7 @@ export function UnifiedGenerativeGrid({
 }: UnifiedGenerativeGridProps) {
   const { user } = useAuth();
   const prefersReducedMotion = useReducedMotion();
-  const { preferences, isPinned, isHidden, updateOrder } = useWidgetPreferences();
+  const { preferences, isPinned, isHidden, updateOrder, toggleHide } = useWidgetPreferences();
   const { trackView, trackViewEnd, trackClick, trackDrag } = useWidgetAnalytics();
   
   // Track widget views with Intersection Observer
@@ -428,15 +430,56 @@ export function UnifiedGenerativeGrid({
     }
   };
 
+  // Swipeable widget types (not hero, not essential)
+  const swipeableWidgets = useMemo(() => new Set([
+    'goal_progress', 'goals', 'spending_breakdown', 'budget_status', 'budgets',
+    'investment_summary', 'portfolio', 'credit_score', 'credit', 'upcoming_bills',
+    'bills', 'social_sentiment', 'sentiment', 'ai_usage', 'nudges', 'recommendations',
+    'net_worth_chart', 'debt_tracker', 'debts', 'subscriptions', 'spending_alerts',
+    'daily_briefing', 'briefing', 'streak_recovery'
+  ]), []);
+
+  const handleSwipeLeft = useCallback((widgetId: string) => {
+    // Hide the widget
+    toggleHide(widgetId);
+    toast.info('Widget hidden', {
+      description: 'You can restore it from the widget menu',
+      action: {
+        label: 'Undo',
+        onClick: () => toggleHide(widgetId)
+      }
+    });
+  }, [toggleHide]);
+
+  const handleSwipeRight = useCallback((widgetId: string, onModalOpen?: (modalId: string) => void) => {
+    // Trigger quick action based on widget type
+    const quickActionMap: Record<string, string> = {
+      'goal_progress': 'add_to_goal',
+      'goals': 'add_to_goal',
+      'upcoming_bills': 'pay_bill',
+      'bills': 'pay_bill',
+      'debt_tracker': 'debt_payment',
+      'debts': 'debt_payment',
+      'credit_score': 'credit_tips',
+      'credit': 'credit_tips',
+    };
+    
+    const modalId = quickActionMap[widgetId];
+    if (modalId && onModalOpen) {
+      onModalOpen(modalId);
+    }
+  }, []);
+
   const renderWidget = (widgetId: string, widget: GenerativeWidgetSpec, size: 'hero' | 'large' | 'medium' | 'compact') => {
     const isWidgetLoading = isStreaming || !loadedWidgets.has(widgetId);
+    const isSwipeable = swipeableWidgets.has(widgetId) && size !== 'hero';
     
     // Auto-mark as loaded when not streaming
     if (!isStreaming && !loadedWidgets.has(widgetId)) {
       markWidgetLoaded(widgetId);
     }
-    
-    return (
+
+    const widgetContent = (
       <StreamingWidgetSkeleton
         isLoading={isWidgetLoading}
         widgetType={widgetId}
@@ -458,6 +501,23 @@ export function UnifiedGenerativeGrid({
         </WidgetErrorBoundary>
       </StreamingWidgetSkeleton>
     );
+
+    // Wrap swipeable widgets
+    if (isSwipeable) {
+      return (
+        <SwipeableWidget
+          onSwipeLeft={() => handleSwipeLeft(widgetId)}
+          onSwipeRight={onModalOpen ? () => handleSwipeRight(widgetId, onModalOpen) : undefined}
+          leftLabel="Hide"
+          rightLabel="Quick Action"
+          threshold={80}
+        >
+          {widgetContent}
+        </SwipeableWidget>
+      );
+    }
+    
+    return widgetContent;
   };
 
   const handleReorder = (newOrder: string[]) => {
