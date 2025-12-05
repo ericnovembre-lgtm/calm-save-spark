@@ -218,14 +218,22 @@ export function useClaudeGenerativeDashboard() {
     }, GENERATION_TIMEOUT_MS);
 
     try {
-      // Use streaming endpoint
+      // Get the user's session token for authenticated requests
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      
+      if (!accessToken) {
+        throw new Error('No active session');
+      }
+
+      // Use streaming endpoint with user's JWT
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-dashboard-layout`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'Authorization': `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ forceRefresh, stream: true }),
           signal: abortControllerRef.current?.signal
