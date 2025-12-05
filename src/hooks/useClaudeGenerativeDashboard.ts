@@ -155,6 +155,7 @@ export function useClaudeGenerativeDashboard() {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isTimedOut, setIsTimedOut] = useState(false);
+  const [streamingText, setStreamingText] = useState<string>('');
   
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningRef = useRef<NodeJS.Timeout | null>(null);
@@ -187,6 +188,7 @@ export function useClaudeGenerativeDashboard() {
     setError(null);
     setElapsedTime(0);
     setIsTimedOut(false);
+    setStreamingText('');
 
     const startTime = Date.now();
 
@@ -216,35 +218,106 @@ export function useClaudeGenerativeDashboard() {
     }, GENERATION_TIMEOUT_MS);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('generate-dashboard-layout', {
-        body: { forceRefresh }
-      });
+      // Use streaming endpoint
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-dashboard-layout`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ forceRefresh, stream: true }),
+          signal: abortControllerRef.current?.signal
+        }
+      );
 
-      clearAllTimers();
-
-      if (fnError) {
-        throw new Error(fnError.message);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP ${response.status}`);
       }
 
-      if (data?.error) {
-        throw new Error(data.error);
-      }
+      const contentType = response.headers.get('content-type');
+      
+      // Check if response is SSE stream
+      if (contentType?.includes('text/event-stream') && response.body) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let finalData: any = null;
 
-      if (data?.dashboard) {
-        setState({
-          layout: data.dashboard.layout || DEFAULT_STATE.layout,
-          widgets: data.dashboard.widgets || DEFAULT_STATE.widgets,
-          theme: data.dashboard.theme || DEFAULT_STATE.theme,
-          briefing: data.dashboard.briefing || DEFAULT_STATE.briefing,
-          reasoning: data.dashboard.reasoning || ''
-        });
-        setContext(data.context || null);
-        setMeta({
-          ...data.meta,
-          cached: data.cached || false
-        });
-        setLastRefresh(new Date());
-        setPhase('complete');
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const jsonStr = line.slice(6).trim();
+              if (jsonStr === '[DONE]') continue;
+              
+              try {
+                const parsed = JSON.parse(jsonStr);
+                
+                if (parsed.type === 'streaming_text') {
+                  setStreamingText(prev => prev + (parsed.content || ''));
+                } else if (parsed.type === 'complete') {
+                  finalData = parsed;
+                }
+              } catch {
+                // Ignore parse errors for partial chunks
+              }
+            }
+          }
+        }
+
+        clearAllTimers();
+
+        if (finalData?.dashboard) {
+          setState({
+            layout: finalData.dashboard.layout || DEFAULT_STATE.layout,
+            widgets: finalData.dashboard.widgets || DEFAULT_STATE.widgets,
+            theme: finalData.dashboard.theme || DEFAULT_STATE.theme,
+            briefing: finalData.dashboard.briefing || DEFAULT_STATE.briefing,
+            reasoning: finalData.dashboard.reasoning || ''
+          });
+          setContext(finalData.context || null);
+          setMeta({
+            ...finalData.meta,
+            cached: finalData.cached || false
+          });
+          setLastRefresh(new Date());
+          setPhase('complete');
+        }
+      } else {
+        // Non-streaming fallback (cached response)
+        const data = await response.json();
+        
+        clearAllTimers();
+
+        if (data?.error) {
+          throw new Error(data.error);
+        }
+
+        if (data?.dashboard) {
+          setState({
+            layout: data.dashboard.layout || DEFAULT_STATE.layout,
+            widgets: data.dashboard.widgets || DEFAULT_STATE.widgets,
+            theme: data.dashboard.theme || DEFAULT_STATE.theme,
+            briefing: data.dashboard.briefing || DEFAULT_STATE.briefing,
+            reasoning: data.dashboard.reasoning || ''
+          });
+          setContext(data.context || null);
+          setMeta({
+            ...data.meta,
+            cached: data.cached || false
+          });
+          setLastRefresh(new Date());
+          setPhase('complete');
+        }
       }
     } catch (err) {
       clearAllTimers();
@@ -304,6 +377,7 @@ export function useClaudeGenerativeDashboard() {
     refresh,
     elapsedTime,
     isTimedOut,
-    isGenerating: phase === 'generating'
+    isGenerating: phase === 'generating',
+    streamingText
   };
 }

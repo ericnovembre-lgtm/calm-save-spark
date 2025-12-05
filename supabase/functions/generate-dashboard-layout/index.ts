@@ -188,11 +188,8 @@ async function setCachedLayout(supabase: any, userId: string, layout: any): Prom
   }, { onConflict: 'cache_key' });
 }
 
-async function generateDashboardWithClaude(context: FinancialContext): Promise<any> {
-  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
-  if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured');
-
-  const userContextMessage = `
+function buildUserContextMessage(context: FinancialContext): string {
+  return `
 ## User Financial Context
 
 **Time**: ${context.timeOfDay} (${new Date().toLocaleDateString()})
@@ -219,6 +216,13 @@ ${context.recentTransactions?.slice(0, 5).map((t: any) => `- ${t.merchant || 'Un
 ### Credit Score: ${context.creditScore?.score || 'N/A'}
 
 Design the optimal dashboard for this user.`;
+}
+
+async function generateDashboardWithClaude(context: FinancialContext): Promise<any> {
+  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+  if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured');
+
+  const userContextMessage = buildUserContextMessage(context);
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -249,6 +253,96 @@ Design the optimal dashboard for this user.`;
   return JSON.parse(jsonMatch[0]);
 }
 
+async function* streamDashboardWithClaude(context: FinancialContext): AsyncGenerator<{ type: string; content?: string; dashboard?: any; context?: any; meta?: any; cached?: boolean }> {
+  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+  if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured');
+
+  const userContextMessage = buildUserContextMessage(context);
+  const startTime = Date.now();
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: CLAUDE_OPUS,
+      max_tokens: 4096,
+      stream: true,
+      system: DASHBOARD_ARCHITECT_PROMPT,
+      messages: [{ role: 'user', content: userContextMessage }]
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Claude API streaming error:', response.status, errorText);
+    throw new Error(`Claude API error: ${response.status}`);
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error('No response body');
+
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let fullContent = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const jsonStr = line.slice(6).trim();
+        if (!jsonStr || jsonStr === '[DONE]') continue;
+
+        try {
+          const event = JSON.parse(jsonStr);
+          
+          if (event.type === 'content_block_delta' && event.delta?.text) {
+            const text = event.delta.text;
+            fullContent += text;
+            
+            // Stream text that looks like briefing content (before JSON starts)
+            if (!fullContent.includes('{')) {
+              yield { type: 'streaming_text', content: text };
+            }
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    }
+  }
+
+  // Parse final JSON from accumulated content
+  const jsonMatch = fullContent.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Failed to parse dashboard layout from stream');
+
+  const dashboard = JSON.parse(jsonMatch[0]);
+  const processingTime = Date.now() - startTime;
+
+  yield {
+    type: 'complete',
+    dashboard,
+    context: {
+      timeOfDay: context.timeOfDay,
+      totalSavings: context.balances?.totalSavings,
+      goalsCount: context.goals?.length,
+      streak: context.streakData?.currentStreak,
+      netWorth: context.netWorth
+    },
+    meta: { model: CLAUDE_OPUS, processingTimeMs: processingTime, generatedAt: new Date().toISOString() },
+    cached: false
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -263,7 +357,7 @@ serve(async (req) => {
       });
     }
 
-    const { forceRefresh } = await req.json().catch(() => ({ forceRefresh: false }));
+    const { forceRefresh, stream } = await req.json().catch(() => ({ forceRefresh: false, stream: false }));
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -298,6 +392,62 @@ serve(async (req) => {
     }
 
     const context = await fetchUserFinancialContext(supabase, user.id);
+
+    // Streaming response
+    if (stream) {
+      const encoder = new TextEncoder();
+      const readableStream = new ReadableStream({
+        async start(controller) {
+          try {
+            let finalDashboard: any = null;
+            
+            for await (const event of streamDashboardWithClaude(context)) {
+              const sseData = `data: ${JSON.stringify(event)}\n\n`;
+              controller.enqueue(encoder.encode(sseData));
+              
+              if (event.type === 'complete') {
+                finalDashboard = event.dashboard;
+              }
+            }
+
+            // Cache the result
+            if (finalDashboard) {
+              await setCachedLayout(supabase, user.id, finalDashboard);
+              
+              // Log analytics
+              supabase.from('ai_model_routing_analytics').insert({
+                user_id: user.id,
+                model_used: CLAUDE_OPUS,
+                query_type: 'dashboard_architect_stream',
+                response_time_ms: Date.now() - startTime,
+                estimated_cost: 0.10
+              }).then(({ error }) => {
+                if (error) console.error('Analytics logging error:', error);
+              });
+            }
+
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+          } catch (error) {
+            console.error('Streaming error:', error);
+            const errorEvent = `data: ${JSON.stringify({ type: 'error', error: error instanceof Error ? error.message : 'Unknown error' })}\n\n`;
+            controller.enqueue(encoder.encode(errorEvent));
+            controller.close();
+          }
+        }
+      });
+
+      return new Response(readableStream, {
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive'
+        },
+      });
+    }
+
+    // Non-streaming fallback
     const dashboardLayout = await generateDashboardWithClaude(context);
     const processingTime = Date.now() - startTime;
 
