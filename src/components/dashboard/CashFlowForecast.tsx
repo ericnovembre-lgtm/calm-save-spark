@@ -13,7 +13,7 @@ interface CashFlowForecastProps {
   userId: string;
 }
 
-function CashFlowForecast({ userId }: CashFlowForecastProps) {
+const CashFlowForecast = ({ userId }: CashFlowForecastProps) => {
   const prefersReducedMotion = useReducedMotion();
   const { data: transactions } = useQuery({
     queryKey: ['transactions', userId],
@@ -196,6 +196,4 @@ function CashFlowForecast({ userId }: CashFlowForecastProps) {
   );
 }
 
-// Export both named and default for ESM compatibility
-export { CashFlowForecast };
 export default CashFlowForecast;
