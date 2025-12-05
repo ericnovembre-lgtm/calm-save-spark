@@ -2,6 +2,8 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { FinancialStory } from '@/hooks/useFinancialStories';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { haptics } from '@/lib/haptics';
+import { Sparkles } from 'lucide-react';
 
 interface StoryBubblesProps {
   stories: FinancialStory[];
@@ -77,17 +79,52 @@ const bubbleVariants = {
 export function StoryBubbles({ stories, onStoryClick, isViewed }: StoryBubblesProps) {
   const prefersReducedMotion = useReducedMotion();
   
-  if (stories.length === 0) return null;
+  // Check if any story was created in last hour
+  const hasNewStory = stories.some(s => {
+    const createdAt = new Date(s.createdAt);
+    return Date.now() - createdAt.getTime() < 3600000; // 1 hour
+  });
+
+  const handleStoryClick = (index: number) => {
+    haptics.select();
+    onStoryClick(index);
+  };
+
+  // Empty state with animated placeholder
+  if (stories.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="w-full py-4 px-4"
+      >
+        <div className="flex items-center gap-3 text-muted-foreground">
+          <motion.div
+            animate={!prefersReducedMotion ? { 
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, -5, 0]
+            } : undefined}
+            transition={{ duration: 3, repeat: Infinity }}
+            className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center"
+          >
+            <Sparkles className="w-5 h-5" />
+          </motion.div>
+          <span className="text-sm">Your day starts here...</span>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full overflow-x-auto scrollbar-hide py-3 px-4 -mx-4"
+      className="w-full overflow-x-auto scrollbar-hide py-3 px-4 -mx-4 snap-x snap-mandatory"
       style={{ 
         scrollbarWidth: 'none',
         msOverflowStyle: 'none',
+        scrollSnapType: 'x mandatory',
       }}
     >
       <div className="flex gap-4 min-w-min">
@@ -98,18 +135,21 @@ export function StoryBubbles({ stories, onStoryClick, isViewed }: StoryBubblesPr
           const glowColor = THEME_GLOW_COLORS[story.theme];
           const dotColor = THEME_DOT_COLORS[story.theme];
           
+          // Check if this story was created recently (within 1 hour)
+          const isNew = Date.now() - new Date(story.createdAt).getTime() < 3600000;
+
           return (
             <motion.button
               key={story.id}
               variants={bubbleVariants}
-              onClick={() => onStoryClick(index)}
+              onClick={() => handleStoryClick(index)}
               whileHover={!prefersReducedMotion ? {
                 scale: 1.08,
                 y: -4,
                 transition: { type: 'spring', stiffness: 400 },
               } : undefined}
               whileTap={!prefersReducedMotion ? { scale: 0.95 } : undefined}
-              className="relative flex flex-col items-center gap-2 flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-full group"
+              className="relative flex flex-col items-center gap-2 flex-shrink-0 snap-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-full group"
               aria-label={`View ${story.type} story`}
             >
               {/* Story bubble container */}
@@ -177,6 +217,17 @@ export function StoryBubbles({ stories, onStoryClick, isViewed }: StoryBubblesPr
                       ease: 'easeInOut',
                     }}
                   />
+                )}
+
+                {/* NEW badge for recently created stories */}
+                {isNew && !viewed && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute -top-2 -left-1 px-1 py-0.5 rounded text-[8px] font-bold bg-primary text-primary-foreground"
+                  >
+                    NEW
+                  </motion.div>
                 )}
               </div>
               
