@@ -6,6 +6,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Cache configuration
+const CACHE_TTL_SECONDS = 300; // 5 minutes
+const STALE_WHILE_REVALIDATE = 600; // 10 minutes
+
+/**
+ * Generate SWR-compatible cache headers
+ */
+function getCacheHeaders(cacheHit: boolean, cacheAge: number = 0) {
+  return {
+    'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`,
+    'X-Cache': cacheHit ? 'HIT' : 'MISS',
+    'X-Cache-Age': cacheAge.toString(),
+    'X-Cache-TTL': CACHE_TTL_SECONDS.toString(),
+    'Vary': 'Authorization',
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -35,14 +52,26 @@ serve(async (req) => {
 
     // Check cache first (5 min TTL)
     const cacheKey = `dashboard_data:${user.id}`;
-    const { data: cachedData } = await supabaseClient.rpc('get_cached_response', {
+    const cacheStartTime = Date.now();
+    const { data: cachedData, error: cacheError } = await supabaseClient.rpc('get_cached_response', {
       p_cache_key: cacheKey
     });
 
-    if (cachedData) {
+    if (cachedData && !cacheError) {
+      // Calculate cache age from timestamp if available
+      const cacheAge = cachedData.timestamp 
+        ? Math.floor((Date.now() - new Date(cachedData.timestamp).getTime()) / 1000)
+        : 0;
+      
       return new Response(
         JSON.stringify(cachedData),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'HIT' } }
+        { 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            ...getCacheHeaders(true, cacheAge)
+          } 
+        }
       );
     }
 
@@ -98,12 +127,22 @@ serve(async (req) => {
       p_cache_type: 'dashboard_aggregation',
       p_user_id: user.id,
       p_response_data: aggregatedData,
-      p_ttl_seconds: 300
+      p_ttl_seconds: CACHE_TTL_SECONDS
     });
+
+    const processingTime = Date.now() - cacheStartTime;
+    console.log(`Dashboard data aggregated in ${processingTime}ms`);
 
     return new Response(
       JSON.stringify(aggregatedData),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'MISS' } }
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          ...getCacheHeaders(false, 0),
+          'X-Processing-Time': processingTime.toString()
+        } 
+      }
     );
 
   } catch (error) {
