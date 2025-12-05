@@ -196,4 +196,6 @@ function CashFlowForecast({ userId }: CashFlowForecastProps) {
   );
 }
 
+// Export both named and default for ESM compatibility
+export { CashFlowForecast };
 export default CashFlowForecast;
