@@ -7,6 +7,9 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useState, useEffect } from "react";
 import { useHapticFeedback } from "@/hooks/useHapticFeedback";
 
+import { memo } from "react";
+import { createPropsComparator } from "@/lib/memo";
+
 interface GoalProgressCardProps {
   id: string;
   name: string;
@@ -15,13 +18,13 @@ interface GoalProgressCardProps {
   icon?: string;
 }
 
-export const GoalProgressCard = ({ 
+export const GoalProgressCard = memo(function GoalProgressCard({
   id,
   name, 
   currentAmount, 
   targetAmount, 
   icon = "target" 
-}: GoalProgressCardProps) => {
+}: GoalProgressCardProps) {
   const progress = Math.min((currentAmount / targetAmount) * 100, 100);
   const prefersReducedMotion = useReducedMotion();
   const { triggerHaptic } = useHapticFeedback();
@@ -89,4 +92,4 @@ export const GoalProgressCard = ({
       {showConfetti && <NeutralConfetti show={showConfetti} />}
     </>
   );
-};
+}, createPropsComparator<GoalProgressCardProps>('id', 'currentAmount', 'targetAmount'));
