@@ -305,13 +305,15 @@ serve(async (req) => {
     await setCachedLayout(supabase, user.id, dashboardLayout);
 
     // Log analytics
-    await supabase.from('ai_model_routing_analytics').insert({
+    supabase.from('ai_model_routing_analytics').insert({
       user_id: user.id,
       model_used: CLAUDE_OPUS,
       query_type: 'dashboard_architect',
       response_time_ms: processingTime,
       estimated_cost: 0.10
-    }).catch(console.error);
+    }).then(({ error }) => {
+      if (error) console.error('Analytics logging error:', error);
+    });
 
     return new Response(JSON.stringify({
       success: true,
