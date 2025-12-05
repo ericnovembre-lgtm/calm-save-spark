@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Hook to enable real-time updates for budget data
- * Subscribes to changes in budget_spending and user_budgets tables
+ * Subscribes to changes in budget_spending, user_budgets, budget_comments, and budget_presence tables
  */
 export function useBudgetRealtime(userId: string | undefined) {
   const queryClient = useQueryClient();
@@ -66,11 +66,45 @@ export function useBudgetRealtime(userId: string | undefined) {
       )
       .subscribe();
 
+    // Subscribe to budget_comments changes
+    const commentsChannel = supabase
+      .channel('budget_comments_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'budget_comments',
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['budget-comments'] });
+        }
+      )
+      .subscribe();
+
+    // Subscribe to budget_presence changes
+    const presenceChannel = supabase
+      .channel('budget_presence_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'budget_presence',
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['budget-presence'] });
+        }
+      )
+      .subscribe();
+
     // Cleanup subscriptions on unmount
     return () => {
       supabase.removeChannel(spendingChannel);
       supabase.removeChannel(budgetsChannel);
       supabase.removeChannel(transactionsChannel);
+      supabase.removeChannel(commentsChannel);
+      supabase.removeChannel(presenceChannel);
     };
   }, [userId, queryClient]);
 }
