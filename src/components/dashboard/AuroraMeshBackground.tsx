@@ -1,16 +1,30 @@
 import { motion, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { ScanlineOverlay } from '@/components/effects/ScanlineOverlay';
+import { ParticleField } from '@/components/effects/ParticleField';
 
 interface AuroraMeshBackgroundProps {
   netWorthChangePercent: number;
+  enableScanlines?: boolean;
+  enableParticles?: boolean;
+  enableBreathing?: boolean;
+  enableGrid?: boolean;
 }
 
 /**
- * Living Aurora Mesh Background
+ * Living Aurora Mesh Background - Enhanced Cinematic Version
  * Animated mesh gradients that respond to financial sentiment
  * Green/Teal = Gains | Rose/Orange = Losses | Purple/Accent = Neutral
+ * 
+ * New features: scanlines, particles, breathing effect, grid overlay
  */
-export function AuroraMeshBackground({ netWorthChangePercent }: AuroraMeshBackgroundProps) {
+export function AuroraMeshBackground({ 
+  netWorthChangePercent,
+  enableScanlines = true,
+  enableParticles = true,
+  enableBreathing = true,
+  enableGrid = true,
+}: AuroraMeshBackgroundProps) {
   const prefersReducedMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
 
@@ -21,16 +35,23 @@ export function AuroraMeshBackground({ netWorthChangePercent }: AuroraMeshBackgr
   // Smooth spring for position animation
   const progress = useSpring(0, { stiffness: 20, damping: 15 });
 
+  // Breathing effect scale
+  const breathingProgress = useSpring(0, { stiffness: 10, damping: 20 });
+  const breathingScale = useTransform(breathingProgress, (p) => 1 + Math.sin(p) * 0.02);
+
   useEffect(() => {
     if (prefersReducedMotion) return;
     
     const animate = () => {
       progress.set(progress.get() + 0.001);
+      if (enableBreathing) {
+        breathingProgress.set(breathingProgress.get() + 0.02);
+      }
       requestAnimationFrame(animate);
     };
     const raf = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(raf);
-  }, [progress, prefersReducedMotion]);
+  }, [progress, breathingProgress, prefersReducedMotion, enableBreathing]);
 
   // Transform progress into position values
   const x1 = useTransform(progress, (p) => 20 + Math.sin(p * Math.PI * 2) * 15);
@@ -40,63 +61,90 @@ export function AuroraMeshBackground({ netWorthChangePercent }: AuroraMeshBackgr
   const x3 = useTransform(progress, (p) => 50 + Math.sin(p * Math.PI * 2 + 1) * 20);
   const y3 = useTransform(progress, (p) => 80 + Math.cos(p * Math.PI * 2 + 1) * 15);
 
-  // Determine colors based on sentiment
-  const getSentimentColors = (change: number) => {
+  // Determine colors and particle settings based on sentiment
+  const getSentimentConfig = (change: number) => {
     if (change > 5) {
-      // Strong positive: Teal/Emerald gradient
+      // Strong positive: Teal/Emerald gradient - upward particles
       return {
-        color1: 'hsl(160, 84%, 39%)', // Emerald
-        color2: 'hsl(172, 66%, 50%)', // Teal
-        color3: 'hsl(142, 71%, 45%)', // Green
-        glow: 'hsla(160, 84%, 39%, 0.15)',
+        colors: {
+          color1: 'hsl(160, 84%, 39%)',
+          color2: 'hsl(172, 66%, 50%)',
+          color3: 'hsl(142, 71%, 45%)',
+          glow: 'hsla(160, 84%, 39%, 0.15)',
+        },
+        particleColor: '160 84% 39%',
+        particleDirection: 'up' as const,
+        particleSpeed: 'normal' as const,
       };
     } else if (change > 0) {
       // Mild positive: Soft green/blue
       return {
-        color1: 'hsl(142, 50%, 50%)',
-        color2: 'hsl(172, 50%, 50%)',
-        color3: 'hsl(160, 40%, 50%)',
-        glow: 'hsla(142, 50%, 50%, 0.1)',
+        colors: {
+          color1: 'hsl(142, 50%, 50%)',
+          color2: 'hsl(172, 50%, 50%)',
+          color3: 'hsl(160, 40%, 50%)',
+          glow: 'hsla(142, 50%, 50%, 0.1)',
+        },
+        particleColor: '142 50% 50%',
+        particleDirection: 'up' as const,
+        particleSpeed: 'slow' as const,
       };
     } else if (change < -5) {
       // Strong negative: Rose/Orange gradient
       return {
-        color1: 'hsl(0, 72%, 51%)', // Red
-        color2: 'hsl(25, 95%, 53%)', // Orange
-        color3: 'hsl(350, 80%, 55%)', // Rose
-        glow: 'hsla(0, 72%, 51%, 0.15)',
+        colors: {
+          color1: 'hsl(0, 72%, 51%)',
+          color2: 'hsl(25, 95%, 53%)',
+          color3: 'hsl(350, 80%, 55%)',
+          glow: 'hsla(0, 72%, 51%, 0.15)',
+        },
+        particleColor: '0 72% 51%',
+        particleDirection: 'down' as const,
+        particleSpeed: 'slow' as const,
       };
     } else if (change < 0) {
       // Mild negative: Soft amber/orange
       return {
-        color1: 'hsl(38, 92%, 50%)',
-        color2: 'hsl(25, 80%, 55%)',
-        color3: 'hsl(45, 70%, 50%)',
-        glow: 'hsla(38, 92%, 50%, 0.1)',
+        colors: {
+          color1: 'hsl(38, 92%, 50%)',
+          color2: 'hsl(25, 80%, 55%)',
+          color3: 'hsl(45, 70%, 50%)',
+          glow: 'hsla(38, 92%, 50%, 0.1)',
+        },
+        particleColor: '38 92% 50%',
+        particleDirection: 'random' as const,
+        particleSpeed: 'slow' as const,
       };
     }
     // Neutral: Purple/Accent (brand colors)
     return {
-      color1: 'hsl(var(--accent))',
-      color2: 'hsl(var(--secondary))',
-      color3: 'hsl(var(--primary) / 0.3)',
-      glow: 'hsla(var(--accent) / 0.1)',
+      colors: {
+        color1: 'hsl(var(--accent))',
+        color2: 'hsl(var(--secondary))',
+        color3: 'hsl(var(--primary) / 0.3)',
+        glow: 'hsla(var(--accent) / 0.1)',
+      },
+      particleColor: 'var(--primary)',
+      particleDirection: 'random' as const,
+      particleSpeed: 'slow' as const,
     };
   };
 
-  const colors = getSentimentColors(netWorthChangePercent);
+  const config = getSentimentConfig(netWorthChangePercent);
+  const { colors } = config;
 
   if (!mounted) return null;
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      {/* Base gradient layer */}
+      {/* Base gradient layer with breathing */}
       <motion.div
         className="absolute inset-0"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
         style={{
+          scale: enableBreathing && !prefersReducedMotion ? breathingScale : 1,
           background: `
             radial-gradient(ellipse 80% 50% at 50% 0%, ${colors.glow}, transparent),
             radial-gradient(ellipse 60% 40% at 0% 100%, ${colors.glow}, transparent),
@@ -155,6 +203,41 @@ export function AuroraMeshBackground({ netWorthChangePercent }: AuroraMeshBackgr
           />
         </g>
       </svg>
+
+      {/* Grid overlay for cyberpunk aesthetic */}
+      {enableGrid && (
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `
+              linear-gradient(hsla(var(--foreground) / 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, hsla(var(--foreground) / 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px',
+          }}
+        />
+      )}
+
+      {/* Floating particles */}
+      {enableParticles && (
+        <ParticleField
+          count={25}
+          color={config.particleColor}
+          direction={config.particleDirection}
+          speed={config.particleSpeed}
+          minSize={1}
+          maxSize={3}
+        />
+      )}
+
+      {/* Scanline effect */}
+      {enableScanlines && (
+        <ScanlineOverlay
+          intensity={0.02}
+          speed={10}
+          className="absolute inset-0"
+        />
+      )}
 
       {/* Noise texture overlay for depth */}
       <div
