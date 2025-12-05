@@ -6,6 +6,98 @@
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 // =============================================================================
+// EdgeFunctionCache Class (Simple wrapper for common use cases)
+// =============================================================================
+
+interface EdgeCacheClassOptions {
+  maxEntries?: number;
+  defaultTTL?: number; // seconds
+}
+
+interface CacheClassEntry<T> {
+  value: T;
+  expiresAt: number;
+}
+
+/**
+ * Simple in-memory cache class for edge functions
+ * Use this for straightforward caching needs
+ */
+export class EdgeFunctionCache {
+  private cache = new Map<string, CacheClassEntry<unknown>>();
+  private maxEntries: number;
+  private defaultTTL: number;
+  private hits = 0;
+  private misses = 0;
+
+  constructor(options: EdgeCacheClassOptions = {}) {
+    this.maxEntries = options.maxEntries ?? 100;
+    this.defaultTTL = options.defaultTTL ?? 300;
+  }
+
+  get<T>(key: string): T | null {
+    const entry = this.cache.get(key) as CacheClassEntry<T> | undefined;
+    
+    if (!entry) {
+      this.misses++;
+      return null;
+    }
+    
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(key);
+      this.misses++;
+      return null;
+    }
+    
+    this.hits++;
+    return entry.value;
+  }
+
+  set<T>(key: string, value: T, ttlSeconds?: number): void {
+    // Enforce max entries (LRU - remove oldest)
+    if (this.cache.size >= this.maxEntries) {
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey) this.cache.delete(oldestKey);
+    }
+    
+    this.cache.set(key, {
+      value,
+      expiresAt: Date.now() + ((ttlSeconds ?? this.defaultTTL) * 1000),
+    });
+  }
+
+  async getOrSet<T>(key: string, compute: () => Promise<T>, ttlSeconds?: number): Promise<{ value: T; fromCache: boolean }> {
+    const cached = this.get<T>(key);
+    if (cached !== null) {
+      return { value: cached, fromCache: true };
+    }
+    
+    const value = await compute();
+    this.set(key, value, ttlSeconds);
+    return { value, fromCache: false };
+  }
+
+  delete(key: string): boolean {
+    return this.cache.delete(key);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  getStats() {
+    return {
+      hits: this.hits,
+      misses: this.misses,
+      size: this.cache.size,
+      hitRate: this.hits + this.misses > 0 
+        ? this.hits / (this.hits + this.misses) 
+        : 0,
+    };
+  }
+}
+
+// =============================================================================
 // In-Memory LRU Cache (within single invocation, survives warm starts)
 // =============================================================================
 

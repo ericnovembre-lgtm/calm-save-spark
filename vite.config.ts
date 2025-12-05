@@ -84,9 +84,23 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB limit
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
-        // Add notification handlers
         navigateFallback: null,
+        // Import custom background sync handler
+        importScripts: ['/sw-background-sync.js'],
         runtimeCaching: [
+          // Background sync for offline mutations
+          {
+            urlPattern: /\/functions\/v1\/(goal-|transaction-|budget-|debt-).*/i,
+            handler: 'NetworkOnly',
+            options: {
+              backgroundSync: {
+                name: 'mutation-sync-queue',
+                options: {
+                  maxRetentionTime: 24 * 60, // 24 hours in minutes
+                },
+              },
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
