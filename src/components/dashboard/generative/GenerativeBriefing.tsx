@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, 
-  Volume2, 
-  VolumeX, 
   ChevronDown, 
   ChevronUp,
   Brain,
@@ -12,6 +10,8 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { StreamingText } from '@/components/ui/streaming-text';
+import { LiveDot } from '@/components/dashboard/realtime/LiveDataPulse';
 import type { DashboardBriefing, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
 
 interface GenerativeBriefingProps {
@@ -51,17 +51,8 @@ export function GenerativeBriefing({
 }: GenerativeBriefingProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showReasoning, setShowReasoning] = useState(false);
-  const [displayedText, setDisplayedText] = useState('');
   
-  // Typewriter effect for streaming text
-  useEffect(() => {
-    if (streamingText && streamingText.length > displayedText.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(streamingText.slice(0, displayedText.length + 1));
-      }, 20);
-      return () => clearTimeout(timeout);
-    }
-  }, [streamingText, displayedText]);
+  const isStreaming = !!streamingText && streamingText !== briefing?.summary;
 
   return (
     <motion.div
@@ -95,7 +86,14 @@ export function GenerativeBriefing({
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                   <Sparkles className="h-3 w-3 text-violet-400" />
                   <span>Powered by Claude Opus 4.5</span>
-                  {meta?.processingTimeMs && (
+                  {isStreaming && (
+                    <>
+                      <span>•</span>
+                      <LiveDot isLive size="sm" />
+                      <span className="text-cyan-400">Streaming</span>
+                    </>
+                  )}
+                  {meta?.processingTimeMs && !isStreaming && (
                     <>
                       <span>•</span>
                       <Clock className="h-3 w-3" />
@@ -119,20 +117,19 @@ export function GenerativeBriefing({
           </div>
 
           {/* Summary with streaming support */}
-          <motion.div 
-            className="text-foreground/90 leading-relaxed mb-4"
-            initial={false}
-            animate={{ height: 'auto' }}
-          >
-            {displayedText && displayedText !== briefing.summary ? (
-              <p className="font-mono text-sm">
-                {displayedText}
-                <span className="animate-pulse">▊</span>
-              </p>
+          <div className="text-foreground/90 leading-relaxed mb-4">
+            {isStreaming ? (
+              <StreamingText
+                text={streamingText}
+                mode="typewriter"
+                speed={50}
+                isStreaming={isStreaming}
+                className="text-sm"
+              />
             ) : (
               <p>{briefing.summary}</p>
             )}
-          </motion.div>
+          </div>
 
           {/* Expanded Content */}
           <AnimatePresence>

@@ -63,6 +63,15 @@ export interface UnifiedDashboardData {
     lastRefresh?: Date | null;
   };
 
+  // Streaming State (Phase 4)
+  streaming: {
+    isStreaming: boolean;
+    streamPhase: 'idle' | 'connecting' | 'generating' | 'parsing' | 'complete';
+    streamedText: string;
+    estimatedProgress: number;
+    elapsedMs: number;
+  };
+
   // Financial Stories
   stories: {
     items: FinancialStory[];
@@ -184,6 +193,12 @@ export function useUnifiedDashboardData(): UnifiedDashboardData {
   const netWorthChangePercent =
     totalSavings > 0 ? ((aiContext?.streak || 0) / 100) * 10 : 0;
 
+  // Streaming state derived from generative dashboard
+  const isStreaming = !!streamingText && streamingText.length > 0 && isGenerating;
+  const streamPhase = isGenerating 
+    ? (streamingText ? 'generating' : 'connecting') 
+    : 'complete';
+
   return {
     // Authentication
     user,
@@ -202,6 +217,15 @@ export function useUnifiedDashboardData(): UnifiedDashboardData {
       isLoading: isGenerating,
       error: generationError,
       lastRefresh,
+    },
+
+    // Streaming (Phase 4)
+    streaming: {
+      isStreaming,
+      streamPhase: streamPhase as 'idle' | 'connecting' | 'generating' | 'parsing' | 'complete',
+      streamedText: streamingText || '',
+      estimatedProgress: isStreaming ? Math.min(95, (streamingText?.length || 0) / 5) : 100,
+      elapsedMs: 0, // Could be enhanced with actual timing
     },
 
     // Stories
