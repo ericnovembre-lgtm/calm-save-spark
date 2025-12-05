@@ -13,7 +13,7 @@ interface CashFlowForecastProps {
   userId: string;
 }
 
-export default function CashFlowForecast({ userId }: CashFlowForecastProps) {
+function CashFlowForecast({ userId }: CashFlowForecastProps) {
   const prefersReducedMotion = useReducedMotion();
   const { data: transactions } = useQuery({
     queryKey: ['transactions', userId],
@@ -195,3 +195,5 @@ export default function CashFlowForecast({ userId }: CashFlowForecastProps) {
     </WidgetHelpTooltip>
   );
 }
+
+export default CashFlowForecast;
