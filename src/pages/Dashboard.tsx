@@ -67,6 +67,7 @@ import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
 import { TransactionAlertBanner } from "@/components/alerts/TransactionAlertToast";
 import { TransactionAlertTester } from "@/components/debug/TransactionAlertTester";
 import { SocialSentimentWidget } from "@/components/dashboard/SocialSentimentWidget";
+import { DashboardVersionToggle } from "@/components/dashboard/DashboardVersionToggle";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -581,11 +582,14 @@ export default function Dashboard() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6 [&_svg]:drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
             <SentimentIndicator netWorthChangePercent={netWorthChangePercent} />
-            <SyncIndicator 
-              status={syncStatus}
-              lastSynced={lastSynced}
-              onRefresh={forceRefresh}
-            />
+            <div className="flex items-center gap-3">
+              <DashboardVersionToggle />
+              <SyncIndicator 
+                status={syncStatus}
+                lastSynced={lastSynced}
+                onRefresh={forceRefresh}
+              />
+            </div>
           </div>
 
           {/* Mobile Quick Actions */}

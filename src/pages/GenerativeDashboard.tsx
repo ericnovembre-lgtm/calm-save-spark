@@ -8,6 +8,7 @@ import { AIThemeProvider } from '@/components/dashboard/generative/AIThemeProvid
 import { GenerativeLayoutGrid } from '@/components/dashboard/generative/GenerativeLayoutGrid';
 import { GenerativeBriefing } from '@/components/dashboard/generative/GenerativeBriefing';
 import { GenerativeDashboardSkeleton } from '@/components/dashboard/generative/GenerativeDashboardSkeleton';
+import { DashboardVersionToggle } from '@/components/dashboard/DashboardVersionToggle';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 
@@ -48,7 +49,8 @@ export default function GenerativeDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <DashboardVersionToggle />
                 {lastRefresh && (
                   <span className="text-xs text-muted-foreground hidden sm:block">
                     Updated {lastRefresh.toLocaleTimeString()}
@@ -145,10 +147,6 @@ export default function GenerativeDashboard() {
             <p className="flex items-center justify-center gap-2">
               <Sparkles className="h-3 w-3 text-violet-400" />
               Dashboard personalized by Claude Opus 4.5
-              <span className="text-white/30">•</span>
-              <Link to="/dashboard" className="hover:text-foreground transition-colors">
-                Switch to Classic Dashboard
-              </Link>
             </p>
           </div>
         </footer>
