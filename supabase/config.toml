@@ -497,3 +497,6 @@ verify_jwt = true
 
 [functions.ambient-ai-stream]
 verify_jwt = true
+
+[functions.prefetch-ai-context]
+verify_jwt = true
