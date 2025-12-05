@@ -1,13 +1,44 @@
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import triggerHaptic from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 
-// Extend window for speech recognition
+// Define SpeechRecognition interface for TypeScript
+interface SpeechRecognitionResult {
+  readonly transcript: string;
+  readonly confidence: number;
+}
+
+interface SpeechRecognitionResultList {
+  readonly length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: { readonly [index: number]: SpeechRecognitionResult };
+}
+
+interface SpeechRecognitionEvent extends Event {
+  readonly results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  readonly error: string;
+}
+
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+}
+
 declare global {
   interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
+    SpeechRecognition: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition: new () => SpeechRecognitionInstance;
   }
 }
 
@@ -36,7 +67,7 @@ export function useVoiceTransaction() {
     error: null
   });
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   // Check if speech recognition is supported
   const isSupported = typeof window !== 'undefined' && 
@@ -58,7 +89,7 @@ export function useVoiceTransaction() {
     recognition.lang = 'en-US';
 
     recognition.onstart = () => {
-      triggerHaptic('medium');
+      haptics.buttonPress();
       setState(prev => ({ 
         ...prev, 
         isListening: true, 
@@ -78,7 +109,7 @@ export function useVoiceTransaction() {
 
     recognition.onend = () => {
       setState(prev => ({ ...prev, isListening: false }));
-      triggerHaptic('light');
+      haptics.buttonPress();
     };
 
     recognition.onerror = (event) => {
@@ -88,7 +119,7 @@ export function useVoiceTransaction() {
         isListening: false, 
         error: `Recognition error: ${event.error}` 
       }));
-      triggerHaptic('heavy');
+      haptics.validationError();
     };
 
     recognition.start();
@@ -121,7 +152,7 @@ export function useVoiceTransaction() {
         parsedTransaction: parsed 
       }));
 
-      triggerHaptic('medium');
+      haptics.formSuccess();
       return parsed;
     } catch (err) {
       console.error('Failed to parse transaction:', err);
