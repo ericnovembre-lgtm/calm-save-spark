@@ -44,7 +44,7 @@ export default function Settings() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="space-y-6 max-w-4xl mx-auto" data-copilot-id="settings-page">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground mt-2">
@@ -55,7 +55,7 @@ export default function Settings() {
         <Separator />
 
         {/* AI Control Center Section */}
-        <Card>
+        <Card data-copilot-id="ai-control-center">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-primary" />
@@ -97,7 +97,7 @@ export default function Settings() {
         </Card>
 
         {/* Security Section */}
-        <Card>
+        <Card data-copilot-id="security-settings">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
@@ -153,7 +153,7 @@ export default function Settings() {
         </Card>
 
         {/* Notifications Section */}
-        <Card>
+        <Card data-copilot-id="notification-settings">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-primary" />
@@ -173,7 +173,7 @@ export default function Settings() {
         </Card>
 
         {/* Preferences Section */}
-        <Card>
+        <Card data-copilot-id="display-preferences">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5 text-primary" />

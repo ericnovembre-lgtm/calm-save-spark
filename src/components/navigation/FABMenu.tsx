@@ -67,6 +67,7 @@ export const FABMenu = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="h-14 w-14 rounded-full shadow-xl"
         aria-label={isOpen ? "Close quick actions" : "Open quick actions"}
+        data-copilot-id="fab-menu-button"
       >
         <motion.div
           animate={{ rotate: isOpen ? 45 : 0 }}

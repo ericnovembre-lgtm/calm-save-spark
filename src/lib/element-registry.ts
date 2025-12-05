@@ -94,15 +94,21 @@ export const elementRegistry: Record<string, ElementInfo> = {
   },
   
   // Transactions page elements
+  'transactions-page': {
+    id: 'transactions-page',
+    label: 'Transactions Page',
+    description: 'View and manage all your transactions',
+    route: '/transactions',
+  },
   'transaction-list': {
     id: 'transaction-list',
     label: 'Transaction List',
     description: 'View all your transactions',
     route: '/transactions',
   },
-  'transaction-filter': {
-    id: 'transaction-filter',
-    label: 'Transaction Filter',
+  'transaction-filters': {
+    id: 'transaction-filters',
+    label: 'Transaction Filters',
     description: 'Filter transactions by date, category, or amount',
     route: '/transactions',
   },
@@ -112,12 +118,48 @@ export const elementRegistry: Record<string, ElementInfo> = {
     description: 'Search for specific transactions',
     route: '/transactions',
   },
+  'transaction-actions': {
+    id: 'transaction-actions',
+    label: 'Transaction Actions',
+    description: 'Import, export, or add transactions',
+    route: '/transactions',
+  },
+  'add-transaction-button': {
+    id: 'add-transaction-button',
+    label: 'Add Transaction',
+    description: 'Manually add a new transaction',
+    route: '/transactions',
+  },
+  'import-transactions': {
+    id: 'import-transactions',
+    label: 'Import Transactions',
+    description: 'Import transactions from a file',
+    route: '/transactions',
+  },
+  'export-transactions': {
+    id: 'export-transactions',
+    label: 'Export Transactions',
+    description: 'Export your transactions to a file',
+    route: '/transactions',
+  },
   
-  // Settings elements
-  'theme-toggle': {
-    id: 'theme-toggle',
-    label: 'Theme Toggle',
-    description: 'Switch between light and dark mode',
+  // Settings page elements
+  'settings-page': {
+    id: 'settings-page',
+    label: 'Settings',
+    description: 'Manage your account settings and preferences',
+    route: '/settings',
+  },
+  'ai-control-center': {
+    id: 'ai-control-center',
+    label: 'AI Control Center',
+    description: 'Smart, personalized settings powered by AI',
+    route: '/settings',
+  },
+  'security-settings': {
+    id: 'security-settings',
+    label: 'Security Settings',
+    description: 'Protect your account with security measures',
     route: '/settings',
   },
   'notification-settings': {
@@ -126,8 +168,84 @@ export const elementRegistry: Record<string, ElementInfo> = {
     description: 'Configure your notification preferences',
     route: '/settings',
   },
+  'display-preferences': {
+    id: 'display-preferences',
+    label: 'Display Preferences',
+    description: 'Customize how information is displayed',
+    route: '/settings',
+  },
+  'theme-toggle': {
+    id: 'theme-toggle',
+    label: 'Theme Toggle',
+    description: 'Switch between light and dark mode',
+    route: '/settings',
+  },
   
   // Navigation elements
+  'bottom-navigation': {
+    id: 'bottom-navigation',
+    label: 'Bottom Navigation',
+    description: 'Navigate between main sections of the app',
+    route: '*',
+  },
+  'nav-home': {
+    id: 'nav-home',
+    label: 'Home',
+    description: 'Go to your dashboard',
+    route: '*',
+  },
+  'nav-money': {
+    id: 'nav-money',
+    label: 'Money Hub',
+    description: 'Manage your money',
+    route: '*',
+  },
+  'nav-wealth': {
+    id: 'nav-wealth',
+    label: 'Wealth Hub',
+    description: 'Grow your wealth',
+    route: '*',
+  },
+  'nav-ai': {
+    id: 'nav-ai',
+    label: 'AI Hub',
+    description: 'AI-powered insights',
+    route: '*',
+  },
+  'nav-more': {
+    id: 'nav-more',
+    label: 'More',
+    description: 'Access more features',
+    route: '*',
+  },
+  'quick-add-button': {
+    id: 'quick-add-button',
+    label: 'Quick Add',
+    description: 'Quickly add a new goal',
+    route: '*',
+  },
+  'fab-menu-button': {
+    id: 'fab-menu-button',
+    label: 'Quick Actions Menu',
+    description: 'Access quick actions like adding goals or transactions',
+    route: '*',
+  },
+  
+  // CoPilot elements
+  'copilot-orb': {
+    id: 'copilot-orb',
+    label: 'CoPilot',
+    description: 'Your AI financial assistant',
+    route: '*',
+  },
+  'copilot-panel': {
+    id: 'copilot-panel',
+    label: 'CoPilot Panel',
+    description: 'Chat with your AI financial assistant',
+    route: '*',
+  },
+  
+  // Legacy navigation (backwards compatibility)
   'nav-dashboard': {
     id: 'nav-dashboard',
     label: 'Dashboard Link',

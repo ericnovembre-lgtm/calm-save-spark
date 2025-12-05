@@ -107,7 +107,7 @@ export default withPageMemo(function Transactions() {
   return (
     <>
       <AppLayout>
-        <div className="space-y-6 pb-8">
+        <div className="space-y-6 pb-8" data-copilot-id="transactions-page">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-display font-bold text-foreground mb-2">
@@ -117,30 +117,34 @@ export default withPageMemo(function Transactions() {
                 AI-enhanced transaction tracking with smart insights
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2" data-copilot-id="transaction-actions">
               <SyncAccountsButton onSyncComplete={handleSyncComplete} />
-              <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
+              <Button variant="outline" onClick={() => setIsImportDialogOpen(true)} data-copilot-id="import-transactions">
                 <Upload className="w-4 h-4 mr-2" />
                 Import
               </Button>
-              <Button variant="outline" onClick={handleExport}>
+              <Button variant="outline" onClick={handleExport} data-copilot-id="export-transactions">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
-              <Button onClick={handleAddTransaction}>
+              <Button onClick={handleAddTransaction} data-copilot-id="add-transaction-button">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Transaction
               </Button>
             </div>
           </div>
 
-          <OptimizedSearchBar onSearch={handleSearch} />
+          <div data-copilot-id="transaction-search">
+            <OptimizedSearchBar onSearch={handleSearch} />
+          </div>
 
-          <ActiveFiltersDisplay
-            filters={filters}
-            onRemoveFilter={handleRemoveFilter}
-            onClearAll={handleClearAllFilters}
-          />
+          <div data-copilot-id="transaction-filters">
+            <ActiveFiltersDisplay
+              filters={filters}
+              onRemoveFilter={handleRemoveFilter}
+              onClearAll={handleClearAllFilters}
+            />
+          </div>
 
           {hasActiveSearch && (
             <SearchInsightCard
@@ -162,11 +166,13 @@ export default withPageMemo(function Transactions() {
             />
           )}
 
-          <VirtualizedTransactionList
-            filters={filters}
-            anomalies={anomalies}
-            onClearFilters={handleClearAllFilters}
-          />
+          <div data-copilot-id="transaction-list">
+            <VirtualizedTransactionList
+              filters={filters}
+              anomalies={anomalies}
+              onClearFilters={handleClearAllFilters}
+            />
+          </div>
         </div>
       </AppLayout>
 
