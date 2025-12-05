@@ -125,6 +125,7 @@ const AlternativesPortal = createPageLoader(() => import("./pages/AlternativesPo
 const CorporateWellness = createPageLoader(() => import("./pages/CorporateWellness"), 'light');
 const CardApply = createPageLoader(() => import("./pages/CardApply"), 'light');
 const SharedScenario = createPageLoader(() => import("./pages/SharedScenario"), 'light');
+const InteractionDemo = createPageLoader(() => import("./pages/InteractionDemo"), 'light');
 
 // Preview routes for visual debugging (development only)
 const GuardianPreview = createPageLoader(() => import("./pages/preview/GuardianPreview"), 'heavy');
@@ -285,6 +286,7 @@ function AnimatedRoutes() {
         <Route path="/features-hub" element={<ProtectedRoute><PageTransition><FeaturesHub /></PageTransition></ProtectedRoute>} />
         <Route path="/help" element={<ProtectedRoute><PageTransition><Help /></PageTransition></ProtectedRoute>} />
         <Route path="/changelog" element={<ProtectedRoute><PageTransition><Changelog /></PageTransition></ProtectedRoute>} />
+        <Route path="/interaction-demo" element={<ProtectedRoute><PageTransition><InteractionDemo /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
         <Route path="/security-settings" element={<ProtectedRoute><PageTransition><SecuritySettings /></PageTransition></ProtectedRoute>} />
         <Route path="/security" element={<Navigate to="/guardian" replace />} />
