@@ -59,6 +59,15 @@ import { PayBillModal } from "@/components/dashboard/modals/PayBillModal";
 import { DebtPaymentModal } from "@/components/dashboard/modals/DebtPaymentModal";
 import { CreditTipsModal } from "@/components/dashboard/modals/CreditTipsModal";
 
+// Financial Stories
+import { useFinancialStories } from "@/hooks/useFinancialStories";
+import { StoryBubbles } from "@/components/dashboard/stories/StoryBubbles";
+import { StoryOverlay } from "@/components/dashboard/stories/StoryOverlay";
+
+// GenUI Expansion
+import { EphemeralWidgetRenderer } from "@/components/dashboard/widgets/EphemeralWidgetRenderer";
+import { NLQResponse } from "@/lib/ephemeral-widgets";
+
 export default function Dashboard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -73,6 +82,11 @@ export default function Dashboard() {
   const [showAdHocChart, setShowAdHocChart] = useState(false);
   const [adHocChartData, setAdHocChartData] = useState<Array<{ name: string; value: number }>>([]);
   const [adHocInsight, setAdHocInsight] = useState('');
+  const [nlqResponse, setNlqResponse] = useState<NLQResponse | null>(null);
+  
+  // Financial Stories state
+  const [activeStoryIndex, setActiveStoryIndex] = useState<number | null>(null);
+  const { stories, isLoading: storiesLoading, markAsViewed, isViewed } = useFinancialStories();
   
   // Celebrations state
   const [showCelebration, setShowCelebration] = useState(false);
@@ -152,6 +166,7 @@ export default function Dashboard() {
     setNlqQuery(query);
     setIsNlqProcessing(true);
     setShowAdHocChart(true);
+    setNlqResponse(null);
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-nlq-chart', {
@@ -160,8 +175,14 @@ export default function Dashboard() {
 
       if (error) throw error;
 
-      setAdHocChartData(data.chartData || []);
-      setAdHocInsight(data.insight || 'Analysis complete.');
+      // Handle both chart and ephemeral widget responses
+      const response = data as NLQResponse;
+      setNlqResponse(response);
+      
+      if (response.type === 'chart') {
+        setAdHocChartData(response.chartData || []);
+        setAdHocInsight(response.insight || 'Analysis complete.');
+      }
     } catch (error) {
       console.error('NLQ query failed:', error);
       toast.error('Failed to analyze query');
@@ -200,6 +221,17 @@ export default function Dashboard() {
           
           {/* Skip Links for Accessibility */}
           <SkipLinks />
+
+          {/* Financial Stories */}
+          {stories.length > 0 && (
+            <div className="container mx-auto px-4 pt-2">
+              <StoryBubbles 
+                stories={stories} 
+                onStoryClick={setActiveStoryIndex}
+                isViewed={isViewed}
+              />
+            </div>
+          )}
 
           {/* Banners */}
           <OfflineBanner
@@ -286,15 +318,24 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Ad-hoc Chart Panel */}
-            <AdHocChartPanel
-              isOpen={showAdHocChart}
-              onClose={() => setShowAdHocChart(false)}
-              query={nlqQuery}
-              data={adHocChartData}
-              insight={adHocInsight}
-              isLoading={isNlqProcessing}
-            />
+            {/* Ad-hoc Chart Panel or Ephemeral Widget */}
+            {showAdHocChart && (
+              nlqResponse?.type === 'ephemeral_widget' && nlqResponse.widget ? (
+                <EphemeralWidgetRenderer
+                  spec={nlqResponse.widget}
+                  onDismiss={() => setShowAdHocChart(false)}
+                />
+              ) : (
+                <AdHocChartPanel
+                  isOpen={showAdHocChart}
+                  onClose={() => setShowAdHocChart(false)}
+                  query={nlqQuery}
+                  data={adHocChartData}
+                  insight={adHocInsight}
+                  isLoading={isNlqProcessing}
+                />
+              )
+            )}
 
             {/* AI Dashboard Content */}
             {isGenerating ? (
@@ -389,6 +430,14 @@ export default function Dashboard() {
           <PayBillModal isOpen={activeModal === 'pay_bill'} onClose={() => setActiveModal(null)} />
           <DebtPaymentModal isOpen={activeModal === 'debt_payment'} onClose={() => setActiveModal(null)} />
           <CreditTipsModal isOpen={activeModal === 'credit_tips'} onClose={() => setActiveModal(null)} />
+          
+          {/* Story Overlay */}
+          <StoryOverlay
+            stories={stories}
+            activeIndex={activeStoryIndex}
+            onClose={() => setActiveStoryIndex(null)}
+            onStoryViewed={markAsViewed}
+          />
         </div>
       </DashboardErrorBoundary>
     </AIThemeProvider>
