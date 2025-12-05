@@ -67,6 +67,19 @@ export const defaultWidgetSizes: Record<string, BentoSize> = {
 };
 
 /**
+ * Essential widgets that ALWAYS appear in the dashboard
+ * These are forcefully merged into the grid if Claude's layout doesn't include them
+ */
+export const essentialWidgets = ['ai_insight', 'cashflow_forecast'] as const;
+
+/**
+ * Check if a widget is essential (must always be shown)
+ */
+export function isEssentialWidget(widgetId: string): boolean {
+  return essentialWidgets.includes(widgetId as typeof essentialWidgets[number]);
+}
+
+/**
  * Get the Bento size class for a widget
  */
 export function getBentoSizeClass(widgetId: string, overrideSize?: BentoSize): string {
