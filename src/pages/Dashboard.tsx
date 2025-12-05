@@ -1,24 +1,13 @@
 import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { DashboardErrorBoundary } from "@/components/error/DashboardErrorBoundary";
 import { AIThemeProvider } from "@/components/dashboard/generative/AIThemeProvider";
-import { useAuth } from "@/hooks/useAuth";
-import { useClaudeGenerativeDashboard } from "@/hooks/useClaudeGenerativeDashboard";
+import { useUnifiedDashboardData } from "@/hooks/useUnifiedDashboardData";
 import { useDashboardState } from "@/hooks/useDashboardState";
 import { useDashboardHandlers } from "@/hooks/useDashboardHandlers";
-import { useFinancialStories } from "@/hooks/useFinancialStories";
-import { useMilestoneDetector } from "@/hooks/useMilestoneDetector";
-import { useOfflineDashboard } from "@/hooks/useOfflineDashboard";
-import { useAutoSync } from "@/hooks/useAutoSync";
-import { useSyncStatus } from "@/hooks/useSyncStatus";
-import { useChatSidebar } from "@/hooks/useChatSidebar";
-import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
-import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import { useAnnounce } from "@/components/accessibility/LiveRegionAnnouncer";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
 
 // Consolidated sub-components
 import { DashboardShell } from "@/components/dashboard/shell/DashboardShell";
@@ -31,133 +20,77 @@ import { DashboardOnboarding } from "@/components/dashboard/onboarding/Dashboard
 import { FloatingControls } from "@/components/dashboard/floating/FloatingControls";
 
 export default function Dashboard() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { announce } = useAnnounce();
-  const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
-  
-  // Consolidated state management
+
+  // Single unified data hook - replaces 11 individual hooks
+  const data = useUnifiedDashboardData();
+
+  // UI state management
   const [state, actions] = useDashboardState();
-  
-  // Claude Opus 4.5 Generative Dashboard
-  const {
-    layout,
-    widgets,
-    theme,
-    briefing,
-    reasoning,
-    isLoading: isGenerating,
-    error: generationError,
-    context: aiContext,
-    meta,
-    lastRefresh,
-    refresh: regenerateDashboard,
-    streamingText
-  } = useClaudeGenerativeDashboard();
 
   // Consolidated handlers
   const handlers = useDashboardHandlers({
     actions,
-    regenerateDashboard,
-    userId: user?.id,
+    regenerateDashboard: data.actions.refresh,
+    userId: data.user?.id,
   });
-
-  // Financial stories
-  const { stories, markAsViewed, isViewed } = useFinancialStories();
-  
-  // Milestone detection
-  const totalSavings = aiContext?.totalSavings || 0;
-  const { milestone, dismissMilestone } = useMilestoneDetector(totalSavings);
-  
-  // Offline & sync support
-  const { isOffline, isStale, lastCachedAt, hasCache } = useOfflineDashboard();
-  const { isSyncing, triggerSync } = useAutoSync({
-    onSync: regenerateDashboard,
-    hasCachedData: hasCache,
-    isStale: isStale
-  });
-  const { status: syncStatus, lastSynced, forceRefresh } = useSyncStatus();
-  
-  // Transaction alerts
-  const { alerts: transactionAlerts, markAllAsRead: markAlertsRead } = useTransactionAlerts();
-  
-  // Onboarding
-  useOnboardingStatus(true);
-  const { data: profile } = useQuery({
-    queryKey: ['profile-tutorial', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('show_dashboard_tutorial')
-        .eq('id', user.id)
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user?.id,
-  });
-
-  // Net worth change for aurora background
-  const netWorthChangePercent = totalSavings > 0 ? ((aiContext?.streak || 0) / 100) * 10 : 0;
 
   // Screen reader announcement
   useEffect(() => {
-    if (!isGenerating && aiContext) {
-      announce(`Dashboard ready. ${briefing?.summary || 'Your personalized financial overview.'}`, 'polite');
+    if (!data.generative.isLoading && data.generative.aiContext) {
+      announce(
+        `Dashboard ready. ${data.generative.briefing?.summary || "Your personalized financial overview."}`,
+        "polite"
+      );
     }
-  }, [isGenerating, aiContext, briefing, announce]);
+  }, [data.generative.isLoading, data.generative.aiContext, data.generative.briefing, announce]);
 
   return (
     <AppLayout>
-      <AIThemeProvider theme={theme}>
+      <AIThemeProvider theme={data.generative.theme}>
         <DashboardErrorBoundary sectionName="AI Dashboard">
           <DashboardShell
-            isGenerating={isGenerating}
-            modelName={meta?.model}
-            syncStatus={syncStatus}
-            lastSynced={lastSynced}
-            lastRefresh={lastRefresh}
-            netWorthChangePercent={netWorthChangePercent}
-            onRefresh={regenerateDashboard}
-            onForceRefresh={forceRefresh}
+            isGenerating={data.generative.isLoading}
+            modelName={data.generative.meta?.model}
+            syncStatus={data.sync.status}
+            lastSynced={data.sync.lastSynced}
+            lastRefresh={data.generative.lastRefresh}
+            netWorthChangePercent={data.computed.netWorthChangePercent}
+            onRefresh={data.actions.refresh}
+            onForceRefresh={data.actions.forceRefresh}
           >
-            {/* Stories */}
             <DashboardStories
-              stories={stories}
+              stories={data.stories.items}
               activeStoryIndex={state.activeStoryIndex}
               onStoryClick={actions.setActiveStoryIndex}
               onClose={() => actions.setActiveStoryIndex(null)}
-              onStoryViewed={markAsViewed}
-              isViewed={isViewed}
+              onStoryViewed={data.stories.markAsViewed}
+              isViewed={data.stories.isViewed}
             />
-
-            {/* Banners */}
             <DashboardBanners
-              isOffline={isOffline}
-              isSyncing={isSyncing}
-              isStale={isStale}
-              lastCachedAt={lastCachedAt}
-              transactionAlerts={transactionAlerts}
-              onRefresh={triggerSync}
-              onNavigateTransactions={() => navigate('/transactions')}
-              onDismissAlerts={markAlertsRead}
+              isOffline={data.sync.isOffline}
+              isSyncing={data.sync.isSyncing}
+              isStale={data.sync.isStale}
+              lastCachedAt={data.sync.lastCachedAt}
+              transactionAlerts={data.alerts.items}
+              onRefresh={data.actions.triggerSync}
+              onNavigateTransactions={() => navigate("/transactions")}
+              onDismissAlerts={data.alerts.markAllAsRead}
             />
-
-            {/* Main Content */}
             <DashboardContent
-              isGenerating={isGenerating}
-              generationError={generationError}
-              layout={layout}
-              widgets={widgets}
-              theme={theme}
-              briefing={briefing}
-              reasoning={reasoning}
-              meta={meta}
-              streamingText={streamingText}
-              aiContext={aiContext}
-              isChatOpen={isChatOpen}
+              isGenerating={data.generative.isLoading}
+              generationError={data.generative.error}
+              layout={data.generative.layout}
+              widgets={data.generative.widgets}
+              theme={data.generative.theme}
+              briefing={data.generative.briefing}
+              reasoning={data.generative.reasoning}
+              meta={data.generative.meta}
+              streamingText={data.generative.streamingText}
+              aiContext={data.generative.aiContext}
+              isChatOpen={data.chat.isOpen}
               isMobile={isMobile}
               onModalOpen={actions.setActiveModal}
               nlqQuery={state.nlq.query}
@@ -169,30 +102,19 @@ export default function Dashboard() {
               onNLQuery={handlers.handleNLQuery}
               onCloseChart={() => actions.setNlqShowChart(false)}
             />
-
-            {/* Floating Controls */}
             <FloatingControls
-              isChatOpen={isChatOpen}
-              onToggleChat={toggleChat}
+              isChatOpen={data.chat.isOpen}
+              onToggleChat={data.chat.toggle}
             />
-
-            {/* Celebrations */}
             <DashboardCelebrations
-              milestone={milestone}
-              onDismissMilestone={dismissMilestone}
+              milestone={data.milestones.current}
+              onDismissMilestone={data.milestones.dismiss}
               celebrationType={state.celebrationType}
               showCelebration={state.showCelebration}
               onCelebrationComplete={actions.hideCelebration}
             />
-
-            {/* Onboarding */}
-            <DashboardOnboarding showTutorial={profile?.show_dashboard_tutorial} />
-
-            {/* Modals */}
-            <DashboardModals
-              activeModal={state.activeModal}
-              onClose={actions.closeModal}
-            />
+            <DashboardOnboarding showTutorial={data.onboarding.showTutorial} />
+            <DashboardModals activeModal={state.activeModal} onClose={actions.closeModal} />
           </DashboardShell>
         </DashboardErrorBoundary>
       </AIThemeProvider>
