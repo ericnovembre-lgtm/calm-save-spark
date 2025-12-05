@@ -130,6 +130,7 @@ const CardApply = createPageLoader(() => import("./pages/CardApply"), 'light');
 const SharedScenario = createPageLoader(() => import("./pages/SharedScenario"), 'light');
 const InteractionDemo = createPageLoader(() => import("./pages/InteractionDemo"), 'light');
 const InteractionDemoPreview = createPageLoader(() => import("./pages/preview/InteractionDemoPreview"), 'light');
+const AccessibilityDocs = createPageLoader(() => import("./pages/AccessibilityDocs"), 'medium');
 
 // Preview routes for visual debugging (development only)
 const GuardianPreview = createPageLoader(() => import("./pages/preview/GuardianPreview"), 'heavy');
@@ -298,6 +299,7 @@ function AnimatedRoutes() {
         <Route path="/interaction-demo" element={<ProtectedRoute><PageTransition><InteractionDemo /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
         <Route path="/security-settings" element={<ProtectedRoute><PageTransition><SecuritySettings /></PageTransition></ProtectedRoute>} />
+        <Route path="/accessibility-docs" element={<ProtectedRoute><PageTransition><AccessibilityDocs /></PageTransition></ProtectedRoute>} />
         <Route path="/security" element={<Navigate to="/guardian" replace />} />
         <Route path="/achievements" element={<ProtectedRoute><PageTransition><Achievements /></PageTransition></ProtectedRoute>} />
         <Route path="/bill-negotiation" element={<ProtectedRoute><PageTransition><BillNegotiation /></PageTransition></ProtectedRoute>} />
