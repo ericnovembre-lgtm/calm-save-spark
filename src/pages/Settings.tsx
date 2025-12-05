@@ -18,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
-import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain, ChevronRight } from 'lucide-react';
+import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain, ChevronRight, Hand } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
 import { SoundSettings } from '@/components/settings/SoundSettings';
@@ -195,8 +195,24 @@ export default function Settings() {
               Control sound effects, volume, and audio feedback
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
             <SoundSettings />
+            <Separator />
+            <Link 
+              to="/interaction-demo" 
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <Hand className="h-5 w-5 text-violet-500" />
+                <div>
+                  <p className="font-medium">Interaction Playground</p>
+                  <p className="text-sm text-muted-foreground">
+                    Test gestures, haptics, and sound effects
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
           </CardContent>
         </Card>
 

@@ -126,6 +126,7 @@ const CorporateWellness = createPageLoader(() => import("./pages/CorporateWellne
 const CardApply = createPageLoader(() => import("./pages/CardApply"), 'light');
 const SharedScenario = createPageLoader(() => import("./pages/SharedScenario"), 'light');
 const InteractionDemo = createPageLoader(() => import("./pages/InteractionDemo"), 'light');
+const InteractionDemoPreview = createPageLoader(() => import("./pages/preview/InteractionDemoPreview"), 'light');
 
 // Preview routes for visual debugging (development only)
 const GuardianPreview = createPageLoader(() => import("./pages/preview/GuardianPreview"), 'heavy');
@@ -252,6 +253,7 @@ function AnimatedRoutes() {
         <Route path="/preview/dashboard" element={<PageTransition><DashboardPreview /></PageTransition>} />
         <Route path="/preview/coach" element={<PageTransition><CoachPreview /></PageTransition>} />
         <Route path="/preview/digital-twin" element={<PageTransition><DigitalTwinPreview /></PageTransition>} />
+        <Route path="/preview/interaction-demo" element={<PageTransition><InteractionDemoPreview /></PageTransition>} />
         <Route path="/features" element={<Navigate to="/features-hub" replace />} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
         <Route path="/welcome" element={<PageTransition><ConversationalWelcome /></PageTransition>} />
