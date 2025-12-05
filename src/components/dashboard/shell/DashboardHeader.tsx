@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SyncIndicator } from '@/components/ui/sync-indicator';
@@ -19,11 +20,12 @@ interface DashboardHeaderProps {
 }
 
 // Time-of-day greeting
-function getGreeting(): string {
+function getGreeting(): { text: string; emoji: string } {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
+  if (hour < 12) return { text: 'Good morning', emoji: '☀️' };
+  if (hour < 17) return { text: 'Good afternoon', emoji: '🌤️' };
+  if (hour < 21) return { text: 'Good evening', emoji: '🌅' };
+  return { text: 'Good night', emoji: '🌙' };
 }
 
 export function DashboardHeader({
@@ -36,6 +38,34 @@ export function DashboardHeader({
   onForceRefresh,
 }: DashboardHeaderProps) {
   const prefersReducedMotion = useReducedMotion();
+  const greeting = getGreeting();
+  const [displayedText, setDisplayedText] = useState(greeting.text);
+  const [showWave, setShowWave] = useState(true);
+
+  // Typewriter effect for greeting on mount
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setDisplayedText(greeting.text);
+      setShowWave(true);
+      return;
+    }
+    
+    let index = 0;
+    setDisplayedText('');
+    setShowWave(false);
+    
+    const timer = setInterval(() => {
+      if (index < greeting.text.length) {
+        setDisplayedText(greeting.text.slice(0, index + 1));
+        index++;
+      } else {
+        clearInterval(timer);
+        setTimeout(() => setShowWave(true), 200);
+      }
+    }, 50);
+    
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
@@ -59,16 +89,47 @@ export function DashboardHeader({
             </motion.div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-semibold text-foreground">{getGreeting()}</h1>
-                {/* Animated gradient underline */}
-                <motion.div 
-                  className="hidden sm:block h-0.5 w-12 rounded-full bg-gradient-to-r from-primary/50 via-primary to-primary/50"
-                  animate={!prefersReducedMotion ? { 
-                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] 
-                  } : undefined}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                  style={{ backgroundSize: '200% 100%' }}
-                />
+                <h1 className="text-xl font-semibold text-foreground relative flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5">
+                    {displayedText}
+                    {/* Typing cursor */}
+                    {!prefersReducedMotion && displayedText.length < greeting.text.length && (
+                      <motion.span 
+                        className="inline-block w-0.5 h-5 bg-primary"
+                        animate={{ opacity: [1, 0] }}
+                        transition={{ duration: 0.5, repeat: Infinity }}
+                      />
+                    )}
+                  </span>
+                  {/* Animated wave emoji */}
+                  <AnimatePresence>
+                    {showWave && (
+                      <motion.span
+                        initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0, rotate: -20 }}
+                        animate={{ 
+                          opacity: 1, 
+                          scale: 1, 
+                          rotate: prefersReducedMotion ? 0 : [0, 14, -8, 14, -4, 10, 0],
+                        }}
+                        transition={{ 
+                          opacity: { duration: 0.2 },
+                          scale: { duration: 0.3, type: 'spring', stiffness: 400 },
+                          rotate: { duration: 1.2, ease: 'easeInOut', delay: 0.1 }
+                        }}
+                        className="inline-block origin-bottom-right text-lg"
+                      >
+                        {greeting.emoji}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  {/* Animated gradient underline */}
+                  <motion.span
+                    className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: displayedText.length === greeting.text.length ? '60%' : '0%' }}
+                    transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </h1>
               </div>
               <div className="flex items-center gap-2">
                 <p className="text-xs text-muted-foreground">

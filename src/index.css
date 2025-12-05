@@ -363,6 +363,16 @@ All colors MUST be HSL.
     animation: shimmer 2s infinite linear;
   }
 
+  /* Enhanced shimmer glow overlay */
+  @keyframes shimmer-glow {
+    0% { background-position: 300% 0; }
+    100% { background-position: -300% 0; }
+  }
+  
+  .animate-shimmer-glow {
+    animation: shimmer-glow 3s infinite linear;
+  }
+
   /* 3D Transform Utilities */
   .perspective-1000 {
     perspective: 1000px;
