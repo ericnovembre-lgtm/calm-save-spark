@@ -46,6 +46,9 @@ import { NewUserSpotlight } from "@/components/onboarding/NewUserSpotlight";
 import { useAuth } from "@/hooks/useAuth";
 import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
 import { TransactionAlertBanner } from "@/components/alerts/TransactionAlertToast";
+import { OfflineBanner } from "@/components/dashboard/OfflineBanner";
+import { useOfflineDashboard } from "@/hooks/useOfflineDashboard";
+import { useAutoSync } from "@/hooks/useAutoSync";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -120,6 +123,14 @@ export default function Dashboard() {
   // Real-time transaction alerts
   const { alerts: transactionAlerts, markAllAsRead: markAlertsRead } = useTransactionAlerts();
 
+  // Offline support
+  const { isOffline, isStale, lastCachedAt, hasCache } = useOfflineDashboard();
+  const { isSyncing, triggerSync } = useAutoSync({
+    onSync: regenerateDashboard,
+    hasCachedData: hasCache,
+    isStale: isStale
+  });
+
   // Calculate net worth change for aurora background
   const totalSavings = aiContext?.totalSavings || 0;
   const netWorthChangePercent = totalSavings > 0 ? ((aiContext?.streak || 0) / 100) * 10 : 0;
@@ -182,6 +193,13 @@ export default function Dashboard() {
           <SkipLinks />
 
           {/* Banners */}
+          <OfflineBanner
+            isOffline={isOffline}
+            isSyncing={isSyncing}
+            isStale={isStale}
+            lastCachedAt={lastCachedAt}
+            onRefresh={triggerSync}
+          />
           <EmailVerificationBanner />
           <SmartBanner />
           <ProactiveNudgesBanner />
