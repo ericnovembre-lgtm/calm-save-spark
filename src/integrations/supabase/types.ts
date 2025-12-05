@@ -7239,7 +7239,10 @@ export type Database = {
           quick_glance_widgets: string[] | null
           updated_at: string | null
           user_id: string
+          voice_auto_submit_delay: number | null
           voice_enabled: boolean | null
+          voice_feedback_sound: boolean | null
+          voice_show_transcript: boolean | null
         }
         Insert: {
           biometric_required_for_transactions?: boolean | null
@@ -7252,7 +7255,10 @@ export type Database = {
           quick_glance_widgets?: string[] | null
           updated_at?: string | null
           user_id: string
+          voice_auto_submit_delay?: number | null
           voice_enabled?: boolean | null
+          voice_feedback_sound?: boolean | null
+          voice_show_transcript?: boolean | null
         }
         Update: {
           biometric_required_for_transactions?: boolean | null
@@ -7265,7 +7271,10 @@ export type Database = {
           quick_glance_widgets?: string[] | null
           updated_at?: string | null
           user_id?: string
+          voice_auto_submit_delay?: number | null
           voice_enabled?: boolean | null
+          voice_feedback_sound?: boolean | null
+          voice_show_transcript?: boolean | null
         }
         Relationships: []
       }

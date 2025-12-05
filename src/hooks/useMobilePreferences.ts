@@ -10,6 +10,9 @@ interface MobilePreferences {
   haptic_enabled: boolean;
   haptic_intensity: 'light' | 'medium' | 'heavy';
   voice_enabled: boolean;
+  voice_auto_submit_delay: number;
+  voice_feedback_sound: boolean;
+  voice_show_transcript: boolean;
   biometric_required_for_transactions: boolean;
   home_widget_order: string[];
   created_at: string;
@@ -22,6 +25,9 @@ const defaultPreferences: Omit<MobilePreferences, 'id' | 'user_id' | 'created_at
   haptic_enabled: true,
   haptic_intensity: 'medium',
   voice_enabled: true,
+  voice_auto_submit_delay: 1500,
+  voice_feedback_sound: true,
+  voice_show_transcript: true,
   biometric_required_for_transactions: false,
   home_widget_order: []
 };
