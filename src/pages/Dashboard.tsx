@@ -53,6 +53,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
+// Quick Action Modals
+import { AddToGoalModal } from "@/components/dashboard/modals/AddToGoalModal";
+import { PayBillModal } from "@/components/dashboard/modals/PayBillModal";
+import { DebtPaymentModal } from "@/components/dashboard/modals/DebtPaymentModal";
+import { CreditTipsModal } from "@/components/dashboard/modals/CreditTipsModal";
+
 export default function Dashboard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -71,6 +77,9 @@ export default function Dashboard() {
   // Celebrations state
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationType, setCelebrationType] = useState<'success' | 'achievement' | 'goal' | 'milestone'>('success');
+  
+  // Modal state for quick actions
+  const [activeModal, setActiveModal] = useState<string | null>(null);
   
   // Check onboarding status
   useOnboardingStatus(true);
@@ -311,6 +320,7 @@ export default function Dashboard() {
                   layout={layout}
                   widgets={widgets}
                   theme={theme}
+                  onModalOpen={setActiveModal}
                 />
 
                 {/* Context Summary */}
@@ -373,6 +383,12 @@ export default function Dashboard() {
           <WhatsNewModal />
           <FeatureSpotlight />
           <NewUserSpotlight />
+          
+          {/* Quick Action Modals */}
+          <AddToGoalModal isOpen={activeModal === 'add_to_goal'} onClose={() => setActiveModal(null)} />
+          <PayBillModal isOpen={activeModal === 'pay_bill'} onClose={() => setActiveModal(null)} />
+          <DebtPaymentModal isOpen={activeModal === 'debt_payment'} onClose={() => setActiveModal(null)} />
+          <CreditTipsModal isOpen={activeModal === 'credit_tips'} onClose={() => setActiveModal(null)} />
         </div>
       </DashboardErrorBoundary>
     </AIThemeProvider>

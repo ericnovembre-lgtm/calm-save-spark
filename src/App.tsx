@@ -85,6 +85,7 @@ const WalletSettings = createPageLoader(() => import("./pages/WalletSettings"), 
 const Card = createPageLoader(() => import("./pages/Card"), 'medium');
 const TaxDocuments = createPageLoader(() => import("./pages/TaxDocuments"), 'medium');
 const TaxDocumentAnalysis = createPageLoader(() => import("./pages/TaxDocumentAnalysis"), 'medium');
+const DashboardAnalytics = createPageLoader(() => import("./pages/DashboardAnalytics"), 'medium');
 const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
 const SocialSentiment = createPageLoader(() => import("./pages/SocialSentiment"), 'medium');
 
@@ -259,6 +260,7 @@ function AnimatedRoutes() {
         
         {/* App routes with layout - protected */}
 <Route path="/dashboard" element={<ProtectedRoute><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/dashboard-analytics" element={<ProtectedRoute><PageTransition><DashboardAnalytics /></PageTransition></ProtectedRoute>} />
         <Route path="/dashboard-v2" element={<Navigate to="/dashboard" replace />} />
         <Route path="/accounts" element={<ProtectedRoute><PageTransition><Accounts /></PageTransition></ProtectedRoute>} />
         <Route path="/search" element={<ProtectedRoute><PageTransition><Search /></PageTransition></ProtectedRoute>} />
