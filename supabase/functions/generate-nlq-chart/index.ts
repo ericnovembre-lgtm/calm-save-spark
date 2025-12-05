@@ -63,8 +63,10 @@ serve(async (req) => {
         .gte('transaction_date', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString());
 
       const currentSavings = pots?.reduce((sum, p) => sum + Number(p.current_amount || 0), 0) || 0;
-      const monthlyIncome = transactions?.filter(t => Number(t.amount) > 0).reduce((sum, t) => sum + Number(t.amount), 0) / 3 || 3000;
-      const monthlyExpenses = Math.abs(transactions?.filter(t => Number(t.amount) < 0).reduce((sum, t) => sum + Number(t.amount), 0) || 0) / 3;
+      const positiveTotal = transactions?.filter(t => Number(t.amount) > 0).reduce((sum, t) => sum + Number(t.amount), 0) ?? 0;
+      const monthlyIncome = (positiveTotal / 3) || 3000;
+      const negativeTotal = transactions?.filter(t => Number(t.amount) < 0).reduce((sum, t) => sum + Number(t.amount), 0) ?? 0;
+      const monthlyExpenses = Math.abs(negativeTotal) / 3;
       const monthlyCapacity = Math.max(100, Math.round((monthlyIncome - monthlyExpenses) * 0.3));
 
       const monthsNeeded = Math.ceil((goalAmount - currentSavings) / monthlyCapacity);
