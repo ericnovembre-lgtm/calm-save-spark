@@ -19,6 +19,8 @@ import { DashboardCelebrations } from "@/components/dashboard/celebrations/Dashb
 import { DashboardOnboarding } from "@/components/dashboard/onboarding/DashboardOnboarding";
 import { FloatingControls } from "@/components/dashboard/floating/FloatingControls";
 import { AIGenerationOverlay } from "@/components/dashboard/ai/AIGenerationOverlay";
+import { MobileDashboard } from "@/components/mobile/MobileDashboard";
+import { MobileOnboardingFlow } from "@/components/onboarding/MobileOnboardingFlow";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -50,6 +52,7 @@ export default function Dashboard() {
 
   // Track if this is initial load (no cache)
   const [showOverlay, setShowOverlay] = useState(true);
+  const [showMobileOnboarding, setShowMobileOnboarding] = useState(false);
   
   // Hide overlay once generation completes
   useEffect(() => {
@@ -58,6 +61,40 @@ export default function Dashboard() {
       return () => clearTimeout(timer);
     }
   }, [data.generative.isLoading, data.streaming.streamPhase]);
+
+  // Check for first-time mobile user onboarding
+  useEffect(() => {
+    if (isMobile) {
+      const hasCompletedMobileOnboarding = localStorage.getItem('mobile_onboarding_completed');
+      if (!hasCompletedMobileOnboarding) {
+        setShowMobileOnboarding(true);
+      }
+    }
+  }, [isMobile]);
+
+  const handleMobileOnboardingComplete = () => {
+    localStorage.setItem('mobile_onboarding_completed', 'true');
+    setShowMobileOnboarding(false);
+  };
+
+  // Render mobile-optimized dashboard on mobile devices
+  if (isMobile) {
+    return (
+      <AppLayout>
+        <AIThemeProvider theme={data.generative.theme}>
+          <DashboardErrorBoundary sectionName="Mobile Dashboard">
+            {showMobileOnboarding && (
+              <MobileOnboardingFlow 
+                onComplete={handleMobileOnboardingComplete} 
+                onSkip={handleMobileOnboardingComplete}
+              />
+            )}
+            <MobileDashboard />
+          </DashboardErrorBoundary>
+        </AIThemeProvider>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>

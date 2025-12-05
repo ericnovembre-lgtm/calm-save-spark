@@ -1,10 +1,12 @@
-import { Home, TrendingUp, Target, Settings, PieChart, Plus } from "lucide-react";
+import { Home, TrendingUp, Target, Settings, PieChart, Plus, Bell } from "lucide-react";
 import { BottomNavItem } from "./BottomNavItem";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
+import { haptics } from "@/lib/haptics";
 
 const navItems = [
   { name: "Home", path: "/dashboard", icon: Home },
@@ -17,8 +19,20 @@ const navItems = [
 export const BottomNav = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { unreadCount } = useTransactionAlerts();
 
   if (!isMobile) return null;
+
+  const handleNavTap = (path: string) => {
+    haptics.vibrate('light');
+    navigate(path);
+  };
+
+  const handleFabTap = () => {
+    haptics.vibrate('medium');
+    navigate("/goals");
+  };
 
   return (
     <nav
@@ -50,7 +64,7 @@ export const BottomNav = () => {
         >
           <Button
             size="icon"
-            onClick={() => navigate("/goals")}
+            onClick={handleFabTap}
             className="w-14 h-14 rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-glass-elevated"
             aria-label="Quick Add"
           >
@@ -58,14 +72,25 @@ export const BottomNav = () => {
           </Button>
         </motion.div>
 
-        {/* Right items */}
+        {/* Right items with notification badge */}
         {navItems.slice(2).map((item) => (
-          <BottomNavItem
-            key={item.path}
-            name={item.name}
-            path={item.path}
-            icon={item.icon}
-          />
+          <div key={item.path} className="relative">
+            <BottomNavItem
+              name={item.name}
+              path={item.path}
+              icon={item.icon}
+            />
+            {/* Notification badge for AI hub */}
+            {item.path === "/hubs/ai-insights" && unreadCount > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-medium"
+              >
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </motion.span>
+            )}
+          </div>
         ))}
       </div>
     </nav>
