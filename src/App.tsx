@@ -15,6 +15,7 @@ import { PageTracker } from "@/components/layout/PageTracker";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ErrorBoundaryWithRetry } from "@/components/ErrorBoundaryWithRetry";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
+import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { AuthRedirect } from "@/components/auth/AuthRedirect";
@@ -24,6 +25,7 @@ import { PageTransition } from "@/components/animations/PageTransition";
 import { useIntelligentPrefetch } from "@/hooks/useIntelligentPrefetch";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { queryConfig } from "@/lib/query-config";
+import { setupQueryPersistence } from "@/lib/query-persistence";
 import { createPageLoader } from "@/components/performance/PageLazyLoader";
 import { FloatingHelpButton } from "@/components/help/FloatingHelpButton";
 import "@/styles/accessibility.css";
@@ -138,6 +140,9 @@ const DigitalTwinPreview = createPageLoader(() => import("./pages/preview/Digita
 
 const queryClient = new QueryClient(queryConfig);
 
+// Setup IndexedDB persistence for offline support
+setupQueryPersistence(queryClient);
+
 // Performance monitoring with per-page tracking
 const PerformanceMonitoring = () => {
   const { pageMetrics } = useWebVitals(true);
@@ -190,6 +195,7 @@ const App = () => {
                     <LiveRegion />
                     <Toaster />
                     <Sonner />
+                    <UpdatePrompt />
                     <BrowserRouter>
                       <PageTracker />
                       <InstallPrompt />
