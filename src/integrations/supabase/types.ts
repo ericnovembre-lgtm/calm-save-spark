@@ -1581,7 +1581,11 @@ export type Database = {
           created_at: string
           id: string
           is_edited: boolean | null
+          is_resolved: boolean | null
+          mentions: string[] | null
           parent_comment_id: string | null
+          resolved_at: string | null
+          resolved_by: string | null
           updated_at: string
           user_id: string
         }
@@ -1591,7 +1595,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_edited?: boolean | null
+          is_resolved?: boolean | null
+          mentions?: string[] | null
           parent_comment_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1601,7 +1609,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_edited?: boolean | null
+          is_resolved?: boolean | null
+          mentions?: string[] | null
           parent_comment_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1770,6 +1782,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      budget_presence: {
+        Row: {
+          budget_id: string
+          cursor_position: Json | null
+          id: string
+          last_seen_at: string | null
+          user_id: string
+        }
+        Insert: {
+          budget_id: string
+          cursor_position?: Json | null
+          id?: string
+          last_seen_at?: string | null
+          user_id: string
+        }
+        Update: {
+          budget_id?: string
+          cursor_position?: Json | null
+          id?: string
+          last_seen_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_presence_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "user_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       budget_rebalancing_feedback: {
         Row: {
@@ -5581,6 +5625,74 @@ export type Database = {
           tokens_remaining_tpm?: number | null
           tokens_reset_at?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      household_members: {
+        Row: {
+          household_id: string
+          id: string
+          invite_email: string | null
+          invited_by: string | null
+          joined_at: string | null
+          role: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          household_id: string
+          id?: string
+          invite_email?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          role?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          household_id?: string
+          id?: string
+          invite_email?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          role?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_members_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          created_by: string
+          id: string
+          name: string
+          settings: Json | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          created_by: string
+          id?: string
+          name: string
+          settings?: Json | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          name?: string
+          settings?: Json | null
         }
         Relationships: []
       }
