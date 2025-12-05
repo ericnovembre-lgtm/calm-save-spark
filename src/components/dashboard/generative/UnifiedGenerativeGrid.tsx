@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { DashboardLayout, GenerativeWidgetSpec, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
+import { WidgetErrorBoundary } from './WidgetErrorBoundary';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Real widget components
 import { EnhancedBalanceCard } from '@/components/dashboard/EnhancedBalanceCard';
@@ -24,6 +26,15 @@ import { GenerativeWidgetRenderer } from './GenerativeWidgetRenderer';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+
+// Lazy load new widgets
+const NetWorthMiniChart = lazy(() => import('./widgets/NetWorthMiniChart'));
+const DebtTrackerMini = lazy(() => import('./widgets/DebtTrackerMini'));
+const SubscriptionsMini = lazy(() => import('./widgets/SubscriptionsMini'));
+const SpendingAlertsMini = lazy(() => import('./widgets/SpendingAlertsMini'));
+const PredictiveAnalytics = lazy(() => import('@/components/dashboard/PredictiveAnalytics').then(m => ({ default: m.PredictiveAnalytics })));
+const DailyBriefingCard = lazy(() => import('@/components/dashboard/DailyBriefingCard').then(m => ({ default: m.DailyBriefingCard })));
+const StreakRecoveryBanner = lazy(() => import('@/components/dashboard/StreakRecoveryBanner').then(m => ({ default: m.StreakRecoveryBanner })));
 
 interface UnifiedGenerativeGridProps {
   layout: DashboardLayout;
@@ -55,6 +66,10 @@ const itemVariants = {
     }
   }
 };
+
+const WidgetSkeleton = () => (
+  <div className="h-48 rounded-xl bg-muted/50 animate-pulse" />
+);
 
 // Map AI widget IDs to real React components
 function RealWidgetRenderer({ 
@@ -203,6 +218,59 @@ function RealWidgetRenderer({
     case 'recommendations':
       return <NudgesWidget />;
 
+    // New widget types
+    case 'net_worth_chart':
+      return (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <NetWorthMiniChart userId={userId} />
+        </Suspense>
+      );
+
+    case 'debt_tracker':
+    case 'debts':
+      return (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <DebtTrackerMini userId={userId} />
+        </Suspense>
+      );
+
+    case 'subscriptions':
+    case 'subscription_manager':
+      return (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <SubscriptionsMini userId={userId} />
+        </Suspense>
+      );
+
+    case 'spending_alerts':
+    case 'budget_alerts':
+      return (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <SpendingAlertsMini userId={userId} />
+        </Suspense>
+      );
+
+    case 'what_if_analysis':
+    case 'predictive':
+      // PredictiveAnalytics requires props, skip if no data
+      return null;
+
+    case 'daily_briefing':
+    case 'briefing':
+      return (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <DailyBriefingCard />
+        </Suspense>
+      );
+
+    case 'streak_recovery':
+    case 'streak_warning':
+      return (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <StreakRecoveryBanner />
+        </Suspense>
+      );
+
     default:
       // Fall back to generic AI-generated widget renderer
       return (
@@ -239,6 +307,19 @@ export function UnifiedGenerativeGrid({
 
   const getWidget = (widgetId: string) => widgets[widgetId];
 
+  const renderWidget = (widgetId: string, widget: GenerativeWidgetSpec, size: 'hero' | 'large' | 'medium' | 'compact') => (
+    <WidgetErrorBoundary widgetId={widgetId} widgetType={widget.headline}>
+      <RealWidgetRenderer
+        widgetId={widgetId}
+        widget={widget}
+        size={size}
+        dashboardData={dashboardData}
+        accounts={accounts || []}
+        userId={user?.id}
+      />
+    </WidgetErrorBoundary>
+  );
+
   return (
     <motion.div
       variants={containerVariants}
@@ -255,14 +336,7 @@ export function UnifiedGenerativeGrid({
             className="w-full"
             data-tour="hero-widget"
           >
-            <RealWidgetRenderer
-              widgetId={layout.hero.widgetId}
-              widget={getWidget(layout.hero.widgetId)!}
-              size="hero"
-              dashboardData={dashboardData}
-              accounts={accounts || []}
-              userId={user?.id}
-            />
+            {renderWidget(layout.hero.widgetId, getWidget(layout.hero.widgetId)!, 'hero')}
           </motion.section>
         )}
       </AnimatePresence>
@@ -285,14 +359,7 @@ export function UnifiedGenerativeGrid({
                   item.size === 'large' ? 'md:col-span-2' : 'md:col-span-1'
                 )}
               >
-                <RealWidgetRenderer
-                  widgetId={item.widgetId}
-                  widget={widget}
-                  size={item.size}
-                  dashboardData={dashboardData}
-                  accounts={accounts || []}
-                  userId={user?.id}
-                />
+                {renderWidget(item.widgetId, widget, item.size)}
               </motion.div>
             );
           })}
@@ -314,14 +381,7 @@ export function UnifiedGenerativeGrid({
                 key={item.widgetId}
                 variants={itemVariants}
               >
-              <RealWidgetRenderer
-                  widgetId={item.widgetId}
-                  widget={widget}
-                  size="compact"
-                  dashboardData={dashboardData}
-                  accounts={accounts || []}
-                  userId={user?.id}
-                />
+                {renderWidget(item.widgetId, widget, 'compact')}
               </motion.div>
             );
           })}
