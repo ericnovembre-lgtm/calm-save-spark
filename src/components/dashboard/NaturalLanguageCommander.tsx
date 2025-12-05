@@ -1,10 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, X, Loader2, BarChart3, PieChart, TrendingUp, ArrowRight, Calendar, Repeat, DollarSign, ShoppingBag } from 'lucide-react';
+import { Search, Sparkles, X, Loader2, BarChart3, PieChart, TrendingUp, ArrowRight, Calendar, Repeat, DollarSign, ShoppingBag, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { haptics } from '@/lib/haptics';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NaturalLanguageCommanderProps {
   onQuery?: (query: string) => void;
@@ -27,12 +29,109 @@ const EXAMPLE_QUERIES = [
  * Floating command bar for natural language financial queries
  * "Show me spending on coffee vs. tea" → generates ad-hoc chart
  */
+// Check for Speech Recognition support
+const SpeechRecognition = typeof window !== 'undefined' 
+  ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition 
+  : null;
+
 export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLanguageCommanderProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prefersReducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+
+  // Voice recognition support check
+  const isVoiceSupported = !!SpeechRecognition;
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0].transcript)
+        .join('');
+      
+      setQuery(transcript);
+
+      // Clear any existing silence timeout
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+      }
+
+      // Auto-submit after 1.5s of silence when we have final result
+      if (event.results[0].isFinal) {
+        silenceTimeoutRef.current = setTimeout(() => {
+          if (transcript.trim() && onQuery) {
+            haptics.buttonPress();
+            onQuery(transcript.trim());
+            setIsListening(false);
+          }
+        }, 1500);
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setVoiceError(event.error === 'not-allowed' 
+        ? 'Microphone access denied' 
+        : 'Voice recognition failed');
+      setIsListening(false);
+      haptics.validationError();
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+      }
+      recognition.abort();
+    };
+  }, [onQuery]);
+
+  const startListening = useCallback(() => {
+    if (!recognitionRef.current || isListening) return;
+    
+    setVoiceError(null);
+    setQuery('');
+    haptics.select();
+    
+    try {
+      recognitionRef.current.start();
+      setIsListening(true);
+    } catch (err) {
+      console.error('Failed to start voice recognition:', err);
+      setVoiceError('Failed to start voice input');
+    }
+  }, [isListening]);
+
+  const stopListening = useCallback(() => {
+    if (!recognitionRef.current) return;
+    
+    recognitionRef.current.stop();
+    setIsListening(false);
+    haptics.buttonPress();
+    
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+    }
+  }, []);
 
   // Focus input when expanded
   useEffect(() => {
@@ -110,8 +209,12 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
               <Search className="w-4 h-4" />
             </motion.div>
             <span className="hidden sm:inline">Ask anything about your finances...</span>
-            <span className="sm:hidden">Ask AI...</span>
-            <Sparkles className="w-3 h-3 text-primary/60" />
+            <span className="sm:hidden">{isVoiceSupported && isMobile ? 'Tap to speak...' : 'Ask AI...'}</span>
+            {isVoiceSupported && isMobile ? (
+              <Mic className="w-3 h-3 text-primary/60" />
+            ) : (
+              <Sparkles className="w-3 h-3 text-primary/60" />
+            )}
           </motion.button>
         )}
       </AnimatePresence>
@@ -164,10 +267,24 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
               <form onSubmit={handleSubmit} className="p-4">
                 <div className={cn(
                   "flex items-center gap-3 p-3 rounded-xl border transition-all",
-                  isFocused ? "border-primary ring-2 ring-primary/20" : "border-border/50"
+                  isFocused ? "border-primary ring-2 ring-primary/20" : "border-border/50",
+                  isListening && "border-rose-500 ring-2 ring-rose-500/20"
                 )}>
                   {isProcessing ? (
                     <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                  ) : isListening ? (
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                      className="relative"
+                    >
+                      <Mic className="w-5 h-5 text-rose-500" />
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-rose-500/30"
+                        animate={{ scale: [1, 2], opacity: [0.5, 0] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      />
+                    </motion.div>
                   ) : (
                     <Search className="w-5 h-5 text-muted-foreground" />
                   )}
@@ -177,19 +294,88 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
                     onChange={(e) => setQuery(e.target.value)}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
-                    placeholder="e.g., Show me spending on coffee vs. tea this month"
+                    placeholder={isListening ? "Listening..." : "e.g., Show me spending on coffee vs. tea this month"}
                     className="flex-1 border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground"
-                    disabled={isProcessing}
+                    disabled={isProcessing || isListening}
                   />
+                  
+                  {/* Voice input button */}
+                  {isVoiceSupported && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={isListening ? "destructive" : "ghost"}
+                      onClick={isListening ? stopListening : startListening}
+                      disabled={isProcessing}
+                      className={cn(
+                        "shrink-0 relative",
+                        isListening && "bg-rose-500 hover:bg-rose-600"
+                      )}
+                      aria-label={isListening ? "Stop listening" : "Start voice input"}
+                    >
+                      {isListening ? (
+                        <MicOff className="w-4 h-4" />
+                      ) : (
+                        <Mic className="w-4 h-4" />
+                      )}
+                    </Button>
+                  )}
+                  
                   <Button
                     type="submit"
                     size="sm"
-                    disabled={!query.trim() || isProcessing}
+                    disabled={!query.trim() || isProcessing || isListening}
                     className="shrink-0"
                   >
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
+                
+                {/* Voice error message */}
+                <AnimatePresence>
+                  {voiceError && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="text-xs text-destructive mt-2 text-center"
+                    >
+                      {voiceError}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+                
+                {/* Listening indicator */}
+                <AnimatePresence>
+                  {isListening && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="flex items-center justify-center gap-2 mt-3"
+                    >
+                      <div className="flex gap-1">
+                        {[0, 1, 2, 3, 4].map((i) => (
+                          <motion.div
+                            key={i}
+                            className="w-1 bg-rose-500 rounded-full"
+                            animate={{
+                              height: ['8px', '20px', '8px'],
+                            }}
+                            transition={{
+                              duration: 0.5,
+                              repeat: Infinity,
+                              delay: i * 0.1,
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        Speak now... (auto-submits after silence)
+                      </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </form>
 
               {/* Example queries */}
@@ -222,8 +408,9 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
               {/* Footer hint */}
               <div className="px-4 py-3 bg-muted/30 border-t border-border/30">
                 <p className="text-[10px] text-muted-foreground text-center">
-                  Press <kbd className="px-1 py-0.5 rounded bg-muted text-[9px]">ESC</kbd> to close • 
-                  Results powered by AI analysis
+                  Press <kbd className="px-1 py-0.5 rounded bg-muted text-[9px]">ESC</kbd> to close
+                  {isVoiceSupported && ' • Tap mic for voice input'}
+                  {' • '}Results powered by AI analysis
                 </p>
               </div>
             </motion.div>

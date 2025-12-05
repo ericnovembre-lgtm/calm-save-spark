@@ -47,6 +47,7 @@ export interface UnifiedDashboardData {
   // Authentication
   user: User | null;
   isAuthenticated: boolean;
+  userFirstName: string | null;
 
   // Generative Dashboard (Claude Opus 4.5)
   generative: {
@@ -173,14 +174,14 @@ export function useUnifiedDashboardData(): UnifiedDashboardData {
   // Onboarding - side effect only
   useOnboardingStatus(true);
 
-  // Profile tutorial query
+  // Profile query (tutorial + user name)
   const { data: profile } = useQuery({
-    queryKey: ["profile-tutorial", user?.id],
+    queryKey: ["profile-dashboard", user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from("profiles")
-        .select("show_dashboard_tutorial")
+        .select("show_dashboard_tutorial, full_name")
         .eq("id", user.id)
         .single();
       if (error) throw error;
@@ -188,6 +189,9 @@ export function useUnifiedDashboardData(): UnifiedDashboardData {
     },
     enabled: !!user?.id,
   });
+
+  // Extract first name from full name
+  const userFirstName = profile?.full_name?.split(' ')[0] || null;
 
   // Computed values
   const netWorthChangePercent =
@@ -203,6 +207,7 @@ export function useUnifiedDashboardData(): UnifiedDashboardData {
     // Authentication
     user,
     isAuthenticated: !!user,
+    userFirstName,
 
     // Generative Dashboard
     generative: {

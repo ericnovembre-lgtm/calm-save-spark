@@ -117,6 +117,7 @@ export default function Dashboard() {
             lastSynced={data.sync.lastSynced}
             lastRefresh={data.generative.lastRefresh}
             netWorthChangePercent={data.computed.netWorthChangePercent}
+            userName={data.userFirstName}
             onRefresh={data.actions.refresh}
             onForceRefresh={data.actions.forceRefresh}
           >

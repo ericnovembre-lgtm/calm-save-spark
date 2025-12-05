@@ -14,6 +14,7 @@ interface DashboardShellProps {
   lastSynced?: Date;
   lastRefresh?: Date;
   netWorthChangePercent: number;
+  userName?: string | null;
   onRefresh: () => void;
   onForceRefresh: () => void;
 }
@@ -26,6 +27,7 @@ export function DashboardShell({
   lastSynced,
   lastRefresh,
   netWorthChangePercent,
+  userName,
   onRefresh,
   onForceRefresh,
 }: DashboardShellProps) {
@@ -44,6 +46,7 @@ export function DashboardShell({
         syncStatus={syncStatus}
         lastSynced={lastSynced}
         lastRefresh={lastRefresh}
+        userName={userName}
         onRefresh={onRefresh}
         onForceRefresh={onForceRefresh}
       />

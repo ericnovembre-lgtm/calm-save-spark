@@ -15,6 +15,7 @@ interface DashboardHeaderProps {
   syncStatus: SyncStatus;
   lastSynced?: Date;
   lastRefresh?: Date;
+  userName?: string | null;
   onRefresh: () => void;
   onForceRefresh: () => void;
 }
@@ -34,38 +35,51 @@ export function DashboardHeader({
   syncStatus,
   lastSynced,
   lastRefresh,
+  userName,
   onRefresh,
   onForceRefresh,
 }: DashboardHeaderProps) {
   const prefersReducedMotion = useReducedMotion();
   const greeting = getGreeting();
-  const [displayedText, setDisplayedText] = useState(greeting.text);
+  
+  // Build full greeting with optional user name
+  const fullGreeting = userName 
+    ? `${greeting.text}, ${userName}`
+    : greeting.text;
+  
+  const [displayedText, setDisplayedText] = useState(fullGreeting);
   const [showWave, setShowWave] = useState(true);
+  const [showName, setShowName] = useState(true);
 
   // Typewriter effect for greeting on mount
   useEffect(() => {
     if (prefersReducedMotion) {
-      setDisplayedText(greeting.text);
+      setDisplayedText(fullGreeting);
       setShowWave(true);
+      setShowName(true);
       return;
     }
     
     let index = 0;
     setDisplayedText('');
     setShowWave(false);
+    setShowName(false);
     
     const timer = setInterval(() => {
-      if (index < greeting.text.length) {
-        setDisplayedText(greeting.text.slice(0, index + 1));
+      if (index < fullGreeting.length) {
+        setDisplayedText(fullGreeting.slice(0, index + 1));
         index++;
       } else {
         clearInterval(timer);
-        setTimeout(() => setShowWave(true), 200);
+        setTimeout(() => {
+          setShowWave(true);
+          setShowName(true);
+        }, 200);
       }
-    }, 50);
+    }, 40); // Slightly faster for longer text
     
     return () => clearInterval(timer);
-  }, []);
+  }, [fullGreeting, prefersReducedMotion]);
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
@@ -93,7 +107,7 @@ export function DashboardHeader({
                   <span className="inline-flex items-center gap-1.5">
                     {displayedText}
                     {/* Typing cursor */}
-                    {!prefersReducedMotion && displayedText.length < greeting.text.length && (
+                    {!prefersReducedMotion && displayedText.length < fullGreeting.length && (
                       <motion.span 
                         className="inline-block w-0.5 h-5 bg-primary"
                         animate={{ opacity: [1, 0] }}
@@ -126,7 +140,7 @@ export function DashboardHeader({
                   <motion.span
                     className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full"
                     initial={{ width: 0 }}
-                    animate={{ width: displayedText.length === greeting.text.length ? '60%' : '0%' }}
+                    animate={{ width: displayedText.length === fullGreeting.length ? '70%' : '0%' }}
                     transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                   />
                 </h1>
