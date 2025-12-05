@@ -219,3 +219,132 @@ export const ribbonUnfurl = {
     }
   }
 };
+
+// ============================================
+// DATA FUTURISM ANIMATIONS
+// ============================================
+
+/**
+ * Glassmorphism hover effect for widgets
+ */
+export const glassHover = {
+  rest: {
+    scale: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
+  },
+  hover: {
+    scale: 1.01,
+    y: -2,
+    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
+  }
+};
+
+/**
+ * Bento grid item entrance with blur
+ */
+export const bentoItemVariants = {
+  hidden: { 
+    opacity: 0, 
+    scale: 0.9,
+    filter: 'blur(10px)'
+  },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: {
+      delay: i * 0.05,
+      duration: 0.5,
+      ease: [0.22, 1, 0.36, 1]
+    }
+  })
+};
+
+/**
+ * Hero card breathing animation
+ */
+export const heroBreathing = {
+  animate: {
+    scale: [1, 1.005, 1],
+    transition: {
+      duration: 4,
+      repeat: Infinity,
+      ease: 'easeInOut'
+    }
+  }
+};
+
+/**
+ * Aurora blob floating animation
+ */
+export const auroraFloat = {
+  animate: {
+    x: [0, 30, 0],
+    y: [0, 20, 0],
+    scale: [1, 1.2, 1],
+    transition: {
+      duration: 8,
+      repeat: Infinity,
+      ease: 'easeInOut'
+    }
+  }
+};
+
+/**
+ * Story bubble entrance
+ */
+export const storyBubbleVariants = {
+  hidden: { 
+    scale: 0, 
+    opacity: 0, 
+    y: 20 
+  },
+  visible: { 
+    scale: 1, 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 400,
+      damping: 25,
+    },
+  },
+  hover: {
+    scale: 1.08,
+    y: -4,
+    transition: { type: 'spring', stiffness: 400 }
+  },
+  tap: {
+    scale: 0.95
+  }
+};
+
+/**
+ * Story ring rotation
+ */
+export const storyRingRotate = {
+  animate: {
+    rotate: 360,
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: 'linear'
+    }
+  }
+};
+
+/**
+ * Glow pulse for story bubbles
+ */
+export const storyGlowPulse = {
+  animate: {
+    scale: [1, 1.2, 1],
+    opacity: [0.3, 0.6, 0.3],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: 'easeInOut'
+    }
+  }
+};

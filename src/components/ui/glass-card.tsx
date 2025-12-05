@@ -4,24 +4,34 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 import { cardHover } from "@/lib/motion-variants";
 
+type GlassVariant = 'default' | 'hero' | 'subtle';
+
 interface GlassCardProps {
   children: ReactNode;
   className?: string;
   enableTilt?: boolean;
   glowOnHover?: boolean;
   onClick?: () => void;
+  variant?: GlassVariant;
 }
 
 /**
  * GlassCard - Premium glass morphism card with 3D tilt effects
  * Features: backdrop blur, gradient borders, mouse-tracking 3D transforms
  */
+const variantClasses: Record<GlassVariant, string> = {
+  default: 'glass-widget',
+  hero: 'glass-hero',
+  subtle: 'glass-subtle',
+};
+
 export function GlassCard({ 
   children, 
   className = "", 
   enableTilt = true,
   glowOnHover = false,
-  onClick 
+  onClick,
+  variant = 'default'
 }: GlassCardProps) {
   const prefersReducedMotion = useReducedMotion();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -78,15 +88,9 @@ export function GlassCard({
       } : undefined}
       onClick={onClick}
   className={cn(
-    // Phase 7: Enhanced glassmorphism
-    "relative rounded-2xl overflow-hidden",
-    "bg-glass border border-glass-border",
-    "backdrop-blur-glass shadow-glass",
-    
-    // Hover effects with depth
-    "transition-all duration-300",
-    "hover:shadow-glass-elevated hover:bg-glass-hover",
-    "hover:border-glass-border-hover",
+    // Data Futurism: Use variant-based glass classes
+    "relative overflow-hidden",
+    variantClasses[variant],
     
     // Glow effect
     glowOnHover && "hover:shadow-[0_0_30px_hsla(var(--primary),0.15)]",

@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { DashboardLayout, GenerativeWidgetSpec, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
+import { getBentoSizeClass } from '@/lib/bento-sizes';
 import { WidgetErrorBoundary } from './WidgetErrorBoundary';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWidgetPreferences } from '@/hooks/useWidgetPreferences';
@@ -456,7 +457,7 @@ export function UnifiedGenerativeGrid({
         </motion.section>
       )}
 
-      {/* Grid Section - Reorderable */}
+      {/* Grid Section - Bento Layout */}
       {orderedGridItems.length > 0 && (
         <TooltipProvider>
           <Reorder.Group
@@ -464,7 +465,7 @@ export function UnifiedGenerativeGrid({
             values={orderedGridItems.map(item => item.widgetId)}
             onReorder={handleReorder}
             as="section"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            className="bento-grid"
             data-tour="grid-widgets"
             layoutScroll
           >
@@ -479,11 +480,14 @@ export function UnifiedGenerativeGrid({
                   value={item.widgetId}
                   as="div"
                   layout={prefersReducedMotion ? undefined : "position"}
-                  className="relative group"
-                  initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  className={cn(
+                    "relative group",
+                    getBentoSizeClass(item.widgetId)
+                  )}
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 20, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   exit={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3, delay: index * 0.03 }}
+                  transition={{ duration: 0.5, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
                   whileDrag={{ 
                     scale: prefersReducedMotion ? 1 : 1.03, 
                     boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)',

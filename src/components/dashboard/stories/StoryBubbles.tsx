@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { FinancialStory } from '@/hooks/useFinancialStories';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface StoryBubblesProps {
   stories: FinancialStory[];
@@ -9,7 +10,7 @@ interface StoryBubblesProps {
 }
 
 const STORY_ICONS: Record<FinancialStory['type'], string> = {
-  high_five: '🙌',
+  high_five: '🎉',
   nudge: '⚠️',
   milestone: '🏆',
   goal_win: '🎯',
@@ -17,84 +18,186 @@ const STORY_ICONS: Record<FinancialStory['type'], string> = {
   streak: '🔥'
 };
 
-const THEME_GRADIENTS: Record<FinancialStory['theme'], string> = {
-  emerald: 'from-emerald-400 to-emerald-600',
-  rose: 'from-rose-400 to-rose-600',
-  amber: 'from-amber-400 to-amber-600',
-  gold: 'from-yellow-400 to-amber-500',
-  violet: 'from-violet-400 to-violet-600',
-  cyan: 'from-cyan-400 to-cyan-600'
+const THEME_RING_CLASSES: Record<FinancialStory['theme'], string> = {
+  emerald: 'story-ring-emerald',
+  rose: 'story-ring-rose',
+  amber: 'story-ring-amber',
+  gold: 'story-ring-gold',
+  violet: 'story-ring-violet',
+  cyan: 'story-ring-cyan',
+};
+
+const THEME_GLOW_COLORS: Record<FinancialStory['theme'], string> = {
+  emerald: 'hsla(160, 84%, 39%, 0.4)',
+  rose: 'hsla(350, 89%, 60%, 0.4)',
+  amber: 'hsla(38, 92%, 50%, 0.4)',
+  gold: 'hsla(45, 93%, 47%, 0.4)',
+  violet: 'hsla(258, 90%, 66%, 0.4)',
+  cyan: 'hsla(189, 94%, 43%, 0.4)',
+};
+
+const THEME_DOT_COLORS: Record<FinancialStory['theme'], string> = {
+  emerald: 'bg-emerald-500',
+  rose: 'bg-rose-500',
+  amber: 'bg-amber-500',
+  gold: 'bg-yellow-500',
+  violet: 'bg-violet-500',
+  cyan: 'bg-cyan-500',
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const bubbleVariants = {
+  hidden: { 
+    scale: 0, 
+    opacity: 0, 
+    y: 20 
+  },
+  visible: { 
+    scale: 1, 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: 'spring' as const,
+      stiffness: 400,
+      damping: 25,
+    },
+  },
 };
 
 export function StoryBubbles({ stories, onStoryClick, isViewed }: StoryBubblesProps) {
+  const prefersReducedMotion = useReducedMotion();
+  
   if (stories.length === 0) return null;
 
   return (
-    <div className="w-full overflow-x-auto scrollbar-hide py-3 px-4 -mx-4">
-      <motion.div 
-        className="flex gap-3 min-w-min"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full overflow-x-auto scrollbar-hide py-3 px-4 -mx-4"
+      style={{ 
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+      }}
+    >
+      <div className="flex gap-4 min-w-min">
         {stories.map((story, index) => {
           const viewed = isViewed(story.id);
+          const icon = STORY_ICONS[story.type];
+          const ringClass = THEME_RING_CLASSES[story.theme];
+          const glowColor = THEME_GLOW_COLORS[story.theme];
+          const dotColor = THEME_DOT_COLORS[story.theme];
           
           return (
             <motion.button
               key={story.id}
+              variants={bubbleVariants}
               onClick={() => onStoryClick(index)}
-              className="relative flex-shrink-0 group"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: index * 0.05, type: 'spring', damping: 20 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={!prefersReducedMotion ? {
+                scale: 1.08,
+                y: -4,
+                transition: { type: 'spring', stiffness: 400 },
+              } : undefined}
+              whileTap={!prefersReducedMotion ? { scale: 0.95 } : undefined}
+              className="relative flex flex-col items-center gap-2 flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-full group"
+              aria-label={`View ${story.type} story`}
             >
-              {/* Ring indicator */}
-              <div className={cn(
-                "w-16 h-16 rounded-full p-0.5",
-                viewed 
-                  ? "bg-muted-foreground/30" 
-                  : `bg-gradient-to-br ${THEME_GRADIENTS[story.theme]}`
-              )}>
-                {/* Inner circle */}
-                <div className={cn(
-                  "w-full h-full rounded-full bg-background flex items-center justify-center",
-                  "text-2xl transition-transform group-hover:scale-105"
-                )}>
-                  {STORY_ICONS[story.type]}
+              {/* Story bubble container */}
+              <div className="relative w-16 h-16">
+                {/* Pulsing glow behind unviewed stories */}
+                {!viewed && !prefersReducedMotion && (
+                  <motion.div
+                    className="absolute -inset-2 rounded-full blur-md"
+                    style={{ background: glowColor }}
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      opacity: [0.3, 0.6, 0.3],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                  />
+                )}
+                
+                {/* Animated gradient ring for unviewed stories */}
+                {!viewed && (
+                  <motion.div
+                    className={cn(
+                      "absolute -inset-1 rounded-full",
+                      ringClass,
+                      !prefersReducedMotion && "story-ring-animate"
+                    )}
+                  />
+                )}
+                
+                {/* Viewed ring (gray) */}
+                {viewed && (
+                  <div className="absolute -inset-1 rounded-full bg-muted-foreground/30" />
+                )}
+                
+                {/* Inner bubble */}
+                <div 
+                  className={cn(
+                    "absolute inset-0.5 rounded-full flex items-center justify-center",
+                    "bg-background border-2 transition-transform",
+                    "group-hover:scale-105",
+                    viewed 
+                      ? "border-muted-foreground/20" 
+                      : "border-background"
+                  )}
+                >
+                  <span className="text-2xl">{icon}</span>
                 </div>
+                
+                {/* Unviewed indicator dot */}
+                {!viewed && (
+                  <motion.div
+                    className={cn(
+                      "absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full",
+                      dotColor
+                    )}
+                    animate={!prefersReducedMotion ? {
+                      scale: [1, 1.2, 1],
+                    } : undefined}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                  />
+                )}
               </div>
               
-              {/* Unviewed dot */}
-              {!viewed && (
-                <motion.div
-                  className={cn(
-                    "absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full",
-                    `bg-gradient-to-br ${THEME_GRADIENTS[story.theme]}`
-                  )}
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              )}
-              
-              {/* Label */}
-              <p className={cn(
-                "text-[10px] mt-1 text-center truncate w-16",
-                viewed ? "text-muted-foreground" : "text-foreground font-medium"
-              )}>
+              {/* Story label */}
+              <span 
+                className={cn(
+                  "text-[10px] font-medium max-w-16 truncate text-center",
+                  viewed ? "text-muted-foreground" : "text-foreground"
+                )}
+              >
                 {story.type === 'high_five' ? 'Great Day!' :
                  story.type === 'nudge' ? 'Alert' :
                  story.type === 'milestone' ? 'Milestone' :
                  story.type === 'goal_win' ? 'Goal!' :
                  story.type === 'spending_alert' ? 'Budget' :
                  'Streak'}
-              </p>
+              </span>
             </motion.button>
           );
         })}
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
 }

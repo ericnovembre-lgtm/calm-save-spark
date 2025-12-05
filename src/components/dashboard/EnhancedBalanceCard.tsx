@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { DraggableCoin } from "./DraggableCoin";
 import { useDragToSave } from "@/hooks/useDragToSave";
+import { cn } from "@/lib/utils";
+import { getSentimentColors, getAuroraClass } from "@/lib/bento-sizes";
 
 interface EnhancedBalanceCardProps {
   balance: number;
@@ -42,6 +44,11 @@ export const EnhancedBalanceCard = ({
   const [showConfetti, setShowConfetti] = useState(false);
   const { playConfettiPop } = useCelebrationSounds();
 
+  // Calculate change percentage for aurora effect
+  const changePercent = balance > 0 ? (monthlyGrowth / balance) * 100 : 0;
+  const sentimentColors = getSentimentColors(changePercent);
+  const auroraClass = getAuroraClass(changePercent);
+
   const handleTripleTap = () => {
     setShowConfetti(true);
     playConfettiPop();
@@ -62,8 +69,49 @@ export const EnhancedBalanceCard = ({
   };
 
   return (
-    <GlassCard data-tour="balance-card" enableTilt glowOnHover className="p-6 md:p-8 overflow-hidden relative">
+    <GlassCard 
+      data-tour="balance-card" 
+      enableTilt 
+      glowOnHover 
+      variant="hero"
+      className="p-6 md:p-8 overflow-hidden relative"
+    >
       <NeutralConfetti show={showConfetti} duration={2500} count={35} />
+      
+      {/* Aurora gradient background based on sentiment */}
+      <div 
+        className={cn(
+          "absolute inset-0 pointer-events-none transition-opacity duration-1000",
+          auroraClass
+        )}
+        style={{ opacity: 0.5 }}
+      />
+      
+      {/* Animated mesh blobs */}
+      {!prefersReducedMotion && (
+        <>
+          <motion.div
+            className="absolute -top-20 -left-20 w-40 h-40 rounded-full blur-3xl pointer-events-none"
+            style={{ background: sentimentColors.primary, opacity: 0.2 }}
+            animate={{
+              x: [0, 30, 0],
+              y: [0, 20, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute -bottom-16 -right-16 w-32 h-32 rounded-full blur-3xl pointer-events-none"
+            style={{ background: sentimentColors.secondary, opacity: 0.15 }}
+            animate={{
+              x: [0, -20, 0],
+              y: [0, -15, 0],
+              scale: [1, 1.15, 1],
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          />
+        </>
+      )}
       
       {/* Draggable coin for drag-to-save */}
       {onDragToGoal && (
@@ -78,6 +126,7 @@ export const EnhancedBalanceCard = ({
         variants={!prefersReducedMotion ? fadeInUp : undefined}
         initial="hidden"
         animate="visible"
+        className="relative z-10"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -177,9 +226,10 @@ export const EnhancedBalanceCard = ({
         </div>
       </motion.div>
 
-      {/* Ambient glow effect */}
+      {/* Ambient glow effect - now uses sentiment color */}
       <motion.div
-        className="absolute -bottom-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none"
+        className="absolute -bottom-20 -right-20 w-40 h-40 rounded-full blur-3xl pointer-events-none"
+        style={{ background: sentimentColors.glow }}
         animate={!prefersReducedMotion ? {
           scale: [1, 1.2, 1],
           opacity: [0.3, 0.5, 0.3]
@@ -193,7 +243,3 @@ export const EnhancedBalanceCard = ({
     </GlassCard>
   );
 };
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ");
-}
