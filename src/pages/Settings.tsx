@@ -24,6 +24,7 @@ import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessi
 import { SoundSettings } from '@/components/settings/SoundSettings';
 import { HapticSettings } from '@/components/settings/HapticSettings';
 import { PerformanceDashboard } from '@/components/settings/PerformanceDashboard';
+import { PerformanceSettings } from '@/components/settings/PerformanceSettings';
 import { HighContrastMode } from '@/components/settings/HighContrastMode';
 import { EasterEggsSettings } from '@/components/settings/EasterEggsSettings';
 import { NaturalLanguageNotifications } from '@/components/settings/NaturalLanguageNotifications';
@@ -242,13 +243,15 @@ export default function Settings() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5 text-primary" />
-              Performance Dashboard
+              Performance
             </CardTitle>
             <CardDescription>
               Monitor app performance and optimize settings for your device
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
+            <PerformanceSettings />
+            <Separator />
             <PerformanceDashboard />
           </CardContent>
         </Card>
