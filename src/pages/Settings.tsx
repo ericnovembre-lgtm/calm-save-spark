@@ -18,10 +18,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
-import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain, ChevronRight, Hand, Vibrate } from 'lucide-react';
+import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain, ChevronRight, Hand, Vibrate, Mic } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
 import { SoundSettings } from '@/components/settings/SoundSettings';
+import { VoiceCommandSettings } from '@/components/settings/VoiceCommandSettings';
 import { HapticSettings } from '@/components/settings/HapticSettings';
 import { PerformanceDashboard } from '@/components/settings/PerformanceDashboard';
 import { PerformanceSettings } from '@/components/settings/PerformanceSettings';
@@ -202,6 +203,8 @@ export default function Settings() {
             <HapticSettings />
             <Separator />
             <SoundSettings />
+            <Separator />
+            <VoiceCommandSettings />
             <Separator />
             <Link 
               to="/interaction-demo" 

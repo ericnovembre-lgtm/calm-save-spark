@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { haptics } from '@/lib/haptics';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useMobilePreferences } from '@/hooks/useMobilePreferences';
+import { notificationSounds } from '@/lib/notification-sounds';
 
 interface NaturalLanguageCommanderProps {
   onQuery?: (query: string) => void;
@@ -45,9 +47,16 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
+  const { preferences } = useMobilePreferences();
+
+  // Voice settings from preferences
+  const voiceEnabled = preferences?.voice_enabled ?? true;
+  const autoSubmitDelay = preferences?.voice_auto_submit_delay ?? 1500;
+  const feedbackSound = preferences?.voice_feedback_sound ?? true;
+  const showTranscript = preferences?.voice_show_transcript ?? true;
 
   // Voice recognition support check
-  const isVoiceSupported = !!SpeechRecognition;
+  const isVoiceSupported = !!SpeechRecognition && voiceEnabled;
 
   // Initialize speech recognition
   useEffect(() => {
@@ -55,7 +64,7 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
 
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
-    recognition.interimResults = true;
+    recognition.interimResults = showTranscript;
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
@@ -63,22 +72,30 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
         .map((result: any) => result[0].transcript)
         .join('');
       
-      setQuery(transcript);
+      if (showTranscript) {
+        setQuery(transcript);
+      }
 
       // Clear any existing silence timeout
       if (silenceTimeoutRef.current) {
         clearTimeout(silenceTimeoutRef.current);
       }
 
-      // Auto-submit after 1.5s of silence when we have final result
+      // Auto-submit after configured delay when we have final result
       if (event.results[0].isFinal) {
+        if (!showTranscript) {
+          setQuery(transcript);
+        }
         silenceTimeoutRef.current = setTimeout(() => {
           if (transcript.trim() && onQuery) {
             haptics.buttonPress();
+            if (feedbackSound) {
+              notificationSounds.message();
+            }
             onQuery(transcript.trim());
             setIsListening(false);
           }
-        }, 1500);
+        }, autoSubmitDelay);
       }
     };
 
@@ -103,7 +120,7 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
       }
       recognition.abort();
     };
-  }, [onQuery]);
+  }, [onQuery, autoSubmitDelay, feedbackSound, showTranscript]);
 
   const startListening = useCallback(() => {
     if (!recognitionRef.current || isListening) return;
@@ -112,6 +129,10 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
     setQuery('');
     haptics.select();
     
+    if (feedbackSound) {
+      notificationSounds.alert();
+    }
+    
     try {
       recognitionRef.current.start();
       setIsListening(true);
@@ -119,7 +140,7 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
       console.error('Failed to start voice recognition:', err);
       setVoiceError('Failed to start voice input');
     }
-  }, [isListening]);
+  }, [isListening, feedbackSound]);
 
   const stopListening = useCallback(() => {
     if (!recognitionRef.current) return;
