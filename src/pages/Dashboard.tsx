@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { DashboardErrorBoundary } from "@/components/error/DashboardErrorBoundary";
@@ -18,6 +18,7 @@ import { DashboardModals } from "@/components/dashboard/modals/DashboardModals";
 import { DashboardCelebrations } from "@/components/dashboard/celebrations/DashboardCelebrations";
 import { DashboardOnboarding } from "@/components/dashboard/onboarding/DashboardOnboarding";
 import { FloatingControls } from "@/components/dashboard/floating/FloatingControls";
+import { AIGenerationOverlay } from "@/components/dashboard/ai/AIGenerationOverlay";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -47,10 +48,31 @@ export default function Dashboard() {
     }
   }, [data.generative.isLoading, data.generative.aiContext, data.generative.briefing, announce]);
 
+  // Track if this is initial load (no cache)
+  const [showOverlay, setShowOverlay] = useState(true);
+  
+  // Hide overlay once generation completes
+  useEffect(() => {
+    if (!data.generative.isLoading && data.streaming.streamPhase === 'complete') {
+      const timer = setTimeout(() => setShowOverlay(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [data.generative.isLoading, data.streaming.streamPhase]);
+
   return (
     <AppLayout>
       <AIThemeProvider theme={data.generative.theme}>
         <DashboardErrorBoundary sectionName="AI Dashboard">
+          {/* AI Generation Overlay - shows during initial load */}
+          <AIGenerationOverlay
+            isVisible={showOverlay && data.generative.isLoading && !data.sync.hasCache}
+            phase={data.streaming.streamPhase}
+            streamingText={data.streaming.streamedText}
+            progress={data.streaming.estimatedProgress}
+            elapsedMs={data.streaming.elapsedMs}
+            onSkip={() => setShowOverlay(false)}
+            onCancel={() => setShowOverlay(false)}
+          />
           <DashboardShell
             isGenerating={data.generative.isLoading}
             modelName={data.generative.meta?.model}
@@ -81,6 +103,7 @@ export default function Dashboard() {
             />
             <DashboardContent
               isGenerating={data.generative.isLoading}
+              isStreaming={data.streaming.isStreaming}
               generationError={data.generative.error}
               layout={data.generative.layout}
               widgets={data.generative.widgets}

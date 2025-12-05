@@ -25,6 +25,7 @@ interface DashboardMeta {
 
 interface DashboardContentProps {
   isGenerating: boolean;
+  isStreaming?: boolean;
   generationError?: string | null;
   layout: any;
   widgets: Record<string, any>;
@@ -50,6 +51,7 @@ interface DashboardContentProps {
 
 export function DashboardContent({
   isGenerating,
+  isStreaming = false,
   generationError,
   layout,
   widgets,
@@ -141,6 +143,7 @@ export function DashboardContent({
             widgets={widgets}
             theme={theme}
             onModalOpen={onModalOpen}
+            isStreaming={isStreaming}
           />
 
           {/* Context Summary */}

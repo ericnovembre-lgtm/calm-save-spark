@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useMemo, useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useMemo, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { DashboardLayout, GenerativeWidgetSpec, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
@@ -12,6 +12,7 @@ import { WidgetPinButton, PinnedIndicator } from '@/components/dashboard/WidgetP
 import { WidgetQuickActions } from '@/components/dashboard/WidgetQuickActions';
 import { useWidgetAnalytics } from '@/hooks/useWidgetAnalytics';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { StreamingWidgetSkeleton } from '@/components/dashboard/skeletons/StreamingWidgetSkeleton';
 
 // Real widget components
 import { EnhancedBalanceCard } from '@/components/dashboard/EnhancedBalanceCard';
@@ -50,6 +51,7 @@ interface UnifiedGenerativeGridProps {
   theme: DashboardTheme;
   className?: string;
   onModalOpen?: (modalId: string) => void;
+  isStreaming?: boolean;
 }
 
 const containerVariants = {
@@ -296,7 +298,8 @@ export function UnifiedGenerativeGrid({
   widgets,
   theme,
   className,
-  onModalOpen
+  onModalOpen,
+  isStreaming = false
 }: UnifiedGenerativeGridProps) {
   const { user } = useAuth();
   const prefersReducedMotion = useReducedMotion();
@@ -413,23 +416,49 @@ export function UnifiedGenerativeGrid({
       .filter(Boolean);
   }, [layout.grid, preferences]);
 
-  const renderWidget = (widgetId: string, widget: GenerativeWidgetSpec, size: 'hero' | 'large' | 'medium' | 'compact') => (
-    <WidgetErrorBoundary widgetId={widgetId} widgetType={widget.headline}>
-      <div 
-        onClick={() => trackClick(widgetId)}
-        className="cursor-pointer"
+  // Track which widgets have loaded
+  const [loadedWidgets, setLoadedWidgets] = useState<Set<string>>(new Set());
+  
+  // Mark widget as loaded after a brief delay to show skeleton transition
+  const markWidgetLoaded = (widgetId: string) => {
+    if (!loadedWidgets.has(widgetId)) {
+      setTimeout(() => {
+        setLoadedWidgets(prev => new Set([...prev, widgetId]));
+      }, 300 + Math.random() * 200); // Stagger loading effect
+    }
+  };
+
+  const renderWidget = (widgetId: string, widget: GenerativeWidgetSpec, size: 'hero' | 'large' | 'medium' | 'compact') => {
+    const isWidgetLoading = isStreaming || !loadedWidgets.has(widgetId);
+    
+    // Auto-mark as loaded when not streaming
+    if (!isStreaming && !loadedWidgets.has(widgetId)) {
+      markWidgetLoaded(widgetId);
+    }
+    
+    return (
+      <StreamingWidgetSkeleton
+        isLoading={isWidgetLoading}
+        widgetType={widgetId}
       >
-        <RealWidgetRenderer
-          widgetId={widgetId}
-          widget={widget}
-          size={size}
-          dashboardData={dashboardData}
-          accounts={accounts || []}
-          userId={user?.id}
-        />
-      </div>
-    </WidgetErrorBoundary>
-  );
+        <WidgetErrorBoundary widgetId={widgetId} widgetType={widget.headline}>
+          <div 
+            onClick={() => trackClick(widgetId)}
+            className="cursor-pointer"
+          >
+            <RealWidgetRenderer
+              widgetId={widgetId}
+              widget={widget}
+              size={size}
+              dashboardData={dashboardData}
+              accounts={accounts || []}
+              userId={user?.id}
+            />
+          </div>
+        </WidgetErrorBoundary>
+      </StreamingWidgetSkeleton>
+    );
+  };
 
   const handleReorder = (newOrder: string[]) => {
     // Track drag for any widget that changed position

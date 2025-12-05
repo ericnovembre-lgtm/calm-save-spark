@@ -66,7 +66,7 @@ export interface UnifiedDashboardData {
   // Streaming State (Phase 4)
   streaming: {
     isStreaming: boolean;
-    streamPhase: 'idle' | 'connecting' | 'generating' | 'parsing' | 'complete';
+    streamPhase: 'idle' | 'connecting' | 'streaming' | 'parsing' | 'complete' | 'error';
     streamedText: string;
     estimatedProgress: number;
     elapsedMs: number;
@@ -196,7 +196,7 @@ export function useUnifiedDashboardData(): UnifiedDashboardData {
   // Streaming state derived from generative dashboard
   const isStreaming = !!streamingText && streamingText.length > 0 && isGenerating;
   const streamPhase = isGenerating 
-    ? (streamingText ? 'generating' : 'connecting') 
+    ? (streamingText ? 'streaming' : 'connecting') 
     : 'complete';
 
   return {
@@ -222,7 +222,7 @@ export function useUnifiedDashboardData(): UnifiedDashboardData {
     // Streaming (Phase 4)
     streaming: {
       isStreaming,
-      streamPhase: streamPhase as 'idle' | 'connecting' | 'generating' | 'parsing' | 'complete',
+      streamPhase: streamPhase as 'idle' | 'connecting' | 'streaming' | 'parsing' | 'complete' | 'error',
       streamedText: streamingText || '',
       estimatedProgress: isStreaming ? Math.min(95, (streamingText?.length || 0) / 5) : 100,
       elapsedMs: 0, // Could be enhanced with actual timing
