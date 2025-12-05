@@ -91,6 +91,7 @@ const DashboardAnalytics = createPageLoader(() => import("./pages/DashboardAnaly
 const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
 const SocialSentiment = createPageLoader(() => import("./pages/SocialSentiment"), 'medium');
 const TemplateMarketplace = createPageLoader(() => import("./pages/TemplateMarketplace"), 'medium');
+const MobileSettings = createPageLoader(() => import("./pages/MobileSettings"), 'light');
 
 const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
 const Sitemap = createPageLoader(() => import("./pages/Sitemap"), 'medium');
@@ -299,6 +300,7 @@ function AnimatedRoutes() {
         <Route path="/changelog" element={<ProtectedRoute><PageTransition><Changelog /></PageTransition></ProtectedRoute>} />
         <Route path="/interaction-demo" element={<ProtectedRoute><PageTransition><InteractionDemo /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
+        <Route path="/mobile-settings" element={<ProtectedRoute><PageTransition><MobileSettings /></PageTransition></ProtectedRoute>} />
         <Route path="/security-settings" element={<ProtectedRoute><PageTransition><SecuritySettings /></PageTransition></ProtectedRoute>} />
         <Route path="/accessibility-docs" element={<ProtectedRoute><PageTransition><AccessibilityDocs /></PageTransition></ProtectedRoute>} />
         <Route path="/security" element={<Navigate to="/guardian" replace />} />
