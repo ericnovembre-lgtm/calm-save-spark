@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { DashboardLayout, GenerativeWidgetSpec, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
-import { getBentoSizeClass } from '@/lib/bento-sizes';
+import { getBentoSizeClass, essentialWidgets } from '@/lib/bento-sizes';
 import { WidgetErrorBoundary } from './WidgetErrorBoundary';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWidgetPreferences } from '@/hooks/useWidgetPreferences';
@@ -355,13 +355,44 @@ export function UnifiedGenerativeGrid({
     },
   });
 
-  const getWidget = (widgetId: string) => widgets[widgetId];
+  // Default widget specs for essential widgets if not provided by Claude
+  const defaultEssentialSpecs: Record<string, GenerativeWidgetSpec> = {
+    ai_insight: {
+      id: 'ai_insight',
+      type: 'hybrid',
+      headline: 'AI Insights',
+      mood: 'calm',
+      urgencyScore: 75
+    },
+    cashflow_forecast: {
+      id: 'cashflow_forecast',
+      type: 'chart',
+      headline: '30-Day Forecast',
+      mood: 'calm',
+      urgencyScore: 70
+    }
+  };
 
-  // Apply user preferences to grid items
+  const getWidget = (widgetId: string) => widgets[widgetId] || defaultEssentialSpecs[widgetId];
+
+  // Apply user preferences to grid items + force essential widgets
   const orderedGridItems = useMemo(() => {
     const gridIds = layout.grid.map(item => item.widgetId);
-    const pinnedIds = preferences.pinnedWidgets.filter(id => gridIds.includes(id));
-    const unpinnedIds = gridIds.filter(id => !pinnedIds.includes(id));
+    
+    // Force essential widgets if missing from Claude's layout
+    const missingEssentials = essentialWidgets.filter(id => !gridIds.includes(id));
+    const essentialItems = missingEssentials.map(widgetId => ({
+      widgetId,
+      position: 999,
+      priority: 75
+    }));
+    
+    // Merge essential items into layout
+    const allGridItems = [...layout.grid, ...essentialItems];
+    const allGridIds = allGridItems.map(item => item.widgetId);
+    
+    const pinnedIds = preferences.pinnedWidgets.filter(id => allGridIds.includes(id));
+    const unpinnedIds = allGridIds.filter(id => !pinnedIds.includes(id));
     
     // Apply custom order if set
     if (preferences.widgetOrder.length > 0) {
@@ -378,7 +409,7 @@ export function UnifiedGenerativeGrid({
     // Filter out hidden widgets and combine pinned first
     return [...pinnedIds, ...unpinnedIds]
       .filter(id => !preferences.hiddenWidgets.includes(id))
-      .map(id => layout.grid.find(item => item.widgetId === id)!)
+      .map(id => allGridItems.find(item => item.widgetId === id)!)
       .filter(Boolean);
   }, [layout.grid, preferences]);
 
