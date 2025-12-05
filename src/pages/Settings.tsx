@@ -18,10 +18,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
-import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain, ChevronRight, Hand } from 'lucide-react';
+import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain, ChevronRight, Hand, Vibrate } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
 import { SoundSettings } from '@/components/settings/SoundSettings';
+import { HapticSettings } from '@/components/settings/HapticSettings';
 import { PerformanceDashboard } from '@/components/settings/PerformanceDashboard';
 import { HighContrastMode } from '@/components/settings/HighContrastMode';
 import { EasterEggsSettings } from '@/components/settings/EasterEggsSettings';
@@ -184,18 +185,20 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Sound Settings Section */}
+        {/* Sound & Haptics Section */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Volume2 className="h-5 w-5 text-primary" />
-              Sound & Audio
+              Sound & Haptics
             </CardTitle>
             <CardDescription>
-              Control sound effects, volume, and audio feedback
+              Control sound effects, vibration feedback, and audio preferences
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            <HapticSettings />
+            <Separator />
             <SoundSettings />
             <Separator />
             <Link 
