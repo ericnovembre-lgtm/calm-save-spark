@@ -500,3 +500,6 @@ verify_jwt = true
 
 [functions.prefetch-ai-context]
 verify_jwt = true
+
+[functions.copilot-respond]
+verify_jwt = false

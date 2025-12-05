@@ -9,7 +9,13 @@ export type ComponentType =
   | 'financial_health_score'
   | 'ai_insights_carousel'
   | 'predictive_forecast'
-  | 'emotion_aware_response';
+  | 'emotion_aware_response'
+  // CoPilot GenUI 2.0 widgets
+  | 'mini_chart'
+  | 'stock_ticker'
+  | 'budget_dial'
+  | 'comparison_table'
+  | 'quick_transfer';
 
 export interface ComponentMessage {
   type: ComponentType;
