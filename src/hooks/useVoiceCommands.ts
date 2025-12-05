@@ -27,6 +27,43 @@ export function useVoiceCommands() {
           case 'create_goal':
             navigate('/goals');
             break;
+          // New navigation actions
+          case 'navigate_bills':
+            navigate('/subscriptions');
+            break;
+          case 'navigate_transactions':
+            navigate('/transactions');
+            break;
+          case 'navigate_credit':
+            navigate('/credit');
+            break;
+          case 'navigate_investments':
+            navigate('/investments');
+            break;
+          case 'navigate_coach':
+            navigate('/coach');
+            break;
+          case 'navigate_debts':
+            navigate('/debts');
+            break;
+          case 'navigate_digital-twin':
+            navigate('/digital-twin');
+            break;
+          case 'navigate_guardian':
+            navigate('/guardian');
+            break;
+          case 'navigate_subscriptions':
+            navigate('/subscriptions');
+            break;
+          case 'navigate_analytics':
+            navigate('/analytics');
+            break;
+          case 'navigate_goals':
+            navigate('/goals');
+            break;
+          case 'navigate_settings':
+            navigate('/settings');
+            break;
         }
       }
 
@@ -42,6 +79,24 @@ export function useVoiceCommands() {
       /transfer|move|save\s+\$?\d+/i,
       /create\s+a?\s?goal/i,
       /check\s+(my\s+)?budget/i,
+      // New command patterns
+      /pay\s+(my\s+)?bills/i,
+      /show\s+(upcoming\s+)?bills/i,
+      /show\s+(my\s+)?transactions/i,
+      /check\s+(my\s+)?credit/i,
+      /credit\s+score/i,
+      /check\s+(my\s+)?investments/i,
+      /show\s+(my\s+)?portfolio/i,
+      /talk\s+to\s+(the\s+)?coach/i,
+      /financial\s+advice/i,
+      /check\s+(my\s+)?debts/i,
+      /digital\s+twin/i,
+      /security\s+check/i,
+      /show\s+(my\s+)?subscriptions/i,
+      /analytics/i,
+      /insights/i,
+      /show\s+(my\s+)?goals/i,
+      /open\s+settings/i,
     ];
 
     return commands.some((pattern) => pattern.test(transcript));

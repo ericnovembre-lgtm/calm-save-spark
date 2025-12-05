@@ -162,6 +162,62 @@ const checkBudget = async (): Promise<CommandResult> => {
   }
 };
 
+// Navigation command handlers
+const navigateToPage = (page: string, message: string): CommandResult => ({
+  success: true,
+  message,
+  action: `navigate_${page}`,
+  data: { page },
+});
+
+const viewBills = async (): Promise<CommandResult> => {
+  return navigateToPage('bills', 'Opening your upcoming bills...');
+};
+
+const viewTransactions = async (): Promise<CommandResult> => {
+  return navigateToPage('transactions', 'Showing your recent transactions...');
+};
+
+const checkCredit = async (): Promise<CommandResult> => {
+  return navigateToPage('credit', 'Opening your credit score overview...');
+};
+
+const viewInvestments = async (): Promise<CommandResult> => {
+  return navigateToPage('investments', 'Showing your investment portfolio...');
+};
+
+const openCoach = async (): Promise<CommandResult> => {
+  return navigateToPage('coach', 'Opening your AI financial coach...');
+};
+
+const viewDebts = async (): Promise<CommandResult> => {
+  return navigateToPage('debts', 'Showing your debt overview...');
+};
+
+const openDigitalTwin = async (): Promise<CommandResult> => {
+  return navigateToPage('digital-twin', 'Opening your financial digital twin...');
+};
+
+const openSecurity = async (): Promise<CommandResult> => {
+  return navigateToPage('guardian', 'Opening the security center...');
+};
+
+const viewSubscriptions = async (): Promise<CommandResult> => {
+  return navigateToPage('subscriptions', 'Showing your subscriptions...');
+};
+
+const viewAnalytics = async (): Promise<CommandResult> => {
+  return navigateToPage('analytics', 'Opening your financial analytics...');
+};
+
+const viewGoals = async (): Promise<CommandResult> => {
+  return navigateToPage('goals', 'Showing your savings goals...');
+};
+
+const openSettings = async (): Promise<CommandResult> => {
+  return navigateToPage('settings', 'Opening settings...');
+};
+
 // Command registry
 export const voiceCommands: Record<string, VoiceCommand> = {
   checkBalance: {
@@ -219,6 +275,152 @@ export const voiceCommands: Record<string, VoiceCommand> = {
     handler: checkBudget,
     description: 'Check your budget status',
     examples: ['Check my budget', "What's my budget status?", 'Budget overview'],
+  },
+
+  // New navigation commands
+  viewBills: {
+    patterns: [
+      /pay\s+(my\s+)?bills/i,
+      /show\s+(upcoming\s+)?bills/i,
+      /what\s+bills\s+(are\s+)?due/i,
+      /upcoming\s+bills/i,
+    ],
+    handler: viewBills,
+    description: 'View your upcoming bills',
+    examples: ['Pay my bills', 'Show upcoming bills', 'What bills are due?'],
+  },
+
+  viewTransactions: {
+    patterns: [
+      /show\s+(my\s+)?transactions/i,
+      /recent\s+purchases/i,
+      /what\s+(did\s+)?i\s+buy/i,
+      /transaction\s+history/i,
+    ],
+    handler: viewTransactions,
+    description: 'View your transactions',
+    examples: ['Show transactions', 'Recent purchases', 'What did I buy?'],
+  },
+
+  checkCredit: {
+    patterns: [
+      /check\s+(my\s+)?credit/i,
+      /credit\s+score/i,
+      /show\s+(my\s+)?credit/i,
+      /what'?s\s+my\s+credit\s+score/i,
+    ],
+    handler: checkCredit,
+    description: 'Check your credit score',
+    examples: ['Check my credit', 'Credit score', "What's my credit score?"],
+  },
+
+  viewInvestments: {
+    patterns: [
+      /check\s+(my\s+)?investments/i,
+      /show\s+(my\s+)?portfolio/i,
+      /how\s+are\s+my\s+stocks/i,
+      /investment\s+portfolio/i,
+    ],
+    handler: viewInvestments,
+    description: 'View your investments',
+    examples: ['Check investments', 'Show portfolio', 'How are my stocks?'],
+  },
+
+  openCoach: {
+    patterns: [
+      /talk\s+to\s+(the\s+)?coach/i,
+      /financial\s+advice/i,
+      /help\s+me\s+save/i,
+      /open\s+(the\s+)?coach/i,
+      /ai\s+coach/i,
+    ],
+    handler: openCoach,
+    description: 'Open the AI financial coach',
+    examples: ['Talk to coach', 'Financial advice', 'Help me save'],
+  },
+
+  viewDebts: {
+    patterns: [
+      /check\s+(my\s+)?debts/i,
+      /show\s+(my\s+)?loans/i,
+      /what\s+do\s+i\s+owe/i,
+      /debt\s+overview/i,
+    ],
+    handler: viewDebts,
+    description: 'View your debts',
+    examples: ['Check debts', 'Show loans', 'What do I owe?'],
+  },
+
+  openDigitalTwin: {
+    patterns: [
+      /future\s+planning/i,
+      /project\s+(my\s+)?finances/i,
+      /simulate\s+(my\s+)?finances/i,
+      /digital\s+twin/i,
+      /financial\s+projection/i,
+    ],
+    handler: openDigitalTwin,
+    description: 'Open your financial digital twin',
+    examples: ['Future planning', 'Project finances', 'Digital twin'],
+  },
+
+  openSecurity: {
+    patterns: [
+      /security\s+check/i,
+      /protect\s+(my\s+)?account/i,
+      /guardian/i,
+      /security\s+center/i,
+    ],
+    handler: openSecurity,
+    description: 'Open the security center',
+    examples: ['Security check', 'Protect my account', 'Guardian'],
+  },
+
+  viewSubscriptions: {
+    patterns: [
+      /show\s+(my\s+)?subscriptions/i,
+      /cancel\s+subscription/i,
+      /recurring\s+payments/i,
+      /subscription\s+list/i,
+    ],
+    handler: viewSubscriptions,
+    description: 'View your subscriptions',
+    examples: ['Show subscriptions', 'Recurring payments', 'Subscription list'],
+  },
+
+  viewAnalytics: {
+    patterns: [
+      /analytics/i,
+      /insights/i,
+      /spending\s+patterns/i,
+      /financial\s+insights/i,
+    ],
+    handler: viewAnalytics,
+    description: 'View your financial analytics',
+    examples: ['Analytics', 'Insights', 'Spending patterns'],
+  },
+
+  viewGoals: {
+    patterns: [
+      /show\s+(my\s+)?goals/i,
+      /savings\s+goals/i,
+      /my\s+goals/i,
+      /goal\s+progress/i,
+    ],
+    handler: viewGoals,
+    description: 'View your savings goals',
+    examples: ['Show my goals', 'Savings goals', 'Goal progress'],
+  },
+
+  openSettings: {
+    patterns: [
+      /open\s+settings/i,
+      /settings/i,
+      /preferences/i,
+    ],
+    handler: openSettings,
+    description: 'Open settings',
+    examples: ['Open settings', 'Settings', 'Preferences'],
   },
 };
 

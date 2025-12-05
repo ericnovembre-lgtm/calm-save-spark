@@ -9,6 +9,8 @@ import { haptics } from '@/lib/haptics';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMobilePreferences } from '@/hooks/useMobilePreferences';
 import { notificationSounds } from '@/lib/notification-sounds';
+import { WaveformVisualizer } from '@/components/voice/WaveformVisualizer';
+import { useAudioAnalyzer } from '@/hooks/useAudioAnalyzer';
 
 interface NaturalLanguageCommanderProps {
   onQuery?: (query: string) => void;
@@ -57,6 +59,9 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
 
   // Voice recognition support check
   const isVoiceSupported = !!SpeechRecognition && voiceEnabled;
+  
+  // Audio analyzer for waveform visualization
+  const audioData = useAudioAnalyzer(isListening);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -366,34 +371,30 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
                   )}
                 </AnimatePresence>
                 
-                {/* Listening indicator */}
+                {/* Waveform visualizer when listening */}
                 <AnimatePresence>
                   {isListening && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="flex items-center justify-center gap-2 mt-3"
+                      className="mt-3 overflow-hidden"
                     >
-                      <div className="flex gap-1">
-                        {[0, 1, 2, 3, 4].map((i) => (
-                          <motion.div
-                            key={i}
-                            className="w-1 bg-rose-500 rounded-full"
-                            animate={{
-                              height: ['8px', '20px', '8px'],
-                            }}
-                            transition={{
-                              duration: 0.5,
-                              repeat: Infinity,
-                              delay: i * 0.1,
-                            }}
+                      <div className="flex flex-col items-center gap-2">
+                        {/* Real-time waveform */}
+                        <div className="w-full max-w-[200px] mx-auto px-4 py-2 rounded-xl bg-primary/5 border border-primary/10">
+                          <WaveformVisualizer
+                            audioData={audioData}
+                            isActive={isListening}
+                            state="listening"
+                            variant="compact"
+                            barCount={8}
                           />
-                        ))}
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          Speak now... (auto-submits after silence)
+                        </span>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        Speak now... (auto-submits after silence)
-                      </span>
                     </motion.div>
                   )}
                 </AnimatePresence>
