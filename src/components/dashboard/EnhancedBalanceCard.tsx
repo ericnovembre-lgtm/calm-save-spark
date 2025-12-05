@@ -212,8 +212,13 @@ export const EnhancedBalanceCard = ({
             <div className="flex justify-between items-center mb-2">
               <span className="text-xs text-muted-foreground">7-day trend</span>
               <span className="text-xs font-semibold text-foreground">
-                {isPositive ? "+" : ""}
-                {((weeklyTrend[weeklyTrend.length - 1] - weeklyTrend[0]) / weeklyTrend[0] * 100).toFixed(1)}%
+                {(() => {
+                  if (!weeklyTrend.length || weeklyTrend[0] === 0) return '0.0%';
+                  const first = weeklyTrend[0];
+                  const last = weeklyTrend[weeklyTrend.length - 1];
+                  const change = ((last - first) / first) * 100;
+                  return `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+                })()}
               </span>
             </div>
             <TrendSparkline data={weeklyTrend} width={200} height={40} />

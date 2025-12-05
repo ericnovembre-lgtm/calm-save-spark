@@ -298,6 +298,23 @@ serve(async (req) => {
       });
     }
 
+    // Fallback welcome story for new users with no activity
+    if (stories.length === 0) {
+      stories.push({
+        id: 'welcome_story',
+        type: 'high_five',
+        title: '👋 Welcome!',
+        headline: 'Your journey starts here',
+        body: 'Start tracking spending, set a goal, or connect an account to unlock personalized financial stories!',
+        theme: 'cyan',
+        animation: 'sparkle',
+        createdAt: now.toISOString(),
+        expiresAt,
+        data: {},
+        cta: { label: 'Get Started', action: '/onboarding' }
+      });
+    }
+
     console.log(`[Stories] Generated ${stories.length} stories for user ${user.id}`);
 
     return new Response(JSON.stringify({ stories }), {
