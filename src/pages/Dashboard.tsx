@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { RefreshCw, Sparkles, AlertCircle } from "lucide-react";
+import { RefreshCw, Sparkles, AlertCircle, LayoutGrid, Wand2 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -14,6 +14,7 @@ import { AIThemeProvider } from "@/components/dashboard/generative/AIThemeProvid
 import { GenerativeBriefing } from "@/components/dashboard/generative/GenerativeBriefing";
 import { GenerativeDashboardSkeleton } from "@/components/dashboard/generative/GenerativeDashboardSkeleton";
 import { UnifiedGenerativeGrid } from "@/components/dashboard/generative/UnifiedGenerativeGrid";
+import { ClassicDashboard } from "@/components/dashboard/ClassicDashboard";
 
 // Essential Dashboard Features
 import { CommandPalette } from "@/components/dashboard/CommandPalette";
@@ -49,6 +50,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
+type DashboardViewMode = 'ai' | 'classic';
+
 export default function Dashboard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -56,6 +59,19 @@ export default function Dashboard() {
   const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
   const { announce } = useAnnounce();
   const isMobile = useIsMobile();
+  
+  // Dashboard view mode (persisted to localStorage)
+  const [viewMode, setViewMode] = useState<DashboardViewMode>(() => {
+    const saved = localStorage.getItem('dashboard-view-mode');
+    return (saved as DashboardViewMode) || 'ai';
+  });
+  
+  // Persist view mode
+  const handleViewModeChange = (mode: DashboardViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem('dashboard-view-mode', mode);
+    toast.success(mode === 'ai' ? 'Switched to AI Dashboard' : 'Switched to Classic Dashboard');
+  };
   
   // NLQ state
   const [nlqQuery, setNlqQuery] = useState('');
@@ -86,7 +102,8 @@ export default function Dashboard() {
     context: aiContext,
     meta,
     lastRefresh,
-    refresh: regenerateDashboard
+    refresh: regenerateDashboard,
+    streamingText
   } = useClaudeGenerativeDashboard();
 
   // Query profile for tutorial state
@@ -211,24 +228,54 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex items-center gap-3">
+                  {/* View Mode Toggle */}
+                  <div className="flex items-center rounded-lg border border-border/50 p-0.5 bg-muted/30">
+                    <Button
+                      variant={viewMode === 'ai' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => handleViewModeChange('ai')}
+                      className={cn(
+                        "h-7 px-3 text-xs",
+                        viewMode === 'ai' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+                      )}
+                    >
+                      <Wand2 className="h-3 w-3 mr-1" />
+                      <span className="hidden sm:inline">AI</span>
+                    </Button>
+                    <Button
+                      variant={viewMode === 'classic' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => handleViewModeChange('classic')}
+                      className={cn(
+                        "h-7 px-3 text-xs",
+                        viewMode === 'classic' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+                      )}
+                    >
+                      <LayoutGrid className="h-3 w-3 mr-1" />
+                      <span className="hidden sm:inline">Classic</span>
+                    </Button>
+                  </div>
+
                   <SyncIndicator status={syncStatus} lastSynced={lastSynced} onRefresh={forceRefresh} />
                   
-                  {lastRefresh && (
+                  {viewMode === 'ai' && lastRefresh && (
                     <span className="text-xs text-muted-foreground hidden sm:block">
                       {lastRefresh.toLocaleTimeString()}
                     </span>
                   )}
                   
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={regenerateDashboard}
-                    disabled={isGenerating}
-                    className="border-border/50"
-                  >
-                    <RefreshCw className={cn("h-4 w-4 mr-2", isGenerating && "animate-spin")} />
-                    <span className="hidden sm:inline">Regenerate</span>
-                  </Button>
+                  {viewMode === 'ai' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={regenerateDashboard}
+                      disabled={isGenerating}
+                      className="border-border/50"
+                    >
+                      <RefreshCw className={cn("h-4 w-4 mr-2", isGenerating && "animate-spin")} />
+                      <span className="hidden sm:inline">Regenerate</span>
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -267,8 +314,10 @@ export default function Dashboard() {
               isLoading={isNlqProcessing}
             />
 
-            {/* Loading State */}
-            {isGenerating ? (
+            {/* View Mode Content */}
+            {viewMode === 'classic' ? (
+              <ClassicDashboard />
+            ) : isGenerating ? (
               <GenerativeDashboardSkeleton />
             ) : (
               <motion.div
@@ -283,6 +332,7 @@ export default function Dashboard() {
                   theme={theme}
                   reasoning={reasoning}
                   meta={meta}
+                  streamingText={streamingText}
                 />
 
                 {/* Unified Generative Widget Grid */}

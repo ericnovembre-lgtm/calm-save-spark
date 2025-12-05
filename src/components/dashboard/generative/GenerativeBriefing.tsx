@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, 
@@ -23,6 +23,7 @@ interface GenerativeBriefingProps {
     processingTimeMs: number;
     generatedAt: string;
   } | null;
+  streamingText?: string;
   className?: string;
 }
 
@@ -45,10 +46,22 @@ export function GenerativeBriefing({
   theme,
   reasoning,
   meta,
+  streamingText,
   className 
 }: GenerativeBriefingProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showReasoning, setShowReasoning] = useState(false);
+  const [displayedText, setDisplayedText] = useState('');
+  
+  // Typewriter effect for streaming text
+  useEffect(() => {
+    if (streamingText && streamingText.length > displayedText.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(streamingText.slice(0, displayedText.length + 1));
+      }, 20);
+      return () => clearTimeout(timeout);
+    }
+  }, [streamingText, displayedText]);
 
   return (
     <motion.div
@@ -105,14 +118,21 @@ export function GenerativeBriefing({
             </div>
           </div>
 
-          {/* Summary */}
-          <motion.p 
+          {/* Summary with streaming support */}
+          <motion.div 
             className="text-foreground/90 leading-relaxed mb-4"
             initial={false}
             animate={{ height: 'auto' }}
           >
-            {briefing.summary}
-          </motion.p>
+            {displayedText && displayedText !== briefing.summary ? (
+              <p className="font-mono text-sm">
+                {displayedText}
+                <span className="animate-pulse">▊</span>
+              </p>
+            ) : (
+              <p>{briefing.summary}</p>
+            )}
+          </motion.div>
 
           {/* Expanded Content */}
           <AnimatePresence>
