@@ -37,7 +37,6 @@ import "@/styles/accessibility.css";
 
 // HEAVY PAGES - Complex UI, charts, 3D, heavy calculations
 const Dashboard = createPageLoader(() => import("./pages/Dashboard"), 'heavy');
-const GenerativeDashboard = createPageLoader(() => import("./pages/GenerativeDashboard"), 'heavy');
 const Analytics = createPageLoader(() => import("./pages/Analytics"), 'heavy');
 const Budget = createPageLoader(() => import("./pages/Budget"), 'heavy');
 const Goals = createPageLoader(() => import("./pages/Goals"), 'heavy');
@@ -260,7 +259,7 @@ function AnimatedRoutes() {
         
         {/* App routes with layout - protected */}
 <Route path="/dashboard" element={<ProtectedRoute><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
-        <Route path="/dashboard-v2" element={<ProtectedRoute><PageTransition><GenerativeDashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/dashboard-v2" element={<Navigate to="/dashboard" replace />} />
         <Route path="/accounts" element={<ProtectedRoute><PageTransition><Accounts /></PageTransition></ProtectedRoute>} />
         <Route path="/search" element={<ProtectedRoute><PageTransition><Search /></PageTransition></ProtectedRoute>} />
         <Route path="/financial-health" element={<ProtectedRoute><PageTransition><FinancialHealth /></PageTransition></ProtectedRoute>} />
