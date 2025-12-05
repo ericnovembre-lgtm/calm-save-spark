@@ -120,6 +120,7 @@ export default function Dashboard() {
             userName={data.userFirstName}
             onRefresh={data.actions.refresh}
             onForceRefresh={data.actions.forceRefresh}
+            data-copilot-id="dashboard-shell"
           >
             <DashboardStories
               stories={data.stories.items}

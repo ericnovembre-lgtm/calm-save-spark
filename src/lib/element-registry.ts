@@ -10,6 +10,12 @@ import type { ElementInfo } from '@/types/copilot';
  */
 export const elementRegistry: Record<string, ElementInfo> = {
   // Dashboard elements
+  'dashboard-shell': {
+    id: 'dashboard-shell',
+    label: 'Dashboard',
+    description: 'Your personalized financial overview',
+    route: '/dashboard',
+  },
   'dashboard-balance': {
     id: 'dashboard-balance',
     label: 'Balance Card',
@@ -38,6 +44,12 @@ export const elementRegistry: Record<string, ElementInfo> = {
     id: 'dashboard-quick-actions',
     label: 'Quick Actions',
     description: 'Shortcuts to common tasks like transfers and bill pay',
+    route: '/dashboard',
+  },
+  'dashboard-stories': {
+    id: 'dashboard-stories',
+    label: 'Financial Stories',
+    description: 'Quick updates on your financial activity',
     route: '/dashboard',
   },
   

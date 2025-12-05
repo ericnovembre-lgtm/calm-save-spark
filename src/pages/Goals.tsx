@@ -223,7 +223,7 @@ const Goals = () => {
             />
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2" data-tour="new-goal-button">
+              <Button className="gap-2" data-tour="new-goal-button" data-copilot-id="add-goal-button">
                 <Plus className="w-4 h-4" />
                 New Goal
               </Button>
@@ -351,7 +351,7 @@ const Goals = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {memoizedGoals.map((goal, index) => (
-                <div key={goal.id} data-tour={index === 0 ? "goal-card" : undefined} className="space-y-4">
+                <div key={goal.id} data-tour={index === 0 ? "goal-card" : undefined} data-copilot-id={index === 0 ? "goal-card" : undefined} className="space-y-4">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>

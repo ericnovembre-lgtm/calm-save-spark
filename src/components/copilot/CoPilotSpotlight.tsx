@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { registerSpotlight, unregisterSpotlight } from '@/hooks/useCoPilotActions';
+import { registerSpotlightHandler, unregisterSpotlightHandler } from './CoPilotPanel';
 
 interface SpotlightState {
   elementId: string;
@@ -33,10 +34,14 @@ export function CoPilotSpotlight() {
     }
   }, []);
   
-  // Register spotlight callback
+  // Register spotlight callbacks for both action system and panel
   useEffect(() => {
     registerSpotlight(handleSpotlight);
-    return () => unregisterSpotlight();
+    registerSpotlightHandler(handleSpotlight);
+    return () => {
+      unregisterSpotlight();
+      unregisterSpotlightHandler();
+    };
   }, [handleSpotlight]);
   
   // Update position on scroll/resize

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Sparkles } from 'lucide-react';
 import { useCoPilot } from '@/contexts/CoPilotContext';
@@ -6,6 +6,20 @@ import { useCoPilotActions } from '@/hooks/useCoPilotActions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { supabase } from '@/integrations/supabase/client';
+import { ComponentRenderer } from '@/components/generative-ui/ComponentRenderer';
+import type { GenUIWidget } from '@/types/copilot';
+
+// Global spotlight trigger - will be registered by CoPilotSpotlight
+let globalSpotlightHandler: ((elementId: string) => void) | null = null;
+
+export function registerSpotlightHandler(handler: (elementId: string) => void) {
+  globalSpotlightHandler = handler;
+}
+
+export function unregisterSpotlightHandler() {
+  globalSpotlightHandler = null;
+}
 
 export function CoPilotPanel() {
   const { isOpen, messages, greeting, addMessage, closeCoPilot, contextState } = useCoPilot();
@@ -15,6 +29,13 @@ export function CoPilotPanel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  
+  // Trigger spotlight on an element
+  const triggerSpotlight = useCallback((elementId: string) => {
+    if (globalSpotlightHandler) {
+      globalSpotlightHandler(elementId);
+    }
+  }, []);
   
   // Focus input when panel opens
   useEffect(() => {
@@ -42,11 +63,48 @@ export function CoPilotPanel() {
     const { executed } = await parseAndExecute(userInput);
     
     if (!executed) {
-      // If no action matched, show a helpful response
-      addMessage({
-        role: 'assistant',
-        content: `I understand you're asking about "${userInput}". Try commands like "go to dashboard", "switch to dark mode", or ask about your finances!`,
-      });
+      // Call AI endpoint for intelligent response
+      try {
+        const { data, error } = await supabase.functions.invoke('copilot-respond', {
+          body: {
+            message: userInput,
+            context: {
+              route: contextState.currentRoute,
+              pageTitle: contextState.pageTitle,
+              activeDataId: contextState.selectedDataId,
+              userMood: contextState.userMood,
+            },
+          },
+        });
+        
+        if (error) throw error;
+        
+        // Handle AI response
+        const response = data as {
+          message: string;
+          action?: { type: string; payload?: Record<string, unknown> };
+          spotlight?: string;
+          widget?: GenUIWidget;
+        };
+        
+        // Execute spotlight if specified
+        if (response.spotlight) {
+          triggerSpotlight(response.spotlight);
+        }
+        
+        // Add message with optional widget
+        addMessage({
+          role: 'assistant',
+          content: response.message,
+          widget: response.widget,
+        });
+      } catch (err) {
+        console.error('CoPilot AI error:', err);
+        addMessage({
+          role: 'assistant',
+          content: `I understand you're asking about "${userInput}". Try commands like "go to dashboard", "switch to dark mode", or ask about your finances!`,
+        });
+      }
     }
     
     setIsProcessing(false);
@@ -55,6 +113,20 @@ export function CoPilotPanel() {
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);
     inputRef.current?.focus();
+  };
+
+  // Render widget from message
+  const renderWidget = (widget: GenUIWidget) => {
+    return (
+      <div className="mt-2">
+        <ComponentRenderer
+          componentData={{
+            type: widget.type,
+            props: widget.props,
+          }}
+        />
+      </div>
+    );
   };
   
   return (
@@ -116,7 +188,7 @@ export function CoPilotPanel() {
                       key={msg.id}
                       initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                     >
                       <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
                         msg.role === 'user' 
@@ -125,6 +197,12 @@ export function CoPilotPanel() {
                       }`}>
                         {msg.content}
                       </div>
+                      {/* Render inline widget if present */}
+                      {msg.widget && msg.role === 'assistant' && (
+                        <div className="max-w-[85%] mt-2">
+                          {renderWidget(msg.widget)}
+                        </div>
+                      )}
                     </motion.div>
                   ))}
                   {isProcessing && (

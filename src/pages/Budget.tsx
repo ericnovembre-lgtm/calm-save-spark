@@ -429,6 +429,7 @@ export default function Budget() {
               variant="outline"
               onClick={() => setShowTemplatesLibrary(true)}
               className="gap-2"
+              data-copilot-id="add-budget-button"
             >
               <BookOpen className="w-4 h-4" />
               Templates
