@@ -45,6 +45,7 @@ export const BottomNav = () => {
       )}
       role="navigation"
       aria-label="Mobile navigation"
+      data-copilot-id="bottom-navigation"
     >
       <div className="relative flex items-center justify-around h-16 px-2">
         {/* Left items */}
@@ -54,6 +55,7 @@ export const BottomNav = () => {
             name={item.name}
             path={item.path}
             icon={item.icon}
+            data-copilot-id={`nav-${item.name.toLowerCase()}`}
           />
         ))}
 
@@ -67,6 +69,7 @@ export const BottomNav = () => {
             onClick={handleFabTap}
             className="w-14 h-14 rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-glass-elevated"
             aria-label="Quick Add"
+            data-copilot-id="quick-add-button"
           >
             <Plus className="w-6 h-6" />
           </Button>

@@ -1,71 +1,129 @@
+import { useEffect, useRef } from 'react';
 import { CoPilotProvider, useCoPilot } from '@/contexts/CoPilotContext';
 import { CoPilotOrb } from './CoPilotOrb';
 import { CoPilotPanel } from './CoPilotPanel';
 import { CoPilotSpotlight } from './CoPilotSpotlight';
-import { ProactivePulse } from './ProactivePulse';
-import { useIdleDetection } from '@/hooks/useIdleDetection';
 import { useProactiveNudges } from '@/hooks/useProactiveNudges';
 import { useAnomalyAlerts } from '@/hooks/useAnomalyAlerts';
-import { ReactNode, useEffect } from 'react';
+import { useIdleDetection } from '@/hooks/useIdleDetection';
+import type { PulseState } from '@/types/copilot';
+import { ReactNode } from 'react';
 
-/**
- * Inner component that uses CoPilot context and connects alerts
- */
+interface CoPilotWrapperProps {
+  children: ReactNode;
+}
+
 function CoPilotUI() {
-  const { setPulse } = useCoPilot();
+  const { setPulse, isOpen } = useCoPilot();
   const { nudges } = useProactiveNudges();
-  const { anomalies } = useAnomalyAlerts();
+  const { anomalies, scanForAnomalies, summary } = useAnomalyAlerts();
+  const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastScanRef = useRef<number>(0);
   
-  // Enable idle detection for proactive help
-  useIdleDetection({ 
+  // Idle detection for proactive engagement
+  useIdleDetection({
     idleThreshold: 30000, // 30 seconds
+    onIdle: () => {
+      // Show helpful tip when user is idle
+      if (!isOpen) {
+        setPulse('help', 'Need help? I can assist with budgets, goals, or transactions!');
+      }
+    }
   });
   
   // Connect proactive nudges to pulse system
   useEffect(() => {
     if (nudges && nudges.length > 0) {
       const topNudge = nudges[0];
-      if (topNudge.priority >= 3) {
-        setPulse('urgent', topNudge.message);
-      } else if (topNudge.priority === 2) {
-        setPulse('opportunity', topNudge.message);
+      const priority = topNudge.priority || 0;
+      
+      // Map priority to pulse state
+      let pulseState: PulseState = 'help';
+      if (priority >= 8) {
+        pulseState = 'urgent';
+      } else if (priority >= 5) {
+        pulseState = 'anomaly';
+      } else if (priority >= 3) {
+        pulseState = 'opportunity';
       }
+      
+      setPulse(pulseState, topNudge.message);
     }
   }, [nudges, setPulse]);
   
-  // Connect anomaly alerts to pulse system
+  // Connect anomaly alerts to pulse system with severity mapping
   useEffect(() => {
     if (anomalies && anomalies.length > 0) {
-      const unresolvedAnomalies = anomalies.filter(a => !a.resolved_at && !a.false_positive);
-      if (unresolvedAnomalies.length > 0) {
-        const topAnomaly = unresolvedAnomalies[0];
-        if (topAnomaly.severity === 'critical' || topAnomaly.severity === 'high') {
-          // Use anomaly_type as message since description is in factors array
-          const message = topAnomaly.factors?.[0]?.description || topAnomaly.anomaly_type;
-          setPulse('anomaly', message);
-        }
+      const topAnomaly = anomalies[0];
+      
+      // Map severity to pulse state
+      let pulseState: PulseState = 'help';
+      switch (topAnomaly.severity) {
+        case 'critical':
+          pulseState = 'urgent';
+          break;
+        case 'high':
+          pulseState = 'urgent';
+          break;
+        case 'medium':
+          pulseState = 'anomaly';
+          break;
+        case 'low':
+          pulseState = 'help';
+          break;
       }
+      
+      // Extract description from factors if available
+      const factorDescription = topAnomaly.factors?.[0]?.description || topAnomaly.anomaly_type;
+      const message = `Detected: ${factorDescription}`;
+      
+      setPulse(pulseState, message);
     }
   }, [anomalies, setPulse]);
+  
+  // Automatic anomaly scanning on mount and periodically
+  useEffect(() => {
+    const performScan = () => {
+      const now = Date.now();
+      // Debounce: only scan if at least 5 minutes have passed
+      if (now - lastScanRef.current >= 5 * 60 * 1000) {
+        lastScanRef.current = now;
+        scanForAnomalies.mutate();
+      }
+    };
+    
+    // Initial scan on mount
+    performScan();
+    
+    // Scan every 5 minutes
+    scanIntervalRef.current = setInterval(performScan, 5 * 60 * 1000);
+    
+    return () => {
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+      }
+    };
+  }, [scanForAnomalies]);
+  
+  // Show summary notification if multiple anomalies
+  useEffect(() => {
+    if (summary.total > 1) {
+      const criticalOrHigh = summary.critical + summary.high;
+      if (criticalOrHigh > 0) {
+        setPulse('urgent', `${criticalOrHigh} critical alerts need your attention`);
+      }
+    }
+  }, [summary, setPulse]);
   
   return (
     <>
       <CoPilotOrb />
       <CoPilotPanel />
       <CoPilotSpotlight />
-      <ProactivePulse />
     </>
   );
 }
 
-interface CoPilotWrapperProps {
-  children: ReactNode;
-}
-
-/**
- * CoPilotWrapper - Provides CoPilot context and UI components
- * Must be used inside BrowserRouter
- */
 export function CoPilotWrapper({ children }: CoPilotWrapperProps) {
   return (
     <CoPilotProvider>
