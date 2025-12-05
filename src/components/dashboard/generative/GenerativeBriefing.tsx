@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { StreamingText } from '@/components/ui/streaming-text';
 import { LiveDot } from '@/components/dashboard/realtime/LiveDataPulse';
+import { StreamingIndicator } from '@/components/dashboard/streaming/StreamingIndicator';
 import type { DashboardBriefing, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
 
 interface GenerativeBriefingProps {
@@ -118,7 +119,12 @@ export function GenerativeBriefing({
 
           {/* Summary with streaming support */}
           <div className="text-foreground/90 leading-relaxed mb-4">
-            {isStreaming ? (
+            {isStreaming && !streamingText ? (
+              <StreamingIndicator 
+                phase="streaming"
+                variant="brain"
+              />
+            ) : isStreaming ? (
               <StreamingText
                 text={streamingText}
                 mode="typewriter"

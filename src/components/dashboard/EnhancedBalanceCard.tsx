@@ -5,6 +5,7 @@ import { SaveplusAnimIcon } from "@/components/icons";
 import { useCurrencyConversion } from "@/hooks/useCurrencyConversion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { fadeInUp } from "@/lib/motion-variants";
+import { liveUpdatePulse } from "@/lib/motion-variants-streaming";
 import { AnimatedCounter } from "./AnimatedCounter";
 import { TrendSparkline } from "./TrendSparkline";
 import { SavingsVelocityGauge } from "./SavingsVelocityGauge";
@@ -13,11 +14,12 @@ import { NeutralConfetti } from "@/components/effects/NeutralConfetti";
 import { useCelebrationSounds } from "@/hooks/useCelebrationSounds";
 import { haptics } from "@/lib/haptics";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DraggableCoin } from "./DraggableCoin";
 import { useDragToSave } from "@/hooks/useDragToSave";
 import { cn } from "@/lib/utils";
 import { getSentimentColors, getAuroraClass } from "@/lib/bento-sizes";
+import { LiveDataPulse } from "./realtime/LiveDataPulse";
 
 interface EnhancedBalanceCardProps {
   balance: number;
@@ -43,6 +45,26 @@ export const EnhancedBalanceCard = ({
   const isPositive = monthlyGrowth >= 0;
   const [showConfetti, setShowConfetti] = useState(false);
   const { playConfettiPop } = useCelebrationSounds();
+  
+  // Track previous balance for LiveDataPulse
+  const [previousBalance, setPreviousBalance] = useState(balance);
+  const [isPulsing, setIsPulsing] = useState(false);
+  const isFirstRender = useRef(true);
+  
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (balance !== previousBalance) {
+      setIsPulsing(true);
+      const timeout = setTimeout(() => {
+        setPreviousBalance(balance);
+        setIsPulsing(false);
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [balance, previousBalance]);
 
   // Calculate change percentage for aurora effect
   const changePercent = balance > 0 ? (monthlyGrowth / balance) * 100 : 0;
@@ -131,13 +153,22 @@ export const EnhancedBalanceCard = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <p className="text-sm text-muted-foreground mb-1">Total Balance</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-sm text-muted-foreground">Total Balance</p>
+              <LiveDataPulse
+                value={balance}
+                previousValue={previousBalance}
+                showLiveBadge
+                showDirection={balance !== previousBalance}
+                pulseColor="cyan"
+              />
+            </div>
             <motion.div 
               {...register}
+              variants={!prefersReducedMotion ? liveUpdatePulse : undefined}
+              animate={isPulsing && !prefersReducedMotion ? 'pulse' : 'idle'}
               className="flex items-baseline gap-1 cursor-pointer select-none"
               initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               whileTap={!prefersReducedMotion ? { scale: 0.98 } : undefined}
             >
               <span className="text-3xl md:text-4xl font-display font-bold text-foreground">
