@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Ambient AI Agent Component
+ * Floating orb that delivers proactive financial insights
+ * Respects user attention and persisted preferences
+ */
+
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -12,10 +18,21 @@ import {
   AlertTriangle,
   TrendingUp,
   Lightbulb,
-  PartyPopper
+  PartyPopper,
+  Moon,
+  Clock,
+  Settings2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface AmbientAIAgentProps {
   className?: string;
@@ -42,11 +59,17 @@ const orbGlowColors: Record<AmbientInsight['type'], string> = {
   nudge: 'shadow-emerald-500/50'
 };
 
+const frequencyLabels = {
+  aggressive: 'Frequent',
+  normal: 'Normal',
+  minimal: 'Minimal',
+  quiet: 'Quiet'
+};
+
 export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
   const navigate = useNavigate();
   const { speak: speakTTS, stop: stopTTS, isSpeaking } = useBrowserTTS();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
   
   const {
     state,
@@ -54,13 +77,20 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
     queueLength,
     isConnected,
     isMuted,
+    voiceEnabled,
+    deliveryFrequency,
+    isUserBusy,
+    isInQuietHours,
+    canDeliver,
     dismissInsight,
-    toggleMute
+    toggleMute,
+    toggleVoice,
+    setDeliveryFrequency
   } = useAmbientAI({ enabled: true });
 
-  const handleDismiss = () => {
+  const handleDismiss = (wasActedOn: boolean = false) => {
     stopTTS();
-    dismissInsight();
+    dismissInsight(wasActedOn);
     setIsExpanded(false);
   };
 
@@ -68,14 +98,14 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
     if (currentInsight?.actionUrl) {
       navigate(currentInsight.actionUrl);
     }
-    handleDismiss();
+    handleDismiss(true);
   };
 
   const handleVoiceToggle = () => {
     if (voiceEnabled && isSpeaking) {
       stopTTS();
     }
-    setVoiceEnabled(!voiceEnabled);
+    toggleVoice();
   };
 
   // Speak insight when it appears
@@ -88,6 +118,14 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
   const Icon = currentInsight ? insightIcons[currentInsight.type] : Sparkles;
   const colorClass = currentInsight ? insightColors[currentInsight.type] : '';
   const glowClass = currentInsight ? orbGlowColors[currentInsight.type] : 'shadow-primary/30';
+
+  // Determine orb status color
+  const getStatusColor = () => {
+    if (!isConnected) return 'bg-muted';
+    if (isInQuietHours) return 'bg-indigo-500';
+    if (isUserBusy) return 'bg-amber-500';
+    return 'bg-emerald-500';
+  };
 
   return (
     <div className={cn("fixed bottom-24 right-6 z-50", className)}>
@@ -128,7 +166,7 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 -mr-1 -mt-1"
-                onClick={handleDismiss}
+                onClick={() => handleDismiss(false)}
               >
                 <X className="h-3.5 w-3.5" />
               </Button>
@@ -187,7 +225,7 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
           key="orb"
           onClick={() => {
             if (state === 'speaking') {
-              handleDismiss();
+              handleDismiss(false);
             } else {
               setIsExpanded(!isExpanded);
             }
@@ -200,7 +238,8 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
             "transition-all duration-300",
             "hover:scale-105",
             "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background",
-            state === 'speaking' && `shadow-lg ${glowClass}`
+            state === 'speaking' && `shadow-lg ${glowClass}`,
+            isMuted && "opacity-60"
           )}
           animate={{
             scale: state === 'idle' ? [1, 1.02, 1] : 1,
@@ -245,14 +284,20 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
             )} />
           </motion.div>
 
-          {/* Connection indicator */}
+          {/* Status indicator (connection + activity awareness) */}
           <motion.div
             className={cn(
               "absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background",
-              isConnected ? "bg-emerald-500" : "bg-muted"
+              getStatusColor()
             )}
-            animate={isConnected ? { scale: [1, 1.2, 1] } : {}}
+            animate={isConnected && !isUserBusy && !isInQuietHours ? { scale: [1, 1.2, 1] } : {}}
             transition={{ duration: 2, repeat: Infinity }}
+            title={
+              !isConnected ? 'Disconnected' :
+              isInQuietHours ? 'Quiet Hours' :
+              isUserBusy ? 'Waiting (you\'re busy)' :
+              'Ready'
+            }
           />
 
           {/* Queue badge */}
@@ -272,6 +317,13 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
               <VolumeX className="h-3 w-3 text-muted-foreground" />
             </div>
           )}
+
+          {/* Quiet hours indicator */}
+          {isInQuietHours && !isMuted && (
+            <div className="absolute -bottom-1 -right-1 p-0.5 rounded-full bg-background">
+              <Moon className="h-3 w-3 text-indigo-400" />
+            </div>
+          )}
         </motion.button>
 
         {/* Mini menu when expanded (not speaking) */}
@@ -282,6 +334,16 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
             exit={{ opacity: 0, y: 10 }}
             className="absolute bottom-16 right-0 flex flex-col gap-2"
           >
+            {/* Status bar */}
+            <div className="bg-background/90 backdrop-blur-xl rounded-lg px-3 py-2 border border-border/50 text-xs text-muted-foreground flex items-center gap-2">
+              <div className={cn("w-2 h-2 rounded-full", getStatusColor())} />
+              {!isConnected && "Disconnected"}
+              {isConnected && isInQuietHours && "Quiet Hours Active"}
+              {isConnected && !isInQuietHours && isUserBusy && "Waiting for you..."}
+              {isConnected && !isInQuietHours && !isUserBusy && canDeliver && "Ready"}
+            </div>
+
+            {/* Mute button */}
             <Button
               variant="outline"
               size="sm"
@@ -299,6 +361,62 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
                   Mute AI
                 </>
               )}
+            </Button>
+
+            {/* Frequency dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs backdrop-blur-xl bg-background/80"
+                >
+                  <Clock className="h-3.5 w-3.5 mr-1.5" />
+                  {frequencyLabels[deliveryFrequency]}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuLabel className="text-xs">Insight Frequency</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => setDeliveryFrequency('aggressive')}
+                  className={cn(deliveryFrequency === 'aggressive' && "bg-accent")}
+                >
+                  Frequent (30s)
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setDeliveryFrequency('normal')}
+                  className={cn(deliveryFrequency === 'normal' && "bg-accent")}
+                >
+                  Normal (1m)
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setDeliveryFrequency('minimal')}
+                  className={cn(deliveryFrequency === 'minimal' && "bg-accent")}
+                >
+                  Minimal (3m)
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setDeliveryFrequency('quiet')}
+                  className={cn(deliveryFrequency === 'quiet' && "bg-accent")}
+                >
+                  Quiet (5m)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Settings link */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => {
+                navigate('/settings');
+                setIsExpanded(false);
+              }}
+            >
+              <Settings2 className="h-3.5 w-3.5 mr-1.5" />
+              Settings
             </Button>
           </motion.div>
         )}

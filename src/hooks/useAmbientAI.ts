@@ -1,6 +1,13 @@
+/**
+ * @fileoverview Ambient AI Hook with User Attention Detection & Preference Persistence
+ * Implements full state machine: IDLE → OBSERVING → INSIGHT_READY → SPEAKING → DISMISSED
+ */
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserActivity } from '@/hooks/useUserActivity';
+import { useAmbientAIPreferences } from '@/hooks/useAmbientAIPreferences';
 
 export type AmbientState = 'idle' | 'observing' | 'insight_ready' | 'speaking' | 'dismissed';
 
@@ -17,22 +24,39 @@ export interface AmbientInsight {
 interface UseAmbientAIOptions {
   enabled?: boolean;
   maxQueueSize?: number;
-  idleDelayMs?: number;
 }
 
 export function useAmbientAI(options: UseAmbientAIOptions = {}) {
-  const { enabled = true, maxQueueSize = 5, idleDelayMs = 3000 } = options;
+  const { enabled = true, maxQueueSize = 5 } = options;
   const { user } = useAuth();
+  
+  // Activity detection - prevents interrupting user
+  const { isUserBusy, isIdle } = useUserActivity({
+    scrollDebounceMs: 500,
+    typingDebounceMs: 1000,
+    idleThresholdMs: 30000,
+  });
+
+  // Preferences persistence
+  const {
+    preferences,
+    isLoading: preferencesLoading,
+    updatePreferences,
+    isInQuietHours,
+    trackFeedback,
+    getDeliveryIntervalMs,
+  } = useAmbientAIPreferences();
   
   const [state, setState] = useState<AmbientState>('idle');
   const [currentInsight, setCurrentInsight] = useState<AmbientInsight | null>(null);
   const [insightQueue, setInsightQueue] = useState<AmbientInsight[]>([]);
   const [isConnected, setIsConnected] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [pendingDelivery, setPendingDelivery] = useState(false);
   
   const eventSourceRef = useRef<EventSource | null>(null);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const speakingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const deliveryCheckRef = useRef<NodeJS.Timeout | null>(null);
 
   // State machine transitions
   const transitionTo = useCallback((newState: AmbientState) => {
@@ -46,6 +70,7 @@ export function useAmbientAI(options: UseAmbientAIOptions = {}) {
   const processNextInsight = useCallback(() => {
     if (insightQueue.length === 0) {
       transitionTo('idle');
+      setPendingDelivery(false);
       return;
     }
 
@@ -55,8 +80,12 @@ export function useAmbientAI(options: UseAmbientAIOptions = {}) {
     transitionTo('insight_ready');
   }, [insightQueue, transitionTo]);
 
-  // Dismiss current insight
-  const dismissInsight = useCallback(() => {
+  // Dismiss current insight with feedback tracking
+  const dismissInsight = useCallback((wasActedOn: boolean = false) => {
+    if (currentInsight) {
+      trackFeedback(currentInsight.type, wasActedOn ? 'acted' : 'dismissed');
+    }
+    
     setCurrentInsight(null);
     transitionTo('dismissed');
     
@@ -64,7 +93,7 @@ export function useAmbientAI(options: UseAmbientAIOptions = {}) {
     idleTimerRef.current = setTimeout(() => {
       processNextInsight();
     }, 1000);
-  }, [processNextInsight, transitionTo]);
+  }, [currentInsight, processNextInsight, transitionTo, trackFeedback]);
 
   // Start speaking (show insight)
   const speak = useCallback(() => {
@@ -73,9 +102,23 @@ export function useAmbientAI(options: UseAmbientAIOptions = {}) {
     
     // Auto-dismiss after 8 seconds if not interacted
     speakingTimerRef.current = setTimeout(() => {
-      dismissInsight();
+      dismissInsight(false);
     }, 8000);
   }, [state, transitionTo, dismissInsight]);
+
+  // Check if we can deliver an insight (respects user attention + quiet hours)
+  const canDeliverInsight = useCallback((): boolean => {
+    // Don't deliver if muted
+    if (preferences.isMuted) return false;
+    
+    // Don't deliver during quiet hours
+    if (isInQuietHours()) return false;
+    
+    // Don't interrupt busy users
+    if (isUserBusy) return false;
+    
+    return true;
+  }, [preferences.isMuted, isInQuietHours, isUserBusy]);
 
   // Add insight to queue
   const addInsight = useCallback((insight: Omit<AmbientInsight, 'id' | 'timestamp'>) => {
@@ -96,23 +139,58 @@ export function useAmbientAI(options: UseAmbientAIOptions = {}) {
       return updated;
     });
 
-    // If idle, start processing
+    // Mark that we have pending delivery
     if (state === 'idle') {
       transitionTo('observing');
-      idleTimerRef.current = setTimeout(() => {
-        processNextInsight();
-      }, idleDelayMs);
+      setPendingDelivery(true);
     }
-  }, [state, maxQueueSize, idleDelayMs, transitionTo, processNextInsight]);
+  }, [state, maxQueueSize, transitionTo]);
 
-  // Toggle mute
+  // Toggle mute with persistence
   const toggleMute = useCallback(() => {
-    setIsMuted(prev => !prev);
-  }, []);
+    const newMuted = !preferences.isMuted;
+    updatePreferences({ isMuted: newMuted });
+    
+    if (newMuted && currentInsight) {
+      trackFeedback(currentInsight.type, 'muted');
+    }
+  }, [preferences.isMuted, updatePreferences, currentInsight, trackFeedback]);
+
+  // Toggle voice with persistence
+  const toggleVoice = useCallback(() => {
+    updatePreferences({ voiceEnabled: !preferences.voiceEnabled });
+  }, [preferences.voiceEnabled, updatePreferences]);
+
+  // Set delivery frequency
+  const setDeliveryFrequency = useCallback((frequency: typeof preferences.deliveryFrequency) => {
+    updatePreferences({ deliveryFrequency: frequency });
+  }, [updatePreferences]);
+
+  // Periodic check for delivering queued insights when user becomes idle
+  useEffect(() => {
+    if (!pendingDelivery || insightQueue.length === 0) return;
+
+    const checkAndDeliver = () => {
+      if (canDeliverInsight() && state === 'observing') {
+        processNextInsight();
+        setPendingDelivery(false);
+      }
+    };
+
+    // Check immediately
+    checkAndDeliver();
+
+    // Also check periodically
+    deliveryCheckRef.current = setInterval(checkAndDeliver, 2000);
+
+    return () => {
+      if (deliveryCheckRef.current) clearInterval(deliveryCheckRef.current);
+    };
+  }, [pendingDelivery, insightQueue.length, canDeliverInsight, state, processNextInsight]);
 
   // Connect to SSE stream
   useEffect(() => {
-    if (!enabled || !user?.id) return;
+    if (!enabled || !user?.id || preferencesLoading) return;
 
     const connectSSE = async () => {
       try {
@@ -121,7 +199,6 @@ export function useAmbientAI(options: UseAmbientAIOptions = {}) {
 
         const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ambient-ai-stream`;
         
-        // Use fetch with streaming for SSE
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -159,7 +236,7 @@ export function useAmbientAI(options: UseAmbientAIOptions = {}) {
 
                 try {
                   const data = JSON.parse(jsonStr);
-                  if (data.insight && !isMuted) {
+                  if (data.insight) {
                     addInsight({
                       message: data.insight.message,
                       type: data.insight.type || 'tip',
@@ -198,7 +275,7 @@ export function useAmbientAI(options: UseAmbientAIOptions = {}) {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          if (!isMuted && payload.new) {
+          if (payload.new) {
             const nudge = payload.new as any;
             addInsight({
               message: nudge.message,
@@ -217,27 +294,44 @@ export function useAmbientAI(options: UseAmbientAIOptions = {}) {
       supabase.removeChannel(channel);
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       if (speakingTimerRef.current) clearTimeout(speakingTimerRef.current);
+      if (deliveryCheckRef.current) clearInterval(deliveryCheckRef.current);
       setIsConnected(false);
     };
-  }, [enabled, user?.id, isMuted, addInsight, transitionTo]);
+  }, [enabled, user?.id, preferencesLoading, addInsight, transitionTo]);
 
-  // Auto-speak when insight is ready
+  // Auto-speak when insight is ready and conditions are met
   useEffect(() => {
-    if (state === 'insight_ready' && currentInsight) {
+    if (state === 'insight_ready' && currentInsight && canDeliverInsight()) {
       const timer = setTimeout(speak, 500);
       return () => clearTimeout(timer);
     }
-  }, [state, currentInsight, speak]);
+  }, [state, currentInsight, speak, canDeliverInsight]);
 
   return {
+    // State
     state,
     currentInsight,
     insightQueue,
     queueLength: insightQueue.length,
     isConnected,
-    isMuted,
+    
+    // Preferences (from persistence)
+    isMuted: preferences.isMuted,
+    voiceEnabled: preferences.voiceEnabled,
+    deliveryFrequency: preferences.deliveryFrequency,
+    quietHoursEnabled: preferences.quietHoursEnabled,
+    
+    // Activity awareness
+    isUserBusy,
+    isIdle,
+    isInQuietHours: isInQuietHours(),
+    canDeliver: canDeliverInsight(),
+    
+    // Actions
     dismissInsight,
     toggleMute,
-    addInsight, // For manual testing
+    toggleVoice,
+    setDeliveryFrequency,
+    addInsight,
   };
 }

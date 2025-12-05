@@ -772,6 +772,69 @@ export type Database = {
           },
         ]
       }
+      ambient_ai_feedback: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          insight_type: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          insight_type: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          insight_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ambient_ai_preferences: {
+        Row: {
+          created_at: string | null
+          delivery_frequency: string | null
+          id: string
+          is_muted: boolean | null
+          quiet_hours_enabled: boolean | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          updated_at: string | null
+          user_id: string
+          voice_enabled: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          delivery_frequency?: string | null
+          id?: string
+          is_muted?: boolean | null
+          quiet_hours_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          updated_at?: string | null
+          user_id: string
+          voice_enabled?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          delivery_frequency?: string | null
+          id?: string
+          is_muted?: boolean | null
+          quiet_hours_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          updated_at?: string | null
+          user_id?: string
+          voice_enabled?: boolean | null
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
