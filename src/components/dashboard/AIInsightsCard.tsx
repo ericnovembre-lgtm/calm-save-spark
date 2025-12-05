@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ThumbsUp, ThumbsDown, X, TrendingUp } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -8,7 +8,8 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useNavigate } from "react-router-dom";
 import { VoiceBriefingPlayer } from "@/components/voice/VoiceBriefingPlayer";
 import { useSpeakableText } from "@/hooks/useSpeakableText";
-
+import { useInteractionFeedback } from "@/hooks/useInteractionFeedback";
+import { notificationSounds } from "@/lib/notification-sounds";
 interface AIInsight {
   id: string;
   text: string;
@@ -21,6 +22,9 @@ interface AIInsight {
 export const AIInsightsCard = memo(function AIInsightsCard() {
   const navigate = useNavigate();
   const { generateInsightSummary } = useSpeakableText();
+  const { onInsight, onTap, onSuccess } = useInteractionFeedback();
+  const hasPlayedInsightSound = useRef(false);
+  
   const [insights, setInsights] = useState<AIInsight[]>([
     {
       id: "1",
@@ -47,6 +51,22 @@ export const AIInsightsCard = memo(function AIInsightsCard() {
   const prefersReducedMotion = useReducedMotion();
 
   const currentInsight = insights[currentIndex];
+
+  // Play haptic/sound when new insight appears
+  useEffect(() => {
+    if (currentInsight && !hasPlayedInsightSound.current) {
+      // Haptic feedback for new insight
+      onInsight({ sound: false });
+      // Play notification sound
+      notificationSounds.insight();
+      hasPlayedInsightSound.current = true;
+    }
+  }, [currentInsight, onInsight]);
+
+  // Reset sound flag when index changes
+  useEffect(() => {
+    hasPlayedInsightSound.current = false;
+  }, [currentIndex]);
 
   // Typing effect
   useEffect(() => {
@@ -76,7 +96,10 @@ export const AIInsightsCard = memo(function AIInsightsCard() {
   }, [currentInsight, prefersReducedMotion]);
 
   const handleFeedback = (helpful: boolean) => {
+    onTap({ sound: false }); // Haptic on tap
+    
     if (helpful) {
+      onSuccess({ sound: true }); // Success feedback
       toast.success("Thanks! We'll show you more insights like this.");
     } else {
       toast.info("Noted. We'll improve our recommendations.");
@@ -90,6 +113,8 @@ export const AIInsightsCard = memo(function AIInsightsCard() {
   };
 
   const handleDismiss = () => {
+    onTap({ sound: false });
+    notificationSounds.dismiss();
     setIsDismissed(true);
     toast.info("Insight dismissed");
   };
