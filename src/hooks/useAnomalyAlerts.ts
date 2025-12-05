@@ -40,6 +40,13 @@ export function useAnomalyAlerts() {
 
   const scanForAnomalies = useMutation({
     mutationFn: async () => {
+      // Check if user is authenticated before calling
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.log('[useAnomalyAlerts] No session, skipping anomaly scan');
+        return { anomalies: [] };
+      }
+
       const { data, error } = await supabase.functions.invoke('multi-factor-anomaly');
 
       if (error) throw error;
