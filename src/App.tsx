@@ -28,6 +28,7 @@ import { queryConfig } from "@/lib/query-config";
 import { setupQueryPersistence } from "@/lib/query-persistence";
 import { createPageLoader } from "@/components/performance/PageLazyLoader";
 import { FloatingHelpButton } from "@/components/help/FloatingHelpButton";
+import { CoPilotWrapper } from "@/components/copilot/CoPilotWrapper";
 import { SwipeNavigationWrapper } from "@/components/mobile/SwipeNavigationWrapper";
 import "@/styles/accessibility.css";
 
@@ -201,10 +202,12 @@ const App = () => {
                     <Sonner />
                     <UpdatePrompt />
                     <BrowserRouter>
-                      <PageTracker />
-                      <InstallPrompt />
-                      <AnimatedRoutes />
-                      <ConditionalHelpButton />
+                      <CoPilotWrapper>
+                        <PageTracker />
+                        <InstallPrompt />
+                        <AnimatedRoutes />
+                        <ConditionalHelpButton />
+                      </CoPilotWrapper>
                     </BrowserRouter>
                     </TooltipProvider>
                   </GlobalAIProvider>

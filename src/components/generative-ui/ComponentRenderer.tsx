@@ -12,6 +12,15 @@ import { EmotionAwareResponse } from './EmotionAwareResponse';
 import { ComponentMessage } from './types';
 import { useNavigate } from 'react-router-dom';
 
+// CoPilot GenUI widgets
+import { 
+  MiniChart, 
+  StockTicker, 
+  BudgetDial, 
+  ComparisonTable, 
+  QuickTransfer 
+} from '@/components/copilot/genui';
+
 interface ComponentRendererProps {
   componentData: ComponentMessage;
   onAction?: (actionType: string, data: any) => Promise<void>;
@@ -151,6 +160,62 @@ export function ComponentRenderer({ componentData, onAction }: ComponentRenderer
             confidence={props.confidence}
             response={props.response}
             supportResources={props.supportResources}
+          />
+        );
+      
+      // ===== CoPilot GenUI 2.0 Widgets =====
+      case 'mini_chart':
+        return (
+          <MiniChart
+            data={props.data}
+            type={props.type || 'line'}
+            color={props.color || 'primary'}
+            showTrend={props.showTrend ?? true}
+            title={props.title}
+            height={props.height || 60}
+          />
+        );
+      
+      case 'stock_ticker':
+        return (
+          <StockTicker
+            symbol={props.symbol}
+            name={props.name}
+            price={props.price}
+            change={props.change}
+            changePercent={props.changePercent}
+          />
+        );
+      
+      case 'budget_dial':
+        return (
+          <BudgetDial
+            category={props.category}
+            spent={props.spent}
+            budget={props.budget}
+          />
+        );
+      
+      case 'comparison_table':
+        return (
+          <ComparisonTable
+            title={props.title}
+            items={props.items}
+            labelA={props.labelA || props.column1Label || 'Period 1'}
+            labelB={props.labelB || props.column2Label || 'Period 2'}
+          />
+        );
+      
+      case 'quick_transfer':
+        return (
+          <QuickTransfer
+            fromAccounts={props.fromAccounts}
+            toAccounts={props.toAccounts}
+            onTransfer={async (data: any) => {
+              if (onAction) {
+                await onAction('transfer', data);
+              }
+            }}
           />
         );
       

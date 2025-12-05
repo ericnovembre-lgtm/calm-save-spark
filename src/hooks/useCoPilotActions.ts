@@ -2,16 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCoPilot } from '@/contexts/CoPilotContext';
 import { createActionRegistry, findMatchingAction } from '@/lib/action-registry';
-
-// Theme setter stub - will be connected to actual theme provider
-const useTheme = () => ({
-  setTheme: (theme: 'light' | 'dark' | 'system') => {
-    document.documentElement.classList.remove('light', 'dark');
-    if (theme !== 'system') {
-      document.documentElement.classList.add(theme);
-    }
-  }
-});
+import { useTheme } from '@/lib/theme';
 import type { CoPilotAction } from '@/types/copilot';
 
 interface UseCoPilotActionsReturn {
