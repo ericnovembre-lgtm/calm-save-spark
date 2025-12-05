@@ -201,24 +201,48 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Vendor chunks - group by library type
+          // Core vendor chunks
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-query': ['@tanstack/react-query'],
-          'vendor-ui': [
+          
+          // UI library chunks
+          'vendor-ui-core': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-dropdown-menu',
             '@radix-ui/react-select',
             '@radix-ui/react-tabs',
+          ],
+          'vendor-ui-feedback': [
             '@radix-ui/react-toast',
             '@radix-ui/react-tooltip',
+            '@radix-ui/react-popover',
           ],
-          'vendor-charts': ['recharts', 'd3'],
+          'vendor-ui-forms': [
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-radio-group',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-slider',
+          ],
+          
+          // Visualization chunks
+          'vendor-charts': ['recharts'],
+          'vendor-d3': ['d3'],
+          
+          // Animation chunks
           'vendor-motion': ['framer-motion'],
+          
+          // Form handling
           'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          
+          // Backend
           'vendor-supabase': ['@supabase/supabase-js'],
-          // Separate heavy features
-          'feature-ai': ['@/pages/Coach', '@/pages/AIAgents'],
-          'feature-analytics': ['@/pages/Analytics', '@/pages/Insights'],
+          
+          // Heavy libraries - separate chunks
+          'vendor-3d': ['three', '@react-three/fiber', '@react-three/drei'],
+          'vendor-audio': ['howler', 'tone', 'use-sound'],
+          'vendor-dates': ['date-fns'],
+          'vendor-icons': ['lucide-react'],
+          'vendor-virtual': ['react-window', '@tanstack/react-virtual'],
         },
       },
       plugins: [
