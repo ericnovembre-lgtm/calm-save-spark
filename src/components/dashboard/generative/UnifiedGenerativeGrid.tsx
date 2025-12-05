@@ -48,6 +48,7 @@ interface UnifiedGenerativeGridProps {
   widgets: Record<string, GenerativeWidgetSpec>;
   theme: DashboardTheme;
   className?: string;
+  onModalOpen?: (modalId: string) => void;
 }
 
 const containerVariants = {
@@ -293,7 +294,8 @@ export function UnifiedGenerativeGrid({
   layout, 
   widgets,
   theme,
-  className 
+  className,
+  onModalOpen
 }: UnifiedGenerativeGridProps) {
   const { user } = useAuth();
   const prefersReducedMotion = useReducedMotion();
@@ -494,7 +496,7 @@ export function UnifiedGenerativeGrid({
                   
                   {/* Action buttons on hover */}
                   <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                    <WidgetQuickActions widgetId={item.widgetId} />
+                    <WidgetQuickActions widgetId={item.widgetId} onModalOpen={onModalOpen} />
                     <WidgetPinButton widgetId={item.widgetId} />
                   </div>
                   
