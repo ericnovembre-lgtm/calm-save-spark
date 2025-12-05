@@ -7,34 +7,43 @@ interface SubscriptionsMiniProps {
   userId?: string;
 }
 
+interface Subscription {
+  id: string;
+  merchant: string | null;
+  avg_amount: number | null;
+  expected_date: number | null;
+}
+
 const SubscriptionsMini = ({ userId }: SubscriptionsMiniProps) => {
   const { data: subscriptions } = useQuery({
-    queryKey: ['recurring-bills', userId],
-    queryFn: async () => {
+    queryKey: ['recurring-subscriptions', userId],
+    queryFn: async (): Promise<Subscription[]> => {
       if (!userId) return [];
-      // Use upcoming_bills table instead
-      const { data } = await supabase
-        .from('upcoming_bills')
-        .select('id, bill_name, amount, due_date, is_recurring')
+      const { data, error } = await (supabase as any)
+        .from('recurring_transactions')
+        .select('id, merchant, avg_amount, expected_date')
         .eq('user_id', userId)
-        .eq('is_recurring', true);
+        .eq('is_active', true);
+      if (error) return [];
       return data || [];
     },
     enabled: !!userId
   });
 
   const monthlyTotal = subscriptions?.reduce((sum, s) => {
-    return sum + Math.abs(Number(s.amount) || 0);
+    return sum + Math.abs(Number(s.avg_amount) || 0);
   }, 0) || 0;
 
   const today = new Date();
-  const weekFromNow = new Date(today);
-  weekFromNow.setDate(today.getDate() + 7);
+  const currentDayOfMonth = today.getDate();
   
   const upcomingCount = subscriptions?.filter(s => {
-    if (!s.due_date) return false;
-    const dueDate = new Date(s.due_date);
-    return dueDate >= today && dueDate <= weekFromNow;
+    if (!s.expected_date) return false;
+    const expectedDay = s.expected_date;
+    const daysUntilDue = expectedDay >= currentDayOfMonth 
+      ? expectedDay - currentDayOfMonth 
+      : 30 - currentDayOfMonth + expectedDay;
+    return daysUntilDue <= 7;
   }).length || 0;
 
   return (
