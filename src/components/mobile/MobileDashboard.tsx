@@ -1,17 +1,18 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WidgetCarousel } from './WidgetCarousel';
 import { MobileQuickGlance } from './MobileQuickGlance';
 import { QuickTransactionEntry } from './QuickTransactionEntry';
 import { MobileNotificationCenter } from './MobileNotificationCenter';
 import { VoiceTransactionButton } from './VoiceTransactionButton';
+import { EnhancedPullToRefresh } from '@/components/dashboard/EnhancedPullToRefresh';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMobilePreferences } from '@/hooks/useMobilePreferences';
 import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { Bell, Plus, Receipt, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
@@ -139,107 +140,136 @@ function RecentActivityList() {
 
 export function MobileDashboard() {
   const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
   const { preferences } = useMobilePreferences();
   const { pendingCount, isOnline } = useOfflineQueue();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Branded pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    haptics.buttonPress();
+    await queryClient.invalidateQueries({ queryKey: ['recent_transactions'] });
+    await queryClient.invalidateQueries({ queryKey: ['balance'] });
+    await queryClient.invalidateQueries({ queryKey: ['goals'] });
+    await queryClient.invalidateQueries({ queryKey: ['budgets'] });
+    // Small delay for visual feedback
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }, [queryClient]);
 
   if (!isMobile) return null;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      {/* Header */}
-      <header className="sticky top-0 z-40 glass-bg-strong backdrop-blur-xl border-b border-border/50 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
-            {!isOnline && (
-              <span className="text-xs text-amber-500">Offline Mode</span>
-            )}
+    <EnhancedPullToRefresh onRefresh={handleRefresh}>
+      <div className="min-h-screen bg-background pb-20">
+        {/* Header */}
+        <header className="sticky top-0 z-40 glass-bg-strong backdrop-blur-xl border-b border-border/50 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
+              {!isOnline && (
+                <span className="text-xs text-amber-500">Offline Mode</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.div whileTap={{ scale: 0.9 }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    haptics.buttonPress();
+                    setShowNotifications(true);
+                  }}
+                  className="relative"
+                >
+                  <Bell className="h-5 w-5" />
+                  {pendingCount > 0 && (
+                    <motion.span 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center"
+                    >
+                      {/* Pulse ring animation */}
+                      {!prefersReducedMotion && (
+                        <motion.span
+                          className="absolute inset-0 rounded-full bg-destructive"
+                          animate={{ 
+                            scale: [1, 1.8, 1],
+                            opacity: [0.6, 0, 0.6]
+                          }}
+                          transition={{ 
+                            duration: 2, 
+                            repeat: Infinity,
+                            ease: 'easeOut'
+                          }}
+                        />
+                      )}
+                      <span className="relative z-10">{pendingCount > 9 ? '9+' : pendingCount}</span>
+                    </motion.span>
+                  )}
+                </Button>
+              </motion.div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <motion.div whileTap={{ scale: 0.9 }}>
-              <Button
-                variant="ghost"
-                size="icon"
+        </header>
+
+        {/* Quick Glance Cards */}
+        <section className="px-4 py-4">
+          <MobileQuickGlance widgets={preferences?.quick_glance_widgets || ['balance', 'budget', 'goals']} />
+        </section>
+
+        {/* Widget Carousel */}
+        <section className="py-4">
+          <h2 className="px-4 text-sm font-medium text-muted-foreground mb-3">Your Widgets</h2>
+          <WidgetCarousel widgetOrder={preferences?.home_widget_order || []} />
+        </section>
+
+        {/* Recent Activity - Real transactions or proper empty state */}
+        <section className="px-4 py-4">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">Recent Activity</h2>
+          <RecentActivityList />
+        </section>
+
+        {/* Floating Action Buttons with spring animation */}
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.3 }}
+          className="fixed bottom-20 right-4 flex flex-col gap-3 z-40"
+        >
+          <VoiceTransactionButton />
+          <motion.div whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.05 }}>
+            <Button
+              size="icon"
               onClick={() => {
-                haptics.buttonPress();
-                setShowNotifications(true);
+                haptics.select();
+                setShowQuickAdd(true);
               }}
-              className="relative"
-              >
-                <Bell className="h-5 w-5" />
-                {pendingCount > 0 && (
-                  <motion.span 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center"
-                  >
-                    {pendingCount > 9 ? '9+' : pendingCount}
-                  </motion.span>
-                )}
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </header>
-
-
-      {/* Quick Glance Cards */}
-      <section className="px-4 py-4">
-        <MobileQuickGlance widgets={preferences?.quick_glance_widgets || ['balance', 'budget', 'goals']} />
-      </section>
-
-      {/* Widget Carousel */}
-      <section className="py-4">
-        <h2 className="px-4 text-sm font-medium text-muted-foreground mb-3">Your Widgets</h2>
-        <WidgetCarousel widgetOrder={preferences?.home_widget_order || []} />
-      </section>
-
-      {/* Recent Activity - Real transactions or proper empty state */}
-      <section className="px-4 py-4">
-        <h2 className="text-sm font-medium text-muted-foreground mb-3">Recent Activity</h2>
-        <RecentActivityList />
-      </section>
-
-      {/* Floating Action Buttons with spring animation */}
-      <motion.div 
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.3 }}
-        className="fixed bottom-20 right-4 flex flex-col gap-3 z-40"
-      >
-        <VoiceTransactionButton />
-        <motion.div whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.05 }}>
-          <Button
-            size="icon"
-          onClick={() => {
-              haptics.select();
-              setShowQuickAdd(true);
-            }}
-            className={cn(
-              "h-14 w-14 rounded-full shadow-lg",
-              "bg-primary text-primary-foreground hover:bg-primary/90"
-            )}
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
+              className={cn(
+                "h-14 w-14 rounded-full shadow-lg",
+                "bg-primary text-primary-foreground hover:bg-primary/90"
+              )}
+            >
+              <Plus className="h-6 w-6" />
+            </Button>
+          </motion.div>
         </motion.div>
-      </motion.div>
 
-      {/* Notification Center Drawer */}
-      <AnimatePresence>
-        {showNotifications && (
-          <MobileNotificationCenter onClose={() => setShowNotifications(false)} />
-        )}
-      </AnimatePresence>
+        {/* Notification Center Drawer */}
+        <AnimatePresence>
+          {showNotifications && (
+            <MobileNotificationCenter onClose={() => setShowNotifications(false)} />
+          )}
+        </AnimatePresence>
 
-      {/* Quick Transaction Entry */}
-      <AnimatePresence>
-        {showQuickAdd && (
-          <QuickTransactionEntry onClose={() => setShowQuickAdd(false)} />
-        )}
-      </AnimatePresence>
-    </div>
+        {/* Quick Transaction Entry */}
+        <AnimatePresence>
+          {showQuickAdd && (
+            <QuickTransactionEntry onClose={() => setShowQuickAdd(false)} />
+          )}
+        </AnimatePresence>
+      </div>
+    </EnhancedPullToRefresh>
   );
 }
