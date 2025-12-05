@@ -28,6 +28,7 @@ import { queryConfig } from "@/lib/query-config";
 import { setupQueryPersistence } from "@/lib/query-persistence";
 import { createPageLoader } from "@/components/performance/PageLazyLoader";
 import { FloatingHelpButton } from "@/components/help/FloatingHelpButton";
+import { SwipeNavigationWrapper } from "@/components/mobile/SwipeNavigationWrapper";
 import "@/styles/accessibility.css";
 
 // ============================================================
@@ -238,7 +239,7 @@ function AnimatedRoutes() {
   const location = useLocation();
 
   return (
-    <>
+    <SwipeNavigationWrapper>
       <PerformanceMonitoring />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -367,7 +368,7 @@ function AnimatedRoutes() {
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
-    </>
+    </SwipeNavigationWrapper>
   );
 }
 
