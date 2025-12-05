@@ -26,6 +26,7 @@ import { HapticSettings } from '@/components/settings/HapticSettings';
 import { PerformanceDashboard } from '@/components/settings/PerformanceDashboard';
 import { PerformanceSettings } from '@/components/settings/PerformanceSettings';
 import { HighContrastMode } from '@/components/settings/HighContrastMode';
+import { AccessibilitySettings } from '@/components/settings/AccessibilitySettings';
 import { EasterEggsSettings } from '@/components/settings/EasterEggsSettings';
 import { NaturalLanguageNotifications } from '@/components/settings/NaturalLanguageNotifications';
 import { SecurityHealthGauge } from '@/components/settings/SecurityHealthGauge';
@@ -220,21 +221,19 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Motion & Accessibility Section */}
+        {/* Accessibility Section */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Motion & Accessibility
+              Accessibility
             </CardTitle>
             <CardDescription>
-              Control animations, effects, and visual motion throughout the app
+              Comprehensive accessibility settings for vision, motion, and screen readers
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <MotionAccessibilitySettings />
-            <Separator />
-            <HighContrastMode />
+          <CardContent>
+            <AccessibilitySettings />
           </CardContent>
         </Card>
 
