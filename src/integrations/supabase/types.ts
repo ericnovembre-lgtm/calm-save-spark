@@ -3162,6 +3162,42 @@ export type Database = {
           },
         ]
       }
+      category_feedback: {
+        Row: {
+          accepted_category: string | null
+          confidence_before: number | null
+          created_at: string | null
+          feedback_type: string
+          id: string
+          merchant_name: string
+          suggested_category: string
+          suggestion_id: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_category?: string | null
+          confidence_before?: number | null
+          created_at?: string | null
+          feedback_type: string
+          id?: string
+          merchant_name: string
+          suggested_category: string
+          suggestion_id?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_category?: string | null
+          confidence_before?: number | null
+          created_at?: string | null
+          feedback_type?: string
+          id?: string
+          merchant_name?: string
+          suggested_category?: string
+          suggestion_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       category_suggestions: {
         Row: {
           amount_range: string | null
@@ -10416,6 +10452,109 @@ export type Database = {
           },
         ]
       }
+      template_marketplace: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          description: string | null
+          downloads_count: number | null
+          featured: boolean | null
+          household_type: string | null
+          id: string
+          income_level: string | null
+          preview_image_url: string | null
+          published_at: string | null
+          rating_average: number | null
+          rating_count: number | null
+          tags: string[] | null
+          template_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          description?: string | null
+          downloads_count?: number | null
+          featured?: boolean | null
+          household_type?: string | null
+          id?: string
+          income_level?: string | null
+          preview_image_url?: string | null
+          published_at?: string | null
+          rating_average?: number | null
+          rating_count?: number | null
+          tags?: string[] | null
+          template_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          description?: string | null
+          downloads_count?: number | null
+          featured?: boolean | null
+          household_type?: string | null
+          id?: string
+          income_level?: string | null
+          preview_image_url?: string | null
+          published_at?: string | null
+          rating_average?: number | null
+          rating_count?: number | null
+          tags?: string[] | null
+          template_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_marketplace_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "shared_category_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_ratings: {
+        Row: {
+          created_at: string | null
+          id: string
+          marketplace_id: string
+          rating: number
+          review: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          marketplace_id: string
+          rating: number
+          review?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          marketplace_id?: string
+          rating?: number
+          review?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_ratings_marketplace_id_fkey"
+            columns: ["marketplace_id"]
+            isOneToOne: false
+            referencedRelation: "template_marketplace"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tool_execution_logs: {
         Row: {
           conversation_id: string | null
@@ -10755,6 +10894,7 @@ export type Database = {
           currency: string | null
           description: string | null
           enrichment_metadata: Json | null
+          exchange_rate_used: number | null
           id: string
           is_recurring: boolean | null
           merchant: string | null
@@ -10776,6 +10916,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           enrichment_metadata?: Json | null
+          exchange_rate_used?: number | null
           id?: string
           is_recurring?: boolean | null
           merchant?: string | null
@@ -10797,6 +10938,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           enrichment_metadata?: Json | null
+          exchange_rate_used?: number | null
           id?: string
           is_recurring?: boolean | null
           merchant?: string | null
@@ -12574,6 +12716,10 @@ export type Database = {
           }
       increment_redirect_usage: {
         Args: { redirect_id: string }
+        Returns: undefined
+      }
+      increment_template_downloads: {
+        Args: { template_id: string }
         Returns: undefined
       }
       is_ip_blocked: { Args: { ip: string }; Returns: boolean }
