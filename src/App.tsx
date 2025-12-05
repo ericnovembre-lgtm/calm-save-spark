@@ -27,7 +27,7 @@ import { useWebVitals } from "@/hooks/useWebVitals";
 import { queryConfig } from "@/lib/query-config";
 import { setupQueryPersistence } from "@/lib/query-persistence";
 import { createPageLoader } from "@/components/performance/PageLazyLoader";
-import { FloatingHelpButton } from "@/components/help/FloatingHelpButton";
+// FloatingHelpButton removed - CoPilotOrb now handles help functionality
 import { CoPilotWrapper } from "@/components/copilot/CoPilotWrapper";
 import { SwipeNavigationWrapper } from "@/components/mobile/SwipeNavigationWrapper";
 import "@/styles/accessibility.css";
@@ -206,7 +206,6 @@ const App = () => {
                         <PageTracker />
                         <InstallPrompt />
                         <AnimatedRoutes />
-                        <ConditionalHelpButton />
                       </CoPilotWrapper>
                     </BrowserRouter>
                     </TooltipProvider>
@@ -221,19 +220,6 @@ const App = () => {
   );
 };
 
-/**
- * ConditionalHelpButton - Only show help widget on authenticated pages
- */
-function ConditionalHelpButton() {
-  const location = useLocation();
-  
-  // Hide on landing page
-  if (location.pathname === '/') {
-    return null;
-  }
-  
-  return <FloatingHelpButton />;
-}
 
 /**
  * AnimatedRoutes - Routes wrapper with AnimatePresence for page transitions

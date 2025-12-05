@@ -122,14 +122,16 @@ export default function Dashboard() {
             onForceRefresh={data.actions.forceRefresh}
             data-copilot-id="dashboard-shell"
           >
-            <DashboardStories
-              stories={data.stories.items}
-              activeStoryIndex={state.activeStoryIndex}
-              onStoryClick={actions.setActiveStoryIndex}
-              onClose={() => actions.setActiveStoryIndex(null)}
-              onStoryViewed={data.stories.markAsViewed}
-              isViewed={data.stories.isViewed}
-            />
+            <div data-copilot-id="dashboard-stories">
+              <DashboardStories
+                stories={data.stories.items}
+                activeStoryIndex={state.activeStoryIndex}
+                onStoryClick={actions.setActiveStoryIndex}
+                onClose={() => actions.setActiveStoryIndex(null)}
+                onStoryViewed={data.stories.markAsViewed}
+                isViewed={data.stories.isViewed}
+              />
+            </div>
             <DashboardBanners
               isOffline={data.sync.isOffline}
               isSyncing={data.sync.isSyncing}
@@ -140,30 +142,32 @@ export default function Dashboard() {
               onNavigateTransactions={() => navigate("/transactions")}
               onDismissAlerts={data.alerts.markAllAsRead}
             />
-            <DashboardContent
-              isGenerating={data.generative.isLoading}
-              isStreaming={data.streaming.isStreaming}
-              generationError={data.generative.error}
-              layout={data.generative.layout}
-              widgets={data.generative.widgets}
-              theme={data.generative.theme}
-              briefing={data.generative.briefing}
-              reasoning={data.generative.reasoning}
-              meta={data.generative.meta}
-              streamingText={data.generative.streamingText}
-              aiContext={data.generative.aiContext}
-              isChatOpen={data.chat.isOpen}
-              isMobile={isMobile}
-              onModalOpen={actions.setActiveModal}
-              nlqQuery={state.nlq.query}
-              nlqIsProcessing={state.nlq.isProcessing}
-              nlqShowChart={state.nlq.showChart}
-              nlqChartData={state.nlq.chartData}
-              nlqInsight={state.nlq.insight}
-              nlqResponse={state.nlq.response}
-              onNLQuery={handlers.handleNLQuery}
-              onCloseChart={() => actions.setNlqShowChart(false)}
-            />
+            <div data-copilot-id="dashboard-content">
+              <DashboardContent
+                isGenerating={data.generative.isLoading}
+                isStreaming={data.streaming.isStreaming}
+                generationError={data.generative.error}
+                layout={data.generative.layout}
+                widgets={data.generative.widgets}
+                theme={data.generative.theme}
+                briefing={data.generative.briefing}
+                reasoning={data.generative.reasoning}
+                meta={data.generative.meta}
+                streamingText={data.generative.streamingText}
+                aiContext={data.generative.aiContext}
+                isChatOpen={data.chat.isOpen}
+                isMobile={isMobile}
+                onModalOpen={actions.setActiveModal}
+                nlqQuery={state.nlq.query}
+                nlqIsProcessing={state.nlq.isProcessing}
+                nlqShowChart={state.nlq.showChart}
+                nlqChartData={state.nlq.chartData}
+                nlqInsight={state.nlq.insight}
+                nlqResponse={state.nlq.response}
+                onNLQuery={handlers.handleNLQuery}
+                onCloseChart={() => actions.setNlqShowChart(false)}
+              />
+            </div>
             <FloatingControls
               isChatOpen={data.chat.isOpen}
               onToggleChat={data.chat.toggle}
