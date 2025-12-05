@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ThumbsUp, ThumbsDown, X, TrendingUp } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -18,7 +18,7 @@ interface AIInsight {
   };
 }
 
-export function AIInsightsCard() {
+export const AIInsightsCard = memo(function AIInsightsCard() {
   const navigate = useNavigate();
   const { generateInsightSummary } = useSpeakableText();
   const [insights, setInsights] = useState<AIInsight[]>([
@@ -253,4 +253,4 @@ export function AIInsightsCard() {
       </motion.div>
     </GlassCard>
   );
-}
+});

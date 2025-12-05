@@ -14,12 +14,13 @@ import { NeutralConfetti } from "@/components/effects/NeutralConfetti";
 import { useCelebrationSounds } from "@/hooks/useCelebrationSounds";
 import { haptics } from "@/lib/haptics";
 import { toast } from "sonner";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import { DraggableCoin } from "./DraggableCoin";
 import { useDragToSave } from "@/hooks/useDragToSave";
 import { cn } from "@/lib/utils";
 import { getSentimentColors, getAuroraClass } from "@/lib/bento-sizes";
 import { LiveDataPulse } from "./realtime/LiveDataPulse";
+import { createPropsComparator } from "@/lib/memo";
 
 interface EnhancedBalanceCardProps {
   balance: number;
@@ -29,13 +30,13 @@ interface EnhancedBalanceCardProps {
   onDragToGoal?: (goalId: string, amount: number) => Promise<void>;
 }
 
-export const EnhancedBalanceCard = ({ 
+export const EnhancedBalanceCard = memo(function EnhancedBalanceCard({ 
   balance, 
   monthlyGrowth = 0,
   savingsVelocity = 50,
   weeklyTrend = [2800, 2950, 3100, 3050, 3200, 3180, 3247],
   onDragToGoal
-}: EnhancedBalanceCardProps) => {
+}: EnhancedBalanceCardProps) {
   const { isDragging, getDragHandlers } = useDragToSave({
     onDrop: onDragToGoal || (async () => {}),
     defaultAmount: 100
@@ -278,4 +279,4 @@ export const EnhancedBalanceCard = ({
       />
     </GlassCard>
   );
-};
+}, createPropsComparator<EnhancedBalanceCardProps>('balance', 'monthlyGrowth', 'savingsVelocity'));
