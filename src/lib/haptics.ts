@@ -37,6 +37,12 @@ const HAPTIC_PATTERNS: Record<HapticPattern, number[]> = {
 class HapticsManager {
   private enabled: boolean = true;
   private prefersReducedMotion: boolean = false;
+  private intensity: HapticIntensity = 'medium';
+  private intensityMultiplier: Record<HapticIntensity, number> = {
+    light: 0.5,
+    medium: 1,
+    heavy: 1.5,
+  };
 
   constructor() {
     // Check for reduced motion preference
@@ -47,6 +53,18 @@ class HapticsManager {
       window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
         this.prefersReducedMotion = e.matches;
       });
+
+      // Load saved intensity preference
+      try {
+        const saved = localStorage.getItem('haptic-preferences');
+        if (saved) {
+          const prefs = JSON.parse(saved);
+          if (prefs.intensity) this.intensity = prefs.intensity;
+          if (typeof prefs.enabled === 'boolean') this.enabled = prefs.enabled;
+        }
+      } catch {
+        // Ignore parse errors
+      }
     }
   }
 
@@ -72,16 +90,52 @@ class HapticsManager {
   }
 
   /**
+   * Set vibration intensity (affects all vibrations)
+   */
+  setIntensity(intensity: HapticIntensity): void {
+    this.intensity = intensity;
+  }
+
+  /**
+   * Get current intensity
+   */
+  getIntensity(): HapticIntensity {
+    return this.intensity;
+  }
+
+  /**
+   * Get scaled duration based on current intensity
+   */
+  private getScaledDuration(baseDuration: number): number {
+    return Math.round(baseDuration * this.intensityMultiplier[this.intensity]);
+  }
+
+  /**
+   * Get scaled pattern based on current intensity
+   */
+  private getScaledPattern(pattern: number[]): number[] {
+    return pattern.map((duration, index) => {
+      // Only scale vibration durations (even indices), not pauses (odd indices)
+      if (index % 2 === 0) {
+        return this.getScaledDuration(duration);
+      }
+      return duration;
+    });
+  }
+
+  /**
    * Trigger a simple vibration with specified intensity
    */
-  vibrate(intensity: HapticIntensity = 'medium'): void {
+  vibrate(intensityOverride?: HapticIntensity): void {
     if (!this.isEnabled() || !this.isAvailable()) {
       return;
     }
 
     try {
-      const duration = VIBRATION_DURATIONS[intensity];
-      navigator.vibrate(duration);
+      const targetIntensity = intensityOverride || this.intensity;
+      const baseDuration = VIBRATION_DURATIONS[targetIntensity];
+      const scaledDuration = this.getScaledDuration(baseDuration);
+      navigator.vibrate(scaledDuration);
     } catch (error) {
       console.debug('Haptic vibration failed:', error);
     }
@@ -97,7 +151,8 @@ class HapticsManager {
 
     try {
       const vibrationPattern = HAPTIC_PATTERNS[pattern];
-      navigator.vibrate(vibrationPattern);
+      const scaledPattern = this.getScaledPattern([...vibrationPattern]);
+      navigator.vibrate(scaledPattern);
     } catch (error) {
       console.debug('Haptic pattern failed:', error);
     }

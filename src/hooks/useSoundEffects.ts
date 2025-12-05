@@ -6,6 +6,9 @@ interface SoundPreferences {
   savingsSound: boolean;
   achievementSound: boolean;
   ambientMusic: boolean;
+  notificationSound: boolean;
+  notificationVolume: number; // 0-1
+  ambientVolume: number; // 0-1
 }
 
 const DEFAULT_PREFERENCES: SoundPreferences = {
@@ -14,6 +17,9 @@ const DEFAULT_PREFERENCES: SoundPreferences = {
   savingsSound: true,
   achievementSound: true,
   ambientMusic: false,
+  notificationSound: true,
+  notificationVolume: 0.25,
+  ambientVolume: 0.15,
 };
 
 const STORAGE_KEY = 'sound-preferences';
