@@ -494,3 +494,6 @@ verify_jwt = true
 
 [functions.generate-financial-stories]
 verify_jwt = true
+
+[functions.ambient-ai-stream]
+verify_jwt = true

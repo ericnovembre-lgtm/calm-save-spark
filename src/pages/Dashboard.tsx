@@ -68,6 +68,9 @@ import { StoryOverlay } from "@/components/dashboard/stories/StoryOverlay";
 import { EphemeralWidgetRenderer } from "@/components/dashboard/widgets/EphemeralWidgetRenderer";
 import { NLQResponse } from "@/lib/ephemeral-widgets";
 
+// Ambient AI Agent
+import { AmbientAIAgent } from "@/components/dashboard/ambient/AmbientAIAgent";
+
 export default function Dashboard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -403,6 +406,7 @@ export default function Dashboard() {
           <CommandPalette />
           <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />
           <AnomalyAlertCenter />
+          <AmbientAIAgent />
 
           {/* Celebrations */}
           {milestone && (
