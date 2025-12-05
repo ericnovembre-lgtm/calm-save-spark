@@ -10,6 +10,8 @@ interface OfflineDashboardState {
   lastCachedAt: Date | null;
 }
 
+const STALE_THRESHOLD_MS = 6 * 60 * 60 * 1000; // 6 hours
+
 export function useOfflineDashboard() {
   const { user } = useAuth();
   const [state, setState] = useState<OfflineDashboardState>({
@@ -34,7 +36,7 @@ export function useOfflineDashboard() {
     };
   }, []);
 
-  // Load cached data on mount
+  // Load cached data on mount and check staleness
   useEffect(() => {
     if (!user?.id) return;
 
@@ -42,10 +44,11 @@ export function useOfflineDashboard() {
       const cached = await dashboardCache.get(user.id);
       if (cached) {
         const cacheAge = Date.now() - cached.cachedAt;
+        const isStale = cacheAge > STALE_THRESHOLD_MS;
         setState(s => ({
           ...s,
           cachedData: cached,
-          isStale: (cached as any).isStale || false,
+          isStale,
           cacheAge,
           lastCachedAt: new Date(cached.cachedAt),
         }));
@@ -54,6 +57,23 @@ export function useOfflineDashboard() {
 
     loadCache();
   }, [user?.id]);
+
+  // Periodically check staleness
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setState(s => {
+        if (!s.cachedData) return s;
+        const cacheAge = Date.now() - s.cachedData.cachedAt;
+        return {
+          ...s,
+          cacheAge,
+          isStale: cacheAge > STALE_THRESHOLD_MS
+        };
+      });
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Save data to cache
   const saveToCache = useCallback(async (data: {
@@ -89,6 +109,7 @@ export function useOfflineDashboard() {
       cachedData: null,
       cacheAge: null,
       lastCachedAt: null,
+      isStale: false,
     }));
   }, [user?.id]);
 

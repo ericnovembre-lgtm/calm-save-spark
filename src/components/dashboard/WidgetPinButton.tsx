@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useWidgetPreferences } from '@/hooks/useWidgetPreferences';
+import { useWidgetAnalytics } from '@/hooks/useWidgetAnalytics';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { pinIndicatorVariants } from '@/lib/widget-animation-variants';
 import { cn } from '@/lib/utils';
@@ -24,16 +25,19 @@ export function WidgetPinButton({
   showHideOption = true 
 }: WidgetPinButtonProps) {
   const { isPinned, togglePin, toggleHide, isSaving } = useWidgetPreferences();
+  const { trackPin, trackHide } = useWidgetAnalytics();
   const prefersReducedMotion = useReducedMotion();
   const pinned = isPinned(widgetId);
 
   const handlePin = (e: React.MouseEvent) => {
     e.stopPropagation();
+    trackPin(widgetId, !pinned);
     togglePin(widgetId);
   };
 
   const handleHide = (e: React.MouseEvent) => {
     e.stopPropagation();
+    trackHide(widgetId);
     toggleHide(widgetId);
   };
 

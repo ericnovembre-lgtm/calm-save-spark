@@ -12210,6 +12210,39 @@ export type Database = {
         }
         Relationships: []
       }
+      widget_analytics: {
+        Row: {
+          action_name: string | null
+          created_at: string
+          duration_ms: number | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          user_id: string
+          widget_id: string
+        }
+        Insert: {
+          action_name?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+          widget_id: string
+        }
+        Update: {
+          action_name?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+          widget_id?: string
+        }
+        Relationships: []
+      }
       yield_strategies: {
         Row: {
           auto_execute: boolean | null

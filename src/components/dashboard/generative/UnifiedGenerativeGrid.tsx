@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { lazy, Suspense, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { DashboardLayout, GenerativeWidgetSpec, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
@@ -8,6 +8,9 @@ import { useWidgetPreferences } from '@/hooks/useWidgetPreferences';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { AnimatedWidgetWrapper } from '@/components/dashboard/AnimatedWidgetWrapper';
 import { WidgetPinButton, PinnedIndicator } from '@/components/dashboard/WidgetPinButton';
+import { WidgetQuickActions } from '@/components/dashboard/WidgetQuickActions';
+import { useWidgetAnalytics } from '@/hooks/useWidgetAnalytics';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 // Real widget components
 import { EnhancedBalanceCard } from '@/components/dashboard/EnhancedBalanceCard';
@@ -295,6 +298,43 @@ export function UnifiedGenerativeGrid({
   const { user } = useAuth();
   const prefersReducedMotion = useReducedMotion();
   const { preferences, isPinned, isHidden, updateOrder } = useWidgetPreferences();
+  const { trackView, trackViewEnd, trackClick, trackDrag } = useWidgetAnalytics();
+  
+  // Track widget views with Intersection Observer
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const viewedWidgetsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const widgetId = entry.target.getAttribute('data-widget-id');
+          if (!widgetId) return;
+          
+          if (entry.isIntersecting && !viewedWidgetsRef.current.has(widgetId)) {
+            viewedWidgetsRef.current.add(widgetId);
+            trackView(widgetId);
+          } else if (!entry.isIntersecting && viewedWidgetsRef.current.has(widgetId)) {
+            viewedWidgetsRef.current.delete(widgetId);
+            trackViewEnd(widgetId);
+          }
+        });
+      },
+      { threshold: 0.5, rootMargin: '0px' }
+    );
+
+    return () => {
+      observerRef.current?.disconnect();
+    };
+  }, [trackView, trackViewEnd]);
+
+  // Callback ref to observe widget elements
+  const observeWidget = (element: HTMLElement | null, widgetId: string) => {
+    if (element && observerRef.current) {
+      element.setAttribute('data-widget-id', widgetId);
+      observerRef.current.observe(element);
+    }
+  };
   
   // Fetch real dashboard data to pass to widgets
   const { data: dashboardData } = useDashboardData();
@@ -341,16 +381,32 @@ export function UnifiedGenerativeGrid({
 
   const renderWidget = (widgetId: string, widget: GenerativeWidgetSpec, size: 'hero' | 'large' | 'medium' | 'compact') => (
     <WidgetErrorBoundary widgetId={widgetId} widgetType={widget.headline}>
-      <RealWidgetRenderer
-        widgetId={widgetId}
-        widget={widget}
-        size={size}
-        dashboardData={dashboardData}
-        accounts={accounts || []}
-        userId={user?.id}
-      />
+      <div 
+        onClick={() => trackClick(widgetId)}
+        className="cursor-pointer"
+      >
+        <RealWidgetRenderer
+          widgetId={widgetId}
+          widget={widget}
+          size={size}
+          dashboardData={dashboardData}
+          accounts={accounts || []}
+          userId={user?.id}
+        />
+      </div>
     </WidgetErrorBoundary>
   );
+
+  const handleReorder = (newOrder: string[]) => {
+    // Track drag for any widget that changed position
+    newOrder.forEach((id, index) => {
+      const oldIndex = orderedGridItems.findIndex(item => item.widgetId === id);
+      if (oldIndex !== index) {
+        trackDrag(id, index);
+      }
+    });
+    updateOrder(newOrder);
+  };
 
   return (
     <motion.div
@@ -400,56 +456,60 @@ export function UnifiedGenerativeGrid({
 
       {/* Grid Section - Reorderable */}
       {orderedGridItems.length > 0 && (
-        <Reorder.Group
-          axis="y"
-          values={orderedGridItems.map(item => item.widgetId)}
-          onReorder={(newOrder) => updateOrder(newOrder)}
-          as="section"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-          data-tour="grid-widgets"
-          layoutScroll
-        >
-          {orderedGridItems.map((item, index) => {
-            const widget = getWidget(item.widgetId);
-            if (!widget) return null;
-            const pinned = isPinned(item.widgetId);
-            
-            return (
-              <Reorder.Item
-                key={item.widgetId}
-                value={item.widgetId}
-                as="div"
-                layout={prefersReducedMotion ? undefined : "position"}
-                className="relative group"
-                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3, delay: index * 0.03 }}
-                whileDrag={{ 
-                  scale: prefersReducedMotion ? 1 : 1.03, 
-                  boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)',
-                  zIndex: 50,
-                }}
-              >
-                {/* Pin indicator */}
-                <PinnedIndicator isPinned={pinned} />
-                
-                {/* Pin button on hover */}
-                <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <WidgetPinButton widgetId={item.widgetId} />
-                </div>
-                
-                <AnimatedWidgetWrapper
-                  widgetId={item.widgetId}
-                  enterDelay={index * 0.03}
-                  changeAnimation="flash"
+        <TooltipProvider>
+          <Reorder.Group
+            axis="y"
+            values={orderedGridItems.map(item => item.widgetId)}
+            onReorder={handleReorder}
+            as="section"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            data-tour="grid-widgets"
+            layoutScroll
+          >
+            {orderedGridItems.map((item, index) => {
+              const widget = getWidget(item.widgetId);
+              if (!widget) return null;
+              const pinned = isPinned(item.widgetId);
+              
+              return (
+                <Reorder.Item
+                  key={item.widgetId}
+                  value={item.widgetId}
+                  as="div"
+                  layout={prefersReducedMotion ? undefined : "position"}
+                  className="relative group"
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: index * 0.03 }}
+                  whileDrag={{ 
+                    scale: prefersReducedMotion ? 1 : 1.03, 
+                    boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)',
+                    zIndex: 50,
+                  }}
+                  ref={(el) => observeWidget(el, item.widgetId)}
                 >
-                  {renderWidget(item.widgetId, widget, 'compact')}
-                </AnimatedWidgetWrapper>
-              </Reorder.Item>
-            );
-          })}
-        </Reorder.Group>
+                  {/* Pin indicator */}
+                  <PinnedIndicator isPinned={pinned} />
+                  
+                  {/* Action buttons on hover */}
+                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                    <WidgetQuickActions widgetId={item.widgetId} />
+                    <WidgetPinButton widgetId={item.widgetId} />
+                  </div>
+                  
+                  <AnimatedWidgetWrapper
+                    widgetId={item.widgetId}
+                    enterDelay={index * 0.03}
+                    changeAnimation="flash"
+                  >
+                    {renderWidget(item.widgetId, widget, 'compact')}
+                  </AnimatedWidgetWrapper>
+                </Reorder.Item>
+              );
+            })}
+          </Reorder.Group>
+        </TooltipProvider>
       )}
     </motion.div>
   );
