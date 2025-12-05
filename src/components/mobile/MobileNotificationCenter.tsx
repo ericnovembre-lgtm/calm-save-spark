@@ -3,9 +3,10 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { X, Bell, CheckCircle, AlertTriangle, TrendingUp, Target, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import triggerHaptic from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+
 interface Notification {
   id: string;
   type: 'transaction' | 'goal' | 'alert' | 'insight';
@@ -69,7 +70,7 @@ export function MobileNotificationCenter({ onClose }: MobileNotificationCenterPr
   }, [user]);
 
   const handleSwipe = async (id: string, direction: 'left' | 'right') => {
-    triggerHaptic('medium');
+    haptics.swipe();
     
     if (direction === 'left') {
       // Delete notification
@@ -101,7 +102,7 @@ export function MobileNotificationCenter({ onClose }: MobileNotificationCenterPr
       .eq('user_id', user.id);
     
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    triggerHaptic('light');
+    haptics.buttonPress();
   };
 
   const groupedNotifications = notifications.reduce((acc, notification) => {

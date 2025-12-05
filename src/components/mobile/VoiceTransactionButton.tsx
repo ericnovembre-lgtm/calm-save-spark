@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useVoiceTransaction } from '@/hooks/useVoiceTransaction';
 import { useOfflineQueue } from '@/hooks/useOfflineQueue';
-import triggerHaptic from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 import { toast } from 'sonner';
 
 export function VoiceTransactionButton() {
@@ -27,7 +27,7 @@ export function VoiceTransactionButton() {
   if (!isSupported) return null;
 
   const handlePress = async () => {
-    triggerHaptic('medium');
+    haptics.buttonPress();
     
     if (isListening) {
       stopListening();
@@ -43,7 +43,7 @@ export function VoiceTransactionButton() {
   const handleConfirm = async () => {
     if (!parsedTransaction) return;
     
-    triggerHaptic('heavy');
+    haptics.formSuccess();
     
     await addToQueue({
       amount: -Math.abs(parsedTransaction.amount),
@@ -58,7 +58,7 @@ export function VoiceTransactionButton() {
   };
 
   const handleCancel = () => {
-    triggerHaptic('light');
+    haptics.buttonPress();
     setShowConfirm(false);
     reset();
   };

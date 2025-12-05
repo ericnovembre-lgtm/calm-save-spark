@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import triggerHaptic from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { useVoiceTransaction } from '@/hooks/useVoiceTransaction';
 import { toast } from 'sonner';
@@ -50,7 +50,7 @@ export function QuickTransactionEntry({ onClose }: QuickTransactionEntryProps) {
     }
 
     setIsSubmitting(true);
-    triggerHaptic('medium');
+    haptics.buttonPress();
 
     const transactionData = {
       amount: -Math.abs(parseFloat(amount)),
@@ -61,7 +61,7 @@ export function QuickTransactionEntry({ onClose }: QuickTransactionEntryProps) {
 
     await addToQueue(transactionData);
     
-    triggerHaptic('heavy');
+    haptics.formSuccess();
     toast.success(isOnline ? 'Transaction saved!' : 'Transaction queued for sync');
     
     setIsSubmitting(false);
@@ -74,7 +74,7 @@ export function QuickTransactionEntry({ onClose }: QuickTransactionEntryProps) {
     } else {
       startListening();
     }
-    triggerHaptic('light');
+    haptics.buttonPress();
   };
 
   return (
@@ -168,7 +168,7 @@ export function QuickTransactionEntry({ onClose }: QuickTransactionEntryProps) {
                 key={cat.id}
                 onClick={() => {
                   setSelectedCategory(cat.id);
-                  triggerHaptic('light');
+                  haptics.select();
                 }}
                 className={cn(
                   "flex flex-col items-center gap-1 p-3 rounded-xl border transition-all",
