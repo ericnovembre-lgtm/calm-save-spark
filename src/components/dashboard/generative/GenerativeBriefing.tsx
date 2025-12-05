@@ -63,19 +63,43 @@ export function GenerativeBriefing({
       className={className}
     >
       <Card className={cn(
-        "overflow-hidden border-white/10 backdrop-blur-xl",
+        "overflow-hidden backdrop-blur-xl relative",
         "bg-gradient-to-r",
         moodGradients[theme.mood]
       )}>
-        <CardContent className="p-6">
+        {/* Animated gradient border glow */}
+        <motion.div
+          className="absolute inset-0 rounded-xl opacity-50"
+          style={{
+            background: `linear-gradient(135deg, ${
+              theme.mood === 'calm' ? 'hsl(215, 28%, 17%)' :
+              theme.mood === 'energetic' ? 'hsl(189, 94%, 43%)' :
+              theme.mood === 'cautionary' ? 'hsl(38, 92%, 50%)' :
+              'hsl(45, 93%, 47%)'
+            } 0%, transparent 50%)`,
+          }}
+          animate={{
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <div className="absolute inset-0 rounded-xl border border-white/10" />
+        
+        <CardContent className="p-6 relative z-10">
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
+              {/* Animated mood emoji with bounce */}
               <motion.span
                 animate={{ 
-                  scale: theme.mood === 'celebratory' ? [1, 1.2, 1] : 1 
+                  scale: theme.mood === 'celebratory' ? [1, 1.2, 1] : 1,
+                  rotate: theme.mood === 'energetic' ? [0, 5, -5, 0] : 0
                 }}
-                transition={{ duration: 0.5, repeat: theme.mood === 'celebratory' ? Infinity : 0, repeatDelay: 2 }}
+                transition={{ 
+                  duration: 0.5, 
+                  repeat: theme.mood === 'celebratory' || theme.mood === 'energetic' ? Infinity : 0, 
+                  repeatDelay: 2 
+                }}
                 className="text-2xl"
               >
                 {moodIcons[theme.mood]}
@@ -109,10 +133,15 @@ export function GenerativeBriefing({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
                 onClick={() => setIsExpanded(!isExpanded)}
               >
-                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                <motion.div
+                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </motion.div>
               </Button>
             </div>
           </div>

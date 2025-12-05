@@ -70,25 +70,48 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
 
   return (
     <>
-      {/* Collapsed state - Floating pill button */}
+      {/* Collapsed state - Floating pill button with pulse */}
       <AnimatePresence>
         {!isExpanded && (
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={!prefersReducedMotion ? { scale: 1.05 } : undefined}
+            whileTap={!prefersReducedMotion ? { scale: 0.95 } : undefined}
             onClick={() => setIsExpanded(true)}
             className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-full",
+              "relative flex items-center gap-2 px-4 py-2.5 rounded-full",
               "bg-background/80 backdrop-blur-xl border border-border/50",
-              "shadow-lg hover:shadow-xl transition-shadow",
-              "text-sm text-muted-foreground hover:text-foreground"
+              "shadow-lg hover:shadow-xl transition-all duration-300",
+              "text-sm text-muted-foreground hover:text-foreground",
+              "hover:border-primary/30 hover:bg-background/90"
             )}
           >
-            <Search className="w-4 h-4" />
-            <span>Ask anything about your finances...</span>
+            {/* Subtle pulse ring on idle */}
+            {!prefersReducedMotion && (
+              <motion.div
+                className="absolute inset-0 rounded-full border border-primary/20"
+                animate={{
+                  scale: [1, 1.1, 1],
+                  opacity: [0.5, 0, 0.5],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+              />
+            )}
+            <motion.div
+              animate={!prefersReducedMotion ? { scale: [1, 1.1, 1] } : undefined}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <Search className="w-4 h-4" />
+            </motion.div>
+            <span className="hidden sm:inline">Ask anything about your finances...</span>
+            <span className="sm:hidden">Ask AI...</span>
+            <Sparkles className="w-3 h-3 text-primary/60" />
           </motion.button>
         )}
       </AnimatePresence>
