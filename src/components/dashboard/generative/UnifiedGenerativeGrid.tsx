@@ -1,9 +1,13 @@
-import React, { lazy, Suspense } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { lazy, Suspense, useMemo } from 'react';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { DashboardLayout, GenerativeWidgetSpec, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
 import { WidgetErrorBoundary } from './WidgetErrorBoundary';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useWidgetPreferences } from '@/hooks/useWidgetPreferences';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { AnimatedWidgetWrapper } from '@/components/dashboard/AnimatedWidgetWrapper';
+import { WidgetPinButton, PinnedIndicator } from '@/components/dashboard/WidgetPinButton';
 
 // Real widget components
 import { EnhancedBalanceCard } from '@/components/dashboard/EnhancedBalanceCard';
@@ -289,6 +293,9 @@ export function UnifiedGenerativeGrid({
   className 
 }: UnifiedGenerativeGridProps) {
   const { user } = useAuth();
+  const prefersReducedMotion = useReducedMotion();
+  const { preferences, isPinned, isHidden, updateOrder } = useWidgetPreferences();
+  
   // Fetch real dashboard data to pass to widgets
   const { data: dashboardData } = useDashboardData();
   
@@ -306,6 +313,31 @@ export function UnifiedGenerativeGrid({
   });
 
   const getWidget = (widgetId: string) => widgets[widgetId];
+
+  // Apply user preferences to grid items
+  const orderedGridItems = useMemo(() => {
+    const gridIds = layout.grid.map(item => item.widgetId);
+    const pinnedIds = preferences.pinnedWidgets.filter(id => gridIds.includes(id));
+    const unpinnedIds = gridIds.filter(id => !pinnedIds.includes(id));
+    
+    // Apply custom order if set
+    if (preferences.widgetOrder.length > 0) {
+      unpinnedIds.sort((a, b) => {
+        const aIdx = preferences.widgetOrder.indexOf(a);
+        const bIdx = preferences.widgetOrder.indexOf(b);
+        if (aIdx === -1 && bIdx === -1) return 0;
+        if (aIdx === -1) return 1;
+        if (bIdx === -1) return -1;
+        return aIdx - bIdx;
+      });
+    }
+    
+    // Filter out hidden widgets and combine pinned first
+    return [...pinnedIds, ...unpinnedIds]
+      .filter(id => !preferences.hiddenWidgets.includes(id))
+      .map(id => layout.grid.find(item => item.widgetId === id)!)
+      .filter(Boolean);
+  }, [layout.grid, preferences]);
 
   const renderWidget = (widgetId: string, widget: GenerativeWidgetSpec, size: 'hero' | 'large' | 'medium' | 'compact') => (
     <WidgetErrorBoundary widgetId={widgetId} widgetType={widget.headline}>
@@ -366,26 +398,58 @@ export function UnifiedGenerativeGrid({
         </motion.section>
       )}
 
-      {/* Grid Section */}
-      {layout.grid.length > 0 && (
-        <motion.section
-          variants={itemVariants}
+      {/* Grid Section - Reorderable */}
+      {orderedGridItems.length > 0 && (
+        <Reorder.Group
+          axis="y"
+          values={orderedGridItems.map(item => item.widgetId)}
+          onReorder={(newOrder) => updateOrder(newOrder)}
+          as="section"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
           data-tour="grid-widgets"
+          layoutScroll
         >
-          {layout.grid.map((item) => {
+          {orderedGridItems.map((item, index) => {
             const widget = getWidget(item.widgetId);
             if (!widget) return null;
+            const pinned = isPinned(item.widgetId);
+            
             return (
-              <motion.div
+              <Reorder.Item
                 key={item.widgetId}
-                variants={itemVariants}
+                value={item.widgetId}
+                as="div"
+                layout={prefersReducedMotion ? undefined : "position"}
+                className="relative group"
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, delay: index * 0.03 }}
+                whileDrag={{ 
+                  scale: prefersReducedMotion ? 1 : 1.03, 
+                  boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)',
+                  zIndex: 50,
+                }}
               >
-                {renderWidget(item.widgetId, widget, 'compact')}
-              </motion.div>
+                {/* Pin indicator */}
+                <PinnedIndicator isPinned={pinned} />
+                
+                {/* Pin button on hover */}
+                <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <WidgetPinButton widgetId={item.widgetId} />
+                </div>
+                
+                <AnimatedWidgetWrapper
+                  widgetId={item.widgetId}
+                  enterDelay={index * 0.03}
+                  changeAnimation="flash"
+                >
+                  {renderWidget(item.widgetId, widget, 'compact')}
+                </AnimatedWidgetWrapper>
+              </Reorder.Item>
             );
           })}
-        </motion.section>
+        </Reorder.Group>
       )}
     </motion.div>
   );

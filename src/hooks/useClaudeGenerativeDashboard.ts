@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { dashboardCache } from '@/lib/dashboard-cache';
 
 export interface GenerativeWidgetSpec {
   id: string;
@@ -177,6 +178,30 @@ export function useClaudeGenerativeDashboard() {
       return;
     }
 
+    // Try to load from IndexedDB cache first for instant display
+    if (!forceRefresh) {
+      try {
+        const cached = await dashboardCache.get(user.id);
+        if (cached) {
+          setState({
+            layout: cached.layout || DEFAULT_STATE.layout,
+            widgets: cached.widgets || DEFAULT_STATE.widgets,
+            theme: cached.theme || DEFAULT_STATE.theme,
+            briefing: cached.briefing || DEFAULT_STATE.briefing,
+            reasoning: 'Loaded from offline cache'
+          });
+          // Show cached data immediately while fetching fresh data
+          if ((cached as any).isStale) {
+            toast.info('Showing cached dashboard', {
+              description: 'Fetching latest updates...'
+            });
+          }
+        }
+      } catch (e) {
+        // IndexedDB unavailable, continue with network request
+      }
+    }
+
     // Abort any existing request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -285,13 +310,14 @@ export function useClaudeGenerativeDashboard() {
         clearAllTimers();
 
         if (finalData?.dashboard) {
-          setState({
+          const newState = {
             layout: finalData.dashboard.layout || DEFAULT_STATE.layout,
             widgets: finalData.dashboard.widgets || DEFAULT_STATE.widgets,
             theme: finalData.dashboard.theme || DEFAULT_STATE.theme,
             briefing: finalData.dashboard.briefing || DEFAULT_STATE.briefing,
             reasoning: finalData.dashboard.reasoning || ''
-          });
+          };
+          setState(newState);
           setContext(finalData.context || null);
           setMeta({
             ...finalData.meta,
@@ -299,6 +325,18 @@ export function useClaudeGenerativeDashboard() {
           });
           setLastRefresh(new Date());
           setPhase('complete');
+          
+          // Save to IndexedDB for offline support
+          try {
+            await dashboardCache.set(user.id, {
+              layout: newState.layout,
+              widgets: newState.widgets,
+              theme: newState.theme,
+              briefing: newState.briefing,
+            });
+          } catch (e) {
+            // IndexedDB write failed, non-critical
+          }
         }
       } else {
         // Non-streaming fallback (cached response)
@@ -311,13 +349,14 @@ export function useClaudeGenerativeDashboard() {
         }
 
         if (data?.dashboard) {
-          setState({
+          const newState = {
             layout: data.dashboard.layout || DEFAULT_STATE.layout,
             widgets: data.dashboard.widgets || DEFAULT_STATE.widgets,
             theme: data.dashboard.theme || DEFAULT_STATE.theme,
             briefing: data.dashboard.briefing || DEFAULT_STATE.briefing,
             reasoning: data.dashboard.reasoning || ''
-          });
+          };
+          setState(newState);
           setContext(data.context || null);
           setMeta({
             ...data.meta,
@@ -325,6 +364,18 @@ export function useClaudeGenerativeDashboard() {
           });
           setLastRefresh(new Date());
           setPhase('complete');
+          
+          // Save to IndexedDB for offline support
+          try {
+            await dashboardCache.set(user.id, {
+              layout: newState.layout,
+              widgets: newState.widgets,
+              theme: newState.theme,
+              briefing: newState.briefing,
+            });
+          } catch (e) {
+            // IndexedDB write failed, non-critical
+          }
         }
       }
     } catch (err) {

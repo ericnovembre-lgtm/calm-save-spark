@@ -4002,6 +4002,36 @@ export type Database = {
         }
         Relationships: []
       }
+      dashboard_widget_preferences: {
+        Row: {
+          created_at: string
+          hidden_widgets: string[] | null
+          id: string
+          pinned_widgets: string[] | null
+          updated_at: string
+          user_id: string
+          widget_order: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          hidden_widgets?: string[] | null
+          id?: string
+          pinned_widgets?: string[] | null
+          updated_at?: string
+          user_id: string
+          widget_order?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          hidden_widgets?: string[] | null
+          id?: string
+          pinned_widgets?: string[] | null
+          updated_at?: string
+          user_id?: string
+          widget_order?: string[] | null
+        }
+        Relationships: []
+      }
       debt_payment_history: {
         Row: {
           amount: number
