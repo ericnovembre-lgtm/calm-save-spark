@@ -90,6 +90,7 @@ const TaxDocumentAnalysis = createPageLoader(() => import("./pages/TaxDocumentAn
 const DashboardAnalytics = createPageLoader(() => import("./pages/DashboardAnalytics"), 'medium');
 const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
 const SocialSentiment = createPageLoader(() => import("./pages/SocialSentiment"), 'medium');
+const TemplateMarketplace = createPageLoader(() => import("./pages/TemplateMarketplace"), 'medium');
 
 const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
 const Sitemap = createPageLoader(() => import("./pages/Sitemap"), 'medium');
@@ -355,6 +356,7 @@ function AnimatedRoutes() {
         <Route path="/business-os" element={<ProtectedRoute><PageTransition><BusinessOS /></PageTransition></ProtectedRoute>} />
         <Route path="/defi-manager" element={<ProtectedRoute><PageTransition><DeFiManager /></PageTransition></ProtectedRoute>} />
         <Route path="/social-sentiment" element={<ProtectedRoute><PageTransition><SocialSentiment /></PageTransition></ProtectedRoute>} />
+        <Route path="/template-marketplace" element={<ProtectedRoute><PageTransition><TemplateMarketplace /></PageTransition></ProtectedRoute>} />
         
         {/* Maintenance Page */}
         <Route path="/maintenance" element={<PageTransition><Maintenance /></PageTransition>} />
