@@ -1,9 +1,16 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { EdgeFunctionCache } from '../_shared/edge-cache.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Initialize cache with 10-minute TTL for insights
+const insightsCache = new EdgeFunctionCache({ 
+  maxEntries: 100, 
+  defaultTTL: 600 // 10 minutes
+});
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -20,6 +27,25 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Check cache first
+    const cacheKey = `insights:${userId}`;
+    const cached = insightsCache.get(cacheKey);
+    if (cached) {
+      console.log(`[generate-insights] Cache HIT for user ${userId}`);
+      return new Response(
+        JSON.stringify(cached),
+        { 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'X-Cache': 'HIT',
+            'X-Cache-TTL': '600'
+          } 
+        }
+      );
+    }
+
+    console.log(`[generate-insights] Cache MISS for user ${userId}`);
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -134,9 +160,22 @@ Format as JSON array with structure:
       id: `${Date.now()}-${i}`,
     }));
 
+    const responseData = { insights };
+    
+    // Cache the successful response
+    insightsCache.set(cacheKey, responseData);
+    console.log(`[generate-insights] Cached response for user ${userId}`);
+
     return new Response(
-      JSON.stringify({ insights }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify(responseData),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'X-Cache': 'MISS',
+          'X-Cache-TTL': '600'
+        } 
+      }
     );
 
   } catch (error) {

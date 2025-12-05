@@ -23,6 +23,7 @@ import { GlobalAIAssistant } from "@/components/global-ai/GlobalAIAssistant";
 import { usePageContext } from "@/hooks/usePageContext";
 import { RedAlertOverlay } from "@/components/guardian/RedAlertOverlay";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { OfflineSyncIndicator } from "@/components/pwa";
 
 const taglines = [
   "Navigate Your Financial Universe",
@@ -251,6 +252,9 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Global AI Assistant */}
       <GlobalAIAssistant />
+
+      {/* Offline Sync Indicator */}
+      <OfflineSyncIndicator />
 
       {/* Bottom Navigation (mobile) */}
       <nav

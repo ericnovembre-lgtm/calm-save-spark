@@ -1,10 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { EdgeFunctionCache } from '../_shared/edge-cache.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Initialize cache with 5-minute TTL for cashflow forecasts
+const forecastCache = new EdgeFunctionCache({ 
+  maxEntries: 200, 
+  defaultTTL: 300 // 5 minutes
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -24,6 +31,26 @@ serve(async (req) => {
     }
 
     const { days = 30 } = await req.json().catch(() => ({}));
+
+    // Check cache first
+    const cacheKey = `cashflow:${user.id}:${days}`;
+    const cached = forecastCache.get(cacheKey);
+    if (cached) {
+      console.log(`[cashflow-forecast] Cache HIT for user ${user.id}, days=${days}`);
+      return new Response(
+        JSON.stringify(cached),
+        { 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'X-Cache': 'HIT',
+            'X-Cache-TTL': '300'
+          } 
+        }
+      );
+    }
+
+    console.log(`[cashflow-forecast] Cache MISS for user ${user.id}, days=${days}`);
 
     // Fetch transactions from the last 90 days for pattern analysis
     const ninetyDaysAgo = new Date();
@@ -96,18 +123,31 @@ serve(async (req) => {
       });
     }
 
+    const responseData = { 
+      success: true,
+      forecast,
+      summary: {
+        avg_daily_spending: avgDailySpending,
+        avg_monthly_income: avgMonthlyIncome,
+        current_balance: accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.balance)), 0) || 0,
+        projected_end_balance: forecast[forecast.length - 1]?.projected_balance ?? 0
+      }
+    };
+
+    // Cache the successful response
+    forecastCache.set(cacheKey, responseData);
+    console.log(`[cashflow-forecast] Cached response for user ${user.id}, days=${days}`);
+
     return new Response(
-      JSON.stringify({ 
-        success: true,
-        forecast,
-        summary: {
-          avg_daily_spending: avgDailySpending,
-          avg_monthly_income: avgMonthlyIncome,
-          current_balance: accounts?.reduce((sum, acc) => sum + parseFloat(String(acc.balance)), 0) || 0,
-          projected_end_balance: forecast[forecast.length - 1].projected_balance
-        }
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify(responseData),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'X-Cache': 'MISS',
+          'X-Cache-TTL': '300'
+        } 
+      }
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
