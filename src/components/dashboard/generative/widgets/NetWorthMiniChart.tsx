@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Area, AreaChart, ResponsiveContainer } from 'recharts';
+import { LiveDataPulse } from '@/components/dashboard/realtime/LiveDataPulse';
 
 interface NetWorthMiniChartProps {
   userId?: string;
@@ -53,11 +54,25 @@ const NetWorthMiniChart = ({ userId }: NetWorthMiniChartProps) => {
   const change = currentScore - previousScore;
   const isPositive = change >= 0;
 
+  // Calculate previous net worth for pulse effect
+  const previousNetWorth = chartData.length > 1 
+    ? (savingsData?.pots || 0) + (savingsData?.goals || 0) - change 
+    : currentNetWorth;
+
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium flex items-center justify-between">
-          Net Worth
+          <div className="flex items-center gap-2">
+            Net Worth
+            <LiveDataPulse
+              value={currentNetWorth}
+              previousValue={previousNetWorth}
+              showLiveBadge
+              showDirection={false}
+              pulseColor="emerald"
+            />
+          </div>
           {isPositive ? (
             <TrendingUp className="h-4 w-4 text-emerald-500" />
           ) : (
