@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Loader2 } from "lucide-react";
+import { CategorySuggestionFeedback } from "./CategorySuggestionFeedback";
 
 interface SmartCategorySelectorProps {
   merchantName?: string;
@@ -12,6 +13,7 @@ interface SmartCategorySelectorProps {
   value: string;
   onChange: (value: string) => void;
   categories: Array<{ code: string; name: string }>;
+  showFeedback?: boolean;
 }
 
 export function SmartCategorySelector({
@@ -20,9 +22,12 @@ export function SmartCategorySelector({
   description,
   value,
   onChange,
-  categories
+  categories,
+  showFeedback = true
 }: SmartCategorySelectorProps) {
   const [suggestion, setSuggestion] = useState<any>(null);
+  const [hasUserOverridden, setHasUserOverridden] = useState(false);
+  const [showFeedbackPanel, setShowFeedbackPanel] = useState(false);
 
   const { data: aiSuggestion, isLoading } = useQuery({
     queryKey: ['category_suggestion', merchantName, amount],
@@ -53,6 +58,21 @@ export function SmartCategorySelector({
     }
   }, [aiSuggestion]);
 
+  // Track when user overrides AI suggestion
+  const handleCategoryChange = (newValue: string) => {
+    if (suggestion && newValue !== suggestion.categoryCode) {
+      setHasUserOverridden(true);
+      setShowFeedbackPanel(true);
+    }
+    onChange(newValue);
+  };
+
+  // Handle feedback submission complete
+  const handleFeedbackComplete = () => {
+    setShowFeedbackPanel(false);
+    setHasUserOverridden(false);
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -71,7 +91,7 @@ export function SmartCategorySelector({
         )}
       </div>
 
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value} onValueChange={handleCategoryChange}>
         <SelectTrigger>
           <SelectValue placeholder="Select category" />
         </SelectTrigger>
@@ -100,6 +120,23 @@ export function SmartCategorySelector({
         <p className="text-xs text-muted-foreground">
           💡 {suggestion.reasoning}
         </p>
+      )}
+
+      {/* Show feedback panel when user makes a selection with an AI suggestion present */}
+      {showFeedback && suggestion && value && (
+        <CategorySuggestionFeedback
+          merchantName={merchantName || ''}
+          suggestedCategory={suggestion.categoryCode}
+          confidence={suggestion.confidence}
+          reasoning={suggestion.reasoning}
+          suggestionId={suggestion.id}
+          categories={categories}
+          onCategoryConfirmed={(category) => {
+            onChange(category);
+            handleFeedbackComplete();
+          }}
+          compact
+        />
       )}
     </div>
   );
