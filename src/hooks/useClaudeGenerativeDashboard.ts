@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -53,7 +53,10 @@ interface DashboardMeta {
   model: string;
   processingTimeMs: number;
   generatedAt: string;
+  cached?: boolean;
 }
+
+type LoadingPhase = 'static' | 'generating' | 'complete';
 
 const DEFAULT_STATE: GenerativeDashboardState = {
   layout: {
@@ -64,7 +67,9 @@ const DEFAULT_STATE: GenerativeDashboardState = {
     ],
     grid: [
       { widgetId: 'quick_actions', reason: 'Easy access to common tasks' },
-      { widgetId: 'ai_insight', reason: 'Personalized insights' }
+      { widgetId: 'ai_insight', reason: 'Personalized insights' },
+      { widgetId: 'cashflow_forecast', reason: 'Future cash flow' },
+      { widgetId: 'milestones', reason: 'Track achievements' }
     ],
     hidden: []
   },
@@ -73,7 +78,7 @@ const DEFAULT_STATE: GenerativeDashboardState = {
       id: 'balance_hero',
       type: 'metric',
       headline: 'Your Savings',
-      body: 'Loading your financial overview...',
+      body: 'Your financial overview',
       mood: 'calm',
       urgencyScore: 50
     },
@@ -105,6 +110,20 @@ const DEFAULT_STATE: GenerativeDashboardState = {
       body: 'Analyzing your finances...',
       mood: 'calm',
       urgencyScore: 35
+    },
+    cashflow_forecast: {
+      id: 'cashflow_forecast',
+      type: 'chart',
+      headline: 'Cash Flow Forecast',
+      mood: 'calm',
+      urgencyScore: 30
+    },
+    milestones: {
+      id: 'milestones',
+      type: 'list',
+      headline: 'Achievements',
+      mood: 'celebratory',
+      urgencyScore: 25
     }
   },
   theme: {
@@ -115,35 +134,93 @@ const DEFAULT_STATE: GenerativeDashboardState = {
   },
   briefing: {
     greeting: 'Welcome back!',
-    summary: 'Loading your personalized dashboard...',
+    summary: 'Your personalized dashboard is ready.',
     keyInsight: '',
     suggestedAction: ''
   },
-  reasoning: 'Default dashboard while loading AI-generated layout'
+  reasoning: 'Default dashboard layout'
 };
+
+const GENERATION_TIMEOUT_MS = 30000; // 30 seconds
+const WARNING_THRESHOLD_MS = 20000; // 20 seconds
 
 export function useClaudeGenerativeDashboard() {
   const { user } = useAuth();
   const [state, setState] = useState<GenerativeDashboardState>(DEFAULT_STATE);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [phase, setPhase] = useState<LoadingPhase>('static');
   const [error, setError] = useState<string | null>(null);
   const [context, setContext] = useState<DashboardContext | null>(null);
   const [meta, setMeta] = useState<DashboardMeta | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [isTimedOut, setIsTimedOut] = useState(false);
+  
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const warningRef = useRef<NodeJS.Timeout | null>(null);
+  const elapsedIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const generateDashboard = useCallback(async () => {
+  const clearAllTimers = useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (warningRef.current) clearTimeout(warningRef.current);
+    if (elapsedIntervalRef.current) clearInterval(elapsedIntervalRef.current);
+    timeoutRef.current = null;
+    warningRef.current = null;
+    elapsedIntervalRef.current = null;
+  }, []);
+
+  const generateDashboard = useCallback(async (forceRefresh = false) => {
     if (!user) {
-      setIsLoading(false);
+      setPhase('complete');
       return;
     }
 
+    // Abort any existing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
+    setPhase('generating');
     setIsLoading(true);
     setError(null);
+    setElapsedTime(0);
+    setIsTimedOut(false);
+
+    const startTime = Date.now();
+
+    // Track elapsed time
+    elapsedIntervalRef.current = setInterval(() => {
+      setElapsedTime(Date.now() - startTime);
+    }, 100);
+
+    // Warning at 20 seconds
+    warningRef.current = setTimeout(() => {
+      toast.warning('Taking longer than usual...', {
+        description: 'AI is still generating your personalized dashboard'
+      });
+    }, WARNING_THRESHOLD_MS);
+
+    // Hard timeout at 30 seconds
+    timeoutRef.current = setTimeout(() => {
+      clearAllTimers();
+      abortControllerRef.current?.abort();
+      setIsTimedOut(true);
+      setPhase('complete');
+      setIsLoading(false);
+      setError('AI generation timed out. Showing default layout.');
+      toast.info('Showing default dashboard', {
+        description: 'AI personalization took too long. You can try refreshing later.'
+      });
+    }, GENERATION_TIMEOUT_MS);
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke('generate-dashboard-layout', {
-        body: {}
+        body: { forceRefresh }
       });
+
+      clearAllTimers();
 
       if (fnError) {
         throw new Error(fnError.message);
@@ -162,47 +239,71 @@ export function useClaudeGenerativeDashboard() {
           reasoning: data.dashboard.reasoning || ''
         });
         setContext(data.context || null);
-        setMeta(data.meta || null);
+        setMeta({
+          ...data.meta,
+          cached: data.cached || false
+        });
         setLastRefresh(new Date());
+        setPhase('complete');
       }
     } catch (err) {
+      clearAllTimers();
+      
+      if (err instanceof Error && err.name === 'AbortError') {
+        return; // Ignore aborted requests
+      }
+      
       console.error('Dashboard generation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate dashboard');
+      setPhase('complete');
       // Keep default state on error
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, clearAllTimers]);
 
   const refresh = useCallback(async () => {
-    toast.info('Regenerating your dashboard with Claude Opus...');
-    await generateDashboard();
-    toast.success('Dashboard updated!');
-  }, [generateDashboard]);
+    toast.info('Regenerating your dashboard with Claude Opus...', {
+      description: 'Bypassing cache for fresh personalization'
+    });
+    await generateDashboard(true);
+    if (!isTimedOut && !error) {
+      toast.success('Dashboard updated!');
+    }
+  }, [generateDashboard, isTimedOut, error]);
 
   // Initial generation
   useEffect(() => {
     generateDashboard();
-  }, [generateDashboard]);
+    
+    return () => {
+      clearAllTimers();
+      abortControllerRef.current?.abort();
+    };
+  }, [generateDashboard, clearAllTimers]);
 
   // Auto-refresh on significant events (every 5 minutes while active)
   useEffect(() => {
     const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'visible' && phase === 'complete') {
         generateDashboard();
       }
-    }, 5 * 60 * 1000); // 5 minutes
+    }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [generateDashboard]);
+  }, [generateDashboard, phase]);
 
   return {
     ...state,
     isLoading,
+    phase,
     error,
     context,
     meta,
     lastRefresh,
-    refresh
+    refresh,
+    elapsedTime,
+    isTimedOut,
+    isGenerating: phase === 'generating'
   };
 }
