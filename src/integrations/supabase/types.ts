@@ -7197,6 +7197,36 @@ export type Database = {
         }
         Relationships: []
       }
+      mobile_onboarding_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          practice_attempts: number | null
+          practice_success: boolean | null
+          step_key: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          practice_attempts?: number | null
+          practice_success?: boolean | null
+          step_key: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          practice_attempts?: number | null
+          practice_success?: boolean | null
+          step_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mobile_preferences: {
         Row: {
           biometric_required_for_transactions: boolean | null
