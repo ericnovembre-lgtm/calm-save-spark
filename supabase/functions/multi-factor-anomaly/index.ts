@@ -37,8 +37,11 @@ Deno.serve(async (req) => {
 
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
+      // Return empty anomalies for unauthenticated requests instead of 401
+      // This prevents errors during initial load before auth is ready
+      console.log('[multi-factor-anomaly] No authenticated user, returning empty anomalies');
+      return new Response(JSON.stringify({ anomalies: [] }), {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
