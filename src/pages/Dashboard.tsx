@@ -1,108 +1,44 @@
-import { useState, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { RefreshCw, Sparkles, AlertCircle } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-
-// AI Generative Components
-import { useClaudeGenerativeDashboard } from "@/hooks/useClaudeGenerativeDashboard";
-import { AIThemeProvider } from "@/components/dashboard/generative/AIThemeProvider";
-import { GenerativeBriefing } from "@/components/dashboard/generative/GenerativeBriefing";
-import { GenerativeDashboardSkeleton } from "@/components/dashboard/generative/GenerativeDashboardSkeleton";
-import { UnifiedGenerativeGrid } from "@/components/dashboard/generative/UnifiedGenerativeGrid";
-
-
-// Essential Dashboard Features
-import { CommandPalette } from "@/components/dashboard/CommandPalette";
-import { UnifiedFAB } from "@/components/dashboard/UnifiedFAB";
-import { EmailVerificationBanner } from "@/components/dashboard/EmailVerificationBanner";
-import { SkipLinks } from "@/components/accessibility/SkipLinks";
-import { useAnnounce } from "@/components/accessibility/LiveRegionAnnouncer";
-import { SyncIndicator } from "@/components/ui/sync-indicator";
-import { useSyncStatus } from "@/hooks/useSyncStatus";
-import { PullToRefresh } from "@/components/mobile/PullToRefresh";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { ChatSidebar } from "@/components/dashboard/ChatSidebar";
-import { useChatSidebar } from "@/hooks/useChatSidebar";
-import { DashboardErrorBoundary } from "@/components/error/DashboardErrorBoundary";
-import { MilestoneCelebration } from "@/components/effects/MilestoneCelebration";
-import { useMilestoneDetector } from "@/hooks/useMilestoneDetector";
-import { AuroraMeshBackground } from "@/components/dashboard/AuroraMeshBackground";
-import { SmartBanner } from "@/components/dashboard/SmartBanner";
-import { ProactiveNudgesBanner } from "@/components/dashboard/ProactiveNudgesBanner";
-import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
-import { AnomalyAlertCenter } from "@/components/ai/AnomalyAlertCenter";
-import { NaturalLanguageCommander } from "@/components/dashboard/NaturalLanguageCommander";
-import { AdHocChartPanel } from "@/components/dashboard/AdHocChartPanel";
-import { LottieCelebrations } from "@/components/effects/LottieCelebrations";
-import { DashboardTour } from "@/components/dashboard/DashboardTour";
-import { WhatsNewModal } from "@/components/dashboard/WhatsNewModal";
-import { FeatureSpotlight } from "@/components/dashboard/FeatureSpotlight";
-import { NewUserSpotlight } from "@/components/onboarding/NewUserSpotlight";
-import { useAuth } from "@/hooks/useAuth";
-import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
-import { TransactionAlertBanner } from "@/components/alerts/TransactionAlertToast";
-import { OfflineBanner } from "@/components/dashboard/OfflineBanner";
-import { useOfflineDashboard } from "@/hooks/useOfflineDashboard";
-import { useAutoSync } from "@/hooks/useAutoSync";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-
-// Quick Action Modals
-import { AddToGoalModal } from "@/components/dashboard/modals/AddToGoalModal";
-import { PayBillModal } from "@/components/dashboard/modals/PayBillModal";
-import { DebtPaymentModal } from "@/components/dashboard/modals/DebtPaymentModal";
-import { CreditTipsModal } from "@/components/dashboard/modals/CreditTipsModal";
-
-// Financial Stories
+import { AppLayout } from "@/components/layout/AppLayout";
+import { DashboardErrorBoundary } from "@/components/error/DashboardErrorBoundary";
+import { AIThemeProvider } from "@/components/dashboard/generative/AIThemeProvider";
+import { useAuth } from "@/hooks/useAuth";
+import { useClaudeGenerativeDashboard } from "@/hooks/useClaudeGenerativeDashboard";
+import { useDashboardState } from "@/hooks/useDashboardState";
+import { useDashboardHandlers } from "@/hooks/useDashboardHandlers";
 import { useFinancialStories } from "@/hooks/useFinancialStories";
-import { StoryBubbles } from "@/components/dashboard/stories/StoryBubbles";
-import { StoryOverlay } from "@/components/dashboard/stories/StoryOverlay";
+import { useMilestoneDetector } from "@/hooks/useMilestoneDetector";
+import { useOfflineDashboard } from "@/hooks/useOfflineDashboard";
+import { useAutoSync } from "@/hooks/useAutoSync";
+import { useSyncStatus } from "@/hooks/useSyncStatus";
+import { useChatSidebar } from "@/hooks/useChatSidebar";
+import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+import { useAnnounce } from "@/components/accessibility/LiveRegionAnnouncer";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
-// GenUI Expansion
-import { EphemeralWidgetRenderer } from "@/components/dashboard/widgets/EphemeralWidgetRenderer";
-import { NLQResponse } from "@/lib/ephemeral-widgets";
-
-// Ambient AI Agent
-import { AmbientAIAgent } from "@/components/dashboard/ambient/AmbientAIAgent";
+// Consolidated sub-components
+import { DashboardShell } from "@/components/dashboard/shell/DashboardShell";
+import { DashboardContent } from "@/components/dashboard/content/DashboardContent";
+import { DashboardBanners } from "@/components/dashboard/banners/DashboardBanners";
+import { DashboardStories } from "@/components/dashboard/stories/DashboardStories";
+import { DashboardModals } from "@/components/dashboard/modals/DashboardModals";
+import { DashboardCelebrations } from "@/components/dashboard/celebrations/DashboardCelebrations";
+import { DashboardOnboarding } from "@/components/dashboard/onboarding/DashboardOnboarding";
+import { FloatingControls } from "@/components/dashboard/floating/FloatingControls";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
-  const { announce } = useAnnounce();
   const isMobile = useIsMobile();
+  const { announce } = useAnnounce();
+  const { isOpen: isChatOpen, toggle: toggleChat } = useChatSidebar();
   
-  // NLQ state
-  const [nlqQuery, setNlqQuery] = useState('');
-  const [isNlqProcessing, setIsNlqProcessing] = useState(false);
-  const [showAdHocChart, setShowAdHocChart] = useState(false);
-  const [adHocChartData, setAdHocChartData] = useState<Array<{ name: string; value: number }>>([]);
-  const [adHocInsight, setAdHocInsight] = useState('');
-  const [nlqResponse, setNlqResponse] = useState<NLQResponse | null>(null);
-  
-  // Financial Stories state
-  const [activeStoryIndex, setActiveStoryIndex] = useState<number | null>(null);
-  const { stories, isLoading: storiesLoading, markAsViewed, isViewed } = useFinancialStories();
-  
-  // Celebrations state
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [celebrationType, setCelebrationType] = useState<'success' | 'achievement' | 'goal' | 'milestone'>('success');
-  
-  // Modal state for quick actions
-  const [activeModal, setActiveModal] = useState<string | null>(null);
-  
-  // Check onboarding status
-  useOnboardingStatus(true);
-  
-  // Sync status
-  const { status: syncStatus, lastSynced, forceRefresh } = useSyncStatus();
+  // Consolidated state management
+  const [state, actions] = useDashboardState();
   
   // Claude Opus 4.5 Generative Dashboard
   const {
@@ -120,8 +56,35 @@ export default function Dashboard() {
     streamingText
   } = useClaudeGenerativeDashboard();
 
-  // Query profile for tutorial state
-  const { data: profile, refetch: refetchProfile } = useQuery({
+  // Consolidated handlers
+  const handlers = useDashboardHandlers({
+    actions,
+    regenerateDashboard,
+    userId: user?.id,
+  });
+
+  // Financial stories
+  const { stories, markAsViewed, isViewed } = useFinancialStories();
+  
+  // Milestone detection
+  const totalSavings = aiContext?.totalSavings || 0;
+  const { milestone, dismissMilestone } = useMilestoneDetector(totalSavings);
+  
+  // Offline & sync support
+  const { isOffline, isStale, lastCachedAt, hasCache } = useOfflineDashboard();
+  const { isSyncing, triggerSync } = useAutoSync({
+    onSync: regenerateDashboard,
+    hasCachedData: hasCache,
+    isStale: isStale
+  });
+  const { status: syncStatus, lastSynced, forceRefresh } = useSyncStatus();
+  
+  // Transaction alerts
+  const { alerts: transactionAlerts, markAllAsRead: markAlertsRead } = useTransactionAlerts();
+  
+  // Onboarding
+  useOnboardingStatus(true);
+  const { data: profile } = useQuery({
     queryKey: ['profile-tutorial', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -135,332 +98,104 @@ export default function Dashboard() {
     },
     enabled: !!user?.id,
   });
-  
-  // Handle onboarding completion
-  const handleOnboardingComplete = async () => {
-    if (!user?.id) return;
-    await supabase
-      .from('profiles')
-      .update({ show_dashboard_tutorial: false })
-      .eq('id', user.id);
-    refetchProfile();
-  };
 
-  // Real-time transaction alerts
-  const { alerts: transactionAlerts, markAllAsRead: markAlertsRead } = useTransactionAlerts();
-
-  // Offline support
-  const { isOffline, isStale, lastCachedAt, hasCache } = useOfflineDashboard();
-  const { isSyncing, triggerSync } = useAutoSync({
-    onSync: regenerateDashboard,
-    hasCachedData: hasCache,
-    isStale: isStale
-  });
-
-  // Calculate net worth change for aurora background
-  const totalSavings = aiContext?.totalSavings || 0;
+  // Net worth change for aurora background
   const netWorthChangePercent = totalSavings > 0 ? ((aiContext?.streak || 0) / 100) * 10 : 0;
-  
-  // Milestone detection for celebrations
-  const { milestone, dismissMilestone } = useMilestoneDetector(totalSavings);
 
-  // NLQ handler
-  const handleNLQuery = async (query: string) => {
-    setNlqQuery(query);
-    setIsNlqProcessing(true);
-    setShowAdHocChart(true);
-    setNlqResponse(null);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-nlq-chart', {
-        body: { query }
-      });
-
-      if (error) throw error;
-
-      // Handle both chart and ephemeral widget responses
-      const response = data as NLQResponse;
-      setNlqResponse(response);
-      
-      if (response.type === 'chart') {
-        setAdHocChartData(response.chartData || []);
-        setAdHocInsight(response.insight || 'Analysis complete.');
-      }
-    } catch (error) {
-      console.error('NLQ query failed:', error);
-      toast.error('Failed to analyze query');
-      setAdHocChartData([]);
-      setAdHocInsight('Unable to analyze your spending at this time.');
-    } finally {
-      setIsNlqProcessing(false);
-    }
-  };
-
-  // Pull to refresh handler
-  const handleRefresh = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['connected_accounts'] }),
-      queryClient.invalidateQueries({ queryKey: ['transactions'] }),
-      queryClient.invalidateQueries({ queryKey: ['pots'] }),
-      queryClient.invalidateQueries({ queryKey: ['goals'] }),
-      regenerateDashboard()
-    ]);
-    toast.success('Dashboard refreshed with AI!');
-  };
-
-  // Announce to screen readers when dashboard is ready
+  // Screen reader announcement
   useEffect(() => {
     if (!isGenerating && aiContext) {
       announce(`Dashboard ready. ${briefing?.summary || 'Your personalized financial overview.'}`, 'polite');
     }
   }, [isGenerating, aiContext, briefing, announce]);
 
-  const dashboardContent = (
-    <AIThemeProvider theme={theme}>
-      <DashboardErrorBoundary sectionName="AI Dashboard">
-        <div className="min-h-screen relative">
-          {/* Aurora Background with net worth sentiment */}
-          <AuroraMeshBackground netWorthChangePercent={netWorthChangePercent} />
-          
-          {/* Skip Links for Accessibility */}
-          <SkipLinks />
-
-          {/* Financial Stories */}
-          {stories.length > 0 && (
-            <div className="container mx-auto px-4 pt-2">
-              <StoryBubbles 
-                stories={stories} 
-                onStoryClick={setActiveStoryIndex}
-                isViewed={isViewed}
-              />
-            </div>
-          )}
-
-          {/* Banners */}
-          <OfflineBanner
-            isOffline={isOffline}
-            isSyncing={isSyncing}
-            isStale={isStale}
-            lastCachedAt={lastCachedAt}
-            onRefresh={triggerSync}
-          />
-          <EmailVerificationBanner />
-          <SmartBanner />
-          <ProactiveNudgesBanner />
-          {transactionAlerts.length > 0 && (
-            <TransactionAlertBanner 
-              alerts={transactionAlerts}
-              onViewAll={() => navigate('/transactions')}
-              onDismissAll={() => markAlertsRead()}
-            />
-          )}
-
-          {/* Header */}
-          <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <motion.div
-                    animate={{ rotate: isGenerating ? 360 : 0 }}
-                    transition={{ duration: 2, repeat: isGenerating ? Infinity : 0, ease: 'linear' }}
-                  >
-                    <Sparkles className="h-6 w-6 text-primary" />
-                  </motion.div>
-                  <div>
-                    <h1 className="text-xl font-semibold text-foreground">$ave+ Dashboard</h1>
-                    <p className="text-xs text-muted-foreground">
-                      Powered by Claude Opus 4.5 • {meta?.model || 'AI-Generated'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <SyncIndicator status={syncStatus} lastSynced={lastSynced} onRefresh={forceRefresh} />
-                  
-                  {lastRefresh && (
-                    <span className="text-xs text-muted-foreground hidden sm:block">
-                      {lastRefresh.toLocaleTimeString()}
-                    </span>
-                  )}
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={regenerateDashboard}
-                    disabled={isGenerating}
-                    className="border-border/50"
-                  >
-                    <RefreshCw className={cn("h-4 w-4 mr-2", isGenerating && "animate-spin")} />
-                    <span className="hidden sm:inline">Regenerate</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </header>
-
-          {/* Main Content */}
-          <main id="main-content" className={cn(
-            "container mx-auto px-4 py-6 transition-all duration-300",
-            isChatOpen && !isMobile && "mr-96"
-          )}>
-            {/* Error State */}
-            {generationError && (
-              <Alert variant="destructive" className="mb-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {generationError}. Showing default layout.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* NLQ Commander */}
-            <div className="mb-6" data-tour="nlq-commander">
-              <NaturalLanguageCommander 
-                onQuery={handleNLQuery}
-                isProcessing={isNlqProcessing}
-              />
-            </div>
-
-            {/* Ad-hoc Chart Panel or Ephemeral Widget */}
-            {showAdHocChart && (
-              nlqResponse?.type === 'ephemeral_widget' && nlqResponse.widget ? (
-                <EphemeralWidgetRenderer
-                  spec={nlqResponse.widget}
-                  onDismiss={() => setShowAdHocChart(false)}
-                />
-              ) : (
-                <AdHocChartPanel
-                  isOpen={showAdHocChart}
-                  onClose={() => setShowAdHocChart(false)}
-                  query={nlqQuery}
-                  data={adHocChartData}
-                  insight={adHocInsight}
-                  isLoading={isNlqProcessing}
-                />
-              )
-            )}
-
-            {/* AI Dashboard Content */}
-            {isGenerating ? (
-              <GenerativeDashboardSkeleton />
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="space-y-6"
-              >
-                {/* AI Briefing */}
-                <GenerativeBriefing
-                  briefing={briefing}
-                  theme={theme}
-                  reasoning={reasoning}
-                  meta={meta}
-                  streamingText={streamingText}
-                />
-
-                {/* Unified Generative Widget Grid */}
-                <UnifiedGenerativeGrid
-                  layout={layout}
-                  widgets={widgets}
-                  theme={theme}
-                  onModalOpen={setActiveModal}
-                />
-
-                {/* Context Summary */}
-                {aiContext && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground py-4"
-                  >
-                    <span className="flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                      {aiContext.timeOfDay}
-                    </span>
-                    <span>•</span>
-                    <span>${aiContext.totalSavings?.toLocaleString() || '0'} saved</span>
-                    <span>•</span>
-                    <span>{aiContext.goalsCount || 0} goals</span>
-                    <span>•</span>
-                    <span>{aiContext.streak || 0} day streak</span>
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
-          </main>
-
-          {/* Footer */}
-          <footer className="border-t border-border/50 py-4 mt-8">
-            <div className="container mx-auto px-4 text-center text-xs text-muted-foreground">
-              <p className="flex items-center justify-center gap-2">
-                <Sparkles className="h-3 w-3 text-primary" />
-                Dashboard personalized by Claude Opus 4.5
-              </p>
-            </div>
-          </footer>
-
-          {/* Floating Elements */}
-          <UnifiedFAB />
-          <CommandPalette />
-          <ChatSidebar isOpen={isChatOpen} onToggle={toggleChat} />
-          <AnomalyAlertCenter />
-          <AmbientAIAgent />
-
-          {/* Celebrations */}
-          {milestone && (
-            <MilestoneCelebration
-              milestone={milestone}
-              onDismiss={dismissMilestone}
-            />
-          )}
-          <LottieCelebrations
-            type={celebrationType}
-            isVisible={showCelebration}
-            onComplete={() => setShowCelebration(false)}
-          />
-
-          {/* Onboarding */}
-          {profile?.show_dashboard_tutorial && (
-            <DashboardTour />
-          )}
-          <WhatsNewModal />
-          <FeatureSpotlight />
-          <NewUserSpotlight />
-          
-          {/* Quick Action Modals */}
-          <AddToGoalModal isOpen={activeModal === 'add_to_goal'} onClose={() => setActiveModal(null)} />
-          <PayBillModal isOpen={activeModal === 'pay_bill'} onClose={() => setActiveModal(null)} />
-          <DebtPaymentModal isOpen={activeModal === 'debt_payment'} onClose={() => setActiveModal(null)} />
-          <CreditTipsModal isOpen={activeModal === 'credit_tips'} onClose={() => setActiveModal(null)} />
-          
-          {/* Story Overlay */}
-          <StoryOverlay
-            stories={stories}
-            activeIndex={activeStoryIndex}
-            onClose={() => setActiveStoryIndex(null)}
-            onStoryViewed={markAsViewed}
-          />
-        </div>
-      </DashboardErrorBoundary>
-    </AIThemeProvider>
-  );
-
-  // Mobile: wrap with PullToRefresh
-  if (isMobile) {
-    return (
-      <AppLayout>
-        <PullToRefresh onRefresh={handleRefresh}>
-          {dashboardContent}
-        </PullToRefresh>
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout>
-      {dashboardContent}
+      <AIThemeProvider theme={theme}>
+        <DashboardErrorBoundary sectionName="AI Dashboard">
+          <DashboardShell
+            isGenerating={isGenerating}
+            modelName={meta?.model}
+            syncStatus={syncStatus}
+            lastSynced={lastSynced}
+            lastRefresh={lastRefresh}
+            netWorthChangePercent={netWorthChangePercent}
+            onRefresh={regenerateDashboard}
+            onForceRefresh={forceRefresh}
+          >
+            {/* Stories */}
+            <DashboardStories
+              stories={stories}
+              activeStoryIndex={state.activeStoryIndex}
+              onStoryClick={actions.setActiveStoryIndex}
+              onClose={() => actions.setActiveStoryIndex(null)}
+              onStoryViewed={markAsViewed}
+              isViewed={isViewed}
+            />
+
+            {/* Banners */}
+            <DashboardBanners
+              isOffline={isOffline}
+              isSyncing={isSyncing}
+              isStale={isStale}
+              lastCachedAt={lastCachedAt}
+              transactionAlerts={transactionAlerts}
+              onRefresh={triggerSync}
+              onNavigateTransactions={() => navigate('/transactions')}
+              onDismissAlerts={markAlertsRead}
+            />
+
+            {/* Main Content */}
+            <DashboardContent
+              isGenerating={isGenerating}
+              generationError={generationError}
+              layout={layout}
+              widgets={widgets}
+              theme={theme}
+              briefing={briefing}
+              reasoning={reasoning}
+              meta={meta}
+              streamingText={streamingText}
+              aiContext={aiContext}
+              isChatOpen={isChatOpen}
+              isMobile={isMobile}
+              onModalOpen={actions.setActiveModal}
+              nlqQuery={state.nlq.query}
+              nlqIsProcessing={state.nlq.isProcessing}
+              nlqShowChart={state.nlq.showChart}
+              nlqChartData={state.nlq.chartData}
+              nlqInsight={state.nlq.insight}
+              nlqResponse={state.nlq.response}
+              onNLQuery={handlers.handleNLQuery}
+              onCloseChart={() => actions.setNlqShowChart(false)}
+            />
+
+            {/* Floating Controls */}
+            <FloatingControls
+              isChatOpen={isChatOpen}
+              onToggleChat={toggleChat}
+            />
+
+            {/* Celebrations */}
+            <DashboardCelebrations
+              milestone={milestone}
+              onDismissMilestone={dismissMilestone}
+              celebrationType={state.celebrationType}
+              showCelebration={state.showCelebration}
+              onCelebrationComplete={actions.hideCelebration}
+            />
+
+            {/* Onboarding */}
+            <DashboardOnboarding showTutorial={profile?.show_dashboard_tutorial} />
+
+            {/* Modals */}
+            <DashboardModals
+              activeModal={state.activeModal}
+              onClose={actions.closeModal}
+            />
+          </DashboardShell>
+        </DashboardErrorBoundary>
+      </AIThemeProvider>
     </AppLayout>
   );
 }
