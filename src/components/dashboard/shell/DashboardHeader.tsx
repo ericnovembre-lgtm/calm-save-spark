@@ -82,22 +82,24 @@ export function DashboardHeader({
   }, [fullGreeting, prefersReducedMotion]);
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
+    <header className="sticky top-0 z-50 backdrop-blur-2xl bg-background/85 border-b border-border/30 shadow-[0_1px_3px_0_hsla(0,0%,0%,0.04)]">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3.5">
             <motion.div
               animate={!prefersReducedMotion ? { rotate: isGenerating ? 360 : 0 } : undefined}
               transition={{ duration: 2, repeat: isGenerating ? Infinity : 0, ease: 'linear' }}
               className="relative"
             >
-              <Sparkles className="h-6 w-6 text-primary" />
+              <div className="p-2 rounded-xl bg-primary/8 border border-primary/10">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
               {/* Subtle glow effect */}
               {isGenerating && !prefersReducedMotion && (
                 <motion.div 
-                  className="absolute inset-0 rounded-full blur-md bg-primary/30"
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0.2, 0.5] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="absolute inset-0 rounded-xl blur-lg bg-primary/25"
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0.15, 0.4] }}
+                  transition={{ duration: 1.8, repeat: Infinity }}
                 />
               )}
             </motion.div>
@@ -145,18 +147,18 @@ export function DashboardHeader({
                   />
                 </h1>
               </div>
-              <div className="flex items-center gap-2">
-                <p className="text-xs text-muted-foreground">
-                  Powered by Claude Opus 4.5
+              <div className="flex items-center gap-2.5 mt-0.5">
+                <p className="text-[11px] text-muted-foreground/70 font-medium tracking-wide">
+                  AI-Powered Dashboard
                 </p>
                 {/* Model badge with glassmorphic styling */}
                 {modelName && (
                   <motion.span 
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 backdrop-blur-sm"
+                    className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-primary/8 text-primary/90 border border-primary/15 backdrop-blur-sm"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary/80 animate-pulse" />
                     {modelName}
                   </motion.span>
                 )}
@@ -184,10 +186,10 @@ export function DashboardHeader({
               size="sm"
               onClick={onRefresh}
               disabled={isGenerating}
-              className="border-border/50 hover:bg-primary/5 transition-colors"
+              className="border-border/40 bg-background/50 hover:bg-primary/8 hover:border-primary/20 hover:text-primary transition-all duration-300 shadow-sm"
             >
               <RefreshCw className={cn("h-4 w-4 mr-2", isGenerating && "animate-spin")} />
-              <span className="hidden sm:inline">Regenerate</span>
+              <span className="hidden sm:inline font-medium">Regenerate</span>
             </Button>
           </div>
         </div>

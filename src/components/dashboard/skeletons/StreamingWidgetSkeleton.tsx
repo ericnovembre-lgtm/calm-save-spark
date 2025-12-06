@@ -67,50 +67,54 @@ export function StreamingWidgetSkeleton({
 }
 
 function SkeletonContent({ type, reduced }: { type: string; reduced: boolean }) {
-  // Enhanced multi-layer shimmer with glow effect
-  const shimmerBase = 'relative overflow-hidden';
+  // Enhanced multi-layer shimmer with wave effect
+  const shimmerBase = 'relative overflow-hidden rounded-lg';
   const shimmerClass = reduced 
-    ? 'bg-muted/50' 
-    : 'bg-gradient-to-r from-muted/30 via-muted/60 to-muted/30 animate-shimmer bg-[length:200%_100%]';
+    ? 'bg-muted/40' 
+    : 'bg-gradient-to-r from-muted/20 via-muted/50 via-muted/20 to-muted/20 animate-shimmer bg-[length:400%_100%]';
   
   const glowOverlay = !reduced && (
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-shimmer-glow bg-[length:300%_100%]" />
+    <>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-background/60 to-transparent animate-shimmer-glow bg-[length:300%_100%]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/3 to-transparent" />
+    </>
   );
 
-  // Pulsing progress dots component
+  // Enhanced pulsing progress indicator
   const ProgressDots = () => (
-    <div className="flex items-center gap-1 mt-3">
+    <div className="flex items-center gap-1.5 mt-4">
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="w-1.5 h-1.5 rounded-full bg-primary/40"
+          className="w-1.5 h-1.5 rounded-full bg-primary/50"
           animate={reduced ? {} : { 
-            scale: [1, 1.3, 1],
-            opacity: [0.4, 0.8, 0.4]
+            scale: [1, 1.4, 1],
+            opacity: [0.3, 0.9, 0.3]
           }}
           transition={{
-            duration: 1,
+            duration: 1.2,
             repeat: Infinity,
-            delay: i * 0.2,
+            delay: i * 0.15,
             ease: 'easeInOut'
           }}
         />
       ))}
+      <span className="ml-2 text-[10px] text-muted-foreground/50 font-medium tracking-wide">Loading...</span>
     </div>
   );
 
   switch (type) {
     case 'balance_hero':
       return (
-        <div className="p-6 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className={cn('h-4 w-24 rounded-md', shimmerBase, shimmerClass)}>{glowOverlay}</div>
-            <div className={cn('h-6 w-16 rounded-full', shimmerBase, shimmerClass)}>{glowOverlay}</div>
+        <div className="p-6 rounded-2xl bg-card/60 border border-border/30 backdrop-blur-xl shadow-sm">
+          <div className="flex items-center justify-between mb-5">
+            <div className={cn('h-4 w-28 rounded-md', shimmerBase, shimmerClass)}>{glowOverlay}</div>
+            <div className={cn('h-7 w-20 rounded-full', shimmerBase, shimmerClass)}>{glowOverlay}</div>
           </div>
-          <div className={cn('h-12 w-48 rounded-lg mb-3', shimmerBase, shimmerClass)}>{glowOverlay}</div>
-          <div className="flex items-center gap-3">
-            <div className={cn('h-3 w-20 rounded', shimmerBase, shimmerClass)}>{glowOverlay}</div>
-            <div className={cn('h-3 w-24 rounded', shimmerBase, shimmerClass)}>{glowOverlay}</div>
+          <div className={cn('h-14 w-56 rounded-xl mb-4', shimmerBase, shimmerClass)}>{glowOverlay}</div>
+          <div className="flex items-center gap-4">
+            <div className={cn('h-3 w-24 rounded-md', shimmerBase, shimmerClass)}>{glowOverlay}</div>
+            <div className={cn('h-3 w-28 rounded-md', shimmerBase, shimmerClass)}>{glowOverlay}</div>
           </div>
           <ProgressDots />
         </div>

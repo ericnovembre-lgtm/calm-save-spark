@@ -70,15 +70,16 @@
 /* Standard widget glass - Primary glass style for all dashboard widgets */
 .glass-widget {
   position: relative;
-  background: hsla(var(--background), 0.6);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid hsla(var(--foreground), 0.08);
+  background: hsla(var(--background), 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid hsla(var(--foreground), 0.06);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px hsla(0, 0%, 0%, 0.12),
-    inset 0 1px 0 hsla(255, 255%, 255%, 0.1);
-  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    0 4px 24px hsla(0, 0%, 0%, 0.08),
+    0 1px 2px hsla(0, 0%, 0%, 0.04),
+    inset 0 1px 0 hsla(255, 255%, 255%, 0.12);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Inner light gradient on glass widgets */
@@ -89,25 +90,32 @@
   border-radius: inherit;
   padding: 1px;
   background: linear-gradient(
-    135deg,
-    hsla(var(--foreground), 0.15),
-    transparent 50%,
-    hsla(var(--foreground), 0.05)
+    160deg,
+    hsla(var(--foreground), 0.12),
+    transparent 40%,
+    hsla(var(--foreground), 0.03)
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   -webkit-mask-composite: xor;
   pointer-events: none;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
 }
 
 .glass-widget:hover {
-  background: hsla(var(--background), 0.7);
-  border-color: hsla(var(--foreground), 0.12);
+  background: hsla(var(--background), 0.75);
+  border-color: hsla(var(--foreground), 0.1);
   box-shadow: 
-    0 16px 48px hsla(0, 0%, 0%, 0.18),
+    0 8px 40px hsla(0, 0%, 0%, 0.12),
+    0 2px 4px hsla(0, 0%, 0%, 0.06),
     inset 0 1px 0 hsla(255, 255%, 255%, 0.15);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+
+.glass-widget:hover::before {
+  opacity: 1;
 }
 
 /* Hero card glass - Extra depth and blur for hero sections */
