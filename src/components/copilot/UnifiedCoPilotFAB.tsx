@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Target, DollarSign, Zap, MessageCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useCoPilot } from '@/contexts/CoPilotContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { PulseState } from '@/types/copilot';
@@ -44,8 +44,14 @@ export function UnifiedCoPilotFAB() {
   const [isExpanded, setIsExpanded] = useState(false);
   const { isOpen, pulseNotification, clearPulse, openCoPilot, toggleCoPilot } = useCoPilot();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Hide FAB on dashboard page
+  if (location.pathname === '/dashboard') {
+    return null;
+  }
 
   const state = pulseNotification?.state ?? 'idle';
   const colors = pulseColors[state];
