@@ -9,6 +9,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { VoiceProvider } from "@/contexts/VoiceContext";
 import { GlobalAIProvider } from "@/contexts/GlobalAIContext";
+import { CelebrationProvider } from "@/contexts/CelebrationContext";
+import { AchievementUnlockOverlay } from "@/components/effects/AchievementUnlockOverlay";
 import { initializeSessionManagement } from "@/lib/session";
 import LiveRegion from "@/components/layout/LiveRegion";
 import { PageTracker } from "@/components/layout/PageTracker";
@@ -84,6 +86,7 @@ const Social = createPageLoader(() => import("./pages/Social"), 'medium');
 const Integrations = createPageLoader(() => import("./pages/Integrations"), 'medium');
 const Accounts = createPageLoader(() => import("./pages/Accounts"), 'medium');
 const Leaderboard = createPageLoader(() => import("./pages/Leaderboard"), 'medium');
+const Gamification = createPageLoader(() => import("./pages/Gamification"), 'medium');
 const Wallet = createPageLoader(() => import("./pages/Wallet"), 'medium');
 const WalletSettings = createPageLoader(() => import("./pages/WalletSettings"), 'medium');
 const Card = createPageLoader(() => import("./pages/Card"), 'medium');
@@ -196,19 +199,22 @@ const App = () => {
               <DemoModeProvider>
                 <VoiceProvider>
                   <GlobalAIProvider>
-                    <TooltipProvider>
-                    <LiveRegion />
-                    <Toaster />
-                    <Sonner />
-                    <UpdatePrompt />
-                    <BrowserRouter>
-                      <CoPilotWrapper>
-                        <PageTracker />
-                        <InstallPrompt />
-                        <AnimatedRoutes />
-                      </CoPilotWrapper>
-                    </BrowserRouter>
-                    </TooltipProvider>
+                    <CelebrationProvider>
+                      <TooltipProvider>
+                      <LiveRegion />
+                      <Toaster />
+                      <Sonner />
+                      <UpdatePrompt />
+                      <AchievementUnlockOverlay />
+                      <BrowserRouter>
+                        <CoPilotWrapper>
+                          <PageTracker />
+                          <InstallPrompt />
+                          <AnimatedRoutes />
+                        </CoPilotWrapper>
+                      </BrowserRouter>
+                      </TooltipProvider>
+                    </CelebrationProvider>
                   </GlobalAIProvider>
                 </VoiceProvider>
               </DemoModeProvider>
@@ -338,7 +344,7 @@ function AnimatedRoutes() {
         <Route path="/cooling-off" element={<ProtectedRoute><PageTransition><CoolingOff /></PageTransition></ProtectedRoute>} />
         <Route path="/lifesim" element={<ProtectedRoute><PageTransition><LifeSim /></PageTransition></ProtectedRoute>} />
         <Route path="/life-planner" element={<Navigate to="/digital-twin?tab=playbooks" replace />} />
-        <Route path="/gamification" element={<Navigate to="/achievements" replace />} />
+        <Route path="/gamification" element={<ProtectedRoute><PageTransition><Gamification /></PageTransition></ProtectedRoute>} />
         <Route path="/life-events" element={<Navigate to="/digital-twin?tab=playbooks" replace />} />
         <Route path="/tax-documents" element={<ProtectedRoute><PageTransition><TaxDocuments /></PageTransition></ProtectedRoute>} />
         <Route path="/tax-analysis" element={<ProtectedRoute><PageTransition><TaxDocumentAnalysis /></PageTransition></ProtectedRoute>} />
