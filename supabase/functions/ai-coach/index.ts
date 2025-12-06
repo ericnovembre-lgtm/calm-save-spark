@@ -3,7 +3,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { ErrorHandlerOptions, handleError, handleValidationError } from "../_shared/error-handler.ts";
 import { enforceRateLimit, RATE_LIMITS } from "../_shared/rate-limiter.ts";
-import { withLovableFallback, callLovableAI } from "../_shared/lovable-ai-fallback.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -116,28 +115,26 @@ Provide personalized, actionable financial advice. Be encouraging and specific.`
     const conversationHistory = session.conversation_history || [];
     conversationHistory.push({ role: 'user', content: validated.message });
 
-    // Call AI with Lovable AI fallback pattern
-    const messages = [
-      { role: 'system', content: context },
-      ...conversationHistory
-    ];
-
-    let assistantMessage: string;
-    
-    try {
-      // Use the shared Lovable AI utility
-      const aiResponse = await callLovableAI(messages, {
+    // Call Lovable AI
+    const aiResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/lovable-ai`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        maxTokens: 500,
+        messages: [
+          { role: 'system', content: context },
+          ...conversationHistory
+        ],
         temperature: 0.7,
-      });
-      
-      const aiData = await aiResponse.json();
-      assistantMessage = aiData.choices?.[0]?.message?.content || 'I apologize, I encountered an error. Please try again.';
-    } catch (aiError) {
-      console.error('[ai-coach] AI call failed:', aiError);
-      assistantMessage = 'I apologize, I encountered an error processing your request. Please try again in a moment.';
-    }
+        max_tokens: 500
+      }),
+    });
+
+    const aiData = await aiResponse.json();
+    const assistantMessage = aiData.choices?.[0]?.message?.content || 'I apologize, I encountered an error. Please try again.';
 
     conversationHistory.push({ role: 'assistant', content: assistantMessage });
 

@@ -65,7 +65,7 @@ export function StreamingIndicator({
       exit={{ opacity: 0, y: -10 }}
       className={cn(
         'flex items-center gap-3 px-4 py-2 rounded-full',
-        'bg-card/90 backdrop-blur-sm border border-border',
+        'bg-slate-900/80 backdrop-blur-sm border border-white/10',
         className
       )}
     >
@@ -93,9 +93,9 @@ export function StreamingIndicator({
 
       {/* Progress Bar */}
       {progress > 0 && progress < 100 && (
-        <div className="w-20 h-1 bg-border rounded-full overflow-hidden">
+        <div className="w-20 h-1 bg-white/10 rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-accent to-foreground/60"
+            className="h-full bg-gradient-to-r from-cyan-500 to-violet-500"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
@@ -121,7 +121,7 @@ export function StreamingIndicator({
 // Animated Dots
 function DotsIndicator({ phase, reduced }: { phase: StreamPhase; reduced: boolean }) {
   if (reduced) {
-    return <span className="text-accent">•••</span>;
+    return <span className="text-cyan-400">•••</span>;
   }
   
   return (
@@ -129,7 +129,7 @@ function DotsIndicator({ phase, reduced }: { phase: StreamPhase; reduced: boolea
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
-          className="w-1.5 h-1.5 rounded-full bg-accent"
+          className="w-1.5 h-1.5 rounded-full bg-cyan-400"
           animate={{
             y: phase === 'streaming' ? [0, -4, 0] : 0,
             opacity: phase === 'connecting' ? [0.3, 1, 0.3] : 1,
@@ -176,8 +176,8 @@ function PulseIndicator({ progress, reduced }: { progress: number; reduced: bool
         />
         <defs>
           <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--accent))" />
-            <stop offset="100%" stopColor="hsl(var(--foreground))" />
+            <stop offset="0%" stopColor="#06b6d4" />
+            <stop offset="100%" stopColor="#8b5cf6" />
           </linearGradient>
         </defs>
       </svg>
@@ -187,7 +187,7 @@ function PulseIndicator({ progress, reduced }: { progress: number; reduced: bool
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <div className="w-2 h-2 rounded-full bg-accent" />
+          <div className="w-2 h-2 rounded-full bg-cyan-400" />
         </motion.div>
       )}
     </div>
@@ -198,7 +198,7 @@ function PulseIndicator({ progress, reduced }: { progress: number; reduced: bool
 function WaveIndicator({ reduced }: { reduced: boolean }) {
   if (reduced) {
     return <div className="flex gap-0.5 items-end h-4">{[...Array(5)].map((_, i) => (
-      <div key={i} className="w-0.5 bg-accent" style={{ height: '50%' }} />
+      <div key={i} className="w-0.5 bg-cyan-400" style={{ height: '50%' }} />
     ))}</div>;
   }
   
@@ -207,7 +207,7 @@ function WaveIndicator({ reduced }: { reduced: boolean }) {
       {[...Array(5)].map((_, i) => (
         <motion.div
           key={i}
-          className="w-0.5 bg-gradient-to-t from-accent to-foreground/60 rounded-full"
+          className="w-0.5 bg-gradient-to-t from-cyan-500 to-violet-500 rounded-full"
           animate={{ height: ['30%', '100%', '30%'] }}
           transition={{
             duration: 0.8,
@@ -232,7 +232,7 @@ function BrainIndicator({ phase, reduced }: { phase: StreamPhase; reduced: boole
     >
       <Brain className={cn(
         'h-5 w-5',
-        phase === 'streaming' ? 'text-foreground' : 'text-accent'
+        phase === 'streaming' ? 'text-violet-400' : 'text-cyan-400'
       )} />
     </motion.div>
   );
