@@ -1,4 +1,4 @@
-export { CoPilotOrb } from './CoPilotOrb';
+export { UnifiedCoPilotFAB } from './UnifiedCoPilotFAB';
 export { CoPilotPanel } from './CoPilotPanel';
 export { CoPilotSpotlight } from './CoPilotSpotlight';
 export { ProactivePulse } from './ProactivePulse';
