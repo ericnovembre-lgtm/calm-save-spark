@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 const CLAUDE_OPUS = 'claude-opus-4-1-20250805';
+const GEMINI_MODEL = 'google/gemini-2.5-flash';
 const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes (increased from 10)
 const STALE_WHILE_REVALIDATE_MS = 60 * 60 * 1000; // 1 hour stale-while-revalidate
 
@@ -231,68 +232,115 @@ ${context.recentTransactions?.slice(0, 5).map((t: any) => `- ${t.merchant || 'Un
 Design the optimal dashboard for this user.`;
 }
 
-async function generateDashboardWithClaude(context: FinancialContext): Promise<any> {
-  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
-  if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured');
+async function generateDashboardWithLovableAI(context: FinancialContext): Promise<{ dashboard: any; model: string }> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
   const userContextMessage = buildUserContextMessage(context);
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
+      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
     },
     body: JSON.stringify({
-      model: CLAUDE_OPUS,
-      max_tokens: 4096,
-      system: DASHBOARD_ARCHITECT_PROMPT,
-      messages: [{ role: 'user', content: userContextMessage }]
+      model: GEMINI_MODEL,
+      messages: [
+        { role: 'system', content: DASHBOARD_ARCHITECT_PROMPT },
+        { role: 'user', content: userContextMessage }
+      ],
     }),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Claude API error:', response.status, errorText);
-    throw new Error(`Claude API error: ${response.status}`);
+    console.error('Lovable AI error:', response.status, errorText);
+    throw new Error(`Lovable AI error: ${response.status}`);
   }
 
   const data = await response.json();
-  const content = data.content[0]?.text || '';
+  const content = data.choices?.[0]?.message?.content || '';
   const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('Failed to parse dashboard layout');
+  if (!jsonMatch) throw new Error('Failed to parse dashboard layout from Lovable AI');
 
-  return JSON.parse(jsonMatch[0]);
+  return { dashboard: JSON.parse(jsonMatch[0]), model: GEMINI_MODEL };
 }
 
-async function* streamDashboardWithClaude(context: FinancialContext): AsyncGenerator<{ type: string; content?: string; dashboard?: any; context?: any; meta?: any; cached?: boolean }> {
+async function generateDashboardWithClaude(context: FinancialContext): Promise<{ dashboard: any; model: string }> {
   const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
-  if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured');
+  
+  // If no Claude key, use Lovable AI directly
+  if (!ANTHROPIC_API_KEY) {
+    console.log('No ANTHROPIC_API_KEY, using Lovable AI');
+    return generateDashboardWithLovableAI(context);
+  }
+
+  const userContextMessage = buildUserContextMessage(context);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: CLAUDE_OPUS,
+        max_tokens: 4096,
+        system: DASHBOARD_ARCHITECT_PROMPT,
+        messages: [{ role: 'user', content: userContextMessage }]
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Claude API error:', response.status, errorText);
+      // Fallback to Lovable AI on Claude failure (e.g., credit exhausted)
+      console.log('Falling back to Lovable AI due to Claude error');
+      return generateDashboardWithLovableAI(context);
+    }
+
+    const data = await response.json();
+    const content = data.content[0]?.text || '';
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Failed to parse dashboard layout');
+
+    return { dashboard: JSON.parse(jsonMatch[0]), model: CLAUDE_OPUS };
+  } catch (error) {
+    console.error('Claude generation failed, falling back to Lovable AI:', error);
+    return generateDashboardWithLovableAI(context);
+  }
+}
+
+async function* streamDashboardWithLovableAI(context: FinancialContext): AsyncGenerator<{ type: string; content?: string; dashboard?: any; context?: any; meta?: any; cached?: boolean; model?: string }> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
   const userContextMessage = buildUserContextMessage(context);
   const startTime = Date.now();
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
+      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
     },
     body: JSON.stringify({
-      model: CLAUDE_OPUS,
-      max_tokens: 4096,
+      model: GEMINI_MODEL,
+      messages: [
+        { role: 'system', content: DASHBOARD_ARCHITECT_PROMPT },
+        { role: 'user', content: userContextMessage }
+      ],
       stream: true,
-      system: DASHBOARD_ARCHITECT_PROMPT,
-      messages: [{ role: 'user', content: userContextMessage }]
     }),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Claude API streaming error:', response.status, errorText);
-    throw new Error(`Claude API error: ${response.status}`);
+    console.error('Lovable AI streaming error:', response.status, errorText);
+    throw new Error(`Lovable AI error: ${response.status}`);
   }
 
   const reader = response.body?.getReader();
@@ -317,9 +365,9 @@ async function* streamDashboardWithClaude(context: FinancialContext): AsyncGener
 
         try {
           const event = JSON.parse(jsonStr);
+          const text = event.choices?.[0]?.delta?.content;
           
-          if (event.type === 'content_block_delta' && event.delta?.text) {
-            const text = event.delta.text;
+          if (text) {
             fullContent += text;
             
             // Stream text that looks like briefing content (before JSON starts)
@@ -351,9 +399,115 @@ async function* streamDashboardWithClaude(context: FinancialContext): AsyncGener
       streak: context.streakData?.currentStreak,
       netWorth: context.netWorth
     },
-    meta: { model: CLAUDE_OPUS, processingTimeMs: processingTime, generatedAt: new Date().toISOString() },
-    cached: false
+    meta: { model: GEMINI_MODEL, processingTimeMs: processingTime, generatedAt: new Date().toISOString() },
+    cached: false,
+    model: GEMINI_MODEL
   };
+}
+
+async function* streamDashboardWithClaude(context: FinancialContext): AsyncGenerator<{ type: string; content?: string; dashboard?: any; context?: any; meta?: any; cached?: boolean; model?: string }> {
+  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+  
+  // If no Claude key, use Lovable AI directly
+  if (!ANTHROPIC_API_KEY) {
+    console.log('No ANTHROPIC_API_KEY for streaming, using Lovable AI');
+    yield* streamDashboardWithLovableAI(context);
+    return;
+  }
+
+  const userContextMessage = buildUserContextMessage(context);
+  const startTime = Date.now();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: CLAUDE_OPUS,
+        max_tokens: 4096,
+        stream: true,
+        system: DASHBOARD_ARCHITECT_PROMPT,
+        messages: [{ role: 'user', content: userContextMessage }]
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Claude API streaming error:', response.status, errorText);
+      // Fallback to Lovable AI
+      console.log('Falling back to Lovable AI streaming due to Claude error');
+      yield* streamDashboardWithLovableAI(context);
+      return;
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('No response body');
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullContent = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const jsonStr = line.slice(6).trim();
+          if (!jsonStr || jsonStr === '[DONE]') continue;
+
+          try {
+            const event = JSON.parse(jsonStr);
+            
+            if (event.type === 'content_block_delta' && event.delta?.text) {
+              const text = event.delta.text;
+              fullContent += text;
+              
+              // Stream text that looks like briefing content (before JSON starts)
+              if (!fullContent.includes('{')) {
+                yield { type: 'streaming_text', content: text };
+              }
+            }
+          } catch {
+            // Ignore parse errors
+          }
+        }
+      }
+    }
+
+    // Parse final JSON from accumulated content
+    const jsonMatch = fullContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Failed to parse dashboard layout from stream');
+
+    const dashboard = JSON.parse(jsonMatch[0]);
+    const processingTime = Date.now() - startTime;
+
+    yield {
+      type: 'complete',
+      dashboard,
+      context: {
+        timeOfDay: context.timeOfDay,
+        totalSavings: context.balances?.totalSavings,
+        goalsCount: context.goals?.length,
+        streak: context.streakData?.currentStreak,
+        netWorth: context.netWorth
+      },
+      meta: { model: CLAUDE_OPUS, processingTimeMs: processingTime, generatedAt: new Date().toISOString() },
+      cached: false,
+      model: CLAUDE_OPUS
+    };
+  } catch (error) {
+    console.error('Claude streaming failed, falling back to Lovable AI:', error);
+    yield* streamDashboardWithLovableAI(context);
+  }
 }
 
 serve(async (req) => {
@@ -486,7 +640,7 @@ serve(async (req) => {
     }
 
     // Non-streaming fallback
-    const dashboardLayout = await generateDashboardWithClaude(context);
+    const { dashboard: dashboardLayout, model: usedModel } = await generateDashboardWithClaude(context);
     const processingTime = Date.now() - startTime;
 
     // Cache the result
@@ -495,10 +649,10 @@ serve(async (req) => {
     // Log analytics
     supabase.from('ai_model_routing_analytics').insert({
       user_id: user.id,
-      model_used: CLAUDE_OPUS,
+      model_used: usedModel,
       query_type: 'dashboard_architect',
       response_time_ms: processingTime,
-      estimated_cost: 0.10
+      estimated_cost: usedModel === CLAUDE_OPUS ? 0.10 : 0.01
     }).then(({ error }) => {
       if (error) console.error('Analytics logging error:', error);
     });
@@ -514,7 +668,7 @@ serve(async (req) => {
         streak: context.streakData?.currentStreak,
         netWorth: context.netWorth
       },
-      meta: { model: CLAUDE_OPUS, processingTimeMs: processingTime, generatedAt: new Date().toISOString() }
+      meta: { model: usedModel, processingTimeMs: processingTime, generatedAt: new Date().toISOString() }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
