@@ -1,9 +1,10 @@
-import { Home, TrendingUp, Target, Settings, PieChart } from "lucide-react";
+import { Home, TrendingUp, Target, Settings, PieChart, Trophy } from "lucide-react";
 import { BottomNavItem } from "./BottomNavItem";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
+import { useGamificationBadgeCount } from "@/hooks/useGamificationBadgeCount";
 
 const navItems = [
   { name: "Home", path: "/dashboard", icon: Home },
@@ -16,6 +17,7 @@ const navItems = [
 export const BottomNav = () => {
   const isMobile = useIsMobile();
   const { unreadCount } = useTransactionAlerts();
+  const { totalBadgeCount } = useGamificationBadgeCount();
 
   if (!isMobile) return null;
 
@@ -41,6 +43,7 @@ export const BottomNav = () => {
               icon={item.icon}
               data-copilot-id={`nav-${item.name.toLowerCase()}`}
             />
+            {/* AI Insights alert badge */}
             {item.path === "/hubs/ai-insights" && unreadCount > 0 && (
               <motion.span
                 initial={{ scale: 0 }}
@@ -48,6 +51,16 @@ export const BottomNav = () => {
                 className="absolute -top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-medium"
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
+              </motion.span>
+            )}
+            {/* Gamification badge on More menu */}
+            {item.path === "/features-hub" && totalBadgeCount > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-amber-500 text-[10px] text-white flex items-center justify-center font-medium"
+              >
+                {totalBadgeCount > 9 ? '9+' : totalBadgeCount}
               </motion.span>
             )}
           </div>
