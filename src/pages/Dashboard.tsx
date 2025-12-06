@@ -180,7 +180,7 @@ export default function Dashboard() {
               onCelebrationComplete={actions.hideCelebration}
             />
             <DashboardOnboarding showTutorial={data.onboarding.showTutorial} />
-            <DashboardModals activeModal={state.activeModal} onClose={actions.closeModal} />
+            <DashboardModals activeModal={state.activeModal} onClose={actions.closeModal} onOpenModal={actions.setActiveModal} />
           </DashboardShell>
         </DashboardErrorBoundary>
       </AIThemeProvider>

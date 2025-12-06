@@ -126,35 +126,57 @@ function RealWidgetRenderer({
   });
 
   // Map widget IDs to real components
+  // Map widget IDs to copilot IDs
+  const getCoPilotId = (id: string): string => {
+    const mapping: Record<string, string> = {
+      'balance_hero': 'dashboard-balance',
+      'net_worth': 'dashboard-balance',
+      'goal_progress': 'dashboard-goals',
+      'goals': 'dashboard-goals',
+      'spending_breakdown': 'dashboard-spending',
+      'budget_status': 'dashboard-spending',
+      'budgets': 'dashboard-spending',
+      'ai_insight': 'dashboard-ai-insights',
+      'insights': 'dashboard-ai-insights',
+      'quick_actions': 'dashboard-quick-actions',
+      'actions': 'dashboard-quick-actions',
+    };
+    return mapping[id] || `dashboard-widget-${id}`;
+  };
+
   switch (widgetId) {
     case 'balance_hero':
     case 'net_worth':
       return (
-        <EnhancedBalanceCard 
+        <div data-copilot-id={getCoPilotId(widgetId)}>
+          <EnhancedBalanceCard
           balance={totalBalance}
           monthlyGrowth={monthlyChange}
           savingsVelocity={savingsVelocity}
           weeklyTrend={weeklyTrend}
-        />
+          />
+        </div>
       );
 
     case 'goal_progress':
     case 'goals':
-      return <GoalsSection />;
+      return <div data-copilot-id={getCoPilotId(widgetId)}><GoalsSection /></div>;
 
     case 'spending_breakdown':
     case 'budget_status':
     case 'budgets':
       if (dashboardData?.budgets && dashboardData.budgets.length > 0) {
         return (
-          <BudgetsWidget
-            budgets={dashboardData.budgets.map((b: any) => ({
-              category: b.name,
-              spent: b.spent_amount || 0,
-              limit: b.budget_amount,
-              color: b.color || 'hsl(var(--primary))'
-            }))}
-          />
+          <div data-copilot-id={getCoPilotId(widgetId)}>
+            <BudgetsWidget
+              budgets={dashboardData.budgets.map((b: any) => ({
+                category: b.name,
+                spent: b.spent_amount || 0,
+                limit: b.budget_amount,
+                color: b.color || 'hsl(var(--primary))'
+              }))}
+            />
+          </div>
         );
       }
       return null;
@@ -198,11 +220,11 @@ function RealWidgetRenderer({
 
     case 'ai_insight':
     case 'insights':
-      return <UnifiedAIInsights />;
+      return <div data-copilot-id={getCoPilotId(widgetId)}><UnifiedAIInsights /></div>;
 
     case 'quick_actions':
     case 'actions':
-      return null; // Handled by NLQ commander
+      return <div data-copilot-id={getCoPilotId(widgetId)} />; // Handled by NLQ commander
 
     case 'cashflow_forecast':
     case 'cashflow':

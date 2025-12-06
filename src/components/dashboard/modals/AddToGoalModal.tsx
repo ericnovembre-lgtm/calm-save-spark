@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,18 +10,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { Target, DollarSign, Loader2 } from 'lucide-react';
+import { registerModalCallback, unregisterModalCallback } from '@/lib/action-registry';
 
 interface AddToGoalModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpen?: () => void;
 }
 
-export function AddToGoalModal({ isOpen, onClose }: AddToGoalModalProps) {
+export function AddToGoalModal({ isOpen, onClose, onOpen }: AddToGoalModalProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedGoalId, setSelectedGoalId] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [note, setNote] = useState<string>('');
+
+  // Register modal callback for CoPilot integration
+  useEffect(() => {
+    if (onOpen) {
+      registerModalCallback('add_to_goal', onOpen);
+      return () => unregisterModalCallback('add_to_goal');
+    }
+  }, [onOpen]);
 
   // Fetch user's goals
   const { data: goals, isLoading: goalsLoading } = useQuery({
