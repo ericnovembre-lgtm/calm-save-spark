@@ -28,11 +28,12 @@ interface GenerativeBriefingProps {
   className?: string;
 }
 
+// $ave+ Brand-aligned mood gradients (warm, neutral palette)
 const moodGradients = {
-  calm: 'from-slate-800/50 to-slate-900/50',
-  energetic: 'from-cyan-900/30 to-slate-900/50',
-  cautionary: 'from-amber-900/30 to-slate-900/50',
-  celebratory: 'from-yellow-900/30 to-slate-900/50'
+  calm: 'from-card/80 to-secondary/20',
+  energetic: 'from-accent/15 to-card/80',
+  cautionary: 'from-warning/10 to-card/80',
+  celebratory: 'from-accent/25 to-secondary/30'
 };
 
 const moodIcons = {
@@ -67,23 +68,18 @@ export function GenerativeBriefing({
         "bg-gradient-to-r",
         moodGradients[theme.mood]
       )}>
-        {/* Animated gradient border glow */}
+        {/* Subtle accent border glow (brand-aligned) */}
         <motion.div
-          className="absolute inset-0 rounded-xl opacity-50"
+          className="absolute inset-0 rounded-xl opacity-30"
           style={{
-            background: `linear-gradient(135deg, ${
-              theme.mood === 'calm' ? 'hsl(215, 28%, 17%)' :
-              theme.mood === 'energetic' ? 'hsl(189, 94%, 43%)' :
-              theme.mood === 'cautionary' ? 'hsl(38, 92%, 50%)' :
-              'hsl(45, 93%, 47%)'
-            } 0%, transparent 50%)`,
+            background: `linear-gradient(135deg, hsl(var(--accent) / 0.3) 0%, transparent 50%)`,
           }}
           animate={{
-            opacity: [0.3, 0.5, 0.3],
+            opacity: [0.2, 0.35, 0.2],
           }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         />
-        <div className="absolute inset-0 rounded-xl border border-white/10" />
+        <div className="absolute inset-0 rounded-xl border border-border" />
         
         <CardContent className="p-6 relative z-10">
           {/* Header */}
@@ -109,13 +105,13 @@ export function GenerativeBriefing({
                   {briefing.greeting}
                 </h2>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                  <Sparkles className="h-3 w-3 text-violet-400" />
+                  <Sparkles className="h-3 w-3 text-accent" />
                   <span>Powered by Claude Opus 4.5</span>
                   {isStreaming && (
                     <>
                       <span>•</span>
                       <LiveDot isLive size="sm" />
-                      <span className="text-cyan-400">Streaming</span>
+                      <span className="text-accent">Streaming</span>
                     </>
                   )}
                   {meta?.processingTimeMs && !isStreaming && (
@@ -178,9 +174,9 @@ export function GenerativeBriefing({
               >
                 {/* Key Insight */}
                 {briefing.keyInsight && (
-                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                  <div className="p-4 rounded-lg bg-secondary/30 border border-border">
                     <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
-                      <Sparkles className="h-4 w-4 text-cyan-400" />
+                      <Sparkles className="h-4 w-4 text-accent" />
                       Key Insight
                     </div>
                     <p className="text-sm text-muted-foreground">{briefing.keyInsight}</p>
@@ -189,9 +185,9 @@ export function GenerativeBriefing({
 
                 {/* Suggested Action */}
                 {briefing.suggestedAction && (
-                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                  <div className="p-4 rounded-lg bg-secondary/30 border border-border">
                     <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
-                      <Brain className="h-4 w-4 text-violet-400" />
+                      <Brain className="h-4 w-4 text-foreground" />
                       Suggested Action
                     </div>
                     <p className="text-sm text-muted-foreground">{briefing.suggestedAction}</p>
@@ -200,7 +196,7 @@ export function GenerativeBriefing({
 
                 {/* AI Reasoning (Debug Mode) */}
                 {reasoning && (
-                  <div className="pt-4 border-t border-white/10">
+                  <div className="pt-4 border-t border-border">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -217,7 +213,7 @@ export function GenerativeBriefing({
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="mt-3 p-3 rounded bg-slate-900/50 text-xs text-muted-foreground font-mono overflow-hidden"
+                          className="mt-3 p-3 rounded bg-muted/50 text-xs text-muted-foreground font-mono overflow-hidden"
                         >
                           {reasoning}
                         </motion.div>
