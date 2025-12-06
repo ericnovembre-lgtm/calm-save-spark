@@ -231,30 +231,6 @@ export function MobileDashboard() {
           <RecentActivityList />
         </section>
 
-        {/* Floating Action Buttons with spring animation */}
-        <motion.div 
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.3 }}
-          className="fixed bottom-20 right-4 flex flex-col gap-3 z-40"
-        >
-          <VoiceTransactionButton />
-          <motion.div whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.05 }}>
-            <Button
-              size="icon"
-              onClick={() => {
-                haptics.select();
-                setShowQuickAdd(true);
-              }}
-              className={cn(
-                "h-14 w-14 rounded-full shadow-lg",
-                "bg-primary text-primary-foreground hover:bg-primary/90"
-              )}
-            >
-              <Plus className="h-6 w-6" />
-            </Button>
-          </motion.div>
-        </motion.div>
 
         {/* Notification Center Drawer */}
         <AnimatePresence>
