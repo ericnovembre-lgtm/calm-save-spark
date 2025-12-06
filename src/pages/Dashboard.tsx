@@ -168,10 +168,7 @@ export default function Dashboard() {
                 onCloseChart={() => actions.setNlqShowChart(false)}
               />
             </div>
-            <FloatingControls
-              isChatOpen={data.chat.isOpen}
-              onToggleChat={data.chat.toggle}
-            />
+            <FloatingControls />
             <DashboardCelebrations
               milestone={data.milestones.current}
               onDismissMilestone={data.milestones.dismiss}
