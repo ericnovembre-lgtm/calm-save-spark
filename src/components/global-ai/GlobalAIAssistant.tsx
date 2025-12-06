@@ -1,12 +1,18 @@
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageSquare } from 'lucide-react';
 import { useGlobalAI } from '@/contexts/GlobalAIContext';
 import { AICommandPalette } from './AICommandPalette';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 export function GlobalAIAssistant() {
+  const location = useLocation();
   const { isOpen, toggleAI } = useGlobalAI();
+
+  // Hide on dashboard page
+  if (location.pathname === '/dashboard') {
+    return null;
+  }
 
   return (
     <>
