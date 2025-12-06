@@ -1,21 +1,15 @@
-import { useEffect, useState, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useSoundEffects } from "./useSoundEffects";
-import { useCelebrationTrigger } from "./useCelebrationTrigger";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCelebrationTrigger } from './useCelebrationTrigger';
 
-interface Achievement {
-  id: string;
-  name: string;
-  description?: string;
-  icon?: string;
-  badge_color?: string;
-  points: number;
-}
-
-export function useAchievementNotifications() {
-  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
-  const { playAchievementSound } = useSoundEffects();
+/**
+ * Global listener for real-time achievement unlocks.
+ * This hook should be used once at the app level to catch all new achievements
+ * and trigger the celebration overlay automatically.
+ */
+export function useGlobalAchievementListener() {
+  const queryClient = useQueryClient();
   const { triggerAchievementCelebration } = useCelebrationTrigger();
   const processedIds = useRef<Set<string>>(new Set());
 
@@ -32,9 +26,8 @@ export function useAchievementNotifications() {
   useEffect(() => {
     if (!userId) return;
 
-    // Subscribe to new achievements for current user
     const channel = supabase
-      .channel('user_achievements_channel')
+      .channel('global-achievements-listener')
       .on(
         'postgres_changes',
         {
@@ -44,26 +37,29 @@ export function useAchievementNotifications() {
           filter: `user_id=eq.${userId}`,
         },
         async (payload) => {
+          const achievementId = payload.new.achievement_id;
           const recordId = payload.new.id;
-          
-          // Prevent duplicate processing
+
+          // Prevent duplicate triggers
           if (processedIds.current.has(recordId)) return;
           processedIds.current.add(recordId);
 
-          console.log('New achievement detected:', payload);
+          console.log('[GlobalAchievementListener] New achievement detected:', achievementId);
 
           // Fetch achievement details
-          const { data: achievement } = await supabase
+          const { data: achievement, error } = await supabase
             .from('achievements')
             .select('*')
-            .eq('id', payload.new.achievement_id)
+            .eq('id', achievementId)
             .single();
 
+          if (error) {
+            console.error('Error fetching achievement details:', error);
+            return;
+          }
+
           if (achievement) {
-            setNewAchievements(prev => [...prev, achievement]);
-            playAchievementSound();
-            
-            // Trigger the global celebration overlay
+            // Trigger the celebration overlay
             triggerAchievementCelebration({
               id: achievement.id,
               name: achievement.name,
@@ -72,6 +68,10 @@ export function useAchievementNotifications() {
               icon: achievement.icon,
               badge_color: achievement.badge_color,
             });
+
+            // Invalidate related queries
+            queryClient.invalidateQueries({ queryKey: ['user-achievements'] });
+            queryClient.invalidateQueries({ queryKey: ['unviewed-achievements-count'] });
           }
         }
       )
@@ -80,14 +80,5 @@ export function useAchievementNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, playAchievementSound, triggerAchievementCelebration]);
-
-  const dismissAchievements = () => {
-    setNewAchievements([]);
-  };
-
-  return {
-    newAchievements,
-    dismissAchievements,
-  };
+  }, [userId, triggerAchievementCelebration, queryClient]);
 }
