@@ -353,24 +353,25 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
-  /* Shimmer animation for loading skeletons */
+  /* Enhanced shimmer animation for loading skeletons */
   @keyframes shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
   }
   
   .animate-shimmer {
-    animation: shimmer 2s infinite linear;
+    animation: shimmer 2.5s infinite linear;
   }
 
-  /* Enhanced shimmer glow overlay */
+  /* Enhanced shimmer glow overlay with wave effect */
   @keyframes shimmer-glow {
-    0% { background-position: 300% 0; }
-    100% { background-position: -300% 0; }
+    0% { background-position: 300% 0; opacity: 0.3; }
+    50% { opacity: 0.6; }
+    100% { background-position: -300% 0; opacity: 0.3; }
   }
   
   .animate-shimmer-glow {
-    animation: shimmer-glow 3s infinite linear;
+    animation: shimmer-glow 3.5s infinite ease-in-out;
   }
 
   /* 3D Transform Utilities */
