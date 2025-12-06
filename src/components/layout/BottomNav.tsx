@@ -1,12 +1,9 @@
-import { Home, TrendingUp, Target, Settings, PieChart, Plus, Bell } from "lucide-react";
+import { Home, TrendingUp, Target, Settings, PieChart } from "lucide-react";
 import { BottomNavItem } from "./BottomNavItem";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTransactionAlerts } from "@/hooks/useTransactionAlerts";
-import { haptics } from "@/lib/haptics";
 
 const navItems = [
   { name: "Home", path: "/dashboard", icon: Home },
@@ -18,21 +15,9 @@ const navItems = [
 
 export const BottomNav = () => {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
-  const location = useLocation();
   const { unreadCount } = useTransactionAlerts();
 
   if (!isMobile) return null;
-
-  const handleNavTap = (path: string) => {
-    haptics.vibrate('light');
-    navigate(path);
-  };
-
-  const handleFabTap = () => {
-    haptics.vibrate('medium');
-    navigate("/goals");
-  };
 
   return (
     <nav
@@ -47,43 +32,15 @@ export const BottomNav = () => {
       aria-label="Mobile navigation"
       data-copilot-id="bottom-navigation"
     >
-      <div className="relative flex items-center justify-around h-16 px-2">
-        {/* Left items */}
-        {navItems.slice(0, 2).map((item) => (
-          <BottomNavItem
-            key={item.path}
-            name={item.name}
-            path={item.path}
-            icon={item.icon}
-            data-copilot-id={`nav-${item.name.toLowerCase()}`}
-          />
-        ))}
-
-        {/* Center FAB Button */}
-        <motion.div
-          whileTap={{ scale: 0.9 }}
-          className="absolute left-1/2 -translate-x-1/2 -top-6"
-        >
-          <Button
-            size="icon"
-            onClick={handleFabTap}
-            className="w-14 h-14 rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-glass-elevated"
-            aria-label="Quick Add"
-            data-copilot-id="quick-add-button"
-          >
-            <Plus className="w-6 h-6" />
-          </Button>
-        </motion.div>
-
-        {/* Right items with notification badge */}
-        {navItems.slice(2).map((item) => (
+      <div className="flex items-center justify-around h-16 px-2">
+        {navItems.map((item) => (
           <div key={item.path} className="relative">
             <BottomNavItem
               name={item.name}
               path={item.path}
               icon={item.icon}
+              data-copilot-id={`nav-${item.name.toLowerCase()}`}
             />
-            {/* Notification badge for AI hub */}
             {item.path === "/hubs/ai-insights" && unreadCount > 0 && (
               <motion.span
                 initial={{ scale: 0 }}
