@@ -167,6 +167,14 @@ export function useClaudeGenerativeDashboard() {
   const elapsedIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasInitialized = useRef(false); // Prevent duplicate initial calls
+  
+  // Refs to avoid stale closure issues with state in callbacks
+  const phaseRef = useRef<LoadingPhase>(phase);
+  const isPersonalizingRef = useRef(isPersonalizing);
+  
+  // Keep refs in sync with state
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
+  useEffect(() => { isPersonalizingRef.current = isPersonalizing; }, [isPersonalizing]);
 
   const clearAllTimers = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -228,7 +236,7 @@ export function useClaudeGenerativeDashboard() {
     abortControllerRef.current = new AbortController();
 
     // Only show generating phase if we don't have cached data
-    if (phase !== 'complete') {
+    if (phaseRef.current !== 'complete') {
       setPhase('generating');
     }
     setIsLoading(true);
@@ -243,7 +251,7 @@ export function useClaudeGenerativeDashboard() {
     const startTime = Date.now();
 
     // Only show timers/warnings if not doing background refresh
-    if (!isPersonalizing) {
+    if (!isPersonalizingRef.current) {
       // Track elapsed time
       elapsedIntervalRef.current = setInterval(() => {
         setElapsedTime(Date.now() - startTime);
@@ -432,7 +440,7 @@ export function useClaudeGenerativeDashboard() {
     } finally {
       inFlightRequests.delete(requestKey);
     }
-  }, [user, clearAllTimers, phase, isPersonalizing]);
+  }, [user, clearAllTimers]);
 
   const refresh = useCallback(async () => {
     toast.info('Regenerating your dashboard with Claude Opus...', {
