@@ -16,7 +16,6 @@ interface AIGenerationOverlayProps {
   elapsedMs?: number;
   onCancel?: () => void;
   onSkip?: () => void;
-  isBackgroundRefresh?: boolean;
 }
 
 const phaseDetails: Record<StreamPhase, { icon: React.ReactNode; text: string }> = {
@@ -45,7 +44,6 @@ export function AIGenerationOverlay({
   elapsedMs = 0,
   onCancel,
   onSkip,
-  isBackgroundRefresh = false,
 }: AIGenerationOverlayProps) {
   const prefersReducedMotion = useReducedMotion();
   const [factIndex, setFactIndex] = useState(0);
@@ -58,30 +56,6 @@ export function AIGenerationOverlay({
     }, 4000);
     return () => clearInterval(interval);
   }, [isVisible]);
-
-  // Don't show full overlay for background refreshes - just a subtle indicator
-  if (isBackgroundRefresh) {
-    return (
-      <AnimatePresence>
-        {isVisible && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 right-4 z-40 px-3 py-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border/50 flex items-center gap-2 text-sm text-muted-foreground"
-          >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            >
-              <Sparkles className="h-4 w-4 text-primary" />
-            </motion.div>
-            <span>Updating...</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    );
-  }
 
   return (
     <AnimatePresence>
