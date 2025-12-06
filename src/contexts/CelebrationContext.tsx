@@ -22,12 +22,15 @@ interface CelebrationContextType {
 
 const CelebrationContext = createContext<CelebrationContextType | undefined>(undefined);
 
+// Child component that uses the hook inside the provider tree
+function GlobalAchievementListenerComponent() {
+  useGlobalAchievementListener();
+  return null;
+}
+
 export function CelebrationProvider({ children }: { children: ReactNode }) {
   const [isActive, setIsActive] = useState(false);
   const [celebration, setCelebration] = useState<CelebrationData | null>(null);
-
-  // Enable app-wide real-time achievement detection
-  useGlobalAchievementListener();
 
   const triggerCelebration = useCallback((data: CelebrationData) => {
     setCelebration(data);
@@ -41,6 +44,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
 
   return (
     <CelebrationContext.Provider value={{ isActive, celebration, triggerCelebration, dismissCelebration }}>
+      <GlobalAchievementListenerComponent />
       {children}
     </CelebrationContext.Provider>
   );
