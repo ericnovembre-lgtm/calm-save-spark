@@ -4,6 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { dashboardCache } from '@/lib/dashboard-cache';
 
+// Request deduplication to prevent double-mount issues
+const inFlightRequests = new Map<string, Promise<any>>();
+
 export interface GenerativeWidgetSpec {
   id: string;
   type: 'metric' | 'chart' | 'list' | 'narrative' | 'action' | 'hybrid';
@@ -149,7 +152,7 @@ export function useClaudeGenerativeDashboard() {
   const { user } = useAuth();
   const [state, setState] = useState<GenerativeDashboardState>(DEFAULT_STATE);
   const [isLoading, setIsLoading] = useState(false);
-  const [phase, setPhase] = useState<LoadingPhase>('static');
+  const [phase, setPhase] = useState<LoadingPhase>('complete'); // Start as complete with defaults
   const [error, setError] = useState<string | null>(null);
   const [context, setContext] = useState<DashboardContext | null>(null);
   const [meta, setMeta] = useState<DashboardMeta | null>(null);
@@ -157,11 +160,13 @@ export function useClaudeGenerativeDashboard() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isTimedOut, setIsTimedOut] = useState(false);
   const [streamingText, setStreamingText] = useState<string>('');
+  const [isPersonalizing, setIsPersonalizing] = useState(false); // New: background personalization
   
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningRef = useRef<NodeJS.Timeout | null>(null);
   const elapsedIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const hasInitialized = useRef(false); // Prevent duplicate initial calls
 
   const clearAllTimers = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -178,6 +183,18 @@ export function useClaudeGenerativeDashboard() {
       return;
     }
 
+    const requestKey = `dashboard-${user.id}`;
+
+    // Check if there's already an in-flight request (deduplication)
+    if (!forceRefresh && inFlightRequests.has(requestKey)) {
+      try {
+        await inFlightRequests.get(requestKey);
+      } catch {
+        // Ignore - the original request handler will deal with errors
+      }
+      return;
+    }
+
     // Try to load from IndexedDB cache first for instant display
     if (!forceRefresh) {
       try {
@@ -190,12 +207,14 @@ export function useClaudeGenerativeDashboard() {
             briefing: cached.briefing || DEFAULT_STATE.briefing,
             reasoning: 'Loaded from offline cache'
           });
-          // Show cached data immediately while fetching fresh data
-          if ((cached as any).isStale) {
-            toast.info('Showing cached dashboard', {
-              description: 'Fetching latest updates...'
-            });
+          setPhase('complete'); // Show cached immediately
+          
+          // If cache is fresh (not stale), skip network request
+          if (!(cached as any).isStale) {
+            return;
           }
+          // Stale cache: continue with background refresh
+          setIsPersonalizing(true);
         }
       } catch (e) {
         // IndexedDB unavailable, continue with network request
@@ -208,39 +227,49 @@ export function useClaudeGenerativeDashboard() {
     }
     abortControllerRef.current = new AbortController();
 
-    setPhase('generating');
+    // Only show generating phase if we don't have cached data
+    if (phase !== 'complete') {
+      setPhase('generating');
+    }
     setIsLoading(true);
     setError(null);
     setElapsedTime(0);
     setIsTimedOut(false);
     setStreamingText('');
 
+    // Create the request promise for deduplication
+    const requestPromise = (async () => {
+
     const startTime = Date.now();
 
-    // Track elapsed time
-    elapsedIntervalRef.current = setInterval(() => {
-      setElapsedTime(Date.now() - startTime);
-    }, 100);
+    // Only show timers/warnings if not doing background refresh
+    if (!isPersonalizing) {
+      // Track elapsed time
+      elapsedIntervalRef.current = setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 100);
 
-    // Warning at 20 seconds
-    warningRef.current = setTimeout(() => {
-      toast.warning('Taking longer than usual...', {
-        description: 'AI is still generating your personalized dashboard'
-      });
-    }, WARNING_THRESHOLD_MS);
+      // Warning at 20 seconds (only if not background)
+      warningRef.current = setTimeout(() => {
+        toast.warning('Taking longer than usual...', {
+          description: 'AI is still generating your personalized dashboard'
+        });
+      }, WARNING_THRESHOLD_MS);
 
-    // Hard timeout at 30 seconds
-    timeoutRef.current = setTimeout(() => {
-      clearAllTimers();
-      abortControllerRef.current?.abort();
-      setIsTimedOut(true);
-      setPhase('complete');
-      setIsLoading(false);
-      setError('AI generation timed out. Showing default layout.');
-      toast.info('Showing default dashboard', {
-        description: 'AI personalization took too long. You can try refreshing later.'
-      });
-    }, GENERATION_TIMEOUT_MS);
+      // Hard timeout at 30 seconds
+      timeoutRef.current = setTimeout(() => {
+        clearAllTimers();
+        abortControllerRef.current?.abort();
+        setIsTimedOut(true);
+        setPhase('complete');
+        setIsLoading(false);
+        setIsPersonalizing(false);
+        setError('AI generation timed out. Showing default layout.');
+        toast.info('Showing default dashboard', {
+          description: 'AI personalization took too long. You can try refreshing later.'
+        });
+      }, GENERATION_TIMEOUT_MS);
+    }
 
     try {
       // Get the user's session token for authenticated requests
@@ -391,8 +420,19 @@ export function useClaudeGenerativeDashboard() {
       // Keep default state on error
     } finally {
       setIsLoading(false);
+      setIsPersonalizing(false);
     }
-  }, [user, clearAllTimers]);
+    })();
+
+    // Store for deduplication
+    inFlightRequests.set(requestKey, requestPromise);
+    
+    try {
+      await requestPromise;
+    } finally {
+      inFlightRequests.delete(requestKey);
+    }
+  }, [user, clearAllTimers, phase, isPersonalizing]);
 
   const refresh = useCallback(async () => {
     toast.info('Regenerating your dashboard with Claude Opus...', {
@@ -404,8 +444,11 @@ export function useClaudeGenerativeDashboard() {
     }
   }, [generateDashboard, isTimedOut, error]);
 
-  // Initial generation
+  // Initial generation (with deduplication guard)
   useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+    
     generateDashboard();
     
     return () => {
@@ -414,16 +457,16 @@ export function useClaudeGenerativeDashboard() {
     };
   }, [generateDashboard, clearAllTimers]);
 
-  // Auto-refresh on significant events (every 5 minutes while active)
+  // Auto-refresh every 15 minutes while active (increased from 5 min)
   useEffect(() => {
     const interval = setInterval(() => {
-      if (document.visibilityState === 'visible' && phase === 'complete') {
+      if (document.visibilityState === 'visible' && phase === 'complete' && !isLoading) {
         generateDashboard();
       }
-    }, 5 * 60 * 1000);
+    }, 15 * 60 * 1000); // 15 minutes
 
     return () => clearInterval(interval);
-  }, [generateDashboard, phase]);
+  }, [generateDashboard, phase, isLoading]);
 
   return {
     ...state,
@@ -437,6 +480,7 @@ export function useClaudeGenerativeDashboard() {
     elapsedTime,
     isTimedOut,
     isGenerating: phase === 'generating',
+    isPersonalizing, // New: indicates background update in progress
     streamingText
   };
 }

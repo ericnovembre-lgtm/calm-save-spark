@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 const CLAUDE_OPUS = 'claude-opus-4-5-20251101';
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours for better cache hit rates
 
 const WIDGET_TYPES = `
 ## Widget Types Available
