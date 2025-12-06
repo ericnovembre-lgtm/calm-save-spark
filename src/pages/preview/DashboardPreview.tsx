@@ -85,15 +85,18 @@ export default function DashboardPreview() {
                     </div>
                   </div>
                   
-                  {/* Mini chart placeholder */}
+                  {/* Mini chart with gradient bars */}
                   <div className="mt-6 h-24 flex items-end gap-1">
                     {[40, 55, 45, 60, 75, 65, 80, 70, 85, 90, 78, 95].map((h, i) => (
                       <motion.div
                         key={i}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${h}%` }}
-                        transition={{ delay: 0.3 + i * 0.05 }}
-                        className="flex-1 bg-primary/20 rounded-t"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: `${h}%`, opacity: 1 }}
+                        transition={{ delay: 0.3 + i * 0.05, type: 'spring', damping: 15, stiffness: 120 }}
+                        className="flex-1 rounded-t bg-gradient-to-t from-emerald-500/60 via-cyan-400/50 to-cyan-300/30"
+                        style={{
+                          boxShadow: '0 0 10px rgba(34, 211, 238, 0.25), inset 0 1px 0 rgba(255,255,255,0.15)'
+                        }}
                       />
                     ))}
                   </div>
@@ -163,20 +166,38 @@ export default function DashboardPreview() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {mockGoals.map((goal, i) => (
-                    <div key={goal.name} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{goal.name}</span>
-                        <span className="text-muted-foreground">
-                          ${goal.current.toLocaleString()} / ${goal.target.toLocaleString()}
-                        </span>
+                  {mockGoals.map((goal, i) => {
+                    const progressValue = (goal.current / goal.target) * 100;
+                    const gradientClass = goal.color === "bg-emerald-500" 
+                      ? "from-emerald-500 to-emerald-400"
+                      : goal.color === "bg-blue-500"
+                      ? "from-blue-500 to-cyan-400"
+                      : "from-violet-500 to-purple-400";
+                    const glowColor = goal.color === "bg-emerald-500"
+                      ? "rgba(16,185,129,0.35)"
+                      : goal.color === "bg-blue-500"
+                      ? "rgba(59,130,246,0.35)"
+                      : "rgba(139,92,246,0.35)";
+                    return (
+                      <div key={goal.name} className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium">{goal.name}</span>
+                          <span className="text-muted-foreground">
+                            ${goal.current.toLocaleString()} / ${goal.target.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-secondary/50">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progressValue}%` }}
+                            transition={{ delay: 0.3 + i * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                            className={`h-full rounded-full bg-gradient-to-r ${gradientClass}`}
+                            style={{ boxShadow: `0 0 12px ${glowColor}` }}
+                          />
+                        </div>
                       </div>
-                      <Progress 
-                        value={(goal.current / goal.target) * 100} 
-                        className="h-2"
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                   <Button variant="outline" className="w-full mt-2" size="sm">
                     <PiggyBank className="h-4 w-4 mr-2" />
                     Add New Goal

@@ -1,6 +1,6 @@
 import { useState, useEffect, memo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ThumbsUp, ThumbsDown, X, TrendingUp } from "lucide-react";
+import { Sparkles, ThumbsUp, ThumbsDown, X, TrendingUp, Star } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -10,6 +10,31 @@ import { VoiceBriefingPlayer } from "@/components/voice/VoiceBriefingPlayer";
 import { useSpeakableText } from "@/hooks/useSpeakableText";
 import { useInteractionFeedback } from "@/hooks/useInteractionFeedback";
 import { notificationSounds } from "@/lib/notification-sounds";
+
+// Sparkle particle component for magical effect around AI avatar
+function SparkleParticle({ delay, x, y }: { delay: number; x: number; y: number }) {
+  return (
+    <motion.div
+      className="absolute pointer-events-none"
+      style={{ left: `${x}%`, top: `${y}%` }}
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ 
+        opacity: [0, 0.8, 0],
+        scale: [0, 1.2, 0],
+        y: [0, -10, -20],
+      }}
+      transition={{
+        duration: 2.5,
+        delay,
+        repeat: Infinity,
+        repeatDelay: 1.2,
+        ease: "easeOut"
+      }}
+    >
+      <Star className="w-2 h-2 text-primary/60 fill-primary/40" />
+    </motion.div>
+  );
+}
 interface AIInsight {
   id: string;
   text: string;
@@ -131,47 +156,59 @@ export const AIInsightsCard = memo(function AIInsightsCard() {
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3 flex-1">
-            {/* Animated AI Avatar */}
-            <motion.div
-              className="relative w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center"
-              animate={!prefersReducedMotion && isTyping ? {
-                boxShadow: [
-                  "0 0 20px hsl(var(--primary)/0.3)",
-                  "0 0 40px hsl(var(--primary)/0.5)",
-                  "0 0 20px hsl(var(--primary)/0.3)"
-                ]
-              } : undefined}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <Sparkles className="w-5 h-5 text-white" />
+            {/* Animated AI Avatar with Sparkle Particles */}
+            <div className="relative">
+              <motion.div
+                className="relative w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center"
+                animate={!prefersReducedMotion && isTyping ? {
+                  boxShadow: [
+                    "0 0 20px hsl(var(--primary)/0.3)",
+                    "0 0 40px hsl(var(--primary)/0.5)",
+                    "0 0 20px hsl(var(--primary)/0.3)"
+                  ]
+                } : undefined}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <Sparkles className="w-5 h-5 text-white" />
+                
+                {/* Thinking dots */}
+                {isTyping && !prefersReducedMotion && (
+                  <motion.div
+                    className="absolute -bottom-1 -right-1 bg-primary rounded-full px-2 py-0.5 flex gap-0.5"
+                  >
+                    {[0, 1, 2].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="w-1 h-1 bg-primary-foreground rounded-full"
+                        animate={{
+                          scale: [1, 1.5, 1],
+                          opacity: [0.5, 1, 0.5]
+                        }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          delay: i * 0.2
+                        }}
+                      />
+                    ))}
+                  </motion.div>
+                )}
+              </motion.div>
               
-              {/* Thinking dots */}
-              {isTyping && !prefersReducedMotion && (
-                <motion.div
-                  className="absolute -bottom-1 -right-1 bg-primary rounded-full px-2 py-0.5 flex gap-0.5"
-                >
-                  {[0, 1, 2].map((i) => (
-                    <motion.div
-                      key={i}
-                      className="w-1 h-1 bg-primary-foreground rounded-full"
-                      animate={{
-                        scale: [1, 1.5, 1],
-                        opacity: [0.5, 1, 0.5]
-                      }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        delay: i * 0.2
-                      }}
-                    />
-                  ))}
-                </motion.div>
+              {/* Floating sparkle particles */}
+              {!prefersReducedMotion && (
+                <>
+                  <SparkleParticle delay={0} x={-30} y={-20} />
+                  <SparkleParticle delay={0.5} x={100} y={-15} />
+                  <SparkleParticle delay={1.0} x={95} y={80} />
+                  <SparkleParticle delay={1.5} x={-25} y={85} />
+                </>
               )}
-            </motion.div>
+            </div>
 
             <div>
               <h3 className="font-semibold text-foreground">AI Insight</h3>
