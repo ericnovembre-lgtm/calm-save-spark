@@ -40,7 +40,17 @@ export function DashboardHeader({
   onForceRefresh,
 }: DashboardHeaderProps) {
   const prefersReducedMotion = useReducedMotion();
-  const greeting = getGreeting();
+  
+  // Real-time greeting that updates every minute
+  const [greeting, setGreeting] = useState(getGreeting());
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, []);
   
   // Build full greeting with optional user name
   const fullGreeting = userName 
@@ -148,8 +158,9 @@ export function DashboardHeader({
                 </h1>
               </div>
               <div className="flex items-center gap-2.5 mt-0.5">
-                <p className="text-[11px] text-muted-foreground/70 font-medium tracking-wide">
-                  AI-Powered Dashboard
+                <p className="text-[11px] text-muted-foreground/70 font-medium tracking-wide flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3 text-violet-400" />
+                  Powered by Claude Opus 4.5
                 </p>
                 {/* Model badge with glassmorphic styling */}
                 {modelName && (

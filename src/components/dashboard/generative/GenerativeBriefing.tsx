@@ -104,28 +104,19 @@ export function GenerativeBriefing({
               >
                 {moodIcons[theme.mood]}
               </motion.span>
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">
-                  {briefing.greeting}
-                </h2>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                  <Sparkles className="h-3 w-3 text-violet-400" />
-                  <span>Powered by Claude Opus 4.5</span>
-                  {isStreaming && (
-                    <>
-                      <span>•</span>
-                      <LiveDot isLive size="sm" />
-                      <span className="text-cyan-400">Streaming</span>
-                    </>
-                  )}
-                  {meta?.processingTimeMs && !isStreaming && (
-                    <>
-                      <span>•</span>
-                      <Clock className="h-3 w-3" />
-                      <span>{meta.processingTimeMs}ms</span>
-                    </>
-                  )}
-                </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                {isStreaming && (
+                  <>
+                    <LiveDot isLive size="sm" />
+                    <span className="text-cyan-400">Streaming</span>
+                  </>
+                )}
+                {meta?.processingTimeMs && !isStreaming && (
+                  <>
+                    <Clock className="h-3 w-3" />
+                    <span>{meta.processingTimeMs}ms</span>
+                  </>
+                )}
               </div>
             </div>
 
