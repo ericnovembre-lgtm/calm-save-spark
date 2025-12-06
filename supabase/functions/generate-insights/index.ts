@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { EdgeFunctionCache } from '../_shared/edge-cache.ts';
+import { callLovableAI } from '../_shared/lovable-ai-fallback.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -63,11 +64,7 @@ Deno.serve(async (req) => {
 
     if (txError) throw txError;
 
-    // Generate insights using Lovable AI
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY not configured');
-    }
+    // AI call is handled by shared utility (LOVABLE_API_KEY check is in callLovableAI)
 
     // Prepare transaction summary
     const totalSpent = transactions?.reduce((sum, tx) => sum + parseFloat(tx.amount.toString()), 0) || 0;
@@ -106,25 +103,24 @@ Format as JSON array with structure:
   ]
 }`;
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
+    // Use shared Lovable AI utility for consistent error handling
+    let content: string;
+    try {
+      const aiResponse = await callLovableAI(
+        [
           { role: 'system', content: 'You are a financial insights assistant. Generate concise, actionable insights.' },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.7,
-      }),
-    });
+        {
+          model: 'google/gemini-2.5-flash',
+          temperature: 0.7,
+        }
+      );
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI error:', aiResponse.status, errorText);
+      const aiData = await aiResponse.json();
+      content = aiData.choices[0].message.content;
+    } catch (aiError) {
+      console.error('[generate-insights] AI call failed:', aiError);
       
       // Return fallback insights
       return new Response(
@@ -142,9 +138,6 @@ Format as JSON array with structure:
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const aiData = await aiResponse.json();
-    const content = aiData.choices[0].message.content;
     
     // Extract JSON from response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
