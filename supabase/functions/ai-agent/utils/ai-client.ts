@@ -1,5 +1,6 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { streamAnthropicResponse } from "./anthropic-client.ts";
+import { shouldFallback, streamLovableAI } from "../../_shared/lovable-ai-fallback.ts";
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -46,13 +47,22 @@ export async function streamAIResponse(
         userId
       );
     } catch (error) {
-      // Fallback to Lovable AI Gateway if Anthropic fails
-      if (error instanceof Error && error.message.includes('ANTHROPIC')) {
-        console.warn('[AI Router] Anthropic unavailable, falling back to Gemini');
-        model = 'google/gemini-2.5-flash'; // Use equivalent model
-      } else {
-        throw error;
+      // Enhanced fallback: catch ALL Claude failures (400, 401, 402, 429, 500+)
+      if (shouldFallback(error)) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.warn(`[AI Router] Claude failed (${errorMessage}), falling back to Lovable AI (Gemini)`);
+        
+        try {
+          // Use the shared fallback utility for consistent behavior
+          return await streamLovableAI(systemPrompt, conversationHistory, userMessage, {
+            maxTokens: 3000,
+          });
+        } catch (fallbackError) {
+          console.error('[AI Router] Fallback to Lovable AI also failed:', fallbackError);
+          throw fallbackError;
+        }
       }
+      throw error;
     }
   }
 
