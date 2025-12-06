@@ -8,7 +8,8 @@ const corsHeaders = {
 };
 
 const CLAUDE_OPUS = 'claude-opus-4-1-20250805';
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes (increased from 10)
+const STALE_WHILE_REVALIDATE_MS = 60 * 60 * 1000; // 1 hour stale-while-revalidate
 
 const WIDGET_TYPES = `
 ## Widget Types Available
@@ -162,7 +163,13 @@ async function fetchUserFinancialContext(supabase: any, userId: string): Promise
   };
 }
 
-async function getCachedLayout(supabase: any, userId: string): Promise<any | null> {
+interface CacheResult {
+  data: any;
+  isStale: boolean;
+  age: number;
+}
+
+async function getCachedLayout(supabase: any, userId: string): Promise<CacheResult | null> {
   const { data } = await supabase
     .from('api_response_cache')
     .select('response_data, created_at')
@@ -173,9 +180,15 @@ async function getCachedLayout(supabase: any, userId: string): Promise<any | nul
   if (!data) return null;
   
   const cacheAge = Date.now() - new Date(data.created_at).getTime();
-  if (cacheAge > CACHE_TTL_MS) return null;
   
-  return data.response_data;
+  // Return stale data up to STALE_WHILE_REVALIDATE window
+  if (cacheAge > STALE_WHILE_REVALIDATE_MS) return null;
+  
+  return {
+    data: data.response_data,
+    isStale: cacheAge > CACHE_TTL_MS,
+    age: cacheAge
+  };
 }
 
 async function setCachedLayout(supabase: any, userId: string, layout: any): Promise<void> {
@@ -377,16 +390,41 @@ serve(async (req) => {
 
     // Check cache first (unless force refresh)
     if (!forceRefresh) {
-      const cached = await getCachedLayout(supabase, user.id);
-      if (cached) {
-        console.log('Returning cached dashboard layout');
+      const cacheResult = await getCachedLayout(supabase, user.id);
+      if (cacheResult && !cacheResult.isStale) {
+        console.log('Returning fresh cached dashboard layout');
         return new Response(JSON.stringify({
           success: true,
-          dashboard: cached,
+          dashboard: cacheResult.data,
           cached: true,
+          cacheAge: cacheResult.age,
           meta: { model: CLAUDE_OPUS, processingTimeMs: Date.now() - startTime, generatedAt: new Date().toISOString() }
         }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'Cache-Control': `public, max-age=${Math.floor(CACHE_TTL_MS / 1000)}, stale-while-revalidate=${Math.floor(STALE_WHILE_REVALIDATE_MS / 1000)}`
+          },
+        });
+      }
+      
+      // Return stale data immediately - background revalidation happens on next request
+      if (cacheResult && cacheResult.isStale) {
+        console.log('Returning stale cached dashboard (client should revalidate)');
+        
+        return new Response(JSON.stringify({
+          success: true,
+          dashboard: cacheResult.data,
+          cached: true,
+          stale: true,
+          cacheAge: cacheResult.age,
+          meta: { model: CLAUDE_OPUS, processingTimeMs: Date.now() - startTime, generatedAt: new Date().toISOString() }
+        }), {
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'Cache-Control': `public, max-age=0, stale-while-revalidate=${Math.floor(STALE_WHILE_REVALIDATE_MS / 1000)}`
+          },
         });
       }
     }

@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { markSessionActive } from '@/lib/session';
 import { logLoginEvent } from '@/lib/security-logger';
+import { useDashboardPrefetch } from '@/hooks/useDashboardPrefetch';
 
 interface AuthContextType {
   user: User | null;
@@ -54,6 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Prefetch dashboard layout in background when user is authenticated
+  useDashboardPrefetch(user?.id);
 
   const signOut = async () => {
     await supabase.auth.signOut();
