@@ -1,4 +1,3 @@
-import { UnifiedFAB } from '@/components/dashboard/UnifiedFAB';
 import { CommandPalette } from '@/components/dashboard/CommandPalette';
 import { ChatSidebar } from '@/components/dashboard/ChatSidebar';
 import { AnomalyAlertCenter } from '@/components/ai/AnomalyAlertCenter';
@@ -13,7 +12,6 @@ interface FloatingControlsProps {
 export function FloatingControls({ isChatOpen, onToggleChat }: FloatingControlsProps) {
   return (
     <>
-      <UnifiedFAB />
       <CommandPalette />
       <ChatSidebar isOpen={isChatOpen} onToggle={onToggleChat} />
       <AnomalyAlertCenter />
