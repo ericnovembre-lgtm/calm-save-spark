@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { dashboardCache } from '@/lib/dashboard-cache';
+import { coalescer, createCacheKey } from '@/lib/request-coalescer';
 
 export interface GenerativeWidgetSpec {
   id: string;
@@ -144,6 +145,9 @@ const DEFAULT_STATE: GenerativeDashboardState = {
 
 const GENERATION_TIMEOUT_MS = 30000; // 30 seconds
 const WARNING_THRESHOLD_MS = 20000; // 20 seconds
+const AUTO_REFRESH_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes (increased from 5)
+const MIN_DATA_AGE_FOR_REFRESH_MS = 10 * 60 * 1000; // 10 minutes
+const ACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes of inactivity
 
 export function useClaudeGenerativeDashboard() {
   const { user } = useAuth();
@@ -157,11 +161,15 @@ export function useClaudeGenerativeDashboard() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isTimedOut, setIsTimedOut] = useState(false);
   const [streamingText, setStreamingText] = useState<string>('');
+  const [isBackgroundRefreshing, setIsBackgroundRefreshing] = useState(false);
+  const [hasShownCachedData, setHasShownCachedData] = useState(false);
   
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const warningRef = useRef<NodeJS.Timeout | null>(null);
   const elapsedIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const lastActivityRef = useRef<number>(Date.now());
+  const lastRefreshTimeRef = useRef<number>(0);
 
   const clearAllTimers = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -172,13 +180,32 @@ export function useClaudeGenerativeDashboard() {
     elapsedIntervalRef.current = null;
   }, []);
 
-  const generateDashboard = useCallback(async (forceRefresh = false) => {
+  // Track user activity for smart refresh
+  useEffect(() => {
+    const updateActivity = () => {
+      lastActivityRef.current = Date.now();
+    };
+    
+    window.addEventListener('click', updateActivity);
+    window.addEventListener('keydown', updateActivity);
+    window.addEventListener('scroll', updateActivity);
+    
+    return () => {
+      window.removeEventListener('click', updateActivity);
+      window.removeEventListener('keydown', updateActivity);
+      window.removeEventListener('scroll', updateActivity);
+    };
+  }, []);
+
+  const generateDashboard = useCallback(async (forceRefresh = false, isBackground = false) => {
     if (!user) {
       setPhase('complete');
       return;
     }
 
-    // Try to load from IndexedDB cache first for instant display
+    const cacheKey = createCacheKey('POST', 'generate-dashboard-layout', { userId: user.id });
+
+    // Stale-While-Revalidate: Show cached data immediately
     if (!forceRefresh) {
       try {
         const cached = await dashboardCache.get(user.id);
@@ -188,13 +215,14 @@ export function useClaudeGenerativeDashboard() {
             widgets: cached.widgets || DEFAULT_STATE.widgets,
             theme: cached.theme || DEFAULT_STATE.theme,
             briefing: cached.briefing || DEFAULT_STATE.briefing,
-            reasoning: 'Loaded from offline cache'
+            reasoning: 'Loaded from cache'
           });
-          // Show cached data immediately while fetching fresh data
-          if ((cached as any).isStale) {
-            toast.info('Showing cached dashboard', {
-              description: 'Fetching latest updates...'
-            });
+          setHasShownCachedData(true);
+          setPhase('complete');
+          
+          // If this is a background refresh, just update silently
+          if (isBackground) {
+            setIsBackgroundRefreshing(true);
           }
         }
       } catch (e) {
@@ -208,12 +236,37 @@ export function useClaudeGenerativeDashboard() {
     }
     abortControllerRef.current = new AbortController();
 
-    setPhase('generating');
-    setIsLoading(true);
+    // Only show loading overlay on cold start (no cached data)
+    if (!hasShownCachedData && !isBackground) {
+      setPhase('generating');
+      setIsLoading(true);
+    }
+    
     setError(null);
     setElapsedTime(0);
     setIsTimedOut(false);
     setStreamingText('');
+
+    // Use request coalescing to prevent duplicate concurrent requests
+    try {
+      await coalescer.fetch(cacheKey, async () => {
+        await executeGeneration(forceRefresh, isBackground);
+      });
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
+      console.error('Dashboard generation error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to generate dashboard');
+      setPhase('complete');
+    } finally {
+      setIsLoading(false);
+      setIsBackgroundRefreshing(false);
+    }
+  }, [user, hasShownCachedData]);
+
+  const executeGeneration = useCallback(async (forceRefresh: boolean, isBackground: boolean) => {
+    if (!user) return;
 
     const startTime = Date.now();
 
@@ -324,6 +377,7 @@ export function useClaudeGenerativeDashboard() {
             cached: finalData.cached || false
           });
           setLastRefresh(new Date());
+          lastRefreshTimeRef.current = Date.now();
           setPhase('complete');
           
           // Save to IndexedDB for offline support
@@ -363,6 +417,7 @@ export function useClaudeGenerativeDashboard() {
             cached: data.cached || false
           });
           setLastRefresh(new Date());
+          lastRefreshTimeRef.current = Date.now();
           setPhase('complete');
           
           // Save to IndexedDB for offline support
@@ -414,13 +469,18 @@ export function useClaudeGenerativeDashboard() {
     };
   }, [generateDashboard, clearAllTimers]);
 
-  // Auto-refresh on significant events (every 5 minutes while active)
+  // Smart auto-refresh: only when active and data is old enough
   useEffect(() => {
     const interval = setInterval(() => {
-      if (document.visibilityState === 'visible' && phase === 'complete') {
-        generateDashboard();
+      const isVisible = document.visibilityState === 'visible';
+      const isUserActive = Date.now() - lastActivityRef.current < ACTIVITY_TIMEOUT_MS;
+      const isDataOld = Date.now() - lastRefreshTimeRef.current > MIN_DATA_AGE_FOR_REFRESH_MS;
+      
+      if (isVisible && isUserActive && isDataOld && phase === 'complete') {
+        // Background refresh - don't show loading overlay
+        generateDashboard(false, true);
       }
-    }, 5 * 60 * 1000);
+    }, AUTO_REFRESH_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, [generateDashboard, phase]);
@@ -437,6 +497,8 @@ export function useClaudeGenerativeDashboard() {
     elapsedTime,
     isTimedOut,
     isGenerating: phase === 'generating',
-    streamingText
+    streamingText,
+    isBackgroundRefreshing,
+    hasShownCachedData
   };
 }
