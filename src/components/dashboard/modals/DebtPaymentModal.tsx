@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,17 +10,27 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { Banknote, DollarSign, Loader2, TrendingDown } from 'lucide-react';
+import { registerModalCallback, unregisterModalCallback } from '@/lib/action-registry';
 
 interface DebtPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpen?: () => void;
 }
 
-export function DebtPaymentModal({ isOpen, onClose }: DebtPaymentModalProps) {
+export function DebtPaymentModal({ isOpen, onClose, onOpen }: DebtPaymentModalProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedDebtId, setSelectedDebtId] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
+
+  // Register modal callback for CoPilot integration
+  useEffect(() => {
+    if (onOpen) {
+      registerModalCallback('debt_payment', onOpen);
+      return () => unregisterModalCallback('debt_payment');
+    }
+  }, [onOpen]);
 
   // Fetch user's active debts
   const { data: debts, isLoading: debtsLoading } = useQuery({

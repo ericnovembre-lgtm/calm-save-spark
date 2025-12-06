@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,18 +10,28 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { Receipt, DollarSign, Loader2, Calendar, CreditCard } from 'lucide-react';
 import { format, addMonths } from 'date-fns';
+import { registerModalCallback, unregisterModalCallback } from '@/lib/action-registry';
 
 interface PayBillModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpen?: () => void;
 }
 
-export function PayBillModal({ isOpen, onClose }: PayBillModalProps) {
+export function PayBillModal({ isOpen, onClose, onOpen }: PayBillModalProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedBillId, setSelectedBillId] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<string>('bank');
+
+  // Register modal callback for CoPilot integration
+  useEffect(() => {
+    if (onOpen) {
+      registerModalCallback('pay_bill', onOpen);
+      return () => unregisterModalCallback('pay_bill');
+    }
+  }, [onOpen]);
 
   // Fetch upcoming bills from detected_subscriptions
   const { data: bills, isLoading: billsLoading } = useQuery({
