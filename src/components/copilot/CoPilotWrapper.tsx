@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { CoPilotProvider, useCoPilot } from '@/contexts/CoPilotContext';
-import { CoPilotOrb } from './CoPilotOrb';
+import { UnifiedCoPilotFAB } from './UnifiedCoPilotFAB';
 import { CoPilotPanel } from './CoPilotPanel';
 import { CoPilotSpotlight } from './CoPilotSpotlight';
 import { useProactiveNudges } from '@/hooks/useProactiveNudges';
@@ -117,7 +117,7 @@ function CoPilotUI() {
   
   return (
     <>
-      <CoPilotOrb />
+      <UnifiedCoPilotFAB />
       <CoPilotPanel />
       <CoPilotSpotlight />
     </>

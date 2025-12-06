@@ -18,7 +18,7 @@ import { getClientUser, AppUser } from "@/lib/session";
 import { FEATURE_FLAGS } from "@/lib/flags";
 import { supabase } from "@/integrations/supabase/client";
 import { Breadcrumbs } from "./Breadcrumbs";
-import { FABMenu } from "@/components/navigation/FABMenu";
+
 import { GlobalAIAssistant } from "@/components/global-ai/GlobalAIAssistant";
 import { usePageContext } from "@/hooks/usePageContext";
 import { RedAlertOverlay } from "@/components/guardian/RedAlertOverlay";
@@ -247,8 +247,6 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </main>
 
-      {/* FAB Menu */}
-      <FABMenu />
 
       {/* Global AI Assistant */}
       <GlobalAIAssistant />
