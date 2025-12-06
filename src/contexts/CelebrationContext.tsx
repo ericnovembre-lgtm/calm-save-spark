@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { useGlobalAchievementListener } from '@/hooks/useGlobalAchievementListener';
 
 export type CelebrationType = 'achievement' | 'milestone' | 'challenge' | 'streak' | 'rank_up';
 
@@ -24,6 +25,9 @@ const CelebrationContext = createContext<CelebrationContextType | undefined>(und
 export function CelebrationProvider({ children }: { children: ReactNode }) {
   const [isActive, setIsActive] = useState(false);
   const [celebration, setCelebration] = useState<CelebrationData | null>(null);
+
+  // Enable app-wide real-time achievement detection
+  useGlobalAchievementListener();
 
   const triggerCelebration = useCallback((data: CelebrationData) => {
     setCelebration(data);
