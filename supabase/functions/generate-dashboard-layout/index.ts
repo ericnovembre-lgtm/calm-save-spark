@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const CLAUDE_OPUS = 'claude-opus-4-1-20250805';
+const CLAUDE_OPUS = 'claude-opus-4-5-20251101';
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 const WIDGET_TYPES = `
