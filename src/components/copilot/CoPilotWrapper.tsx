@@ -117,7 +117,6 @@ function CoPilotUI() {
   
   return (
     <>
-      <UnifiedCoPilotFAB />
       <CoPilotPanel />
       <CoPilotSpotlight />
     </>
