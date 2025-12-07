@@ -44,11 +44,11 @@ export default function SocialSentiment() {
                 <Activity className="w-8 h-8 text-amber-500" />
                 Social Sentiment
               </h1>
-              <p className="text-slate-400 text-sm mt-1">
+              <p className="text-muted-foreground text-sm mt-1">
                 Real-time market sentiment powered by Grok AI
               </p>
             </div>
-            <div className="text-xs text-slate-500 flex items-center gap-1">
+            <div className="text-xs text-muted-foreground flex items-center gap-1">
               Powered by <span className="font-bold text-white">𝕏</span>
             </div>
           </motion.div>

@@ -245,7 +245,7 @@ export default function DigitalTwin() {
         label: event.label || 'Custom Event',
         impact: event.financial_impact || 0,
         description: event.description || '',
-        color: 'border-cyan-500'
+        color: 'border-amber-500'
       };
       addEvent(lifeEvent, event.year || selectedAge);
     }
@@ -468,7 +468,7 @@ export default function DigitalTwin() {
               exit={{ opacity: 0, x: 20, scale: 0.95 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="backdrop-blur-xl bg-slate-950/80 border border-white/10 rounded-xl p-4 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+              <div className="backdrop-blur-xl bg-stone-900/80 border border-stone-700/50 rounded-xl p-4 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-mono uppercase tracking-wider text-white/50">Active Events</h3>
                   <div className="w-2 h-2 rounded-full bg-accent animate-pulse shadow-[0_0_8px_hsl(var(--accent)/0.6)]" />
@@ -712,7 +712,7 @@ export default function DigitalTwin() {
               onClick={() => setShowAnalytics(false)}
             />
             <motion.div
-              className="fixed inset-y-4 right-4 w-[90vw] max-w-5xl bg-slate-950/95 backdrop-blur-xl border border-white/10 rounded-2xl z-50 flex flex-col overflow-hidden shadow-2xl"
+              className="fixed inset-y-4 right-4 w-[90vw] max-w-5xl bg-stone-900/95 backdrop-blur-xl border border-stone-700/50 rounded-2xl z-50 flex flex-col overflow-hidden shadow-2xl"
               initial={{ opacity: 0, x: 100, scale: 0.95 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 100, scale: 0.95 }}
@@ -720,7 +720,7 @@ export default function DigitalTwin() {
             >
               <div className="flex items-center justify-between p-6 border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="w-6 h-6 text-cyan-500" />
+                  <BarChart3 className="w-6 h-6 text-amber-500" />
                   <h2 className="text-xl font-bold text-white">Digital Twin Analytics</h2>
                 </div>
                 <Button
