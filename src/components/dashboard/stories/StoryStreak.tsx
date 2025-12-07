@@ -20,7 +20,7 @@ export function StoryStreak({ story }: StoryStreakProps) {
         animate={{ scale: 1 }}
         transition={{ type: 'spring', damping: 10 }}
       >
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
           <motion.div
             animate={{ 
               scale: [1, 1.1, 1],
@@ -52,7 +52,7 @@ export function StoryStreak({ story }: StoryStreakProps) {
               repeat: Infinity
             }}
           >
-            <Zap className="w-5 h-5 text-cyan-400" />
+            <Zap className="w-5 h-5 text-amber-400" />
           </motion.div>
         ))}
       </motion.div>
@@ -64,7 +64,7 @@ export function StoryStreak({ story }: StoryStreakProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <span className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
+        <span className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-400">
           <CountUp end={streakDays} duration={1.5} />
         </span>
         <span className="text-2xl text-white/60">days</span>
@@ -102,17 +102,17 @@ export function StoryStreak({ story }: StoryStreakProps) {
             key={milestone}
             className={`flex flex-col items-center p-2 rounded-lg ${
               streakDays >= milestone 
-                ? 'bg-cyan-500/20 border border-cyan-500/30' 
+                ? 'bg-amber-500/20 border border-amber-500/30' 
                 : 'bg-white/5 border border-white/10'
             }`}
           >
             <span className={`text-sm font-bold ${
-              streakDays >= milestone ? 'text-cyan-400' : 'text-white/40'
+              streakDays >= milestone ? 'text-amber-400' : 'text-white/40'
             }`}>
               {milestone}
             </span>
             <span className={`text-xs ${
-              streakDays >= milestone ? 'text-cyan-400/70' : 'text-white/30'
+              streakDays >= milestone ? 'text-amber-400/70' : 'text-white/30'
             }`}>
               days
             </span>
@@ -125,12 +125,12 @@ export function StoryStreak({ story }: StoryStreakProps) {
 
       {/* Motivation */}
       <motion.div
-        className="mt-6 px-4 py-2 rounded-full bg-cyan-500/20 border border-cyan-500/30"
+        className="mt-6 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-500/30"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
       >
-        <span className="text-cyan-400 font-medium">
+        <span className="text-amber-400 font-medium">
           {streakDays >= 30 ? '🏆 Legendary!' : 
            streakDays >= 14 ? '⚡ Unstoppable!' : 
            streakDays >= 7 ? '🔥 On fire!' : '💪 Keep going!'}

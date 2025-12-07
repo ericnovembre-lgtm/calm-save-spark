@@ -15,17 +15,17 @@ interface LiveDataPulseProps {
 }
 
 const colorMap = {
-  cyan: 'bg-cyan-500/20 border-cyan-500/50',
+  cyan: 'bg-amber-500/20 border-amber-500/50',
   emerald: 'bg-emerald-500/20 border-emerald-500/50',
-  violet: 'bg-violet-500/20 border-violet-500/50',
+  violet: 'bg-yellow-500/20 border-yellow-500/50',
   amber: 'bg-amber-500/20 border-amber-500/50',
   rose: 'bg-rose-500/20 border-rose-500/50',
 };
 
 const glowMap = {
-  cyan: 'shadow-cyan-500/50',
+  cyan: 'shadow-amber-500/50',
   emerald: 'shadow-emerald-500/50',
-  violet: 'shadow-violet-500/50',
+  violet: 'shadow-yellow-500/50',
   amber: 'shadow-amber-500/50',
   rose: 'shadow-rose-500/50',
 };
@@ -116,7 +116,7 @@ export function LiveDataPulse({
             transition={{ duration: 2, repeat: Infinity }}
             className={cn(
               'w-1.5 h-1.5 rounded-full',
-              isPulsing ? 'bg-emerald-400' : 'bg-cyan-400'
+              isPulsing ? 'bg-emerald-400' : 'bg-amber-400'
             )}
           />
           <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">

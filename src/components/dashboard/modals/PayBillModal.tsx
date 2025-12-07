@@ -108,7 +108,7 @@ export function PayBillModal({ isOpen, onClose, onOpen }: PayBillModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Receipt className="h-5 w-5 text-cyan-500" />
+            <Receipt className="h-5 w-5 text-amber-500" />
             Pay Bill
           </DialogTitle>
           <DialogDescription>
@@ -199,7 +199,7 @@ export function PayBillModal({ isOpen, onClose, onOpen }: PayBillModalProps) {
           <Button
             onClick={() => payBillMutation.mutate()}
             disabled={!selectedBillId || !amount || payBillMutation.isPending}
-            className="bg-cyan-600 hover:bg-cyan-700"
+            className="bg-amber-600 hover:bg-amber-700"
           >
             {payBillMutation.isPending ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Processing...</>

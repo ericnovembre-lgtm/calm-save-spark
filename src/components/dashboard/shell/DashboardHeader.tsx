@@ -267,7 +267,7 @@ export function DashboardHeader({
               </div>
               <div className="flex items-center gap-2.5 mt-0.5">
                 <p className="text-[11px] text-muted-foreground/70 font-medium tracking-wide flex items-center gap-1.5">
-                  <Sparkles className="h-3 w-3 text-violet-400" />
+                  <Sparkles className="h-3 w-3 text-amber-400" />
                   Powered by Claude Opus 4.5
                   <span className="text-muted-foreground/40">•</span>
                   <motion.span 
