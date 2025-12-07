@@ -216,15 +216,15 @@ export function CoPilotPanel() {
                 ? 'inset-x-0 bottom-0 h-[85vh] rounded-t-3xl' 
                 : 'right-0 top-0 h-full w-96'
               }
-              bg-white/80 dark:bg-slate-900/80 
-              backdrop-blur-2xl 
+              bg-white/80 dark:bg-stone-900/80 
+              backdrop-blur-2xl
               border-l border-t border-white/20 dark:border-white/10
               shadow-[0_0_50px_rgba(0,0,0,0.15)]
               flex flex-col overflow-hidden`}
             data-copilot-id="copilot-panel"
           >
             {/* Header with glassmorphism */}
-            <div className="p-4 border-b border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl">
+            <div className="p-4 border-b border-white/10 bg-white/50 dark:bg-stone-800/50 backdrop-blur-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
@@ -299,7 +299,7 @@ export function CoPilotPanel() {
                         key={i}
                         onClick={() => handleSuggestionClick(suggestion)}
                         className="text-xs px-3 py-2 rounded-xl 
-                          bg-white/60 dark:bg-slate-800/60 
+                          bg-white/60 dark:bg-stone-800/60 
                           backdrop-blur-sm
                           border border-white/20 dark:border-white/10
                           text-foreground 
@@ -324,7 +324,7 @@ export function CoPilotPanel() {
                       <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
                         msg.role === 'user' 
                           ? 'bg-primary text-primary-foreground shadow-lg' 
-                          : 'bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm border border-white/20 dark:border-white/10 text-foreground shadow-sm'
+                          : 'bg-white/60 dark:bg-stone-800/60 backdrop-blur-sm border border-white/20 dark:border-white/10 text-foreground shadow-sm'
                       }`}>
                         {msg.content}
                       </div>
@@ -338,7 +338,7 @@ export function CoPilotPanel() {
                   ))}
                   {isProcessing && (
                     <div className="flex justify-start">
-                      <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/20 dark:border-white/10">
+                      <div className="bg-white/60 dark:bg-stone-800/60 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/20 dark:border-white/10">
                         <div className="flex gap-1.5">
                           <span className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                           <span className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -352,7 +352,7 @@ export function CoPilotPanel() {
             </ScrollArea>
             
             {/* Input with voice controls */}
-            <div className="p-4 border-t border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl">
+            <div className="p-4 border-t border-white/10 bg-white/50 dark:bg-stone-800/50 backdrop-blur-xl">
               <form onSubmit={handleSubmit} className="flex gap-2">
                 {/* Voice mode toggle */}
                 <Button
@@ -371,7 +371,7 @@ export function CoPilotPanel() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={voiceModeActive ? "Listening..." : "Ask me anything..."}
-                  className="flex-1 rounded-xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm border-white/20 dark:border-white/10"
+                  className="flex-1 rounded-xl bg-white/60 dark:bg-stone-800/60 backdrop-blur-sm border-white/20 dark:border-white/10"
                   disabled={isProcessing || voiceModeActive}
                 />
                 <Button 

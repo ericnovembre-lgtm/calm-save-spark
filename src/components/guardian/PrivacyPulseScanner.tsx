@@ -93,11 +93,11 @@ function AppCard({
         scale: 0.8,
         transition: { duration: 0.3 }
       }}
-      className="p-4 rounded-lg bg-slate-800/30 border border-white/5 hover:border-white/10 transition-colors"
+      className="p-4 rounded-lg bg-card/30 border border-white/5 hover:border-white/10 transition-colors"
     >
       <div className="flex items-start gap-3">
         {/* App Icon */}
-        <div className="text-2xl w-10 h-10 rounded-lg bg-slate-700/50 flex items-center justify-center">
+        <div className="text-2xl w-10 h-10 rounded-lg bg-stone-700/50 flex items-center justify-center">
           {app.icon}
         </div>
         

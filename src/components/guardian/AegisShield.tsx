@@ -237,7 +237,7 @@ export function AegisShield({ securityScore, className = '' }: AegisShieldProps)
         </TooltipTrigger>
         <TooltipContent 
           side="bottom" 
-          className="bg-slate-900/95 backdrop-blur-xl border-white/10 p-4 max-w-xs"
+          className="bg-stone-900/95 backdrop-blur-xl border-white/10 p-4 max-w-xs"
         >
           <div className="space-y-2">
             <div className="flex items-center gap-2">
