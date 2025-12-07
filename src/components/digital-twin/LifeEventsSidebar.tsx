@@ -21,7 +21,7 @@ export interface LifeEvent {
 }
 
 const lifeEvents: LifeEvent[] = [
-  { id: 'house', icon: '🏠', label: 'Buy House', impact: -300000, description: '$300K mortgage', color: 'border-blue-500' },
+  { id: 'house', icon: '🏠', label: 'Buy House', impact: -300000, description: '$300K mortgage', color: 'border-stone-500' },
   { id: 'kids', icon: '👶', label: 'Have Kids', impact: -200000, description: '$200K over 18 years', color: 'border-pink-500' },
   { id: 'job', icon: '💼', label: 'New Job +30%', impact: 50000, description: 'Salary increase', color: 'border-green-500' },
   { id: 'crash', icon: '📉', label: 'Market Crash', impact: -100000, description: '-40% portfolio value', color: 'border-red-500' },
