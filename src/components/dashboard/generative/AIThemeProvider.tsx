@@ -23,20 +23,24 @@ interface AIThemeProviderProps {
   children: React.ReactNode;
 }
 
+// Brand-aligned accent colors using $ave+ warm palette
 const accentColors = {
-  cyan: { hue: 190, sat: 95, light: 70 },
-  amber: { hue: 38, sat: 92, light: 60 },
-  emerald: { hue: 155, sat: 70, light: 55 },
-  rose: { hue: 350, sat: 85, light: 65 },
-  violet: { hue: 270, sat: 75, light: 65 },
-  gold: { hue: 45, sat: 90, light: 58 }
+  gold: { hue: 38, sat: 45, light: 68 },      // Primary brand accent
+  amber: { hue: 42, sat: 50, light: 60 },     // Warm emphasis
+  cream: { hue: 40, sat: 35, light: 85 },     // Light beige
+  emerald: { hue: 142, sat: 50, light: 45 },  // Success (muted)
+  rose: { hue: 0, sat: 50, light: 55 },       // Alert (muted)
+  neutral: { hue: 40, sat: 20, light: 50 },   // Neutral beige
+  cyan: { hue: 190, sat: 50, light: 55 },     // Legacy support (muted)
+  violet: { hue: 270, sat: 40, light: 55 }    // Legacy support (muted)
 };
 
+// Brand-aligned mood backgrounds using semantic tokens
 const moodBackgrounds = {
-  calm: 'from-slate-950 via-slate-900 to-slate-950',
-  energetic: 'from-slate-950 via-cyan-950/30 to-slate-950',
-  cautionary: 'from-slate-950 via-amber-950/30 to-slate-950',
-  celebratory: 'from-slate-950 via-yellow-950/30 to-slate-950'
+  calm: 'from-background via-secondary/20 to-background',
+  energetic: 'from-background via-amber-100/20 to-background',
+  cautionary: 'from-background via-orange-100/20 to-background',
+  celebratory: 'from-background via-yellow-100/20 to-background'
 };
 
 export function AIThemeProvider({ theme, children }: AIThemeProviderProps) {
@@ -92,7 +96,7 @@ export function AIThemeProvider({ theme, children }: AIThemeProviderProps) {
             {[...Array(20)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-1 h-1 bg-yellow-400/30 rounded-full"
+                className="absolute w-1 h-1 bg-amber-400/30 rounded-full"
                 initial={{ 
                   x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
                   y: -10,
@@ -116,10 +120,10 @@ export function AIThemeProvider({ theme, children }: AIThemeProviderProps) {
         {theme.mood === 'energetic' && theme.animationLevel === 'prominent' && (
           <div className="fixed inset-0 pointer-events-none -z-5">
             <motion.div
-              className="absolute inset-0 bg-gradient-radial from-cyan-500/5 to-transparent"
+              className="absolute inset-0 bg-gradient-radial from-amber-200/10 to-transparent"
               animate={{
                 scale: [1, 1.1, 1],
-                opacity: [0.3, 0.5, 0.3]
+                opacity: [0.2, 0.4, 0.2]
               }}
               transition={{
                 duration: 4,
@@ -133,7 +137,7 @@ export function AIThemeProvider({ theme, children }: AIThemeProviderProps) {
         {theme.mood === 'cautionary' && (
           <div className="fixed inset-0 pointer-events-none -z-5">
             <motion.div
-              className="absolute inset-0 bg-gradient-to-t from-amber-900/10 to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-orange-200/10 to-transparent"
               animate={{
                 opacity: theme.animationLevel === 'prominent' ? [0.1, 0.2, 0.1] : 0.1
               }}

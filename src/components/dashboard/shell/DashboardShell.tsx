@@ -15,6 +15,8 @@ interface DashboardShellProps {
   lastRefresh?: Date;
   netWorthChangePercent: number;
   userName?: string | null;
+  generatedAt?: Date;
+  processingTimeMs?: number;
   onRefresh: () => void;
   onForceRefresh: () => void;
 }
@@ -28,6 +30,8 @@ export function DashboardShell({
   lastRefresh,
   netWorthChangePercent,
   userName,
+  generatedAt,
+  processingTimeMs,
   onRefresh,
   onForceRefresh,
 }: DashboardShellProps) {
@@ -55,7 +59,10 @@ export function DashboardShell({
       {children}
 
       {/* Footer */}
-      <DashboardFooter />
+      <DashboardFooter 
+        generatedAt={generatedAt}
+        processingTimeMs={processingTimeMs}
+      />
     </div>
   );
 }

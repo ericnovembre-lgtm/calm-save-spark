@@ -118,6 +118,8 @@ export default function Dashboard() {
             lastRefresh={data.generative.lastRefresh}
             netWorthChangePercent={data.computed.netWorthChangePercent}
             userName={data.userFirstName}
+            generatedAt={data.generative.meta?.generatedAt ? new Date(data.generative.meta.generatedAt) : undefined}
+            processingTimeMs={data.generative.meta?.processingTimeMs}
             onRefresh={data.actions.refresh}
             onForceRefresh={data.actions.forceRefresh}
             data-copilot-id="dashboard-shell"
@@ -154,7 +156,6 @@ export default function Dashboard() {
                 reasoning={data.generative.reasoning}
                 meta={data.generative.meta}
                 streamingText={data.generative.streamingText}
-                aiContext={data.generative.aiContext}
                 isChatOpen={data.chat.isOpen}
                 isMobile={isMobile}
                 onModalOpen={actions.setActiveModal}
