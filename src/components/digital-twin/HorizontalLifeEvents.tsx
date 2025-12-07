@@ -11,7 +11,7 @@ export type { LifeEvent };
 const LIFE_EVENTS: LifeEvent[] = [
   { id: 'job-loss', icon: '📉', label: 'Job Loss', impact: -50000, description: 'Unemployment period', color: 'border-red-500' },
   { id: 'promotion', icon: '📈', label: 'Promotion', impact: 25000, description: 'Career advancement', color: 'border-green-500' },
-  { id: 'house', icon: '🏠', label: 'Buy House', impact: -100000, description: 'Down payment & costs', color: 'border-blue-500' },
+  { id: 'house', icon: '🏠', label: 'Buy House', impact: -100000, description: 'Down payment & costs', color: 'border-stone-500' },
   { id: 'child', icon: '👶', label: 'Have Child', impact: -20000, description: 'Child expenses', color: 'border-pink-500' },
   { id: 'marriage', icon: '💒', label: 'Marriage', impact: -30000, description: 'Wedding costs', color: 'border-rose-500' },
   { id: 'inheritance', icon: '💰', label: 'Inheritance', impact: 150000, description: 'Unexpected windfall', color: 'border-yellow-500' },
