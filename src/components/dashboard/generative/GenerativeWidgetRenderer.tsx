@@ -32,21 +32,21 @@ const moodStyles = {
     glow: ''
   },
   energetic: {
-    border: 'border-cyan-500/30',
-    bg: 'bg-gradient-to-br from-card to-cyan-950/20',
-    accent: 'text-cyan-400',
-    glow: 'shadow-cyan-500/10 shadow-lg'
+    border: 'border-amber-500/30',
+    bg: 'bg-gradient-to-br from-card to-secondary/30',
+    accent: 'text-amber-600',
+    glow: 'shadow-amber-500/10 shadow-lg'
   },
   cautionary: {
-    border: 'border-amber-500/30',
-    bg: 'bg-gradient-to-br from-card to-amber-950/20',
-    accent: 'text-amber-400',
-    glow: 'shadow-amber-500/10 shadow-lg'
+    border: 'border-orange-500/30',
+    bg: 'bg-gradient-to-br from-card to-orange-100/20',
+    accent: 'text-orange-600',
+    glow: 'shadow-orange-500/10 shadow-lg'
   },
   celebratory: {
     border: 'border-yellow-500/30',
-    bg: 'bg-gradient-to-br from-card to-yellow-950/20',
-    accent: 'text-yellow-400',
+    bg: 'bg-gradient-to-br from-card to-yellow-100/20',
+    accent: 'text-yellow-600',
     glow: 'shadow-yellow-500/20 shadow-lg'
   }
 };

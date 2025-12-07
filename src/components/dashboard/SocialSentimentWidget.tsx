@@ -26,9 +26,9 @@ const SentimentGauge: React.FC<{ score: number; label: string }> = ({ score, lab
 
   return (
     <div className="space-y-2">
-      <div className="relative h-3 bg-slate-800 rounded-full overflow-hidden">
+      <div className="relative h-3 bg-secondary rounded-full overflow-hidden">
         {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-rose-500/20 via-slate-500/20 to-emerald-500/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-rose-500/20 via-muted/50 to-emerald-500/20" />
         
         {/* Score indicator */}
         <motion.div
@@ -63,10 +63,10 @@ const SentimentGauge: React.FC<{ score: number; label: string }> = ({ score, lab
 
 const VolumeIndicator: React.FC<{ volume: SocialSentimentData['volume'] }> = ({ volume }) => {
   const volumeConfig = {
-    low: { color: 'text-slate-400', bars: 1, label: 'Low' },
-    moderate: { color: 'text-cyan-400', bars: 2, label: 'Moderate' },
-    high: { color: 'text-amber-400', bars: 3, label: 'High' },
-    viral: { color: 'text-rose-400', bars: 4, label: 'Viral' },
+    low: { color: 'text-muted-foreground', bars: 1, label: 'Low' },
+    moderate: { color: 'text-amber-600', bars: 2, label: 'Moderate' },
+    high: { color: 'text-orange-500', bars: 3, label: 'High' },
+    viral: { color: 'text-rose-500', bars: 4, label: 'Viral' },
   };
 
   const config = volumeConfig[volume];
@@ -121,7 +121,7 @@ const TrendingTopicsList: React.FC<{ topics: string[] }> = ({ topics }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <span className="text-cyan-400 mt-0.5">•</span>
+            <span className="text-amber-600 mt-0.5">•</span>
             <span className="text-foreground/80 line-clamp-1">{topic}</span>
           </motion.div>
         ))}
@@ -192,7 +192,7 @@ export const SocialSentimentWidget: React.FC<SocialSentimentWidgetProps> = ({ cl
           </CardTitle>
           <Badge 
             variant="outline" 
-            className="text-[10px] px-1.5 py-0 bg-gradient-to-r from-slate-900 to-slate-800 border-slate-700"
+            className="text-[10px] px-1.5 py-0 bg-secondary border-border text-foreground"
           >
             <ExternalLink className="h-2.5 w-2.5 mr-1" />
             Grok
