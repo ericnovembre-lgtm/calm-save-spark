@@ -65,7 +65,7 @@ export function ComparisonSummaryCard({ scenarios }: ComparisonSummaryCardProps)
               </div>
               <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full"
+                  className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"
                   style={{ width: `${scenario.successProbability}%` }}
                 />
               </div>
@@ -130,7 +130,7 @@ export function ComparisonSummaryCard({ scenarios }: ComparisonSummaryCardProps)
             {scenario.timeToGoal && (
               <div className="mt-3 pt-3 border-t border-white/10">
                 <div className="flex items-center gap-2">
-                  <Target className="w-3.5 h-3.5 text-cyan-400" />
+                  <Target className="w-3.5 h-3.5 text-amber-400" />
                   <span className="text-xs text-white/60">Goal in</span>
                   <span className="text-sm font-mono text-white">
                     {scenario.timeToGoal} years

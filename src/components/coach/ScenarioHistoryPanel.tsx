@@ -16,10 +16,10 @@ interface ScenarioHistoryPanelProps {
 }
 
 const SCENARIO_COLORS = [
-  { line: 'hsl(189, 94%, 43%)', fill: 'hsl(189, 94%, 43%, 0.15)', name: 'cyan' },
-  { line: 'hsl(258, 90%, 66%)', fill: 'hsl(258, 90%, 66%, 0.15)', name: 'violet' },
-  { line: 'hsl(142, 71%, 45%)', fill: 'hsl(142, 71%, 45%, 0.15)', name: 'green' },
   { line: 'hsl(38, 92%, 50%)', fill: 'hsl(38, 92%, 50%, 0.15)', name: 'amber' },
+  { line: 'hsl(45, 93%, 47%)', fill: 'hsl(45, 93%, 47%, 0.15)', name: 'yellow' },
+  { line: 'hsl(142, 71%, 45%)', fill: 'hsl(142, 71%, 45%, 0.15)', name: 'green' },
+  { line: 'hsl(160, 84%, 39%)', fill: 'hsl(160, 84%, 39%, 0.15)', name: 'teal' },
 ];
 
 export function ScenarioHistoryPanel({ 
@@ -79,7 +79,7 @@ export function ScenarioHistoryPanel({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 h-full w-full max-w-xl bg-slate-950 border-l border-white/10 z-50 flex flex-col"
+            className="fixed right-0 top-0 h-full w-full max-w-xl bg-stone-950 border-l border-white/10 z-50 flex flex-col"
           >
             {/* Header */}
             <div className="p-6 border-b border-white/10">
@@ -102,7 +102,7 @@ export function ScenarioHistoryPanel({
               {selectedIds.length >= 2 && (
                 <Button
                   onClick={() => onCompare(selectedIds)}
-                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-mono"
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-black font-mono"
                 >
                   <ChevronRight className="w-4 h-4 mr-2" />
                   Compare {selectedIds.length} Scenarios
@@ -138,7 +138,7 @@ export function ScenarioHistoryPanel({
                     transition={{ delay: index * 0.05 }}
                     className={`relative p-4 rounded-lg border transition-all ${
                       isSelected
-                        ? 'border-cyan-500/50 bg-cyan-500/5'
+                        ? 'border-amber-500/50 bg-amber-500/5'
                         : 'border-white/10 bg-white/5 hover:border-white/20'
                     }`}
                   >
@@ -204,7 +204,7 @@ export function ScenarioHistoryPanel({
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           {scenario.success_probability !== null && (
                             <div className="flex items-center gap-2">
-                              <Percent className="w-3.5 h-3.5 text-cyan-400" />
+                              <Percent className="w-3.5 h-3.5 text-amber-400" />
                               <span className="text-xs text-white/60">Success:</span>
                               <span className="text-sm font-mono text-white">
                                 {scenario.success_probability.toFixed(1)}%
@@ -214,7 +214,7 @@ export function ScenarioHistoryPanel({
                           
                           {scenario.projected_outcomes && (
                             <div className="flex items-center gap-2">
-                              <TrendingUp className="w-3.5 h-3.5 text-violet-400" />
+                              <TrendingUp className="w-3.5 h-3.5 text-yellow-500" />
                               <span className="text-xs text-white/60">Final:</span>
                               <span className="text-sm font-mono text-white truncate">
                                 {formatCurrency(scenario.projected_outcomes[scenario.projected_outcomes.length - 1]?.median || 0)}

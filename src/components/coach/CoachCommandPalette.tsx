@@ -144,7 +144,7 @@ export function CoachCommandPalette({
       id: 'action-dark-mode',
       label: `Switch to ${isDarkMode ? 'Light' : 'Dark'} Mode`,
       category: 'Actions',
-      icon: isDarkMode ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-400" />,
+      icon: isDarkMode ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-stone-400" />,
       action: () => {
         onToggleDarkMode();
         trackAction('action-dark-mode');

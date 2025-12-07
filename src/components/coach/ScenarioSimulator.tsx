@@ -155,7 +155,7 @@ export const ScenarioSimulator = forwardRef<HTMLInputElement, ScenarioSimulatorP
                   onClick={onToggleCompare}
                   className={`${
                     isCompareMode 
-                      ? 'text-cyan-400 bg-cyan-500/10' 
+                      ? 'text-amber-400 bg-amber-500/10' 
                       : 'text-white/60 hover:text-white'
                   }`}
                 >
