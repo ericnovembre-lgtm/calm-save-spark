@@ -146,8 +146,8 @@ export const CoachQuickActionsMenu = ({
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               onClick={onClose}
               className="absolute -translate-x-1/2 -translate-y-1/2 
-                w-12 h-12 rounded-full bg-command-surface border-2 border-white/20
-                flex items-center justify-center text-white hover:bg-command-surface/80
+                w-12 h-12 rounded-full bg-stone-800 border-2 border-stone-600/50
+                flex items-center justify-center text-white hover:bg-stone-700
                 transition-colors shadow-xl"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}

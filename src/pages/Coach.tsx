@@ -245,7 +245,7 @@ export default function Coach() {
 
       <div
         className={`min-h-[calc(100vh-10rem)] p-6 transition-colors relative ${
-          isDarkMode ? "bg-command-bg" : "bg-background"
+          isDarkMode ? "bg-stone-900" : "bg-background"
         }`}
       >
         {/* Ambient Background Effects */}
@@ -254,7 +254,7 @@ export default function Coach() {
             {/* Grid Pattern */}
             <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
               <div className="absolute inset-0" style={{
-                backgroundImage: 'linear-gradient(hsl(189, 94%, 43%) 1px, transparent 1px), linear-gradient(90deg, hsl(189, 94%, 43%) 1px, transparent 1px)',
+                backgroundImage: 'linear-gradient(hsl(var(--accent)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--accent)) 1px, transparent 1px)',
                 backgroundSize: '50px 50px'
               }} />
             </div>
@@ -263,32 +263,32 @@ export default function Coach() {
               <motion.div
                 animate={{ y: ['-100%', '200%'] }}
                 transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                className="absolute inset-x-0 h-[200px] bg-gradient-to-b from-transparent via-command-cyan/5 to-transparent"
+                className="absolute inset-x-0 h-[200px] bg-gradient-to-b from-transparent via-amber-500/5 to-transparent"
               />
             </div>
           </>
         )}
 
         {/* Header with Entrance Animation */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex items-center justify-between mb-6 relative"
-        >
-          <div className="flex items-center gap-3">
-            <motion.div 
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
-              className="p-2 rounded-lg bg-command-violet/20 border border-command-violet/30 relative overflow-hidden group"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-command-violet/20 to-transparent"
-              />
-              <Bot className="w-6 h-6 text-command-violet relative z-10" />
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex items-center justify-between mb-6 relative"
+          >
+            <div className="flex items-center gap-3">
+              <motion.div 
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
+                className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/30 relative overflow-hidden group"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent"
+                />
+                <Bot className="w-6 h-6 text-amber-600 relative z-10" />
             </motion.div>
             <div>
               <motion.h1 
@@ -303,12 +303,12 @@ export default function Coach() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className={`text-xs font-mono ${isDarkMode ? "text-white/40" : "text-muted-foreground"} flex items-center gap-2`}
+                className={`text-xs font-mono ${isDarkMode ? "text-stone-400" : "text-muted-foreground"} flex items-center gap-2`}
               >
                 <motion.span
                   animate={{ opacity: [0.4, 1, 0.4] }}
                   transition={{ duration: 2, repeat: Infinity }}
-                  className="inline-block w-2 h-2 rounded-full bg-command-cyan"
+                  className="inline-block w-2 h-2 rounded-full bg-amber-500"
                 />
                 AI-Powered Financial Analysis
               </motion.p>
@@ -325,7 +325,7 @@ export default function Coach() {
               variant="outline"
               size="sm"
               onClick={resetLayout}
-              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white hover:border-command-cyan/50" : ""} text-xs font-mono hidden sm:inline-flex transition-all duration-300`}
+              className={`${isDarkMode ? "border-stone-700/50 bg-stone-800 text-stone-300 hover:text-white hover:border-amber-500/50" : ""} text-xs font-mono hidden sm:inline-flex transition-all duration-300`}
             >
               Reset Layout
             </Button>
@@ -333,7 +333,7 @@ export default function Coach() {
               variant="outline"
               size="sm"
               onClick={() => setIsCommandPaletteOpen(true)}
-              className={`${isDarkMode ? "border-white/10 bg-command-surface text-white/60 hover:text-white hover:border-command-cyan/50" : ""} transition-all duration-300`}
+              className={`${isDarkMode ? "border-stone-700/50 bg-stone-800 text-stone-300 hover:text-white hover:border-amber-500/50" : ""} transition-all duration-300`}
             >
               <span className="text-xs font-mono">Command Palette</span>
             </Button>
@@ -341,7 +341,7 @@ export default function Coach() {
               variant="outline"
               size="sm"
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`${isDarkMode ? "border-white/10 bg-command-surface hover:border-command-cyan/50" : ""} transition-all duration-300 relative overflow-hidden group`}
+              className={`${isDarkMode ? "border-stone-700/50 bg-stone-800 hover:border-amber-500/50" : ""} transition-all duration-300 relative overflow-hidden group`}
             >
               <motion.div
                 initial={false}

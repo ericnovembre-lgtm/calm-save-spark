@@ -157,7 +157,7 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 h-full w-full md:w-[800px] bg-slate-950 border-l border-white/10 z-50 flex"
+            className="fixed right-0 top-0 h-full w-full md:w-[800px] bg-stone-900 border-l border-stone-700/50 z-50 flex"
           >
             {/* History Panel */}
             <AnimatePresence>
@@ -183,14 +183,14 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col min-w-0">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center justify-between p-4 border-b border-stone-700/50">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
                     <Bot className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white">AI Financial Coach</h3>
-                    <p className="text-xs text-white/60">Always here to help</p>
+                    <p className="text-xs text-stone-400">Always here to help</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -198,7 +198,7 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setShowHistory(!showHistory)}
-                    className="text-white/60 hover:text-white"
+                    className="text-stone-400 hover:text-white"
                   >
                     <History className="w-5 h-5" />
                   </Button>
@@ -206,7 +206,7 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
                     variant="ghost"
                     size="icon"
                     onClick={onClose}
-                    className="text-white/60 hover:text-white"
+                    className="text-stone-400 hover:text-white"
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -217,7 +217,7 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
               <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
                   {messages.length === 0 && (
-                    <div className="text-center text-white/40 py-12">
+                    <div className="text-center text-stone-500 py-12">
                       <Bot className="w-16 h-16 mx-auto mb-4 opacity-20" />
                       <p className="text-sm">Start a conversation with your AI Coach</p>
                     </div>
@@ -244,14 +244,14 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
                   
                   {isResponding && (
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
                         <Bot className="w-4 h-4 text-white" />
                       </div>
-                      <div className="flex-1 bg-slate-900/50 rounded-lg p-4 border border-cyan-500/20">
+                      <div className="flex-1 bg-stone-800/50 rounded-lg p-4 border border-amber-500/20">
                         <div className="flex gap-1">
-                          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                          <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                         </div>
                       </div>
                     </div>
@@ -269,14 +269,14 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
               )}
 
               {/* Input */}
-              <div className="p-4 border-t border-white/10">
+              <div className="p-4 border-t border-stone-700/50">
                 <div className="flex gap-2">
                   <Textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder={isRecording ? "Listening..." : "Ask your coach anything..."}
-                    className="flex-1 bg-slate-900 border-white/10 text-white placeholder:text-white/40 resize-none"
+                    className="flex-1 bg-stone-800 border-stone-700/50 text-white placeholder:text-stone-500 resize-none"
                     rows={2}
                     disabled={isRecording || isTranscribing}
                   />
@@ -287,7 +287,7 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
                       onClick={isRecording ? handleVoiceStop : handleVoiceStart}
                       disabled={isSendingMessage || isTranscribing}
                       className={cn(
-                        "border-white/10",
+                        "border-stone-700/50",
                         isRecording && "bg-red-500/20 border-red-500/50 animate-pulse"
                       )}
                       aria-label={isRecording ? "Stop recording" : "Start voice input"}
@@ -295,15 +295,15 @@ export function CoachChatDrawer({ isOpen, onClose }: CoachChatDrawerProps) {
                       {isRecording ? (
                         <Square className="w-4 h-4 text-red-400" />
                       ) : isTranscribing ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-command-cyan" />
+                        <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
                       ) : (
-                        <Mic className="w-4 h-4 text-command-cyan" />
+                        <Mic className="w-4 h-4 text-amber-500" />
                       )}
                     </Button>
                     <Button
                       onClick={handleSend}
                       disabled={!input.trim() || isSendingMessage || isRecording || isTranscribing}
-                      className="bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-600 hover:to-violet-600"
+                      className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
                     >
                       <Send className="w-4 h-4" />
                     </Button>
