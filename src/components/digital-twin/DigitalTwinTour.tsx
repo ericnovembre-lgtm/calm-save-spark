@@ -19,13 +19,13 @@ export function DigitalTwinTour({ run, steps, stepIndex, onCallback }: DigitalTw
       callback={onCallback}
       styles={{
         options: {
-          primaryColor: '#06b6d4', // cyan-500
+          primaryColor: '#f59e0b', // amber-500
           zIndex: 10000,
         },
         tooltip: {
           backgroundColor: 'rgba(0, 0, 0, 0.95)',
           borderRadius: '12px',
-          border: '1px solid rgba(6, 182, 212, 0.3)',
+          border: '1px solid rgba(245, 158, 11, 0.3)',
           color: 'white',
           fontSize: '14px',
           padding: '20px',
@@ -36,7 +36,7 @@ export function DigitalTwinTour({ run, steps, stepIndex, onCallback }: DigitalTw
           padding: '12px 0',
         },
         buttonNext: {
-          backgroundColor: '#06b6d4',
+          backgroundColor: '#f59e0b',
           color: 'black',
           fontWeight: 'bold',
           borderRadius: '8px',
@@ -51,14 +51,14 @@ export function DigitalTwinTour({ run, steps, stepIndex, onCallback }: DigitalTw
           color: 'rgba(255, 255, 255, 0.4)',
         },
         beacon: {
-          borderColor: '#06b6d4',
-          backgroundColor: '#06b6d4',
+          borderColor: '#f59e0b',
+          backgroundColor: '#f59e0b',
         },
         overlay: {
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
         },
         spotlight: {
-          border: '2px solid #06b6d4',
+          border: '2px solid #f59e0b',
           borderRadius: '8px',
         },
       }}
