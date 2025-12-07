@@ -94,7 +94,7 @@ export function OpportunityRadar({ userId }: OpportunityRadarProps) {
         particleCount: 80,
         spread: 60,
         origin: { y: 0.7 },
-        colors: ['#06b6d4', '#8b5cf6', '#10b981'],
+        colors: ['#d6c8a2', '#f59e0b', '#10b981'],
       });
 
       // Play success sound
