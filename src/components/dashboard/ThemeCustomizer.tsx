@@ -18,9 +18,9 @@ const PRESET_THEMES = [
 
 const SEASONAL_THEMES = [
   { name: 'Spring', primary: '110 60% 50%', accent: '80 70% 60%', gradient: 'from-green-100 via-yellow-100 to-pink-100' },
-  { name: 'Summer', primary: '200 80% 55%', accent: '50 90% 65%', gradient: 'from-blue-200 via-cyan-200 to-yellow-200' },
+  { name: 'Summer', primary: '38 45% 70%', accent: '50 90% 65%', gradient: 'from-amber-100 via-yellow-100 to-orange-100' },
   { name: 'Autumn', primary: '30 70% 50%', accent: '15 80% 60%', gradient: 'from-orange-200 via-red-200 to-yellow-200' },
-  { name: 'Winter', primary: '210 60% 60%', accent: '190 70% 70%', gradient: 'from-blue-100 via-slate-100 to-cyan-100' },
+  { name: 'Winter', primary: '210 60% 60%', accent: '40 35% 85%', gradient: 'from-stone-100 via-amber-50 to-orange-50' },
 ];
 
 export function ThemeCustomizer() {

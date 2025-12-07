@@ -13,17 +13,17 @@ interface ThemePalette {
 
 export function GenerativeTheme() {
   const [currentTheme, setCurrentTheme] = useState<ThemePalette>({
-    primary: '#3b82f6',
-    secondary: '#8b5cf6',
+    primary: '#d6c8a2',
+    secondary: '#f59e0b',
     accent: '#10b981',
-    name: 'Ocean Breeze'
+    name: 'Warm Beige'
   });
 
   const themes: ThemePalette[] = [
-    { primary: '#3b82f6', secondary: '#8b5cf6', accent: '#10b981', name: 'Ocean Breeze' },
+    { primary: '#d6c8a2', secondary: '#f59e0b', accent: '#10b981', name: 'Warm Beige' },
     { primary: '#f59e0b', secondary: '#ef4444', accent: '#ec4899', name: 'Sunset Glow' },
-    { primary: '#10b981', secondary: '#06b6d4', accent: '#6366f1', name: 'Forest Dawn' },
-    { primary: '#8b5cf6', secondary: '#ec4899', accent: '#f59e0b', name: 'Purple Haze' }
+    { primary: '#10b981', secondary: '#e9dfce', accent: '#d6c8a2', name: 'Forest Dawn' },
+    { primary: '#e9dfce', secondary: '#f59e0b', accent: '#10b981', name: 'Soft Gold' }
   ];
 
   const generateRandom = () => {

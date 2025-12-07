@@ -54,7 +54,7 @@ export function DynamicParticleSystem({ intensity = 'medium', enabled = true }: 
         vx: (Math.random() - 0.5) * 0.5,
         vy: (Math.random() - 0.5) * 0.5,
         size: Math.random() * 3 + 1,
-        color: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'][Math.floor(Math.random() * 4)],
+        color: ['#d6c8a2', '#f59e0b', '#10b981', '#e9dfce'][Math.floor(Math.random() * 4)],
         type: ['coin', 'star', 'sparkle'][Math.floor(Math.random() * 3)] as any
       });
     }

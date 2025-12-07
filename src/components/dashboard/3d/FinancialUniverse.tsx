@@ -107,7 +107,7 @@ interface FinancialUniverseProps {
 export function FinancialUniverse({ totalBalance, goals }: FinancialUniverseProps) {
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
 
-  const planetColors = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'];
+  const planetColors = ['#d6c8a2', '#f59e0b', '#ec4899', '#10b981', '#e9dfce'];
 
   return (
     <motion.div

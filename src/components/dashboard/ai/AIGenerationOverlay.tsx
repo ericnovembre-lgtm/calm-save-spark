@@ -108,9 +108,9 @@ export function AIGenerationOverlay({
                 />
                 <defs>
                   <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#06b6d4" />
-                    <stop offset="50%" stopColor="#8b5cf6" />
-                    <stop offset="100%" stopColor="#06b6d4" />
+                    <stop offset="0%" stopColor="#d6c8a2" />
+                    <stop offset="50%" stopColor="#f59e0b" />
+                    <stop offset="100%" stopColor="#d6c8a2" />
                   </linearGradient>
                 </defs>
               </svg>
@@ -121,7 +121,7 @@ export function AIGenerationOverlay({
                 transition={{ duration: 2, repeat: Infinity }}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-white/10 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-secondary/40 to-amber-500/20 border border-white/10 flex items-center justify-center">
                   {phaseDetails[phase].icon}
                 </div>
               </motion.div>

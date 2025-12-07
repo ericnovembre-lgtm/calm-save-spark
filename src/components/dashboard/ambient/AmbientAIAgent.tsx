@@ -46,16 +46,16 @@ const insightIcons: Record<AmbientInsight['type'], React.ElementType> = {
 };
 
 const insightColors: Record<AmbientInsight['type'], string> = {
-  tip: 'from-cyan-500/20 to-blue-500/20 border-cyan-500/30',
+  tip: 'from-amber-500/20 to-yellow-500/20 border-amber-500/30',
   alert: 'from-amber-500/20 to-orange-500/20 border-amber-500/30',
-  celebration: 'from-violet-500/20 to-pink-500/20 border-violet-500/30',
+  celebration: 'from-yellow-500/20 to-amber-500/20 border-yellow-500/30',
   nudge: 'from-emerald-500/20 to-teal-500/20 border-emerald-500/30'
 };
 
 const orbGlowColors: Record<AmbientInsight['type'], string> = {
-  tip: 'shadow-cyan-500/50',
+  tip: 'shadow-amber-500/50',
   alert: 'shadow-amber-500/50',
-  celebration: 'shadow-violet-500/50',
+  celebration: 'shadow-yellow-500/50',
   nudge: 'shadow-emerald-500/50'
 };
 
@@ -152,8 +152,8 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
                 <div className={cn(
                   "p-1.5 rounded-lg bg-background/50",
                   currentInsight.type === 'alert' && "text-amber-500",
-                  currentInsight.type === 'celebration' && "text-violet-500",
-                  currentInsight.type === 'tip' && "text-cyan-500",
+                  currentInsight.type === 'celebration' && "text-yellow-600",
+                  currentInsight.type === 'tip' && "text-amber-500",
                   currentInsight.type === 'nudge' && "text-emerald-500"
                 )}>
                   <Icon className="h-4 w-4" />
