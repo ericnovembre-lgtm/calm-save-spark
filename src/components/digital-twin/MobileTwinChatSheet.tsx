@@ -178,18 +178,18 @@ export function MobileTwinChatSheet({
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent className="h-[90vh] bg-slate-950/98 border-t border-cyan-500/20">
+      <DrawerContent className="h-[90vh] bg-stone-900/98 border-t border-amber-500/20">
         <DrawerHeader className="border-b border-white/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-cyan-500" />
+              <Sparkles className="w-5 h-5 text-amber-500" />
               <DrawerTitle className="text-white">Digital Twin Advisor</DrawerTitle>
             </div>
             <div className="flex items-center gap-2">
               {isParsing && (
-                <div className="flex items-center gap-1.5 px-2 py-1 bg-violet-500/20 rounded-full">
-                  <Wand2 className="w-3 h-3 text-violet-400 animate-pulse" />
-                  <span className="text-[10px] text-violet-300">Creating...</span>
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-orange-500/20 rounded-full">
+                  <Wand2 className="w-3 h-3 text-orange-400 animate-pulse" />
+                  <span className="text-[10px] text-orange-300">Creating...</span>
                 </div>
               )}
               {currentModel && !isParsing && (
@@ -216,7 +216,7 @@ export function MobileTwinChatSheet({
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <div className="text-center text-white/40 text-sm mt-8">
-              <Brain className="w-10 h-10 mx-auto mb-3 text-cyan-500/40" />
+              <Brain className="w-10 h-10 mx-auto mb-3 text-amber-500/40" />
               <p className="mb-2">Ask about your financial future</p>
               <div className="space-y-2 mt-4">
                 {quickPrompts.map((prompt, i) => (
@@ -228,7 +228,7 @@ export function MobileTwinChatSheet({
                     }}
                     className="block w-full text-left px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/60"
                   >
-                    <Wand2 className="w-3 h-3 inline mr-2 text-violet-400" />
+                    <Wand2 className="w-3 h-3 inline mr-2 text-orange-400" />
                     {prompt}
                   </button>
                 ))}
@@ -250,7 +250,7 @@ export function MobileTwinChatSheet({
                 className={cn(
                   "max-w-[85%] rounded-lg px-4 py-2 text-sm",
                   msg.role === 'user'
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border border-cyan-500/30 text-white'
+                    ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-white'
                     : 'bg-white/5 border border-white/10 text-white/90'
                 )}
               >
@@ -262,7 +262,7 @@ export function MobileTwinChatSheet({
           {isStreaming && (
             <div className="flex gap-3 justify-start">
               <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-2">
-                <Loader2 className="w-4 h-4 animate-spin text-cyan-500" />
+                <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
               </div>
             </div>
           )}
@@ -277,7 +277,7 @@ export function MobileTwinChatSheet({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="px-4 py-3 border-t border-white/10 bg-gradient-to-r from-cyan-500/10 to-violet-500/10"
+              className="px-4 py-3 border-t border-white/10 bg-gradient-to-r from-amber-500/10 to-orange-500/10"
             >
               <div className="flex items-center justify-center gap-3">
                 {isRecording && (
@@ -289,7 +289,7 @@ export function MobileTwinChatSheet({
                 )}
                 {isTranscribing && (
                   <>
-                    <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
+                    <Loader2 className="w-4 h-4 text-amber-400 animate-spin" />
                     <span className="text-sm text-white/80 font-mono">Transcribing...</span>
                   </>
                 )}
@@ -327,7 +327,7 @@ export function MobileTwinChatSheet({
               onClick={handleSend}
               disabled={isStreaming || isParsing || isRecording || isTranscribing || !input.trim()}
               size="icon"
-              className="bg-gradient-to-r from-cyan-500 to-violet-500"
+              className="bg-gradient-to-r from-amber-500 to-orange-500"
             >
               <Send className="w-4 h-4" />
             </Button>

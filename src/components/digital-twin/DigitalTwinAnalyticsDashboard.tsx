@@ -28,7 +28,7 @@ import {
   Bar,
 } from 'recharts';
 
-const COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899'];
+const COLORS = ['#f59e0b', '#8b5cf6', '#f97316', '#10b981', '#ec4899'];
 
 interface StatCardProps {
   icon: React.ElementType;
@@ -45,7 +45,7 @@ function StatCard({ icon: Icon, label, value, color, delay = 0 }: StatCardProps)
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
     >
-      <Card className="p-4 bg-slate-900/50 border-white/10 backdrop-blur-xl">
+      <Card className="p-4 bg-card/50 border-border/50 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className={cn("p-2 rounded-lg", color)}>
             <Icon className="w-5 h-5 text-white" />
@@ -68,7 +68,7 @@ export function DigitalTwinAnalyticsDashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <Sparkles className="w-8 h-8 text-cyan-500 animate-pulse mx-auto mb-2" />
+          <Sparkles className="w-8 h-8 text-amber-500 animate-pulse mx-auto mb-2" />
           <p className="text-white/60 font-mono text-sm">Loading analytics...</p>
         </div>
       </div>
@@ -77,7 +77,7 @@ export function DigitalTwinAnalyticsDashboard() {
 
   if (!data) {
     return (
-      <Card className="p-8 bg-slate-900/50 border-white/10 text-center">
+      <Card className="p-8 bg-card/50 border-border/50 text-center">
         <BarChart3 className="w-12 h-12 text-white/20 mx-auto mb-4" />
         <p className="text-white/60">No analytics data available yet.</p>
         <p className="text-white/40 text-sm mt-1">Start using the Digital Twin to generate insights!</p>
@@ -105,7 +105,7 @@ export function DigitalTwinAnalyticsDashboard() {
             className={cn(
               "px-3 py-1 rounded-full text-xs transition-colors",
               days === d 
-                ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                 : "bg-white/5 text-white/60 hover:bg-white/10"
             )}
           >
@@ -120,14 +120,14 @@ export function DigitalTwinAnalyticsDashboard() {
           icon={BarChart3} 
           label="Simulations" 
           value={summary.totalSimulations} 
-          color="bg-cyan-500/20"
+          color="bg-amber-500/20"
           delay={0}
         />
         <StatCard 
           icon={MessageSquare} 
           label="Chat Queries" 
           value={summary.totalChatQueries} 
-          color="bg-violet-500/20"
+          color="bg-orange-500/20"
           delay={0.05}
         />
         <StatCard 
@@ -141,7 +141,7 @@ export function DigitalTwinAnalyticsDashboard() {
           icon={Lightbulb} 
           label="Insights" 
           value={summary.insightsGenerated} 
-          color="bg-amber-500/20"
+          color="bg-yellow-500/20"
           delay={0.15}
         />
         <StatCard 
@@ -168,9 +168,9 @@ export function DigitalTwinAnalyticsDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="p-4 bg-slate-900/50 border-white/10 backdrop-blur-xl">
+          <Card className="p-4 bg-card/50 border-border/50 backdrop-blur-xl">
             <h3 className="text-sm font-medium text-white/80 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-cyan-500" />
+              <TrendingUp className="w-4 h-4 text-amber-500" />
               Daily Activity
             </h3>
             <div className="h-48">
@@ -178,8 +178,8 @@ export function DigitalTwinAnalyticsDashboard() {
                 <AreaChart data={dailyActivity}>
                   <defs>
                     <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis 
@@ -199,7 +199,7 @@ export function DigitalTwinAnalyticsDashboard() {
                   <Area 
                     type="monotone" 
                     dataKey="count" 
-                    stroke="#06b6d4" 
+                    stroke="#f59e0b" 
                     fill="url(#activityGradient)" 
                   />
                 </AreaChart>
@@ -214,9 +214,9 @@ export function DigitalTwinAnalyticsDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
         >
-          <Card className="p-4 bg-slate-900/50 border-white/10 backdrop-blur-xl">
+          <Card className="p-4 bg-card/50 border-border/50 backdrop-blur-xl">
             <h3 className="text-sm font-medium text-white/80 mb-4 flex items-center gap-2">
-              <Brain className="w-4 h-4 text-violet-500" />
+              <Brain className="w-4 h-4 text-orange-500" />
               Model Usage
             </h3>
             <div className="h-48 flex items-center justify-center">
@@ -272,7 +272,7 @@ export function DigitalTwinAnalyticsDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Card className="p-4 bg-slate-900/50 border-white/10 backdrop-blur-xl">
+          <Card className="p-4 bg-card/50 border-border/50 backdrop-blur-xl">
             <h3 className="text-sm font-medium text-white/80 mb-4">Top Life Events Simulated</h3>
             <div className="h-48">
               {lifeEventsCount.length > 0 ? (
@@ -310,7 +310,7 @@ export function DigitalTwinAnalyticsDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45 }}
         >
-          <Card className="p-4 bg-slate-900/50 border-white/10 backdrop-blur-xl">
+          <Card className="p-4 bg-card/50 border-border/50 backdrop-blur-xl">
             <h3 className="text-sm font-medium text-white/80 mb-4 flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-amber-500" />
               Recent Insights

@@ -251,9 +251,9 @@ export function MonteCarloInsights({ explanation, isLoading, onRefresh }: MonteC
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                 >
-                  <Card className="p-4 border-cyan-500/20 bg-cyan-500/5">
+                  <Card className="p-4 border-amber-500/20 bg-amber-500/5">
                     <div className="flex items-center gap-2 mb-3">
-                      <TrendingUp className="h-4 w-4 text-cyan-400" />
+                      <TrendingUp className="h-4 w-4 text-amber-400" />
                       <h5 className="font-medium text-foreground">Milestone Projections</h5>
                     </div>
                     <div className="space-y-2">
@@ -261,7 +261,7 @@ export function MonteCarloInsights({ explanation, isLoading, onRefresh }: MonteC
                         <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                           <span className="font-medium text-foreground">{milestone.milestone}</span>
                           <div className="text-right">
-                            <p className="text-sm text-cyan-400 font-medium">
+                            <p className="text-sm text-amber-400 font-medium">
                               Year {milestone.median_year}
                             </p>
                             <p className="text-xs text-muted-foreground">{milestone.range}</p>
@@ -310,7 +310,7 @@ export function MonteCarloInsights({ explanation, isLoading, onRefresh }: MonteC
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                     >
-                      <Card className="p-4 border-white/10 bg-slate-900/50">
+                      <Card className="p-4 border-white/10 bg-card/50">
                         <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono max-h-64 overflow-y-auto">
                           {explanation.reasoning_chain}
                         </pre>

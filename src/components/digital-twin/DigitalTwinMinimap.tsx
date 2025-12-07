@@ -32,21 +32,21 @@ export interface MinimapSection {
 }
 
 export const DESKTOP_SECTIONS: MinimapSection[] = [
-  { id: 'header-section', label: 'Digital Twin', icon: Sparkles, color: 'cyan' },
+  { id: 'header-section', label: 'Digital Twin', icon: Sparkles, color: 'amber' },
   { id: 'net-worth-section', label: 'Net Worth', icon: DollarSign, color: 'green' },
-  { id: 'avatar-section', label: 'Avatar', icon: User, color: 'violet' },
+  { id: 'avatar-section', label: 'Avatar', icon: User, color: 'orange' },
   { id: 'events-section', label: 'Life Events', icon: Calendar, color: 'amber' },
-  { id: 'timeline-section', label: 'Timeline', icon: Clock, color: 'cyan' },
-  { id: 'projections-section', label: 'Projections', icon: BarChart3, color: 'violet' },
+  { id: 'timeline-section', label: 'Timeline', icon: Clock, color: 'amber' },
+  { id: 'projections-section', label: 'Projections', icon: BarChart3, color: 'orange' },
   { id: 'chat-section', label: 'Chat', icon: MessageSquare, color: 'pink' },
 ];
 
 export const MOBILE_SECTIONS: MinimapSection[] = [
   { id: 'financial-status-section', label: 'Financial Status', icon: TrendingUp, color: 'green' },
-  { id: 'twin-avatar-section', label: 'Your Digital Twin', icon: User, color: 'violet' },
+  { id: 'twin-avatar-section', label: 'Your Digital Twin', icon: User, color: 'orange' },
   { id: 'life-events-section', label: 'Life Events', icon: Layers, color: 'amber' },
-  { id: 'timeline-section', label: 'Timeline', icon: Clock, color: 'cyan' },
-  { id: 'projections-section', label: 'Projections', icon: BarChart3, color: 'violet' },
+  { id: 'timeline-section', label: 'Timeline', icon: Clock, color: 'amber' },
+  { id: 'projections-section', label: 'Projections', icon: BarChart3, color: 'orange' },
 ];
 
 interface DigitalTwinMinimapProps {
@@ -57,10 +57,9 @@ interface DigitalTwinMinimapProps {
 }
 
 const colorMap: Record<string, { active: string; glow: string }> = {
-  cyan: { active: 'bg-cyan-500', glow: 'shadow-cyan-500/50' },
-  green: { active: 'bg-green-500', glow: 'shadow-green-500/50' },
-  violet: { active: 'bg-violet-500', glow: 'shadow-violet-500/50' },
   amber: { active: 'bg-amber-500', glow: 'shadow-amber-500/50' },
+  green: { active: 'bg-green-500', glow: 'shadow-green-500/50' },
+  orange: { active: 'bg-orange-500', glow: 'shadow-orange-500/50' },
   pink: { active: 'bg-pink-500', glow: 'shadow-pink-500/50' },
 };
 
@@ -129,7 +128,7 @@ export function DigitalTwinMinimap({
       >
         <motion.div
           className={cn(
-            "backdrop-blur-xl bg-slate-950/90 border border-cyan-500/20 rounded-2xl overflow-hidden",
+            "backdrop-blur-xl bg-stone-900/90 border border-amber-500/20 rounded-2xl overflow-hidden",
             "shadow-lg shadow-black/50"
           )}
           animate={{
@@ -142,7 +141,7 @@ export function DigitalTwinMinimap({
           {/* Progress track */}
           <div className="absolute left-3 top-4 bottom-4 w-0.5 bg-white/10 rounded-full">
             <motion.div
-              className="absolute top-0 left-0 w-full bg-gradient-to-b from-cyan-500 to-violet-500 rounded-full"
+              className="absolute top-0 left-0 w-full bg-gradient-to-b from-amber-500 to-orange-500 rounded-full"
               style={{ height: `${progress}%` }}
               animate={{ height: `${progress}%` }}
               transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
@@ -158,7 +157,7 @@ export function DigitalTwinMinimap({
             {displaySections.map((section, index) => {
               const isActive = activeSection === section.id;
               const Icon = section.icon;
-              const colors = colorMap[section.color] || colorMap.cyan;
+              const colors = colorMap[section.color] || colorMap.amber;
 
               return (
                 <Tooltip key={section.id}>
@@ -168,7 +167,7 @@ export function DigitalTwinMinimap({
                       onTap={isMobile ? handleToggle : undefined}
                       className={cn(
                         "w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors",
-                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50",
+                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50",
                         isActive 
                           ? "bg-white/10" 
                           : "hover:bg-white/5"
@@ -229,7 +228,7 @@ export function DigitalTwinMinimap({
                   {!isExpanded && (
                     <TooltipContent 
                       side={isMobile ? "right" : "left"}
-                      className="bg-slate-950/95 border-cyan-500/20 text-white text-xs font-mono"
+                      className="bg-stone-900/95 border-amber-500/20 text-white text-xs font-mono"
                     >
                       {section.label}
                     </TooltipContent>

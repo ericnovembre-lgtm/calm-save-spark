@@ -18,9 +18,9 @@ interface DateCluster {
 }
 
 const categoryColors: Record<TwinMemory['category'], string> = {
-  scenario: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+  scenario: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
   insight: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  preference: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+  preference: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
   pattern: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
   conversation: 'bg-white/10 text-white/70 border-white/20',
 };
@@ -119,14 +119,14 @@ export function MemoryTimelineView({ memories, onDelete }: MemoryTimelineViewPro
         >
           {/* Month Header */}
           <div className="flex items-center gap-2 mb-4">
-            <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/50 to-transparent" />
-            <span className="text-sm font-mono text-cyan-400 px-2">
+            <div className="h-px flex-1 bg-gradient-to-r from-amber-500/50 to-transparent" />
+            <span className="text-sm font-mono text-amber-400 px-2">
               {monthGroup.label}
             </span>
             <span className="text-xs font-mono text-white/40 bg-white/5 px-2 py-0.5 rounded">
               {monthGroup.totalMemories} memories
             </span>
-            <div className="h-px flex-1 bg-gradient-to-l from-cyan-500/50 to-transparent" />
+            <div className="h-px flex-1 bg-gradient-to-l from-amber-500/50 to-transparent" />
           </div>
 
           {/* Date Clusters */}
@@ -143,7 +143,7 @@ export function MemoryTimelineView({ memories, onDelete }: MemoryTimelineViewPro
                   className="relative mb-4"
                 >
                   {/* Timeline Node */}
-                  <div className="absolute -left-[25px] top-1.5 w-3 h-3 rounded-full bg-slate-950 border-2 border-cyan-500/50" />
+                  <div className="absolute -left-[25px] top-1.5 w-3 h-3 rounded-full bg-stone-900 border-2 border-amber-500/50" />
                   
                   {/* Date Header */}
                   <button
@@ -151,7 +151,7 @@ export function MemoryTimelineView({ memories, onDelete }: MemoryTimelineViewPro
                     className="flex items-center gap-2 w-full text-left hover:bg-white/5 rounded-lg p-2 transition-colors"
                   >
                     {isExpanded ? (
-                      <ChevronDown className="w-4 h-4 text-cyan-400" />
+                      <ChevronDown className="w-4 h-4 text-amber-400" />
                     ) : (
                       <ChevronRight className="w-4 h-4 text-white/40" />
                     )}
