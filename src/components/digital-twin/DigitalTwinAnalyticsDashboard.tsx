@@ -28,7 +28,7 @@ import {
   Bar,
 } from 'recharts';
 
-const COLORS = ['#f59e0b', '#8b5cf6', '#f97316', '#10b981', '#ec4899'];
+const COLORS = ['#f59e0b', '#d6c8a2', '#f97316', '#10b981', '#ec4899'];
 
 interface StatCardProps {
   icon: React.ElementType;
@@ -155,7 +155,7 @@ export function DigitalTwinAnalyticsDashboard() {
           icon={Clock} 
           label="Avg Response" 
           value={`${summary.avgResponseTime}ms`} 
-          color="bg-blue-500/20"
+          color="bg-amber-500/20"
           delay={0.25}
         />
       </div>
@@ -292,7 +292,7 @@ export function DigitalTwinAnalyticsDashboard() {
                         borderRadius: 8,
                       }}
                     />
-                    <Bar dataKey="count" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="count" fill="#d6c8a2" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (

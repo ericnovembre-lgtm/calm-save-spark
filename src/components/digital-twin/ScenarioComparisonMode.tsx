@@ -49,7 +49,7 @@ export function ScenarioComparisonMode({
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <GitBranch className="w-6 h-6 text-cyan-500" />
+            <GitBranch className="w-6 h-6 text-amber-500" />
             <h2 className="text-2xl font-bold text-white">Scenario Comparison</h2>
           </div>
           <Button
@@ -65,10 +65,10 @@ export function ScenarioComparisonMode({
         {/* Split View */}
         <div className="grid md:grid-cols-2 gap-6 mb-6 flex-1">
           {/* Path A */}
-          <Card className="p-6 bg-gradient-to-br from-cyan-500/10 to-transparent border-cyan-500/30">
+          <Card className="p-6 bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/30">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-cyan-400">Path A: {baseScenario.name}</h3>
-              <div className="text-2xl font-mono text-cyan-400">
+              <h3 className="text-lg font-semibold text-amber-400">Path A: {baseScenario.name}</h3>
+              <div className="text-2xl font-mono text-amber-400">
                 ${(finalBaseNetWorth / 1000).toFixed(0)}k
               </div>
             </div>
@@ -133,7 +133,7 @@ export function ScenarioComparisonMode({
               <Line
                 type="monotone"
                 dataKey="pathA"
-                stroke="#00ffff"
+                stroke="#f59e0b"
                 strokeWidth={2}
                 name="Path A"
                 dot={false}

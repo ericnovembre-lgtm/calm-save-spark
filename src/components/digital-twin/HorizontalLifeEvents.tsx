@@ -18,7 +18,7 @@ const LIFE_EVENTS: LifeEvent[] = [
   { id: 'medical', icon: '🏥', label: 'Medical', impact: -40000, description: 'Health emergency', color: 'border-red-500' },
   { id: 'education', icon: '🎓', label: 'Education', impact: -60000, description: 'Advanced degree', color: 'border-purple-500' },
   { id: 'startup', icon: '🚀', label: 'Start Business', impact: -75000, description: 'Entrepreneurship', color: 'border-orange-500' },
-  { id: 'car', icon: '🚗', label: 'New Car', impact: -35000, description: 'Vehicle purchase', color: 'border-cyan-500' },
+  { id: 'car', icon: '🚗', label: 'New Car', impact: -35000, description: 'Vehicle purchase', color: 'border-amber-500' },
 ];
 
 interface HorizontalLifeEventsProps {
@@ -55,7 +55,7 @@ export function HorizontalLifeEvents({ onEventSelect, selectedEvent, className }
                 "flex-shrink-0 snap-start flex items-center gap-2 px-4 py-3 rounded-xl border transition-all min-w-fit",
                 "backdrop-blur-sm",
                 isSelected
-                  ? "bg-cyan-500/20 border-cyan-500/50 shadow-[0_0_15px_hsl(var(--accent)_/_0.3)]"
+                  ? "bg-amber-500/20 border-amber-500/50 shadow-[0_0_15px_hsl(var(--accent)_/_0.3)]"
                   : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
               )}
             >
