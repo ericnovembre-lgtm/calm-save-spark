@@ -57,7 +57,7 @@ export default function WalletSettings() {
             <h1 className="text-3xl font-bold text-white mb-2">
               Wallet Settings
             </h1>
-            <p className="text-slate-400">
+            <p className="text-muted-foreground">
               Customize your wallet experience and preferences
             </p>
           </motion.div>
