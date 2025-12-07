@@ -28,14 +28,14 @@ export function LiveTransactionPanel() {
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               "w-80 max-h-96 overflow-hidden rounded-xl",
-              "bg-slate-950/95 backdrop-blur-xl border border-white/10",
-              "shadow-2xl shadow-black/50"
+              "bg-card/95 backdrop-blur-xl border border-border/50",
+              "shadow-2xl shadow-black/20"
             )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
               <div className="flex items-center gap-2">
-                <Activity className="h-4 w-4 text-cyan-400" />
+                <Activity className="h-4 w-4 text-amber-600" />
                 <span className="text-sm font-medium text-foreground">Live Feed</span>
                 {isConnected && <LiveDot isLive size="sm" />}
               </div>
@@ -77,16 +77,16 @@ export function LiveTransactionPanel() {
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
           "flex items-center gap-2 px-4 py-2.5 rounded-full",
-          "bg-slate-900/90 backdrop-blur-xl border border-white/10",
-          "shadow-lg shadow-black/30",
-          "hover:bg-slate-800/90 transition-colors",
-          isExpanded && "bg-cyan-500/10 border-cyan-500/30"
+          "bg-card/90 backdrop-blur-xl border border-border/50",
+          "shadow-lg shadow-black/10",
+          "hover:bg-secondary/90 transition-colors",
+          isExpanded && "bg-amber-500/10 border-amber-500/30"
         )}
       >
         <div className="relative">
           <Activity className={cn(
             "h-4 w-4 transition-colors",
-            isConnected ? "text-cyan-400" : "text-muted-foreground"
+            isConnected ? "text-amber-600" : "text-muted-foreground"
           )} />
           {isConnected && !prefersReducedMotion && (
             <motion.div
@@ -94,7 +94,7 @@ export function LiveTransactionPanel() {
               animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <Activity className="h-4 w-4 text-cyan-400" />
+              <Activity className="h-4 w-4 text-amber-600" />
             </motion.div>
           )}
         </div>
@@ -108,7 +108,7 @@ export function LiveTransactionPanel() {
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-cyan-500 text-[10px] font-bold text-white"
+            className="flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-amber-500 text-[10px] font-bold text-white"
           >
             {unreadCount}
           </motion.span>

@@ -21,12 +21,12 @@ interface StoryOverlayProps {
 const STORY_DURATION = 5000; // 5 seconds per story
 
 const THEME_BG: Record<FinancialStory['theme'], string> = {
-  emerald: 'from-emerald-950 via-emerald-900/90 to-background',
-  rose: 'from-rose-950 via-rose-900/90 to-background',
-  amber: 'from-amber-950 via-amber-900/90 to-background',
-  gold: 'from-yellow-950 via-amber-900/90 to-background',
-  violet: 'from-violet-950 via-violet-900/90 to-background',
-  cyan: 'from-cyan-950 via-cyan-900/90 to-background'
+  emerald: 'from-emerald-100/90 via-emerald-50/80 to-background',
+  rose: 'from-rose-100/90 via-rose-50/80 to-background',
+  amber: 'from-amber-100/90 via-amber-50/80 to-background',
+  gold: 'from-yellow-100/90 via-amber-50/80 to-background',
+  violet: 'from-violet-100/90 via-violet-50/80 to-background',
+  cyan: 'from-cyan-100/90 via-cyan-50/80 to-background'
 };
 
 export function StoryOverlay({ stories, activeIndex, onClose, onStoryViewed }: StoryOverlayProps) {
