@@ -143,7 +143,7 @@ export function StreakFreezeManager() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Snowflake className="h-5 w-5 text-blue-500" />
+            <Snowflake className="h-5 w-5 text-amber-500" />
             Streak Freeze
           </CardTitle>
           <CardDescription>
@@ -176,9 +176,9 @@ export function StreakFreezeManager() {
           </div>
 
           {activeFreeze && (
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Snowflake className="h-4 w-4 text-blue-500" />
+                <Snowflake className="h-4 w-4 text-amber-500" />
                 <span className="font-semibold text-foreground">Active Freeze</span>
               </div>
               <p className="text-sm text-muted-foreground">

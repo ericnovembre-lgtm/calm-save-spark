@@ -34,10 +34,10 @@ const tierConfig = {
     ring: 'ring-white/50',
   },
   diamond: {
-    gradient: 'from-cyan-400 via-blue-300 to-violet-400',
-    glow: 'shadow-cyan-400/40',
+    gradient: 'from-amber-300 via-yellow-200 to-amber-400',
+    glow: 'shadow-amber-400/40',
     icon: '💎',
-    ring: 'ring-cyan-400/50',
+    ring: 'ring-amber-400/50',
   },
 };
 
