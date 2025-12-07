@@ -10,13 +10,6 @@ import { GenerativeDashboardSkeleton } from '@/components/dashboard/generative/G
 import { UnifiedGenerativeGrid } from '@/components/dashboard/generative/UnifiedGenerativeGrid';
 import { NLQResponse } from '@/lib/ephemeral-widgets';
 
-interface AIContext {
-  timeOfDay: string;
-  totalSavings: number;
-  goalsCount: number;
-  streak: number;
-}
-
 interface DashboardMeta {
   model: string;
   processingTimeMs: number;
@@ -34,7 +27,6 @@ interface DashboardContentProps {
   reasoning?: string;
   meta?: DashboardMeta | null;
   streamingText?: string;
-  aiContext?: AIContext;
   isChatOpen: boolean;
   isMobile: boolean;
   onModalOpen: (modalId: string) => void;
@@ -60,7 +52,6 @@ export function DashboardContent({
   reasoning,
   meta,
   streamingText,
-  aiContext,
   isChatOpen,
   isMobile,
   onModalOpen,
@@ -145,27 +136,6 @@ export function DashboardContent({
             onModalOpen={onModalOpen}
             isStreaming={isStreaming}
           />
-
-          {/* Context Summary */}
-          {aiContext && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground py-4"
-            >
-              <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                {aiContext.timeOfDay}
-              </span>
-              <span>•</span>
-              <span>${aiContext.totalSavings?.toLocaleString() || '0'} saved</span>
-              <span>•</span>
-              <span>{aiContext.goalsCount || 0} goals</span>
-              <span>•</span>
-              <span>{aiContext.streak || 0} day streak</span>
-            </motion.div>
-          )}
         </motion.div>
       )}
     </main>

@@ -62,69 +62,70 @@ export function AuroraMeshBackground({
   const y3 = useTransform(progress, (p) => 80 + Math.cos(p * Math.PI * 2 + 1) * 15);
 
   // Determine colors and particle settings based on sentiment
+  // Brand-aligned: warm greens/teals for positive, amber/orange for negative, beige/gold for neutral
   const getSentimentConfig = (change: number) => {
     if (change > 5) {
-      // Strong positive: Teal/Emerald gradient - upward particles
+      // Strong positive: Warm teal/emerald with beige undertones
       return {
         colors: {
-          color1: 'hsl(160, 84%, 39%)',
-          color2: 'hsl(172, 66%, 50%)',
-          color3: 'hsl(142, 71%, 45%)',
-          glow: 'hsla(160, 84%, 39%, 0.15)',
+          color1: 'hsl(152, 50%, 45%)',
+          color2: 'hsl(160, 45%, 50%)',
+          color3: 'hsl(142, 40%, 50%)',
+          glow: 'hsla(152, 50%, 45%, 0.12)',
         },
-        particleColor: '160 84% 39%',
+        particleColor: '152 50% 45%',
         particleDirection: 'up' as const,
         particleSpeed: 'normal' as const,
       };
     } else if (change > 0) {
-      // Mild positive: Soft green/blue
+      // Mild positive: Soft warm green
       return {
         colors: {
-          color1: 'hsl(142, 50%, 50%)',
-          color2: 'hsl(172, 50%, 50%)',
-          color3: 'hsl(160, 40%, 50%)',
-          glow: 'hsla(142, 50%, 50%, 0.1)',
+          color1: 'hsl(142, 40%, 55%)',
+          color2: 'hsl(150, 35%, 55%)',
+          color3: 'hsl(145, 30%, 55%)',
+          glow: 'hsla(142, 40%, 55%, 0.08)',
         },
-        particleColor: '142 50% 50%',
+        particleColor: '142 40% 55%',
         particleDirection: 'up' as const,
         particleSpeed: 'slow' as const,
       };
     } else if (change < -5) {
-      // Strong negative: Rose/Orange gradient
+      // Strong negative: Muted amber/orange (not harsh red)
       return {
         colors: {
-          color1: 'hsl(0, 72%, 51%)',
-          color2: 'hsl(25, 95%, 53%)',
-          color3: 'hsl(350, 80%, 55%)',
-          glow: 'hsla(0, 72%, 51%, 0.15)',
+          color1: 'hsl(25, 70%, 50%)',
+          color2: 'hsl(30, 65%, 55%)',
+          color3: 'hsl(20, 60%, 50%)',
+          glow: 'hsla(25, 70%, 50%, 0.12)',
         },
-        particleColor: '0 72% 51%',
+        particleColor: '25 70% 50%',
         particleDirection: 'down' as const,
         particleSpeed: 'slow' as const,
       };
     } else if (change < 0) {
-      // Mild negative: Soft amber/orange
+      // Mild negative: Soft amber
       return {
         colors: {
-          color1: 'hsl(38, 92%, 50%)',
-          color2: 'hsl(25, 80%, 55%)',
-          color3: 'hsl(45, 70%, 50%)',
-          glow: 'hsla(38, 92%, 50%, 0.1)',
+          color1: 'hsl(38, 55%, 55%)',
+          color2: 'hsl(35, 50%, 58%)',
+          color3: 'hsl(40, 45%, 55%)',
+          glow: 'hsla(38, 55%, 55%, 0.08)',
         },
-        particleColor: '38 92% 50%',
+        particleColor: '38 55% 55%',
         particleDirection: 'random' as const,
         particleSpeed: 'slow' as const,
       };
     }
-    // Neutral: Purple/Accent (brand colors)
+    // Neutral: Brand beige/gold palette
     return {
       colors: {
-        color1: 'hsl(var(--accent))',
-        color2: 'hsl(var(--secondary))',
-        color3: 'hsl(var(--primary) / 0.3)',
-        glow: 'hsla(var(--accent) / 0.1)',
+        color1: 'hsl(40, 35%, 85%)',
+        color2: 'hsl(38, 45%, 68%)',
+        color3: 'hsl(40, 25%, 75%)',
+        glow: 'hsla(40, 35%, 85%, 0.1)',
       },
-      particleColor: 'var(--primary)',
+      particleColor: '40 35% 70%',
       particleDirection: 'random' as const,
       particleSpeed: 'slow' as const,
     };
