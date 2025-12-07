@@ -145,9 +145,9 @@ export function MobileDigitalTwinLayout({
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center justify-center gap-2 mb-1">
-            <Sparkles className="w-5 h-5 text-cyan-500" />
+            <Sparkles className="w-5 h-5 text-amber-500" />
             <h1 className="text-xl font-bold cinematic-text">DIGITAL TWIN</h1>
-            <Sparkles className="w-5 h-5 text-violet-500" />
+            <Sparkles className="w-5 h-5 text-orange-500" />
           </div>
         </motion.div>
 
@@ -183,7 +183,7 @@ export function MobileDigitalTwinLayout({
             {/* Drop zone overlay */}
             {selectedEvent && (
               <motion.div
-                className="absolute inset-0 flex items-center justify-center bg-cyan-500/10 backdrop-blur-sm border-2 border-dashed border-cyan-500 rounded-lg"
+                className="absolute inset-0 flex items-center justify-center bg-amber-500/10 backdrop-blur-sm border-2 border-dashed border-amber-500 rounded-lg"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 onClick={onEventDrop}
@@ -215,7 +215,7 @@ export function MobileDigitalTwinLayout({
         </MobileCollapsibleSection>
 
         {/* Life Events Strip */}
-        <div id="life-events-section" className="backdrop-blur-xl bg-slate-950/80 border border-cyan-500/20 rounded-xl overflow-hidden">
+        <div id="life-events-section" className="backdrop-blur-xl bg-stone-900/80 border border-amber-500/20 rounded-xl overflow-hidden">
           <HorizontalLifeEvents 
             onEventSelect={onEventSelect}
             selectedEvent={selectedEvent}
@@ -236,7 +236,7 @@ export function MobileDigitalTwinLayout({
             <div className="relative">
               <div className="h-2 bg-muted/30 rounded-full relative">
                 <motion.div
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full"
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
                   style={{ width: `${progress}%` }}
                 />
                 
@@ -267,14 +267,14 @@ export function MobileDigitalTwinLayout({
             {/* Labels */}
             <div className="flex justify-between text-xs font-mono text-muted-foreground">
               <div className="text-center">
-                <div className="text-cyan-400">Today</div>
+                <div className="text-amber-400">Today</div>
                 <div className="text-white/40">Age {currentAge}</div>
               </div>
               <div className="text-center">
-                <div className="text-violet-400 font-bold">Age {selectedAge}</div>
+                <div className="text-orange-400 font-bold">Age {selectedAge}</div>
               </div>
               <div className="text-center">
-                <div className="text-cyan-400">Retire</div>
+                <div className="text-amber-400">Retire</div>
                 <div className="text-white/40">Age {retirementAge}</div>
               </div>
             </div>
@@ -339,7 +339,7 @@ export function MobileDigitalTwinLayout({
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align="end" 
-              className="w-48 backdrop-blur-xl bg-slate-950/95 border-white/10"
+              className="w-48 backdrop-blur-xl bg-stone-900/95 border-stone-700/50"
             >
               {onShowMemories && (
                 <DropdownMenuItem onClick={onShowMemories} className="gap-2 text-white/80 hover:text-white">
@@ -380,8 +380,8 @@ export function MobileDigitalTwinLayout({
         onClick={handleFabClick}
         className={cn(
           "fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full",
-          "bg-gradient-to-r from-cyan-500 to-violet-500",
-          "shadow-2xl shadow-cyan-500/30",
+          "bg-gradient-to-r from-amber-500 to-orange-500",
+          "shadow-2xl shadow-amber-500/30",
           "flex items-center justify-center"
         )}
         whileTap={prefersReducedMotion ? {} : { scale: 0.9 }}

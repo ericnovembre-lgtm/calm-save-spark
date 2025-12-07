@@ -21,9 +21,9 @@ interface MemoryExplorerPanelProps {
 const CATEGORIES: TwinMemory['category'][] = ['scenario', 'insight', 'preference', 'pattern', 'conversation'];
 
 const categoryColors: Record<TwinMemory['category'], string> = {
-  scenario: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+  scenario: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
   insight: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  preference: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+  preference: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
   pattern: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
   conversation: 'bg-white/10 text-white/70 border-white/20',
 };
@@ -187,9 +187,9 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <Brain className="w-5 h-5 text-cyan-400" />
+                <Brain className="w-5 h-5 text-amber-400" />
                 <h2 className="font-mono text-lg text-white">Memory Explorer</h2>
-                <span className="px-2 py-0.5 text-xs font-mono bg-cyan-500/20 text-cyan-400 rounded">
+                <span className="px-2 py-0.5 text-xs font-mono bg-amber-500/20 text-amber-400 rounded">
                   {allMemories.length}
                 </span>
               </div>
@@ -210,7 +210,7 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="absolute right-0 top-full mt-1 bg-slate-900 border border-white/10 rounded-lg shadow-xl z-10"
+                        className="absolute right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-xl z-10"
                       >
                         <button
                           onClick={() => exportMemories('json')}
@@ -247,7 +247,7 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
                 <Button 
                   onClick={handleSearch} 
                   disabled={isSearching}
-                  className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400"
+                  className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400"
                 >
                   {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                 </Button>
@@ -298,7 +298,7 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
             <div className="flex-1 overflow-y-auto p-4">
               {isLoading && !isSearching ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+                  <Loader2 className="w-6 h-6 text-amber-400 animate-spin" />
                 </div>
               ) : displayMemories.length === 0 ? (
                 <div className="text-center py-12 text-white/40 font-mono text-sm">
@@ -358,7 +358,7 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
 
                       {/* Similarity score if from search */}
                       {memory.score && (
-                        <div className="absolute top-3 right-10 text-xs font-mono text-cyan-400">
+                        <div className="absolute top-3 right-10 text-xs font-mono text-amber-400">
                           {Math.round(memory.score * 100)}% match
                         </div>
                       )}
@@ -417,7 +417,7 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
                       <Button
                         onClick={handleAddMemory}
                         disabled={isLoading || !newContent.trim()}
-                        className="flex-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400"
+                        className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400"
                       >
                         {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                         Add Memory
@@ -438,12 +438,12 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
                     className="p-4"
                   >
                     <Button
-                      variant="ghost"
                       onClick={() => setShowAddForm(true)}
-                      className="w-full justify-start text-white/50 hover:text-white hover:bg-white/10"
+                      variant="outline"
+                      className="w-full border-dashed border-white/20 text-white/60 hover:text-white hover:border-white/40 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Add New Memory
+                      Add Memory Manually
                     </Button>
                   </motion.div>
                 )}
@@ -454,13 +454,12 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
           {/* Delete Confirmation */}
           <ConfirmDialog
             open={!!deleteTarget}
+            onClose={() => setDeleteTarget(null)}
             title="Delete Memory"
-            message="This will permanently remove this memory from your Digital Twin. This action cannot be undone."
-            confirmText="Delete"
-            cancelText="Cancel"
+            description="Are you sure you want to delete this memory? This action cannot be undone."
+            confirmLabel="Delete"
             onConfirm={handleDeleteConfirm}
-            onCancel={() => setDeleteTarget(null)}
-            destructive
+            variant="destructive"
           />
         </motion.div>
       )}

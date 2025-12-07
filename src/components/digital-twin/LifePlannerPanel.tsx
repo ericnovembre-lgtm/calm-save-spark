@@ -68,7 +68,7 @@ export function LifePlannerPanel({ isOpen, onClose }: LifePlannerPanelProps) {
 
           {/* Panel */}
           <motion.div
-            className="fixed inset-y-4 right-4 w-[90vw] max-w-4xl bg-slate-950/95 backdrop-blur-xl border border-white/10 rounded-2xl z-50 flex flex-col overflow-hidden shadow-2xl"
+            className="fixed inset-y-4 right-4 w-[90vw] max-w-4xl bg-stone-900/95 backdrop-blur-xl border border-stone-700/50 rounded-2xl z-50 flex flex-col overflow-hidden shadow-2xl"
             initial={{ opacity: 0, x: 100, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 100, scale: 0.95 }}
@@ -78,7 +78,7 @@ export function LifePlannerPanel({ isOpen, onClose }: LifePlannerPanelProps) {
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-cyan-500" />
+                  <Calendar className="w-5 h-5 text-amber-500" />
                   Life Planner & Playbooks
                 </h2>
                 <p className="text-sm text-white/60 mt-1">
@@ -89,7 +89,7 @@ export function LifePlannerPanel({ isOpen, onClose }: LifePlannerPanelProps) {
                 <Button 
                   onClick={() => setShowCreateModal(true)}
                   size="sm"
-                  className="bg-cyan-500 hover:bg-cyan-600 text-black"
+                  className="bg-amber-500 hover:bg-amber-600 text-black"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   New Plan
@@ -138,7 +138,7 @@ export function LifePlannerPanel({ isOpen, onClose }: LifePlannerPanelProps) {
               </div>
               <div className="p-3 rounded-lg bg-white/5 border border-white/10">
                 <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-cyan-500" />
+                  <FileText className="w-5 h-5 text-amber-500" />
                   <div>
                     <p className="text-xs text-white/60">Playbooks</p>
                     <p className="text-lg font-bold text-white">{playbooks?.length || 0}</p>

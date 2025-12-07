@@ -164,7 +164,7 @@ export function EnhancedScenarioComparison({
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
         >
-          <Card className="bg-slate-950/95 backdrop-blur-xl border-white/10 p-6">
+          <Card className="bg-stone-900/95 backdrop-blur-xl border-stone-700/50 p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -181,9 +181,9 @@ export function EnhancedScenarioComparison({
             {/* Path Builders */}
             <div className="grid grid-cols-2 gap-6 mb-6">
               {/* Path A */}
-              <div className="p-4 rounded-lg border border-cyan-500/30 bg-cyan-500/5">
-                <h3 className="text-lg font-mono text-cyan-400 mb-4 flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-cyan-400" />
+              <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/5">
+                <h3 className="text-lg font-mono text-amber-400 mb-4 flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-amber-400" />
                   Path A
                 </h3>
                 
@@ -210,7 +210,7 @@ export function EnhancedScenarioComparison({
                     min={currentAge}
                     max={currentAge + 40}
                   />
-                  <Button onClick={() => addEventToPath('A')} size="icon" className="bg-cyan-500/20 hover:bg-cyan-500/30">
+                  <Button onClick={() => addEventToPath('A')} size="icon" className="bg-amber-500/20 hover:bg-amber-500/30">
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -235,7 +235,7 @@ export function EnhancedScenarioComparison({
               </div>
 
               {/* Path B */}
-              <div className="p-4 rounded-lg border border-magenta-500/30 bg-pink-500/5">
+              <div className="p-4 rounded-lg border border-pink-500/30 bg-pink-500/5">
                 <h3 className="text-lg font-mono text-pink-400 mb-4 flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-pink-400" />
                   Path B
@@ -295,8 +295,8 @@ export function EnhancedScenarioComparison({
                 <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                   <defs>
                     <linearGradient id="pathAGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="pathBGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3}/>
@@ -332,7 +332,7 @@ export function EnhancedScenarioComparison({
                     type="monotone"
                     dataKey="pathA"
                     name="Path A"
-                    stroke="#06b6d4"
+                    stroke="#f59e0b"
                     strokeWidth={2}
                     fill="url(#pathAGradient)"
                   />
@@ -378,7 +378,7 @@ export function EnhancedScenarioComparison({
 
               <div className="p-4 rounded-lg bg-white/5 border border-white/10 text-center">
                 <p className="text-xs text-white/40 font-mono mb-1">Crossover Points</p>
-                <p className="text-2xl font-bold font-mono text-violet-400">
+                <p className="text-2xl font-bold font-mono text-orange-400">
                   {metrics.crossovers.length}
                 </p>
                 {metrics.crossovers.length > 0 && (
@@ -392,14 +392,14 @@ export function EnhancedScenarioComparison({
                 <p className="text-xs text-white/40 font-mono mb-1">Better Path</p>
                 <div className="flex items-center justify-center gap-2 mt-2">
                   {metrics.winner === 'A' ? (
-                    <TrendingUp className="w-8 h-8 text-cyan-400" />
+                    <TrendingUp className="w-8 h-8 text-amber-400" />
                   ) : metrics.winner === 'B' ? (
                     <TrendingUp className="w-8 h-8 text-pink-400" />
                   ) : (
                     <ArrowRight className="w-8 h-8 text-white/40" />
                   )}
                   <span className={`text-2xl font-bold font-mono ${
-                    metrics.winner === 'A' ? 'text-cyan-400' : 
+                    metrics.winner === 'A' ? 'text-amber-400' : 
                     metrics.winner === 'B' ? 'text-pink-400' : 'text-white/40'
                   }`}>
                     {metrics.winner}
