@@ -235,20 +235,20 @@ export function CoachCommandPalette({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl p-0 bg-command-surface border-white/10 overflow-hidden">
+      <DialogContent className="sm:max-w-2xl p-0 bg-stone-900 border-stone-700/50 overflow-hidden">
         {/* Search Bar */}
-        <div className="p-4 border-b border-white/10">
+        <div className="p-4 border-b border-stone-700/50">
           <div className="flex items-center gap-3">
-            <Command className="w-5 h-5 text-command-cyan" />
+            <Command className="w-5 h-5 text-amber-500" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type a command or search..."
-              className="flex-1 bg-command-bg border-none text-white font-mono placeholder:text-white/40 focus-visible:ring-0"
+              className="flex-1 bg-stone-800 border-none text-white font-mono placeholder:text-stone-500 focus-visible:ring-0"
               autoFocus
             />
-            <kbd className="px-2 py-1 text-xs bg-command-bg border border-white/10 rounded text-white/60 font-mono">
+            <kbd className="px-2 py-1 text-xs bg-stone-800 border border-stone-700/50 rounded text-stone-400 font-mono">
               ESC
             </kbd>
           </div>
@@ -258,7 +258,7 @@ export function CoachCommandPalette({
         <div className="max-h-[400px] overflow-y-auto p-2">
           {recentActionsData.length > 0 && !search && (
             <div className="mb-3">
-              <div className="px-3 py-2 text-xs font-mono text-white/40 uppercase tracking-wider">
+              <div className="px-3 py-2 text-xs font-mono text-stone-500 uppercase tracking-wider">
                 Recent
               </div>
               {recentActionsData.map((action, index) => (
@@ -267,13 +267,13 @@ export function CoachCommandPalette({
                   onClick={action.action}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors",
-                    "hover:bg-command-violet/10 hover:border-command-violet/30",
-                    selectedIndex === index && "bg-command-violet/10 border border-command-violet/30"
+                    "hover:bg-amber-500/10 hover:border-amber-500/30",
+                    selectedIndex === index && "bg-amber-500/10 border border-amber-500/30"
                   )}
                 >
                   {action.icon}
                   <span className="flex-1 text-sm font-mono text-white">{action.label}</span>
-                  <span className="text-xs text-white/40 font-mono">{action.category}</span>
+                  <span className="text-xs text-stone-500 font-mono">{action.category}</span>
                 </button>
               ))}
             </div>
@@ -281,7 +281,7 @@ export function CoachCommandPalette({
 
           {Object.entries(groupedActions).map(([category, categoryActions]) => (
             <div key={category} className="mb-3">
-              <div className="px-3 py-2 text-xs font-mono text-white/40 uppercase tracking-wider">
+              <div className="px-3 py-2 text-xs font-mono text-stone-500 uppercase tracking-wider">
                 {category}
               </div>
               {categoryActions.map((action, index) => {
@@ -292,8 +292,8 @@ export function CoachCommandPalette({
                     onClick={action.action}
                     className={cn(
                       "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors",
-                      "hover:bg-command-violet/10 hover:border-command-violet/30",
-                      selectedIndex === globalIndex && "bg-command-violet/10 border border-command-violet/30"
+                      "hover:bg-amber-500/10 hover:border-amber-500/30",
+                      selectedIndex === globalIndex && "bg-amber-500/10 border border-amber-500/30"
                     )}
                   >
                     {action.icon}
@@ -306,19 +306,19 @@ export function CoachCommandPalette({
 
           {filteredActions.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Command className="w-12 h-12 text-white/20 mb-3" />
-              <p className="text-sm text-white/60 font-mono">No commands found</p>
-              <p className="text-xs text-white/40 font-mono mt-1">Try different keywords</p>
+              <Command className="w-12 h-12 text-stone-600 mb-3" />
+              <p className="text-sm text-stone-400 font-mono">No commands found</p>
+              <p className="text-xs text-stone-500 font-mono mt-1">Try different keywords</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t border-white/10 bg-command-bg/50">
-          <div className="flex items-center justify-between text-xs font-mono text-white/40">
+        <div className="px-4 py-3 border-t border-stone-700/50 bg-stone-800/50">
+          <div className="flex items-center justify-between text-xs font-mono text-stone-500">
             <div className="flex gap-4">
-              <span><kbd className="text-white/60">↑↓</kbd> Navigate</span>
-              <span><kbd className="text-white/60">Enter</kbd> Select</span>
+              <span><kbd className="text-stone-400">↑↓</kbd> Navigate</span>
+              <span><kbd className="text-stone-400">Enter</kbd> Select</span>
             </div>
             <span>{filteredActions.length} commands</span>
           </div>
