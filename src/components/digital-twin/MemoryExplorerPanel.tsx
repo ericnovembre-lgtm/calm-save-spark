@@ -454,12 +454,12 @@ export function MemoryExplorerPanel({ open, onClose }: MemoryExplorerPanelProps)
           {/* Delete Confirmation */}
           <ConfirmDialog
             open={!!deleteTarget}
-            onClose={() => setDeleteTarget(null)}
+            onCancel={() => setDeleteTarget(null)}
             title="Delete Memory"
-            description="Are you sure you want to delete this memory? This action cannot be undone."
-            confirmLabel="Delete"
+            message="Are you sure you want to delete this memory? This action cannot be undone."
+            confirmText="Delete"
             onConfirm={handleDeleteConfirm}
-            variant="destructive"
+            destructive
           />
         </motion.div>
       )}
