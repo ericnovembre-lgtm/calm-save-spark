@@ -32,7 +32,7 @@ export default function SocialSentiment() {
   return (
     <AppLayout>
       <PageTransition>
-        <div className="min-h-screen bg-slate-950 p-4 md:p-6 space-y-6">
+        <div className="min-h-screen bg-card p-4 md:p-6 space-y-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -41,7 +41,7 @@ export default function SocialSentiment() {
           >
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-                <Activity className="w-8 h-8 text-cyan-400" />
+                <Activity className="w-8 h-8 text-amber-500" />
                 Social Sentiment
               </h1>
               <p className="text-slate-400 text-sm mt-1">

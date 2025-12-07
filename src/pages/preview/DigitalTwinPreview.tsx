@@ -141,14 +141,14 @@ export default function DigitalTwinPreview() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="flex items-center justify-center gap-3 mb-2">
-              <Sparkles className="w-8 h-8 text-cyan-500" />
+          <div className="flex items-center justify-center gap-3 mb-2">
+              <Sparkles className="w-8 h-8 text-amber-500" />
               <h1 className="text-4xl font-bold cinematic-text additive-text">
                 ◢◤ DIGITAL TWIN ◥◣
               </h1>
-              <Sparkles className="w-8 h-8 text-magenta-500" />
+              <Sparkles className="w-8 h-8 text-orange-500" />
             </div>
-            <p className="text-white/60 font-mono text-sm">
+            <p className="text-stone-400 font-mono text-sm">
               Your Financial Future as a Living Entity
             </p>
           </motion.div>
@@ -172,7 +172,7 @@ export default function DigitalTwinPreview() {
                 {/* Drop zone overlay */}
                 {selectedEvent && (
                   <motion.div
-                    className="absolute inset-0 flex items-center justify-center bg-cyan-500/10 backdrop-blur-sm border-2 border-dashed border-cyan-500 rounded-lg cursor-pointer"
+                    className="absolute inset-0 flex items-center justify-center bg-amber-500/10 backdrop-blur-sm border-2 border-dashed border-amber-500 rounded-lg cursor-pointer"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
@@ -197,7 +197,7 @@ export default function DigitalTwinPreview() {
             <Button
               variant="outline"
               size="icon"
-              className="h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10 hover:border-green-500 hover:bg-green-500/10"
+              className="h-9 w-9 backdrop-blur-xl bg-black/70 border-stone-700/50 hover:border-green-500 hover:bg-green-500/10"
               title="Save Scenario"
             >
               <FileDown className="w-4 h-4" />
@@ -207,8 +207,8 @@ export default function DigitalTwinPreview() {
               size="icon"
               onClick={() => setShowMonteCarlo(!showMonteCarlo)}
               className={cn(
-                "h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10",
-                showMonteCarlo ? "border-cyan-500 bg-cyan-500/20" : "hover:border-cyan-500 hover:bg-cyan-500/10"
+                "h-9 w-9 backdrop-blur-xl bg-black/70 border-stone-700/50",
+                showMonteCarlo ? "border-amber-500 bg-amber-500/20" : "hover:border-amber-500 hover:bg-amber-500/10"
               )}
               title={showMonteCarlo ? 'Hide Projections' : 'Show Projections'}
             >
@@ -217,7 +217,7 @@ export default function DigitalTwinPreview() {
             <Button
               variant="outline"
               size="icon"
-              className="h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10 hover:border-white/30"
+              className="h-9 w-9 backdrop-blur-xl bg-black/70 border-stone-700/50 hover:border-stone-600"
               title="Reset Timeline"
             >
               <RotateCcw className="w-4 h-4" />
@@ -228,37 +228,37 @@ export default function DigitalTwinPreview() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10 hover:border-accent hover:bg-accent/10"
+                  className="h-9 w-9 backdrop-blur-xl bg-black/70 border-stone-700/50 hover:border-amber-500 hover:bg-amber-500/10"
                 >
                   <MoreVertical className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent 
                 align="end" 
-                className="w-48 backdrop-blur-xl bg-slate-950/95 border-white/10"
+                className="w-48 backdrop-blur-xl bg-stone-900/95 border-stone-700/50"
               >
-                <DropdownMenuItem className="gap-2 text-white/80 hover:text-white">
+                <DropdownMenuItem className="gap-2 text-stone-300 hover:text-foreground">
                   <Brain className="w-4 h-4" />
                   Memories
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 text-white/80 hover:text-white">
+                <DropdownMenuItem className="gap-2 text-stone-300 hover:text-foreground">
                   <FolderOpen className="w-4 h-4" />
                   My Scenarios
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 text-white/80 hover:text-white">
+                <DropdownMenuItem className="gap-2 text-stone-300 hover:text-foreground">
                   <GitBranch className="w-4 h-4" />
                   Compare Paths
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 text-white/80 hover:text-white">
+                <DropdownMenuItem className="gap-2 text-stone-300 hover:text-foreground">
                   <Play className="w-4 h-4" />
                   Play Timeline
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 text-white/80 hover:text-white">
+                <DropdownMenuItem className="gap-2 text-stone-300 hover:text-foreground">
                   <Share2 className="w-4 h-4" />
                   Share
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-white/10" />
-                <DropdownMenuItem className="gap-2 text-white/80 hover:text-white">
+                <DropdownMenuSeparator className="bg-stone-700/50" />
+                <DropdownMenuItem className="gap-2 text-stone-300 hover:text-foreground">
                   <LineChart className="w-4 h-4" />
                   Analytics Dashboard
                 </DropdownMenuItem>
@@ -274,12 +274,12 @@ export default function DigitalTwinPreview() {
                 initial={{ opacity: 0, x: 20, scale: 0.95 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
               >
-                <div className="backdrop-blur-xl bg-slate-950/80 border border-white/10 rounded-xl p-4 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-                  <h4 className="text-xs font-mono text-white/40 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <div className="backdrop-blur-xl bg-stone-900/80 border border-stone-700/50 rounded-xl p-4 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                  <h4 className="text-xs font-mono text-stone-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <motion.span
                       animate={{ opacity: [0.4, 1, 0.4] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-500"
+                      className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500"
                     />
                     Active Life Events
                   </h4>
@@ -294,8 +294,8 @@ export default function DigitalTwinPreview() {
                       >
                         <span className="text-lg">{item.event.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <div className="text-white font-medium truncate">{item.event.label}</div>
-                          <div className="text-white/40 text-xs font-mono">Age {item.year}</div>
+                          <div className="text-foreground font-medium truncate">{item.event.label}</div>
+                          <div className="text-stone-400 text-xs font-mono">Age {item.year}</div>
                         </div>
                         <div className="flex items-center gap-1">
                           <motion.div

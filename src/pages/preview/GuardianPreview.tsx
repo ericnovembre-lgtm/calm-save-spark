@@ -75,12 +75,12 @@ function SecurityLogCard() {
   };
 
   return (
-    <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5 h-full">
-      <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4 flex items-center gap-2">
+    <Card className="bg-card/50 backdrop-blur-xl border-border p-5 h-full">
+      <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
         <Activity className="w-4 h-4" />
         SECURITY LOG
         {newEventIds.length > 0 && (
-          <span className="ml-auto px-1.5 py-0.5 text-[10px] font-mono bg-cyan-500/20 text-cyan-400 rounded-full animate-pulse">
+          <span className="ml-auto px-1.5 py-0.5 text-[10px] font-mono bg-amber-500/20 text-amber-500 rounded-full animate-pulse">
             {newEventIds.length} NEW
           </span>
         )}
@@ -96,14 +96,14 @@ function SecurityLogCard() {
               transition={{ delay: 0.1 + i * 0.05 }}
               className={`flex items-start gap-3 p-2 rounded-lg transition-colors ${
                 isNew 
-                  ? 'bg-cyan-500/10 border border-cyan-500/20' 
-                  : 'bg-white/[0.02] hover:bg-white/[0.04]'
+                  ? 'bg-amber-500/10 border border-amber-500/20' 
+                  : 'bg-secondary/20 hover:bg-secondary/40'
               }`}
             >
               <div className={`w-1.5 h-1.5 rounded-full mt-1.5 ${getSeverityColor(event.severity)} ${isNew ? 'animate-pulse' : ''}`} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white/80 truncate">{event.event_message}</p>
-                <p className="text-xs text-white/30 font-mono">
+                <p className="text-sm text-foreground/80 truncate">{event.event_message}</p>
+                <p className="text-xs text-muted-foreground font-mono">
                   {formatDistanceToNow(new Date(event.created_at), { addSuffix: true })}
                 </p>
               </div>
@@ -138,11 +138,11 @@ function SecurityMetric({ icon, label, value, status, delay = 0 }: SecurityMetri
       transition={{ delay, duration: 0.4 }}
       className={`flex items-center gap-3 p-3 rounded-lg border backdrop-blur-sm ${statusColors[status]}`}
     >
-      <div className="p-2 rounded-md bg-white/5">
+      <div className="p-2 rounded-md bg-secondary/50">
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-white/50 font-mono uppercase tracking-wider">{label}</p>
+        <p className="text-xs text-muted-foreground font-mono uppercase tracking-wider">{label}</p>
         <p className="text-sm font-semibold truncate">{value}</p>
       </div>
     </motion.div>
@@ -229,7 +229,7 @@ export default function GuardianPreview() {
   return (
     <PreviewWrapper pageName="Guardian Security Center">
       {/* Cyber-physical background effects */}
-      <div className="fixed inset-0 bg-slate-950 -z-10" />
+      <div className="fixed inset-0 bg-card -z-10" />
       <ScanlineOverlay />
       <HexPattern />
       
@@ -242,11 +242,11 @@ export default function GuardianPreview() {
           transition={{ duration: 0.5 }}
         >
           <div>
-            <h1 className="text-3xl sm:text-4xl font-display font-bold text-white mb-2 flex items-center gap-3">
-              <Shield className="w-8 h-8 text-emerald-400" />
+            <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-2 flex items-center gap-3">
+              <Shield className="w-8 h-8 text-amber-500" />
               Guardian Security Center
             </h1>
-            <p className="text-white/50 font-mono text-sm">
+            <p className="text-muted-foreground font-mono text-sm">
               THREAT DEFENSE DASHBOARD • STATUS: {securityScore >= 70 ? 'SECURE' : securityScore >= 40 ? 'ATTENTION REQUIRED' : 'CRITICAL'}
             </p>
           </div>
@@ -255,14 +255,14 @@ export default function GuardianPreview() {
               variant="outline"
               size="sm"
               disabled
-              className="border-white/10 bg-slate-800/50 text-white/70 font-mono text-xs"
+              className="border-border bg-secondary/50 text-muted-foreground font-mono text-xs"
             >
               <Database className="w-3 h-3 mr-1.5" />
               Load Test Data (Preview)
             </Button>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-white/10">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 border border-border">
               <div className={`w-2 h-2 rounded-full ${securityScore >= 70 ? 'bg-emerald-400' : securityScore >= 40 ? 'bg-amber-400' : 'bg-rose-400'} animate-pulse`} />
-              <span className="text-xs font-mono text-white/70">MONITORING</span>
+              <span className="text-xs font-mono text-muted-foreground">MONITORING</span>
             </div>
           </div>
         </motion.div>
@@ -277,17 +277,17 @@ export default function GuardianPreview() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-6 h-full flex flex-col items-center justify-center">
-              <h2 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4">
+            <Card className="bg-card/50 backdrop-blur-xl border-border p-6 h-full flex flex-col items-center justify-center">
+              <h2 className="text-sm font-mono text-muted-foreground uppercase tracking-widest mb-4">
                 AEGIS SHIELD
               </h2>
               <AegisShield securityScore={securityScore} />
               <div className="mt-6 text-center">
-                <p className="text-4xl font-mono font-bold text-white">
+                <p className="text-4xl font-mono font-bold text-foreground">
                   {securityScore}
-                  <span className="text-lg text-white/40">/100</span>
+                  <span className="text-lg text-muted-foreground">/100</span>
                 </p>
-                <p className="text-xs text-white/40 mt-1">SECURITY SCORE</p>
+                <p className="text-xs text-muted-foreground mt-1">SECURITY SCORE</p>
               </div>
             </Card>
           </motion.div>
@@ -299,8 +299,8 @@ export default function GuardianPreview() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5">
-              <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <Card className="bg-card/50 backdrop-blur-xl border-border p-5">
+              <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                 <Activity className="w-4 h-4" />
                 SECURITY STATUS
               </h3>
@@ -336,15 +336,15 @@ export default function GuardianPreview() {
               </div>
             </Card>
 
-            <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5">
-              <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <Card className="bg-card/50 backdrop-blur-xl border-border p-5">
+              <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                 <Lock className="w-4 h-4" />
                 CONNECTED APPS
               </h3>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-2xl font-mono font-bold text-white">{connectedAppsCount}</p>
-                  <p className="text-xs text-white/40">Third-party integrations</p>
+                  <p className="text-2xl font-mono font-bold text-foreground">{connectedAppsCount}</p>
+                  <p className="text-xs text-muted-foreground">Third-party integrations</p>
                 </div>
                 <div className={`p-3 rounded-lg ${appsRequiringReview > 0 ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-emerald-500/10 border border-emerald-500/20'}`}>
                   {appsRequiringReview > 0 ? (
@@ -355,7 +355,7 @@ export default function GuardianPreview() {
                 </div>
               </div>
               {appsRequiringReview > 0 && (
-                <p className="text-xs text-amber-400/80 mt-3 font-mono">
+                <p className="text-xs text-amber-500 mt-3 font-mono">
                   {appsRequiringReview} app{appsRequiringReview !== 1 ? 's' : ''} require permission review
                 </p>
               )}
@@ -381,8 +381,8 @@ export default function GuardianPreview() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.5 }}
           >
-            <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5 min-h-[340px] flex flex-col">
-              <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <Card className="bg-card/50 backdrop-blur-xl border-border p-5 min-h-[340px] flex flex-col">
+              <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                 <Globe className="w-4 h-4" />
                 SENTINEL SESSION MAP
               </h3>
@@ -398,8 +398,8 @@ export default function GuardianPreview() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5 }}
           >
-            <Card className="bg-slate-900/50 backdrop-blur-xl border-white/10 p-5 min-h-[340px] flex flex-col">
-              <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <Card className="bg-card/50 backdrop-blur-xl border-border p-5 min-h-[340px] flex flex-col">
+              <h3 className="text-sm font-mono text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                 <Eye className="w-4 h-4" />
                 PRIVACY PULSE SCANNER
               </h3>
