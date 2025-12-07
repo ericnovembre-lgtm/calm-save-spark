@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,9 @@ export function DashboardHeader({
   
   // Real-time greeting that updates every minute
   const [greeting, setGreeting] = useState(getGreeting());
+  const [prevGreetingText, setPrevGreetingText] = useState(greeting.text);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const isInitialMount = useRef(true);
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -51,6 +54,18 @@ export function DashboardHeader({
     
     return () => clearInterval(interval);
   }, []);
+  
+  // Detect greeting time-of-day changes and trigger transition animation
+  useEffect(() => {
+    if (prevGreetingText !== greeting.text) {
+      setIsTransitioning(true);
+      setPrevGreetingText(greeting.text);
+      
+      // Reset transition state after animation completes
+      const timeout = setTimeout(() => setIsTransitioning(false), 1500);
+      return () => clearTimeout(timeout);
+    }
+  }, [greeting.text, prevGreetingText]);
   
   // Build full greeting with optional user name
   const fullGreeting = userName 
@@ -61,7 +76,7 @@ export function DashboardHeader({
   const [showWave, setShowWave] = useState(true);
   const [showName, setShowName] = useState(true);
 
-  // Typewriter effect for greeting on mount
+  // Typewriter effect only on initial mount, smooth update for subsequent changes
   useEffect(() => {
     if (prefersReducedMotion) {
       setDisplayedText(fullGreeting);
@@ -70,6 +85,16 @@ export function DashboardHeader({
       return;
     }
     
+    // Skip typewriter for mid-session updates (time-of-day changes)
+    if (!isInitialMount.current) {
+      setDisplayedText(fullGreeting);
+      setShowWave(true);
+      setShowName(true);
+      return;
+    }
+    
+    // Initial mount: run typewriter effect
+    isInitialMount.current = false;
     let index = 0;
     setDisplayedText('');
     setShowWave(false);
@@ -86,7 +111,7 @@ export function DashboardHeader({
           setShowName(true);
         }, 200);
       }
-    }, 40); // Slightly faster for longer text
+    }, 40);
     
     return () => clearInterval(timer);
   }, [fullGreeting, prefersReducedMotion]);
@@ -116,31 +141,57 @@ export function DashboardHeader({
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-semibold text-foreground relative flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5">
-                    {displayedText}
-                    {/* Typing cursor */}
-                    {!prefersReducedMotion && displayedText.length < fullGreeting.length && (
-                      <motion.span 
-                        className="inline-block w-0.5 h-5 bg-primary"
-                        animate={{ opacity: [1, 0] }}
-                        transition={{ duration: 0.5, repeat: Infinity }}
-                      />
-                    )}
-                  </span>
-                  {/* Animated wave emoji */}
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={greeting.text}
+                      className="inline-flex items-center gap-1.5"
+                      initial={isTransitioning && !prefersReducedMotion ? { opacity: 0, y: 8 } : false}
+                      animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                      }}
+                      exit={!prefersReducedMotion ? { opacity: 0, y: -8 } : undefined}
+                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {displayedText}
+                      {/* Typing cursor - only on initial mount */}
+                      {!prefersReducedMotion && displayedText.length < fullGreeting.length && (
+                        <motion.span 
+                          className="inline-block w-0.5 h-5 bg-primary"
+                          animate={{ opacity: [1, 0] }}
+                          transition={{ duration: 0.5, repeat: Infinity }}
+                        />
+                      )}
+                    </motion.span>
+                  </AnimatePresence>
+                  {/* Subtle glow effect on transition */}
+                  {isTransitioning && !prefersReducedMotion && (
+                    <motion.span
+                      className="absolute inset-0 pointer-events-none"
+                      initial={{ opacity: 0 }}
+                      animate={{ 
+                        opacity: [0, 0.6, 0],
+                        textShadow: ['0 0 0px transparent', '0 0 16px hsl(var(--primary) / 0.5)', '0 0 0px transparent']
+                      }}
+                      transition={{ duration: 1, ease: 'easeOut' }}
+                    />
+                  )}
+                  {/* Animated wave emoji with bounce on transition */}
                   <AnimatePresence>
                     {showWave && (
                       <motion.span
                         initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0, rotate: -20 }}
                         animate={{ 
                           opacity: 1, 
-                          scale: 1, 
-                          rotate: prefersReducedMotion ? 0 : [0, 14, -8, 14, -4, 10, 0],
+                          scale: isTransitioning && !prefersReducedMotion ? [1, 1.3, 1] : 1, 
+                          rotate: isTransitioning && !prefersReducedMotion 
+                            ? [0, -15, 15, 0] 
+                            : (prefersReducedMotion ? 0 : [0, 14, -8, 14, -4, 10, 0]),
                         }}
                         transition={{ 
                           opacity: { duration: 0.2 },
-                          scale: { duration: 0.3, type: 'spring', stiffness: 400 },
-                          rotate: { duration: 1.2, ease: 'easeInOut', delay: 0.1 }
+                          scale: { duration: 0.6, ease: 'easeOut' },
+                          rotate: { duration: isTransitioning ? 0.6 : 1.2, ease: 'easeInOut', delay: 0.1 }
                         }}
                         className="inline-block origin-bottom-right text-lg"
                       >
