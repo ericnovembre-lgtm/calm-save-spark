@@ -36,7 +36,7 @@ export function AutopilotToggle({ enabled, onToggle }: AutopilotToggleProps) {
 
   return (
     <>
-      <div className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg">
+      <div className="flex items-center gap-3 p-3 bg-secondary/50 border border-border rounded-lg">
         <motion.div
           animate={{
             scale: enabled ? [1, 1.2, 1] : 1,
@@ -46,7 +46,7 @@ export function AutopilotToggle({ enabled, onToggle }: AutopilotToggleProps) {
             repeat: enabled ? Infinity : 0,
           }}
         >
-          <Bot className={`w-5 h-5 ${enabled ? 'text-cyan-400' : 'text-slate-500'}`} />
+          <Bot className={`w-5 h-5 ${enabled ? 'text-amber-500' : 'text-muted-foreground'}`} />
         </motion.div>
         
         <Label htmlFor="autopilot" className="flex-1 cursor-pointer">
@@ -60,15 +60,15 @@ export function AutopilotToggle({ enabled, onToggle }: AutopilotToggleProps) {
           id="autopilot"
           checked={enabled}
           onCheckedChange={handleToggle}
-          className="data-[state=checked]:bg-cyan-500"
+          className="data-[state=checked]:bg-amber-500"
         />
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="bg-slate-900 border-cyan-500/30">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Bot className="w-5 h-5 text-cyan-400" />
+              <Bot className="w-5 h-5 text-amber-500" />
               Enable AI Autopilot?
             </DialogTitle>
             <DialogDescription className="space-y-3 pt-4">
@@ -78,15 +78,15 @@ export function AutopilotToggle({ enabled, onToggle }: AutopilotToggleProps) {
               
               <div className="space-y-2 text-sm">
                 <div className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1.5" />
+                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5" />
                   <span>Automated negotiation calls</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1.5" />
+                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5" />
                   <span>Real-time competitor pricing analysis</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1.5" />
+                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5" />
                   <span>Average success rate: 87%</span>
                 </div>
               </div>
@@ -105,7 +105,7 @@ export function AutopilotToggle({ enabled, onToggle }: AutopilotToggleProps) {
             </Button>
             <Button 
               onClick={confirmEnable}
-              className="bg-cyan-600 hover:bg-cyan-500"
+              className="bg-amber-600 hover:bg-amber-500"
             >
               Enable Autopilot
             </Button>
