@@ -107,7 +107,7 @@ export function BillNegotiationScriptDialog({
   const getLeverageBadge = () => {
     if (negotiationScore >= 70) return { text: 'HIGH LEVERAGE', color: 'bg-emerald-600' };
     if (negotiationScore >= 40) return { text: 'MEDIUM LEVERAGE', color: 'bg-amber-600' };
-    return { text: 'BUILD LEVERAGE', color: 'bg-slate-600' };
+    return { text: 'BUILD LEVERAGE', color: 'bg-secondary' };
   };
 
   const parseScript = (text: string) => {
@@ -145,11 +145,11 @@ export function BillNegotiationScriptDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-slate-900 border-cyan-500/30">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-card border-border">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <Sparkles className="w-6 h-6 text-cyan-400" />
+              <Sparkles className="w-6 h-6 text-amber-500" />
               Negotiation Script: {merchant}
             </DialogTitle>
             <Badge className={`${getLeverageBadge().color} font-mono`}>
@@ -157,7 +157,7 @@ export function BillNegotiationScriptDialog({
             </Badge>
           </div>
           <div className="flex items-center gap-2 pt-2">
-            <Badge variant="outline" className="border-cyan-500 text-cyan-400 font-mono">
+            <Badge variant="outline" className="border-amber-500 text-amber-500 font-mono">
               ${amount}/mo
             </Badge>
             {category && (
@@ -172,7 +172,7 @@ export function BillNegotiationScriptDialog({
           <div className="space-y-6 pt-4">
             {/* Tactical Brief */}
             {(leveragePoints.length > 0 || bloatItems.length > 0 || competitorOffer) && (
-              <div className="p-4 bg-amber-950/30 border border-amber-500/30 rounded-lg space-y-3">
+              <div className="p-4 bg-amber-950/20 border border-amber-500/30 rounded-lg space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-amber-400 font-bold">
                     <Target className="w-4 h-4" />
@@ -181,7 +181,7 @@ export function BillNegotiationScriptDialog({
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground font-mono">WIN PROBABILITY:</span>
                     <Progress value={negotiationScore} className="w-20 h-2" />
-                    <span className="text-sm font-mono text-cyan-400">{negotiationScore}%</span>
+                    <span className="text-sm font-mono text-amber-500">{negotiationScore}%</span>
                   </div>
                 </div>
 
@@ -202,7 +202,7 @@ export function BillNegotiationScriptDialog({
                     <div className="text-xs font-semibold text-muted-foreground">Your Leverage:</div>
                     {leveragePoints.map((point, idx) => (
                       <div key={idx} className="text-sm text-foreground flex items-start gap-2">
-                        <span className="text-cyan-400">•</span>
+                        <span className="text-amber-500">•</span>
                         {point}
                       </div>
                     ))}
@@ -234,20 +234,20 @@ export function BillNegotiationScriptDialog({
                 >
                   <div className={`p-2 rounded-full ${
                     line.speaker === 'user' 
-                      ? 'bg-cyan-500/20 border border-cyan-500/50' 
-                      : 'bg-slate-700/50 border border-slate-600'
+                      ? 'bg-amber-500/20 border border-amber-500/50' 
+                      : 'bg-secondary/50 border border-border'
                   }`}>
                     {line.speaker === 'user' ? (
-                      <User className="w-5 h-5 text-cyan-400" />
+                      <User className="w-5 h-5 text-amber-500" />
                     ) : (
-                      <Headphones className="w-5 h-5 text-slate-400" />
+                      <Headphones className="w-5 h-5 text-muted-foreground" />
                     )}
                   </div>
                   
                   <div className={`flex-1 p-4 rounded-lg ${
                     line.speaker === 'user'
-                      ? 'bg-cyan-950/30 border border-cyan-500/20'
-                      : 'bg-slate-800/50 border border-slate-700'
+                      ? 'bg-amber-950/20 border border-amber-500/20'
+                      : 'bg-secondary/50 border border-border'
                   }`}>
                     <div className="text-xs font-semibold text-muted-foreground mb-1">
                       {line.speaker === 'user' ? 'YOU' : 'AGENT'}
@@ -261,7 +261,7 @@ export function BillNegotiationScriptDialog({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2 pt-4 border-t border-slate-700">
+            <div className="flex gap-2 pt-4 border-t border-border">
               <Button
                 onClick={() => copyToClipboard(getOpeningLine())}
                 variant="outline"
@@ -274,7 +274,7 @@ export function BillNegotiationScriptDialog({
               <Button
                 onClick={() => copyToClipboard()}
                 variant="outline"
-                className="flex-1 border-cyan-500/50 hover:bg-cyan-950/30"
+                className="flex-1 border-amber-500/50 hover:bg-amber-950/30"
                 disabled={!typingComplete}
               >
                 <Copy className="w-4 h-4 mr-2" />
@@ -282,7 +282,7 @@ export function BillNegotiationScriptDialog({
               </Button>
               <Button
                 onClick={() => onOpenChange(false)}
-                className="bg-cyan-600 hover:bg-cyan-500"
+                className="bg-amber-600 hover:bg-amber-500"
               >
                 Close
               </Button>
