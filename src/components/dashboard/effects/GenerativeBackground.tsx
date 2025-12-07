@@ -24,7 +24,7 @@ export function GenerativeBackground({ mood = 'calm', balanceChange = 0 }: Gener
 
     // Mood-based colors
     const moodColors = {
-      calm: ['#3b82f6', '#8b5cf6', '#6366f1'],
+      calm: ['#d6c8a2', '#e9dfce', '#f5f0e6'],
       energetic: ['#10b981', '#059669', '#14b8a6'],
       stressed: ['#ef4444', '#f59e0b', '#f97316']
     };

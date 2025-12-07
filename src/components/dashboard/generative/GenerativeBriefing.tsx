@@ -109,7 +109,7 @@ export function GenerativeBriefing({
                 {isStreaming && (
                   <>
                     <LiveDot isLive size="sm" />
-                    <span className="text-cyan-400">Streaming</span>
+                    <span className="text-amber-500">Streaming</span>
                   </>
                 )}
                 {meta?.processingTimeMs && !isStreaming && (

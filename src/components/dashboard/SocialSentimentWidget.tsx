@@ -19,7 +19,7 @@ const SentimentGauge: React.FC<{ score: number; label: string }> = ({ score, lab
   const getGaugeColor = () => {
     if (score <= -40) return 'from-rose-500 to-rose-600';
     if (score <= -10) return 'from-orange-500 to-orange-600';
-    if (score <= 10) return 'from-slate-400 to-slate-500';
+    if (score <= 10) return 'from-muted-foreground/60 to-muted-foreground/80';
     if (score <= 40) return 'from-emerald-400 to-emerald-500';
     return 'from-emerald-500 to-emerald-600';
   };
@@ -47,7 +47,7 @@ const SentimentGauge: React.FC<{ score: number; label: string }> = ({ score, lab
         <motion.span 
           className={cn(
             "font-semibold text-sm",
-            score > 20 ? 'text-emerald-400' : score < -20 ? 'text-rose-400' : 'text-slate-400'
+            score > 20 ? 'text-emerald-400' : score < -20 ? 'text-rose-400' : 'text-muted-foreground'
           )}
           key={score}
           initial={{ scale: 1.2, opacity: 0 }}
@@ -79,7 +79,7 @@ const VolumeIndicator: React.FC<{ volume: SocialSentimentData['volume'] }> = ({ 
             key={bar}
             className={cn(
               "w-1 rounded-sm",
-              bar <= config.bars ? config.color : 'bg-slate-700'
+              bar <= config.bars ? config.color : 'bg-muted'
             )}
             style={{ 
               height: `${bar * 25}%`,
@@ -156,7 +156,7 @@ export const SocialSentimentWidget: React.FC<SocialSentimentWidgetProps> = ({ cl
     if (!data) return <Activity className="h-4 w-4" />;
     if (data.sentiment.score > 20) return <TrendingUp className="h-4 w-4 text-emerald-400" />;
     if (data.sentiment.score < -20) return <TrendingDown className="h-4 w-4 text-rose-400" />;
-    return <Minus className="h-4 w-4 text-slate-400" />;
+    return <Minus className="h-4 w-4 text-muted-foreground" />;
   };
 
   if (isLoading) {
@@ -244,7 +244,7 @@ export const SocialSentimentWidget: React.FC<SocialSentimentWidgetProps> = ({ cl
                       "text-[10px] px-1.5 py-0",
                       data.sentiment.confidence > 0.7 
                         ? 'bg-emerald-500/20 text-emerald-400' 
-                        : 'bg-slate-500/20 text-slate-400'
+                        : 'bg-muted/50 text-muted-foreground'
                     )}
                   >
                     {Math.round(data.sentiment.confidence * 100)}%

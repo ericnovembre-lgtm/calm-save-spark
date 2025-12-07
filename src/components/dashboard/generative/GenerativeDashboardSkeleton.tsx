@@ -18,9 +18,9 @@ export function GenerativeDashboardSkeleton() {
           transition={{ duration: 2, repeat: Infinity }}
           className="flex items-center gap-3 text-muted-foreground"
         >
-          <Brain className="h-6 w-6 text-violet-400" />
+          <Brain className="h-6 w-6 text-amber-500" />
           <span className="text-sm font-medium">Claude Opus is designing your dashboard...</span>
-          <Sparkles className="h-4 w-4 text-cyan-400" />
+          <Sparkles className="h-4 w-4 text-amber-400" />
         </motion.div>
       </div>
 
@@ -112,8 +112,8 @@ export function GenerativeDashboardSkeleton() {
           animate={{ opacity: [0.3, 1, 0.3] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <div className="h-1.5 w-1.5 rounded-full bg-violet-400" />
-          <div className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+          <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+          <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
           <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
         </motion.div>
       </div>
