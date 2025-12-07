@@ -127,7 +127,7 @@ function StackedSessionBeacon({
             exit={{ scale: 0.8, opacity: 0 }}
             className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50"
           >
-            <div className="bg-slate-800/95 backdrop-blur-xl border border-white/10 rounded-lg p-2 space-y-1 min-w-[180px]">
+            <div className="bg-stone-800/95 backdrop-blur-xl border border-white/10 rounded-lg p-2 space-y-1 min-w-[180px]">
               <p className="text-xs text-white/50 font-mono px-2 mb-2">{stack.sessions.length} sessions at this location</p>
               {sortedSessions.map((session, idx) => {
                 const sessionStyle = getBeaconStyle(session);
@@ -229,7 +229,7 @@ function StackedSessionBeacon({
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-slate-700 border border-white/20 flex items-center justify-center"
+            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-stone-700 border border-white/20 flex items-center justify-center"
           >
             <span className="text-[9px] font-bold text-white">{stack.sessions.length}</span>
           </motion.div>
@@ -238,7 +238,7 @@ function StackedSessionBeacon({
         {/* Tooltip on hover (only for single session) */}
         {!hasMultiple && (
           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-            <div className="bg-slate-800 border border-white/10 rounded-lg px-3 py-2 text-xs whitespace-nowrap">
+            <div className="bg-stone-800 border border-white/10 rounded-lg px-3 py-2 text-xs whitespace-nowrap">
               <p className="font-semibold text-white">{primarySession.device_name || 'Unknown Device'}</p>
               <p className="text-white/50 font-mono">{location}</p>
             </div>
@@ -291,7 +291,7 @@ function RevokeSessionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-900/95 backdrop-blur-3xl border-white/10 max-w-md">
+      <DialogContent className="bg-stone-900/95 backdrop-blur-3xl border-white/10 max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-white">
             {session?.is_authorized ? (
@@ -305,7 +305,7 @@ function RevokeSessionModal({
         
         {session && (
           <div className="space-y-4">
-            <div className="p-4 rounded-lg bg-slate-800/50 border border-white/5 space-y-2">
+            <div className="p-4 rounded-lg bg-card/50 border border-white/5 space-y-2">
               <div className="flex justify-between">
                 <span className="text-white/50 text-sm">Device</span>
                 <span className="text-white font-mono text-sm">{session.device_name || 'Unknown'}</span>

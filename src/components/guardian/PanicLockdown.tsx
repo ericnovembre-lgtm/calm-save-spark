@@ -42,7 +42,7 @@ function EmergencySupportCard({ onDeactivate, isDeactivating }: { onDeactivate: 
       </div>
       
       <div className="space-y-3">
-        <Card className="bg-slate-800/50 border-white/10 p-4">
+        <Card className="bg-card/50 border-white/10 p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-emerald-500/20">
               <Phone className="w-5 h-5 text-emerald-400" />
