@@ -11,7 +11,7 @@ export function NetWorthCounter({ value, age }: NetWorthCounterProps) {
   const getColorClass = () => {
     if (value >= 1000000) return 'text-yellow-500';
     if (value >= 500000) return 'text-green-500';
-    if (value >= 100000) return 'text-cyan-500';
+    if (value >= 100000) return 'text-amber-500';
     if (value < 0) return 'text-red-500';
     return 'text-white';
   };

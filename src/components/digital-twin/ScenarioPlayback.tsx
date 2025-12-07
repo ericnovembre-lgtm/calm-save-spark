@@ -103,7 +103,7 @@ export function ScenarioPlayback({
 
   const healthColors = {
     thriving: 'from-green-500 to-emerald-500',
-    neutral: 'from-cyan-500 to-blue-500',
+    neutral: 'from-amber-500 to-yellow-500',
     struggling: 'from-red-500 to-orange-500'
   };
 
