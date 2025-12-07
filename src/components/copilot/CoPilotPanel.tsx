@@ -303,7 +303,7 @@ export function CoPilotPanel() {
                           backdrop-blur-sm
                           border border-white/20 dark:border-white/10
                           text-foreground 
-                          hover:bg-white/80 dark:hover:bg-slate-700/60 
+                          hover:bg-white/80 dark:hover:bg-stone-700/60 
                           transition-all duration-200
                           shadow-sm hover:shadow-md"
                       >
