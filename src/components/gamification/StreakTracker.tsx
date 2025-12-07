@@ -29,7 +29,7 @@ export function StreakTracker() {
 
   const streakColor = profile?.current_streak || 0 >= 30 ? 'text-orange-500' :
                       profile?.current_streak || 0 >= 14 ? 'text-yellow-500' :
-                      profile?.current_streak || 0 >= 7 ? 'text-blue-500' :
+                      profile?.current_streak || 0 >= 7 ? 'text-amber-500' :
                       'text-muted-foreground';
 
   return (
@@ -92,8 +92,8 @@ export function StreakTracker() {
       </div>
 
       {profile?.streak_freeze_available && profile.streak_freeze_available > 0 && (
-        <div className="flex items-center gap-2 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-          <Snowflake className="w-5 h-5 text-blue-500" />
+        <div className="flex items-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+          <Snowflake className="w-5 h-5 text-amber-500" />
           <div className="flex-1">
             <p className="text-sm font-medium">Streak Freeze Available</p>
             <p className="text-xs text-muted-foreground">

@@ -17,9 +17,9 @@ const categoryIcons: Record<string, any> = {
 
 const categoryColors: Record<string, string> = {
   savings_mastery: "text-green-500",
-  goal_achiever: "text-blue-500",
+  goal_achiever: "text-amber-500",
   streak_champion: "text-orange-500",
-  financial_wellness: "text-purple-500",
+  financial_wellness: "text-amber-600",
   automation_expert: "text-yellow-500",
   community_champion: "text-pink-500",
 };
@@ -159,7 +159,7 @@ export function AchievementCollections() {
                             </Badge>
                           </div>
                           {achievement.freeze_day_reward > 0 && (
-                            <div className="ml-6 text-xs text-blue-600">
+                            <div className="ml-6 text-xs text-amber-600">
                               🎁 Reward: {achievement.freeze_day_reward} freeze day{achievement.freeze_day_reward > 1 ? 's' : ''}
                             </div>
                           )}

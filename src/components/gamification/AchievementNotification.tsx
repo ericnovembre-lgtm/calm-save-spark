@@ -53,7 +53,7 @@ export function AchievementNotification({ achievements, onDismiss }: Achievement
     gold: "bg-yellow-500/20 text-yellow-600 border-yellow-500/30",
     silver: "bg-gray-400/20 text-gray-600 border-gray-400/30",
     bronze: "bg-amber-600/20 text-amber-600 border-amber-600/30",
-    blue: "bg-blue-500/20 text-blue-600 border-blue-500/30",
+    amber: "bg-amber-500/20 text-amber-600 border-amber-500/30",
     green: "bg-green-500/20 text-green-600 border-green-500/30",
     purple: "bg-purple-500/20 text-purple-600 border-purple-500/30",
   };

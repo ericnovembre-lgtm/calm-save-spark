@@ -93,7 +93,7 @@ export function GamificationOverview({
         <Card className="bg-background/50 backdrop-blur-sm border-white/10">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Target className="w-5 h-5 text-violet-400" />
+              <Target className="w-5 h-5 text-amber-400" />
               Active Challenges
             </CardTitle>
             <Link 
@@ -130,7 +130,7 @@ export function GamificationOverview({
                           initial={{ width: 0 }}
                           animate={{ width: `${progressPercent}%` }}
                           transition={{ duration: 0.8, delay: 0.4 + index * 0.1 }}
-                          className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"
+                          className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"
                         />
                       </div>
                     </motion.div>
@@ -155,7 +155,7 @@ export function GamificationOverview({
         <Card className="bg-background/50 backdrop-blur-sm border-white/10">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-cyan-400" />
+              <Calendar className="w-5 h-5 text-amber-400" />
               This Week
             </CardTitle>
           </CardHeader>
