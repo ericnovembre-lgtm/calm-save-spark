@@ -20,6 +20,21 @@ interface DashboardHeaderProps {
   onForceRefresh: () => void;
 }
 
+// Test mode greetings for cycling through all time periods quickly
+const TEST_GREETINGS = [
+  { text: 'Good morning', emoji: '☀️' },
+  { text: 'Good afternoon', emoji: '🌤️' },
+  { text: 'Good evening', emoji: '🌅' },
+  { text: 'Good night', emoji: '🌙' },
+];
+
+// Check if test mode is enabled (dev-only)
+const isTestModeEnabled = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return process.env.NODE_ENV === 'development' && 
+    localStorage.getItem('dashboard-greeting-test-mode') === 'true';
+};
+
 // Time-of-day greeting
 function getGreeting(): { text: string; emoji: string } {
   const hour = new Date().getHours();
@@ -41,36 +56,68 @@ export function DashboardHeader({
 }: DashboardHeaderProps) {
   const prefersReducedMotion = useReducedMotion();
   
-  // Real-time greeting that updates every minute
+  // Test mode state
+  const [testMode, setTestMode] = useState(isTestModeEnabled());
+  const [testGreetingIndex, setTestGreetingIndex] = useState(0);
+  
+  // Real-time greeting that updates every minute (or 5 sec in test mode)
   const [greeting, setGreeting] = useState(getGreeting());
   const [prevGreetingText, setPrevGreetingText] = useState(greeting.text);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const isInitialMount = useRef(true);
   
+  // Current time state
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Format time for display
+  const formattedTime = currentTime.toLocaleTimeString([], { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  });
+  
+  // Active greeting based on test mode
+  const activeGreeting = testMode ? TEST_GREETINGS[testGreetingIndex] : greeting;
+  
   useEffect(() => {
+    // Check test mode on mount and when storage changes
+    const checkTestMode = () => setTestMode(isTestModeEnabled());
+    window.addEventListener('storage', checkTestMode);
+    return () => window.removeEventListener('storage', checkTestMode);
+  }, []);
+  
+  useEffect(() => {
+    const intervalTime = testMode ? 5000 : 60000; // 5 sec test mode, 60 sec normal
+    
     const interval = setInterval(() => {
-      setGreeting(getGreeting());
-    }, 60000); // Update every minute
+      setCurrentTime(new Date());
+      
+      if (testMode) {
+        setTestGreetingIndex(prev => (prev + 1) % TEST_GREETINGS.length);
+      } else {
+        setGreeting(getGreeting());
+      }
+    }, intervalTime);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [testMode]);
   
   // Detect greeting time-of-day changes and trigger transition animation
   useEffect(() => {
-    if (prevGreetingText !== greeting.text) {
+    if (prevGreetingText !== activeGreeting.text) {
       setIsTransitioning(true);
-      setPrevGreetingText(greeting.text);
+      setPrevGreetingText(activeGreeting.text);
       
       // Reset transition state after animation completes
       const timeout = setTimeout(() => setIsTransitioning(false), 1500);
       return () => clearTimeout(timeout);
     }
-  }, [greeting.text, prevGreetingText]);
+  }, [activeGreeting.text, prevGreetingText]);
   
   // Build full greeting with optional user name
   const fullGreeting = userName 
-    ? `${greeting.text}, ${userName}`
-    : greeting.text;
+    ? `${activeGreeting.text}, ${userName}`
+    : activeGreeting.text;
   
   const [displayedText, setDisplayedText] = useState(fullGreeting);
   const [showWave, setShowWave] = useState(true);
@@ -143,7 +190,7 @@ export function DashboardHeader({
                 <h1 className="text-xl font-semibold text-foreground relative flex items-center gap-2">
                   <AnimatePresence mode="wait">
                     <motion.span
-                      key={greeting.text}
+                      key={activeGreeting.text}
                       className="inline-flex items-center gap-1.5"
                       initial={isTransitioning && !prefersReducedMotion ? { opacity: 0, y: 8 } : false}
                       animate={{ 
@@ -195,10 +242,20 @@ export function DashboardHeader({
                         }}
                         className="inline-block origin-bottom-right text-lg"
                       >
-                        {greeting.emoji}
+                        {activeGreeting.emoji}
                       </motion.span>
                     )}
                   </AnimatePresence>
+                  {/* Test mode badge */}
+                  {testMode && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="ml-2 px-1.5 py-0.5 rounded text-[9px] font-medium bg-amber-500/20 text-amber-600 border border-amber-500/30"
+                    >
+                      TEST MODE
+                    </motion.span>
+                  )}
                   {/* Animated gradient underline */}
                   <motion.span
                     className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full"
@@ -212,6 +269,16 @@ export function DashboardHeader({
                 <p className="text-[11px] text-muted-foreground/70 font-medium tracking-wide flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3 text-violet-400" />
                   Powered by Claude Opus 4.5
+                  <span className="text-muted-foreground/40">•</span>
+                  <motion.span 
+                    key={formattedTime}
+                    initial={{ opacity: 0.5 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="tabular-nums"
+                  >
+                    {formattedTime}
+                  </motion.span>
                 </p>
                 {/* Model badge with glassmorphic styling */}
                 {modelName && (
