@@ -61,7 +61,7 @@ function HexPattern() {
 // Gradient overlay for depth
 function GradientOverlay() {
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-cyber-bg via-transparent to-slate-950/50" />
+    <div className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-cyber-bg via-transparent to-stone-900/50" />
   );
 }
 

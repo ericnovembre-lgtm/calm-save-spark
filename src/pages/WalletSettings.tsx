@@ -37,7 +37,7 @@ export default function WalletSettings() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-slate-950">
+      <div className="min-h-screen bg-card">
         <div className="container mx-auto px-4 py-12 max-w-2xl">
           {/* Header */}
           <motion.div

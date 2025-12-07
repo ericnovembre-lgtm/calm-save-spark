@@ -219,8 +219,8 @@ export default function DigitalTwin() {
       <AppLayout>
         <div className="min-h-screen bg-[#050505] flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mx-auto mb-4" />
-            <p className="text-white/60 font-mono">Initializing Digital Twin...</p>
+            <Loader2 className="w-12 h-12 text-amber-500 animate-spin mx-auto mb-4" />
+            <p className="text-stone-400 font-mono">Initializing Digital Twin...</p>
           </div>
         </div>
       </AppLayout>
@@ -311,13 +311,13 @@ export default function DigitalTwin() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center justify-center gap-3 mb-2">
-            <Sparkles className="w-8 h-8 text-cyan-500" />
+            <Sparkles className="w-8 h-8 text-amber-500" />
             <h1 className="text-4xl font-bold cinematic-text additive-text">
               ◢◤ DIGITAL TWIN ◥◣
             </h1>
-            <Sparkles className="w-8 h-8 text-magenta-500" />
+            <Sparkles className="w-8 h-8 text-orange-500" />
           </div>
-          <p className="text-white/60 font-mono text-sm">
+          <p className="text-stone-400 font-mono text-sm">
             Your Financial Future as a Living Entity
           </p>
         </motion.div>
@@ -347,7 +347,7 @@ export default function DigitalTwin() {
               {/* Drop zone overlay */}
               {selectedEvent && (
                 <motion.div
-                  className="absolute inset-0 flex items-center justify-center bg-cyan-500/10 backdrop-blur-sm border-2 border-dashed border-cyan-500 rounded-lg cursor-pointer"
+                  className="absolute inset-0 flex items-center justify-center bg-amber-500/10 backdrop-blur-sm border-2 border-dashed border-amber-500 rounded-lg cursor-pointer"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   onClick={handleEventDrop}
@@ -378,7 +378,7 @@ export default function DigitalTwin() {
             size="icon"
             onClick={handleSaveScenario}
             data-tour="dt-save"
-            className="h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10 hover:border-green-500 hover:bg-green-500/10"
+            className="h-9 w-9 backdrop-blur-xl bg-black/70 border-stone-700/50 hover:border-green-500 hover:bg-green-500/10"
             title="Save Scenario"
           >
             <FileDown className="w-4 h-4" />
@@ -389,8 +389,8 @@ export default function DigitalTwin() {
             onClick={() => setShowMonteCarlo(!showMonteCarlo)}
             data-tour="dt-projections"
             className={cn(
-              "h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10",
-              showMonteCarlo ? "border-cyan-500 bg-cyan-500/20" : "hover:border-cyan-500 hover:bg-cyan-500/10"
+              "h-9 w-9 backdrop-blur-xl bg-black/70 border-stone-700/50",
+              showMonteCarlo ? "border-amber-500 bg-amber-500/20" : "hover:border-amber-500 hover:bg-amber-500/10"
             )}
             title={showMonteCarlo ? 'Hide Projections' : 'Show Projections'}
           >
@@ -400,7 +400,7 @@ export default function DigitalTwin() {
             variant="outline"
             size="icon"
             onClick={handleReset}
-            className="h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10 hover:border-white/30"
+            className="h-9 w-9 backdrop-blur-xl bg-black/70 border-stone-700/50 hover:border-stone-600"
             title="Reset Timeline"
           >
             <RotateCcw className="w-4 h-4" />
@@ -412,36 +412,36 @@ export default function DigitalTwin() {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 backdrop-blur-xl bg-black/70 border-white/10 hover:border-accent hover:bg-accent/10"
+                className="h-9 w-9 backdrop-blur-xl bg-black/70 border-stone-700/50 hover:border-amber-500 hover:bg-amber-500/10"
               >
                 <MoreVertical className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align="end" 
-              className="w-48 backdrop-blur-xl bg-slate-950/95 border-white/10"
+              className="w-48 backdrop-blur-xl bg-stone-900/95 border-stone-700/50"
             >
-              <DropdownMenuItem onClick={() => setShowMemoryExplorer(true)} className="gap-2 text-white/80 hover:text-white">
+              <DropdownMenuItem onClick={() => setShowMemoryExplorer(true)} className="gap-2 text-stone-300 hover:text-foreground">
                 <Brain className="w-4 h-4" />
                 Memories
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShowSavedPanel(true)} className="gap-2 text-white/80 hover:text-white">
+              <DropdownMenuItem onClick={() => setShowSavedPanel(true)} className="gap-2 text-stone-300 hover:text-foreground">
                 <FolderOpen className="w-4 h-4" />
                 My Scenarios
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShowEnhancedComparison(true)} className="gap-2 text-white/80 hover:text-white">
+              <DropdownMenuItem onClick={() => setShowEnhancedComparison(true)} className="gap-2 text-stone-300 hover:text-foreground">
                 <GitBranch className="w-4 h-4" />
                 Compare Paths
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShowPlayback(true)} className="gap-2 text-white/80 hover:text-white">
+              <DropdownMenuItem onClick={() => setShowPlayback(true)} className="gap-2 text-stone-300 hover:text-foreground">
                 <Play className="w-4 h-4" />
                 Play Timeline
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShowShareModal(true)} data-tour="dt-share" className="gap-2 text-white/80 hover:text-white">
+              <DropdownMenuItem onClick={() => setShowShareModal(true)} data-tour="dt-share" className="gap-2 text-stone-300 hover:text-foreground">
                 <Share2 className="w-4 h-4" />
                 Share
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShowExportModal(true)} className="gap-2 text-white/80 hover:text-white">
+              <DropdownMenuItem onClick={() => setShowExportModal(true)} className="gap-2 text-stone-300 hover:text-foreground">
                 <FileDown className="w-4 h-4" />
                 Export PDF
               </DropdownMenuItem>
