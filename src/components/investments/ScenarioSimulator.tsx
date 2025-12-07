@@ -103,7 +103,7 @@ export function ScenarioSimulator({ portfolioData }: ScenarioSimulatorProps) {
   };
 
   return (
-    <Card className="p-6 bg-slate-900/50 backdrop-blur border-slate-800">
+    <Card className="p-6 bg-card/80 backdrop-blur border-border">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -125,7 +125,7 @@ export function ScenarioSimulator({ portfolioData }: ScenarioSimulatorProps) {
               value={scenario}
               onChange={(e) => setScenario(e.target.value)}
               placeholder="e.g., The Fed raises interest rates by 0.75%"
-              className="flex-1 bg-slate-950/50 border-slate-700 font-mono text-sm"
+              className="flex-1 bg-card/90 border-border font-mono text-sm"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !isAnalyzing) {
                   handleAnalyze(scenario);
@@ -158,7 +158,7 @@ export function ScenarioSimulator({ portfolioData }: ScenarioSimulatorProps) {
                   handleAnalyze(qs);
                 }}
                 disabled={isAnalyzing}
-                className="px-3 py-1 text-xs rounded-full bg-slate-800/50 hover:bg-slate-800 border border-slate-700 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                className="px-3 py-1 text-xs rounded-full bg-secondary/50 hover:bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
               >
                 {qs}
               </button>
@@ -176,7 +176,7 @@ export function ScenarioSimulator({ portfolioData }: ScenarioSimulatorProps) {
               className="space-y-4"
             >
               {/* Overall Impact */}
-              <Card className="p-4 bg-slate-950/50 border-slate-800">
+              <Card className="p-4 bg-card/90 border-border">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-orange-400 mt-0.5" />
                   <div className="flex-1 space-y-2">
@@ -251,7 +251,7 @@ export function ScenarioSimulator({ portfolioData }: ScenarioSimulatorProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 + idx * 0.1 }}
                       >
-                        <Card className="p-3 bg-slate-950/30 border-slate-700">
+                        <Card className="p-3 bg-card/50 border-border">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 space-y-1">
                               <div className="flex items-center gap-2">
@@ -276,7 +276,7 @@ export function ScenarioSimulator({ portfolioData }: ScenarioSimulatorProps) {
 
               {/* Historical Context */}
               {analysis.historicalContext && (
-                <Card className="p-3 bg-slate-950/30 border-slate-700">
+                <Card className="p-3 bg-card/50 border-border">
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     <span className="font-semibold text-foreground">Historical Context:</span>{' '}
                     {analysis.historicalContext}
@@ -285,7 +285,7 @@ export function ScenarioSimulator({ portfolioData }: ScenarioSimulatorProps) {
               )}
 
               {/* Confidence Level */}
-              <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-slate-800">
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border">
                 <span>
                   Confidence Level:{' '}
                   <span className="capitalize font-medium text-foreground">{analysis.confidenceLevel}</span>

@@ -52,19 +52,19 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
   const displayData = zoomedItem ? (zoomedItem.children || [zoomedItem]) : data;
   
   return (
-    <div ref={containerRef} className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 relative">
+    <div ref={containerRef} className="bg-card/80 border border-border rounded-lg p-6 relative">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-sm">
           <button 
             onClick={() => setZoomedItem(null)}
-            className="text-slate-400 hover:text-slate-100 transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             Portfolio
           </button>
           {zoomedItem && (
             <>
-              <ChevronRight className="w-4 h-4 text-slate-600" />
-              <span className="text-slate-100 font-medium">{zoomedItem.name}</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+              <span className="text-foreground font-medium">{zoomedItem.name}</span>
             </>
           )}
         </div>
@@ -73,7 +73,7 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
             variant="outline" 
             size="sm"
             onClick={() => setZoomedItem(null)}
-            className="bg-slate-800 border-slate-700 hover:bg-slate-700"
+            className="bg-secondary border-border hover:bg-secondary/80"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
@@ -222,9 +222,9 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
       </AnimatePresence>
 
       {!zoomedItem && (
-        <div className="mt-6 pt-6 border-t border-slate-800">
-          <p className="text-sm text-slate-400">
-            Total Portfolio: <span className="font-mono tabular-nums text-slate-100 text-lg">
+        <div className="mt-6 pt-6 border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            Total Portfolio: <span className="font-mono tabular-nums text-foreground text-lg">
               $<CountUp 
                 end={totalValue} 
                 duration={prefersReducedMotion ? 0 : 1.5} 
@@ -252,9 +252,9 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
               transform: 'translate(-50%, -100%)',
             }}
           >
-            <div className="bg-slate-950/95 border border-slate-700 rounded-lg shadow-xl p-3 min-w-[200px] backdrop-blur-sm">
-              <p className="text-sm font-semibold text-slate-100 mb-1">{tooltip.name}</p>
-              <p className="text-lg font-mono text-slate-100">${tooltip.value.toLocaleString()}</p>
+            <div className="bg-card/95 border border-border rounded-lg shadow-xl p-3 min-w-[200px] backdrop-blur-sm">
+              <p className="text-sm font-semibold text-foreground mb-1">{tooltip.name}</p>
+              <p className="text-lg font-mono text-foreground">${tooltip.value.toLocaleString()}</p>
               {tooltip.gainPercent !== undefined && (
                 <div className="mt-1 flex items-center gap-1">
                   <span className={`text-sm font-medium ${
@@ -262,7 +262,7 @@ export function InteractiveTreemap({ data }: InteractiveTreemapProps) {
                   }`}>
                     {tooltip.gainPercent >= 0 ? '+' : ''}{tooltip.gainPercent.toFixed(2)}%
                   </span>
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-muted-foreground">
                     ({tooltip.gainPercent >= 0 ? '+' : ''}$
                     {((tooltip.value * tooltip.gainPercent) / (100 + tooltip.gainPercent)).toFixed(0)})
                   </span>

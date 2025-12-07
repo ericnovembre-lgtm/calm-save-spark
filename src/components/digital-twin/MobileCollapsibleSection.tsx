@@ -54,7 +54,7 @@ export function MobileCollapsibleSection({
     <div 
       id={id}
       className={cn(
-        "backdrop-blur-xl bg-slate-950/80 border border-cyan-500/20 rounded-xl overflow-hidden",
+        "backdrop-blur-xl bg-stone-900/80 border border-stone-700/50 rounded-xl overflow-hidden",
         className
       )}
     >
@@ -64,7 +64,7 @@ export function MobileCollapsibleSection({
         className="w-full flex items-center justify-between p-4 text-left transition-colors hover:bg-white/5"
       >
         <div className="flex items-center gap-3">
-          {Icon && <Icon className="w-5 h-5 text-cyan-400" />}
+          {Icon && <Icon className="w-5 h-5 text-amber-500" />}
           <span className="font-mono text-sm text-white/90">{title}</span>
         </div>
         <motion.div
