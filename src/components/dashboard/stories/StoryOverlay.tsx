@@ -25,8 +25,8 @@ const THEME_BG: Record<FinancialStory['theme'], string> = {
   rose: 'from-rose-100/90 via-rose-50/80 to-background',
   amber: 'from-amber-100/90 via-amber-50/80 to-background',
   gold: 'from-yellow-100/90 via-amber-50/80 to-background',
-  violet: 'from-violet-100/90 via-violet-50/80 to-background',
-  cyan: 'from-cyan-100/90 via-cyan-50/80 to-background'
+  violet: 'from-yellow-100/90 via-amber-50/80 to-background',
+  cyan: 'from-amber-100/90 via-yellow-50/80 to-background'
 };
 
 export function StoryOverlay({ stories, activeIndex, onClose, onStoryViewed }: StoryOverlayProps) {

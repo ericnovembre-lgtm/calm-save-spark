@@ -117,7 +117,7 @@ export function CreditTipsModal({ isOpen, onClose }: CreditTipsModalProps) {
       <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-violet-500" />
+            <CreditCard className="h-5 w-5 text-amber-500" />
             Credit Score Tips
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1">
@@ -128,7 +128,7 @@ export function CreditTipsModal({ isOpen, onClose }: CreditTipsModalProps) {
 
         {/* Current Score Display */}
         {creditData && (
-          <div className="flex items-center gap-4 p-4 rounded-lg bg-gradient-to-r from-violet-500/10 to-primary/10 border border-violet-500/20">
+          <div className="flex items-center gap-4 p-4 rounded-lg bg-gradient-to-r from-amber-500/10 to-primary/10 border border-amber-500/20">
             <div className="text-center">
               <p className="text-3xl font-bold text-foreground">{creditData.score}</p>
               <p className="text-xs text-muted-foreground">Current Score</p>

@@ -35,8 +35,8 @@ const THEME_RING_CLASSES: Record<FinancialStory['theme'], string> = {
   rose: 'story-ring-rose',
   amber: 'story-ring-amber',
   gold: 'story-ring-gold',
-  violet: 'story-ring-violet',
-  cyan: 'story-ring-cyan',
+  violet: 'story-ring-gold',
+  cyan: 'story-ring-amber',
 };
 
 const THEME_GLOW_COLORS: Record<FinancialStory['theme'], string> = {
@@ -44,8 +44,8 @@ const THEME_GLOW_COLORS: Record<FinancialStory['theme'], string> = {
   rose: 'hsla(350, 89%, 60%, 0.4)',
   amber: 'hsla(38, 92%, 50%, 0.4)',
   gold: 'hsla(45, 93%, 47%, 0.4)',
-  violet: 'hsla(258, 90%, 66%, 0.4)',
-  cyan: 'hsla(189, 94%, 43%, 0.4)',
+  violet: 'hsla(45, 93%, 47%, 0.4)',
+  cyan: 'hsla(38, 92%, 50%, 0.4)',
 };
 
 const THEME_DOT_COLORS: Record<FinancialStory['theme'], string> = {
@@ -53,8 +53,8 @@ const THEME_DOT_COLORS: Record<FinancialStory['theme'], string> = {
   rose: 'bg-rose-500',
   amber: 'bg-amber-500',
   gold: 'bg-yellow-500',
-  violet: 'bg-violet-500',
-  cyan: 'bg-cyan-500',
+  violet: 'bg-yellow-500',
+  cyan: 'bg-amber-500',
 };
 
 const containerVariants = {

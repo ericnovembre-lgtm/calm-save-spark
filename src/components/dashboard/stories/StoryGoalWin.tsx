@@ -21,14 +21,14 @@ export function StoryGoalWin({ story }: StoryGoalWinProps) {
         angle: 60,
         spread: 55,
         origin: { x: 0 },
-        colors: ['#8b5cf6', '#a78bfa', '#c4b5fd']
+        colors: ['#f59e0b', '#fbbf24', '#fde68a']
       });
       confetti({
         particleCount: 3,
         angle: 120,
         spread: 55,
         origin: { x: 1 },
-        colors: ['#8b5cf6', '#a78bfa', '#c4b5fd']
+        colors: ['#f59e0b', '#fbbf24', '#fde68a']
       });
 
       if (Date.now() < end) {
@@ -48,7 +48,7 @@ export function StoryGoalWin({ story }: StoryGoalWinProps) {
         animate={{ scale: 1 }}
         transition={{ type: 'spring', damping: 8, delay: 0.2 }}
       >
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
           <Target className="w-12 h-12 text-white" />
         </div>
         {/* Celebration icon */}
@@ -57,14 +57,14 @@ export function StoryGoalWin({ story }: StoryGoalWinProps) {
           animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
         >
-          <PartyPopper className="w-8 h-8 text-violet-400" />
+          <PartyPopper className="w-8 h-8 text-amber-400" />
         </motion.div>
       </motion.div>
 
       {/* Goal name */}
       {story.data.goalName && (
         <motion.div
-          className="text-violet-400 text-sm font-medium mb-2"
+          className="text-amber-400 text-sm font-medium mb-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -86,7 +86,7 @@ export function StoryGoalWin({ story }: StoryGoalWinProps) {
       {/* Amount saved */}
       {story.data.amount !== undefined && (
         <motion.div
-          className="text-5xl font-bold text-violet-400 my-4"
+          className="text-5xl font-bold text-amber-400 my-4"
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, type: 'spring' }}
@@ -105,7 +105,7 @@ export function StoryGoalWin({ story }: StoryGoalWinProps) {
         >
           <div className="h-2 bg-white/10 rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-violet-500 to-purple-500"
+              className="h-full bg-gradient-to-r from-amber-500 to-yellow-500"
               initial={{ width: 0 }}
               animate={{ width: `${story.data.percentChange}%` }}
               transition={{ delay: 0.8, duration: 1 }}
@@ -129,12 +129,12 @@ export function StoryGoalWin({ story }: StoryGoalWinProps) {
 
       {/* Celebration badge */}
       <motion.div
-        className="mt-6 px-4 py-2 rounded-full bg-violet-500/20 border border-violet-500/30"
+        className="mt-6 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-500/30"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9 }}
       >
-        <span className="text-violet-400 font-medium">
+        <span className="text-amber-400 font-medium">
           🎉 You crushed it!
         </span>
       </motion.div>

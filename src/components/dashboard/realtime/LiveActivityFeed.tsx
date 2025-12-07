@@ -29,7 +29,7 @@ export function LiveActivityFeed() {
           type: 'goal' as const,
           messages: ['Vacation goal 75% complete', 'New car goal created', 'Emergency fund reached!'],
           icon: Target,
-          color: '#3b82f6'
+          color: '#d6c8a2'
         },
         {
           type: 'achievement' as const,
@@ -41,7 +41,7 @@ export function LiveActivityFeed() {
           type: 'milestone' as const,
           messages: ['$5000 milestone reached', 'Total balance doubled', '100 transactions completed'],
           icon: TrendingUp,
-          color: '#8b5cf6'
+          color: '#f59e0b'
         }
       ];
 

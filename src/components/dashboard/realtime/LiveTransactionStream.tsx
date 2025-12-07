@@ -159,7 +159,7 @@ function TransactionItem({
             {transaction.merchant}
           </span>
           {showLatency && transaction.latencyMs && (
-            <span className="px-1.5 py-0.5 rounded text-[9px] bg-cyan-500/20 text-cyan-400 font-mono">
+            <span className="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/20 text-amber-400 font-mono">
               {transaction.latencyMs}ms
             </span>
           )}
