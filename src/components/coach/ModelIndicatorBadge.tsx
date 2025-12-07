@@ -25,19 +25,19 @@ const MODEL_CONFIG = {
   'claude-sonnet': {
     icon: Brain,
     label: 'Claude Sonnet 4.5',
-    color: 'from-violet-500 to-purple-600',
+    color: 'from-amber-500 to-yellow-600',
     description: 'Advanced reasoning'
   },
   'gemini-flash': {
     icon: Zap,
     label: 'Gemini 2.5 Flash',
-    color: 'from-cyan-500 to-blue-600',
+    color: 'from-emerald-500 to-teal-600',
     description: 'Fast & efficient'
   },
   'gemini-2.5-flash': {
     icon: Zap,
     label: 'Gemini 2.5 Flash',
-    color: 'from-cyan-500 to-blue-600',
+    color: 'from-emerald-500 to-teal-600',
     description: 'Fast & efficient'
   },
   'perplexity': {

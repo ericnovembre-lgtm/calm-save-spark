@@ -87,7 +87,7 @@ export function GenerativeChatMessage({ role, content }: GenerativeChatMessagePr
       border: "border-white/10",
       glow: "",
       icon: null,
-      bg: "bg-slate-900/50"
+      bg: "bg-stone-900/50"
     }
   };
 
@@ -96,7 +96,7 @@ export function GenerativeChatMessage({ role, content }: GenerativeChatMessagePr
   return (
     <div className={`flex items-start gap-3 ${isUser ? "flex-row-reverse" : ""}`}>
       <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-        isUser ? "bg-white/10" : "bg-gradient-to-br from-cyan-500 to-violet-500"
+        isUser ? "bg-white/10" : "bg-gradient-to-br from-amber-500 to-yellow-600"
       }`}>
         {isUser ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
       </div>
@@ -122,9 +122,9 @@ export function GenerativeChatMessage({ role, content }: GenerativeChatMessagePr
 
             {/* Insight summary if present */}
             {parsedResponse.insight && (
-              <div className="bg-slate-900/50 rounded-lg p-3 border border-cyan-500/20">
+              <div className="bg-stone-900/50 rounded-lg p-3 border border-amber-500/20">
                 <div className="flex items-start gap-2">
-                  <TrendingUp className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <TrendingUp className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                   <p className="text-sm font-medium text-white">{parsedResponse.insight}</p>
                 </div>
               </div>
@@ -144,14 +144,14 @@ export function GenerativeChatMessage({ role, content }: GenerativeChatMessagePr
             {/* Recommended actions if present */}
             {parsedResponse.recommendedActions && parsedResponse.recommendedActions.length > 0 && (
               <div className="space-y-2">
-                <h4 className="text-xs font-mono text-cyan-400 uppercase tracking-wider">
+                <h4 className="text-xs font-mono text-amber-400 uppercase tracking-wider">
                   Recommended Actions
                 </h4>
                 <div className="grid gap-2">
                   {parsedResponse.recommendedActions.map((action, idx) => (
                     <div
                       key={idx}
-                      className="bg-slate-900/50 rounded-lg p-3 border border-white/10 hover:border-cyan-500/30 transition-colors cursor-pointer"
+                      className="bg-stone-900/50 rounded-lg p-3 border border-white/10 hover:border-amber-500/30 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-white">{action.title}</span>
@@ -175,7 +175,7 @@ export function GenerativeChatMessage({ role, content }: GenerativeChatMessagePr
                     className={cn(
                       "rounded-lg p-4 max-w-[85%]",
                       isUser
-                        ? "bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-cyan-500/30 ml-auto"
+                        ? "bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border border-amber-500/30 ml-auto"
                         : cn(
                             "border",
                             currentToneStyle.border,
@@ -201,7 +201,7 @@ export function GenerativeChatMessage({ role, content }: GenerativeChatMessagePr
                 return (
                   <div
                     key={index}
-                    className="w-full bg-slate-900/50 border border-cyan-500/20 rounded-lg p-4"
+                    className="w-full bg-stone-900/50 border border-amber-500/20 rounded-lg p-4"
                   >
                     <MiniChart chartData={part.data} />
                   </div>
@@ -220,11 +220,11 @@ export function GenerativeChatMessage({ role, content }: GenerativeChatMessagePr
 function MiniChart({ chartData }: { chartData: any }) {
   const { chart, data, title } = chartData;
 
-  const COLORS = ["#06b6d4", "#8b5cf6", "#10b981", "#f59e0b", "#f43f5e"];
+  const COLORS = ["#d6c8a2", "#f59e0b", "#10b981", "#eab308", "#f43f5e"];
 
   return (
     <div className="space-y-2">
-      {title && <h4 className="text-xs font-mono text-cyan-400">{title}</h4>}
+      {title && <h4 className="text-xs font-mono text-amber-400">{title}</h4>}
       <ResponsiveContainer width="100%" height={180}>
         {chart === "line" ? (
           <LineChart data={data}>
@@ -233,12 +233,12 @@ function MiniChart({ chartData }: { chartData: any }) {
             <YAxis stroke="rgba(255,255,255,0.4)" style={{ fontSize: 10 }} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(15, 23, 42, 0.9)",
-                border: "1px solid rgba(6, 182, 212, 0.3)",
+                backgroundColor: "rgba(28, 25, 23, 0.9)",
+                border: "1px solid rgba(214, 200, 162, 0.3)",
                 borderRadius: "8px",
               }}
             />
-            <Line type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2} dot={{ fill: "#06b6d4" }} />
+            <Line type="monotone" dataKey="value" stroke="#d6c8a2" strokeWidth={2} dot={{ fill: "#d6c8a2" }} />
           </LineChart>
         ) : chart === "bar" ? (
           <BarChart data={data}>
@@ -247,12 +247,12 @@ function MiniChart({ chartData }: { chartData: any }) {
             <YAxis stroke="rgba(255,255,255,0.4)" style={{ fontSize: 10 }} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(15, 23, 42, 0.9)",
-                border: "1px solid rgba(6, 182, 212, 0.3)",
+                backgroundColor: "rgba(28, 25, 23, 0.9)",
+                border: "1px solid rgba(214, 200, 162, 0.3)",
                 borderRadius: "8px",
               }}
             />
-            <Bar dataKey="value" fill="#8b5cf6" />
+            <Bar dataKey="value" fill="#f59e0b" />
           </BarChart>
         ) : chart === "pie" ? (
           <PieChart>
@@ -272,8 +272,8 @@ function MiniChart({ chartData }: { chartData: any }) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(15, 23, 42, 0.9)",
-                border: "1px solid rgba(6, 182, 212, 0.3)",
+                backgroundColor: "rgba(28, 25, 23, 0.9)",
+                border: "1px solid rgba(214, 200, 162, 0.3)",
                 borderRadius: "8px",
               }}
             />
