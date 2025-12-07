@@ -245,9 +245,9 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                 </div>
                 <div className="flex items-center gap-2">
                   {isParsing && (
-                    <div className="flex items-center gap-1.5 px-2 py-1 bg-violet-500/20 rounded-full">
-                      <Wand2 className="w-3 h-3 text-violet-400 animate-pulse" />
-                      <span className="text-[10px] text-violet-300">Creating...</span>
+                    <div className="flex items-center gap-1.5 px-2 py-1 bg-orange-500/20 rounded-full">
+                      <Wand2 className="w-3 h-3 text-orange-400 animate-pulse" />
+                      <span className="text-[10px] text-orange-300">Creating...</span>
                     </div>
                   )}
                   {currentModel && !isParsing && (
