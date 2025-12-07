@@ -49,11 +49,11 @@ export function LiveTickerTape({ holdings }: { holdings: any[] }) {
   const duplicatedData = [...tickerData, ...tickerData];
 
   return (
-    <div className="bg-slate-900/50 backdrop-blur-sm rounded-lg overflow-hidden border border-slate-800 relative">
+    <div className="bg-card/80 backdrop-blur-sm rounded-lg overflow-hidden border border-border relative">
       {/* Connection Status Badge */}
       <div className="absolute top-2 right-2 z-10">
         <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${
-          isConnected ? 'bg-green-500/20 border-green-500/30' : 'bg-slate-800/80 border-slate-700'
+          isConnected ? 'bg-green-500/20 border-green-500/30' : 'bg-secondary/80 border-border'
         } border`}>
           {isConnected ? (
             <>
@@ -66,14 +66,14 @@ export function LiveTickerTape({ holdings }: { holdings: any[] }) {
             </>
           ) : (
             <>
-              <WifiOff className="w-3 h-3 text-slate-400" />
-              <span className="text-xs font-mono text-slate-400">{isDemoMode ? 'DEMO' : 'OFFLINE'}</span>
+              <WifiOff className="w-3 h-3 text-muted-foreground" />
+              <span className="text-xs font-mono text-muted-foreground">{isDemoMode ? 'DEMO' : 'OFFLINE'}</span>
             </>
           )}
         </div>
       </div>
 
-      <div className="relative h-16 overflow-hidden bg-gradient-to-r from-slate-900/50 via-slate-800/50 to-slate-900/50">
+      <div className="relative h-16 overflow-hidden bg-gradient-to-r from-card/50 via-secondary/50 to-card/50">
         <motion.div
           className="flex gap-8 absolute whitespace-nowrap"
           animate={{
@@ -100,8 +100,8 @@ export function LiveTickerTape({ holdings }: { holdings: any[] }) {
                 }`}></span>
               </span>
               
-              <span className="font-bold font-mono text-slate-100">{item.symbol}</span>
-              <span className="font-mono tabular-nums text-slate-200">${item.price.toFixed(2)}</span>
+              <span className="font-bold font-mono text-foreground">{item.symbol}</span>
+              <span className="font-mono tabular-nums text-foreground/90">${item.price.toFixed(2)}</span>
               <span className={`flex items-center gap-1 font-mono tabular-nums ${
                 item.changePercent >= 0 ? 'text-green-400' : 'text-red-400'
               }`}>

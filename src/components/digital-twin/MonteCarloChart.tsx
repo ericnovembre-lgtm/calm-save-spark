@@ -17,17 +17,17 @@ export function MonteCarloChart({ timeline }: MonteCarloChartProps) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="relative rounded-xl bg-slate-950/90 backdrop-blur-xl border border-white/10 p-6 shadow-[0_0_40px_hsl(var(--accent)/0.15)]"
+      className="relative rounded-xl bg-stone-900/90 backdrop-blur-xl border border-stone-700/50 p-6 shadow-[0_0_40px_hsl(var(--accent)/0.15)]"
     >
       {/* Subtle glow overlay */}
       <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-accent/5 to-transparent pointer-events-none" />
       
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-mono uppercase tracking-wider text-white/60">Projection Cone</h3>
+          <h3 className="text-sm font-mono uppercase tracking-wider text-stone-400">Projection Cone</h3>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-xs font-mono text-white/40">Monte Carlo</span>
+            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="text-xs font-mono text-stone-500">Monte Carlo</span>
           </div>
         </div>
         
@@ -35,8 +35,8 @@ export function MonteCarloChart({ timeline }: MonteCarloChartProps) {
           <AreaChart data={timeline}>
             <defs>
               <linearGradient id="optimisticGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(180, 100%, 50%)" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="hsl(180, 100%, 50%)" stopOpacity={0.05} />
+                <stop offset="0%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.05} />
               </linearGradient>
               <linearGradient id="pessimisticGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="hsl(0, 70%, 50%)" stopOpacity={0.3} />
@@ -77,8 +77,8 @@ export function MonteCarloChart({ timeline }: MonteCarloChartProps) {
               }}
               labelFormatter={(label) => `Year ${label}`}
               contentStyle={{
-                backgroundColor: 'hsl(222, 47%, 8%)',
-                border: '1px solid hsl(0, 0%, 100%, 0.1)',
+                backgroundColor: 'hsl(28, 15%, 10%)',
+                border: '1px solid hsl(28, 15%, 25%)',
                 borderRadius: '8px',
                 fontFamily: 'monospace',
                 fontSize: '12px',
@@ -91,7 +91,7 @@ export function MonteCarloChart({ timeline }: MonteCarloChartProps) {
             <Area
               type="monotone"
               dataKey="p90"
-              stroke="hsl(180, 100%, 50%)"
+              stroke="hsl(142, 76%, 36%)"
               strokeWidth={1.5}
               fill="url(#optimisticGradient)"
               name="p90"
@@ -119,16 +119,16 @@ export function MonteCarloChart({ timeline }: MonteCarloChartProps) {
         {/* Legend */}
         <div className="mt-4 flex items-center justify-center gap-8 text-xs font-mono">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-gradient-to-r from-cyan-400 to-cyan-300 rounded-full shadow-[0_0_8px_hsl(180,100%,50%,0.5)]" />
-            <span className="text-white/50">Optimistic</span>
+            <div className="w-3 h-0.5 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full shadow-[0_0_8px_hsl(142,76%,36%,0.5)]" />
+            <span className="text-stone-400">Optimistic</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-gradient-to-r from-accent to-yellow-400 rounded-full shadow-[0_0_8px_hsl(var(--accent)/0.5)]" />
-            <span className="text-white/50">Expected</span>
+            <div className="w-3 h-0.5 bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full shadow-[0_0_8px_hsl(var(--accent)/0.5)]" />
+            <span className="text-stone-400">Expected</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-0.5 bg-gradient-to-r from-red-500 to-red-400 rounded-full shadow-[0_0_8px_hsl(0,70%,50%,0.5)]" />
-            <span className="text-white/50">Pessimistic</span>
+            <span className="text-stone-400">Pessimistic</span>
           </div>
         </div>
       </div>

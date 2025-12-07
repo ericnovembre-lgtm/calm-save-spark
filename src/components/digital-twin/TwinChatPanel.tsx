@@ -216,7 +216,7 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
             <Button
               size="lg"
               onClick={() => setIsOpen(true)}
-              className="rounded-full w-16 h-16 shadow-2xl bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 border-0"
+              className="rounded-full w-16 h-16 shadow-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 border-0"
             >
               <MessageSquare className="w-6 h-6" />
             </Button>
@@ -236,11 +236,11 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
               className
             )}
           >
-            <Card className="h-full flex flex-col backdrop-blur-xl bg-slate-950/95 border-white/10 shadow-2xl">
+            <Card className="h-full flex flex-col backdrop-blur-xl bg-stone-900/95 border-stone-700/50 shadow-2xl">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center justify-between p-4 border-b border-stone-700/50">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-cyan-500" />
+                  <Sparkles className="w-5 h-5 text-amber-500" />
                   <h3 className="font-semibold text-white">Digital Twin Advisor</h3>
                 </div>
                 <div className="flex items-center gap-2">
@@ -273,7 +273,7 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 && (
                   <div className="text-center text-white/40 text-sm mt-8">
-                    <Brain className="w-12 h-12 mx-auto mb-3 text-cyan-500/40" />
+                    <Brain className="w-12 h-12 mx-auto mb-3 text-amber-500/40" />
                     <p className="mb-2">Ask me anything about your financial future</p>
                     <p className="text-xs text-white/30 mb-4">
                       Tip: Describe "what if" scenarios and I'll visualize them on your timeline!
@@ -286,9 +286,9 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                             setInput(prompt);
                             setTimeout(() => handleSend(), 100);
                           }}
-                          className="block w-full text-left px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/60 hover:text-white"
+                          className="block w-full text-left px-3 py-2 rounded-lg bg-stone-800/50 hover:bg-stone-800 transition-colors text-xs text-stone-400 hover:text-stone-100"
                         >
-                          <Wand2 className="w-3 h-3 inline mr-2 text-violet-400" />
+                          <Wand2 className="w-3 h-3 inline mr-2 text-amber-400" />
                           {prompt}
                         </button>
                       ))}
@@ -310,8 +310,8 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                       className={cn(
                         "max-w-[80%] rounded-lg px-4 py-2 text-sm",
                         msg.role === 'user'
-                          ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border border-cyan-500/30 text-white'
-                          : 'bg-white/5 border border-white/10 text-white/90'
+                          ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-stone-100'
+                          : 'bg-stone-800/50 border border-stone-700/50 text-stone-200'
                       )}
                     >
                       <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -331,7 +331,7 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                     className="flex gap-3 justify-start"
                   >
                     <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-2">
-                      <Loader2 className="w-4 h-4 animate-spin text-cyan-500" />
+                      <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
                     </div>
                   </motion.div>
                 )}
@@ -346,7 +346,7 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="px-4 py-3 border-t border-white/10 bg-gradient-to-r from-cyan-500/10 to-violet-500/10"
+                    className="px-4 py-3 border-t border-stone-700/50 bg-gradient-to-r from-amber-500/10 to-orange-500/10"
                   >
                     <div className="flex items-center justify-center gap-3">
                       {isRecording && (
@@ -358,7 +358,7 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                       )}
                       {isTranscribing && (
                         <>
-                          <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
+                          <Loader2 className="w-4 h-4 text-amber-400 animate-spin" />
                           <span className="text-sm text-white/80 font-mono">Transcribing...</span>
                         </>
                       )}
@@ -368,7 +368,7 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
               </AnimatePresence>
 
               {/* Input */}
-              <div className="p-4 border-t border-white/10">
+              <div className="p-4 border-t border-stone-700/50">
                 <div className="flex gap-2">
                   <Input
                     value={input}
@@ -376,7 +376,7 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                     onKeyPress={handleKeyPress}
                     placeholder={isRecording ? "Listening..." : "Describe a 'what if' scenario..."}
                     disabled={isStreaming || isParsing || isRecording || isTranscribing}
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                    className="bg-stone-800/50 border-stone-700/50 text-stone-100 placeholder:text-stone-500"
                   />
                   <Button
                     onClick={handleVoiceToggle}
@@ -384,10 +384,10 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                     size="icon"
                     variant="outline"
                     className={cn(
-                      "border-white/10 transition-all",
+                      "border-stone-700/50 transition-all",
                       isRecording 
                         ? "bg-red-500/20 border-red-500/50 text-red-400 hover:bg-red-500/30" 
-                        : "bg-white/5 hover:bg-white/10 text-white/60 hover:text-white"
+                        : "bg-stone-800/50 hover:bg-stone-800 text-stone-400 hover:text-stone-100"
                     )}
                   >
                     {isRecording ? (
@@ -400,7 +400,7 @@ export function TwinChatPanel({ className, currentAge = 30, onScenarioCreated }:
                     onClick={handleSend}
                     disabled={isStreaming || isParsing || isRecording || isTranscribing || !input.trim()}
                     size="icon"
-                    className="bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400"
+                    className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400"
                   >
                     <Send className="w-4 h-4" />
                   </Button>
