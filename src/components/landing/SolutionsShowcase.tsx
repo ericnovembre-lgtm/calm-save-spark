@@ -23,7 +23,7 @@ const solutions = [
       "Financial literacy courses"
     ],
     metric: "Save $200+/month",
-    color: "from-blue-500/10 to-cyan-500/10"
+    color: "from-amber-500/10 to-yellow-500/10"
   },
   {
     id: "families",
@@ -51,7 +51,7 @@ const solutions = [
       "Expense categorization"
     ],
     metric: "30% better cash flow",
-    color: "from-purple-500/10 to-pink-500/10"
+    color: "from-yellow-500/10 to-orange-500/10"
   },
   {
     id: "businesses",
@@ -79,7 +79,7 @@ const solutions = [
       "Family office tools"
     ],
     metric: "$100K+ optimized",
-    color: "from-indigo-500/10 to-violet-500/10"
+    color: "from-amber-500/10 to-orange-500/10"
   }
 ];
 

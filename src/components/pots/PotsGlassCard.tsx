@@ -159,7 +159,7 @@ export const PotsGlassCard = ({
                   variant="ghost"
                   size="icon"
                   onClick={() => onGetCoach(pot)}
-                  className="h-8 w-8 hover:bg-background/20 text-purple-400 hover:text-purple-300"
+                  className="h-8 w-8 hover:bg-background/20 text-yellow-400 hover:text-yellow-300"
                   aria-label="Get AI Coaching"
                 >
                   <Sparkles className="w-4 h-4" />

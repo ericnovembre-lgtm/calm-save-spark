@@ -31,7 +31,7 @@ export const SentimentAlertButton = ({
             onClick={() => setIsConfigOpen(true)}
             className={`${size === 'sm' ? 'h-7 w-7 p-0' : 'h-8 px-2'} ${
               hasActiveAlert 
-                ? 'text-cyan-400 hover:text-cyan-300' 
+                ? 'text-amber-400 hover:text-amber-300' 
                 : 'text-white/40 hover:text-white/60'
             }`}
           >

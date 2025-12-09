@@ -33,9 +33,9 @@ export function WithdrawalStrategyPanel({ strategy, isLoading }: WithdrawalStrat
   }
 
   const accountColors: Record<string, string> = {
-    traditional: 'bg-blue-500',
+    traditional: 'bg-amber-500',
     taxable: 'bg-green-500',
-    roth: 'bg-violet-500',
+    roth: 'bg-yellow-500',
   };
 
   const accountLabels: Record<string, string> = {
@@ -120,9 +120,9 @@ export function WithdrawalStrategyPanel({ strategy, isLoading }: WithdrawalStrat
 
       {/* Roth Conversion Opportunity */}
       {strategy.rothConversionOpportunity && strategy.rothConversionOpportunity.recommendedAmount > 0 && (
-        <Card className="p-4 bg-gradient-to-br from-violet-500/5 to-purple-500/5 border-violet-500/20 mb-6">
+        <Card className="p-4 bg-gradient-to-br from-yellow-500/5 to-amber-500/5 border-yellow-500/20 mb-6">
           <div className="flex items-start gap-3">
-            <RefreshCw className="w-5 h-5 text-violet-500 flex-shrink-0 mt-0.5" />
+            <RefreshCw className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="font-medium">Roth Conversion Opportunity</p>
               <p className="text-sm text-muted-foreground mt-1">

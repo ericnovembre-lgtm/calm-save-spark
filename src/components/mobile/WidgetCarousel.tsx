@@ -19,10 +19,10 @@ interface WidgetConfig {
 const defaultWidgets: WidgetConfig[] = [
   { id: 'balance', title: 'Balance', icon: Wallet, color: 'from-emerald-500 to-teal-500', value: '$12,450', subtitle: 'Available' },
   { id: 'spending', title: 'Spending', icon: Receipt, color: 'from-rose-500 to-pink-500', value: '$2,340', subtitle: 'This month' },
-  { id: 'savings', title: 'Savings', icon: PiggyBank, color: 'from-violet-500 to-purple-500', value: '$5,200', subtitle: '3 goals active' },
-  { id: 'investments', title: 'Investments', icon: TrendingUp, color: 'from-cyan-500 to-blue-500', value: '+12.4%', subtitle: 'Portfolio gain' },
+  { id: 'savings', title: 'Savings', icon: PiggyBank, color: 'from-yellow-500 to-orange-500', value: '$5,200', subtitle: '3 goals active' },
+  { id: 'investments', title: 'Investments', icon: TrendingUp, color: 'from-amber-500 to-yellow-500', value: '+12.4%', subtitle: 'Portfolio gain' },
   { id: 'goals', title: 'Goals', icon: Target, color: 'from-amber-500 to-orange-500', value: '68%', subtitle: 'Overall progress' },
-  { id: 'credit', title: 'Credit', icon: CreditCard, color: 'from-slate-500 to-zinc-500', value: '742', subtitle: 'Credit score' }
+  { id: 'credit', title: 'Credit', icon: CreditCard, color: 'from-stone-500 to-stone-600', value: '742', subtitle: 'Credit score' }
 ];
 
 export function WidgetCarousel({ widgetOrder }: WidgetCarouselProps) {

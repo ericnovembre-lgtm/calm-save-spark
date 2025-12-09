@@ -141,7 +141,7 @@ export function UpdatePrompt({
           className
         )}
       >
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary/90 to-violet-600/90 backdrop-blur-xl shadow-lg border border-white/10">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary/90 to-amber-600/90 backdrop-blur-xl shadow-lg border border-white/10">
           {/* Animated background */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent)]" />
           

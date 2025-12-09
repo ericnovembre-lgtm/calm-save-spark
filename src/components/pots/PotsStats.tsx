@@ -47,7 +47,7 @@ export const PotsStats = ({ pots }: PotsStatsProps) => {
       icon: TrendingUp,
       label: "Avg Progress",
       value: `${avgProgress.toFixed(1)}%`,
-      color: "text-cyan-500"
+      color: "text-amber-400"
     },
     {
       icon: DollarSign,
