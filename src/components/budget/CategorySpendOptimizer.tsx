@@ -52,15 +52,15 @@ export function CategorySpendOptimizer({ budgets, spending, monthlyIncome }: Cat
 
   if (!result && !isOptimizing) {
     return (
-      <Card className="p-6 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 border-cyan-500/20">
+      <Card className="p-6 bg-gradient-to-br from-amber-500/5 to-yellow-500/5 border-amber-500/20">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center">
             <Target className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               AI Category Optimization
-              <Badge variant="outline" className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20">
+              <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
                 Deepseek Reasoner
               </Badge>
             </h3>
@@ -92,7 +92,7 @@ export function CategorySpendOptimizer({ budgets, spending, monthlyIncome }: Cat
     return (
       <Card className="p-8 text-center">
         <motion.div
-          className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center"
+          className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center"
           animate={{ scale: [1, 1.1, 1], opacity: [1, 0.8, 1] }}
           transition={{ repeat: Infinity, duration: 2 }}
         >
@@ -252,12 +252,12 @@ export function CategorySpendOptimizer({ budgets, spending, monthlyIncome }: Cat
       {longTermChanges.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Target className="w-5 h-5 text-violet-500" />
+            <Target className="w-5 h-5 text-yellow-500" />
             <h3 className="font-semibold">Long-Term Opportunities</h3>
           </div>
           <div className="space-y-3">
             {longTermChanges.map((change, index) => (
-              <Card key={index} className="p-4 bg-violet-500/5 border-violet-500/20">
+              <Card key={index} className="p-4 bg-yellow-500/5 border-yellow-500/20">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">{change.action}</p>

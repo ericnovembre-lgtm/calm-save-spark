@@ -46,7 +46,7 @@ export function AdvancedAnalyticsDashboard({ data }: AdvancedAnalyticsDashboardP
       change: 1.8,
       trend: [6, 6.5, 7, 7.5, 8, 8.5, 8.2],
       icon: TrendingUp,
-      color: 'text-blue-600',
+      color: 'text-amber-600',
       format: 'percentage' as const
     },
     {
@@ -55,7 +55,7 @@ export function AdvancedAnalyticsDashboard({ data }: AdvancedAnalyticsDashboardP
       change: -5,
       trend: [80, 78, 75, 77, 75, 76, 75],
       icon: Target,
-      color: 'text-purple-600',
+      color: 'text-yellow-600',
       format: 'percentage' as const
     },
     {
