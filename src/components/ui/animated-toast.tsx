@@ -25,8 +25,8 @@ const variantConfig = {
   },
   info: {
     icon: Info,
-    className: 'border-blue-500/20 bg-blue-50 dark:bg-blue-950/20',
-    iconColor: 'text-blue-600 dark:text-blue-400',
+    className: 'border-amber-500/20 bg-amber-50 dark:bg-amber-950/20',
+    iconColor: 'text-amber-600 dark:text-amber-400',
   },
   warning: {
     icon: AlertTriangle,

@@ -23,15 +23,15 @@ Progress.displayName = ProgressPrimitive.Root.displayName;
 // Gradient variants for enhanced progress bars
 const gradientVariants = {
   emerald: 'bg-gradient-to-r from-emerald-500 to-emerald-400',
-  blue: 'bg-gradient-to-r from-blue-500 to-cyan-400',
-  violet: 'bg-gradient-to-r from-violet-500 to-purple-400',
+  blue: 'bg-gradient-to-r from-amber-500 to-yellow-400',
+  violet: 'bg-gradient-to-r from-yellow-500 to-orange-400',
   default: 'bg-gradient-to-r from-primary to-primary/80',
 } as const;
 
 const glowVariants = {
   emerald: '0 0 12px rgba(16,185,129,0.4)',
-  blue: '0 0 12px rgba(59,130,246,0.4)',
-  violet: '0 0 12px rgba(139,92,246,0.4)',
+  blue: '0 0 12px rgba(245,158,11,0.4)',
+  violet: '0 0 12px rgba(234,179,8,0.4)',
   default: '0 0 12px hsl(var(--primary)/0.3)',
 } as const;
 

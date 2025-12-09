@@ -31,7 +31,7 @@ export function SwipeableCard({
   children,
   onSwipeLeft,
   onSwipeRight,
-  leftAction = { icon: <Archive className="w-5 h-5" />, label: 'Archive', color: 'bg-blue-500' },
+  leftAction = { icon: <Archive className="w-5 h-5" />, label: 'Archive', color: 'bg-amber-500' },
   rightAction = { icon: <Trash2 className="w-5 h-5" />, label: 'Delete', color: 'bg-red-500' },
   className = '',
   disabled = false,
