@@ -72,15 +72,22 @@ export function AccountInsights({ accountId, transactions }: AccountInsightsProp
       });
     }
 
-    // Pending transactions
-    const pendingCount = transactions.filter(tx => tx.pending).length;
-    if (pendingCount > 0) {
-      result.push({
-        type: 'info',
-        title: `${pendingCount} Pending Transaction${pendingCount > 1 ? 's' : ''}`,
-        description: 'Some transactions are still processing and may affect your final balance.',
-        icon: Sparkles,
-      });
+    // Recent activity insight
+    if (transactions.length > 0) {
+      const recentCount = transactions.filter(tx => {
+        const txDate = new Date(tx.transaction_date);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return txDate >= weekAgo;
+      }).length;
+      if (recentCount > 5) {
+        result.push({
+          type: 'info',
+          title: `${recentCount} Transactions This Week`,
+          description: 'You have been active with your spending this week.',
+          icon: Sparkles,
+        });
+      }
     }
 
     return result.slice(0, 3); // Limit to 3 insights

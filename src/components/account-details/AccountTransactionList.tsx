@@ -69,15 +69,6 @@ export function AccountTransactionList({ transactions, isLoading }: AccountTrans
                       </Badge>
                     </>
                   )}
-                  {tx.pending && (
-                    <>
-                      <span>•</span>
-                      <span className="flex items-center gap-1 text-amber-500">
-                        <Clock className="w-3 h-3" />
-                        Pending
-                      </span>
-                    </>
-                  )}
                 </div>
               </div>
             </div>
