@@ -29,11 +29,11 @@ export function BatchProcessingMonitor() {
   const currentStatus = statusConfig[stats.status];
 
   return (
-    <Card className="border-cyan-500/20 bg-slate-950/50">
+    <Card className="border-amber-500/20 bg-stone-900/50">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Activity className="h-4 w-4 text-cyan-400" />
+            <Activity className="h-4 w-4 text-amber-400" />
             Batch Processing Monitor
           </CardTitle>
           <Badge variant="outline" className={cn("text-xs", currentStatus.color)}>
@@ -76,7 +76,7 @@ export function BatchProcessingMonitor() {
             </div>
             <div className={cn(
               "text-2xl font-bold font-mono",
-              stats.avgGroqLatency > 500 ? "text-amber-400" : "text-cyan-400"
+              stats.avgGroqLatency > 500 ? "text-amber-400" : "text-yellow-400"
             )}>
               {stats.avgGroqLatency}<span className="text-xs text-muted-foreground">ms</span>
             </div>
@@ -88,7 +88,7 @@ export function BatchProcessingMonitor() {
               <Zap className="h-3 w-3" />
               Efficiency
             </div>
-            <div className="text-2xl font-bold font-mono text-violet-400">
+            <div className="text-2xl font-bold font-mono text-yellow-400">
               {stats.efficiency}<span className="text-xs text-muted-foreground">tx/call</span>
             </div>
           </div>
