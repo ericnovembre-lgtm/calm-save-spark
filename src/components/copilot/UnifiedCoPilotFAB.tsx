@@ -13,9 +13,9 @@ const pulseColors: Record<PulseState, { ring: string; bg: string; dot: string }>
     dot: 'bg-primary',
   },
   help: {
-    ring: 'hsl(200 88% 40% / 0.4)',
-    bg: 'hsl(200 88% 40%)',
-    dot: 'bg-blue-500',
+    ring: 'hsl(38 92% 50% / 0.4)',
+    bg: 'hsl(38 92% 50%)',
+    dot: 'bg-amber-500',
   },
   anomaly: {
     ring: 'hsl(38 92% 50% / 0.4)',

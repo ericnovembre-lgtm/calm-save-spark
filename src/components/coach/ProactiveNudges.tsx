@@ -112,7 +112,7 @@ export function ProactiveNudges({ userId, onNudgeAction }: ProactiveNudgesProps)
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'border-orange-500 bg-orange-50 dark:bg-orange-900/20';
-      case 'medium': return 'border-blue-500 bg-blue-50 dark:bg-blue-900/20';
+      case 'medium': return 'border-amber-500 bg-amber-50 dark:bg-amber-900/20';
       default: return 'border-accent bg-accent/10';
     }
   };

@@ -55,7 +55,7 @@ const MODEL_CONFIG = {
   'deepseek-reasoner': {
     icon: Calculator,
     label: 'Deepseek Reasoner',
-    color: 'from-blue-600 to-indigo-700',
+    color: 'from-amber-600 to-yellow-700',
     description: 'Math expert'
   }
 };

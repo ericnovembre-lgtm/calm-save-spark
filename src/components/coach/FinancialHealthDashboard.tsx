@@ -67,8 +67,8 @@ export function FinancialHealthDashboard({ userId }: FinancialHealthDashboardPro
       label: 'Active Goals',
       value: healthData.totalGoals.toString(),
       detail: `${healthData.goalsProgress}% avg progress`,
-      color: 'text-blue-600 dark:text-blue-400',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/20'
+      color: 'text-amber-600 dark:text-amber-400',
+      bgColor: 'bg-amber-100 dark:bg-amber-900/20'
     },
     {
       icon: CreditCard,
