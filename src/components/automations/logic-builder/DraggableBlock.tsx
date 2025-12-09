@@ -43,13 +43,13 @@ export function DraggableBlock({
   const colorClasses = {
     trigger: 'border-green-400/70 bg-green-950/30 shadow-green-400/20',
     condition: 'border-yellow-400/70 bg-yellow-950/30 shadow-yellow-400/20',
-    action: 'border-blue-400/70 bg-blue-950/30 shadow-blue-400/20',
+    action: 'border-amber-400/70 bg-amber-950/30 shadow-amber-400/20',
   };
 
   const textColorClasses = {
     trigger: 'text-green-400',
     condition: 'text-yellow-400',
-    action: 'text-blue-400',
+    action: 'text-amber-400',
   };
 
   return (

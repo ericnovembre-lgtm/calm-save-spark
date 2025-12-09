@@ -66,7 +66,7 @@ export const AlertCenter = () => {
   };
 
   const severityColors = {
-    info: 'text-blue-500',
+    info: 'text-amber-500',
     warning: 'text-yellow-500',
     urgent: 'text-red-500',
   };
