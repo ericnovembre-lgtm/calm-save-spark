@@ -56,7 +56,7 @@ export function AIOptimizer() {
 
         <div className="bg-accent/50 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Gauge className="w-4 h-4 text-blue-500" />
+            <Gauge className="w-4 h-4 text-amber-500" />
             <span className="text-sm text-muted-foreground">Memory</span>
           </div>
           <motion.p
@@ -79,8 +79,8 @@ export function AIOptimizer() {
           </div>
         </div>
 
-        <div className="flex items-start gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
-          <CheckCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+          <CheckCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-medium text-foreground">Predictive Preloading</p>
             <p className="text-sm text-muted-foreground">Next actions preloaded for instant response</p>
