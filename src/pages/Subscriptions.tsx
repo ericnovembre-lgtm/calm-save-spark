@@ -135,6 +135,12 @@ export default function Subscriptions() {
             <p className="text-muted-foreground">Track recurring payments and zombie subscriptions</p>
           </div>
           <div className="flex items-center gap-3">
+            <Button asChild variant="outline">
+              <Link to="/recurring">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                View All Recurring
+              </Link>
+            </Button>
             <Button onClick={() => setIsSwipeMode(true)} variant="outline">
               <Layers className="w-4 h-4 mr-2" />
               Swipe Mode

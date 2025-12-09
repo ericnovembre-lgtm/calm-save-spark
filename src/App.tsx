@@ -85,6 +85,8 @@ const Sustainability = createPageLoader(() => import("./pages/Sustainability"), 
 const Social = createPageLoader(() => import("./pages/Social"), 'medium');
 const Integrations = createPageLoader(() => import("./pages/Integrations"), 'medium');
 const Accounts = createPageLoader(() => import("./pages/Accounts"), 'medium');
+const AccountDetails = createPageLoader(() => import("./pages/AccountDetails"), 'medium');
+const RecurringTransactions = createPageLoader(() => import("./pages/RecurringTransactions"), 'medium');
 const Leaderboard = createPageLoader(() => import("./pages/Leaderboard"), 'medium');
 const Gamification = createPageLoader(() => import("./pages/Gamification"), 'medium');
 const Wallet = createPageLoader(() => import("./pages/Wallet"), 'medium');
@@ -271,7 +273,9 @@ function AnimatedRoutes() {
 <Route path="/dashboard" element={<ProtectedRoute><PageTransition><Dashboard /></PageTransition></ProtectedRoute>} />
         <Route path="/dashboard-analytics" element={<ProtectedRoute><PageTransition><DashboardAnalytics /></PageTransition></ProtectedRoute>} />
         <Route path="/dashboard-v2" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/accounts" element={<ProtectedRoute><PageTransition><Accounts /></PageTransition></ProtectedRoute>} />
+<Route path="/accounts" element={<ProtectedRoute><PageTransition><Accounts /></PageTransition></ProtectedRoute>} />
+        <Route path="/accounts/:id" element={<ProtectedRoute><PageTransition><AccountDetails /></PageTransition></ProtectedRoute>} />
+        <Route path="/recurring" element={<ProtectedRoute><PageTransition><RecurringTransactions /></PageTransition></ProtectedRoute>} />
         <Route path="/search" element={<ProtectedRoute><PageTransition><Search /></PageTransition></ProtectedRoute>} />
         <Route path="/financial-health" element={<ProtectedRoute><PageTransition><FinancialHealth /></PageTransition></ProtectedRoute>} />
         <Route path="/transactions" element={<ProtectedRoute><PageTransition><Transactions /></PageTransition></ProtectedRoute>} />
