@@ -68,8 +68,8 @@ export default function DashboardAnalytics() {
               <Card className="bg-card/50 backdrop-blur-sm border-border/50">
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-cyan-500/10">
-                      <MousePointerClick className="h-5 w-5 text-cyan-500" />
+                    <div className="p-2 rounded-lg bg-amber-500/10">
+                      <MousePointerClick className="h-5 w-5 text-amber-500" />
                     </div>
                     <div>
                       {isLoading ? (
@@ -94,8 +94,8 @@ export default function DashboardAnalytics() {
               <Card className="bg-card/50 backdrop-blur-sm border-border/50">
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-violet-500/10">
-                      <Zap className="h-5 w-5 text-violet-500" />
+                    <div className="p-2 rounded-lg bg-yellow-500/10">
+                      <Zap className="h-5 w-5 text-yellow-500" />
                     </div>
                     <div>
                       {isLoading ? (
@@ -200,7 +200,7 @@ export default function DashboardAnalytics() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
           >
-            <Card className="bg-gradient-to-br from-primary/5 to-violet-500/5 border-primary/20">
+            <Card className="bg-gradient-to-br from-primary/5 to-yellow-500/5 border-primary/20">
               <CardHeader>
                 <CardTitle className="text-base font-medium flex items-center gap-2">
                   <Zap className="h-4 w-4 text-primary" />

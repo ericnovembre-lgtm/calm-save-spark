@@ -122,7 +122,7 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
   // Determine orb status color
   const getStatusColor = () => {
     if (!isConnected) return 'bg-muted';
-    if (isInQuietHours) return 'bg-indigo-500';
+    if (isInQuietHours) return 'bg-amber-500';
     if (isUserBusy) return 'bg-amber-500';
     return 'bg-emerald-500';
   };
@@ -321,7 +321,7 @@ export function AmbientAIAgent({ className }: AmbientAIAgentProps) {
           {/* Quiet hours indicator */}
           {isInQuietHours && !isMuted && (
             <div className="absolute -bottom-1 -right-1 p-0.5 rounded-full bg-background">
-              <Moon className="h-3 w-3 text-indigo-400" />
+              <Moon className="h-3 w-3 text-amber-400" />
             </div>
           )}
         </motion.button>

@@ -16,7 +16,7 @@ interface CreditWidgetProps {
 export function CreditWidget({ score, change, goal }: CreditWidgetProps) {
   const getScoreTier = (score: number) => {
     if (score >= 800) return { label: "Exceptional", color: "text-green-600" };
-    if (score >= 740) return { label: "Very Good", color: "text-blue-600" };
+    if (score >= 740) return { label: "Very Good", color: "text-amber-600" };
     if (score >= 670) return { label: "Good", color: "text-yellow-600" };
     if (score >= 580) return { label: "Fair", color: "text-orange-600" };
     return { label: "Poor", color: "text-red-600" };
