@@ -29,7 +29,7 @@ export function TrendingTopicsFeed({ topics, isLoading }: TrendingTopicsFeedProp
   return (
     <Card className="bg-stone-900/80 border-white/10 backdrop-blur-xl">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
+        <CardTitle className="text-sm font-medium text-stone-300 flex items-center gap-2">
           <Flame className="w-4 h-4 text-orange-400" />
           Trending Topics
         </CardTitle>
@@ -38,7 +38,7 @@ export function TrendingTopicsFeed({ topics, isLoading }: TrendingTopicsFeedProp
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map(i => (
-              <div key={i} className="h-10 bg-slate-800/50 rounded animate-pulse" />
+              <div key={i} className="h-10 bg-stone-800/50 rounded animate-pulse" />
             ))}
           </div>
         ) : topics.length > 0 ? (
@@ -51,18 +51,18 @@ export function TrendingTopicsFeed({ topics, isLoading }: TrendingTopicsFeedProp
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="flex items-start gap-3 p-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                  className="flex items-start gap-3 p-3 rounded-lg bg-stone-800/30 hover:bg-stone-800/50 transition-colors cursor-pointer group"
                 >
                   <Hash className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white group-hover:text-cyan-300 transition-colors truncate">
+                    <p className="text-sm text-white group-hover:text-amber-300 transition-colors truncate">
                       {topic}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 h-4 ${category.color}`}>
                         {category.label}
                       </Badge>
-                      <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                      <span className="text-[10px] text-stone-500 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {getRelativeTime(index)}
                       </span>
@@ -73,7 +73,7 @@ export function TrendingTopicsFeed({ topics, isLoading }: TrendingTopicsFeedProp
             })}
           </div>
         ) : (
-          <div className="text-center text-slate-500 text-sm py-8">
+          <div className="text-center text-stone-500 text-sm py-8">
             No trending topics available
           </div>
         )}

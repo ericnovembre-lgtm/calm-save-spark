@@ -27,18 +27,18 @@ export function SentimentHeroCard({ data, isLoading, onTickerChange, currentTick
     switch (label) {
       case 'very_bullish': return 'text-emerald-400';
       case 'bullish': return 'text-green-400';
-      case 'neutral': return 'text-slate-400';
+      case 'neutral': return 'text-stone-400';
       case 'bearish': return 'text-orange-400';
       case 'very_bearish': return 'text-red-400';
-      default: return 'text-slate-400';
+      default: return 'text-stone-400';
     }
   };
 
   const getVolumeIcon = (volume: string) => {
     switch (volume) {
       case 'viral': return <Zap className="w-5 h-5 text-yellow-400" />;
-      case 'high': return <Activity className="w-5 h-5 text-cyan-400" />;
-      default: return <Activity className="w-5 h-5 text-slate-500" />;
+      case 'high': return <Activity className="w-5 h-5 text-amber-400" />;
+      default: return <Activity className="w-5 h-5 text-stone-500" />;
     }
   };
 
@@ -46,7 +46,7 @@ export function SentimentHeroCard({ data, isLoading, onTickerChange, currentTick
   const gaugeRotation = ((score + 100) / 200) * 180 - 90;
 
   return (
-    <Card className="bg-slate-900/80 border-white/10 backdrop-blur-xl overflow-hidden">
+    <Card className="bg-stone-900/80 border-white/10 backdrop-blur-xl overflow-hidden">
       <CardContent className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <Input
@@ -54,22 +54,22 @@ export function SentimentHeroCard({ data, isLoading, onTickerChange, currentTick
             onChange={(e) => setInputValue(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             placeholder="Enter ticker..."
-            className="bg-slate-800/50 border-white/10 text-white font-mono text-lg w-32"
+            className="bg-stone-800/50 border-white/10 text-white font-mono text-lg w-32"
           />
-          <Button onClick={handleSearch} variant="outline" size="sm" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10">
+          <Button onClick={handleSearch} variant="outline" size="sm" className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10">
             Analyze
           </Button>
           {currentTicker && (
             <SentimentAlertButton ticker={currentTicker} />
           )}
-          <span className="ml-auto text-xs text-slate-500 flex items-center gap-1">
+          <span className="ml-auto text-xs text-stone-500 flex items-center gap-1">
             Powered by <span className="font-bold">𝕏</span>
           </span>
         </div>
 
         {isLoading ? (
           <div className="h-48 flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
           </div>
         ) : data ? (
           <div className="space-y-6">
@@ -134,18 +134,18 @@ export function SentimentHeroCard({ data, isLoading, onTickerChange, currentTick
             {/* Stats row */}
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
               <div className="text-center">
-                <div className="text-xs text-slate-500 uppercase tracking-wide">Confidence</div>
+                <div className="text-xs text-stone-500 uppercase tracking-wide">Confidence</div>
                 <div className="text-xl font-mono text-white">{Math.round(data.sentiment.confidence * 100)}%</div>
               </div>
               <div className="text-center">
-                <div className="text-xs text-slate-500 uppercase tracking-wide">Volume</div>
+                <div className="text-xs text-stone-500 uppercase tracking-wide">Volume</div>
                 <div className="flex items-center justify-center gap-1">
                   {getVolumeIcon(data.volume)}
                   <span className="text-sm font-medium text-white capitalize">{data.volume}</span>
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-xs text-slate-500 uppercase tracking-wide">Trend</div>
+                <div className="text-xs text-stone-500 uppercase tracking-wide">Trend</div>
                 <div className="flex items-center justify-center">
                   {score >= 0 ? (
                     <TrendingUp className="w-5 h-5 text-emerald-400" />
@@ -157,7 +157,7 @@ export function SentimentHeroCard({ data, isLoading, onTickerChange, currentTick
             </div>
           </div>
         ) : (
-          <div className="h-48 flex items-center justify-center text-slate-500">
+          <div className="h-48 flex items-center justify-center text-stone-500">
             Enter a ticker to analyze sentiment
           </div>
         )}
