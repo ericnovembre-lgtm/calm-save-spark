@@ -83,12 +83,12 @@ export function AnalyticsDigestPreview() {
   const categoryColors: Record<string, string> = {
     Groceries: "bg-emerald-500",
     Dining: "bg-orange-500",
-    Transportation: "bg-blue-500",
-    Entertainment: "bg-purple-500",
+    Transportation: "bg-amber-500",
+    Entertainment: "bg-yellow-500",
     Utilities: "bg-yellow-500",
     Shopping: "bg-pink-500",
     Healthcare: "bg-red-500",
-    Travel: "bg-cyan-500",
+    Travel: "bg-orange-400",
     Other: "bg-gray-500",
   };
 
@@ -193,7 +193,7 @@ export function AnalyticsDigestPreview() {
                     <span className="text-sm font-medium">$198.50</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-purple-500" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
                     <span className="flex-1 text-sm">Entertainment</span>
                     <span className="text-sm text-muted-foreground">15%</span>
                     <span className="text-sm font-medium">$125.00</span>
