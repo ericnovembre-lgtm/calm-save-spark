@@ -8,7 +8,7 @@ import { SubscriptionSwipeMode } from "@/components/subscriptions/SubscriptionSw
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RefreshCw, Calendar, DollarSign, Pause, Ghost, Layers } from "lucide-react";
+import { RefreshCw, Calendar, DollarSign, Pause, Ghost, Layers, CalendarDays } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -135,6 +135,12 @@ export default function Subscriptions() {
             <p className="text-muted-foreground">Track recurring payments and zombie subscriptions</p>
           </div>
           <div className="flex items-center gap-3">
+            <Button asChild variant="outline">
+              <Link to="/bill-calendar">
+                <CalendarDays className="w-4 h-4 mr-2" />
+                Bill Calendar
+              </Link>
+            </Button>
             <Button asChild variant="outline">
               <Link to="/recurring">
                 <RefreshCw className="w-4 h-4 mr-2" />

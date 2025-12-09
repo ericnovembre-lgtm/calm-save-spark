@@ -282,6 +282,8 @@ function AnimatedRoutes() {
         <Route path="/financial-health" element={<ProtectedRoute><PageTransition><FinancialHealth /></PageTransition></ProtectedRoute>} />
         <Route path="/transactions" element={<ProtectedRoute><PageTransition><Transactions /></PageTransition></ProtectedRoute>} />
         <Route path="/subscriptions" element={<ProtectedRoute><PageTransition><Subscriptions /></PageTransition></ProtectedRoute>} />
+        <Route path="/bill-calendar" element={<ProtectedRoute><PageTransition><BillCalendar /></PageTransition></ProtectedRoute>} />
+        <Route path="/spending-reports" element={<ProtectedRoute><PageTransition><SpendingReports /></PageTransition></ProtectedRoute>} />
         <Route path="/insights" element={<Navigate to="/analytics?tab=cashflow" replace />} />
         <Route path="/budget" element={<ProtectedRoute><PageTransition><Budget /></PageTransition></ProtectedRoute>} />
         <Route path="/debts" element={<ProtectedRoute><PageTransition><Debts /></PageTransition></ProtectedRoute>} />

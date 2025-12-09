@@ -2,7 +2,8 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { BarChart3, TrendingUp, PieChart, FileText, Sparkles, Loader2, DollarSign, Brain, Play } from "lucide-react";
+import { BarChart3, TrendingUp, PieChart, FileText, Sparkles, Loader2, DollarSign, Brain, Play, ReceiptText } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAnalyticsData, useAIInsights, type Timeframe } from "@/hooks/useAnalyticsData";
 import { useSeedSampleData } from "@/hooks/useSeedSampleData";
 import { TimeframePicker } from "@/components/analytics/TimeframePicker";
@@ -103,6 +104,12 @@ export default function Analytics() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <Button asChild variant="outline">
+              <Link to="/spending-reports">
+                <ReceiptText className="w-4 h-4 mr-2" />
+                Spending Reports
+              </Link>
+            </Button>
             <TimeframePicker value={timeframe} onChange={setTimeframe} />
             <ExportButton data={exportData} />
           </div>
