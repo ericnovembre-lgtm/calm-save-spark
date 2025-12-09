@@ -191,7 +191,7 @@ export function CardPaymentModal({
                   <motion.p 
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-sm text-blue-600 dark:text-blue-400 flex items-center gap-1.5"
+                    className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1.5"
                   >
                     <CheckCircle className="w-3.5 h-3.5" />
                     Payment scheduled for {new Date(scheduledDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
@@ -203,15 +203,15 @@ export function CardPaymentModal({
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-xl border border-blue-200 dark:border-blue-800"
+                  className="p-4 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 rounded-xl border border-amber-200 dark:border-amber-800"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                      <Calculator className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                      <Calculator className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div className="text-sm">
-                      <div className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Payoff Calculator</div>
-                      <div className="text-blue-700 dark:text-blue-300">
+                      <div className="font-semibold text-amber-900 dark:text-amber-100 mb-1">Payoff Calculator</div>
+                      <div className="text-amber-700 dark:text-amber-300">
                         {payoffMonths === Infinity ? (
                           '⚠️ Payment too small to pay off balance (covers interest only)'
                         ) : payoffMonths === 1 ? (

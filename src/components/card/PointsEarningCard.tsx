@@ -26,12 +26,12 @@ export function PointsEarningCard({ cardId }: PointsEarningCardProps) {
   }
 
   const pointsTypeLabels: Record<string, { label: string; icon: any; color: string }> = {
-    base: { label: 'Base', icon: Sparkles, color: 'text-blue-500' },
-    category_multiplier: { label: 'Category', icon: TrendingUp, color: 'text-purple-500' },
+    base: { label: 'Base', icon: Sparkles, color: 'text-amber-500' },
+    category_multiplier: { label: 'Category', icon: TrendingUp, color: 'text-yellow-500' },
     discipline_boost: { label: 'Discipline', icon: Award, color: 'text-emerald-500' },
-    streak_bonus: { label: 'Streak', icon: Zap, color: 'text-amber-500' },
+    streak_bonus: { label: 'Streak', icon: Zap, color: 'text-orange-500' },
     milestone: { label: 'Milestone', icon: Award, color: 'text-rose-500' },
-    rule_reward: { label: 'Rule', icon: Sparkles, color: 'text-cyan-500' },
+    rule_reward: { label: 'Rule', icon: Sparkles, color: 'text-amber-400' },
   };
 
   return (

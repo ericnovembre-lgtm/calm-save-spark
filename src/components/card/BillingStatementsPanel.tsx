@@ -130,9 +130,9 @@ export function BillingStatementsPanel({ accountId }: BillingStatementsPanelProp
                           ${(statement.minimum_payment_cents / 100).toFixed(2)}
                         </div>
                       </div>
-                      <div className="p-3 rounded-lg bg-blue-500/10">
+                      <div className="p-3 rounded-lg bg-amber-500/10">
                         <div className="text-xs text-muted-foreground mb-1">Purchases</div>
-                        <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                        <div className="text-lg font-bold text-amber-600 dark:text-amber-400">
                           ${(statement.purchases_cents / 100).toFixed(2)}
                         </div>
                       </div>

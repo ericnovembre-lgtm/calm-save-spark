@@ -36,7 +36,7 @@ export function AccountSummary({ account, onMakePayment }: AccountSummaryProps) 
     if (!daysUntilDue) return null;
     if (daysUntilDue < 0) return { color: 'text-red-600', label: 'Overdue', variant: 'destructive' as const };
     if (daysUntilDue <= 3) return { color: 'text-orange-600', label: 'Due Soon', variant: 'secondary' as const };
-    return { color: 'text-blue-600', label: 'On Track', variant: 'default' as const };
+    return { color: 'text-amber-600', label: 'On Track', variant: 'default' as const };
   };
 
   const dueDateStatus = getDueDateStatus();
