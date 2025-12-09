@@ -88,8 +88,8 @@ export const LiquidityHero = () => {
 
       // Create gradient for liquid
       const gradient = ctx.createLinearGradient(0, 0, 0, height / 2);
-      gradient.addColorStop(0, 'hsl(186 80% 65% / 0.6)'); // Cyan-400
-      gradient.addColorStop(1, 'hsl(186 80% 75% / 0.4)'); // Cyan-300
+      gradient.addColorStop(0, 'hsl(38 92% 60% / 0.6)'); // Amber-400
+      gradient.addColorStop(1, 'hsl(38 92% 70% / 0.4)'); // Amber-300
 
       // Draw wave
       ctx.fillStyle = gradient;
@@ -328,7 +328,7 @@ export const LiquidityHero = () => {
                               "p-2 rounded-lg text-sm",
                               r.severity === 'high' && "bg-rose-500/10 border border-rose-500/20",
                               r.severity === 'medium' && "bg-amber-500/10 border border-amber-500/20",
-                              r.severity === 'low' && "bg-blue-500/10 border border-blue-500/20"
+                              r.severity === 'low' && "bg-amber-500/10 border border-amber-500/20"
                             )}
                           >
                             <div className="flex items-center gap-2">
@@ -349,10 +349,10 @@ export const LiquidityHero = () => {
                   {/* Recommendations */}
                   {healthAnalysis.recommendations.length > 0 && (
                     <div>
-                      <h4 className="font-semibold text-sm text-violet-600 mb-2">💡 Recommendations</h4>
+                      <h4 className="font-semibold text-sm text-amber-600 mb-2">💡 Recommendations</h4>
                       <div className="space-y-3">
                         {healthAnalysis.recommendations.map((rec, i) => (
-                          <div key={i} className="p-3 bg-violet-500/5 rounded-lg border border-violet-500/10">
+                          <div key={i} className="p-3 bg-amber-500/5 rounded-lg border border-amber-500/10">
                             <div className="font-medium text-sm mb-1">{rec.title}</div>
                             <div className="text-xs text-muted-foreground mb-2">{rec.description}</div>
                             <Badge variant="outline" className="text-xs">
