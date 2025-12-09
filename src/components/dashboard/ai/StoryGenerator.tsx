@@ -45,7 +45,7 @@ export function StoryGenerator() {
 
   const getMoodColor = (mood: string) => {
     switch (mood) {
-      case 'optimistic': return 'border-blue-500/20 bg-blue-500/5';
+      case 'optimistic': return 'border-amber-500/20 bg-amber-500/5';
       case 'resilient': return 'border-yellow-500/20 bg-yellow-500/5';
       case 'triumphant': return 'border-green-500/20 bg-green-500/5';
       default: return 'border-border bg-accent/50';

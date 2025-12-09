@@ -34,7 +34,7 @@ const nextGenFeatures = [
     icon: MapPin,
     route: "/digital-twin?tab=playbooks",
     status: "beta" as const,
-    color: "text-blue-600"
+    color: "text-amber-600"
   },
   {
     title: "Refinancing Hub",
@@ -50,7 +50,7 @@ const nextGenFeatures = [
     icon: FileText,
     route: "/business-os",
     status: "beta" as const,
-    color: "text-indigo-600"
+    color: "text-amber-600"
   },
   {
     title: "DeFi Manager",

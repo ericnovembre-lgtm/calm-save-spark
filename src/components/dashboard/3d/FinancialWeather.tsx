@@ -22,7 +22,7 @@ export function FinancialWeather() {
     switch (w) {
       case 'sunny': return <Sun className={`w-${size} h-${size} text-yellow-500`} />;
       case 'cloudy': return <Cloud className={`w-${size} h-${size} text-gray-400`} />;
-      case 'rainy': return <CloudRain className={`w-${size} h-${size} text-blue-400`} />;
+      case 'rainy': return <CloudRain className={`w-${size} h-${size} text-amber-400`} />;
       case 'stormy': return <Zap className={`w-${size} h-${size} text-red-500`} />;
     }
   };
@@ -40,7 +40,7 @@ export function FinancialWeather() {
     switch (w) {
       case 'sunny': return 'from-yellow-500/20 via-orange-500/10 to-transparent';
       case 'cloudy': return 'from-gray-400/20 via-gray-300/10 to-transparent';
-      case 'rainy': return 'from-blue-400/20 via-blue-300/10 to-transparent';
+      case 'rainy': return 'from-amber-400/20 via-amber-300/10 to-transparent';
       case 'stormy': return 'from-red-500/20 via-red-400/10 to-transparent';
     }
   };
@@ -81,7 +81,7 @@ export function FinancialWeather() {
                   repeat: Infinity,
                   delay: Math.random() * 2
                 }}
-                className="absolute w-0.5 h-4 bg-blue-400/30"
+                className="absolute w-0.5 h-4 bg-amber-400/30"
               />
             ))}
           </div>

@@ -114,7 +114,7 @@ export const DynamicWelcome = ({ userName }: DynamicWelcomeProps) => {
       const transferDate = new Date(recentActivity.lastTransfer.created_at);
       const daysSince = Math.floor((Date.now() - transferDate.getTime()) / (1000 * 60 * 60 * 24));
       if (daysSince < 7) {
-        return <TrendingUp className="w-6 h-6 text-blue-500" />;
+        return <TrendingUp className="w-6 h-6 text-amber-500" />;
       }
     }
     return <Sparkles className="w-6 h-6 text-yellow-500" />;

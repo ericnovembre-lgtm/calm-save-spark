@@ -43,9 +43,9 @@ export function OfflineBanner({
   const getBannerConfig = () => {
     if (isSyncing) {
       return {
-        bg: 'bg-blue-500/10 border-blue-500/30',
+        bg: 'bg-amber-500/10 border-amber-500/30',
         icon: RefreshCw,
-        iconClass: 'text-blue-500 animate-spin',
+        iconClass: 'text-amber-500 animate-spin',
         text: 'Syncing latest data...',
         showRefresh: false
       };

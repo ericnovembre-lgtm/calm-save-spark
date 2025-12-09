@@ -98,7 +98,7 @@ export function SmartBanner() {
         title: '👋 Welcome Back!',
         description: 'Keep your momentum going with your savings goals',
         icon: Target,
-        color: 'from-primary/20 to-blue-500/20',
+        color: 'from-primary/20 to-amber-500/20',
       });
       return;
     }

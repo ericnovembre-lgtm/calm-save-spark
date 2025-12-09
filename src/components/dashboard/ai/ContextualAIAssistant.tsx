@@ -58,7 +58,7 @@ export function ContextualAIAssistant() {
           transition={{ duration: 0.5, repeat: expression === 'excited' ? Infinity : 0 }}
         >
           {expression === 'excited' && <Sparkles className="w-4 h-4 text-yellow-400" />}
-          {expression === 'thoughtful' && <div className="w-2 h-2 rounded-full bg-blue-400" />}
+          {expression === 'thoughtful' && <div className="w-2 h-2 rounded-full bg-amber-400" />}
           {expression === 'happy' && <div className="w-2 h-2 rounded-full bg-green-400" />}
         </motion.div>
       </motion.button>

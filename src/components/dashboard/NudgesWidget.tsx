@@ -15,7 +15,7 @@ const nudgeIcons: Record<string, any> = {
 };
 
 const nudgeColors: Record<string, string> = {
-  1: 'text-blue-600 bg-blue-500/10',
+  1: 'text-amber-600 bg-amber-500/10',
   2: 'text-yellow-600 bg-yellow-500/10',
   3: 'text-red-600 bg-red-500/10',
 };

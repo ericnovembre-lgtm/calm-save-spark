@@ -39,7 +39,7 @@ export function AnomalyDetector() {
     switch (severity) {
       case 'high': return 'text-red-500 bg-red-500/10 border-red-500/20';
       case 'medium': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
-      case 'low': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
+      case 'low': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
     }
   };
 

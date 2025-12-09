@@ -117,7 +117,7 @@ export const GoalTimeline = ({ userId }: GoalTimelineProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-500';
-      case 'future': return 'bg-blue-500';
+      case 'future': return 'bg-amber-500';
       default: return 'bg-muted';
     }
   };
