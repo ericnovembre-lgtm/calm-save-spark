@@ -5779,6 +5779,71 @@ export type Database = {
           },
         ]
       }
+      income_entries: {
+        Row: {
+          account_id: string | null
+          amount: number
+          created_at: string
+          currency: string
+          end_date: string | null
+          frequency: string
+          id: string
+          is_active: boolean
+          is_taxable: boolean
+          notes: string | null
+          source_name: string
+          source_type: string
+          start_date: string
+          tax_withheld: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          is_taxable?: boolean
+          notes?: string | null
+          source_name: string
+          source_type?: string
+          start_date?: string
+          tax_withheld?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          is_taxable?: boolean
+          notes?: string | null
+          source_name?: string
+          source_type?: string
+          start_date?: string
+          tax_withheld?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "income_entries_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       insights_cache: {
         Row: {
           cache_key: string
@@ -7396,6 +7461,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      net_worth_milestones: {
+        Row: {
+          achieved_at: string
+          celebration_shown: boolean
+          created_at: string
+          id: string
+          milestone_type: string
+          milestone_value: number
+          notes: string | null
+          previous_value: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          celebration_shown?: boolean
+          created_at?: string
+          id?: string
+          milestone_type: string
+          milestone_value: number
+          notes?: string | null
+          previous_value?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          celebration_shown?: boolean
+          created_at?: string
+          id?: string
+          milestone_type?: string
+          milestone_value?: number
+          notes?: string | null
+          previous_value?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      net_worth_snapshots: {
+        Row: {
+          asset_breakdown: Json | null
+          created_at: string
+          id: string
+          liability_breakdown: Json | null
+          net_worth: number
+          notes: string | null
+          snapshot_date: string
+          snapshot_type: string
+          total_assets: number
+          total_liabilities: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asset_breakdown?: Json | null
+          created_at?: string
+          id?: string
+          liability_breakdown?: Json | null
+          net_worth?: number
+          notes?: string | null
+          snapshot_date?: string
+          snapshot_type?: string
+          total_assets?: number
+          total_liabilities?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asset_breakdown?: Json | null
+          created_at?: string
+          id?: string
+          liability_breakdown?: Json | null
+          net_worth?: number
+          notes?: string | null
+          snapshot_date?: string
+          snapshot_type?: string
+          total_assets?: number
+          total_liabilities?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       notification_preferences: {
         Row: {
