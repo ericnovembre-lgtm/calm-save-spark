@@ -35,10 +35,10 @@ export function TransactionAlertToast({
       badge: 'bg-amber-500/20 text-amber-300',
     },
     low: {
-      border: 'border-blue-500/30',
-      bg: 'bg-blue-950/40',
-      icon: 'text-blue-400',
-      badge: 'bg-blue-500/20 text-blue-300',
+      border: 'border-amber-500/30',
+      bg: 'bg-amber-950/40',
+      icon: 'text-amber-400',
+      badge: 'bg-amber-500/20 text-amber-300',
     },
   };
 

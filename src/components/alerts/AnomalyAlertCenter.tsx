@@ -86,8 +86,8 @@ export function AnomalyAlertCenter() {
           <div className="text-2xl font-bold text-yellow-600">{summary.medium}</div>
           <div className="text-xs text-muted-foreground">Medium</div>
         </Card>
-        <Card className="p-4 bg-blue-50 dark:bg-blue-950/20">
-          <div className="text-2xl font-bold text-blue-600">{summary.low}</div>
+        <Card className="p-4 bg-amber-50 dark:bg-amber-950/20">
+          <div className="text-2xl font-bold text-amber-600">{summary.low}</div>
           <div className="text-xs text-muted-foreground">Low</div>
         </Card>
       </div>
@@ -117,7 +117,7 @@ export function AnomalyAlertCenter() {
                           ? 'bg-red-100 text-red-600 dark:bg-red-950/30'
                           : anomaly.severity === 'medium'
                           ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-950/30'
-                          : 'bg-blue-100 text-blue-600 dark:bg-blue-950/30'
+                          : 'bg-amber-100 text-amber-600 dark:bg-amber-950/30'
                       }`}
                     >
                       {getSeverityIcon(anomaly.severity)}

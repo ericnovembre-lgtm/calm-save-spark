@@ -29,7 +29,7 @@ export function RecipeCard({ template }: RecipeCardProps) {
 
   const categoryColors = {
     savings: "bg-green-500/10 text-green-400 border-green-500/30",
-    "micro-savings": "bg-blue-500/10 text-blue-400 border-blue-500/30",
+    "micro-savings": "bg-amber-500/10 text-amber-400 border-amber-500/30",
     optimization: "bg-yellow-500/10 text-yellow-400 border-yellow-500/30",
     protection: "bg-red-500/10 text-red-400 border-red-500/30",
   };
@@ -64,9 +64,9 @@ export function RecipeCard({ template }: RecipeCardProps) {
               <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
                 <LucideIcons.Zap className="w-4 h-4 text-green-400" />
               </div>
-              <div className="flex-1 h-0.5 bg-gradient-to-r from-green-400 to-blue-400" />
-              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                <LucideIcons.Target className="w-4 h-4 text-blue-400" />
+              <div className="flex-1 h-0.5 bg-gradient-to-r from-green-400 to-amber-400" />
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <LucideIcons.Target className="w-4 h-4 text-amber-400" />
               </div>
             </div>
           </div>

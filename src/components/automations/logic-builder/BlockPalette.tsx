@@ -97,7 +97,7 @@ export function BlockPalette({ type, onSelectBlock }: BlockPaletteProps) {
   const templates = type === 'trigger' ? triggerTemplates : type === 'condition' ? conditionTemplates : actionTemplates;
   const colorClass = type === 'trigger' ? 'border-green-400/50 bg-green-950/20' : 
                      type === 'condition' ? 'border-yellow-400/50 bg-yellow-950/20' : 
-                     'border-blue-400/50 bg-blue-950/20';
+                     'border-amber-400/50 bg-amber-950/20';
 
   return (
     <div className="space-y-2">
@@ -113,7 +113,7 @@ export function BlockPalette({ type, onSelectBlock }: BlockPaletteProps) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className={`p-2 rounded ${type === 'trigger' ? 'bg-green-400/10 text-green-400' : type === 'condition' ? 'bg-yellow-400/10 text-yellow-400' : 'bg-blue-400/10 text-blue-400'}`}>
+            <div className={`p-2 rounded ${type === 'trigger' ? 'bg-green-400/10 text-green-400' : type === 'condition' ? 'bg-yellow-400/10 text-yellow-400' : 'bg-amber-400/10 text-amber-400'}`}>
               {template.icon}
             </div>
             <span className="text-sm font-medium">{template.label}</span>
