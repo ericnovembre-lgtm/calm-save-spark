@@ -93,14 +93,14 @@ export const AICFOAssistant = () => {
       {/* Floating Button */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-full p-4 shadow-2xl"
+        className="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-amber-500 to-yellow-600 text-white rounded-full p-4 shadow-2xl"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         animate={{ 
           boxShadow: [
-            "0 10px 30px rgba(139, 92, 246, 0.3)",
-            "0 10px 50px rgba(139, 92, 246, 0.5)",
-            "0 10px 30px rgba(139, 92, 246, 0.3)",
+            "0 10px 30px rgba(245, 158, 11, 0.3)",
+            "0 10px 50px rgba(245, 158, 11, 0.5)",
+            "0 10px 30px rgba(245, 158, 11, 0.3)",
           ]
         }}
         transition={{ 
@@ -121,8 +121,8 @@ export const AICFOAssistant = () => {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-violet-500/10">
-                <Brain className="w-5 h-5 text-violet-500" />
+              <div className="p-2 rounded-full bg-amber-500/10">
+                <Brain className="w-5 h-5 text-amber-500" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">AI CFO Assistant</h3>
@@ -151,15 +151,15 @@ export const AICFOAssistant = () => {
                     className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     {msg.role === 'assistant' && (
-                      <div className="p-2 rounded-full bg-violet-500/10 h-8 w-8 flex items-center justify-center flex-shrink-0">
-                        <Brain className="w-4 h-4 text-violet-500" />
+                      <div className="p-2 rounded-full bg-amber-500/10 h-8 w-8 flex items-center justify-center flex-shrink-0">
+                        <Brain className="w-4 h-4 text-amber-500" />
                       </div>
                     )}
                     
                     <div
                       className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                         msg.role === 'user'
-                          ? 'bg-violet-500 text-white'
+                          ? 'bg-amber-500 text-white'
                           : 'bg-accent/50 text-foreground'
                       }`}
                     >
@@ -181,8 +181,8 @@ export const AICFOAssistant = () => {
                   animate={{ opacity: 1 }}
                   className="flex gap-3 justify-start"
                 >
-                  <div className="p-2 rounded-full bg-violet-500/10 h-8 w-8 flex items-center justify-center flex-shrink-0">
-                    <Brain className="w-4 h-4 text-violet-500" />
+                  <div className="p-2 rounded-full bg-amber-500/10 h-8 w-8 flex items-center justify-center flex-shrink-0">
+                    <Brain className="w-4 h-4 text-amber-500" />
                   </div>
                   <div className="bg-accent/50 rounded-2xl px-4 py-2">
                     <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -223,7 +223,7 @@ export const AICFOAssistant = () => {
                 onClick={handleSend}
                 disabled={!input.trim() || chatMutation.isPending}
                 size="icon"
-                className="h-[60px] w-[60px] flex-shrink-0 bg-violet-500 hover:bg-violet-600"
+                className="h-[60px] w-[60px] flex-shrink-0 bg-amber-500 hover:bg-amber-600"
               >
                 <Send className="w-5 h-5" />
               </Button>

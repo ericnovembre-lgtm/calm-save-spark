@@ -32,20 +32,20 @@ const accountTypeIcons = {
 };
 
 const colorMap: Record<string, { border: string; bg: string; text: string }> = {
-  cyan: {
-    border: 'border-cyan-500/30',
-    bg: 'from-cyan-500/5 to-cyan-500/10',
-    text: 'text-cyan-500',
+  amber: {
+    border: 'border-amber-500/30',
+    bg: 'from-amber-500/5 to-amber-500/10',
+    text: 'text-amber-500',
   },
   rose: {
     border: 'border-rose-500/30',
     bg: 'from-rose-500/5 to-rose-500/10',
     text: 'text-rose-500',
   },
-  violet: {
-    border: 'border-violet-500/30',
-    bg: 'from-violet-500/5 to-violet-500/10',
-    text: 'text-violet-500',
+  yellow: {
+    border: 'border-yellow-500/30',
+    bg: 'from-yellow-500/5 to-yellow-500/10',
+    text: 'text-yellow-500',
   },
 };
 
@@ -57,7 +57,7 @@ export const PhysicalAccountCard = ({
   balance,
   currency = 'USD',
   apy = 0.01,
-  color = 'cyan',
+  color = 'amber',
   nickname,
   lastSynced,
   isHovered,
@@ -68,7 +68,7 @@ export const PhysicalAccountCard = ({
   const prefersReducedMotion = useReducedMotion();
   const queryClient = useQueryClient();
   const Icon = accountTypeIcons[accountType as keyof typeof accountTypeIcons] || Wallet;
-  const colorTheme = colorMap[color] || colorMap.cyan;
+  const colorTheme = colorMap[color] || colorMap.amber;
 
   const isStagnant = accountType === 'checking' && balance > 3000 && apy < 1;
 

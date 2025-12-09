@@ -76,9 +76,9 @@ function StackedSessionBeacon({
   const getBeaconStyle = (session: SessionWithCoords) => {
     if (session.is_current) {
       return {
-        bg: 'bg-blue-500',
-        ring: 'ring-blue-400/50',
-        glow: '0 0 20px rgba(59, 130, 246, 0.6)',
+        bg: 'bg-amber-500',
+        ring: 'ring-amber-400/50',
+        glow: '0 0 20px rgba(245, 158, 11, 0.6)',
       };
     }
     if (session.is_authorized) {
@@ -146,7 +146,7 @@ function StackedSessionBeacon({
                       <p className="text-[10px] text-white/40 font-mono">{session.browser || 'Unknown browser'}</p>
                     </div>
                     {session.is_current && (
-                      <span className="text-[9px] text-blue-400 font-mono">YOU</span>
+                      <span className="text-[9px] text-amber-400 font-mono">YOU</span>
                     )}
                   </button>
                 );
@@ -165,7 +165,7 @@ function StackedSessionBeacon({
         {/* Ripple effect for current device */}
         {stack.hasCurrent && !prefersReducedMotion && (
           <motion.div
-            className="absolute inset-0 rounded-full bg-blue-500"
+            className="absolute inset-0 rounded-full bg-amber-500"
             animate={{
               scale: [1, 2.5, 3],
               opacity: [0.6, 0.2, 0],
