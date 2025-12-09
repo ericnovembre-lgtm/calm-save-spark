@@ -18,8 +18,8 @@ const phase4Icons: Record<string, React.ReactNode> = {
 
 const phase4Colors: Record<string, string> = {
   emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
-  blue: 'text-blue-400 border-blue-500/30 bg-blue-500/10',
-  violet: 'text-violet-400 border-violet-500/30 bg-violet-500/10',
+  amber: 'text-amber-400 border-amber-500/30 bg-amber-500/10',
+  yellow: 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10',
 };
 
 export function DeepseekMetricsPanel({ timeRange }: DeepseekMetricsPanelProps) {
@@ -74,7 +74,7 @@ export function DeepseekMetricsPanel({ timeRange }: DeepseekMetricsPanelProps) {
                 <Brain className="w-3 h-3" />
                 Reasoning Tokens
               </div>
-              <div className="text-2xl font-mono font-bold text-blue-400">
+              <div className="text-2xl font-mono font-bold text-amber-400">
                 {metrics.totalReasoningTokens.toLocaleString()}
               </div>
             </CardContent>
@@ -187,7 +187,7 @@ export function DeepseekMetricsPanel({ timeRange }: DeepseekMetricsPanelProps) {
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Brain className="w-4 h-4 text-blue-400" />
+              <Brain className="w-4 h-4 text-amber-400" />
               Reasoning Token Analysis
             </CardTitle>
           </CardHeader>
@@ -201,7 +201,7 @@ export function DeepseekMetricsPanel({ timeRange }: DeepseekMetricsPanelProps) {
               </div>
               <div className="p-3 bg-muted/30 rounded-lg">
                 <div className="text-xs text-muted-foreground mb-1">Reasoning/Completion</div>
-                <div className="text-xl font-mono font-bold text-blue-400">
+                <div className="text-xl font-mono font-bold text-amber-400">
                   {metrics.reasoningToCompletionRatio}x
                 </div>
               </div>
@@ -211,7 +211,7 @@ export function DeepseekMetricsPanel({ timeRange }: DeepseekMetricsPanelProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Reasoning Tokens</span>
-                <span className="font-mono text-blue-400">{metrics.totalReasoningTokens.toLocaleString()}</span>
+                <span className="font-mono text-amber-400">{metrics.totalReasoningTokens.toLocaleString()}</span>
               </div>
               <Progress 
                 value={metrics.reasoningToCompletionRatio > 0 
@@ -249,7 +249,7 @@ export function DeepseekMetricsPanel({ timeRange }: DeepseekMetricsPanelProps) {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">Deepseek Cost</span>
-                <Badge variant="outline" className="font-mono border-blue-500/30 text-blue-400">
+                <Badge variant="outline" className="font-mono border-amber-500/30 text-amber-400">
                   ${metrics.costComparison.deepseekCost.toFixed(2)}
                 </Badge>
               </div>

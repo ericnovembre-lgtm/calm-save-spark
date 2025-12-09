@@ -48,8 +48,8 @@ export function LatencyTrendChart({ data, isLoading }: LatencyTrendChartProps) {
                   <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="p95Gradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(270, 70%, 60%)" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="hsl(270, 70%, 60%)" stopOpacity={0} />
+                  <stop offset="5%" stopColor="hsl(45, 90%, 55%)" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="hsl(45, 90%, 55%)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
@@ -94,7 +94,7 @@ export function LatencyTrendChart({ data, isLoading }: LatencyTrendChartProps) {
               <Area
                 type="monotone"
                 dataKey="p95Latency"
-                stroke="hsl(270, 70%, 60%)"
+                stroke="hsl(45, 90%, 55%)"
                 strokeWidth={1}
                 strokeDasharray="4 4"
                 fill="url(#p95Gradient)"
@@ -117,7 +117,7 @@ export function LatencyTrendChart({ data, isLoading }: LatencyTrendChartProps) {
             <span>Avg Latency</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-violet-500 rounded" style={{ background: 'hsl(270, 70%, 60%)' }} />
+            <div className="w-3 h-0.5 bg-amber-500 rounded" style={{ background: 'hsl(45, 90%, 55%)' }} />
             <span>P95 Latency</span>
           </div>
           <div className="flex items-center gap-2">

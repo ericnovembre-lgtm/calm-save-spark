@@ -14,7 +14,7 @@ const strategyConfig: Record<AdaptiveStrategy, { label: string; color: string; d
   },
   moderate: {
     label: 'Moderate',
-    color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+    color: 'bg-amber-400/10 text-amber-400 border-amber-400/30',
     description: 'Normal operation with light throttling',
   },
   conservative: {
@@ -75,7 +75,7 @@ export function DeepseekQuotaMonitor() {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium flex items-center justify-between">
             <span className="flex items-center gap-2">
-              <Brain className="w-4 h-4 text-blue-400" />
+              <Brain className="w-4 h-4 text-amber-400" />
               Deepseek Reasoner Quota
             </span>
             <Badge variant="outline" className={cn("text-xs", strategyInfo.color)}>
@@ -114,7 +114,7 @@ export function DeepseekQuotaMonitor() {
                   "h-2",
                   status.requestsUsagePercent > 80 ? "[&>div]:bg-rose-500" :
                   status.requestsUsagePercent > 50 ? "[&>div]:bg-amber-500" :
-                  "[&>div]:bg-blue-500"
+                  "[&>div]:bg-amber-500"
                 )}
               />
             </div>
@@ -136,7 +136,7 @@ export function DeepseekQuotaMonitor() {
                   "h-2",
                   status.tokensUsagePercent > 80 ? "[&>div]:bg-rose-500" :
                   status.tokensUsagePercent > 50 ? "[&>div]:bg-amber-500" :
-                  "[&>div]:bg-blue-500"
+                  "[&>div]:bg-amber-500"
                 )}
               />
             </div>
@@ -150,7 +150,7 @@ export function DeepseekQuotaMonitor() {
                 <Brain className="w-3 h-3" />
                 Reasoning Tokens
               </div>
-              <div className="text-sm font-mono font-bold text-blue-400">
+              <div className="text-sm font-mono font-bold text-amber-400">
                 {(status.reasoningTokensUsed / 1000).toFixed(1)}K
               </div>
             </div>

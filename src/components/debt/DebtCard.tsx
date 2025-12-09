@@ -66,9 +66,9 @@ export default function DebtCard({ debt, payments, onUpdate, onDelete, onEdit, s
 
   const debtTypeColors: Record<string, string> = {
     credit_card: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
-    student_loan: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
-    mortgage: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
-    personal_loan: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+    student_loan: 'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400',
+    mortgage: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+    personal_loan: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400',
     auto_loan: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
     other: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
   };

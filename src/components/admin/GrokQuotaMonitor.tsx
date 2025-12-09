@@ -14,7 +14,7 @@ const strategyConfig: Record<AdaptiveStrategy, { label: string; color: string; d
   },
   moderate: {
     label: 'Moderate',
-    color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+    color: 'bg-amber-400/10 text-amber-400 border-amber-400/30',
     description: 'Normal operation with light throttling',
   },
   conservative: {
@@ -123,7 +123,7 @@ export function GrokQuotaMonitor() {
                   "h-2",
                   status.requestsUsagePercent > 80 ? "[&>div]:bg-rose-500" :
                   status.requestsUsagePercent > 50 ? "[&>div]:bg-amber-500" :
-                  "[&>div]:bg-gray-500"
+                  "[&>div]:bg-amber-500"
                 )}
               />
             </div>
@@ -145,7 +145,7 @@ export function GrokQuotaMonitor() {
                   "h-2",
                   status.tokensUsagePercent > 80 ? "[&>div]:bg-rose-500" :
                   status.tokensUsagePercent > 50 ? "[&>div]:bg-amber-500" :
-                  "[&>div]:bg-gray-500"
+                  "[&>div]:bg-amber-500"
                 )}
               />
             </div>

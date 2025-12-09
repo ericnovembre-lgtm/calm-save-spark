@@ -57,7 +57,7 @@ export const DebtPayoffCalculator = ({ strategy, hasDebts }: DebtPayoffCalculato
         
         {/* AI Toggle */}
         <div className="flex items-center gap-2">
-          <Brain className={`h-4 w-4 ${enableAI ? 'text-indigo-400' : 'text-muted-foreground'}`} />
+          <Brain className={`h-4 w-4 ${enableAI ? 'text-amber-400' : 'text-muted-foreground'}`} />
           <Switch
             id="ai-optimization"
             checked={enableAI}

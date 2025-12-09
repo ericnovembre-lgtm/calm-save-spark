@@ -41,14 +41,14 @@ export function DebtAIReasoningPanel({
 
   if (isLoading) {
     return (
-      <Card className="p-4 border-indigo-500/20 bg-indigo-500/5">
+      <Card className="p-4 border-amber-500/20 bg-amber-500/5">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-indigo-500/20 animate-pulse flex items-center justify-center">
-            <Brain className="h-4 w-4 text-indigo-400" />
+          <div className="h-8 w-8 rounded-full bg-amber-500/20 animate-pulse flex items-center justify-center">
+            <Brain className="h-4 w-4 text-amber-400" />
           </div>
           <div className="flex-1">
-            <div className="h-4 w-32 bg-indigo-500/20 rounded animate-pulse mb-2" />
-            <div className="h-3 w-48 bg-indigo-500/10 rounded animate-pulse" />
+            <div className="h-4 w-32 bg-amber-500/20 rounded animate-pulse mb-2" />
+            <div className="h-3 w-48 bg-amber-500/10 rounded animate-pulse" />
           </div>
         </div>
       </Card>
@@ -76,11 +76,11 @@ export function DebtAIReasoningPanel({
       className="space-y-3"
     >
       {/* Main Insight Card */}
-      <Card className="p-4 border-indigo-500/20 bg-gradient-to-r from-indigo-500/5 to-violet-500/5">
+      <Card className="p-4 border-amber-500/20 bg-gradient-to-r from-amber-500/5 to-yellow-500/5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1">
-            <div className="h-10 w-10 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
-              <Brain className="h-5 w-5 text-indigo-400" />
+            <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
+              <Brain className="h-5 w-5 text-amber-400" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -117,7 +117,7 @@ export function DebtAIReasoningPanel({
         <div className="grid grid-cols-3 gap-3 mt-4">
           <div className="p-2 rounded-lg bg-white/5">
             <p className="text-xs text-muted-foreground">Recommended</p>
-            <p className="text-sm font-medium text-indigo-400">
+            <p className="text-sm font-medium text-amber-400">
               {strategyLabels[recommendations.recommended_strategy]}
             </p>
           </div>
@@ -130,9 +130,9 @@ export function DebtAIReasoningPanel({
             </div>
           )}
           {recommendations.time_savings_months != null && (
-            <div className="p-2 rounded-lg bg-cyan-500/10">
+            <div className="p-2 rounded-lg bg-amber-400/10">
               <p className="text-xs text-muted-foreground">Time Saved</p>
-              <p className="text-sm font-medium text-cyan-400">
+              <p className="text-sm font-medium text-amber-400">
                 {recommendations.time_savings_months} months
               </p>
             </div>
@@ -153,7 +153,7 @@ export function DebtAIReasoningPanel({
             {recommendations.optimal_allocation && recommendations.optimal_allocation.length > 0 && (
               <Card className="p-4 border-white/10">
                 <div className="flex items-center gap-2 mb-3">
-                  <Target className="h-4 w-4 text-indigo-400" />
+                  <Target className="h-4 w-4 text-amber-400" />
                   <h5 className="font-medium text-foreground">Optimal Payment Allocation</h5>
                 </div>
                 <div className="space-y-2">
@@ -174,9 +174,9 @@ export function DebtAIReasoningPanel({
 
             {/* Hybrid Recommendation */}
             {recommendations.hybrid_recommendation && (
-              <Card className="p-4 border-violet-500/20 bg-violet-500/5">
+              <Card className="p-4 border-yellow-500/20 bg-yellow-500/5">
                 <div className="flex items-center gap-2 mb-2">
-                  <Lightbulb className="h-4 w-4 text-violet-400" />
+                  <Lightbulb className="h-4 w-4 text-yellow-400" />
                   <h5 className="font-medium text-foreground">Hybrid Strategy</h5>
                 </div>
                 <p className="text-sm text-muted-foreground">{recommendations.hybrid_recommendation}</p>
@@ -187,11 +187,11 @@ export function DebtAIReasoningPanel({
             {recommendations.breakeven_extra_payment != null && (
               <Card className="p-4 border-white/10">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-cyan-400" />
+                  <TrendingUp className="h-4 w-4 text-amber-400" />
                   <h5 className="font-medium text-foreground">Breakeven Analysis</h5>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  At <span className="text-cyan-400 font-semibold">${recommendations.breakeven_extra_payment}/month</span> extra, 
+                  At <span className="text-amber-400 font-semibold">${recommendations.breakeven_extra_payment}/month</span> extra, 
                   the strategy difference becomes significant.
                 </p>
               </Card>
@@ -203,11 +203,11 @@ export function DebtAIReasoningPanel({
                 <span className="text-sm text-muted-foreground">Motivation Score:</span>
                 <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full"
+                    className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"
                     style={{ width: `${recommendations.psychological_score}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium text-indigo-400">
+                <span className="text-sm font-medium text-amber-400">
                   {recommendations.psychological_score}%
                 </span>
               </div>
@@ -239,7 +239,7 @@ export function DebtAIReasoningPanel({
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                 >
-                  <Card className="p-4 border-white/10 bg-slate-900/50">
+                  <Card className="p-4 border-white/10 bg-stone-900/50">
                     <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono max-h-64 overflow-y-auto">
                       {reasoningChain}
                     </pre>
