@@ -38,7 +38,7 @@ const INSIGHT_ICONS: Record<string, typeof TrendingUp> = {
 };
 
 const SEVERITY_STYLES: Record<string, string> = {
-  info: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+  info: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
   warning: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
   success: 'bg-green-500/10 text-green-600 border-green-500/20',
   error: 'bg-red-500/10 text-red-600 border-red-500/20',

@@ -60,7 +60,7 @@ export function BudgetGoalTracker({ budgets, spending }: BudgetGoalTrackerProps)
         </div>
 
         {/* Overall Progress */}
-        <div className="mb-6 p-4 rounded-lg bg-gradient-to-br from-primary/5 to-purple-600/5 border border-primary/10">
+        <div className="mb-6 p-4 rounded-lg bg-gradient-to-br from-primary/5 to-yellow-600/5 border border-primary/10">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">Potential Savings</span>
             <div className="flex items-baseline gap-1">

@@ -42,7 +42,7 @@ export function BudgetOnboarding({ isOpen, onComplete, onSkip }: BudgetOnboardin
             animate={{ scale: 1 }}
             transition={{ type: "spring", duration: 0.5 }}
           >
-            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary to-yellow-600 flex items-center justify-center">
               <Target className="w-10 h-10 text-white" />
             </div>
           </motion.div>
@@ -72,7 +72,7 @@ export function BudgetOnboarding({ isOpen, onComplete, onSkip }: BudgetOnboardin
             <Button variant="outline" onClick={onSkip} className="flex-1">
               Skip for Now
             </Button>
-            <Button onClick={onComplete} className="flex-1 bg-gradient-to-r from-primary to-purple-600">
+            <Button onClick={onComplete} className="flex-1 bg-gradient-to-r from-primary to-yellow-600">
               Get Started
             </Button>
           </div>

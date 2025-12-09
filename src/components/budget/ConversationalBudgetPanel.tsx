@@ -259,7 +259,7 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
         <Button
           onClick={() => setIsMinimized(false)}
           size="lg"
-          className="rounded-full h-16 w-16 shadow-lg bg-gradient-to-r from-primary to-purple-600"
+          className="rounded-full h-16 w-16 shadow-lg bg-gradient-to-r from-primary to-yellow-600"
         >
           <Sparkles className="w-6 h-6" />
         </Button>
@@ -277,7 +277,7 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-yellow-600 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>

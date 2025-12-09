@@ -37,8 +37,8 @@ export function BudgetOverview({
       title: "Total Spent",
       value: totalSpent,
       icon: overallProgress > 100 ? AlertCircle : TrendingUp,
-      iconColor: overallProgress > 100 ? "text-destructive" : "text-blue-600",
-      iconBg: overallProgress > 100 ? "bg-destructive/10" : "bg-blue-600/10",
+      iconColor: overallProgress > 100 ? "text-destructive" : "text-amber-600",
+      iconBg: overallProgress > 100 ? "bg-destructive/10" : "bg-amber-600/10",
       subtitle: `${overallProgress.toFixed(0)}% of budget`,
       progress: Math.min(overallProgress, 100),
       progressColor: overallProgress >= 100 ? "bg-destructive" : overallProgress >= 80 ? "bg-warning" : "bg-primary"

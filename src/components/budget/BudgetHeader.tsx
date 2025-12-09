@@ -116,7 +116,7 @@ export function BudgetHeader({
                 soundEffects.success();
                 onCreateBudget();
               }}
-              className="gap-2 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+              className="gap-2 bg-gradient-to-r from-primary to-yellow-600 hover:opacity-90"
               magneticRadius={100}
               strength={0.4}
             >
