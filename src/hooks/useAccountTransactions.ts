@@ -8,7 +8,6 @@ export interface AccountTransaction {
   merchant?: string | null;
   transaction_date: string;
   category: string | null;
-  pending: boolean | null;
 }
 
 export function useAccountTransactions(accountId: string, limit: number = 50) {
@@ -22,7 +21,7 @@ export function useAccountTransactions(accountId: string, limit: number = 50) {
 
       const { data, error } = await supabase
         .from('transactions')
-        .select('id, description, amount, transaction_date, category, pending, merchant')
+        .select('id, description, amount, transaction_date, category, merchant')
         .eq('account_id', accountId)
         .eq('user_id', user.id)
         .order('transaction_date', { ascending: false })
