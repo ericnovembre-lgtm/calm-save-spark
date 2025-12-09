@@ -16,7 +16,7 @@ const LIFE_EVENTS: LifeEvent[] = [
   { id: 'marriage', icon: '💒', label: 'Marriage', impact: -30000, description: 'Wedding costs', color: 'border-rose-500' },
   { id: 'inheritance', icon: '💰', label: 'Inheritance', impact: 150000, description: 'Unexpected windfall', color: 'border-yellow-500' },
   { id: 'medical', icon: '🏥', label: 'Medical', impact: -40000, description: 'Health emergency', color: 'border-red-500' },
-  { id: 'education', icon: '🎓', label: 'Education', impact: -60000, description: 'Advanced degree', color: 'border-purple-500' },
+  { id: 'education', icon: '🎓', label: 'Education', impact: -60000, description: 'Advanced degree', color: 'border-yellow-500' },
   { id: 'startup', icon: '🚀', label: 'Start Business', impact: -75000, description: 'Entrepreneurship', color: 'border-orange-500' },
   { id: 'car', icon: '🚗', label: 'New Car', impact: -35000, description: 'Vehicle purchase', color: 'border-amber-500' },
 ];

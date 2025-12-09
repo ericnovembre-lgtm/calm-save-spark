@@ -60,7 +60,7 @@ export function AdminNotificationCenter() {
     switch (severity) {
       case 'critical': return <AlertTriangle className="h-5 w-5 text-red-500" />;
       case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      default: return <Info className="h-5 w-5 text-blue-500" />;
+      default: return <Info className="h-5 w-5 text-amber-500" />;
     }
   };
 

@@ -25,7 +25,7 @@ const lifeEvents: LifeEvent[] = [
   { id: 'kids', icon: '👶', label: 'Have Kids', impact: -200000, description: '$200K over 18 years', color: 'border-pink-500' },
   { id: 'job', icon: '💼', label: 'New Job +30%', impact: 50000, description: 'Salary increase', color: 'border-green-500' },
   { id: 'crash', icon: '📉', label: 'Market Crash', impact: -100000, description: '-40% portfolio value', color: 'border-red-500' },
-  { id: 'tesla', icon: '🚗', label: 'Buy Tesla', impact: -50000, description: '$50K vehicle', color: 'border-purple-500' },
+  { id: 'tesla', icon: '🚗', label: 'Buy Tesla', impact: -50000, description: '$50K vehicle', color: 'border-yellow-500' },
   { id: 'marriage', icon: '💍', label: 'Get Married', impact: -30000, description: '$30K wedding', color: 'border-rose-500' },
   { id: 'vacation', icon: '✈️', label: 'World Trip', impact: -15000, description: '$15K travel', color: 'border-amber-500' },
   { id: 'layoff', icon: '⚡', label: 'Layoff', impact: -40000, description: '6 months no income', color: 'border-orange-500' },

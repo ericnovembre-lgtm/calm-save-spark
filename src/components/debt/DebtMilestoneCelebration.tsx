@@ -21,23 +21,23 @@ const milestoneConfig = {
   25: {
     title: 'First Quarter Conquered! 🎯',
     message: 'You\'ve paid off 25% of this debt. Momentum is building!',
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-500/20'
-  },
-  50: {
-    title: 'Halfway There! 🚀',
-    message: 'You\'ve crushed 50% of this debt. The summit is in sight!',
     color: 'text-amber-600',
     bgColor: 'bg-amber-500/10',
     borderColor: 'border-amber-500/20'
   },
+  50: {
+    title: 'Halfway There! 🚀',
+    message: 'You\'ve crushed 50% of this debt. The summit is in sight!',
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-500/10',
+    borderColor: 'border-orange-500/20'
+  },
   75: {
     title: 'Three Quarters Done! ⭐',
     message: 'You\'ve demolished 75% of this debt. Victory is near!',
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-500/10',
-    borderColor: 'border-purple-500/20'
+    color: 'text-yellow-600',
+    bgColor: 'bg-yellow-500/10',
+    borderColor: 'border-yellow-500/20'
   },
   100: {
     title: 'DEBT ELIMINATED! 🎉',
