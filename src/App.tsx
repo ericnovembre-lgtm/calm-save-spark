@@ -87,6 +87,8 @@ const Integrations = createPageLoader(() => import("./pages/Integrations"), 'med
 const Accounts = createPageLoader(() => import("./pages/Accounts"), 'medium');
 const AccountDetails = createPageLoader(() => import("./pages/AccountDetails"), 'medium');
 const RecurringTransactions = createPageLoader(() => import("./pages/RecurringTransactions"), 'medium');
+const BillCalendar = createPageLoader(() => import("./pages/BillCalendar"), 'medium');
+const SpendingReports = createPageLoader(() => import("./pages/SpendingReports"), 'heavy');
 const Leaderboard = createPageLoader(() => import("./pages/Leaderboard"), 'medium');
 const Gamification = createPageLoader(() => import("./pages/Gamification"), 'medium');
 const Wallet = createPageLoader(() => import("./pages/Wallet"), 'medium');
