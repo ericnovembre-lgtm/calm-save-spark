@@ -24,17 +24,17 @@ export function SentimentHistoryChart({ data, isLoading, ticker, range, onRangeC
     if (active && payload && payload.length) {
       const point = payload[0].payload;
       return (
-        <div className="bg-slate-900/95 border border-white/10 rounded-lg p-3 shadow-xl backdrop-blur-sm">
-          <p className="text-xs text-slate-400 mb-1">{formatDate(label)}</p>
+        <div className="bg-stone-900/95 border border-white/10 rounded-lg p-3 shadow-xl backdrop-blur-sm">
+          <p className="text-xs text-stone-400 mb-1">{formatDate(label)}</p>
           <p className="font-mono text-lg text-white">
             Score: <span className={point.score >= 0 ? 'text-emerald-400' : 'text-red-400'}>
               {point.score > 0 ? '+' : ''}{point.score}
             </span>
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-stone-500">
             Confidence: {Math.round(point.confidence * 100)}%
           </p>
-          <p className="text-xs text-slate-500 capitalize">
+          <p className="text-xs text-stone-500 capitalize">
             Volume: {point.volume}
           </p>
         </div>
@@ -44,11 +44,11 @@ export function SentimentHistoryChart({ data, isLoading, ticker, range, onRangeC
   };
 
   return (
-    <Card className="bg-slate-900/80 border-white/10 backdrop-blur-xl">
+    <Card className="bg-stone-900/80 border-white/10 backdrop-blur-xl">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-cyan-400" />
+          <CardTitle className="text-sm font-medium text-stone-300 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-amber-400" />
             {ticker} Sentiment History
           </CardTitle>
           <div className="flex gap-1">
@@ -113,7 +113,7 @@ export function SentimentHistoryChart({ data, isLoading, ticker, range, onRangeC
             </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-[200px] flex items-center justify-center text-slate-500 text-sm">
+          <div className="h-[200px] flex items-center justify-center text-stone-500 text-sm">
             No historical data available
           </div>
         )}

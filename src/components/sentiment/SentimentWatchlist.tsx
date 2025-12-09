@@ -33,7 +33,7 @@ export function SentimentWatchlist({ watchlistData, onAddTicker, onRemoveTicker,
   const getSentimentColor = (score: number) => {
     if (score >= 30) return 'text-emerald-400';
     if (score >= 10) return 'text-green-400';
-    if (score >= -10) return 'text-slate-400';
+    if (score >= -10) return 'text-stone-400';
     if (score >= -30) return 'text-orange-400';
     return 'text-red-400';
   };
@@ -41,20 +41,20 @@ export function SentimentWatchlist({ watchlistData, onAddTicker, onRemoveTicker,
   const getTrendIcon = (score: number) => {
     if (score >= 10) return <TrendingUp className="w-4 h-4 text-emerald-400" />;
     if (score <= -10) return <TrendingDown className="w-4 h-4 text-red-400" />;
-    return <Minus className="w-4 h-4 text-slate-500" />;
+    return <Minus className="w-4 h-4 text-stone-500" />;
   };
 
   const getVolumeIcon = (volume: string) => {
     if (volume === 'viral') return <Zap className="w-3 h-3 text-yellow-400" />;
-    if (volume === 'high') return <Activity className="w-3 h-3 text-cyan-400" />;
-    return <Activity className="w-3 h-3 text-slate-600" />;
+    if (volume === 'high') return <Activity className="w-3 h-3 text-amber-400" />;
+    return <Activity className="w-3 h-3 text-stone-600" />;
   };
 
   return (
-    <Card className="bg-slate-900/80 border-white/10 backdrop-blur-xl">
+    <Card className="bg-stone-900/80 border-white/10 backdrop-blur-xl">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-          <Activity className="w-4 h-4 text-cyan-400" />
+        <CardTitle className="text-sm font-medium text-stone-300 flex items-center gap-2">
+          <Activity className="w-4 h-4 text-amber-400" />
           Watchlist
         </CardTitle>
       </CardHeader>
@@ -66,10 +66,10 @@ export function SentimentWatchlist({ watchlistData, onAddTicker, onRemoveTicker,
             onChange={(e) => setNewTicker(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
             placeholder="Add ticker..."
-            className="bg-slate-800/50 border-white/10 text-white font-mono text-sm h-8"
+            className="bg-stone-800/50 border-white/10 text-white font-mono text-sm h-8"
           />
-          <Button onClick={handleAdd} size="sm" variant="ghost" className="h-8 px-2 hover:bg-cyan-500/10">
-            <Plus className="w-4 h-4 text-cyan-400" />
+          <Button onClick={handleAdd} size="sm" variant="ghost" className="h-8 px-2 hover:bg-amber-500/10">
+            <Plus className="w-4 h-4 text-amber-400" />
           </Button>
         </div>
 
@@ -82,7 +82,7 @@ export function SentimentWatchlist({ watchlistData, onAddTicker, onRemoveTicker,
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="flex items-center justify-between p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800/80 cursor-pointer group transition-colors"
+                className="flex items-center justify-between p-2 rounded-lg bg-stone-800/50 hover:bg-stone-800/80 cursor-pointer group transition-colors"
                 onClick={() => onSelectTicker(ticker)}
               >
                 <div className="flex items-center gap-3">
@@ -98,7 +98,7 @@ export function SentimentWatchlist({ watchlistData, onAddTicker, onRemoveTicker,
                       {getVolumeIcon(data.volume)}
                     </>
                   ) : (
-                    <span className="text-xs text-slate-500">--</span>
+                    <span className="text-xs text-stone-500">--</span>
                   )}
                 </div>
                 <Button

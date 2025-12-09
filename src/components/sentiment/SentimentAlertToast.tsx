@@ -37,14 +37,14 @@ export const SentimentAlertToast = ({ alert, onDismiss, onView }: SentimentAlert
     if (alert.alert_type.includes('confidence')) {
       return <AlertTriangle className="h-5 w-5 text-amber-400" />;
     }
-    return <Activity className="h-5 w-5 text-cyan-400" />;
+    return <Activity className="h-5 w-5 text-amber-400" />;
   };
 
   const getSeverityColor = () => {
     const current = metadata.current;
     if (current.label.includes('bearish')) return 'border-rose-500/30 bg-rose-950/20';
     if (current.label.includes('bullish')) return 'border-emerald-500/30 bg-emerald-950/20';
-    return 'border-cyan-500/30 bg-cyan-950/20';
+    return 'border-amber-500/30 bg-amber-950/20';
   };
 
   const handleViewDetails = () => {
