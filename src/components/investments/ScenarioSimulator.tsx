@@ -59,7 +59,7 @@ const getPriorityBadge = (priority: string) => {
     case 'medium':
       return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
     default:
-      return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
   }
 };
 
@@ -107,8 +107,8 @@ export function ScenarioSimulator({ portfolioData }: ScenarioSimulatorProps) {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-purple-500/10">
-            <Sparkles className="w-5 h-5 text-purple-400" />
+          <div className="p-2 rounded-lg bg-yellow-500/10">
+            <Sparkles className="w-5 h-5 text-yellow-400" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-foreground">Scenario Simulator</h3>
@@ -135,7 +135,7 @@ export function ScenarioSimulator({ portfolioData }: ScenarioSimulatorProps) {
             <Button
               onClick={() => handleAnalyze(scenario)}
               disabled={isAnalyzing}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-yellow-600 hover:bg-yellow-700"
             >
               {isAnalyzing ? (
                 <>

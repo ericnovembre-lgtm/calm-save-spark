@@ -138,8 +138,8 @@ export function InvestmentAlertsPanel() {
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-500/10">
-              <Bell className="h-5 w-5 text-blue-400" />
+            <div className="p-2 rounded-lg bg-amber-500/10">
+              <Bell className="h-5 w-5 text-amber-400" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">Investment Alerts</h3>
@@ -151,7 +151,7 @@ export function InvestmentAlertsPanel() {
           <Button
             onClick={() => setShowCreateModal(true)}
             size="sm"
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-amber-600 hover:bg-amber-700"
           >
             <Plus className="h-4 w-4 mr-2" />
             New Alert

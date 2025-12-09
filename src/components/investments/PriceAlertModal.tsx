@@ -180,8 +180,8 @@ export function PriceAlertModal({
           </div>
 
           {currentPrice && (
-            <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-              <p className="text-sm text-blue-400">
+            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+              <p className="text-sm text-amber-400">
                 Current Price: <span className="font-semibold">${currentPrice.toFixed(2)}</span>
               </p>
             </div>
@@ -270,7 +270,7 @@ export function PriceAlertModal({
             </Button>
             <Button
               onClick={handleSubmit}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1 bg-amber-600 hover:bg-amber-700"
               disabled={isLoading}
             >
               {isLoading ? 'Creating...' : 'Create Alert'}

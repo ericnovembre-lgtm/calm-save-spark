@@ -39,7 +39,7 @@ const badgeConfig = {
   frozen: {
     icon: Snowflake,
     label: "Needs Attention",
-    color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
     description: "No progress in a while. Time to jumpstart this goal!"
   }
 };

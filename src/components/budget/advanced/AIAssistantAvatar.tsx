@@ -71,7 +71,7 @@ export const AIAssistantAvatar = ({
 
         {/* Main avatar circle */}
         <motion.div
-          className="relative w-16 h-16 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-2xl border-2 border-primary/50"
+          className="relative w-16 h-16 rounded-full bg-gradient-to-br from-primary to-yellow-600 flex items-center justify-center shadow-2xl border-2 border-primary/50"
           animate={prefersReducedMotion ? {} : {
             rotate: isThinking ? 360 : 0,
           }}

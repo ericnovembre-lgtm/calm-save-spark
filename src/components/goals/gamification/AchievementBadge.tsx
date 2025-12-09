@@ -26,8 +26,8 @@ export const AchievementBadge = ({
 }: AchievementBadgeProps) => {
   const rarityColors = {
     common: 'from-gray-500 to-gray-600',
-    rare: 'from-blue-500 to-blue-600',
-    epic: 'from-purple-500 to-purple-600',
+    rare: 'from-amber-500 to-amber-600',
+    epic: 'from-yellow-500 to-yellow-600',
     legendary: 'from-yellow-500 to-yellow-600'
   };
 

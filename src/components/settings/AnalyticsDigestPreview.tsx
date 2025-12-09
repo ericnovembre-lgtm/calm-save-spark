@@ -215,7 +215,7 @@ export function AnalyticsDigestPreview() {
               <div className="bg-yellow-500/10 border-l-2 border-yellow-500 p-3 rounded-r-lg">
                 <p className="text-sm">⚠️ Entertainment spending up 45% this week</p>
               </div>
-              <div className="bg-blue-500/10 border-l-2 border-blue-500 p-3 rounded-r-lg">
+              <div className="bg-amber-500/10 border-l-2 border-amber-500 p-3 rounded-r-lg">
                 <p className="text-sm">💡 Consider meal prepping to reduce dining costs</p>
               </div>
               <div className="bg-emerald-500/10 border-l-2 border-emerald-500 p-3 rounded-r-lg">

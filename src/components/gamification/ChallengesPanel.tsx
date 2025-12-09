@@ -111,7 +111,7 @@ export function ChallengesPanel() {
                       key={participation.id}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="p-4 bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-lg border border-primary/20"
+                      className="p-4 bg-gradient-to-r from-primary/10 to-yellow-500/10 rounded-lg border border-primary/20"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div>

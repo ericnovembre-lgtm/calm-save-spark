@@ -222,8 +222,8 @@ export function SmartRebalancingPanel({ userId, portfolioData }: SmartRebalancin
                 <div className="text-xs text-muted-foreground">Volatility</div>
               </Card>
               <Card className="p-4 text-center">
-                <Brain className="w-5 h-5 text-blue-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-blue-500">
+                <Brain className="w-5 h-5 text-amber-500 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-amber-500">
                   {suggestionData.expectedImpact.diversificationScore}
                 </div>
                 <div className="text-xs text-muted-foreground">Diversification</div>

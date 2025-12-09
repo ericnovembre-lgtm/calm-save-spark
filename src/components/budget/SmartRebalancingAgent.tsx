@@ -116,7 +116,7 @@ export function SmartRebalancingAgent() {
     const colors = {
       high: 'bg-red-500/20 text-red-600',
       medium: 'bg-orange-500/20 text-orange-600',
-      low: 'bg-blue-500/20 text-blue-600'
+      low: 'bg-amber-500/20 text-amber-600'
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[urgency as keyof typeof colors]}`}>
@@ -141,13 +141,13 @@ export function SmartRebalancingAgent() {
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className={`p-6 bg-gradient-to-br from-purple-500/10 via-primary/10 to-blue-500/10 border-2 backdrop-blur-sm ${
-              suggestion.urgency === 'high' ? 'border-red-500/40 shadow-lg shadow-red-500/20' : 'border-purple-500/30'
+            <Card className={`p-6 bg-gradient-to-br from-yellow-500/10 via-primary/10 to-amber-500/10 border-2 backdrop-blur-sm ${
+              suggestion.urgency === 'high' ? 'border-red-500/40 shadow-lg shadow-red-500/20' : 'border-yellow-500/30'
             }`}>
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3 flex-1">
                   <motion.div 
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center"
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-amber-500 flex items-center justify-center"
                     animate={suggestion.urgency === 'high' ? { scale: [1, 1.1, 1] } : {}}
                     transition={{ repeat: Infinity, duration: 2 }}
                   >
@@ -234,12 +234,12 @@ export function SmartRebalancingAgent() {
 
               {/* Alternative Actions */}
               {suggestion.alternativeActions && suggestion.alternativeActions.length > 0 && (
-                <div className="mb-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <div className="mb-4 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
                   <p className="text-sm font-medium mb-2">Alternative Options</p>
                   <ul className="space-y-1">
                     {suggestion.alternativeActions.map((action, i) => (
                       <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="text-blue-500 mt-0.5">•</span>
+                        <span className="text-amber-500 mt-0.5">•</span>
                         <span>{action}</span>
                       </li>
                     ))}
