@@ -39,11 +39,11 @@ export function VoiceCommandTutorial({
       case 'basic':
         return 'text-primary bg-primary/10 border-primary/20';
       case 'navigation':
-        return 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20';
+        return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
       case 'action':
         return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
       case 'tips':
-        return 'text-violet-500 bg-violet-500/10 border-violet-500/20';
+        return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
       default:
         return 'text-muted-foreground bg-muted/50 border-border';
     }

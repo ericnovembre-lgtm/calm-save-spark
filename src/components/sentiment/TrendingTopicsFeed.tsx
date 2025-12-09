@@ -19,15 +19,15 @@ export function TrendingTopicsFeed({ topics, isLoading }: TrendingTopicsFeedProp
   // Categorize topics (simplified logic)
   const getTopicCategory = (topic: string) => {
     const lower = topic.toLowerCase();
-    if (lower.includes('ai') || lower.includes('chip') || lower.includes('tech')) return { label: 'Tech', color: 'bg-cyan-500/20 text-cyan-400' };
-    if (lower.includes('fed') || lower.includes('rate') || lower.includes('inflation')) return { label: 'Macro', color: 'bg-violet-500/20 text-violet-400' };
+    if (lower.includes('ai') || lower.includes('chip') || lower.includes('tech')) return { label: 'Tech', color: 'bg-amber-500/20 text-amber-400' };
+    if (lower.includes('fed') || lower.includes('rate') || lower.includes('inflation')) return { label: 'Macro', color: 'bg-yellow-500/20 text-yellow-400' };
     if (lower.includes('earnings') || lower.includes('revenue')) return { label: 'Earnings', color: 'bg-emerald-500/20 text-emerald-400' };
     if (lower.includes('crypto') || lower.includes('bitcoin')) return { label: 'Crypto', color: 'bg-orange-500/20 text-orange-400' };
-    return { label: 'Market', color: 'bg-slate-500/20 text-slate-400' };
+    return { label: 'Market', color: 'bg-stone-500/20 text-stone-400' };
   };
 
   return (
-    <Card className="bg-slate-900/80 border-white/10 backdrop-blur-xl">
+    <Card className="bg-stone-900/80 border-white/10 backdrop-blur-xl">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
           <Flame className="w-4 h-4 text-orange-400" />
@@ -53,7 +53,7 @@ export function TrendingTopicsFeed({ topics, isLoading }: TrendingTopicsFeedProp
                   transition={{ delay: index * 0.05 }}
                   className="flex items-start gap-3 p-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors cursor-pointer group"
                 >
-                  <Hash className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <Hash className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-white group-hover:text-cyan-300 transition-colors truncate">
                       {topic}

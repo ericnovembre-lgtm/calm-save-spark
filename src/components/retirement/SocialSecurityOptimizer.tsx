@@ -96,7 +96,7 @@ export function SocialSecurityOptimizer({ analysis, isLoading }: SocialSecurityO
       <div className="grid grid-cols-2 gap-4 mb-6">
         <Card className="p-4 bg-muted/30">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-cyan-500" />
+            <TrendingUp className="w-4 h-4 text-amber-500" />
             <span className="text-sm text-muted-foreground">Breakeven: 62 vs 67</span>
           </div>
           <p className="text-2xl font-bold">Age {analysis.breakEvenAge62vs67}</p>
@@ -107,7 +107,7 @@ export function SocialSecurityOptimizer({ analysis, isLoading }: SocialSecurityO
 
         <Card className="p-4 bg-muted/30">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-violet-500" />
+            <TrendingUp className="w-4 h-4 text-yellow-500" />
             <span className="text-sm text-muted-foreground">Breakeven: 67 vs 70</span>
           </div>
           <p className="text-2xl font-bold">Age {analysis.breakEvenAge67vs70}</p>
@@ -118,9 +118,9 @@ export function SocialSecurityOptimizer({ analysis, isLoading }: SocialSecurityO
       </div>
 
       {/* AI Recommendation */}
-      <Card className="p-4 bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 border-emerald-500/20">
+      <Card className="p-4 bg-gradient-to-br from-emerald-500/5 to-amber-500/5 border-emerald-500/20">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-amber-500 flex items-center justify-center flex-shrink-0">
             <Brain className="w-5 h-5 text-white" />
           </div>
           <div>

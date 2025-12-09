@@ -22,7 +22,7 @@ export function SentimentComparison({ watchlistData }: SentimentComparisonProps)
   const getBarColor = (score: number) => {
     if (score >= 30) return 'bg-emerald-500';
     if (score >= 10) return 'bg-green-500';
-    if (score >= -10) return 'bg-slate-500';
+    if (score >= -10) return 'bg-stone-500';
     if (score >= -30) return 'bg-orange-500';
     return 'bg-red-500';
   };
@@ -38,10 +38,10 @@ export function SentimentComparison({ watchlistData }: SentimentComparisonProps)
   };
 
   return (
-    <Card className="bg-slate-900/80 border-white/10 backdrop-blur-xl">
+    <Card className="bg-stone-900/80 border-white/10 backdrop-blur-xl">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-violet-400" />
+        <CardTitle className="text-sm font-medium text-stone-300 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-yellow-400" />
           Sentiment Comparison
         </CardTitle>
       </CardHeader>

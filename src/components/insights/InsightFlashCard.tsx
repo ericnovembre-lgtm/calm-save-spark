@@ -29,9 +29,9 @@ export function InsightFlashCard({ insight, onDismiss, onResolved }: InsightFlas
   const severityConfig = {
     info: {
       icon: Info,
-      bgGradient: 'from-blue-500/10 to-cyan-500/10',
-      borderColor: 'border-blue-500/30',
-      textColor: 'text-blue-600 dark:text-blue-400',
+      bgGradient: 'from-amber-500/10 to-yellow-500/10',
+      borderColor: 'border-amber-500/30',
+      textColor: 'text-amber-600 dark:text-amber-400',
     },
     warning: {
       icon: AlertCircle,

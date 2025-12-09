@@ -105,8 +105,8 @@ export function OfflineSyncIndicator({
     },
     syncing: {
       icon: RefreshCw,
-      color: 'text-cyan-500',
-      bgColor: 'bg-cyan-500/10',
+      color: 'text-amber-500',
+      bgColor: 'bg-amber-500/10',
       label: 'Syncing...',
       spin: true,
     },

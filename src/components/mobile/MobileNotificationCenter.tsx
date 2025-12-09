@@ -30,9 +30,9 @@ const typeIcons = {
 
 const typeColors = {
   transaction: 'text-emerald-500',
-  goal: 'text-violet-500',
+  goal: 'text-yellow-500',
   alert: 'text-amber-500',
-  insight: 'text-cyan-500'
+  insight: 'text-amber-400'
 };
 
 export function MobileNotificationCenter({ onClose }: MobileNotificationCenterProps) {

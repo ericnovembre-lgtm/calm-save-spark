@@ -80,10 +80,10 @@ export const SentimentAlertConfig = ({ ticker, isOpen, onClose }: SentimentAlert
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-900 border-white/10 max-w-md">
+      <DialogContent className="bg-stone-900 border-white/10 max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-white">
-            <Bell className="h-5 w-5 text-cyan-400" />
+            <Bell className="h-5 w-5 text-amber-400" />
             Configure Alerts for {ticker}
           </DialogTitle>
         </DialogHeader>
@@ -105,7 +105,7 @@ export const SentimentAlertConfig = ({ ticker, isOpen, onClose }: SentimentAlert
                       className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-white/5"
                     >
                       <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4 text-cyan-400" />
+                        <Icon className="h-4 w-4 text-amber-400" />
                         <span className="text-sm text-white">{typeConfig?.label}</span>
                         {alert.threshold_value && (
                           <span className="text-xs text-white/40">
@@ -146,13 +146,13 @@ export const SentimentAlertConfig = ({ ticker, isOpen, onClose }: SentimentAlert
                     disabled={isDisabled}
                     className={`p-3 rounded-lg border transition-all text-left ${
                       isSelected
-                        ? 'border-cyan-500 bg-cyan-500/10'
+                        ? 'border-amber-500 bg-amber-500/10'
                         : isDisabled
-                        ? 'border-white/5 bg-slate-800/30 opacity-50 cursor-not-allowed'
-                        : 'border-white/10 bg-slate-800/50 hover:border-white/20'
+                        ? 'border-white/5 bg-stone-800/30 opacity-50 cursor-not-allowed'
+                        : 'border-white/10 bg-stone-800/50 hover:border-white/20'
                     }`}
                   >
-                    <Icon className={`h-4 w-4 mb-1 ${isSelected ? 'text-cyan-400' : 'text-white/40'}`} />
+                    <Icon className={`h-4 w-4 mb-1 ${isSelected ? 'text-amber-400' : 'text-white/40'}`} />
                     <div className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-white/60'}`}>
                       {type.label}
                     </div>
@@ -173,7 +173,7 @@ export const SentimentAlertConfig = ({ ticker, isOpen, onClose }: SentimentAlert
                   className="space-y-3"
                 >
                   <Label className="text-white/80 text-sm">
-                    Score Change Threshold: <span className="text-cyan-400">{threshold} points</span>
+                    Score Change Threshold: <span className="text-amber-400">{threshold} points</span>
                   </Label>
                   <Slider
                     value={[threshold]}
@@ -246,7 +246,7 @@ export const SentimentAlertConfig = ({ ticker, isOpen, onClose }: SentimentAlert
                   className="space-y-3"
                 >
                   <Label className="text-white/80 text-sm">
-                    Confidence Threshold: <span className="text-cyan-400">{threshold}%</span>
+                    Confidence Threshold: <span className="text-amber-400">{threshold}%</span>
                   </Label>
                   <Slider
                     value={[threshold]}
@@ -289,7 +289,7 @@ export const SentimentAlertConfig = ({ ticker, isOpen, onClose }: SentimentAlert
             <Button
               onClick={handleCreate}
               disabled={isCreating || existingAlerts.some(a => a.alert_type === selectedType)}
-              className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white"
+              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
             >
               {isCreating ? 'Creating...' : 'Create Alert'}
             </Button>

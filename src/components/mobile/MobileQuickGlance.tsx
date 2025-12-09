@@ -33,7 +33,7 @@ const widgetConfigs: Record<string, GlanceWidget> = {
     change: '68% remaining',
     changeType: 'neutral',
     icon: Receipt,
-    color: 'bg-violet-500/10 text-violet-500'
+    color: 'bg-yellow-500/10 text-yellow-500'
   },
   goals: {
     id: 'goals',
@@ -51,7 +51,7 @@ const widgetConfigs: Record<string, GlanceWidget> = {
     change: '+$500 this month',
     changeType: 'positive',
     icon: PiggyBank,
-    color: 'bg-cyan-500/10 text-cyan-500'
+    color: 'bg-amber-400/10 text-amber-400'
   },
   investments: {
     id: 'investments',
@@ -60,7 +60,7 @@ const widgetConfigs: Record<string, GlanceWidget> = {
     change: 'Portfolio gain',
     changeType: 'positive',
     icon: TrendingUp,
-    color: 'bg-blue-500/10 text-blue-500'
+    color: 'bg-amber-500/10 text-amber-500'
   },
   credit: {
     id: 'credit',
@@ -69,7 +69,7 @@ const widgetConfigs: Record<string, GlanceWidget> = {
     change: '+5 this month',
     changeType: 'positive',
     icon: CreditCard,
-    color: 'bg-slate-500/10 text-slate-500'
+    color: 'bg-stone-500/10 text-stone-500'
   }
 };
 
