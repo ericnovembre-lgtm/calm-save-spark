@@ -13,13 +13,13 @@ export function CardDisplay({ card, onFreeze }: CardDisplayProps) {
   const getCardGradient = (network: string) => {
     switch (network?.toLowerCase()) {
       case 'visa': 
-        return 'from-blue-600 to-blue-800';
+        return 'from-amber-600 to-amber-800';
       case 'mastercard': 
         return 'from-red-600 to-orange-600';
       case 'amex': 
         return 'from-green-600 to-green-800';
       default: 
-        return 'from-purple-600 to-blue-600';
+        return 'from-yellow-600 to-amber-600';
     }
   };
 

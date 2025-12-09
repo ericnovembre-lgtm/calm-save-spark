@@ -19,11 +19,11 @@ interface EnhancedCardTransactionListProps {
 
 const categoryColors: Record<string, string> = {
   'Dining': 'bg-orange-500/20 text-orange-700 border-orange-500/30',
-  'Shopping': 'bg-blue-500/20 text-blue-700 border-blue-500/30',
+  'Shopping': 'bg-amber-500/20 text-amber-700 border-amber-500/30',
   'Groceries': 'bg-green-500/20 text-green-700 border-green-500/30',
-  'Transportation': 'bg-purple-500/20 text-purple-700 border-purple-500/30',
+  'Transportation': 'bg-yellow-500/20 text-yellow-700 border-yellow-500/30',
   'Entertainment': 'bg-pink-500/20 text-pink-700 border-pink-500/30',
-  'Travel': 'bg-cyan-500/20 text-cyan-700 border-cyan-500/30',
+  'Travel': 'bg-amber-400/20 text-amber-600 border-amber-400/30',
   'Health': 'bg-red-500/20 text-red-700 border-red-500/30',
   'Bills': 'bg-yellow-500/20 text-yellow-700 border-yellow-500/30',
   'Gas': 'bg-amber-500/20 text-amber-700 border-amber-500/30',
@@ -173,7 +173,7 @@ export function EnhancedCardTransactionList({ transactions, isLoading }: Enhance
                       {tx.ai_merchant_name || tx.merchant_name}
                     </p>
                     {tx.enrichment_status === 'completed' && tx.ai_confidence && tx.ai_confidence > 0.8 && (
-                      <Sparkles className="w-3 h-3 text-violet-500" />
+                      <Sparkles className="w-3 h-3 text-yellow-500" />
                     )}
                     {tx.receipt_image_path && (
                       <Receipt className="w-3 h-3 text-green-600" />

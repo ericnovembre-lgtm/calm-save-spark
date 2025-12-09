@@ -58,8 +58,8 @@ export function CardSpendingInsights({ cardId }: CardSpendingInsightsProps) {
                 <p className="text-sm text-muted-foreground">Transactions</p>
                 <p className="text-2xl font-bold">{insights.transactionCount}</p>
               </div>
-              <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                <ShoppingBag className="w-6 h-6 text-blue-500" />
+              <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
+                <ShoppingBag className="w-6 h-6 text-amber-500" />
               </div>
             </div>
           </Card>

@@ -47,14 +47,14 @@ export function CardGeniusHub({ cardId }: CardGeniusHubProps) {
   const currentMode = modes.find(m => m.id === mode)!;
 
   return (
-    <Card className="border-2 border-violet-100 dark:border-violet-900/30">
+    <Card className="border-2 border-amber-100 dark:border-amber-900/30">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <CardTitle className="text-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+            <CardTitle className="text-xl bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
               Card Genius
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
@@ -118,7 +118,7 @@ export function CardGeniusHub({ cardId }: CardGeniusHubProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-950/20 dark:to-fuchsia-950/20 border border-violet-200 dark:border-violet-800"
+              className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800"
             >
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-2">
@@ -139,7 +139,7 @@ export function CardGeniusHub({ cardId }: CardGeniusHubProps) {
                     {response.structured.points && (
                       <div className="flex items-center justify-between p-2 rounded-lg bg-white/50 dark:bg-black/20">
                         <span className="text-xs font-medium">Points Earned</span>
-                        <span className="text-sm font-bold text-violet-600 dark:text-violet-400">
+                        <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
                           {response.structured.points.toLocaleString()}
                         </span>
                       </div>
