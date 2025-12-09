@@ -91,7 +91,7 @@ export function TimeMachine() {
                 event.type === 'milestone'
                   ? 'bg-green-500/10 border-green-500/20'
                   : event.type === 'goal'
-                  ? 'bg-blue-500/10 border-blue-500/20'
+                  ? 'bg-amber-500/10 border-amber-500/20'
                   : 'bg-accent/50 border-border'
               }`}
             >

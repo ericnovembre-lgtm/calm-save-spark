@@ -96,7 +96,7 @@ export function CreditTipsModal({ isOpen, onClose }: CreditTipsModalProps) {
     switch (impact) {
       case 'high': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
       case 'medium': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
-      case 'low': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
+      case 'low': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
       default: return 'text-muted-foreground bg-muted/50';
     }
   };
