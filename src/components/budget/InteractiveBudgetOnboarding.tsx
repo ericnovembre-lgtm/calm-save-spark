@@ -79,7 +79,7 @@ export function InteractiveBudgetOnboarding({ isOpen, onComplete, onSkip }: Inte
               animate={{ scale: 1 }}
               transition={{ type: "spring", duration: 0.5 }}
             >
-              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center mb-4">
+              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary to-yellow-600 flex items-center justify-center mb-4">
                 <Target className="w-10 h-10 text-white" />
               </div>
             </motion.div>
@@ -166,7 +166,7 @@ export function InteractiveBudgetOnboarding({ isOpen, onComplete, onSkip }: Inte
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-purple-600/5 border border-primary/10"
+                className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-yellow-600/5 border border-primary/10"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
@@ -190,7 +190,7 @@ export function InteractiveBudgetOnboarding({ isOpen, onComplete, onSkip }: Inte
             <Button variant="outline" onClick={onSkip} className={currentStep === 0 ? "flex-1" : ""}>
               Skip Tutorial
             </Button>
-            <Button onClick={handleNext} className="flex-1 bg-gradient-to-r from-primary to-purple-600">
+            <Button onClick={handleNext} className="flex-1 bg-gradient-to-r from-primary to-yellow-600">
               {currentStep < ONBOARDING_STEPS.length - 1 ? (
                 <>
                   Next

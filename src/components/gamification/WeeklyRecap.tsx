@@ -68,7 +68,7 @@ export function WeeklyRecap() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-lg border border-primary/20"
+            className="p-4 bg-gradient-to-r from-primary/10 to-yellow-500/10 rounded-lg border border-primary/20"
           >
             <div className="flex items-center justify-between mb-3">
               <div>

@@ -92,7 +92,7 @@ export const PerformanceDashboard = () => {
 
   const getPerformanceStatus = () => {
     if (fps >= 55) return { status: 'excellent', color: 'text-green-500', icon: CheckCircle2 };
-    if (fps >= 40) return { status: 'good', color: 'text-blue-500', icon: Activity };
+    if (fps >= 40) return { status: 'good', color: 'text-amber-500', icon: Activity };
     if (fps >= 25) return { status: 'moderate', color: 'text-yellow-500', icon: AlertTriangle };
     return { status: 'poor', color: 'text-red-500', icon: AlertTriangle };
   };

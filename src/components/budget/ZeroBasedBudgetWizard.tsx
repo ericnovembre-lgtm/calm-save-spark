@@ -273,7 +273,7 @@ export function ZeroBasedBudgetWizard({ onComplete }: ZeroBasedBudgetWizardProps
             {isOptimizing ? (
               <div className="text-center py-12">
                 <motion.div
-                  className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center"
+                  className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary to-yellow-500 flex items-center justify-center"
                   animate={{ scale: [1, 1.1, 1], opacity: [1, 0.8, 1] }}
                   transition={{ repeat: Infinity, duration: 2 }}
                 >

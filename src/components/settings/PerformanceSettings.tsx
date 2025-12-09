@@ -160,7 +160,7 @@ export function PerformanceSettings() {
       {/* 3D Effects */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Box className="h-5 w-5 text-violet-500" />
+          <Box className="h-5 w-5 text-yellow-500" />
           <div>
             <Label htmlFor="3d-effects" className="font-medium">
               3D Effects
@@ -180,7 +180,7 @@ export function PerformanceSettings() {
       {/* Animations */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Zap className="h-5 w-5 text-cyan-500" />
+          <Zap className="h-5 w-5 text-amber-500" />
           <div>
             <Label htmlFor="animations" className="font-medium">
               Animations
@@ -240,7 +240,7 @@ export function PerformanceSettings() {
       {/* Image Lazy Loading */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Image className="h-5 w-5 text-blue-500" />
+          <Image className="h-5 w-5 text-amber-500" />
           <div>
             <Label htmlFor="lazy-images" className="font-medium">
               Lazy Load Images

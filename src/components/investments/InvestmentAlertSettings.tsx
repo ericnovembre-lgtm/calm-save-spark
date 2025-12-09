@@ -245,7 +245,7 @@ export function InvestmentAlertSettings() {
       <Button
         onClick={saveSettings}
         disabled={isSaving}
-        className="w-full bg-blue-600 hover:bg-blue-700"
+        className="w-full bg-amber-600 hover:bg-amber-700"
       >
         {isSaving ? 'Saving...' : 'Save Settings'}
       </Button>

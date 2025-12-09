@@ -39,7 +39,7 @@ export function AchievementBadge({
     bronze: "text-amber-600 bg-amber-600/10",
     amber: "text-amber-500 bg-amber-500/10",
     green: "text-green-500 bg-green-500/10",
-    purple: "text-purple-500 bg-purple-500/10",
+    purple: "text-yellow-500 bg-yellow-500/10",
   };
 
   return (

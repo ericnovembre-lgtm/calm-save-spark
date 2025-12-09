@@ -163,14 +163,14 @@ export function QuickBudgetCreator({ onSuccess, userId }: QuickBudgetCreatorProp
         whileHover={{ y: -2, boxShadow: "0 20px 40px -10px rgba(139, 92, 246, 0.3)" }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
-        <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-purple-500/5">
+        <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-yellow-500/5">
           {/* Shimmer effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent shimmer" />
 
           <div className="relative p-6">
             <div className="flex items-start gap-4">
               <motion.div 
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center flex-shrink-0"
+                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-yellow-500 flex items-center justify-center flex-shrink-0"
                 animate={{ 
                   boxShadow: ["0 0 0 0 rgba(139, 92, 246, 0.4)", "0 0 0 10px rgba(139, 92, 246, 0)", "0 0 0 0 rgba(139, 92, 246, 0)"]
                 }}
@@ -231,7 +231,7 @@ export function QuickBudgetCreator({ onSuccess, userId }: QuickBudgetCreatorProp
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Card className="p-4 border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-purple-500/10">
+                      <Card className="p-4 border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-yellow-500/10">
                         <div className="flex items-start gap-4">
                           {IconComponent && (
                             <motion.div
