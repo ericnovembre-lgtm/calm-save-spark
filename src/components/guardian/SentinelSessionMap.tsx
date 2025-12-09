@@ -527,7 +527,7 @@ export function SentinelSessionMap({ sessions: propSessions, previewMode = false
       {/* Legend */}
       <div className="absolute bottom-2 left-2 flex gap-4 text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-blue-500" />
+          <div className="w-2 h-2 rounded-full bg-amber-500" />
           <span className="text-white/40 font-mono">Current</span>
         </div>
         <div className="flex items-center gap-1.5">
