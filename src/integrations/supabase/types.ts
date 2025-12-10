@@ -5106,6 +5106,51 @@ export type Database = {
         }
         Relationships: []
       }
+      export_jobs: {
+        Row: {
+          created_at: string | null
+          date_range_end: string | null
+          date_range_start: string | null
+          expires_at: string | null
+          export_type: string
+          file_size: number | null
+          file_url: string | null
+          filters: Json | null
+          format: string
+          id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date_range_end?: string | null
+          date_range_start?: string | null
+          expires_at?: string | null
+          export_type: string
+          file_size?: number | null
+          file_url?: string | null
+          filters?: Json | null
+          format: string
+          id?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date_range_end?: string | null
+          date_range_start?: string | null
+          expires_at?: string | null
+          export_type?: string
+          file_size?: number | null
+          file_url?: string | null
+          filters?: Json | null
+          format?: string
+          id?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       family_budgets: {
         Row: {
           category_limits: Json | null
@@ -5316,6 +5361,60 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_events: {
+        Row: {
+          amount: number | null
+          color: string | null
+          created_at: string | null
+          description: string | null
+          event_date: string
+          event_type: string
+          id: string
+          is_completed: boolean | null
+          recurrence_rule: string | null
+          reminder_days: number | null
+          source_id: string | null
+          source_type: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          is_completed?: boolean | null
+          recurrence_rule?: string | null
+          reminder_days?: number | null
+          source_id?: string | null
+          source_type?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          is_completed?: boolean | null
+          recurrence_rule?: string | null
+          reminder_days?: number | null
+          source_id?: string | null
+          source_type?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       financial_health_benchmarks: {
         Row: {
           age_range: string
@@ -5506,6 +5605,47 @@ export type Database = {
             columns: ["badge_reward"]
             isOneToOne: false
             referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_reminders: {
+        Row: {
+          created_at: string | null
+          event_id: string | null
+          id: string
+          is_sent: boolean | null
+          reminder_date: string
+          reminder_type: string | null
+          sent_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          is_sent?: boolean | null
+          reminder_date: string
+          reminder_type?: string | null
+          sent_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          is_sent?: boolean | null
+          reminder_date?: string
+          reminder_type?: string | null
+          sent_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_reminders_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "financial_events"
             referencedColumns: ["id"]
           },
         ]
@@ -5939,6 +6079,60 @@ export type Database = {
           id?: string
           name?: string
           settings?: Json | null
+        }
+        Relationships: []
+      }
+      import_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_log: Json | null
+          failed_rows: number | null
+          file_name: string | null
+          file_size: number | null
+          id: string
+          job_type: string
+          mapping_config: Json | null
+          processed_rows: number | null
+          started_at: string | null
+          status: string | null
+          successful_rows: number | null
+          total_rows: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_log?: Json | null
+          failed_rows?: number | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          job_type: string
+          mapping_config?: Json | null
+          processed_rows?: number | null
+          started_at?: string | null
+          status?: string | null
+          successful_rows?: number | null
+          total_rows?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_log?: Json | null
+          failed_rows?: number | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          job_type?: string
+          mapping_config?: Json | null
+          processed_rows?: number | null
+          started_at?: string | null
+          status?: string | null
+          successful_rows?: number | null
+          total_rows?: number | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -7496,6 +7690,36 @@ export type Database = {
           logo_url?: string
           merchant_name?: string
           source?: string
+        }
+        Relationships: []
+      }
+      merchant_mappings: {
+        Row: {
+          category: string
+          created_at: string | null
+          display_name: string | null
+          id: string
+          logo_url: string | null
+          merchant_name: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          logo_url?: string | null
+          merchant_name: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          logo_url?: string | null
+          merchant_name?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -10288,6 +10512,42 @@ export type Database = {
           read_at?: string | null
           severity?: string
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      smart_category_rules: {
+        Row: {
+          assigned_category: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          match_count: number | null
+          merchant_pattern: string
+          priority: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_category: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          match_count?: number | null
+          merchant_pattern: string
+          priority?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_category?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          match_count?: number | null
+          merchant_pattern?: string
+          priority?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
