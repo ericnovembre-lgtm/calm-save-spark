@@ -567,6 +567,69 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_insights_archive: {
+        Row: {
+          action_result: string | null
+          action_taken: boolean | null
+          action_taken_at: string | null
+          confidence_score: number | null
+          content: string
+          created_at: string
+          dismissed: boolean | null
+          dismissed_at: string | null
+          expires_at: string | null
+          id: string
+          impact_level: string | null
+          insight_type: string
+          metadata: Json | null
+          related_entity_id: string | null
+          related_entity_type: string | null
+          source_agent: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_result?: string | null
+          action_taken?: boolean | null
+          action_taken_at?: string | null
+          confidence_score?: number | null
+          content: string
+          created_at?: string
+          dismissed?: boolean | null
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          impact_level?: string | null
+          insight_type: string
+          metadata?: Json | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          source_agent?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_result?: string | null
+          action_taken?: boolean | null
+          action_taken_at?: string | null
+          confidence_score?: number | null
+          content?: string
+          created_at?: string
+          dismissed?: boolean | null
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          impact_level?: string | null
+          insight_type?: string
+          metadata?: Json | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          source_agent?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_model_ab_tests: {
         Row: {
           agent_type: string
@@ -5357,6 +5420,54 @@ export type Database = {
           resolution_type?: string | null
           resolved_at?: string | null
           severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      financial_diary_entries: {
+        Row: {
+          amount_involved: number | null
+          content: string
+          created_at: string
+          entry_date: string
+          financial_event_type: string | null
+          id: string
+          is_private: boolean | null
+          mood: string | null
+          mood_score: number | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_involved?: number | null
+          content: string
+          created_at?: string
+          entry_date?: string
+          financial_event_type?: string | null
+          id?: string
+          is_private?: boolean | null
+          mood?: string | null
+          mood_score?: number | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_involved?: number | null
+          content?: string
+          created_at?: string
+          entry_date?: string
+          financial_event_type?: string | null
+          id?: string
+          is_private?: boolean | null
+          mood?: string | null
+          mood_score?: number | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
