@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw, Home } from 'lucide-react';
+import { captureException, addBreadcrumb } from '@/lib/sentry';
 
 interface Props {
   children: ReactNode;
@@ -12,6 +13,7 @@ interface State {
   hasError: boolean;
   error?: Error;
   errorInfo?: ErrorInfo;
+  eventId?: string;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -20,7 +22,7 @@ export class ErrorBoundary extends Component<Props, State> {
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
@@ -28,17 +30,41 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     this.setState({ error, errorInfo });
     
-    // Log to analytics or error reporting service
+    // Report to Sentry with full context
+    const eventId = captureException(error, {
+      tags: {
+        errorBoundary: 'true',
+        componentStack: 'included',
+      },
+      extra: {
+        componentStack: errorInfo.componentStack,
+        errorMessage: error.message,
+        errorName: error.name,
+      },
+      level: 'error',
+    });
+    
+    if (eventId) {
+      this.setState({ eventId });
+    }
+    
+    // Add breadcrumb for context
+    addBreadcrumb('Error boundary triggered', 'error', 'error', {
+      errorMessage: error.message,
+    });
+    
+    // Also log to PostHog as backup
     if (typeof window !== 'undefined' && (window as any).posthog) {
       (window as any).posthog.capture('app_error', {
         error: error.toString(),
         stack: errorInfo.componentStack,
+        sentryEventId: eventId,
       });
     }
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined, eventId: undefined });
   };
 
   handleGoHome = () => {
@@ -86,6 +112,12 @@ export class ErrorBoundary extends Component<Props, State> {
                 This error has been logged and our team will investigate. You can try refreshing 
                 the page or returning to the home page.
               </p>
+              
+              {this.state.eventId && (
+                <p className="text-xs text-muted-foreground font-mono">
+                  Error ID: {this.state.eventId}
+                </p>
+              )}
 
               <div className="flex gap-3 pt-2">
                 <Button onClick={this.handleReset} className="gap-2">
