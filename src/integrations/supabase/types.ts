@@ -5250,6 +5250,36 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_pulse_cache: {
+        Row: {
+          created_at: string
+          health_score: number | null
+          id: string
+          last_calculated_at: string
+          pulse_data: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          health_score?: number | null
+          id?: string
+          last_calculated_at?: string
+          pulse_data?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          health_score?: number | null
+          id?: string
+          last_calculated_at?: string
+          pulse_data?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       financial_questlines: {
         Row: {
           badge_reward: string | null
@@ -10120,6 +10150,239 @@ export type Database = {
           },
         ]
       }
+      split_expenses: {
+        Row: {
+          category: string | null
+          created_at: string
+          currency: string | null
+          description: string
+          expense_date: string
+          group_id: string
+          id: string
+          is_settled: boolean | null
+          notes: string | null
+          paid_by: string
+          receipt_url: string | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          currency?: string | null
+          description: string
+          expense_date?: string
+          group_id: string
+          id?: string
+          is_settled?: boolean | null
+          notes?: string | null
+          paid_by: string
+          receipt_url?: string | null
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string
+          expense_date?: string
+          group_id?: string
+          id?: string
+          is_settled?: boolean | null
+          notes?: string | null
+          paid_by?: string
+          receipt_url?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "split_expenses_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "split_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      split_group_members: {
+        Row: {
+          email: string | null
+          group_id: string
+          id: string
+          is_registered: boolean | null
+          joined_at: string
+          nickname: string | null
+          user_id: string
+        }
+        Insert: {
+          email?: string | null
+          group_id: string
+          id?: string
+          is_registered?: boolean | null
+          joined_at?: string
+          nickname?: string | null
+          user_id: string
+        }
+        Update: {
+          email?: string | null
+          group_id?: string
+          id?: string
+          is_registered?: boolean | null
+          joined_at?: string
+          nickname?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "split_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "split_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      split_groups: {
+        Row: {
+          color: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      split_participants: {
+        Row: {
+          created_at: string
+          expense_id: string
+          id: string
+          is_paid: boolean | null
+          member_id: string
+          paid_at: string | null
+          share_amount: number
+          share_percentage: number | null
+        }
+        Insert: {
+          created_at?: string
+          expense_id: string
+          id?: string
+          is_paid?: boolean | null
+          member_id: string
+          paid_at?: string | null
+          share_amount: number
+          share_percentage?: number | null
+        }
+        Update: {
+          created_at?: string
+          expense_id?: string
+          id?: string
+          is_paid?: boolean | null
+          member_id?: string
+          paid_at?: string | null
+          share_amount?: number
+          share_percentage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "split_participants_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "split_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "split_participants_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "split_group_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      split_settlements: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          from_member_id: string
+          group_id: string
+          id: string
+          notes: string | null
+          settled_at: string
+          to_member_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          from_member_id: string
+          group_id: string
+          id?: string
+          notes?: string | null
+          settled_at?: string
+          to_member_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          from_member_id?: string
+          group_id?: string
+          id?: string
+          notes?: string | null
+          settled_at?: string
+          to_member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "split_settlements_from_member_id_fkey"
+            columns: ["from_member_id"]
+            isOneToOne: false
+            referencedRelation: "split_group_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "split_settlements_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "split_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "split_settlements_to_member_id_fkey"
+            columns: ["to_member_id"]
+            isOneToOne: false
+            referencedRelation: "split_group_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       streak_freeze_inventory: {
         Row: {
           created_at: string | null
@@ -12886,6 +13149,66 @@ export type Database = {
           metadata?: Json | null
           user_id?: string
           widget_id?: string
+        }
+        Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_purchased: boolean | null
+          name: string
+          notes: string | null
+          priority: number | null
+          product_url: string | null
+          purchased_at: string | null
+          saved_amount: number | null
+          target_amount: number
+          target_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_purchased?: boolean | null
+          name: string
+          notes?: string | null
+          priority?: number | null
+          product_url?: string | null
+          purchased_at?: string | null
+          saved_amount?: number | null
+          target_amount: number
+          target_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_purchased?: boolean | null
+          name?: string
+          notes?: string | null
+          priority?: number | null
+          product_url?: string | null
+          purchased_at?: string | null
+          saved_amount?: number | null
+          target_amount?: number
+          target_date?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
