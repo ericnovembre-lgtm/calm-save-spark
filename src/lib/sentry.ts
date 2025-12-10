@@ -149,5 +149,49 @@ export function captureMessage(
   return Sentry.captureMessage(message, level);
 }
 
+/**
+ * Report Web Vitals metrics to Sentry
+ * Call this after Sentry initialization
+ */
+export function reportWebVitalsToSentry(): void {
+  if (!SENTRY_DSN) return;
+  
+  import('web-vitals').then(({ onLCP, onCLS, onFCP, onTTFB, onINP }) => {
+    const reportMetric = (metric: { name: string; value: number; id: string }) => {
+      // Add as breadcrumb for context
+      addBreadcrumb(
+        `Web Vital: ${metric.name} = ${metric.value.toFixed(2)}`,
+        'web-vitals',
+        'info',
+        { metric_id: metric.id, value: metric.value, name: metric.name }
+      );
+      
+      // Log performance issues
+      const thresholds: Record<string, number> = {
+        LCP: 2500,  // Good LCP is under 2.5s
+        CLS: 0.1,   // Good CLS is under 0.1
+        FCP: 1800,  // Good FCP is under 1.8s
+        TTFB: 800,  // Good TTFB is under 800ms
+        INP: 200,   // Good INP is under 200ms
+      };
+      
+      if (thresholds[metric.name] && metric.value > thresholds[metric.name]) {
+        captureMessage(
+          `Poor ${metric.name}: ${metric.value.toFixed(0)}ms (threshold: ${thresholds[metric.name]}ms)`,
+          'warning'
+        );
+      }
+    };
+    
+    onLCP(reportMetric);
+    onCLS(reportMetric);
+    onFCP(reportMetric);
+    onTTFB(reportMetric);
+    onINP(reportMetric);
+  }).catch((err) => {
+    console.warn('[Sentry] Failed to load web-vitals:', err);
+  });
+}
+
 // Re-export Sentry for direct usage when needed
 export { Sentry };

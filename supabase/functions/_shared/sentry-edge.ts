@@ -189,3 +189,57 @@ export function withSentryEdge<T>(
     }
   };
 }
+
+/**
+ * Track edge function performance with timing metrics
+ */
+export async function trackEdgePerformance<T>(
+  name: string,
+  operation: () => Promise<T>,
+  context?: {
+    tags?: Record<string, string>;
+    extra?: Record<string, unknown>;
+  }
+): Promise<{ result: T; duration: number }> {
+  const start = Date.now();
+  
+  try {
+    const result = await operation();
+    const duration = Date.now() - start;
+    
+    // Log performance metric
+    await captureEdgeMessage(
+      `${name} completed in ${duration}ms`,
+      duration > 5000 ? 'warning' : 'info',
+      {
+        tags: { 
+          function: name,
+          performance: duration > 5000 ? 'slow' : duration > 2000 ? 'moderate' : 'fast',
+          ...context?.tags 
+        },
+        extra: { 
+          duration_ms: duration,
+          ...context?.extra 
+        },
+      }
+    );
+    
+    return { result, duration };
+  } catch (error) {
+    const duration = Date.now() - start;
+    
+    await captureEdgeException(error, {
+      transaction: name,
+      tags: { 
+        function: name,
+        ...context?.tags 
+      },
+      extra: { 
+        duration_ms: duration,
+        ...context?.extra 
+      },
+    });
+    
+    throw error;
+  }
+}
