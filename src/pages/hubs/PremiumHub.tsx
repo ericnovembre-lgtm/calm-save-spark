@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { Sparkles, Building2, Users, TrendingUp, Gamepad2, CalendarClock, RefreshCw, Coins, FileText } from "lucide-react";
+import { Sparkles, Building2, Users, TrendingUp, Gamepad2, CalendarClock, RefreshCw, Coins, FileText, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -71,6 +71,13 @@ const features = [
     description: "Tax preparation and filing",
     path: "/tax-documents",
     color: "text-red-500"
+  },
+  {
+    icon: Gift,
+    title: "Referral Center",
+    description: "Refer friends and earn rewards",
+    path: "/referral-center",
+    color: "text-amber-500"
   },
 ];
 

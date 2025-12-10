@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { UsersRound, GraduationCap, BookOpen, Leaf, Heart, Briefcase, MapPin, Gift, HeartHandshake } from "lucide-react";
+import { UsersRound, GraduationCap, BookOpen, Leaf, Heart, Briefcase, MapPin, Gift, HeartHandshake, BookMarked } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -67,6 +67,13 @@ const features = [
     description: "Manage finances together with your partner",
     path: "/couples",
     color: "text-pink-500"
+  },
+  {
+    icon: BookMarked,
+    title: "Financial Diary",
+    description: "Journal your financial thoughts and moods",
+    path: "/financial-diary",
+    color: "text-cyan-500"
   },
 ];
 
