@@ -512,3 +512,6 @@ verify_jwt = true
 
 [functions.generate-export]
 verify_jwt = true
+
+[functions.analyze-debt-consolidation]
+verify_jwt = true
