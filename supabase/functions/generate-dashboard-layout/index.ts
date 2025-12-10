@@ -1,6 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.76.1";
+import { redisGetJSON, redisSetJSON } from '../_shared/upstash-redis.ts';
+import { checkRateLimit, rateLimitExceededResponse, rateLimitHeaders } from '../_shared/redis-rate-limiter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,6 +11,7 @@ const corsHeaders = {
 
 const CLAUDE_OPUS = 'claude-opus-4-5-20251101';
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours for better cache hit rates
+const REDIS_CACHE_TTL_SECONDS = 30 * 60; // 30 minutes Redis cache
 
 const WIDGET_TYPES = `
 ## Widget Types Available
@@ -378,18 +381,44 @@ serve(async (req) => {
 
     const startTime = Date.now();
 
-    // Check cache first (unless force refresh)
+    // Rate limiting
+    const rateLimitResult = await checkRateLimit(user.id, 'generate-dashboard-layout');
+    if (!rateLimitResult.allowed) {
+      console.log(`Rate limit exceeded for user ${user.id}`);
+      return rateLimitExceededResponse(rateLimitResult, corsHeaders);
+    }
+
+    // Check Redis cache first (faster than DB cache)
     if (!forceRefresh) {
-      const cached = await getCachedLayout(supabase, user.id);
-      if (cached) {
-        console.log('Returning cached dashboard layout');
+      const redisCacheKey = `dashboard:${user.id}`;
+      const redisCached = await redisGetJSON<any>(redisCacheKey);
+      if (redisCached) {
+        console.log('Returning Redis cached dashboard layout');
         return new Response(JSON.stringify({
           success: true,
-          dashboard: cached,
+          dashboard: redisCached,
           cached: true,
+          cacheSource: 'redis',
           meta: { model: CLAUDE_OPUS, processingTimeMs: Date.now() - startTime, generatedAt: new Date().toISOString() }
         }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, ...rateLimitHeaders(rateLimitResult), 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Fallback to DB cache
+      const dbCached = await getCachedLayout(supabase, user.id);
+      if (dbCached) {
+        console.log('Returning DB cached dashboard layout');
+        // Warm Redis cache for next request
+        await redisSetJSON(redisCacheKey, dbCached, REDIS_CACHE_TTL_SECONDS);
+        return new Response(JSON.stringify({
+          success: true,
+          dashboard: dbCached,
+          cached: true,
+          cacheSource: 'database',
+          meta: { model: CLAUDE_OPUS, processingTimeMs: Date.now() - startTime, generatedAt: new Date().toISOString() }
+        }), {
+          headers: { ...corsHeaders, ...rateLimitHeaders(rateLimitResult), 'Content-Type': 'application/json' },
         });
       }
     }
@@ -413,9 +442,13 @@ serve(async (req) => {
               }
             }
 
-            // Cache the result
+            // Cache the result in both Redis and DB
             if (finalDashboard) {
-              await setCachedLayout(supabase, user.id, finalDashboard);
+              const redisCacheKey = `dashboard:${user.id}`;
+              await Promise.all([
+                redisSetJSON(redisCacheKey, finalDashboard, REDIS_CACHE_TTL_SECONDS),
+                setCachedLayout(supabase, user.id, finalDashboard)
+              ]);
               
               // Log analytics
               supabase.from('ai_model_routing_analytics').insert({
@@ -454,8 +487,12 @@ serve(async (req) => {
     const dashboardLayout = await generateDashboardWithClaude(context);
     const processingTime = Date.now() - startTime;
 
-    // Cache the result
-    await setCachedLayout(supabase, user.id, dashboardLayout);
+    // Cache the result in both Redis and DB
+    const redisCacheKey = `dashboard:${user.id}`;
+    await Promise.all([
+      redisSetJSON(redisCacheKey, dashboardLayout, REDIS_CACHE_TTL_SECONDS),
+      setCachedLayout(supabase, user.id, dashboardLayout)
+    ]);
 
     // Log analytics
     supabase.from('ai_model_routing_analytics').insert({
