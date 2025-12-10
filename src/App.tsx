@@ -107,6 +107,9 @@ const FinancialPulse = createPageLoader(() => import("./pages/FinancialPulse"), 
 const ExpenseSplit = createPageLoader(() => import("./pages/ExpenseSplit"), 'medium');
 const ExpenseSplitGroup = createPageLoader(() => import("./pages/ExpenseSplitGroup"), 'medium');
 const WishlistTracker = createPageLoader(() => import("./pages/WishlistTracker"), 'medium');
+const SavingsChallenges = createPageLoader(() => import("./pages/SavingsChallenges"), 'medium');
+const InvestmentTaxLots = createPageLoader(() => import("./pages/InvestmentTaxLots"), 'medium');
+const CouplesDashboard = createPageLoader(() => import("./pages/CouplesDashboard"), 'medium');
 
 const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
 const Sitemap = createPageLoader(() => import("./pages/Sitemap"), 'medium');
@@ -296,6 +299,9 @@ function AnimatedRoutes() {
         <Route path="/expense-split" element={<ProtectedRoute><PageTransition><ExpenseSplit /></PageTransition></ProtectedRoute>} />
         <Route path="/expense-split/:groupId" element={<ProtectedRoute><PageTransition><ExpenseSplitGroup /></PageTransition></ProtectedRoute>} />
         <Route path="/wishlist" element={<ProtectedRoute><PageTransition><WishlistTracker /></PageTransition></ProtectedRoute>} />
+        <Route path="/savings-challenges" element={<ProtectedRoute><PageTransition><SavingsChallenges /></PageTransition></ProtectedRoute>} />
+        <Route path="/investment-tax-lots" element={<ProtectedRoute><PageTransition><InvestmentTaxLots /></PageTransition></ProtectedRoute>} />
+        <Route path="/couples" element={<ProtectedRoute><PageTransition><CouplesDashboard /></PageTransition></ProtectedRoute>} />
         <Route path="/insights" element={<Navigate to="/analytics?tab=cashflow" replace />} />
         <Route path="/budget" element={<ProtectedRoute><PageTransition><Budget /></PageTransition></ProtectedRoute>} />
         <Route path="/debts" element={<ProtectedRoute><PageTransition><Debts /></PageTransition></ProtectedRoute>} />
