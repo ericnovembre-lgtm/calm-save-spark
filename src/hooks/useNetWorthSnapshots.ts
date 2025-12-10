@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import type { Json } from '@/integrations/supabase/types';
 
 export interface AssetBreakdown {
   cash?: number;
@@ -102,8 +103,8 @@ export function useNetWorthSnapshots() {
             total_assets: data.total_assets,
             total_liabilities: data.total_liabilities,
             net_worth,
-            asset_breakdown: data.asset_breakdown ?? {},
-            liability_breakdown: data.liability_breakdown ?? {},
+            asset_breakdown: (data.asset_breakdown ?? {}) as Json,
+            liability_breakdown: (data.liability_breakdown ?? {}) as Json,
             snapshot_type: data.snapshot_type ?? 'manual',
             notes: data.notes,
           })
@@ -116,17 +117,17 @@ export function useNetWorthSnapshots() {
         // Insert new
         const result = await supabase
           .from('net_worth_snapshots')
-          .insert({
+          .insert([{
             user_id: session.user.id,
             snapshot_date: today,
             total_assets: data.total_assets,
             total_liabilities: data.total_liabilities,
             net_worth,
-            asset_breakdown: data.asset_breakdown ?? {},
-            liability_breakdown: data.liability_breakdown ?? {},
+            asset_breakdown: (data.asset_breakdown ?? {}) as Json,
+            liability_breakdown: (data.liability_breakdown ?? {}) as Json,
             snapshot_type: data.snapshot_type ?? 'manual',
             notes: data.notes,
-          })
+          }])
           .select()
           .single();
         snapshot = result.data;
