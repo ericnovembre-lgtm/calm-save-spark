@@ -105,15 +105,15 @@ async function fetchUserFinancialContext(supabase: any, userId: string): Promise
   // Fetch net worth change
   const { data: netWorthHistory } = await supabase
     .from('net_worth_snapshots')
-    .select('total_net_worth')
+    .select('net_worth')
     .eq('user_id', userId)
     .order('snapshot_date', { ascending: false })
     .limit(2);
 
   let netWorthChange = 0;
   if (netWorthHistory && netWorthHistory.length >= 2) {
-    const current = netWorthHistory[0].total_net_worth;
-    const previous = netWorthHistory[1].total_net_worth;
+    const current = netWorthHistory[0].net_worth;
+    const previous = netWorthHistory[1].net_worth;
     netWorthChange = previous > 0 ? ((current - previous) / previous) * 100 : 0;
   }
 

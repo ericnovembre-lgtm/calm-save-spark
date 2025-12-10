@@ -3,7 +3,7 @@ import Joyride from 'react-joyride';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Target, Sparkles, ArrowRight, Zap } from "lucide-react";
+import { Plus, Target, Sparkles, ArrowRight, Zap, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -218,6 +218,12 @@ const Goals = () => {
           </div>
           
           <div className="flex items-center gap-2">
+            <Link to="/goals-sharing">
+              <Button variant="outline" className="gap-2">
+                <Share2 className="w-4 h-4" />
+                Share Goals
+              </Button>
+            </Link>
             <HelpButton
               onResetTour={resetTour}
             />

@@ -123,6 +123,13 @@ const PageAnalytics = createPageLoader(() => import("./pages/admin/PageAnalytics
 const ApiHealthDashboard = createPageLoader(() => import("./pages/admin/ApiHealthDashboard"), 'medium');
 const BundleAnalysis = createPageLoader(() => import("./pages/admin/BundleAnalysis"), 'medium');
 
+// Phase 5 Pages
+const FinancialMilestonesTimeline = createPageLoader(() => import("./pages/FinancialMilestonesTimeline"), 'medium');
+const MoneyMindset = createPageLoader(() => import("./pages/MoneyMindset"), 'medium');
+const CommunityForum = createPageLoader(() => import("./pages/CommunityForum"), 'medium');
+const FinancialGoalsSharing = createPageLoader(() => import("./pages/FinancialGoalsSharing"), 'medium');
+const WidgetBuilder = createPageLoader(() => import("./pages/WidgetBuilder"), 'medium');
+
 // Hub pages (Medium complexity)
 const ManageMoneyHub = createPageLoader(() => import("./pages/hubs/ManageMoneyHub"), 'medium');
 const GrowWealthHub = createPageLoader(() => import("./pages/hubs/GrowWealthHub"), 'medium');
@@ -393,6 +400,13 @@ function AnimatedRoutes() {
         <Route path="/financial-diary" element={<ProtectedRoute><PageTransition><FinancialDiary /></PageTransition></ProtectedRoute>} />
         <Route path="/ai-insights-archive" element={<ProtectedRoute><PageTransition><AIInsightsArchive /></PageTransition></ProtectedRoute>} />
         <Route path="/referral-center" element={<ProtectedRoute><PageTransition><ReferralCenter /></PageTransition></ProtectedRoute>} />
+        
+        {/* Phase 5 Pages */}
+        <Route path="/milestones-timeline" element={<ProtectedRoute><PageTransition><FinancialMilestonesTimeline /></PageTransition></ProtectedRoute>} />
+        <Route path="/money-mindset" element={<ProtectedRoute><PageTransition><MoneyMindset /></PageTransition></ProtectedRoute>} />
+        <Route path="/community-forum" element={<ProtectedRoute><PageTransition><CommunityForum /></PageTransition></ProtectedRoute>} />
+        <Route path="/goals-sharing" element={<ProtectedRoute><PageTransition><FinancialGoalsSharing /></PageTransition></ProtectedRoute>} />
+        <Route path="/widget-builder" element={<ProtectedRoute><PageTransition><WidgetBuilder /></PageTransition></ProtectedRoute>} />
         
         {/* Maintenance Page */}
         <Route path="/maintenance" element={<PageTransition><Maintenance /></PageTransition>} />
