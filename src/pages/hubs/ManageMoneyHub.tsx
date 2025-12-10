@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { Wallet, PieChart, DollarSign, Receipt, CreditCard, Coins, Zap, BadgeDollarSign, Activity, Users } from "lucide-react";
+import { Wallet, PieChart, DollarSign, Receipt, CreditCard, Coins, Zap, BadgeDollarSign, Activity, Users, Tags, Calendar, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Suspense, lazy, useState } from "react";
@@ -91,6 +91,27 @@ const features = [
     description: "Split bills with friends",
     path: "/expense-split",
     color: "text-cyan-500"
+  },
+  {
+    icon: Tags,
+    title: "Smart Categories",
+    description: "AI-powered transaction categorization",
+    path: "/smart-categories",
+    color: "text-amber-500"
+  },
+  {
+    icon: Calendar,
+    title: "Financial Calendar",
+    description: "View all financial events",
+    path: "/financial-calendar",
+    color: "text-violet-500"
+  },
+  {
+    icon: Upload,
+    title: "Import/Export",
+    description: "Bulk data management",
+    path: "/import-export",
+    color: "text-emerald-500"
   },
 ];
 

@@ -110,6 +110,9 @@ const WishlistTracker = createPageLoader(() => import("./pages/WishlistTracker")
 const SavingsChallenges = createPageLoader(() => import("./pages/SavingsChallenges"), 'medium');
 const InvestmentTaxLots = createPageLoader(() => import("./pages/InvestmentTaxLots"), 'medium');
 const CouplesDashboard = createPageLoader(() => import("./pages/CouplesDashboard"), 'medium');
+const SmartCategories = createPageLoader(() => import("./pages/SmartCategories"), 'medium');
+const FinancialCalendar = createPageLoader(() => import("./pages/FinancialCalendar"), 'medium');
+const ImportExportCenter = createPageLoader(() => import("./pages/ImportExportCenter"), 'medium');
 
 const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
 const Sitemap = createPageLoader(() => import("./pages/Sitemap"), 'medium');
@@ -302,6 +305,9 @@ function AnimatedRoutes() {
         <Route path="/savings-challenges" element={<ProtectedRoute><PageTransition><SavingsChallenges /></PageTransition></ProtectedRoute>} />
         <Route path="/investment-tax-lots" element={<ProtectedRoute><PageTransition><InvestmentTaxLots /></PageTransition></ProtectedRoute>} />
         <Route path="/couples" element={<ProtectedRoute><PageTransition><CouplesDashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/smart-categories" element={<ProtectedRoute><PageTransition><SmartCategories /></PageTransition></ProtectedRoute>} />
+        <Route path="/financial-calendar" element={<ProtectedRoute><PageTransition><FinancialCalendar /></PageTransition></ProtectedRoute>} />
+        <Route path="/import-export" element={<ProtectedRoute><PageTransition><ImportExportCenter /></PageTransition></ProtectedRoute>} />
         <Route path="/insights" element={<Navigate to="/analytics?tab=cashflow" replace />} />
         <Route path="/budget" element={<ProtectedRoute><PageTransition><Budget /></PageTransition></ProtectedRoute>} />
         <Route path="/debts" element={<ProtectedRoute><PageTransition><Debts /></PageTransition></ProtectedRoute>} />
