@@ -264,6 +264,26 @@ export const elementRegistry: Record<string, ElementInfo> = {
     description: 'Navigate to your budgets',
     route: '*',
   },
+  
+  // Phase 2 pages
+  'savings-challenges-page': {
+    id: 'savings-challenges-page',
+    label: 'Savings Challenges',
+    description: 'Gamified savings challenges with streaks and milestones',
+    route: '/savings-challenges',
+  },
+  'investment-tax-lots-page': {
+    id: 'investment-tax-lots-page',
+    label: 'Investment Tax Lots',
+    description: 'Track cost basis and tax-loss harvesting opportunities',
+    route: '/investment-tax-lots',
+  },
+  'couples-dashboard-page': {
+    id: 'couples-dashboard-page',
+    label: 'Couples Dashboard',
+    description: 'Manage combined finances with your partner',
+    route: '/couples',
+  },
 };
 
 /**
