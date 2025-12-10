@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ExpenseList } from '@/components/expense-split/ExpenseList';
 import { AddExpenseModal } from '@/components/expense-split/AddExpenseModal';
 import { useSplitGroup, useSplitExpenses } from '@/hooks/useSplitGroups';
-import { useAuth } from '@/components/auth/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ExpenseSplitGroup() {
   const { groupId } = useParams<{ groupId: string }>();
