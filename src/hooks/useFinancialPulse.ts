@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface PulseMetric {
   label: string;
@@ -43,22 +43,22 @@ export function useFinancialPulse() {
       ] = await Promise.all([
         supabase
           .from('transactions')
-          .select('amount, category, date')
+          .select('amount, category, transaction_date')
           .eq('user_id', user.id)
-          .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-          .order('date', { ascending: false }),
+          .gte('transaction_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+          .order('transaction_date', { ascending: false }),
         supabase
           .from('goals')
           .select('target_amount, current_amount, name')
           .eq('user_id', user.id),
         supabase
           .from('user_budgets')
-          .select('amount, category, period')
+          .select('total_limit, name, period')
           .eq('user_id', user.id)
           .eq('is_active', true),
         supabase
           .from('debts')
-          .select('current_balance, original_balance, name')
+          .select('current_balance, original_balance, debt_name')
           .eq('user_id', user.id),
         supabase
           .from('net_worth_snapshots')
@@ -83,7 +83,7 @@ export function useFinancialPulse() {
       const totalGoalTargets = goals.reduce((sum, g) => sum + Number(g.target_amount || 0), 0);
       const savingsRate = totalGoalTargets > 0 ? (totalSavings / totalGoalTargets) * 100 : 0;
 
-      const totalBudget = budgets.reduce((sum, b) => sum + Number(b.amount || 0), 0);
+      const totalBudget = budgets.reduce((sum, b) => sum + Number(b.total_limit || 0), 0);
       const budgetAdherence = totalBudget > 0 ? Math.min(100, ((totalBudget - totalSpending) / totalBudget) * 100 + 50) : 50;
 
       const totalDebt = debts.reduce((sum, d) => sum + Number(d.current_balance || 0), 0);
