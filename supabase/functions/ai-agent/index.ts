@@ -9,6 +9,7 @@ import { lifePlannerHandler } from "./handlers/life-planner.ts";
 import { helpAgentHandler } from "./handlers/help-agent.ts";
 import { digitalTwinAdvisorHandler } from "./handlers/digital-twin-advisor.ts";
 import { checkAnthropicHealth } from "./utils/anthropic-client.ts";
+import { captureEdgeException } from "../_shared/sentry-edge.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -122,6 +123,19 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in ai-agent function:', error);
+    
+    // Capture error in Sentry with context
+    await captureEdgeException(error, {
+      transaction: 'ai-agent',
+      tags: {
+        function: 'ai-agent',
+        method: req.method,
+      },
+      extra: {
+        url: req.url,
+        timestamp: new Date().toISOString(),
+      },
+    });
     
     // Log error details for debugging
     console.error('Error details:', {

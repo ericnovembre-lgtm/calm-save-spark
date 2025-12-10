@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { markSessionActive } from '@/lib/session';
 import { logLoginEvent } from '@/lib/security-logger';
+import { setSentryUser } from '@/lib/sentry';
 
 interface AuthContextType {
   user: User | null;
@@ -40,6 +41,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session) {
           markSessionActive();
           
+          // Set Sentry user context for error tracking
+          setSentryUser({
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.full_name
+          });
+          
           // Track session and log security event on sign in
           if (event === 'SIGNED_IN') {
             // Track session in background (fire-and-forget)
@@ -48,6 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Log security event
             logLoginEvent();
           }
+        } else {
+          // Clear Sentry user context on logout
+          setSentryUser(null);
         }
       }
     );
@@ -59,6 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    // Clear Sentry user context
+    setSentryUser(null);
   };
 
   return (
