@@ -284,6 +284,26 @@ export const elementRegistry: Record<string, ElementInfo> = {
     description: 'Manage combined finances with your partner',
     route: '/couples',
   },
+  
+  // Phase 3 pages
+  'smart-categories-page': {
+    id: 'smart-categories-page',
+    label: 'Smart Categories',
+    description: 'AI-powered transaction categorization with custom rules',
+    route: '/smart-categories',
+  },
+  'financial-calendar-page': {
+    id: 'financial-calendar-page',
+    label: 'Financial Calendar',
+    description: 'Unified calendar of all financial events',
+    route: '/financial-calendar',
+  },
+  'import-export-page': {
+    id: 'import-export-page',
+    label: 'Import/Export Center',
+    description: 'Bulk data import and export management',
+    route: '/import-export',
+  },
 };
 
 /**
