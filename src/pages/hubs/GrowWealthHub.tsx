@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIcon, CreditCard, Trophy, ArrowRight, ChevronUp, PiggyBank, Shield, Sparkles, Calculator, DollarSign } from "lucide-react";
+import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIcon, CreditCard, Trophy, ArrowRight, ChevronUp, PiggyBank, Shield, Sparkles, Calculator, DollarSign, Flame, FileSpreadsheet } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LiquidCardMorph } from "@/components/hubs/money/effects/LiquidCardMorph";
@@ -92,6 +92,24 @@ const features = [
     path: "/achievements",
     color: "text-yellow-500",
     gradient: "from-yellow-500/20 to-amber-500/20",
+  },
+  {
+    icon: Flame,
+    title: "Savings Challenges",
+    description: "Gamified savings with streaks",
+    path: "/savings-challenges",
+    color: "text-orange-500",
+    gradient: "from-orange-500/20 to-red-500/20",
+    badge: "New",
+  },
+  {
+    icon: FileSpreadsheet,
+    title: "Tax Lots",
+    description: "Track cost basis and harvest losses",
+    path: "/investment-tax-lots",
+    color: "text-teal-500",
+    gradient: "from-teal-500/20 to-cyan-500/20",
+    badge: "New",
   },
 ];
 
