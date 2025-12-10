@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIcon, CreditCard, Trophy, ArrowRight, ChevronUp, PiggyBank, Shield, Sparkles, Calculator } from "lucide-react";
+import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIcon, CreditCard, Trophy, ArrowRight, ChevronUp, PiggyBank, Shield, Sparkles, Calculator, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LiquidCardMorph } from "@/components/hubs/money/effects/LiquidCardMorph";
@@ -28,6 +28,24 @@ const features = [
     badge: "Popular",
   },
   {
+    icon: DollarSign,
+    title: "Income Tracking",
+    description: "Track all your income sources",
+    path: "/income",
+    color: "text-emerald-500",
+    gradient: "from-emerald-500/20 to-green-500/20",
+    badge: "New",
+  },
+  {
+    icon: TrendingUp,
+    title: "Net Worth",
+    description: "Track your total wealth over time",
+    path: "/net-worth",
+    color: "text-amber-500",
+    gradient: "from-amber-500/20 to-yellow-500/20",
+    badge: "New",
+  },
+  {
     icon: TrendingUp,
     title: "Investments",
     description: "Track your investment portfolio",
@@ -42,7 +60,6 @@ const features = [
     path: "/retirement-planner",
     color: "text-cyan-500",
     gradient: "from-cyan-500/20 to-teal-500/20",
-    badge: "New",
   },
   {
     icon: BadgeDollarSign,

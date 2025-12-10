@@ -119,6 +119,22 @@ export const WIDGET_ACTIONS: Record<string, WidgetAction[]> = {
     { id: 'accounts', label: 'Accounts', icon: Wallet, route: '/accounts' },
   ],
   
+  // Net Worth Dashboard
+  net_worth_dashboard: [
+    { id: 'view_history', label: 'History', icon: LineChart, route: '/net-worth' },
+    { id: 'accounts', label: 'Accounts', icon: Wallet, route: '/accounts' },
+  ],
+  
+  // Income
+  income: [
+    { id: 'add_income', label: 'Add', icon: Plus, route: '/income', variant: 'primary' },
+    { id: 'view_income', label: 'View All', icon: DollarSign, route: '/income' },
+  ],
+  income_summary: [
+    { id: 'add_income', label: 'Add', icon: Plus, route: '/income', variant: 'primary' },
+    { id: 'view_analytics', label: 'Analytics', icon: BarChart2, route: '/income' },
+  ],
+  
   // AI Insights
   ai_insight: [
     { id: 'view_insights', label: 'View All', icon: Sparkles, route: '/insights' },

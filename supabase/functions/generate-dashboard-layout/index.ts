@@ -25,12 +25,15 @@ const WIDGET_TYPES = `
 - credit_score: Credit monitoring
 - net_worth: Net worth tracker
 - net_worth_chart: Net worth mini chart with trend
+- net_worth_dashboard: Comprehensive net worth with assets/liabilities breakdown
 - debt_tracker: Debt payoff progress
 - subscriptions: Recurring payments tracker
 - spending_alerts: Budget warning alerts
 - daily_briefing: AI daily summary card
 - streak_recovery: Streak warning/recovery banner
-- nudges: AI recommendations`;
+- nudges: AI recommendations
+- income: Monthly income summary with source count
+- income_summary: Detailed income breakdown with trends`;
 
 const DASHBOARD_ARCHITECT_PROMPT = `You are the $ave+ Dashboard Architect - an elite AI that designs hyper-personalized financial dashboards.
 
