@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { captureEdgeException } from "../_shared/sentry-edge.ts";
 
 const corsHeaders = {
@@ -23,7 +24,37 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let userId: string | undefined;
+
   try {
+    // Verify user authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.warn('[copilot-respond] Missing Authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', message: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.warn('[copilot-respond] Invalid or expired session:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', message: 'Invalid or expired session' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    userId = user.id;
+    console.log(`[copilot-respond] Authenticated user: ${userId}`);
+
     const { message, context, conversationHistory = [] }: CoPilotRequest = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -160,7 +191,7 @@ Remember: You are the "Ghost in the Machine" - you can see what the user sees an
   } catch (error) {
     console.error("CoPilot error:", error);
     
-    // Capture error in Sentry with context
+    // Capture error in Sentry with user context
     await captureEdgeException(error, {
       transaction: 'copilot-respond',
       tags: {
@@ -169,6 +200,7 @@ Remember: You are the "Ghost in the Machine" - you can see what the user sees an
       },
       extra: {
         url: req.url,
+        user_id: userId,
         timestamp: new Date().toISOString(),
       },
     });
