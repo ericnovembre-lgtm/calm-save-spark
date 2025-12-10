@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { Wallet, PieChart, DollarSign, Receipt, CreditCard, Coins, Zap, BadgeDollarSign } from "lucide-react";
+import { Wallet, PieChart, DollarSign, Receipt, CreditCard, Coins, Zap, BadgeDollarSign, Activity, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Suspense, lazy, useState } from "react";
@@ -77,6 +77,20 @@ const features = [
     description: "Connect and manage accounts",
     path: "/accounts",
     color: "text-teal-500"
+  },
+  {
+    icon: Activity,
+    title: "Financial Pulse",
+    description: "Real-time financial health monitoring",
+    path: "/financial-pulse",
+    color: "text-green-500"
+  },
+  {
+    icon: Users,
+    title: "Expense Split",
+    description: "Split bills with friends",
+    path: "/expense-split",
+    color: "text-cyan-500"
   },
 ];
 
