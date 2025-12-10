@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.76.1";
 import { redisGetJSON, redisSetJSON } from '../_shared/upstash-redis.ts';
 import { checkRateLimit, rateLimitExceededResponse, rateLimitHeaders } from '../_shared/redis-rate-limiter.ts';
+import { captureEdgeException } from '../_shared/sentry-edge.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -523,6 +524,20 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Dashboard generation error:', error);
+    
+    // Capture error in Sentry with context
+    await captureEdgeException(error, {
+      transaction: 'generate-dashboard-layout',
+      tags: {
+        function: 'generate-dashboard-layout',
+        method: req.method,
+      },
+      extra: {
+        url: req.url,
+        timestamp: new Date().toISOString(),
+      },
+    });
+    
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Unknown error',
       fallback: true 

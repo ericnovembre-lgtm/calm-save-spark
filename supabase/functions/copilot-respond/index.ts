@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { captureEdgeException } from "../_shared/sentry-edge.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -158,6 +159,20 @@ Remember: You are the "Ghost in the Machine" - you can see what the user sees an
 
   } catch (error) {
     console.error("CoPilot error:", error);
+    
+    // Capture error in Sentry with context
+    await captureEdgeException(error, {
+      transaction: 'copilot-respond',
+      tags: {
+        function: 'copilot-respond',
+        method: req.method,
+      },
+      extra: {
+        url: req.url,
+        timestamp: new Date().toISOString(),
+      },
+    });
+    
     return new Response(
       JSON.stringify({ 
         error: error instanceof Error ? error.message : "Unknown error",
