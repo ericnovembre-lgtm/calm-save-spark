@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callDeepseekWithAdaptiveLimit } from "../_shared/adaptive-deepseek-limiter.ts";
+import { captureEdgeException, trackEdgePerformance } from "../_shared/sentry-edge.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -238,6 +239,18 @@ ${JSON.stringify(tlhOpportunities, null, 2)}
 
   } catch (error) {
     console.error("[optimize-portfolio] Error:", error);
+    
+    // Capture error to Sentry with rich context
+    await captureEdgeException(error, {
+      tags: { 
+        function: 'optimize-portfolio', 
+        optimization_type: 'unknown' // Will be set if we can access it
+      },
+      extra: { 
+        error_message: error instanceof Error ? error.message : 'Unknown error'
+      }
+    });
+    
     return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Portfolio optimization failed" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

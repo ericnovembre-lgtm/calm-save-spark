@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { callDeepseekWithAdaptiveLimit } from "../_shared/adaptive-deepseek-limiter.ts";
+import { captureEdgeException, trackEdgePerformance } from "../_shared/sentry-edge.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -300,6 +301,17 @@ Show all mathematical calculations in your reasoning.`;
 
   } catch (error) {
     console.error("[retirement-planner] Error:", error);
+    
+    // Capture error to Sentry with retirement planning context
+    await captureEdgeException(error, {
+      tags: { 
+        function: 'retirement-planner'
+      },
+      extra: { 
+        error_message: error instanceof Error ? error.message : 'Unknown error'
+      }
+    });
+    
     return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Retirement planning failed" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

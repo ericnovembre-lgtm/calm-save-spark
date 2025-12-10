@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { captureEdgeException, trackEdgePerformance } from "../_shared/sentry-edge.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -441,6 +442,19 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('[BatchProcess] Fatal error:', error);
+    
+    // Capture error to Sentry with batch processing context
+    await captureEdgeException(error, {
+      tags: { 
+        function: 'batch-process-alerts',
+        batch_id: batchId
+      },
+      extra: { 
+        processing_time_ms: Date.now() - totalStartTime,
+        error_message: error instanceof Error ? error.message : 'Unknown error'
+      }
+    });
+    
     await supabase.from('batch_processing_analytics').insert({
       batch_id: batchId,
       queue_depth: 0,
