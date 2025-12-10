@@ -22,6 +22,9 @@ export function initSentry(): void {
   Sentry.init({
     dsn: SENTRY_DSN,
     
+    // Enable default PII collection (IP addresses, user agents)
+    sendDefaultPii: true,
+    
     // Environment configuration
     environment: isDevelopment ? 'development' : 'production',
     
