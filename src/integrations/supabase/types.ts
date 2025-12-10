@@ -13035,7 +13035,6 @@ export type Database = {
         Returns: undefined
       }
       has_role:
-        | { Args: { role_name: string; user_id: string }; Returns: boolean }
         | {
             Args: {
               _role: Database["public"]["Enums"]["app_role"]
@@ -13043,6 +13042,7 @@ export type Database = {
             }
             Returns: boolean
           }
+        | { Args: { role_name: string; user_id: string }; Returns: boolean }
       increment_redirect_usage: {
         Args: { redirect_id: string }
         Returns: undefined
