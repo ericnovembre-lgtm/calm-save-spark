@@ -324,6 +324,38 @@ export const elementRegistry: Record<string, ElementInfo> = {
     description: 'Refer friends and earn rewards',
     route: '/referral-center',
   },
+  
+  // Phase 5 pages
+  'milestones-timeline-page': {
+    id: 'milestones-timeline-page',
+    label: 'Milestones Timeline',
+    description: 'View your complete financial journey with achievements and milestones',
+    route: '/milestones-timeline',
+  },
+  'money-mindset-page': {
+    id: 'money-mindset-page',
+    label: 'Money Mindset',
+    description: 'Track and improve your relationship with money',
+    route: '/money-mindset',
+  },
+  'community-forum-page': {
+    id: 'community-forum-page',
+    label: 'Community Forum',
+    description: 'Connect with others on their financial journey',
+    route: '/community-forum',
+  },
+  'goals-sharing-page': {
+    id: 'goals-sharing-page',
+    label: 'Goals Sharing',
+    description: 'Share your financial goals and celebrate with friends',
+    route: '/goals-sharing',
+  },
+  'widget-builder-page': {
+    id: 'widget-builder-page',
+    label: 'Widget Builder',
+    description: 'Create and customize your own dashboard widgets',
+    route: '/widget-builder',
+  },
 };
 
 /**

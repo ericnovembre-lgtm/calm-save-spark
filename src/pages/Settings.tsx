@@ -290,6 +290,36 @@ export default function Settings() {
           </CardContent>
         </Card>
 
+        {/* Widget Builder Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Wand2 className="h-5 w-5 text-primary" />
+              Widget Builder
+            </CardTitle>
+            <CardDescription>
+              Create custom dashboard widgets
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link 
+              to="/widget-builder" 
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <Wand2 className="h-5 w-5 text-amber-500" />
+                <div>
+                  <p className="font-medium">Widget Builder</p>
+                  <p className="text-sm text-muted-foreground">
+                    Create and customize your own dashboard widgets
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
+          </CardContent>
+        </Card>
+
         {/* Privacy Section - Coming Soon */}
         <Card>
           <CardHeader>

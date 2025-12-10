@@ -85,13 +85,13 @@ serve(async (req) => {
         .eq('is_active', true),
       supabaseClient
         .from('net_worth_snapshots')
-        .select('total_net_worth, created_at')
+        .select('net_worth, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10),
       supabaseClient
         .from('detected_subscriptions')
-        .select('merchant, amount, last_charge_date, previous_amount')
+        .select('merchant, amount, last_charge_date')
         .eq('user_id', user.id)
         .eq('is_active', true),
       supabaseClient
@@ -150,37 +150,34 @@ serve(async (req) => {
       });
     }
 
-    // 2. THE NUDGE: Subscription price increased
-    for (const sub of subscriptions) {
-      if (sub.previous_amount && Number(sub.amount) > Number(sub.previous_amount)) {
-        const increase = Number(sub.amount) - Number(sub.previous_amount);
-        const percentIncrease = (increase / Number(sub.previous_amount)) * 100;
-        
+    // 2. THE NUDGE: Subscription review reminder (removed price comparison logic)
+    // Note: previous_amount column doesn't exist, so we just remind about subscriptions
+    if (subscriptions.length > 0) {
+      const topSub = subscriptions.sort((a: any, b: any) => Number(b.amount) - Number(a.amount))[0];
+      if (topSub && Number(topSub.amount) > 20) {
         stories.push({
-          id: `nudge_${sub.merchant}_${todayStr}`,
+          id: `nudge_${topSub.merchant}_${todayStr}`,
           type: 'nudge',
-          title: '⚠️ Price Alert',
-          headline: `${sub.merchant} went up!`,
-          body: `Your ${sub.merchant} subscription increased by $${increase.toFixed(2)} (${percentIncrease.toFixed(0)}%). Consider reviewing alternatives.`,
+          title: '📋 Subscription Review',
+          headline: `Check ${topSub.merchant}`,
+          body: `You're paying $${Number(topSub.amount).toFixed(2)}/month for ${topSub.merchant}. Make sure you're still getting value from it.`,
           theme: 'rose',
           animation: 'shake',
           createdAt: now.toISOString(),
           expiresAt,
           data: {
-            amount: Number(sub.amount),
-            percentChange: percentIncrease,
-            merchantName: sub.merchant
+            amount: Number(topSub.amount),
+            merchantName: topSub.merchant
           },
           cta: { label: 'Manage Subscriptions', action: '/subscriptions' }
         });
-        break; // Only show one nudge
       }
     }
 
     // 3. MILESTONE: Net worth crossed round number
     if (netWorthSnapshots.length >= 2) {
-      const currentNetWorth = Number(netWorthSnapshots[0]?.total_net_worth || 0);
-      const previousNetWorth = Number(netWorthSnapshots[1]?.total_net_worth || 0);
+      const currentNetWorth = Number(netWorthSnapshots[0]?.net_worth || 0);
+      const previousNetWorth = Number(netWorthSnapshots[1]?.net_worth || 0);
       
       const milestones = [1000, 5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000];
       for (const milestone of milestones) {

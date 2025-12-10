@@ -75,6 +75,28 @@ const features = [
     path: "/financial-diary",
     color: "text-cyan-500"
   },
+  // Phase 5: New lifestyle features
+  {
+    icon: MapPin,
+    title: "Milestones Timeline",
+    description: "View your financial journey achievements",
+    path: "/milestones-timeline",
+    color: "text-amber-500"
+  },
+  {
+    icon: Heart,
+    title: "Money Mindset",
+    description: "Track your relationship with money",
+    path: "/money-mindset",
+    color: "text-rose-500"
+  },
+  {
+    icon: UsersRound,
+    title: "Community Forum",
+    description: "Connect with others on their financial journey",
+    path: "/community-forum",
+    color: "text-violet-500"
+  },
 ];
 
 export default function LifestyleHub() {

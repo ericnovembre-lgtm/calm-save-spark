@@ -149,7 +149,7 @@ async function buildContextData(
       return {
         ...baseContext,
         netWorthHistory: netWorth.data || [],
-        currentNetWorth: netWorth.data?.[0]?.total_net_worth || 0,
+        currentNetWorth: netWorth.data?.[0]?.net_worth || 0,
         goalsTotal: (goals.data || []).reduce((sum: number, g: any) => sum + (g.target_amount || 0), 0),
         investmentsTotal: (investments.data || []).reduce((sum: number, i: any) => sum + (i.current_value || 0), 0),
       };
