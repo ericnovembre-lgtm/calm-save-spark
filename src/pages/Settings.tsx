@@ -18,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AchievementsList } from '@/components/gamification/AchievementsList';
 import { StreakFreezeManager } from '@/components/gamification/StreakFreezeManager';
-import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain, ChevronRight, Hand, Vibrate, Mic } from 'lucide-react';
+import { Shield, User, Bell, Lock, Globe, Trophy, Snowflake, Sparkles, Volume2, Activity, Wand2, Brain, ChevronRight, Hand, Vibrate, Mic, Bug } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MotionAccessibilitySettings } from '@/components/settings/MotionAccessibilitySettings';
 import { SoundSettings } from '@/components/settings/SoundSettings';
@@ -37,6 +37,7 @@ import { LiveThemePreview } from '@/components/settings/LiveThemePreview';
 import { ConnectedAppsPrivacy } from '@/components/settings/ConnectedAppsPrivacy';
 import { useSettingsSync } from '@/hooks/useSettingsSync';
 import { AIModelPreferences } from '@/components/settings/AIModelPreferences';
+import { SentryTestButton } from '@/components/dev/SentryTestButton';
 
 export default function Settings() {
   // Initialize settings sync
@@ -335,6 +336,24 @@ export default function Settings() {
             <p className="text-sm text-muted-foreground">Coming soon</p>
           </CardContent>
         </Card>
+
+        {/* Developer Tools - Only visible in development */}
+        {import.meta.env.DEV && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bug className="h-5 w-5 text-primary" />
+                Developer Tools
+              </CardTitle>
+              <CardDescription>
+                Development and debugging utilities (only visible in dev mode)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SentryTestButton />
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AppLayout>
   );
