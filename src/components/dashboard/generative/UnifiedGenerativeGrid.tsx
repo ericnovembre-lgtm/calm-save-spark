@@ -40,12 +40,14 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Lazy load new widgets
 const NetWorthMiniChart = lazy(() => import('./widgets/NetWorthMiniChart'));
+const NetWorthWidget = lazy(() => import('./widgets/NetWorthWidget'));
 const DebtTrackerMini = lazy(() => import('./widgets/DebtTrackerMini'));
 const SubscriptionsMini = lazy(() => import('./widgets/SubscriptionsMini'));
 const SpendingAlertsMini = lazy(() => import('./widgets/SpendingAlertsMini'));
 const PredictiveAnalytics = lazy(() => import('@/components/dashboard/PredictiveAnalytics').then(m => ({ default: m.PredictiveAnalytics })));
 const DailyBriefingCard = lazy(() => import('@/components/dashboard/DailyBriefingCard').then(m => ({ default: m.DailyBriefingCard })));
 const StreakRecoveryBanner = lazy(() => import('@/components/dashboard/StreakRecoveryBanner').then(m => ({ default: m.StreakRecoveryBanner })));
+const IncomeWidget = lazy(() => import('@/components/dashboard/IncomeWidget'));
 
 interface UnifiedGenerativeGridProps {
   layout: DashboardLayout;
@@ -131,6 +133,7 @@ function RealWidgetRenderer({
     const mapping: Record<string, string> = {
       'balance_hero': 'dashboard-balance',
       'net_worth': 'dashboard-balance',
+      'net_worth_dashboard': 'dashboard-net-worth',
       'goal_progress': 'dashboard-goals',
       'goals': 'dashboard-goals',
       'spending_breakdown': 'dashboard-spending',
@@ -140,6 +143,8 @@ function RealWidgetRenderer({
       'insights': 'dashboard-ai-insights',
       'quick_actions': 'dashboard-quick-actions',
       'actions': 'dashboard-quick-actions',
+      'income': 'dashboard-income',
+      'income_summary': 'dashboard-income',
     };
     return mapping[id] || `dashboard-widget-${id}`;
   };
@@ -303,6 +308,21 @@ function RealWidgetRenderer({
       return (
         <Suspense fallback={<WidgetSkeleton />}>
           <StreakRecoveryBanner />
+        </Suspense>
+      );
+
+    case 'income':
+    case 'income_summary':
+      return (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <IncomeWidget />
+        </Suspense>
+      );
+
+    case 'net_worth_dashboard':
+      return (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <NetWorthWidget />
         </Suspense>
       );
 
