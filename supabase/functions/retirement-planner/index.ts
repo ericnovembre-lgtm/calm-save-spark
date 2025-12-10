@@ -165,7 +165,12 @@ Show all mathematical calculations in your reasoning.`;
       { role: 'user' as const, content: userPrompt },
     ];
 
-    const response = await callDeepseekWithAdaptiveLimit(messages, { maxTokens: 6144, temperature: 0.1 }, supabase);
+    // Track Deepseek performance with Sentry
+    const { result: response, duration: deepseekDuration } = await trackEdgePerformance(
+      'deepseek-retirement-planning',
+      () => callDeepseekWithAdaptiveLimit(messages, { maxTokens: 6144, temperature: 0.1 }, supabase)
+    );
+    console.log(`[retirement-planner] Deepseek call: ${deepseekDuration}ms`);
     
     const content = response.choices[0]?.message?.content || '{}';
     const reasoningContent = response.choices[0]?.message?.reasoning_content || '';
@@ -303,11 +308,35 @@ Show all mathematical calculations in your reasoning.`;
     console.error("[retirement-planner] Error:", error);
     
     // Capture error to Sentry with retirement planning context
+    let contextUserId: string | undefined;
+    let contextCurrentAge: number | undefined;
+    let contextRetirementAge: number | undefined;
+    let contextRiskTolerance: string | undefined;
+    let contextCurrentSavings: number | undefined;
+    
+    try {
+      const body = await req.clone().json();
+      contextCurrentAge = body?.currentAge;
+      contextRetirementAge = body?.retirementAge;
+      contextRiskTolerance = body?.riskTolerance;
+      contextCurrentSavings = body?.currentSavings;
+    } catch {
+      // Request body already consumed or invalid
+    }
+    
     await captureEdgeException(error, {
       tags: { 
-        function: 'retirement-planner'
+        function: 'retirement-planner',
+        risk_tolerance: contextRiskTolerance || 'unknown'
       },
       extra: { 
+        user_id: contextUserId,
+        current_age: contextCurrentAge,
+        retirement_age: contextRetirementAge,
+        years_to_retirement: contextRetirementAge && contextCurrentAge 
+          ? contextRetirementAge - contextCurrentAge 
+          : undefined,
+        current_savings: contextCurrentSavings,
         error_message: error instanceof Error ? error.message : 'Unknown error'
       }
     });

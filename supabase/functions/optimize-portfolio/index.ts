@@ -154,7 +154,12 @@ ${JSON.stringify(tlhOpportunities, null, 2)}
       { role: 'user' as const, content: userPrompt },
     ];
 
-    const response = await callDeepseekWithAdaptiveLimit(messages, { maxTokens: 4096, temperature: 0.1 }, supabase);
+    // Track Deepseek performance with Sentry
+    const { result: response, duration: deepseekDuration } = await trackEdgePerformance(
+      'deepseek-portfolio-optimization',
+      () => callDeepseekWithAdaptiveLimit(messages, { maxTokens: 4096, temperature: 0.1 }, supabase)
+    );
+    console.log(`[optimize-portfolio] Deepseek call: ${deepseekDuration}ms`);
     
     const content = response.choices[0]?.message?.content || '{}';
     const reasoningContent = response.choices[0]?.message?.reasoning_content || '';
@@ -241,12 +246,35 @@ ${JSON.stringify(tlhOpportunities, null, 2)}
     console.error("[optimize-portfolio] Error:", error);
     
     // Capture error to Sentry with rich context
+    // Note: Variables may not be defined if error occurred early
+    let contextUserId: string | undefined;
+    let contextOptimizationType: string | undefined;
+    let contextHoldingsCount: number | undefined;
+    let contextRiskTolerance: string | undefined;
+    let contextTaxBracket: number | undefined;
+    
+    try {
+      // Try to get context from request body
+      const body = await req.clone().json();
+      contextUserId = body?.userId;
+      contextOptimizationType = body?.optimizationType;
+      contextHoldingsCount = body?.holdings?.length;
+      contextRiskTolerance = body?.riskTolerance;
+      contextTaxBracket = body?.taxBracket;
+    } catch {
+      // Request body already consumed or invalid
+    }
+    
     await captureEdgeException(error, {
       tags: { 
         function: 'optimize-portfolio', 
-        optimization_type: 'unknown' // Will be set if we can access it
+        optimization_type: contextOptimizationType || 'unknown',
+        risk_tolerance: contextRiskTolerance || 'unknown'
       },
       extra: { 
+        user_id: contextUserId,
+        holdings_count: contextHoldingsCount,
+        tax_bracket: contextTaxBracket,
         error_message: error instanceof Error ? error.message : 'Unknown error'
       }
     });
