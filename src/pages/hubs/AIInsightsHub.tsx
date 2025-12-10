@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { Activity, Bot, Brain, Lightbulb, Shield, Sparkles } from "lucide-react";
+import { Activity, Bot, Brain, Lightbulb, Shield, Sparkles, Archive } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -46,6 +46,13 @@ const features = [
     description: "Behavioral spending protection",
     path: "/guardian",
     color: "text-red-500"
+  },
+  {
+    icon: Archive,
+    title: "AI Insights Archive",
+    description: "Historical AI-generated insights and recommendations",
+    path: "/ai-insights-archive",
+    color: "text-emerald-500"
   },
 ];
 

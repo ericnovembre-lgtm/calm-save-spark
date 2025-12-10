@@ -113,6 +113,9 @@ const CouplesDashboard = createPageLoader(() => import("./pages/CouplesDashboard
 const SmartCategories = createPageLoader(() => import("./pages/SmartCategories"), 'medium');
 const FinancialCalendar = createPageLoader(() => import("./pages/FinancialCalendar"), 'medium');
 const ImportExportCenter = createPageLoader(() => import("./pages/ImportExportCenter"), 'medium');
+const FinancialDiary = createPageLoader(() => import("./pages/FinancialDiary"), 'medium');
+const AIInsightsArchive = createPageLoader(() => import("./pages/AIInsightsArchive"), 'medium');
+const ReferralCenter = createPageLoader(() => import("./pages/ReferralCenter"), 'medium');
 
 const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
 const Sitemap = createPageLoader(() => import("./pages/Sitemap"), 'medium');
@@ -387,6 +390,9 @@ function AnimatedRoutes() {
         <Route path="/defi-manager" element={<ProtectedRoute><PageTransition><DeFiManager /></PageTransition></ProtectedRoute>} />
         <Route path="/social-sentiment" element={<ProtectedRoute><PageTransition><SocialSentiment /></PageTransition></ProtectedRoute>} />
         <Route path="/template-marketplace" element={<ProtectedRoute><PageTransition><TemplateMarketplace /></PageTransition></ProtectedRoute>} />
+        <Route path="/financial-diary" element={<ProtectedRoute><PageTransition><FinancialDiary /></PageTransition></ProtectedRoute>} />
+        <Route path="/ai-insights-archive" element={<ProtectedRoute><PageTransition><AIInsightsArchive /></PageTransition></ProtectedRoute>} />
+        <Route path="/referral-center" element={<ProtectedRoute><PageTransition><ReferralCenter /></PageTransition></ProtectedRoute>} />
         
         {/* Maintenance Page */}
         <Route path="/maintenance" element={<PageTransition><Maintenance /></PageTransition>} />

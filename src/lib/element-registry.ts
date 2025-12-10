@@ -304,6 +304,26 @@ export const elementRegistry: Record<string, ElementInfo> = {
     description: 'Bulk data import and export management',
     route: '/import-export',
   },
+  
+  // Phase 4 pages
+  'financial-diary-page': {
+    id: 'financial-diary-page',
+    label: 'Financial Diary',
+    description: 'Journal your financial thoughts and track your money mood',
+    route: '/financial-diary',
+  },
+  'ai-insights-archive-page': {
+    id: 'ai-insights-archive-page',
+    label: 'AI Insights Archive',
+    description: 'Historical record of all AI-generated financial insights',
+    route: '/ai-insights-archive',
+  },
+  'referral-center-page': {
+    id: 'referral-center-page',
+    label: 'Referral Center',
+    description: 'Refer friends and earn rewards',
+    route: '/referral-center',
+  },
 };
 
 /**
