@@ -103,11 +103,23 @@ export default function Analytics() {
               Track spending, forecasts, and AI-powered financial insights
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button asChild variant="outline">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/income">
+                <DollarSign className="w-4 h-4 mr-1" />
+                Income
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/net-worth">
+                <TrendingUp className="w-4 h-4 mr-1" />
+                Net Worth
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
               <Link to="/spending-reports">
                 <ReceiptText className="w-4 h-4 mr-2" />
-                Spending Reports
+                Reports
               </Link>
             </Button>
             <TimeframePicker value={timeframe} onChange={setTimeframe} />

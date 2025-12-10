@@ -89,6 +89,8 @@ const AccountDetails = createPageLoader(() => import("./pages/AccountDetails"), 
 const RecurringTransactions = createPageLoader(() => import("./pages/RecurringTransactions"), 'medium');
 const BillCalendar = createPageLoader(() => import("./pages/BillCalendar"), 'medium');
 const SpendingReports = createPageLoader(() => import("./pages/SpendingReports"), 'heavy');
+const Income = createPageLoader(() => import("./pages/Income"), 'heavy');
+const NetWorth = createPageLoader(() => import("./pages/NetWorth"), 'heavy');
 const Leaderboard = createPageLoader(() => import("./pages/Leaderboard"), 'medium');
 const Gamification = createPageLoader(() => import("./pages/Gamification"), 'medium');
 const Wallet = createPageLoader(() => import("./pages/Wallet"), 'medium');
@@ -284,6 +286,8 @@ function AnimatedRoutes() {
         <Route path="/subscriptions" element={<ProtectedRoute><PageTransition><Subscriptions /></PageTransition></ProtectedRoute>} />
         <Route path="/bill-calendar" element={<ProtectedRoute><PageTransition><BillCalendar /></PageTransition></ProtectedRoute>} />
         <Route path="/spending-reports" element={<ProtectedRoute><PageTransition><SpendingReports /></PageTransition></ProtectedRoute>} />
+        <Route path="/income" element={<ProtectedRoute><PageTransition><Income /></PageTransition></ProtectedRoute>} />
+        <Route path="/net-worth" element={<ProtectedRoute><PageTransition><NetWorth /></PageTransition></ProtectedRoute>} />
         <Route path="/insights" element={<Navigate to="/analytics?tab=cashflow" replace />} />
         <Route path="/budget" element={<ProtectedRoute><PageTransition><Budget /></PageTransition></ProtectedRoute>} />
         <Route path="/debts" element={<ProtectedRoute><PageTransition><Debts /></PageTransition></ProtectedRoute>} />
