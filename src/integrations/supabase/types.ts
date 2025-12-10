@@ -3234,6 +3234,47 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_milestones: {
+        Row: {
+          bonus_points: number | null
+          challenge_id: string
+          created_at: string | null
+          id: string
+          milestone_name: string
+          reached_at: string | null
+          target_percentage: number
+          user_id: string
+        }
+        Insert: {
+          bonus_points?: number | null
+          challenge_id: string
+          created_at?: string | null
+          id?: string
+          milestone_name: string
+          reached_at?: string | null
+          target_percentage: number
+          user_id: string
+        }
+        Update: {
+          bonus_points?: number | null
+          challenge_id?: string
+          created_at?: string | null
+          id?: string
+          milestone_name?: string
+          reached_at?: string | null
+          target_percentage?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_milestones_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "savings_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenge_participants: {
         Row: {
           challenge_id: string
@@ -3771,6 +3812,145 @@ export type Database = {
           start_time?: string | null
           triggered_by?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      couple_shared_budgets: {
+        Row: {
+          budget_limit: number
+          category: string
+          couple_id: string
+          created_at: string | null
+          current_spent: number | null
+          id: string
+          is_active: boolean | null
+          period: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          budget_limit: number
+          category: string
+          couple_id: string
+          created_at?: string | null
+          current_spent?: number | null
+          id?: string
+          is_active?: boolean | null
+          period?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          budget_limit?: number
+          category?: string
+          couple_id?: string
+          created_at?: string | null
+          current_spent?: number | null
+          id?: string
+          is_active?: boolean | null
+          period?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_shared_budgets_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_shared_goals: {
+        Row: {
+          color: string | null
+          couple_id: string
+          created_at: string | null
+          current_amount: number | null
+          goal_name: string
+          icon: string | null
+          id: string
+          is_completed: boolean | null
+          partner_a_contribution: number | null
+          partner_b_contribution: number | null
+          target_amount: number
+          target_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          couple_id: string
+          created_at?: string | null
+          current_amount?: number | null
+          goal_name: string
+          icon?: string | null
+          id?: string
+          is_completed?: boolean | null
+          partner_a_contribution?: number | null
+          partner_b_contribution?: number | null
+          target_amount: number
+          target_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          couple_id?: string
+          created_at?: string | null
+          current_amount?: number | null
+          goal_name?: string
+          icon?: string | null
+          id?: string
+          is_completed?: boolean | null
+          partner_a_contribution?: number | null
+          partner_b_contribution?: number | null
+          target_amount?: number
+          target_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_shared_goals_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couples: {
+        Row: {
+          created_at: string | null
+          id: string
+          invite_code: string | null
+          invite_email: string | null
+          linked_at: string | null
+          partner_a_id: string
+          partner_b_id: string | null
+          status: string | null
+          updated_at: string | null
+          visibility_settings: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          invite_code?: string | null
+          invite_email?: string | null
+          linked_at?: string | null
+          partner_a_id: string
+          partner_b_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          visibility_settings?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          invite_code?: string | null
+          invite_email?: string | null
+          linked_at?: string | null
+          partner_a_id?: string
+          partner_b_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          visibility_settings?: Json | null
         }
         Relationships: []
       }
@@ -6186,6 +6366,66 @@ export type Database = {
           id?: string
           research_type?: string
           symbol?: string
+        }
+        Relationships: []
+      }
+      investment_tax_lots: {
+        Row: {
+          account_name: string | null
+          cost_basis: number
+          created_at: string | null
+          current_price: number | null
+          id: string
+          is_sold: boolean | null
+          notes: string | null
+          purchase_date: string
+          purchase_price: number
+          quantity: number
+          realized_gain_loss: number | null
+          sold_date: string | null
+          sold_price: number | null
+          symbol: string
+          unrealized_gain_loss: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_name?: string | null
+          cost_basis: number
+          created_at?: string | null
+          current_price?: number | null
+          id?: string
+          is_sold?: boolean | null
+          notes?: string | null
+          purchase_date: string
+          purchase_price: number
+          quantity: number
+          realized_gain_loss?: number | null
+          sold_date?: string | null
+          sold_price?: number | null
+          symbol: string
+          unrealized_gain_loss?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_name?: string | null
+          cost_basis?: number
+          created_at?: string | null
+          current_price?: number | null
+          id?: string
+          is_sold?: boolean | null
+          notes?: string | null
+          purchase_date?: string
+          purchase_price?: number
+          quantity?: number
+          realized_gain_loss?: number | null
+          sold_date?: string | null
+          sold_price?: number | null
+          symbol?: string
+          unrealized_gain_loss?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -9370,6 +9610,69 @@ export type Database = {
           },
         ]
       }
+      savings_challenges: {
+        Row: {
+          best_streak: number | null
+          category: string | null
+          challenge_name: string
+          challenge_type: string | null
+          color: string | null
+          created_at: string | null
+          current_amount: number | null
+          end_date: string
+          frequency: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          is_completed: boolean | null
+          start_date: string
+          streak_count: number | null
+          target_amount: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          best_streak?: number | null
+          category?: string | null
+          challenge_name: string
+          challenge_type?: string | null
+          color?: string | null
+          created_at?: string | null
+          current_amount?: number | null
+          end_date: string
+          frequency?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_completed?: boolean | null
+          start_date: string
+          streak_count?: number | null
+          target_amount?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          best_streak?: number | null
+          category?: string | null
+          challenge_name?: string
+          challenge_type?: string | null
+          color?: string | null
+          created_at?: string | null
+          current_amount?: number | null
+          end_date?: string
+          frequency?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_completed?: boolean | null
+          start_date?: string
+          streak_count?: number | null
+          target_amount?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       savings_milestones: {
         Row: {
           created_at: string | null
@@ -11007,6 +11310,56 @@ export type Database = {
             columns: ["holding_id"]
             isOneToOne: false
             referencedRelation: "portfolio_holdings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_lot_harvesting_queue: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          estimated_tax_savings: number | null
+          id: string
+          notes: string | null
+          replacement_symbol: string | null
+          status: string | null
+          tax_lot_id: string
+          updated_at: string | null
+          user_id: string
+          wash_sale_clear_date: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          estimated_tax_savings?: number | null
+          id?: string
+          notes?: string | null
+          replacement_symbol?: string | null
+          status?: string | null
+          tax_lot_id: string
+          updated_at?: string | null
+          user_id: string
+          wash_sale_clear_date?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          estimated_tax_savings?: number | null
+          id?: string
+          notes?: string | null
+          replacement_symbol?: string | null
+          status?: string | null
+          tax_lot_id?: string
+          updated_at?: string | null
+          user_id?: string
+          wash_sale_clear_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_lot_harvesting_queue_tax_lot_id_fkey"
+            columns: ["tax_lot_id"]
+            isOneToOne: false
+            referencedRelation: "investment_tax_lots"
             referencedColumns: ["id"]
           },
         ]
