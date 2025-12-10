@@ -354,8 +354,13 @@ serve(async (req) => {
       avgSpend: userContexts.get(alert.user_id) || 50
     }));
 
-    const { results: analysisResults, latencyMs: groqLatencyMs, strategy: usedStrategy } = 
-      await analyzeTransactionBatch(supabase, batchTransactions);
+    // Track Groq batch analysis performance with Sentry
+    const { result: analysisOutput, duration: groqTotalDuration } = await trackEdgePerformance(
+      'groq-batch-analysis',
+      () => analyzeTransactionBatch(supabase, batchTransactions)
+    );
+    const { results: analysisResults, latencyMs: groqLatencyMs, strategy: usedStrategy } = analysisOutput;
+    console.log(`[batch-process-alerts] Groq batch analysis: ${groqTotalDuration}ms (API: ${groqLatencyMs}ms)`);
 
     const results = [];
     let anomaliesDetected = 0;
@@ -443,13 +448,35 @@ serve(async (req) => {
   } catch (error) {
     console.error('[BatchProcess] Fatal error:', error);
     
+    // Get context for Sentry - these may not be defined if error occurred early
+    let contextStrategy: AdaptiveStrategy | undefined;
+    let contextQueueDepth: number | undefined;
+    let contextBatchSize: number | undefined;
+    
+    try {
+      const quotaState = await getQuotaState(supabase);
+      contextStrategy = calculateStrategy(quotaState);
+      
+      const { count } = await supabase
+        .from('transaction_alert_queue')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+      contextQueueDepth = count || 0;
+      contextBatchSize = calculateBatchSize(contextQueueDepth, contextStrategy);
+    } catch {
+      // Context fetch failed
+    }
+    
     // Capture error to Sentry with batch processing context
     await captureEdgeException(error, {
       tags: { 
         function: 'batch-process-alerts',
-        batch_id: batchId
+        batch_id: batchId,
+        strategy: contextStrategy || 'unknown'
       },
       extra: { 
+        queue_depth: contextQueueDepth,
+        batch_size: contextBatchSize,
         processing_time_ms: Date.now() - totalStartTime,
         error_message: error instanceof Error ? error.message : 'Unknown error'
       }
