@@ -1,6 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import Stripe from "https://esm.sh/stripe@14.25.0";
+import { captureEdgeException } from "../_shared/sentry-edge.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,43 +20,100 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // TODO: Implement Stripe webhook signature verification
-    // const stripeSignature = req.headers.get('stripe-signature');
-    // const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    // Get Stripe secret key
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
+    if (!stripeKey) {
+      console.error('[handle-stripe-webhook] STRIPE_SECRET_KEY not configured');
+      return new Response(
+        JSON.stringify({ error: 'Stripe not configured' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
+    // Get webhook secret for signature verification
+    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    if (!webhookSecret) {
+      console.error('[handle-stripe-webhook] STRIPE_WEBHOOK_SECRET not configured');
+      return new Response(
+        JSON.stringify({ error: 'Webhook secret not configured' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Initialize Stripe
+    const stripe = new Stripe(stripeKey, {
+      apiVersion: '2023-10-16',
+      httpClient: Stripe.createFetchHttpClient(),
+    });
+
+    // Get the signature from headers
+    const signature = req.headers.get('stripe-signature');
+    if (!signature) {
+      console.error('[handle-stripe-webhook] Missing stripe-signature header');
+      return new Response(
+        JSON.stringify({ error: 'Missing signature' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get raw body for signature verification
     const body = await req.text();
-    const event = JSON.parse(body);
 
-    console.log('Webhook event received:', event.type);
+    // Verify webhook signature
+    let event: Stripe.Event;
+    try {
+      event = await stripe.webhooks.constructEventAsync(
+        body,
+        signature,
+        webhookSecret
+      );
+    } catch (err) {
+      console.error('[handle-stripe-webhook] Signature verification failed:', err);
+      return new Response(
+        JSON.stringify({ error: 'Invalid signature' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('[handle-stripe-webhook] Verified event:', event.type);
 
     // Handle different Stripe events
     switch (event.type) {
       case 'checkout.session.completed': {
         // Handle successful checkout
-        const session = event.data.object;
+        const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.client_reference_id;
-        const subscriptionAmount = session.amount_total / 100; // Convert cents to dollars
+        const subscriptionAmount = (session.amount_total || 0) / 100; // Convert cents to dollars
 
-        await supabase
+        if (!userId) {
+          console.error('[handle-stripe-webhook] Missing client_reference_id in session');
+          break;
+        }
+
+        const { error: upsertError } = await supabase
           .from('user_subscriptions')
           .upsert({
             user_id: userId,
             subscription_amount: subscriptionAmount,
             status: 'active',
-            stripe_customer_id: session.customer,
-            stripe_subscription_id: session.subscription,
+            stripe_customer_id: session.customer as string,
+            stripe_subscription_id: session.subscription as string,
             billing_interval: 'monthly',
           });
 
-        console.log('Subscription created for user:', userId);
+        if (upsertError) {
+          console.error('[handle-stripe-webhook] Error upserting subscription:', upsertError);
+        } else {
+          console.log('[handle-stripe-webhook] Subscription created for user:', userId);
+        }
         break;
       }
 
       case 'customer.subscription.updated': {
         // Handle subscription updates
-        const subscription = event.data.object;
+        const subscription = event.data.object as Stripe.Subscription;
         
-        await supabase
+        const { error: updateError } = await supabase
           .from('user_subscriptions')
           .update({
             status: subscription.status,
@@ -63,27 +122,82 @@ serve(async (req) => {
           })
           .eq('stripe_subscription_id', subscription.id);
 
-        console.log('Subscription updated:', subscription.id);
+        if (updateError) {
+          console.error('[handle-stripe-webhook] Error updating subscription:', updateError);
+        } else {
+          console.log('[handle-stripe-webhook] Subscription updated:', subscription.id);
+        }
         break;
       }
 
       case 'customer.subscription.deleted': {
         // Handle subscription cancellation
-        const subscription = event.data.object;
+        const subscription = event.data.object as Stripe.Subscription;
         
-        await supabase
+        const { error: deleteError } = await supabase
           .from('user_subscriptions')
           .update({
             status: 'canceled',
           })
           .eq('stripe_subscription_id', subscription.id);
 
-        console.log('Subscription canceled:', subscription.id);
+        if (deleteError) {
+          console.error('[handle-stripe-webhook] Error canceling subscription:', deleteError);
+        } else {
+          console.log('[handle-stripe-webhook] Subscription canceled:', subscription.id);
+        }
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        // Handle successful invoice payment (recurring billing)
+        const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = invoice.subscription as string;
+        
+        if (subscriptionId) {
+          const { error: invoiceError } = await supabase
+            .from('user_subscriptions')
+            .update({
+              status: 'active',
+              current_period_end: invoice.period_end 
+                ? new Date(invoice.period_end * 1000).toISOString() 
+                : null,
+            })
+            .eq('stripe_subscription_id', subscriptionId);
+
+          if (invoiceError) {
+            console.error('[handle-stripe-webhook] Error updating from invoice:', invoiceError);
+          } else {
+            console.log('[handle-stripe-webhook] Invoice payment succeeded for:', subscriptionId);
+          }
+        }
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        // Handle failed invoice payment
+        const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = invoice.subscription as string;
+        
+        if (subscriptionId) {
+          const { error: failError } = await supabase
+            .from('user_subscriptions')
+            .update({
+              status: 'past_due',
+            })
+            .eq('stripe_subscription_id', subscriptionId);
+
+          if (failError) {
+            console.error('[handle-stripe-webhook] Error updating failed payment:', failError);
+          } else {
+            console.log('[handle-stripe-webhook] Invoice payment failed for:', subscriptionId);
+          }
+        }
         break;
       }
 
       default:
-        console.log('Unhandled event type:', event.type);
+        console.log('[handle-stripe-webhook] Unhandled event type:', event.type);
     }
 
     return new Response(
@@ -93,7 +207,16 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error in webhook handler:', error);
+    console.error('[handle-stripe-webhook] Error:', error);
+    
+    // Capture error in Sentry
+    await captureEdgeException(error, {
+      transaction: 'handle-stripe-webhook',
+      tags: {
+        function: 'handle-stripe-webhook',
+      },
+    });
+
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'An unknown error occurred' }),
       {
