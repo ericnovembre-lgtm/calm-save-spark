@@ -63,7 +63,7 @@ export function MilestoneShareCard({ milestone, open, onOpenChange }: MilestoneS
                 </p>
               )}
               <p className="text-xs text-muted-foreground mt-3">
-                Achieved on {new Date(milestone.achieved_at).toLocaleDateString()}
+                Achieved on {new Date(milestone.completed_at).toLocaleDateString()}
               </p>
             </div>
           </motion.div>

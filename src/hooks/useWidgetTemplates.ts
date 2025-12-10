@@ -61,12 +61,12 @@ export function useWidgetTemplates() {
       
       const { data, error } = await supabase
         .from('widget_builder_templates')
-        .insert({
+        .insert([{
           user_id: session.user.id,
           template_name: name,
-          widget_config: template as unknown as Record<string, unknown>,
+          widget_config: JSON.parse(JSON.stringify(template)),
           is_public: isPublic || false,
-        })
+        }])
         .select()
         .single();
 

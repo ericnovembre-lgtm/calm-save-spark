@@ -6,7 +6,7 @@ export function MilestoneTimelineHero() {
   const { milestones, totalCount } = useUserMilestones();
 
   const thisYearCount = milestones.filter(m => 
-    new Date(m.achieved_at).getFullYear() === new Date().getFullYear()
+    new Date(m.completed_at).getFullYear() === new Date().getFullYear()
   ).length;
 
   const recentMilestone = milestones[0];

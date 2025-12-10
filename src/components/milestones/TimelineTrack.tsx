@@ -55,15 +55,8 @@ export function TimelineTrack({ filter, year }: TimelineTrackProps) {
 
       <div className="space-y-8">
         {Object.entries(groupedByMonth).map(([monthKey, monthMilestones], groupIndex) => {
-          const [y, m] = monthKey.split('-');
-          const monthName = new Date(parseInt(y), parseInt(m) - 1).toLocaleString('default', { 
-            month: 'long', 
-            year: 'numeric' 
-          });
-
-          const dateToUse = monthMilestones[0]?.completed_at || new Date().toISOString();
-          const [y, m] = monthKey.split('-');
-          const monthName = new Date(parseInt(y), parseInt(m) - 1).toLocaleString('default', { 
+          const [yearStr, monthStr] = monthKey.split('-');
+          const monthName = new Date(parseInt(yearStr), parseInt(monthStr) - 1).toLocaleString('default', { 
             month: 'long', 
             year: 'numeric' 
           });
@@ -77,7 +70,7 @@ export function TimelineTrack({ filter, year }: TimelineTrackProps) {
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
-                  {m}
+                  {monthStr}
                 </div>
                 <h3 className="text-lg font-semibold">{monthName}</h3>
               </div>
