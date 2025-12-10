@@ -103,6 +103,10 @@ const AIAgents = createPageLoader(() => import("./pages/AIAgents"), 'medium');
 const SocialSentiment = createPageLoader(() => import("./pages/SocialSentiment"), 'medium');
 const TemplateMarketplace = createPageLoader(() => import("./pages/TemplateMarketplace"), 'medium');
 const MobileSettings = createPageLoader(() => import("./pages/MobileSettings"), 'light');
+const FinancialPulse = createPageLoader(() => import("./pages/FinancialPulse"), 'heavy');
+const ExpenseSplit = createPageLoader(() => import("./pages/ExpenseSplit"), 'medium');
+const ExpenseSplitGroup = createPageLoader(() => import("./pages/ExpenseSplitGroup"), 'medium');
+const WishlistTracker = createPageLoader(() => import("./pages/WishlistTracker"), 'medium');
 
 const AIModelAnalytics = createPageLoader(() => import("./pages/AIModelAnalytics"), 'medium');
 const Sitemap = createPageLoader(() => import("./pages/Sitemap"), 'medium');
@@ -288,6 +292,10 @@ function AnimatedRoutes() {
         <Route path="/spending-reports" element={<ProtectedRoute><PageTransition><SpendingReports /></PageTransition></ProtectedRoute>} />
         <Route path="/income" element={<ProtectedRoute><PageTransition><Income /></PageTransition></ProtectedRoute>} />
         <Route path="/net-worth" element={<ProtectedRoute><PageTransition><NetWorth /></PageTransition></ProtectedRoute>} />
+        <Route path="/financial-pulse" element={<ProtectedRoute><PageTransition><FinancialPulse /></PageTransition></ProtectedRoute>} />
+        <Route path="/expense-split" element={<ProtectedRoute><PageTransition><ExpenseSplit /></PageTransition></ProtectedRoute>} />
+        <Route path="/expense-split/:groupId" element={<ProtectedRoute><PageTransition><ExpenseSplitGroup /></PageTransition></ProtectedRoute>} />
+        <Route path="/wishlist" element={<ProtectedRoute><PageTransition><WishlistTracker /></PageTransition></ProtectedRoute>} />
         <Route path="/insights" element={<Navigate to="/analytics?tab=cashflow" replace />} />
         <Route path="/budget" element={<ProtectedRoute><PageTransition><Budget /></PageTransition></ProtectedRoute>} />
         <Route path="/debts" element={<ProtectedRoute><PageTransition><Debts /></PageTransition></ProtectedRoute>} />

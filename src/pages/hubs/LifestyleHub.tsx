@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
-import { UsersRound, GraduationCap, BookOpen, Leaf, Heart, Briefcase, MapPin } from "lucide-react";
+import { UsersRound, GraduationCap, BookOpen, Leaf, Heart, Briefcase, MapPin, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -53,6 +53,13 @@ const features = [
     description: "Plan and simulate major life events",
     path: "/digital-twin",
     color: "text-pink-500"
+  },
+  {
+    icon: Gift,
+    title: "Wishlist Tracker",
+    description: "Save for items you want",
+    path: "/wishlist",
+    color: "text-amber-500"
   },
 ];
 
