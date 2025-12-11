@@ -19,10 +19,12 @@ import { BenchmarkComparison } from "@/components/analytics/BenchmarkComparison"
 import { CashflowChart } from "@/components/insights/CashflowChart";
 import { ScenarioPlayground } from "@/components/insights/ScenarioPlayground";
 import { BehavioralInsightsPanel } from "@/components/ai/BehavioralInsightsPanel";
+import { SpendingHeatmapMap } from "@/components/analytics/SpendingHeatmapMap";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { LoadingState } from "@/components/LoadingState";
+import { Map } from "lucide-react";
 
 export default function Analytics() {
   const [searchParams] = useSearchParams();
@@ -159,10 +161,14 @@ export default function Analytics() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 mb-6">
+          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 mb-6">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="heatmap" className="gap-2">
+              <Map className="w-4 h-4" />
+              <span className="hidden sm:inline">Heatmap</span>
             </TabsTrigger>
             <TabsTrigger value="cashflow" className="gap-2">
               <DollarSign className="w-4 h-4" />
@@ -217,6 +223,11 @@ export default function Analytics() {
               onRefresh={() => refetchInsights()}
               isRefreshing={isRefreshingInsights}
             />
+          </TabsContent>
+
+          {/* Spending Heatmap Tab */}
+          <TabsContent value="heatmap" className="space-y-4">
+            <SpendingHeatmapMap />
           </TabsContent>
 
           {/* Cash Flow Tab (from Insights) */}

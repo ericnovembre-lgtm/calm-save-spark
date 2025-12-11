@@ -45,6 +45,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { TwinChatPanel } from "@/components/digital-twin/TwinChatPanel";
 import { DigitalTwinAnalyticsDashboard } from "@/components/digital-twin/DigitalTwinAnalyticsDashboard";
 import { LifePlannerPanel } from "@/components/digital-twin/LifePlannerPanel";
+import { TransactionGlobe } from "@/components/digital-twin/TransactionGlobe";
 import { useSearchParams } from "react-router-dom";
 import "@/styles/digital-twin-theme.css";
 
@@ -518,6 +519,17 @@ export default function DigitalTwin() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Transaction Globe - Global Spending Map */}
+      <motion.div
+        id="globe-section"
+        className="my-12"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <TransactionGlobe />
+      </motion.div>
 
       {/* Life Events Sidebar */}
       <div id="events-section" data-tour="dt-events">
