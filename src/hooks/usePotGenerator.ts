@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { getRandomGradient } from "@/lib/pot-gradients";
+import { useUnsplashFetch } from "@/hooks/useUnsplashImage";
 
 interface GeneratedPot {
   item_name: string;
@@ -18,6 +19,7 @@ export const usePotGenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { fetchRandomImage } = useUnsplashFetch();
   
   const generatePot = async (dreamText: string) => {
     if (!dreamText.trim()) return;
@@ -38,8 +40,9 @@ export const usePotGenerator = () => {
       
       const generatedPot: GeneratedPot = data;
       
-      // Fetch Unsplash image (mock for now - in production, add Unsplash API)
-      const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(generatedPot.image_query)}`;
+      // Fetch Unsplash image via proper API
+      const unsplashImage = await fetchRandomImage(generatedPot.image_query, 'landscape');
+      const imageUrl = unsplashImage?.url || null;
       
       // Create the pot with generated data
       const { error: insertError } = await supabase
