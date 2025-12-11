@@ -521,3 +521,9 @@ verify_jwt = true
 
 [functions.fetch-unsplash-image]
 verify_jwt = false
+
+[functions.optimize-image]
+verify_jwt = false
+
+[functions.trigger-job]
+verify_jwt = true
