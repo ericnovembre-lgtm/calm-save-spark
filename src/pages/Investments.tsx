@@ -17,8 +17,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertTriangle, X, TrendingUp, Receipt, Scale, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { withErrorHandling } from "@/lib/errorHandling";
+import { withPageMemo } from "@/lib/performance-utils";
+import { withPageErrorBoundary } from "@/components/error/withPageErrorBoundary";
 
-export default function Investments() {
+function InvestmentsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') || 'overview';
@@ -247,3 +249,5 @@ export default function Investments() {
     </div>
   );
 }
+
+export default withPageErrorBoundary(withPageMemo(InvestmentsPage, 'Investments'), 'Investments');
