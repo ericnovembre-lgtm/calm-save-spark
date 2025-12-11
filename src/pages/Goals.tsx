@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGoalMutations } from "@/hooks/useGoalMutations";
 import { GoalCard } from "@/components/GoalCard";
 import { GoalSavingsOptimizer } from "@/components/goals/GoalSavingsOptimizer";
 import { AIGoalSuggestions } from "@/components/goals/AIGoalSuggestions";
@@ -108,79 +109,8 @@ const Goals = () => {
   // Memoize goals for performance
   const memoizedGoals = useMemo(() => goals || [], [goals]);
 
-  const createGoalMutation = useMutation({
-    mutationFn: async (goal: typeof newGoal) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { error } = await supabase
-        .from('goals')
-        .insert([{
-          user_id: user.id,
-          name: goal.name,
-          target_amount: parseFloat(goal.target_amount),
-          deadline: goal.deadline || null
-        }]);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['goals'] });
-      toast({ title: "Goal created successfully!" });
-      setIsDialogOpen(false);
-      setNewGoal({ name: "", target_amount: "", deadline: "" });
-    },
-    onError: (error) => {
-      toast({ 
-        title: "Failed to create goal", 
-        description: error.message,
-        variant: "destructive" 
-      });
-    }
-  });
-
-  const deleteGoalMutation = useMutation({
-    mutationFn: async (goalId: string) => {
-      const { error } = await supabase
-        .from('goals')
-        .delete()
-        .eq('id', goalId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['goals'] });
-      toast({ title: "Goal deleted successfully" });
-    },
-    onError: (error) => {
-      toast({ 
-        title: "Failed to delete goal", 
-        description: error.message,
-        variant: "destructive" 
-      });
-    }
-  });
-
-  const updateGoalMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<GoalFormData> }) => {
-      const { error } = await supabase
-        .from('goals')
-        .update(data)
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['goals'] });
-      toast({ title: "Goal updated successfully!" });
-      setEditDialogOpen(false);
-    },
-    onError: (error) => {
-      toast({ 
-        title: "Failed to update goal", 
-        description: error.message,
-        variant: "destructive" 
-      });
-    }
-  });
+  // Use centralized goal mutations with automatic Algolia sync
+  const { createGoal, updateGoal, deleteGoal, isCreating, isUpdating, isDeleting } = useGoalMutations();
 
   const handleCreateGoal = () => {
     const result = goalSchema.safeParse({
@@ -203,7 +133,16 @@ const Goals = () => {
     }
 
     setFormErrors({});
-    createGoalMutation.mutate(newGoal);
+    createGoal.mutate({
+      name: newGoal.name,
+      target_amount: parseFloat(newGoal.target_amount),
+      deadline: newGoal.deadline || null
+    }, {
+      onSuccess: () => {
+        setIsDialogOpen(false);
+        setNewGoal({ name: "", target_amount: "", deadline: "" });
+      }
+    });
   };
 
   return (
@@ -298,7 +237,7 @@ const Goals = () => {
                 <Button 
                   onClick={handleCreateGoal} 
                   className="w-full"
-                  disabled={createGoalMutation.isPending}
+                  disabled={isCreating}
                 >
                   Create Goal
                 </Button>
@@ -380,7 +319,7 @@ const Goals = () => {
                               setSelectedGoal(goal);
                               setEditDialogOpen(true);
                             }}
-                            onDelete={() => deleteGoalMutation.mutate(goal.id)}
+                            onDelete={() => deleteGoal.mutate(goal.id)}
                             onTogglePause={() => toast({ title: "Pause/Resume coming soon!" })}
                           />
                         </div>
@@ -424,8 +363,8 @@ const Goals = () => {
           open={editDialogOpen}
           onOpenChange={setEditDialogOpen}
           goal={selectedGoal}
-          onSubmit={(id, data) => updateGoalMutation.mutate({ id, data })}
-          isSubmitting={updateGoalMutation.isPending}
+          onSubmit={(id, data) => updateGoal.mutate({ id, data }, { onSuccess: () => setEditDialogOpen(false) })}
+          isSubmitting={isUpdating}
         />
 
         <GoalCelebration
