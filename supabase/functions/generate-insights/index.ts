@@ -1,16 +1,13 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { EdgeFunctionCache } from '../_shared/edge-cache.ts';
+import { redisGetJSON, redisSetJSON, redisDel } from '../_shared/upstash-redis.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Initialize cache with 10-minute TTL for insights
-const insightsCache = new EdgeFunctionCache({ 
-  maxEntries: 100, 
-  defaultTTL: 600 // 10 minutes
-});
+// Cache TTL: 10 minutes
+const CACHE_TTL_SECONDS = 600;
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -18,7 +15,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId } = await req.json();
+    const { userId, invalidateCache } = await req.json();
 
     if (!userId) {
       return new Response(
@@ -27,11 +24,22 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check cache first
     const cacheKey = `insights:${userId}`;
-    const cached = insightsCache.get(cacheKey);
+
+    // Handle cache invalidation request
+    if (invalidateCache) {
+      await redisDel(cacheKey);
+      console.log(`[generate-insights] Cache invalidated for user ${userId}`);
+      return new Response(
+        JSON.stringify({ success: true, message: 'Cache invalidated' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check Redis cache first
+    const cached = await redisGetJSON<{ insights: any[] }>(cacheKey);
     if (cached) {
-      console.log(`[generate-insights] Cache HIT for user ${userId}`);
+      console.log(`[generate-insights] Redis cache HIT for user ${userId}`);
       return new Response(
         JSON.stringify(cached),
         { 
@@ -39,13 +47,13 @@ Deno.serve(async (req) => {
             ...corsHeaders, 
             'Content-Type': 'application/json',
             'X-Cache': 'HIT',
-            'X-Cache-TTL': '600'
+            'X-Cache-TTL': CACHE_TTL_SECONDS.toString()
           } 
         }
       );
     }
 
-    console.log(`[generate-insights] Cache MISS for user ${userId}`);
+    console.log(`[generate-insights] Redis cache MISS for user ${userId}`);
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -139,7 +147,13 @@ Format as JSON array with structure:
             }
           ]
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'X-Cache': 'MISS'
+          } 
+        }
       );
     }
 
@@ -162,9 +176,9 @@ Format as JSON array with structure:
 
     const responseData = { insights };
     
-    // Cache the successful response
-    insightsCache.set(cacheKey, responseData);
-    console.log(`[generate-insights] Cached response for user ${userId}`);
+    // Cache the successful response in Redis
+    await redisSetJSON(cacheKey, responseData, CACHE_TTL_SECONDS);
+    console.log(`[generate-insights] Cached response in Redis for user ${userId}`);
 
     return new Response(
       JSON.stringify(responseData),
@@ -173,7 +187,7 @@ Format as JSON array with structure:
           ...corsHeaders, 
           'Content-Type': 'application/json',
           'X-Cache': 'MISS',
-          'X-Cache-TTL': '600'
+          'X-Cache-TTL': CACHE_TTL_SECONDS.toString()
         } 
       }
     );
