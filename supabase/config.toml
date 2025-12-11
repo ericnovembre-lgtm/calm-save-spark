@@ -527,3 +527,6 @@ verify_jwt = false
 
 [functions.trigger-job]
 verify_jwt = true
+
+[functions.cache-metrics]
+verify_jwt = true

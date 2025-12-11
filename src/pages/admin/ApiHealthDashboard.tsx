@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Zap, Shield, AlertTriangle, TrendingUp, BarChart3, RefreshCw, Brain, Search } from 'lucide-react';
+import { Activity, Zap, Shield, AlertTriangle, TrendingUp, BarChart3, RefreshCw, Brain, Search, Database } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,12 +14,13 @@ import { DeepseekMetricsPanel } from '@/components/admin/DeepseekMetricsPanel';
 import { DeepseekQuotaMonitor } from '@/components/admin/DeepseekQuotaMonitor';
 import { GrokQuotaMonitor } from '@/components/admin/GrokQuotaMonitor';
 import { LangSmithMonitor } from '@/components/admin/LangSmithMonitor';
+import { RedisCacheMonitor } from '@/components/admin/RedisCacheMonitor';
 import { useApiHealthMetrics } from '@/hooks/useApiHealthMetrics';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 
 type TimeRange = '24h' | '7d' | '30d';
-type ModelTab = 'groq' | 'deepseek' | 'grok' | 'langsmith' | 'all';
+type ModelTab = 'groq' | 'deepseek' | 'grok' | 'langsmith' | 'cache' | 'all';
 
 // X/Grok brand icon component
 function GrokIcon({ className }: { className?: string }) {
@@ -42,6 +43,7 @@ export default function ApiHealthDashboard() {
     queryClient.invalidateQueries({ queryKey: ['batch-processing-stats'] });
     queryClient.invalidateQueries({ queryKey: ['deepseek-metrics'] });
     queryClient.invalidateQueries({ queryKey: ['grok-quota-status'] });
+    queryClient.invalidateQueries({ queryKey: ['redis-cache-metrics'] });
     refetch();
   };
 
@@ -83,6 +85,10 @@ export default function ApiHealthDashboard() {
                 <TabsTrigger value="langsmith" className="text-xs gap-1">
                   <Search className="w-3 h-3" />
                   LangSmith
+                </TabsTrigger>
+                <TabsTrigger value="cache" className="text-xs gap-1">
+                  <Database className="w-3 h-3" />
+                  Cache
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -190,6 +196,11 @@ export default function ApiHealthDashboard() {
             </Card>
           </motion.div>
         </div>
+
+        {/* Cache Section */}
+        {modelTab === 'cache' && (
+          <RedisCacheMonitor />
+        )}
 
         {/* LangSmith Section */}
         {(modelTab === 'langsmith' || modelTab === 'all') && (

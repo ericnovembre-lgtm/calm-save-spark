@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { redisGet, redisSetJSON, redisIncr } from "../_shared/upstash-redis.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,6 +21,32 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Generate cache key based on app and permissions (user-agnostic)
+    const permissionsHash = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(appName.toLowerCase() + permissions.sort().join(','))
+    ).then(hash => Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16));
+    
+    const cacheKey = `permissions:${permissionsHash}`;
+    
+    // Check cache first (24-hour TTL for permissions - they don't change often)
+    const cached = await redisGet(cacheKey);
+    if (cached) {
+      console.log(`[translate-permissions] Cache HIT for ${appName}`);
+      await redisIncr('permissions:cache:hits');
+      try {
+        const cachedResponse = JSON.parse(cached);
+        return new Response(
+          JSON.stringify(cachedResponse),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'HIT' } }
+        );
+      } catch (e) {
+        console.warn('[translate-permissions] Failed to parse cached response:', e);
+      }
+    }
+    console.log(`[translate-permissions] Cache MISS for ${appName}`);
+    await redisIncr('permissions:cache:misses');
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -97,9 +124,13 @@ Translate these permissions into a user-friendly warning with risk assessment.`;
 
     console.log(`Translated permissions for ${appName}:`, result);
 
+    // Cache the result for 24 hours (86400 seconds)
+    await redisSetJSON(cacheKey, result, 86400);
+    console.log(`[translate-permissions] Cached response for ${appName}`);
+
     return new Response(
       JSON.stringify(result),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'MISS' } }
     );
   } catch (error) {
     console.error('Error in translate-permissions:', error);
