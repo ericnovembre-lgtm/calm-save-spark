@@ -2,6 +2,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SecurityNotificationPreferences } from "@/components/settings/SecurityNotificationPreferences";
+import { TestSecurityAlert } from "@/components/settings/TestSecurityAlert";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Shield, KeyRound, Fingerprint, MonitorSmartphone, AlertOctagon, ArrowRight, Settings2 } from "lucide-react";
@@ -89,6 +90,15 @@ export default function SecuritySettings() {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <SecurityNotificationPreferences />
+          </motion.div>
+
+          {/* Test Security Alert */}
+          <motion.div
+            initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            <TestSecurityAlert />
           </motion.div>
 
           {/* Quick Access Links */}
