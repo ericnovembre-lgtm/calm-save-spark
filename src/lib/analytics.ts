@@ -11,7 +11,7 @@ import { getClientUser } from './user';
 import { hashUserId } from './hash';
 
 // PostHog configuration
-const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
+const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY || 'phc_jcks7ojejIKNZAS4onDz92ULBF0XBYD5WFeYK6COLkN';
 const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com';
 
 /**
