@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { UnsplashImagePicker } from "@/components/ui/UnsplashImagePicker";
 
 const PRESET_GRADIENTS = [
   "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -151,20 +152,11 @@ export function CreatePotDialog({ open, onOpenChange }: CreatePotDialogProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="image">Image URL (Optional)</Label>
-            <Input
-              id="image"
-              type="url"
-              placeholder="https://images.unsplash.com/..."
-              value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              className="bg-glass-subtle"
-            />
-            <p className="text-xs text-muted-foreground">
-              Leave empty for a gradient background
-            </p>
-          </div>
+          <UnsplashImagePicker
+            value={formData.image_url}
+            onChange={(url) => setFormData({ ...formData, image_url: url })}
+            defaultQuery={formData.name}
+          />
 
           <div className="space-y-2">
             <Label>Color Gradient</Label>

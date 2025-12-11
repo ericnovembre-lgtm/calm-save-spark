@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { POT_GRADIENTS, GradientKey, getGradientStyle } from "@/lib/pot-gradients";
+import { UnsplashImagePicker } from "@/components/ui/UnsplashImagePicker";
 
 interface Pot {
   id: string;
@@ -147,16 +148,11 @@ export const EditPotDialog = ({ open, onOpenChange, pot }: EditPotDialogProps) =
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="edit-image">Image URL (optional)</Label>
-            <Input
-              id="edit-image"
-              type="url"
-              placeholder="https://example.com/image.jpg"
-              value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-            />
-          </div>
+          <UnsplashImagePicker
+            value={formData.image_url}
+            onChange={(url) => setFormData({ ...formData, image_url: url })}
+            defaultQuery={formData.name}
+          />
 
           <div className="space-y-2">
             <Label>Color Theme</Label>
