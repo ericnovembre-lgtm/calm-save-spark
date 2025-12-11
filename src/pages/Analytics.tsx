@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { withPageMemo } from "@/lib/performance-utils";
+import { withPageErrorBoundary } from "@/components/error/withPageErrorBoundary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { BarChart3, TrendingUp, PieChart, FileText, Sparkles, Loader2, DollarSign, Brain, Play, ReceiptText } from "lucide-react";
@@ -26,7 +28,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { LoadingState } from "@/components/LoadingState";
 import { Map } from "lucide-react";
 
-export default function Analytics() {
+function AnalyticsPage() {
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'overview';
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -317,3 +319,5 @@ export default function Analytics() {
     </AppLayout>
   );
 }
+
+export default withPageErrorBoundary(withPageMemo(AnalyticsPage, 'Analytics'), 'Analytics');

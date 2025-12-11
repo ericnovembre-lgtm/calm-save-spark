@@ -1,5 +1,7 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { withPageMemo } from "@/lib/performance-utils";
+import { withPageErrorBoundary } from "@/components/error/withPageErrorBoundary";
 import { Separator } from '@/components/ui/separator';
 import { TwoFactorAuth } from '@/components/settings/TwoFactorAuth';
 import { PasswordChange } from '@/components/settings/PasswordChange';
@@ -39,7 +41,7 @@ import { useSettingsSync } from '@/hooks/useSettingsSync';
 import { AIModelPreferences } from '@/components/settings/AIModelPreferences';
 import { SentryTestButton } from '@/components/dev/SentryTestButton';
 
-export default function Settings() {
+function SettingsPage() {
   // Initialize settings sync
   useSettingsSync();
 
@@ -358,3 +360,5 @@ export default function Settings() {
     </AppLayout>
   );
 }
+
+export default withPageErrorBoundary(withPageMemo(SettingsPage, 'Settings'), 'Settings');
