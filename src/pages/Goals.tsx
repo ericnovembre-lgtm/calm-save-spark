@@ -37,6 +37,7 @@ import { useDragToSave } from "@/hooks/useDragToSave";
 import { useOptimisticGoalUpdate } from "@/hooks/useOptimisticGoalUpdate";
 
 import { withPageMemo } from "@/lib/performance-utils";
+import { withPageErrorBoundary } from "@/components/error/withPageErrorBoundary";
 
 const Goals = () => {
   const { toast } = useToast();
@@ -427,4 +428,4 @@ const Goals = () => {
   );
 };
 
-export default withPageMemo(Goals, 'Goals');
+export default withPageErrorBoundary(withPageMemo(Goals, 'Goals'), 'Goals');
