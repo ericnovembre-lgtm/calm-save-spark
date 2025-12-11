@@ -3,11 +3,12 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { VirtualizedTransactionList } from "@/components/transactions/VirtualizedTransactionList";
 import { SearchInsightCard } from "@/components/transactions/SearchInsightCard";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload } from "lucide-react";
+import { Plus, Download, Upload, Zap, Search } from "lucide-react";
 import { withPageMemo, usePageCallback } from "@/lib/performance-utils";
 import { SyncAccountsButton } from "@/components/accounts/SyncAccountsButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { OptimizedSearchBar } from "@/components/search/OptimizedSearchBar";
+import { AlgoliaTransactionSearch } from "@/components/transactions/AlgoliaTransactionSearch";
 import { ActiveFiltersDisplay } from "@/components/transactions/ActiveFiltersDisplay";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { usePerformanceBudgetAlerts } from "@/hooks/usePerformanceBudgetAlerts";
@@ -24,8 +25,11 @@ import { RefineSearchDialog } from '@/components/transactions/RefineSearchDialog
 import { SaveReportDialog } from '@/components/transactions/SaveReportDialog';
 import { AnomalyScanner } from '@/components/transactions/AnomalyScanner';
 import { useTransactionAnomalyDetection } from "@/hooks/useTransactionAnomalyDetection";
+import { withPageErrorBoundary } from "@/components/error/withPageErrorBoundary";
+import { isAlgoliaConfigured, TransactionHit } from "@/lib/algolia-client";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default withPageMemo(function Transactions() {
+function TransactionsPage() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<any>({});
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -35,6 +39,7 @@ export default withPageMemo(function Transactions() {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [isRefineSearchOpen, setIsRefineSearchOpen] = useState(false);
   const [isSaveReportOpen, setIsSaveReportOpen] = useState(false);
+  const [searchMode, setSearchMode] = useState<'ai' | 'instant'>('ai');
   
   // Anomaly detection
   const { anomalies } = useTransactionAnomalyDetection('30d');
@@ -104,6 +109,11 @@ export default withPageMemo(function Transactions() {
     setFilters(newFilters);
   }, []);
 
+  const handleAlgoliaSelect = useCallback((hit: TransactionHit) => {
+    // Navigate to transaction detail or highlight it
+    console.log('Selected transaction:', hit);
+  }, []);
+
   return (
     <>
       <AppLayout>
@@ -134,8 +144,28 @@ export default withPageMemo(function Transactions() {
             </div>
           </div>
 
-          <div data-copilot-id="transaction-search">
-            <OptimizedSearchBar onSearch={handleSearch} />
+          {/* Search Mode Toggle */}
+          <div data-copilot-id="transaction-search" className="space-y-3">
+            {isAlgoliaConfigured() && (
+              <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as 'ai' | 'instant')} className="w-fit">
+                <TabsList>
+                  <TabsTrigger value="ai" className="gap-2">
+                    <Search className="h-4 w-4" />
+                    AI Search
+                  </TabsTrigger>
+                  <TabsTrigger value="instant" className="gap-2">
+                    <Zap className="h-4 w-4" />
+                    Instant Search
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
+            
+            {searchMode === 'ai' ? (
+              <OptimizedSearchBar onSearch={handleSearch} />
+            ) : (
+              <AlgoliaTransactionSearch onSelectTransaction={handleAlgoliaSelect} />
+            )}
           </div>
 
           <div data-copilot-id="transaction-filters">
@@ -176,50 +206,52 @@ export default withPageMemo(function Transactions() {
         </div>
       </AppLayout>
 
-    {userId && <InsightsPanel userId={userId} />}
-      
+      {userId && <InsightsPanel userId={userId} />}
+        
       {/* Anomaly Scanner FAB */}
       <AnomalyScanner />
-      
+        
       <ScrollToTopButton />
 
-    <AddTransactionDialog
-      isOpen={isAddDialogOpen}
-      onClose={() => setIsAddDialogOpen(false)}
-    />
-    
-    <ExportTransactionsDialog
-      isOpen={isExportDialogOpen}
-      onClose={() => setIsExportDialogOpen(false)}
-      transactions={allTransactions}
-      filters={filters}
-    />
+      <AddTransactionDialog
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+      />
+      
+      <ExportTransactionsDialog
+        isOpen={isExportDialogOpen}
+        onClose={() => setIsExportDialogOpen(false)}
+        transactions={allTransactions}
+        filters={filters}
+      />
 
-    <ImportTransactionsDialog
-      isOpen={isImportDialogOpen}
-      onClose={() => setIsImportDialogOpen(false)}
-    />
+      <ImportTransactionsDialog
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+      />
 
-    {hasActiveSearch && (
-      <>
-        <RefineSearchDialog
-          query={searchQuery}
-          currentFilters={filters}
-          transactionCount={allTransactions.length}
-          isOpen={isRefineSearchOpen}
-          onClose={() => setIsRefineSearchOpen(false)}
-          onApplyRefinement={handleApplyRefinement}
-        />
+      {hasActiveSearch && (
+        <>
+          <RefineSearchDialog
+            query={searchQuery}
+            currentFilters={filters}
+            transactionCount={allTransactions.length}
+            isOpen={isRefineSearchOpen}
+            onClose={() => setIsRefineSearchOpen(false)}
+            onApplyRefinement={handleApplyRefinement}
+          />
 
-        <SaveReportDialog
-          query={searchQuery}
-          filters={filters}
-          transactionCount={allTransactions.length}
-          isOpen={isSaveReportOpen}
-          onClose={() => setIsSaveReportOpen(false)}
-        />
-      </>
-    )}
-  </>
+          <SaveReportDialog
+            query={searchQuery}
+            filters={filters}
+            transactionCount={allTransactions.length}
+            isOpen={isSaveReportOpen}
+            onClose={() => setIsSaveReportOpen(false)}
+          />
+        </>
+      )}
+    </>
   );
-}, 'Transactions');
+}
+
+export default withPageErrorBoundary(withPageMemo(TransactionsPage, 'Transactions'), 'Transactions');
