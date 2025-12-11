@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { PageTransition } from "@/components/animations/PageTransition";
+import { withPageMemo } from "@/lib/performance-utils";
+import { withPageErrorBoundary } from "@/components/error/withPageErrorBoundary";
 import { ScrollSection } from "@/components/animations/ScrollSection";
 import { CreditScoreCard } from "@/components/credit/CreditScoreCard";
 import { CreditScoreHistoryChart } from "@/components/credit/CreditScoreHistoryChart";
@@ -19,7 +21,7 @@ import { ClosureSimulatorCard } from "@/components/credit/ClosureSimulatorCard";
 import { CreditSimulator } from "@/components/credit/CreditSimulator";
 import { AppLayout } from "@/components/layout/AppLayout";
 
-export default function Credit() {
+function CreditPage() {
   const { data: latestScore, isLoading } = useLatestCreditScore();
   const [projectedScore, setProjectedScore] = useState<number | undefined>();
 
@@ -159,3 +161,5 @@ export default function Credit() {
     </AppLayout>
   );
 }
+
+export default withPageErrorBoundary(withPageMemo(CreditPage, 'Credit'), 'Credit');
