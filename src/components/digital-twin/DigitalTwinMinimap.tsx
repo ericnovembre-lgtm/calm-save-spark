@@ -31,10 +31,13 @@ export interface MinimapSection {
   color: string;
 }
 
+import { Globe } from 'lucide-react';
+
 export const DESKTOP_SECTIONS: MinimapSection[] = [
   { id: 'header-section', label: 'Digital Twin', icon: Sparkles, color: 'amber' },
   { id: 'net-worth-section', label: 'Net Worth', icon: DollarSign, color: 'green' },
   { id: 'avatar-section', label: 'Avatar', icon: User, color: 'orange' },
+  { id: 'globe-section', label: 'Global Map', icon: Globe, color: 'amber' },
   { id: 'events-section', label: 'Life Events', icon: Calendar, color: 'amber' },
   { id: 'timeline-section', label: 'Timeline', icon: Clock, color: 'amber' },
   { id: 'projections-section', label: 'Projections', icon: BarChart3, color: 'orange' },

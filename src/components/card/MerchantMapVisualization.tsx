@@ -131,15 +131,16 @@ export function MerchantMapVisualization({ cardId }: MerchantMapVisualizationPro
           0, 1,
           9, 3,
         ],
+        // Brand colors: amber → orange → rose (warm palette)
         'heatmap-color': [
           'interpolate',
           ['linear'],
           ['heatmap-density'],
-          0, 'rgba(59, 130, 246, 0)',
-          0.2, 'rgba(59, 130, 246, 0.3)',
-          0.4, 'rgba(168, 85, 247, 0.5)',
-          0.6, 'rgba(236, 72, 153, 0.7)',
-          0.8, 'rgba(239, 68, 68, 0.9)',
+          0, 'rgba(217, 119, 6, 0)',       // transparent amber
+          0.2, 'rgba(217, 119, 6, 0.4)',   // amber-600
+          0.4, 'rgba(234, 88, 12, 0.6)',   // orange-600
+          0.6, 'rgba(249, 115, 22, 0.75)', // orange-500
+          0.8, 'rgba(239, 68, 68, 0.9)',   // red-500
         ],
         'heatmap-radius': [
           'interpolate',

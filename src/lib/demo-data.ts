@@ -279,7 +279,7 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 87.50,
     transactionCount: 12,
     category: 'Food & Dining',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 2),
   },
   {
     merchant: 'Target',
@@ -290,7 +290,7 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 245.99,
     transactionCount: 5,
     category: 'Shopping',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24),
   },
   {
     merchant: 'Whole Foods Market',
@@ -301,7 +301,7 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 342.18,
     transactionCount: 8,
     category: 'Groceries',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 6), // 6 hours ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 6),
   },
   {
     merchant: 'Delta Airlines',
@@ -312,7 +312,7 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 1289.00,
     transactionCount: 2,
     category: 'Travel',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
   },
   {
     merchant: 'AMC Theater',
@@ -323,7 +323,7 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 64.50,
     transactionCount: 3,
     category: 'Entertainment',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
   },
   {
     merchant: 'Shake Shack',
@@ -334,7 +334,7 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 48.25,
     transactionCount: 4,
     category: 'Food & Dining',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 12), // 12 hours ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 12),
   },
   {
     merchant: 'Apple Store',
@@ -345,10 +345,10 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 1499.00,
     transactionCount: 1,
     category: 'Shopping',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7), // 1 week ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
   },
   {
-    merchant: 'Trader Joe\'s',
+    merchant: "Trader Joe's",
     lat: 39.7392,
     lon: -104.9903,
     city: 'Denver',
@@ -356,7 +356,7 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 156.78,
     transactionCount: 6,
     category: 'Groceries',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24),
   },
   {
     merchant: 'Chipotle Mexican Grill',
@@ -367,7 +367,7 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 93.42,
     transactionCount: 7,
     category: 'Food & Dining',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 4),
   },
   {
     merchant: 'REI Co-op',
@@ -378,6 +378,54 @@ export const DEMO_MERCHANT_LOCATIONS: DemoMerchantLocation[] = [
     totalSpent: 287.50,
     transactionCount: 2,
     category: 'Shopping',
-    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 days ago
+    lastTransaction: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
   },
+];
+
+// International demo locations for globe visualization
+export interface GlobalDemoLocation {
+  id: string;
+  merchant: string;
+  lat: number;
+  lon: number;
+  city: string;
+  country: string;
+  totalSpent: number;
+  transactionCount: number;
+  category: string;
+  lastTransaction: Date;
+}
+
+export const DEMO_GLOBAL_LOCATIONS: GlobalDemoLocation[] = [
+  // North America
+  { id: '1', merchant: 'Starbucks Reserve', lat: 40.7484, lon: -73.9857, city: 'New York', country: 'USA', totalSpent: 287.50, transactionCount: 12, category: 'Food & Dining', lastTransaction: new Date() },
+  { id: '2', merchant: 'Apple Store', lat: 37.7749, lon: -122.4194, city: 'San Francisco', country: 'USA', totalSpent: 2499.00, transactionCount: 2, category: 'Shopping', lastTransaction: new Date() },
+  { id: '3', merchant: 'Delta Airlines', lat: 33.6407, lon: -84.4277, city: 'Atlanta', country: 'USA', totalSpent: 1289.00, transactionCount: 3, category: 'Travel', lastTransaction: new Date() },
+  { id: '4', merchant: 'Four Seasons', lat: 19.4326, lon: -99.1332, city: 'Mexico City', country: 'Mexico', totalSpent: 890.00, transactionCount: 1, category: 'Travel', lastTransaction: new Date() },
+  { id: '5', merchant: 'CN Tower Restaurant', lat: 43.6426, lon: -79.3871, city: 'Toronto', country: 'Canada', totalSpent: 245.00, transactionCount: 1, category: 'Food & Dining', lastTransaction: new Date() },
+  
+  // Europe
+  { id: '6', merchant: 'Harrods', lat: 51.4994, lon: -0.1634, city: 'London', country: 'UK', totalSpent: 1850.00, transactionCount: 4, category: 'Shopping', lastTransaction: new Date() },
+  { id: '7', merchant: 'Galeries Lafayette', lat: 48.8738, lon: 2.3320, city: 'Paris', country: 'France', totalSpent: 1245.00, transactionCount: 3, category: 'Shopping', lastTransaction: new Date() },
+  { id: '8', merchant: 'Ritz Carlton', lat: 52.5200, lon: 13.4050, city: 'Berlin', country: 'Germany', totalSpent: 678.00, transactionCount: 2, category: 'Travel', lastTransaction: new Date() },
+  { id: '9', merchant: 'La Scala', lat: 45.4654, lon: 9.1859, city: 'Milan', country: 'Italy', totalSpent: 350.00, transactionCount: 2, category: 'Entertainment', lastTransaction: new Date() },
+  { id: '10', merchant: 'El Corte Inglés', lat: 40.4168, lon: -3.7038, city: 'Madrid', country: 'Spain', totalSpent: 567.00, transactionCount: 3, category: 'Shopping', lastTransaction: new Date() },
+  
+  // Asia
+  { id: '11', merchant: 'Tsukiji Market', lat: 35.6762, lon: 139.6503, city: 'Tokyo', country: 'Japan', totalSpent: 425.00, transactionCount: 5, category: 'Food & Dining', lastTransaction: new Date() },
+  { id: '12', merchant: 'Marina Bay Sands', lat: 1.2838, lon: 103.8591, city: 'Singapore', country: 'Singapore', totalSpent: 1890.00, transactionCount: 2, category: 'Travel', lastTransaction: new Date() },
+  { id: '13', merchant: 'IFC Mall', lat: 22.2855, lon: 114.1577, city: 'Hong Kong', country: 'China', totalSpent: 2340.00, transactionCount: 4, category: 'Shopping', lastTransaction: new Date() },
+  { id: '14', merchant: 'Burj Khalifa', lat: 25.1972, lon: 55.2744, city: 'Dubai', country: 'UAE', totalSpent: 1567.00, transactionCount: 3, category: 'Entertainment', lastTransaction: new Date() },
+  { id: '15', merchant: 'Taj Mahal Palace', lat: 18.9220, lon: 72.8347, city: 'Mumbai', country: 'India', totalSpent: 890.00, transactionCount: 2, category: 'Travel', lastTransaction: new Date() },
+  
+  // Oceania
+  { id: '16', merchant: 'Sydney Opera House', lat: -33.8568, lon: 151.2153, city: 'Sydney', country: 'Australia', totalSpent: 456.00, transactionCount: 2, category: 'Entertainment', lastTransaction: new Date() },
+  { id: '17', merchant: 'Sky Tower', lat: -36.8485, lon: 174.7633, city: 'Auckland', country: 'New Zealand', totalSpent: 234.00, transactionCount: 1, category: 'Entertainment', lastTransaction: new Date() },
+  
+  // South America
+  { id: '18', merchant: 'Copacabana Palace', lat: -22.9068, lon: -43.1729, city: 'Rio de Janeiro', country: 'Brazil', totalSpent: 1234.00, transactionCount: 2, category: 'Travel', lastTransaction: new Date() },
+  { id: '19', merchant: 'Palermo Soho', lat: -34.6037, lon: -58.3816, city: 'Buenos Aires', country: 'Argentina', totalSpent: 567.00, transactionCount: 3, category: 'Shopping', lastTransaction: new Date() },
+  
+  // Africa
+  { id: '20', merchant: 'V&A Waterfront', lat: -33.9025, lon: 18.4241, city: 'Cape Town', country: 'South Africa', totalSpent: 345.00, transactionCount: 2, category: 'Shopping', lastTransaction: new Date() },
 ];
