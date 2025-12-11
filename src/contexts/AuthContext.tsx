@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { markSessionActive } from '@/lib/session';
 import { logLoginEvent } from '@/lib/security-logger';
 import { setSentryUser } from '@/lib/sentry';
+import { identifyUser, resetAnalytics } from '@/lib/analytics-lazy';
 
 interface AuthContextType {
   user: User | null;
@@ -55,6 +56,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             
             // Log security event
             logLoginEvent();
+            
+            // Identify user to PostHog for analytics attribution
+            identifyUser({
+              signup_date: session.user.created_at,
+              provider: session.user.app_metadata?.provider,
+            });
           }
         } else {
           // Clear Sentry user context on logout
@@ -72,6 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     // Clear Sentry user context
     setSentryUser(null);
+    // Reset PostHog identity for clean session handoff
+    resetAnalytics();
   };
 
   return (
