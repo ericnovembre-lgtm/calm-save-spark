@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, Home, Target, Wallet, BarChart3, Settings, Shield, Zap, Gift, Lightbulb, CreditCard, Users, Code, Bot, DollarSign, TrendingUp, BadgeDollarSign, Trophy, Receipt, UsersRound, GraduationCap, Building2, Briefcase, BookOpen, Leaf, Plug, Heart, Search, Sparkles, Brain, Gamepad2, RefreshCw, MapPin, Coins, Activity, ShieldCheck, Map } from "lucide-react";
 import { motion } from "framer-motion";
@@ -18,6 +18,8 @@ import { getClientUser, AppUser } from "@/lib/session";
 import { FEATURE_FLAGS } from "@/lib/flags";
 import { supabase } from "@/integrations/supabase/client";
 import { Breadcrumbs } from "./Breadcrumbs";
+import { UniversalSearch } from "@/components/search";
+import type { TransactionHit, GoalHit } from "@/lib/algolia-client";
 
 import { GlobalAIAssistant } from "@/components/global-ai/GlobalAIAssistant";
 import { usePageContext } from "@/hooks/usePageContext";
@@ -191,13 +193,27 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
               {/* Divider */}
               {user && <div className="hidden lg:block h-6 w-px bg-border" />}
 
+              {/* Desktop: Inline Algolia Search */}
+              <div className="hidden lg:block w-[280px]">
+                <UniversalSearch
+                  onSelectTransaction={(hit: TransactionHit) => {
+                    navigate(`/transactions?highlight=${hit.objectID}`);
+                  }}
+                  onSelectGoal={(hit: GoalHit) => {
+                    navigate(`/goals?highlight=${hit.objectID}`);
+                  }}
+                  className="w-full"
+                />
+              </div>
+
               {/* Action Buttons */}
               <div className="flex items-center gap-1">
+                {/* Mobile: Search button navigates to /search */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => navigate('/search')}
-                  className="hover:bg-accent/10"
+                  className="lg:hidden hover:bg-accent/10"
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5" />
