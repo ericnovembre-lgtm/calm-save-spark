@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useTransactionMutations } from '@/hooks/useTransactionMutations';
 import { toast } from 'sonner';
 import { Receipt, DollarSign, Loader2, Calendar, CreditCard } from 'lucide-react';
-import { format, addMonths } from 'date-fns';
+import { format } from 'date-fns';
 import { registerModalCallback, unregisterModalCallback } from '@/lib/action-registry';
 
 interface PayBillModalProps {
@@ -21,6 +22,7 @@ interface PayBillModalProps {
 export function PayBillModal({ isOpen, onClose, onOpen }: PayBillModalProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { createTransaction, isCreating } = useTransactionMutations();
   const [selectedBillId, setSelectedBillId] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<string>('bank');
@@ -48,42 +50,31 @@ export function PayBillModal({ isOpen, onClose, onOpen }: PayBillModalProps) {
     enabled: isOpen && !!user?.id,
   });
 
-  // Pay bill mutation
-  const payBillMutation = useMutation({
-    mutationFn: async () => {
-      const bill = bills?.find(b => b.id === selectedBillId);
-      if (!bill) throw new Error('Bill not found');
+  const handlePayBill = () => {
+    const bill = bills?.find(b => b.id === selectedBillId);
+    if (!bill) {
+      toast.error('Please select a bill');
+      return;
+    }
 
-      const paymentAmount = parseFloat(amount) || bill.amount;
+    const paymentAmount = parseFloat(amount) || bill.amount;
 
-      // Create transaction record
-      await supabase.from('transactions').insert({
-        user_id: user?.id,
-        merchant_name: bill.merchant,
-        amount: -paymentAmount,
-        category: bill.category || 'Bills',
-        transaction_date: new Date().toISOString(),
-        description: `Bill payment: ${bill.merchant}`,
-      });
-
-      return { bill, paymentAmount };
-    },
-    onSuccess: ({ bill, paymentAmount }) => {
-      queryClient.invalidateQueries({ queryKey: ['upcoming-bills'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      
-      toast.success(`Paid $${paymentAmount.toFixed(2)} to ${bill.merchant}`, {
-        description: `Payment recorded successfully`
-      });
-      
-      handleClose();
-    },
-    onError: (error) => {
-      toast.error('Failed to process payment', {
-        description: error instanceof Error ? error.message : 'Please try again'
-      });
-    },
-  });
+    createTransaction.mutate({
+      merchant: bill.merchant,
+      amount: -paymentAmount,
+      category: bill.category || 'Bills',
+      description: `Bill payment: ${bill.merchant}`,
+      transaction_date: new Date().toISOString(),
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['upcoming-bills'] });
+        toast.success(`Paid $${paymentAmount.toFixed(2)} to ${bill.merchant}`, {
+          description: 'Payment recorded successfully'
+        });
+        handleClose();
+      }
+    });
+  };
 
   const handleClose = () => {
     setSelectedBillId('');
@@ -197,11 +188,11 @@ export function PayBillModal({ isOpen, onClose, onOpen }: PayBillModalProps) {
             Cancel
           </Button>
           <Button
-            onClick={() => payBillMutation.mutate()}
-            disabled={!selectedBillId || !amount || payBillMutation.isPending}
+            onClick={handlePayBill}
+            disabled={!selectedBillId || !amount || isCreating}
             className="bg-amber-600 hover:bg-amber-700"
           >
-            {payBillMutation.isPending ? (
+            {isCreating ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Processing...</>
             ) : (
               'Pay Bill'
