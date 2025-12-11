@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecentPages } from '@/hooks/useRecentPages';
 import { trackPageViewToDb } from '@/lib/page-tracker';
+import { trackPageView } from '@/lib/analytics-lazy';
 
 /**
  * PageTracker - Global component that tracks page visits
@@ -77,6 +78,9 @@ export function PageTracker() {
       
       // Track to database for analytics
       trackPageViewToDb(location.pathname, title);
+      
+      // Track to PostHog for user journey analytics
+      trackPageView(title);
     } catch (error) {
       console.error('PageTracker error:', error);
     } finally {
