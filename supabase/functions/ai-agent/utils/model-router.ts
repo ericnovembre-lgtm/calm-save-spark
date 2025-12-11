@@ -13,6 +13,7 @@ import { streamGroq, GROQ_MODELS } from "./groq-client.ts";
 import { streamDeepseek, DEEPSEEK_MODELS } from "../../_shared/deepseek-client.ts";
 import { streamGrok, GROK_MODELS } from "./grok-client.ts";
 import { injectModelMetadata } from "./stream-enhancer.ts";
+import { traceRouting, traceStreamingCall, logFallback } from "../../_shared/langsmith-client.ts";
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -72,34 +73,53 @@ export async function routeToOptimalModel(options: RouterOptions): Promise<Reada
     reasoning: classification.reasoning
   });
 
-  // Route to appropriate model
-  switch (classification.model) {
-    case 'grok-sentiment':
-      return await routeToGrok(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
-    
-    case 'groq-instant':
-      return await routeToGroqLPU(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
-    
-    case 'deepseek-reasoner':
-      return await routeToDeepseek(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
-    
-    case 'perplexity':
-      return await routeToPerplexity(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
-    
-    case 'gemini-flash':
-      return await routeToGeminiFlash(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
-    
-    case 'claude-sonnet':
-      return await routeToClaude(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
-    
-    case 'gpt-5':
-      return await routeToGPT5(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
-    
-    default:
-      // Fallback to Gemini Flash
-      console.warn('[Model Router] Unknown model, defaulting to Gemini Flash');
-      return await routeToGeminiFlash(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
-  }
+  // Trace the routing decision with LangSmith
+  const traceMetadata = {
+    userId,
+    conversationId,
+    model: classification.model,
+    queryType: classification.type,
+    queryLength: userMessage.length,
+    estimatedCost: classification.estimatedCost,
+  };
+
+  const { result: stream } = await traceRouting(
+    classification.type,
+    classification.model,
+    traceMetadata,
+    async () => {
+      // Route to appropriate model
+      switch (classification.model) {
+        case 'grok-sentiment':
+          return await routeToGrok(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
+        
+        case 'groq-instant':
+          return await routeToGroqLPU(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
+        
+        case 'deepseek-reasoner':
+          return await routeToDeepseek(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
+        
+        case 'perplexity':
+          return await routeToPerplexity(systemPrompt, conversationHistory, userMessage, supabase, conversationId, userId, classification.type);
+        
+        case 'gemini-flash':
+          return await routeToGeminiFlash(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
+        
+        case 'claude-sonnet':
+          return await routeToClaude(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
+        
+        case 'gpt-5':
+          return await routeToGPT5(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
+        
+        default:
+          // Fallback to Gemini Flash
+          console.warn('[Model Router] Unknown model, defaulting to Gemini Flash');
+          return await routeToGeminiFlash(systemPrompt, conversationHistory, userMessage, tools, supabase, conversationId, userId, classification.type);
+      }
+    }
+  );
+
+  return stream;
 }
 
 /**
@@ -154,6 +174,14 @@ async function routeToGrok(
     });
   } catch (error) {
     console.error('[Model Router] Grok failed, falling back to Perplexity:', error);
+    
+    // Log fallback to LangSmith
+    await logFallback('grok-sentiment', 'perplexity', error instanceof Error ? error.message : String(error), {
+      userId: userId || undefined,
+      conversationId,
+      model: 'grok-sentiment',
+      queryType,
+    });
     
     // Log fallback
     await logModelUsage(
@@ -228,6 +256,14 @@ Be concise and direct. Prioritize speed over verbosity.`;
     });
   } catch (error) {
     console.error('[Model Router] Groq failed, falling back to Gemini Flash:', error);
+    
+    // Log fallback to LangSmith
+    await logFallback('groq-instant', 'gemini-flash', error instanceof Error ? error.message : String(error), {
+      userId: userId || undefined,
+      conversationId,
+      model: 'groq-instant',
+      queryType,
+    });
     
     // Log fallback
     await logModelUsage(
@@ -308,6 +344,14 @@ async function routeToDeepseek(
   } catch (error) {
     console.error('[Model Router] Deepseek failed, falling back to Gemini Flash:', error);
     
+    // Log fallback to LangSmith
+    await logFallback('deepseek-reasoner', 'gemini-flash', error instanceof Error ? error.message : String(error), {
+      userId: userId || undefined,
+      conversationId,
+      model: 'deepseek-reasoner',
+      queryType,
+    });
+    
     // Log fallback
     await logModelUsage(
       supabase, 
@@ -373,6 +417,14 @@ Focus on providing up-to-date financial market information.`;
     });
   } catch (error) {
     console.error('[Model Router] Perplexity failed, falling back to Gemini Flash:', error);
+    
+    // Log fallback to LangSmith
+    await logFallback('perplexity', 'gemini-flash', error instanceof Error ? error.message : String(error), {
+      userId: userId || undefined,
+      conversationId,
+      model: 'perplexity',
+      queryType,
+    });
     
     // Log fallback
     await logModelUsage(
@@ -520,6 +572,14 @@ Always cite specific sections of documents when referencing information.`;
     });
   } catch (error) {
     console.error('[Model Router] GPT-5 failed, falling back to Gemini 2.5 Flash:', error);
+    
+    // Log fallback to LangSmith
+    await logFallback('gpt-5', 'gemini-flash', error instanceof Error ? error.message : String(error), {
+      userId: userId || undefined,
+      conversationId,
+      model: 'gpt-5',
+      queryType,
+    });
     
     // Log fallback
     await logModelUsage(
