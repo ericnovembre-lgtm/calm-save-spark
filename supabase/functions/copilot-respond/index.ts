@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { captureEdgeException } from "../_shared/sentry-edge.ts";
+import { redisGet, redisSetJSON, redisIncr, redisExpire } from "../_shared/upstash-redis.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -56,6 +57,38 @@ serve(async (req) => {
     console.log(`[copilot-respond] Authenticated user: ${userId}`);
 
     const { message, context, conversationHistory = [] }: CoPilotRequest = await req.json();
+    
+    // Skip caching for action commands (transfers, modal opens, etc.)
+    const actionKeywords = ['transfer', 'open', 'navigate', 'go to', 'show me', 'take me'];
+    const isActionCommand = actionKeywords.some(kw => message.toLowerCase().includes(kw));
+    
+    // Generate cache key based on message and route context
+    const messageHash = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(message.toLowerCase().trim() + context.currentRoute)
+    ).then(hash => Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16));
+    
+    const cacheKey = `copilot:${userId}:${messageHash}`;
+    
+    // Check cache first (skip for action commands)
+    if (!isActionCommand) {
+      const cached = await redisGet(cacheKey);
+      if (cached) {
+        console.log(`[copilot-respond] Cache HIT for user ${userId}`);
+        await redisIncr('copilot:cache:hits');
+        try {
+          const cachedResponse = JSON.parse(cached);
+          return new Response(
+            JSON.stringify(cachedResponse),
+            { headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" } }
+          );
+        } catch (e) {
+          console.warn('[copilot-respond] Failed to parse cached response:', e);
+        }
+      }
+      console.log(`[copilot-respond] Cache MISS for user ${userId}`);
+      await redisIncr('copilot:cache:misses');
+    }
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -178,14 +211,22 @@ Remember: You are the "Ghost in the Machine" - you can see what the user sees an
       .replace(/```widget\n[\s\S]*?\n```/g, '')
       .trim();
 
+    const responsePayload = {
+      message: cleanMessage,
+      actions,
+      spotlights,
+      widget,
+    };
+
+    // Cache the response (5 minute TTL) - skip for action commands
+    if (!isActionCommand) {
+      await redisSetJSON(cacheKey, responsePayload, 300);
+      console.log(`[copilot-respond] Cached response for user ${userId}`);
+    }
+
     return new Response(
-      JSON.stringify({
-        message: cleanMessage,
-        actions,
-        spotlights,
-        widget,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify(responsePayload),
+      { headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "MISS" } }
     );
 
   } catch (error) {
