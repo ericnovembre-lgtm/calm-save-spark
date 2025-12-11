@@ -518,3 +518,6 @@ verify_jwt = true
 
 [functions.algolia-admin]
 verify_jwt = true
+
+[functions.fetch-unsplash-image]
+verify_jwt = false
