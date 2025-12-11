@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Zap, Shield, AlertTriangle, TrendingUp, BarChart3, RefreshCw, Brain } from 'lucide-react';
+import { Activity, Zap, Shield, AlertTriangle, TrendingUp, BarChart3, RefreshCw, Brain, Search } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,12 +13,13 @@ import { CircuitBreakerTimeline } from '@/components/admin/CircuitBreakerTimelin
 import { DeepseekMetricsPanel } from '@/components/admin/DeepseekMetricsPanel';
 import { DeepseekQuotaMonitor } from '@/components/admin/DeepseekQuotaMonitor';
 import { GrokQuotaMonitor } from '@/components/admin/GrokQuotaMonitor';
+import { LangSmithMonitor } from '@/components/admin/LangSmithMonitor';
 import { useApiHealthMetrics } from '@/hooks/useApiHealthMetrics';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 
 type TimeRange = '24h' | '7d' | '30d';
-type ModelTab = 'groq' | 'deepseek' | 'grok' | 'all';
+type ModelTab = 'groq' | 'deepseek' | 'grok' | 'langsmith' | 'all';
 
 // X/Grok brand icon component
 function GrokIcon({ className }: { className?: string }) {
@@ -78,6 +79,10 @@ export default function ApiHealthDashboard() {
                 <TabsTrigger value="grok" className="text-xs gap-1">
                   <GrokIcon className="w-3 h-3" />
                   Grok
+                </TabsTrigger>
+                <TabsTrigger value="langsmith" className="text-xs gap-1">
+                  <Search className="w-3 h-3" />
+                  LangSmith
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -185,6 +190,19 @@ export default function ApiHealthDashboard() {
             </Card>
           </motion.div>
         </div>
+
+        {/* LangSmith Section */}
+        {(modelTab === 'langsmith' || modelTab === 'all') && (
+          <div className="space-y-4">
+            {modelTab === 'all' && (
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <Search className="w-5 h-5 text-emerald-400" />
+                LangSmith AI Monitoring
+              </h2>
+            )}
+            <LangSmithMonitor />
+          </div>
+        )}
 
         {/* Grok Section */}
         {(modelTab === 'grok' || modelTab === 'all') && (
