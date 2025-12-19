@@ -50,18 +50,24 @@ export interface GoalHit {
 
 export interface BudgetHit {
   objectID: string;
-  category: string;
-  total_limit: number;
+  name: string;
   period: string;
+  total_limit: number;
+  is_active: boolean;
+  currency: string | null;
   user_id: string;
 }
 
 export interface DebtHit {
   objectID: string;
   debt_name: string;
-  creditor: string | null;
+  debt_type: string | null;
   current_balance: number;
   interest_rate: number | null;
+  minimum_payment: number | null;
+  status: string | null;
+  is_active: boolean;
+  creditor: string | null;
   user_id: string;
 }
 
