@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Target, CreditCard, PiggyBank, TrendingDown } from 'lucide-react';
+import { Search, Target, CreditCard, PiggyBank, TrendingDown, Wallet, Landmark } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
@@ -9,6 +9,8 @@ import {
   ALGOLIA_INDICES,
   type TransactionHit,
   type GoalHit,
+  type BudgetHit,
+  type DebtHit,
   type SearchHit,
 } from '@/lib/algolia-client';
 import { AlgoliaSearchBox } from './AlgoliaSearchBox';
@@ -17,12 +19,16 @@ import { cn } from '@/lib/utils';
 interface UniversalSearchProps {
   onSelectTransaction?: (hit: TransactionHit) => void;
   onSelectGoal?: (hit: GoalHit) => void;
+  onSelectBudget?: (hit: BudgetHit) => void;
+  onSelectDebt?: (hit: DebtHit) => void;
   className?: string;
 }
 
 export function UniversalSearch({
   onSelectTransaction,
   onSelectGoal,
+  onSelectBudget,
+  onSelectDebt,
   className,
 }: UniversalSearchProps) {
   const { user } = useAuth();
@@ -49,7 +55,12 @@ export function UniversalSearch({
       const searchResults = await multiIndexSearch(
         searchQuery,
         user.id,
-        [ALGOLIA_INDICES.TRANSACTIONS, ALGOLIA_INDICES.GOALS]
+        [
+          ALGOLIA_INDICES.TRANSACTIONS, 
+          ALGOLIA_INDICES.GOALS,
+          ALGOLIA_INDICES.BUDGETS,
+          ALGOLIA_INDICES.DEBTS
+        ]
       );
       setResults(searchResults);
     } catch (error) {
@@ -70,8 +81,10 @@ export function UniversalSearch({
 
   const transactionHits = (results?.get(ALGOLIA_INDICES.TRANSACTIONS) || []) as TransactionHit[];
   const goalHits = (results?.get(ALGOLIA_INDICES.GOALS) || []) as GoalHit[];
+  const budgetHits = (results?.get(ALGOLIA_INDICES.BUDGETS) || []) as BudgetHit[];
+  const debtHits = (results?.get(ALGOLIA_INDICES.DEBTS) || []) as DebtHit[];
 
-  const hasResults = transactionHits.length > 0 || goalHits.length > 0;
+  const hasResults = transactionHits.length > 0 || goalHits.length > 0 || budgetHits.length > 0 || debtHits.length > 0;
 
   if (!isAlgoliaConfigured()) {
     return (
@@ -88,7 +101,7 @@ export function UniversalSearch({
   return (
     <div className={cn("relative", className)}>
       <AlgoliaSearchBox
-        placeholder="Search transactions, goals..."
+        placeholder="Search transactions, goals, budgets, debts..."
         onSearch={handleQueryChange}
         value={query}
         onChange={setQuery}
@@ -158,7 +171,7 @@ export function UniversalSearch({
 
                 {/* Goals Section */}
                 {goalHits.length > 0 && (
-                  <div>
+                  <div className="mb-3">
                     <div className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       <Target className="w-3 h-3" />
                       Goals
@@ -197,6 +210,98 @@ export function UniversalSearch({
                         </button>
                       );
                     })}
+                  </div>
+                )}
+
+                {/* Budgets Section */}
+                {budgetHits.length > 0 && (
+                  <div className="mb-3">
+                    <div className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <Wallet className="w-3 h-3" />
+                      Budgets
+                    </div>
+                    {budgetHits.slice(0, 5).map((hit) => (
+                      <button
+                        key={hit.objectID}
+                        onClick={() => onSelectBudget?.(hit)}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-2 py-2 rounded-lg",
+                          "hover:bg-muted/50 transition-colors text-left"
+                        )}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-violet-500/10 text-violet-500 flex items-center justify-center">
+                          <Wallet className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{hit.name}</p>
+                          <p className="text-xs text-muted-foreground truncate capitalize">
+                            {hit.period} • {hit.currency || 'USD'}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-violet-500">
+                            ${hit.total_limit.toLocaleString()}
+                          </span>
+                          {hit.is_active ? (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-medium">
+                              Active
+                            </span>
+                          ) : (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                              Inactive
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Debts Section */}
+                {debtHits.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <Landmark className="w-3 h-3" />
+                      Debts
+                    </div>
+                    {debtHits.slice(0, 5).map((hit) => (
+                      <button
+                        key={hit.objectID}
+                        onClick={() => onSelectDebt?.(hit)}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-2 py-2 rounded-lg",
+                          "hover:bg-muted/50 transition-colors text-left"
+                        )}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                          <Landmark className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{hit.debt_name}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {hit.creditor || hit.debt_type || 'Debt'}
+                            {hit.interest_rate ? ` • ${hit.interest_rate}% APR` : ''}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-amber-500">
+                            ${hit.current_balance.toLocaleString()}
+                          </span>
+                          {hit.status && (
+                            <span className={cn(
+                              "text-[10px] px-1.5 py-0.5 rounded-full font-medium",
+                              hit.status === 'paid_off' 
+                                ? "bg-emerald-500/10 text-emerald-500"
+                                : hit.status === 'delinquent'
+                                ? "bg-destructive/10 text-destructive"
+                                : "bg-amber-500/10 text-amber-500"
+                            )}>
+                              {hit.status.replace('_', ' ')}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
