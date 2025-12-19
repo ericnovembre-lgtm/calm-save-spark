@@ -248,6 +248,93 @@ serve(async (req) => {
           } else {
             result = { message: "No goals to sync" };
           }
+        }
+        // Sync user's budgets to Algolia
+        else if (indexName === "budgets") {
+          const { data: budgets, error: budgetsError } = await supabase
+            .from("user_budgets")
+            .select("id, name, period, total_limit, is_active, currency")
+            .eq("user_id", user.id);
+
+          if (budgetsError) {
+            throw budgetsError;
+          }
+
+          if (budgets && budgets.length > 0) {
+            const algoliaRecords = budgets.map(budget => ({
+              objectID: budget.id,
+              name: budget.name,
+              period: budget.period,
+              total_limit: budget.total_limit,
+              is_active: budget.is_active,
+              currency: budget.currency,
+              user_id: user.id,
+            }));
+
+            const response = await algoliaRequest(
+              ALGOLIA_APP_ID,
+              ALGOLIA_ADMIN_API_KEY,
+              indexName,
+              "/batch",
+              "POST",
+              {
+                requests: algoliaRecords.map(record => ({
+                  action: "updateObject",
+                  body: record,
+                })),
+              }
+            );
+
+            result = await response.json();
+            console.log(`Bulk synced ${budgets.length} budgets for user ${user.id}`);
+          } else {
+            result = { message: "No budgets to sync" };
+          }
+        }
+        // Sync user's debts to Algolia
+        else if (indexName === "debts") {
+          const { data: debts, error: debtsError } = await supabase
+            .from("debts")
+            .select("id, debt_name, debt_type, current_balance, interest_rate, minimum_payment, status, is_active, creditor")
+            .eq("user_id", user.id);
+
+          if (debtsError) {
+            throw debtsError;
+          }
+
+          if (debts && debts.length > 0) {
+            const algoliaRecords = debts.map(debt => ({
+              objectID: debt.id,
+              debt_name: debt.debt_name,
+              debt_type: debt.debt_type,
+              current_balance: debt.current_balance,
+              interest_rate: debt.interest_rate,
+              minimum_payment: debt.minimum_payment,
+              status: debt.status,
+              is_active: debt.is_active,
+              creditor: debt.creditor,
+              user_id: user.id,
+            }));
+
+            const response = await algoliaRequest(
+              ALGOLIA_APP_ID,
+              ALGOLIA_ADMIN_API_KEY,
+              indexName,
+              "/batch",
+              "POST",
+              {
+                requests: algoliaRecords.map(record => ({
+                  action: "updateObject",
+                  body: record,
+                })),
+              }
+            );
+
+            result = await response.json();
+            console.log(`Bulk synced ${debts.length} debts for user ${user.id}`);
+          } else {
+            result = { message: "No debts to sync" };
+          }
         } else {
           return new Response(
             JSON.stringify({ error: `Bulk sync not supported for index: ${indexName}` }),
