@@ -1,10 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { redisGetJSON, redisSetJSON } from '../_shared/upstash-redis.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Redis cache TTL: 15 minutes for daily briefings
+const REDIS_CACHE_TTL_SECONDS = 900;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -29,6 +33,28 @@ serve(async (req) => {
     }
 
     const today = new Date().toISOString().split('T')[0];
+    
+    // Check Redis cache first
+    const cacheKey = `daily-briefing:${user.id}:${today}`;
+    const cached = await redisGetJSON<any>(cacheKey);
+    if (cached) {
+      console.log(`[generate-daily-briefing] Redis Cache HIT for user ${user.id}, date=${today}`);
+      return new Response(
+        JSON.stringify(cached),
+        { 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'X-Cache': 'HIT',
+            'X-Cache-Source': 'redis',
+            'X-Cache-TTL': String(REDIS_CACHE_TTL_SECONDS)
+          } 
+        }
+      );
+    }
+    
+    console.log(`[generate-daily-briefing] Redis Cache MISS for user ${user.id}, date=${today}`);
+    
     const todayStart = new Date(today);
     const todayEnd = new Date(today);
     todayEnd.setHours(23, 59, 59, 999);
@@ -243,18 +269,32 @@ Generate the briefing NOW:`;
     const aiData = await aiResponse.json();
     const message = aiData.choices[0].message.content;
 
+    const responseData = {
+      message,
+      metrics: {
+        todaySpending,
+        totalBalance,
+        budgetUtilization,
+        goalProgress,
+        upcomingBillsCount: upcomingBills?.length || 0
+      }
+    };
+    
+    // Cache the successful response in Redis
+    await redisSetJSON(cacheKey, responseData, REDIS_CACHE_TTL_SECONDS);
+    console.log(`[generate-daily-briefing] Redis cached response for user ${user.id}, date=${today}, TTL=${REDIS_CACHE_TTL_SECONDS}s`);
+
     return new Response(
-      JSON.stringify({
-        message,
-        metrics: {
-          todaySpending,
-          totalBalance,
-          budgetUtilization,
-          goalProgress,
-          upcomingBillsCount: upcomingBills?.length || 0
-        }
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify(responseData),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'X-Cache': 'MISS',
+          'X-Cache-Source': 'redis',
+          'X-Cache-TTL': String(REDIS_CACHE_TTL_SECONDS)
+        } 
+      }
     );
 
   } catch (error) {
