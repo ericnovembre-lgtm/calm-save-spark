@@ -55,8 +55,9 @@ const ExportDataManager = lazy(() => import("@/components/budget/ExportDataManag
 const InteractiveBudgetOnboarding = lazy(() => import("@/components/budget/InteractiveBudgetOnboarding").then(m => ({ default: m.InteractiveBudgetOnboarding })));
 
 import { withPageMemo } from "@/lib/performance-utils";
+import { withPageErrorBoundary } from "@/components/error/withPageErrorBoundary";
 
-export default function Budget() {
+function BudgetPage() {
   const [activeView, setActiveView] = useState('overview');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRuleManager, setShowRuleManager] = useState(false);
@@ -647,3 +648,5 @@ export default function Budget() {
     </AppLayout>
   );
 }
+
+export default withPageErrorBoundary(withPageMemo(BudgetPage, 'Budget'), 'Budget');
