@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
+import { useBudgetMutations } from "@/hooks/useBudgetMutations";
 
 export const BudgetBuilder = () => {
   const queryClient = useQueryClient();
@@ -23,6 +24,15 @@ export const BudgetBuilder = () => {
     "Savings": 20,
     "Other": 15
   });
+  const [userId, setUserId] = useState<string | undefined>();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserId(user?.id);
+    });
+  }, []);
+
+  const { createBudget } = useBudgetMutations(userId);
 
   const { data: templates } = useQuery({
     queryKey: ['budget_templates'],
@@ -35,35 +45,24 @@ export const BudgetBuilder = () => {
     },
   });
 
-  const createBudgetMutation = useMutation({
-    mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+  const handleCreateBudget = () => {
+    const categoryLimits: { [key: string]: number } = {};
+    Object.keys(categories).forEach(cat => {
+      categoryLimits[cat] = (totalLimit * categories[cat]) / 100;
+    });
 
-      const categoryLimits: { [key: string]: number } = {};
-      Object.keys(categories).forEach(cat => {
-        categoryLimits[cat] = (totalLimit * categories[cat]) / 100;
-      });
-
-      const { error } = await supabase
-        .from('user_budgets')
-        .insert([{
-          user_id: user.id,
-          name: budgetName || 'My Budget',
-          period,
-          total_limit: totalLimit,
-          category_limits: categoryLimits,
-          is_active: true
-        }]);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user_budgets'] });
-      toast.success('Budget created successfully!');
-      setBudgetName("");
-    },
-  });
+    createBudget.mutate({
+      name: budgetName || 'My Budget',
+      period,
+      total_limit: totalLimit,
+      category_limits: categoryLimits,
+      is_active: true
+    }, {
+      onSuccess: () => {
+        setBudgetName("");
+      }
+    });
+  };
 
   const loadTemplate = (templateId: string) => {
     const template = templates?.find(t => t.id === templateId);
@@ -201,8 +200,8 @@ export const BudgetBuilder = () => {
 
         <Button
           className="w-full mt-6"
-          onClick={() => createBudgetMutation.mutate()}
-          disabled={createBudgetMutation.isPending || totalPercentage !== 100}
+          onClick={handleCreateBudget}
+          disabled={createBudget.isPending || totalPercentage !== 100}
         >
           Create Budget
         </Button>

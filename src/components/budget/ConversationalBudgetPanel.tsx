@@ -9,6 +9,7 @@ import { ComponentRenderer } from '@/components/generative-ui/ComponentRenderer'
 import { ComponentMessage } from '@/components/generative-ui/types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useBudgetMutations } from '@/hooks/useBudgetMutations';
 
 interface BudgetIntent {
   amount: number;
@@ -194,6 +195,17 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
     }
   };
 
+  // Get user for budget mutations
+  const [userId, setUserId] = useState<string | undefined>();
+  
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserId(user?.id);
+    });
+  }, []);
+
+  const { createBudget } = useBudgetMutations(userId);
+
   const handleBudgetConfirm = async (intent: BudgetIntent) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -209,9 +221,8 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
 
       const categoryCode = category?.code || 'OTHER';
 
-      // Create budget optimistically
+      // Create budget with Algolia sync via centralized hook
       const budgetData = {
-        user_id: user.id,
         name: `${intent.category} Budget`,
         category_code: categoryCode,
         total_limit: intent.amount,
@@ -221,21 +232,19 @@ export function ConversationalBudgetPanel({ className }: ConversationalBudgetPan
         category_limits: { [categoryCode]: intent.amount }
       };
 
-      const { error } = await supabase
-        .from('user_budgets')
-        .insert([budgetData]);
-
-      if (error) throw error;
-
-      toast.success(`✨ Budget created: $${intent.amount} for ${intent.category}!`);
-      
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: `Perfect! I've created your $${intent.amount} ${intent.timeframe} budget for ${intent.category}. You can view it in your budget list above.`,
-        timestamp: new Date()
-      }]);
-
-      setPendingBudgetIntent(null);
+      createBudget.mutate(budgetData, {
+        onSuccess: () => {
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            content: `Perfect! I've created your $${intent.amount} ${intent.timeframe} budget for ${intent.category}. You can view it in your budget list above.`,
+            timestamp: new Date()
+          }]);
+          setPendingBudgetIntent(null);
+        },
+        onError: () => {
+          toast.error('Failed to create budget');
+        }
+      });
     } catch (error) {
       console.error('Error creating budget:', error);
       toast.error('Failed to create budget');
