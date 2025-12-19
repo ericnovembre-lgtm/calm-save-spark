@@ -3,6 +3,7 @@ import { Search, RefreshCw, Database, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAlgoliaSync } from '@/hooks/useAlgoliaSync';
 import { ALGOLIA_INDICES, isAlgoliaConfigured } from '@/lib/algolia-client';
+import { AlgoliaSyncIndicator } from '@/components/search/AlgoliaSyncIndicator';
 import { toast } from 'sonner';
 
 export function AlgoliaSearchSettings() {
@@ -58,13 +59,16 @@ export function AlgoliaSearchSettings() {
 
   return (
     <div className="space-y-4">
+      {/* Sync Status Indicator */}
+      <AlgoliaSyncIndicator variant="full" />
+      
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Search className="h-5 w-5 text-primary" />
           <div>
             <p className="text-sm font-medium">Search Index Sync</p>
             <p className="text-xs text-muted-foreground">
-              Sync your data to Algolia for fast search
+              Sync your data for fast search
             </p>
           </div>
         </div>
