@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { queryKeys } from '@/lib/query-config';
 import { useMemo } from 'react';
+import { useAlgoliaSync } from '@/hooks/useAlgoliaSync';
 import type { Database } from '@/integrations/supabase/types';
 
 type Debt = Database['public']['Tables']['debts']['Row'];
@@ -11,6 +12,7 @@ type DebtUpdate = Database['public']['Tables']['debts']['Update'];
 
 export function useDebts() {
   const queryClient = useQueryClient();
+  const { indexRecords, deleteRecords } = useAlgoliaSync();
 
   const { data: debts, isLoading, error } = useQuery({
     queryKey: queryKeys.debts(),
@@ -70,10 +72,28 @@ export function useDebts() {
       
       return { previous };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.debts() });
       queryClient.invalidateQueries({ queryKey: ['debt_simulation'] });
       toast.success('Debt added successfully');
+
+      // Sync to Algolia
+      if (data) {
+        indexRecords.mutate({
+          indexName: 'debts',
+          records: [{
+            objectID: data.id,
+            debt_name: data.debt_name,
+            debt_type: data.debt_type,
+            current_balance: data.current_balance,
+            interest_rate: data.interest_rate,
+            minimum_payment: data.minimum_payment,
+            status: data.status,
+            is_active: data.is_active ?? true,
+            user_id: data.user_id,
+          }]
+        });
+      }
     },
     onError: (error, _newDebt, context) => {
       // Rollback on error
@@ -108,10 +128,28 @@ export function useDebts() {
       
       return { previous };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.debts() });
       queryClient.invalidateQueries({ queryKey: ['debt_simulation'] });
       toast.success('Debt updated successfully');
+
+      // Sync to Algolia
+      if (data) {
+        indexRecords.mutate({
+          indexName: 'debts',
+          records: [{
+            objectID: data.id,
+            debt_name: data.debt_name,
+            debt_type: data.debt_type,
+            current_balance: data.current_balance,
+            interest_rate: data.interest_rate,
+            minimum_payment: data.minimum_payment,
+            status: data.status,
+            is_active: data.is_active ?? true,
+            user_id: data.user_id,
+          }]
+        });
+      }
     },
     onError: (error, _variables, context) => {
       // Rollback on error
@@ -143,10 +181,16 @@ export function useDebts() {
       
       return { previous };
     },
-    onSuccess: () => {
+    onSuccess: (_result, id) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.debts() });
       queryClient.invalidateQueries({ queryKey: ['debt_simulation'] });
       toast.success('Debt removed successfully');
+
+      // Remove from Algolia (debt is closed, not deleted)
+      deleteRecords.mutate({
+        indexName: 'debts',
+        objectIDs: [id]
+      });
     },
     onError: (error, _id, context) => {
       // Rollback on error

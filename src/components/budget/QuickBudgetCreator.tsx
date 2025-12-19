@@ -4,11 +4,11 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Check, Edit2, Mic, Loader2 } from 'lucide-react';
+import { Sparkles, Check, Edit2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
 import confetti from 'canvas-confetti';
 import * as Icons from 'lucide-react';
+import { useBudgetMutations } from '@/hooks/useBudgetMutations';
 
 interface BudgetPreview {
   amount: number;
@@ -36,10 +36,9 @@ export function QuickBudgetCreator({ onSuccess, userId }: QuickBudgetCreatorProp
   const [input, setInput] = useState('');
   const [preview, setPreview] = useState<BudgetPreview | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
+  const { createBudget, isCreating } = useBudgetMutations(userId);
 
   // Rotate placeholder examples
   useEffect(() => {
@@ -92,63 +91,46 @@ export function QuickBudgetCreator({ onSuccess, userId }: QuickBudgetCreatorProp
     }
   };
 
-  const createBudget = async () => {
+  const handleCreateBudget = async () => {
     if (!preview || !userId) return;
 
-    setIsCreating(true);
-    try {
-      // Calculate period amount based on timeframe
-      let periodAmount = preview.amount;
-      if (preview.timeframe === 'weekly') {
-        periodAmount = preview.amount * 4.33; // Convert to monthly
-      } else if (preview.timeframe === 'yearly') {
-        periodAmount = preview.amount / 12; // Convert to monthly
-      }
-
-      const { error } = await supabase.from('user_budgets').insert({
-        user_id: userId,
-        name: preview.category,
-        total_limit: periodAmount,
-        category_limits: { [preview.category]: periodAmount },
-        period: 'monthly',
-        icon: preview.icon,
-        color: preview.color,
-        notes: preview.notes,
-        is_active: true
-      });
-
-      if (error) throw error;
-
-      // Update creation log
-      await supabase.from('budget_nl_creation_log').update({ was_created: true })
-        .eq('user_id', userId)
-        .eq('raw_input', input)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      // Success celebration
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-
-      toast.success(`${preview.category} budget created! 🎯`);
-      
-      // Reset state
-      setInput('');
-      setPreview(null);
-      
-      // Refresh budgets
-      queryClient.invalidateQueries({ queryKey: ['user_budgets'] });
-      
-      onSuccess?.();
-    } catch (error) {
-      console.error('Error creating budget:', error);
-      toast.error('Failed to create budget');
-    } finally {
-      setIsCreating(false);
+    // Calculate period amount based on timeframe
+    let periodAmount = preview.amount;
+    if (preview.timeframe === 'weekly') {
+      periodAmount = preview.amount * 4.33; // Convert to monthly
+    } else if (preview.timeframe === 'yearly') {
+      periodAmount = preview.amount / 12; // Convert to monthly
     }
+
+    createBudget.mutate({
+      name: preview.category,
+      total_limit: periodAmount,
+      category_limits: { [preview.category]: periodAmount },
+      period: 'monthly',
+      is_active: true
+    }, {
+      onSuccess: async () => {
+        // Update creation log
+        await supabase.from('budget_nl_creation_log').update({ was_created: true })
+          .eq('user_id', userId)
+          .eq('raw_input', input)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        // Success celebration
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+
+        // Reset state
+        setInput('');
+        setPreview(null);
+        
+        onSuccess?.();
+      }
+    });
   };
 
   const IconComponent = preview?.icon ? (Icons as any)[preview.icon.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('')] : null;
@@ -213,7 +195,7 @@ export function QuickBudgetCreator({ onSuccess, userId }: QuickBudgetCreatorProp
                     disabled={isProcessing || isCreating}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && preview) {
-                        createBudget();
+                        handleCreateBudget();
                       }
                     }}
                   />
@@ -273,7 +255,7 @@ export function QuickBudgetCreator({ onSuccess, userId }: QuickBudgetCreatorProp
                             </Button>
                             <Button
                               size="sm"
-                              onClick={createBudget}
+                              onClick={handleCreateBudget}
                               disabled={isCreating}
                               className="gap-2"
                             >
