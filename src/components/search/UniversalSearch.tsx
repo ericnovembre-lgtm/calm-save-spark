@@ -14,6 +14,7 @@ import {
   type SearchHit,
 } from '@/lib/algolia-client';
 import { AlgoliaSearchBox } from './AlgoliaSearchBox';
+import { AlgoliaSyncIndicator } from './AlgoliaSyncIndicator';
 import { cn } from '@/lib/utils';
 
 interface UniversalSearchProps {
@@ -100,13 +101,18 @@ export function UniversalSearch({
 
   return (
     <div className={cn("relative", className)}>
-      <AlgoliaSearchBox
-        placeholder="Search transactions, goals, budgets, debts..."
-        onSearch={handleQueryChange}
-        value={query}
-        onChange={setQuery}
-        isLoading={isLoading}
-      />
+      <div className="relative">
+        <AlgoliaSearchBox
+          placeholder="Search transactions, goals, budgets, debts..."
+          onSearch={handleQueryChange}
+          value={query}
+          onChange={setQuery}
+          isLoading={isLoading}
+        />
+        <div className="absolute right-10 top-1/2 -translate-y-1/2">
+          <AlgoliaSyncIndicator variant="compact" />
+        </div>
+      </div>
 
       <AnimatePresence>
         {isOpen && query && (
