@@ -75,6 +75,7 @@ const Credit = createPageLoader(() => import("./pages/Credit"), 'medium');
 const Pots = createPageLoader(() => import("./pages/Pots"), 'medium');
 const Automations = createPageLoader(() => import("./pages/Automations"), 'medium');
 const Settings = createPageLoader(() => import("./pages/Settings"), 'medium');
+const Profile = createPageLoader(() => import("./pages/Profile"), 'medium');
 const Achievements = createPageLoader(() => import("./pages/Achievements"), 'medium');
 const BillNegotiation = createPageLoader(() => import("./pages/BillNegotiation"), 'medium');
 const Family = createPageLoader(() => import("./pages/Family"), 'medium');
@@ -340,6 +341,7 @@ function AnimatedRoutes() {
         <Route path="/changelog" element={<ProtectedRoute><PageTransition><Changelog /></PageTransition></ProtectedRoute>} />
         <Route path="/interaction-demo" element={<ProtectedRoute><PageTransition><InteractionDemo /></PageTransition></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
         <Route path="/mobile-settings" element={<ProtectedRoute><PageTransition><MobileSettings /></PageTransition></ProtectedRoute>} />
         <Route path="/security-settings" element={<ProtectedRoute><PageTransition><SecuritySettings /></PageTransition></ProtectedRoute>} />
         <Route path="/accessibility-docs" element={<ProtectedRoute><PageTransition><AccessibilityDocs /></PageTransition></ProtectedRoute>} />

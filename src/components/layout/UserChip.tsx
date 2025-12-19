@@ -82,6 +82,10 @@ export const UserChip = ({ user }: UserChipProps) => {
         </div>
 
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate("/profile")}>
+          <User className="w-4 h-4 mr-2" />
+          Profile
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("/settings")}>
           Settings
         </DropdownMenuItem>
