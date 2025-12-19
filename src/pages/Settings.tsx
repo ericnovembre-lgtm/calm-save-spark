@@ -40,6 +40,7 @@ import { ConnectedAppsPrivacy } from '@/components/settings/ConnectedAppsPrivacy
 import { useSettingsSync } from '@/hooks/useSettingsSync';
 import { AIModelPreferences } from '@/components/settings/AIModelPreferences';
 import { SentryTestButton } from '@/components/dev/SentryTestButton';
+import { AlgoliaSearchSettings } from '@/components/settings/AlgoliaSearchSettings';
 
 function SettingsPage() {
   // Initialize settings sync
@@ -78,6 +79,8 @@ function SettingsPage() {
             <LiveThemePreview />
             <Separator />
             <ConnectedAppsPrivacy />
+            <Separator />
+            <AlgoliaSearchSettings />
             <Separator />
             <SupportConcierge />
           </CardContent>
