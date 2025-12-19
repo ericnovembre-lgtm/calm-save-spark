@@ -26,6 +26,8 @@ serve(async (req) => {
       'ai-coach',
       'dashboard',
       'insights',
+      'cashflow',
+      'daily-briefing',
     ];
 
     const metrics: CacheMetrics[] = [];

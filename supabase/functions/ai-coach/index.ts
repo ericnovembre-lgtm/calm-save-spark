@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { ErrorHandlerOptions, handleError, handleValidationError } from "../_shared/error-handler.ts";
 import { enforceRateLimit, RATE_LIMITS } from "../_shared/rate-limiter.ts";
-import { redisGetJSON, redisSetJSON } from "../_shared/upstash-redis.ts";
+import { redisGetJSON, redisSetJSON, redisIncr } from "../_shared/upstash-redis.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -81,6 +81,7 @@ serve(async (req) => {
       const cached = await redisGetJSON<{ message: string; sessionId: string }>(cacheKey);
       if (cached) {
         console.log(`[ai-coach] Cache HIT for user ${userId}, key ${cacheKey}`);
+        await redisIncr('ai-coach:cache:hits');
         return new Response(
           JSON.stringify({ 
             success: true,
@@ -98,6 +99,7 @@ serve(async (req) => {
         );
       }
       console.log(`[ai-coach] Cache MISS for user ${userId}, key ${cacheKey}`);
+      await redisIncr('ai-coach:cache:misses');
     } else {
       console.log(`[ai-coach] Cache BYPASS for user ${userId}`);
     }

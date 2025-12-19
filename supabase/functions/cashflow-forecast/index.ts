@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { redisGetJSON, redisSetJSON } from '../_shared/upstash-redis.ts';
+import { redisGetJSON, redisSetJSON, redisIncr } from '../_shared/upstash-redis.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,6 +34,7 @@ serve(async (req) => {
     const cached = await redisGetJSON<any>(cacheKey);
     if (cached) {
       console.log(`[cashflow-forecast] Redis Cache HIT for user ${user.id}, days=${days}`);
+      await redisIncr('cashflow:cache:hits');
       return new Response(
         JSON.stringify(cached),
         { 
@@ -49,6 +50,7 @@ serve(async (req) => {
     }
 
     console.log(`[cashflow-forecast] Redis Cache MISS for user ${user.id}, days=${days}`);
+    await redisIncr('cashflow:cache:misses');
 
     // Fetch transactions from the last 90 days for pattern analysis
     const ninetyDaysAgo = new Date();
