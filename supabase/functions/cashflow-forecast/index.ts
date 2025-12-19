@@ -1,17 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { EdgeFunctionCache } from '../_shared/edge-cache.ts';
+import { redisGetJSON, redisSetJSON } from '../_shared/upstash-redis.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Initialize cache with 5-minute TTL for cashflow forecasts
-const forecastCache = new EdgeFunctionCache({ 
-  maxEntries: 200, 
-  defaultTTL: 300 // 5 minutes
-});
+// Redis cache TTL: 5 minutes for cashflow forecasts
+const REDIS_CACHE_TTL_SECONDS = 300;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -32,11 +29,11 @@ serve(async (req) => {
 
     const { days = 30 } = await req.json().catch(() => ({}));
 
-    // Check cache first
+    // Check Redis cache first
     const cacheKey = `cashflow:${user.id}:${days}`;
-    const cached = forecastCache.get(cacheKey);
+    const cached = await redisGetJSON<any>(cacheKey);
     if (cached) {
-      console.log(`[cashflow-forecast] Cache HIT for user ${user.id}, days=${days}`);
+      console.log(`[cashflow-forecast] Redis Cache HIT for user ${user.id}, days=${days}`);
       return new Response(
         JSON.stringify(cached),
         { 
@@ -44,13 +41,14 @@ serve(async (req) => {
             ...corsHeaders, 
             'Content-Type': 'application/json',
             'X-Cache': 'HIT',
-            'X-Cache-TTL': '300'
+            'X-Cache-Source': 'redis',
+            'X-Cache-TTL': String(REDIS_CACHE_TTL_SECONDS)
           } 
         }
       );
     }
 
-    console.log(`[cashflow-forecast] Cache MISS for user ${user.id}, days=${days}`);
+    console.log(`[cashflow-forecast] Redis Cache MISS for user ${user.id}, days=${days}`);
 
     // Fetch transactions from the last 90 days for pattern analysis
     const ninetyDaysAgo = new Date();
@@ -134,9 +132,9 @@ serve(async (req) => {
       }
     };
 
-    // Cache the successful response
-    forecastCache.set(cacheKey, responseData);
-    console.log(`[cashflow-forecast] Cached response for user ${user.id}, days=${days}`);
+    // Cache the successful response in Redis
+    await redisSetJSON(cacheKey, responseData, REDIS_CACHE_TTL_SECONDS);
+    console.log(`[cashflow-forecast] Redis cached response for user ${user.id}, days=${days}, TTL=${REDIS_CACHE_TTL_SECONDS}s`);
 
     return new Response(
       JSON.stringify(responseData),
@@ -145,7 +143,8 @@ serve(async (req) => {
           ...corsHeaders, 
           'Content-Type': 'application/json',
           'X-Cache': 'MISS',
-          'X-Cache-TTL': '300'
+          'X-Cache-Source': 'redis',
+          'X-Cache-TTL': String(REDIS_CACHE_TTL_SECONDS)
         } 
       }
     );

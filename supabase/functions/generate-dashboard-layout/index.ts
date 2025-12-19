@@ -394,7 +394,7 @@ serve(async (req) => {
       const redisCacheKey = `dashboard:${user.id}`;
       const redisCached = await redisGetJSON<any>(redisCacheKey);
       if (redisCached) {
-        console.log('Returning Redis cached dashboard layout');
+        console.log(`[generate-dashboard-layout] Redis Cache HIT for user ${user.id}`);
         return new Response(JSON.stringify({
           success: true,
           dashboard: redisCached,
@@ -402,14 +402,14 @@ serve(async (req) => {
           cacheSource: 'redis',
           meta: { model: CLAUDE_OPUS, processingTimeMs: Date.now() - startTime, generatedAt: new Date().toISOString() }
         }), {
-          headers: { ...corsHeaders, ...rateLimitHeaders(rateLimitResult), 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, ...rateLimitHeaders(rateLimitResult), 'Content-Type': 'application/json', 'X-Cache': 'HIT', 'X-Cache-Source': 'redis' },
         });
       }
 
       // Fallback to DB cache
       const dbCached = await getCachedLayout(supabase, user.id);
       if (dbCached) {
-        console.log('Returning DB cached dashboard layout');
+        console.log(`[generate-dashboard-layout] DB Cache HIT for user ${user.id}, warming Redis cache`);
         // Warm Redis cache for next request
         await redisSetJSON(redisCacheKey, dbCached, REDIS_CACHE_TTL_SECONDS);
         return new Response(JSON.stringify({
@@ -419,7 +419,7 @@ serve(async (req) => {
           cacheSource: 'database',
           meta: { model: CLAUDE_OPUS, processingTimeMs: Date.now() - startTime, generatedAt: new Date().toISOString() }
         }), {
-          headers: { ...corsHeaders, ...rateLimitHeaders(rateLimitResult), 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, ...rateLimitHeaders(rateLimitResult), 'Content-Type': 'application/json', 'X-Cache': 'HIT', 'X-Cache-Source': 'database' },
         });
       }
     }
