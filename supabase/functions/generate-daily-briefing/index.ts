@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { redisGetJSON, redisSetJSON } from '../_shared/upstash-redis.ts';
+import { redisGetJSON, redisSetJSON, redisIncr } from '../_shared/upstash-redis.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,6 +39,7 @@ serve(async (req) => {
     const cached = await redisGetJSON<any>(cacheKey);
     if (cached) {
       console.log(`[generate-daily-briefing] Redis Cache HIT for user ${user.id}, date=${today}`);
+      await redisIncr('daily-briefing:cache:hits');
       return new Response(
         JSON.stringify(cached),
         { 
@@ -54,6 +55,7 @@ serve(async (req) => {
     }
     
     console.log(`[generate-daily-briefing] Redis Cache MISS for user ${user.id}, date=${today}`);
+    await redisIncr('daily-briefing:cache:misses');
     
     const todayStart = new Date(today);
     const todayEnd = new Date(today);
