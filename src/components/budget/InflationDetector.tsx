@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, CheckCircle, X, Clock } from 'lucide-react';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useBudgetMutations } from '@/hooks/useBudgetMutations';
 
 interface InflationAlert {
   id: string;
@@ -20,7 +21,16 @@ interface InflationAlert {
 
 export function InflationDetector() {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [userId, setUserId] = useState<string | undefined>();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserId(user?.id);
+    });
+  }, []);
+
+  const { updateBudget } = useBudgetMutations(userId);
 
   const { data: alerts = [] } = useQuery({
     queryKey: ['inflation-alerts'],
@@ -41,14 +51,10 @@ export function InflationDetector() {
     refetchInterval: 1000 * 60 * 60, // Check hourly
   });
 
-  const updateBudgetMutation = useMutation({
+  const updateBudgetFromAlert = useMutation({
     mutationFn: async ({ alertId, budgetId, newLimit }: { alertId: string; budgetId: string; newLimit: number }) => {
-      const { error: budgetError } = await supabase
-        .from('user_budgets')
-        .update({ total_limit: newLimit })
-        .eq('id', budgetId);
-
-      if (budgetError) throw budgetError;
+      // Use centralized hook for Algolia sync
+      await updateBudget.mutateAsync({ id: budgetId, updates: { total_limit: newLimit } });
 
       const { error: alertError } = await supabase
         .from('budget_inflation_alerts')
@@ -58,9 +64,7 @@ export function InflationDetector() {
       if (alertError) throw alertError;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user_budgets'] });
       queryClient.invalidateQueries({ queryKey: ['inflation-alerts'] });
-      toast.success('Budget updated successfully!');
     },
     onError: () => {
       toast.error('Failed to update budget');
@@ -141,12 +145,12 @@ export function InflationDetector() {
                   <div className="flex flex-col gap-2 shrink-0">
                     <Button
                       size="sm"
-                      onClick={() => updateBudgetMutation.mutate({
+                      onClick={() => updateBudgetFromAlert.mutate({
                         alertId: alert.id,
                         budgetId: alert.budget_id,
                         newLimit: alert.suggested_budget
                       })}
-                      disabled={updateBudgetMutation.isPending}
+                      disabled={updateBudgetFromAlert.isPending}
                       className="gap-2"
                     >
                       <CheckCircle className="w-4 h-4" />

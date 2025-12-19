@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +7,7 @@ import { FileUp, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
+import { useBudgetMutations } from '@/hooks/useBudgetMutations';
 
 interface ImportCSVDialogProps {
   isOpen: boolean;
@@ -29,6 +30,15 @@ export function ImportCSVDialog({ isOpen, onClose, onImportComplete }: ImportCSV
     failed: number;
     errors: string[];
   } | null>(null);
+  const [userId, setUserId] = useState<string | undefined>();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserId(user?.id);
+    });
+  }, []);
+
+  const { createBudget } = useBudgetMutations(userId);
 
   const validateBudgetData = (row: any): ImportedBudget | null => {
     try {
@@ -61,8 +71,7 @@ export function ImportCSVDialog({ isOpen, onClose, onImportComplete }: ImportCSV
   };
 
   const importBudgets = async (budgets: ImportedBudget[]) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    if (!userId) {
       throw new Error('User not authenticated');
     }
 
@@ -72,17 +81,12 @@ export function ImportCSVDialog({ isOpen, onClose, onImportComplete }: ImportCSV
 
     for (const budget of budgets) {
       try {
-        const { error } = await supabase
-          .from('user_budgets')
-          .insert({
-            user_id: user.id,
-            name: budget.name,
-            period: budget.period,
-            total_limit: budget.limit,
-            category_limits: budget.category_limits || {},
-          });
-
-        if (error) throw error;
+        await createBudget.mutateAsync({
+          name: budget.name,
+          period: budget.period,
+          total_limit: budget.limit,
+          category_limits: budget.category_limits || {},
+        });
         successCount++;
       } catch (error) {
         failedCount++;

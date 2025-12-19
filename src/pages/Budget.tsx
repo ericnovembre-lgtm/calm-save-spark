@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BudgetErrorBoundary } from "@/components/budget/BudgetErrorBoundary";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, lazy, Suspense } from "react";
 import { toast } from "sonner";
@@ -45,6 +45,7 @@ import { BudgetMasonryGrid } from "@/components/budget/BudgetMasonryGrid";
 import { SmartRebalancingAgent } from "@/components/budget/SmartRebalancingAgent";
 import { InflationDetector } from "@/components/budget/InflationDetector";
 import { QuickBudgetCreator } from "@/components/budget/QuickBudgetCreator";
+import { useBudgetMutations } from "@/hooks/useBudgetMutations";
 
 // Lazy load heavy components
 const EnhancedBudgetAnalytics = lazy(() => import("@/components/budget/EnhancedBudgetAnalytics").then(m => ({ default: m.EnhancedBudgetAnalytics })));
@@ -182,93 +183,32 @@ function BudgetPage() {
     }
   }, [onboarding]);
 
-  // Create budget with optimistic UI
+  // Use centralized budget mutations hook with Algolia sync
+  const { createBudget, updateBudget, deleteBudget } = useBudgetMutations(user?.id);
+
+  // Create budget with optimistic UI and Algolia sync
   const handleCreateBudget = async (budgetData: any) => {
     if (!user) {
       toast.error('Please sign in to create a budget');
       return;
     }
 
-    // Generate optimistic ID
-    const optimisticId = crypto.randomUUID();
-    const optimisticBudget = {
-      ...budgetData,
-      id: optimisticId,
-      user_id: user.id,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      is_active: true
-    };
-
-    await createBudgetOptimistic(
-      optimisticBudget,
-      async () => {
-        const { data, error } = await supabase
-          .from('user_budgets')
-          .insert([{ ...budgetData, user_id: user.id }])
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        // Replace optimistic with real data
-        queryClient.setQueryData(['user_budgets', user.id], (old: any[] = []) =>
-          old.map(b => b.id === optimisticId ? data : b)
-        );
-
-        toast.success('Budget created successfully! 🎯');
+    createBudget.mutate(budgetData, {
+      onSuccess: () => {
         setShowParticles(true);
         setTimeout(() => setShowParticles(false), 3000);
-        
-        return data;
       }
-    );
+    });
   };
 
-  // Update budget with optimistic UI
+  // Update budget with Algolia sync
   const handleUpdateBudget = async (budgetId: string, updates: any) => {
-    await updateBudgetOptimistic(
-      budgetId,
-      updates,
-      async () => {
-        const { data, error } = await supabase
-          .from('user_budgets')
-          .update(updates)
-          .eq('id', budgetId)
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        queryClient.setQueryData(['user_budgets', user?.id], (old: any[] = []) =>
-          old.map(b => b.id === budgetId ? data : b)
-        );
-
-        toast.success('Budget updated! ✨');
-        return data;
-      }
-    );
+    updateBudget.mutate({ id: budgetId, updates });
   };
 
-  // Delete budget with optimistic UI
+  // Delete budget with Algolia sync
   const handleDeleteBudget = async (budgetId: string) => {
-    await deleteBudgetOptimistic(
-      budgetId,
-      async () => {
-        const { error } = await supabase
-          .from('user_budgets')
-          .delete()
-          .eq('id', budgetId);
-
-        if (error) throw error;
-
-        queryClient.setQueryData(['user_budgets', user?.id], (old: any[] = []) =>
-          old.filter(b => b.id !== budgetId)
-        );
-
-        toast.success('Budget deleted');
-      }
-    );
+    deleteBudget.mutate(budgetId);
   };
 
   // Complete onboarding
