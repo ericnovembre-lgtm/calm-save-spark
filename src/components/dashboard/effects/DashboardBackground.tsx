@@ -13,66 +13,86 @@ export function DashboardBackground() {
       className="fixed inset-0 -z-10 overflow-hidden"
       aria-hidden="true"
     >
-      {/* Fluid Aurora Mesh Gradient - Primary Layer */}
+      {/* Fluid Aurora Mesh Gradient - Primary Layer - ENHANCED VISIBILITY */}
       <motion.div
         className="absolute inset-0"
         style={{
           background: `
-            radial-gradient(ellipse 80% 50% at 20% 30%, hsla(var(--primary), 0.15) 0%, transparent 50%),
-            radial-gradient(ellipse 60% 40% at 80% 20%, hsla(var(--accent), 0.2) 0%, transparent 50%),
-            radial-gradient(ellipse 70% 60% at 50% 80%, hsla(var(--secondary), 0.25) 0%, transparent 50%),
-            radial-gradient(ellipse 50% 30% at 70% 60%, hsla(var(--primary), 0.1) 0%, transparent 50%),
+            radial-gradient(ellipse 100% 80% at 20% 20%, hsla(var(--primary), 0.25) 0%, transparent 60%),
+            radial-gradient(ellipse 80% 60% at 80% 15%, hsla(var(--accent), 0.35) 0%, transparent 55%),
+            radial-gradient(ellipse 90% 80% at 50% 90%, hsla(var(--secondary), 0.4) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 50% at 70% 50%, hsla(var(--primary), 0.18) 0%, transparent 50%),
             hsl(var(--background))
           `,
           willChange: prefersReducedMotion ? 'auto' : 'transform',
         }}
         animate={!prefersReducedMotion ? {
-          scale: [1, 1.02, 1.01, 1],
-          opacity: [1, 0.95, 1],
+          scale: [1, 1.03, 1.01, 1],
+          opacity: [1, 0.92, 0.98, 1],
         } : undefined}
         transition={{
-          duration: 8,
+          duration: 10,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
       />
 
-      {/* Secondary Aurora Layer - Morphing Colors */}
+      {/* Secondary Aurora Layer - Morphing Colors - MORE VISIBLE */}
       <motion.div
         className="absolute inset-0"
         style={{
           background: `
-            radial-gradient(ellipse 90% 70% at 30% 70%, hsla(var(--accent), 0.12) 0%, transparent 60%),
-            radial-gradient(ellipse 40% 50% at 90% 40%, hsla(var(--primary), 0.08) 0%, transparent 40%)
+            radial-gradient(ellipse 100% 80% at 25% 75%, hsla(var(--accent), 0.25) 0%, transparent 65%),
+            radial-gradient(ellipse 60% 70% at 85% 35%, hsla(var(--primary), 0.15) 0%, transparent 50%)
           `,
           willChange: prefersReducedMotion ? 'auto' : 'transform',
         }}
         animate={!prefersReducedMotion ? {
-          x: [0, 20, -10, 0],
-          y: [0, -15, 10, 0],
-          scale: [1, 1.03, 0.98, 1],
+          x: [0, 30, -20, 0],
+          y: [0, -20, 15, 0],
+          scale: [1, 1.05, 0.97, 1],
         } : undefined}
         transition={{
-          duration: 12,
+          duration: 14,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
       />
 
-      {/* Breathing Glow Pulse */}
+      {/* Central Breathing Glow Pulse - ENHANCED */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(circle at 50% 50%, hsla(var(--accent), 0.08) 0%, transparent 70%)
+            radial-gradient(circle at 50% 50%, hsla(var(--accent), 0.15) 0%, transparent 60%)
           `,
         }}
         animate={!prefersReducedMotion ? {
-          opacity: [0.3, 0.6, 0.3],
-          scale: [1, 1.1, 1],
+          opacity: [0.4, 0.8, 0.4],
+          scale: [1, 1.15, 1],
         } : undefined}
         transition={{
           duration: 6,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+
+      {/* Tertiary Color Wave - NEW */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(ellipse 120% 60% at 10% 50%, hsla(var(--secondary), 0.2) 0%, transparent 50%),
+            radial-gradient(ellipse 80% 50% at 90% 60%, hsla(var(--accent), 0.18) 0%, transparent 45%)
+          `,
+        }}
+        animate={!prefersReducedMotion ? {
+          x: [-10, 20, -10],
+          opacity: [0.6, 0.9, 0.6],
+        } : undefined}
+        transition={{
+          duration: 8,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
@@ -82,7 +102,7 @@ export function DashboardBackground() {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          opacity: 0.03,
+          opacity: 0.04,
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'repeat',
           mixBlendMode: 'overlay',
@@ -93,7 +113,7 @@ export function DashboardBackground() {
       <div 
         className="absolute bottom-0 left-0 right-0 h-px"
         style={{
-          background: 'linear-gradient(90deg, transparent 0%, hsla(var(--border), 0.3) 50%, transparent 100%)',
+          background: 'linear-gradient(90deg, transparent 0%, hsla(var(--border), 0.4) 50%, transparent 100%)',
         }}
       />
     </div>
