@@ -203,6 +203,88 @@ All colors MUST be HSL.
     to { stroke-dashoffset: 0; }
   }
 
+  /* Living Horizon Dashboard Animations */
+  @keyframes aurora-morph {
+    0%, 100% { 
+      background-position: 0% 50%;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% { 
+      background-position: 100% 50%;
+      transform: translate3d(0, 0, 0) scale(1.02);
+    }
+  }
+
+  @keyframes crystal-shimmer {
+    0% { 
+      background-position: -200% 0;
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% { 
+      background-position: 200% 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 0 0 0 0 hsla(var(--primary), 0.4);
+    }
+    50% { 
+      box-shadow: 0 0 20px 5px hsla(var(--primary), 0.2);
+    }
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { 
+      transform: scale(1);
+    }
+    10% { 
+      transform: scale(1.1);
+    }
+    20% { 
+      transform: scale(1);
+    }
+    30% { 
+      transform: scale(1.08);
+    }
+    40% { 
+      transform: scale(1);
+    }
+  }
+
+  @keyframes liquid-flow {
+    0% {
+      stroke-dashoffset: 2000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .animate-aurora-morph {
+    animation: aurora-morph 12s ease-in-out infinite;
+  }
+
+  .animate-crystal-shimmer {
+    animation: crystal-shimmer 2s ease-in-out;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-heartbeat {
+    animation: heartbeat 2s ease-in-out infinite;
+  }
+
+  .animate-liquid-flow {
+    animation: liquid-flow 2s ease-out forwards;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .animate-subtle-glow {
       animation: subtle-glow 3s ease-in-out infinite;

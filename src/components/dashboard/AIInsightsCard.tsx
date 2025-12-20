@@ -1,4 +1,4 @@
-import { useState, useEffect, memo, useRef } from "react";
+import React, { useState, useEffect, memo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ThumbsUp, ThumbsDown, X, TrendingUp, Star } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -44,6 +44,38 @@ interface AIInsight {
   };
 }
 
+// Typewriter hook for "Personalized for you..." effect
+function useTypewriter(text: string, speed: number = 50, enabled: boolean = true) {
+  const [displayedText, setDisplayedText] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
+
+  React.useEffect(() => {
+    if (!enabled) {
+      setDisplayedText(text);
+      setIsComplete(true);
+      return;
+    }
+
+    setDisplayedText('');
+    setIsComplete(false);
+    let currentChar = 0;
+
+    const interval = setInterval(() => {
+      if (currentChar < text.length) {
+        setDisplayedText(text.slice(0, currentChar + 1));
+        currentChar++;
+      } else {
+        setIsComplete(true);
+        clearInterval(interval);
+      }
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, speed, enabled]);
+
+  return { displayedText, isComplete };
+}
+
 export const AIInsightsCard = memo(function AIInsightsCard() {
   const navigate = useNavigate();
   const { generateInsightSummary } = useSpeakableText();
@@ -68,6 +100,13 @@ export const AIInsightsCard = memo(function AIInsightsCard() {
       }
     }
   ]);
+  
+  // Typewriter effect for "Personalized for you..."
+  const { displayedText: personalizedText, isComplete: typewriterComplete } = useTypewriter(
+    'Personalized for you',
+    40,
+    !useReducedMotion()
+  );
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
@@ -147,30 +186,73 @@ export const AIInsightsCard = memo(function AIInsightsCard() {
   if (isDismissed || !currentInsight) return null;
 
   return (
-    <GlassCard className="p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      >
+    // AI Pulse Core - Pill-shaped glass container
+    <motion.div
+      className="relative overflow-hidden rounded-2xl backdrop-blur-3xl bg-card/80 border border-white/10 shadow-[0_8px_32px_-8px_hsla(var(--primary),0.15)]"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {/* Internal ambient glow */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 60% 40% at 50% 0%, hsla(var(--primary), 0.1) 0%, transparent 50%)',
+        }}
+      />
+
+      <div className="relative z-10 p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3 flex-1">
-            {/* Animated AI Avatar with Sparkle Particles */}
+            {/* AI Pulse Core Avatar with Heartbeat Animation */}
             <div className="relative">
+              {/* Heartbeat pulse rings */}
+              {!prefersReducedMotion && (
+                <>
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-primary/20"
+                    animate={{
+                      scale: [1, 1.8, 1.8],
+                      opacity: [0.6, 0, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeOut',
+                    }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-primary/15"
+                    animate={{
+                      scale: [1, 2.2, 2.2],
+                      opacity: [0.4, 0, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeOut',
+                      delay: 0.3,
+                    }}
+                  />
+                </>
+              )}
+              
+              {/* Main AI Avatar with Heartbeat */}
               <motion.div
-                className="relative w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center"
-                animate={!prefersReducedMotion && isTyping ? {
+                className="relative w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-[0_0_20px_hsla(var(--primary),0.4)]"
+                animate={!prefersReducedMotion ? {
+                  scale: [1, 1.08, 1],
                   boxShadow: [
-                    "0 0 20px hsl(var(--primary)/0.3)",
-                    "0 0 40px hsl(var(--primary)/0.5)",
-                    "0 0 20px hsl(var(--primary)/0.3)"
-                  ]
+                    '0 0 20px hsla(var(--primary), 0.3)',
+                    '0 0 30px hsla(var(--primary), 0.5)',
+                    '0 0 20px hsla(var(--primary), 0.3)',
+                  ],
                 } : undefined}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
-                  ease: "easeInOut"
+                  ease: 'easeInOut',
                 }}
               >
                 <Sparkles className="w-5 h-5 text-white" />
@@ -212,8 +294,16 @@ export const AIInsightsCard = memo(function AIInsightsCard() {
 
             <div>
               <h3 className="font-semibold text-foreground">AI Insight</h3>
+              {/* Typewriter effect for subtitle */}
               <p className="text-xs text-muted-foreground">
-                Personalized for you
+                {personalizedText}
+                {!typewriterComplete && !prefersReducedMotion && (
+                  <motion.span
+                    className="inline-block w-0.5 h-3 bg-primary ml-0.5"
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{ duration: 0.6, repeat: Infinity }}
+                  />
+                )}
               </p>
             </div>
           </div>
@@ -312,7 +402,7 @@ export const AIInsightsCard = memo(function AIInsightsCard() {
             ))}
           </div>
         )}
-      </motion.div>
-    </GlassCard>
+      </div>
+    </motion.div>
   );
 });

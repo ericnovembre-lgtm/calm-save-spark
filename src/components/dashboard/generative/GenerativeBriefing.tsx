@@ -7,12 +7,13 @@ import {
   Brain,
   Clock
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { StreamingText } from '@/components/ui/streaming-text';
 import { LiveDot } from '@/components/dashboard/realtime/LiveDataPulse';
 import { StreamingIndicator } from '@/components/dashboard/streaming/StreamingIndicator';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import type { DashboardBriefing, DashboardTheme } from '@/hooks/useClaudeGenerativeDashboard';
 
 interface GenerativeBriefingProps {
@@ -53,6 +54,8 @@ export function GenerativeBriefing({
 }: GenerativeBriefingProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showReasoning, setShowReasoning] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
   
   const isStreaming = !!streamingText && streamingText !== briefing?.summary;
 
@@ -62,29 +65,67 @@ export function GenerativeBriefing({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className={className}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <Card className={cn(
-        "overflow-hidden backdrop-blur-xl relative",
-        "bg-gradient-to-r",
-        moodGradients[theme.mood]
+      {/* Holographic Glass Panel */}
+      <div className={cn(
+        "relative overflow-hidden rounded-2xl",
+        "backdrop-blur-3xl",
+        "bg-gradient-to-br from-card/90 via-card/70 to-card/80",
+        "border border-white/10",
+        "shadow-[0_8px_32px_-8px_hsla(var(--primary),0.15),inset_0_1px_1px_rgba(255,255,255,0.1)]",
+        "transition-all duration-500"
       )}>
-        {/* Animated gradient border glow - brand aligned */}
+        {/* Internal Glow Effect */}
         <motion.div
-          className="absolute inset-0 rounded-xl opacity-50"
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(ellipse 80% 50% at 50% 0%, hsla(var(--accent), 0.15) 0%, transparent 50%),
+              radial-gradient(ellipse 60% 40% at 20% 100%, hsla(var(--primary), 0.1) 0%, transparent 40%)
+            `,
+          }}
+          animate={isHovered && !prefersReducedMotion ? {
+            opacity: [0.5, 0.8, 0.5],
+          } : undefined}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        {/* Crystal Shimmer on Hover */}
+        {!prefersReducedMotion && (
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, hsla(var(--accent), 0.12) 50%, transparent 100%)',
+              transform: 'translateX(-100%)',
+            }}
+            animate={isHovered ? {
+              transform: ['translateX(-100%)', 'translateX(100%)'],
+            } : undefined}
+            transition={{
+              duration: 1.2,
+              ease: 'easeInOut',
+            }}
+          />
+        )}
+
+        {/* Mood-based Ambient Glow */}
+        <motion.div
+          className="absolute inset-0 rounded-2xl opacity-30 pointer-events-none"
           style={{
             background: `linear-gradient(135deg, ${
-              theme.mood === 'calm' ? 'hsl(40, 35%, 85%)' :       // beige
-              theme.mood === 'energetic' ? 'hsl(38, 45%, 68%)' :  // gold
-              theme.mood === 'cautionary' ? 'hsl(38, 70%, 55%)' : // amber
-              'hsl(45, 80%, 60%)'                                  // celebration gold
-            } 0%, transparent 50%)`,
+              theme.mood === 'calm' ? 'hsla(40, 35%, 85%, 0.3)' :
+              theme.mood === 'energetic' ? 'hsla(38, 45%, 68%, 0.4)' :
+              theme.mood === 'cautionary' ? 'hsla(38, 70%, 55%, 0.3)' :
+              'hsla(45, 80%, 60%, 0.4)'
+            } 0%, transparent 60%)`,
           }}
-          animate={{
+          animate={!prefersReducedMotion ? {
             opacity: [0.2, 0.4, 0.2],
-          }}
+          } : undefined}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         />
-        <div className="absolute inset-0 rounded-xl border border-white/10" />
         
         <CardContent className="p-6 relative z-10">
           {/* Header */}
@@ -219,9 +260,9 @@ export function GenerativeBriefing({
                 )}
               </motion.div>
             )}
-          </AnimatePresence>
+        </AnimatePresence>
         </CardContent>
-      </Card>
+      </div>
     </motion.div>
   );
 }
