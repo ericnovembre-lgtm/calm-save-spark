@@ -13,15 +13,15 @@ export function DashboardBackground() {
       className="fixed inset-0 -z-10 overflow-hidden"
       aria-hidden="true"
     >
-      {/* Fluid Aurora Mesh Gradient - Primary Layer - ENHANCED VISIBILITY */}
+      {/* Fluid Aurora Mesh Gradient - Primary Layer - MAXIMUM VISIBILITY */}
       <motion.div
         className="absolute inset-0"
         style={{
           background: `
-            radial-gradient(ellipse 100% 80% at 20% 20%, hsla(var(--primary), 0.25) 0%, transparent 60%),
-            radial-gradient(ellipse 80% 60% at 80% 15%, hsla(var(--accent), 0.35) 0%, transparent 55%),
-            radial-gradient(ellipse 90% 80% at 50% 90%, hsla(var(--secondary), 0.4) 0%, transparent 60%),
-            radial-gradient(ellipse 60% 50% at 70% 50%, hsla(var(--primary), 0.18) 0%, transparent 50%),
+            radial-gradient(ellipse 100% 80% at 20% 20%, hsla(var(--primary), 0.45) 0%, transparent 60%),
+            radial-gradient(ellipse 80% 60% at 80% 15%, hsla(var(--accent), 0.50) 0%, transparent 55%),
+            radial-gradient(ellipse 90% 80% at 50% 90%, hsla(var(--secondary), 0.55) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 50% at 70% 50%, hsla(var(--primary), 0.30) 0%, transparent 50%),
             hsl(var(--background))
           `,
           willChange: prefersReducedMotion ? 'auto' : 'transform',
@@ -37,13 +37,13 @@ export function DashboardBackground() {
         }}
       />
 
-      {/* Secondary Aurora Layer - Morphing Colors - MORE VISIBLE */}
+      {/* Secondary Aurora Layer - Morphing Colors - MAXIMUM VISIBILITY */}
       <motion.div
         className="absolute inset-0"
         style={{
           background: `
-            radial-gradient(ellipse 100% 80% at 25% 75%, hsla(var(--accent), 0.25) 0%, transparent 65%),
-            radial-gradient(ellipse 60% 70% at 85% 35%, hsla(var(--primary), 0.15) 0%, transparent 50%)
+            radial-gradient(ellipse 100% 80% at 25% 75%, hsla(var(--accent), 0.40) 0%, transparent 65%),
+            radial-gradient(ellipse 60% 70% at 85% 35%, hsla(var(--primary), 0.28) 0%, transparent 50%)
           `,
           willChange: prefersReducedMotion ? 'auto' : 'transform',
         }}
@@ -59,16 +59,16 @@ export function DashboardBackground() {
         }}
       />
 
-      {/* Central Breathing Glow Pulse - ENHANCED */}
+      {/* Central Breathing Glow Pulse - MAXIMUM VISIBILITY */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(circle at 50% 50%, hsla(var(--accent), 0.15) 0%, transparent 60%)
+            radial-gradient(circle at 50% 50%, hsla(var(--accent), 0.30) 0%, transparent 60%)
           `,
         }}
         animate={!prefersReducedMotion ? {
-          opacity: [0.4, 0.8, 0.4],
+          opacity: [0.5, 1, 0.5],
           scale: [1, 1.15, 1],
         } : undefined}
         transition={{
@@ -78,18 +78,18 @@ export function DashboardBackground() {
         }}
       />
 
-      {/* Tertiary Color Wave - NEW */}
+      {/* Tertiary Color Wave - MAXIMUM VISIBILITY */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(ellipse 120% 60% at 10% 50%, hsla(var(--secondary), 0.2) 0%, transparent 50%),
-            radial-gradient(ellipse 80% 50% at 90% 60%, hsla(var(--accent), 0.18) 0%, transparent 45%)
+            radial-gradient(ellipse 120% 60% at 10% 50%, hsla(var(--secondary), 0.35) 0%, transparent 50%),
+            radial-gradient(ellipse 80% 50% at 90% 60%, hsla(var(--accent), 0.30) 0%, transparent 45%)
           `,
         }}
         animate={!prefersReducedMotion ? {
           x: [-10, 20, -10],
-          opacity: [0.6, 0.9, 0.6],
+          opacity: [0.7, 1, 0.7],
         } : undefined}
         transition={{
           duration: 8,
