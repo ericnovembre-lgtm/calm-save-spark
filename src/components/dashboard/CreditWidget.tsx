@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { DashboardWidgetCard } from "@/components/dashboard/DashboardWidgetCard";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, Target, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -25,7 +25,7 @@ export function CreditWidget({ score, change, goal }: CreditWidgetProps) {
   const tier = getScoreTier(score);
 
   return (
-    <Card className="p-6">
+    <DashboardWidgetCard lastUpdated="2h ago">
       <div className="flex items-start justify-between mb-4">
         <div>
           <div className="text-sm text-muted-foreground mb-1">Credit Score</div>
@@ -74,6 +74,6 @@ export function CreditWidget({ score, change, goal }: CreditWidgetProps) {
           View Full Report
         </Button>
       </Link>
-    </Card>
+    </DashboardWidgetCard>
   );
 }

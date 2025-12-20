@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DashboardWidgetCard } from "@/components/dashboard/DashboardWidgetCard";
 import { SaveplusAnimIcon } from "@/components/icons";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -40,64 +40,60 @@ const JourneyMilestones = () => {
   });
 
   // Calculate progress percentage
-  const totalPossibleMilestones = 5; // onboarding, first_goal, first_pot, first_account, and future ones
+  const totalPossibleMilestones = 5;
   const completedCount = milestones?.length || 0;
   const progressPercentage = Math.min((completedCount / totalPossibleMilestones) * 100, 100);
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
+      <DashboardWidgetCard>
+        <div className="space-y-4">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-72" />
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-20 w-full" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-20 w-full" />
+          ))}
+        </div>
+      </DashboardWidgetCard>
     );
   }
 
   if (!milestones || milestones.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-primary" />
-            Your Financial Journey
-          </CardTitle>
-          <CardDescription>
-            Complete actions to unlock milestones and track your progress
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <SaveplusAnimIcon name="trophy" size={64} className="mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">
-              Start your journey to unlock your first milestone!
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <DashboardWidgetCard>
+        <div className="flex items-center gap-2 mb-2">
+          <Award className="w-5 h-5 text-primary" />
+          <span className="text-base font-medium text-foreground">Your Financial Journey</span>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Complete actions to unlock milestones and track your progress
+        </p>
+        <div className="text-center py-8">
+          <SaveplusAnimIcon name="trophy" size={64} className="mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">
+            Start your journey to unlock your first milestone!
+          </p>
+        </div>
+      </DashboardWidgetCard>
     );
   }
 
   return (
-    <Card data-tour="journey-milestones">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Award className="w-5 h-5 text-primary" />
-          Your Financial Journey
-        </CardTitle>
-        <CardDescription>
-          {completedCount} milestone{completedCount !== 1 ? 's' : ''} unlocked
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <DashboardWidgetCard 
+      data-tour="journey-milestones"
+      lastUpdated={milestones[0] ? format(new Date(milestones[0].completed_at), 'MMM dd') : undefined}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-1">
+        <Award className="w-5 h-5 text-primary" />
+        <span className="text-base font-medium text-foreground">Your Financial Journey</span>
+      </div>
+      <p className="text-sm text-muted-foreground mb-6">
+        {completedCount} milestone{completedCount !== 1 ? 's' : ''} unlocked
+      </p>
+      
+      {/* Content */}
+      <div className="space-y-6">
         {/* Progress bar */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
@@ -176,8 +172,8 @@ const JourneyMilestones = () => {
             </motion.div>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </DashboardWidgetCard>
   );
 };
 

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DashboardWidgetCard } from "@/components/dashboard/DashboardWidgetCard";
 import { PiggyBank, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
@@ -31,14 +31,15 @@ export function BudgetsWidget({ budgets = [] }: BudgetsWidgetProps) {
   const overallPercent = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <PiggyBank className="h-5 w-5 text-primary" />
-          Budget Status
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <DashboardWidgetCard className="h-full" lastUpdated="5m ago">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-4">
+        <PiggyBank className="h-5 w-5 text-primary" />
+        <span className="text-base font-medium text-foreground">Budget Status</span>
+      </div>
+      
+      {/* Content */}
+      <div className="space-y-4">
         <div>
           <div className="flex justify-between items-center mb-2">
             <p className="text-sm text-muted-foreground">Overall</p>
@@ -92,7 +93,7 @@ export function BudgetsWidget({ budgets = [] }: BudgetsWidgetProps) {
             No budgets set up yet
           </p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </DashboardWidgetCard>
   );
 }

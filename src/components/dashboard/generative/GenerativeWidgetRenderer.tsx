@@ -12,7 +12,7 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DashboardWidgetCard } from '@/components/dashboard/DashboardWidgetCard';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
@@ -189,29 +189,28 @@ export function GenerativeWidgetRenderer({
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className={cn(sizeClasses[size], className)}
     >
-      <Card className={cn(
-        "h-full backdrop-blur-sm transition-all duration-300",
-        styles.border,
-        styles.bg,
-        styles.glow,
-        "hover:border-primary/30"
-      )}>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-base font-medium">
-            <Icon className={cn("h-4 w-4", styles.accent)} />
-            {widget.headline}
-            {widget.urgencyScore > 70 && (
-              <span className="ml-auto flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-              </span>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {renderContent()}
-        </CardContent>
-      </Card>
+      <DashboardWidgetCard
+        className={cn(
+          "h-full",
+          styles.glow
+        )}
+        lastUpdated="just now"
+      >
+        {/* Widget Header */}
+        <div className="flex items-center gap-2 text-base font-medium mb-4">
+          <Icon className={cn("h-4 w-4", styles.accent)} />
+          <span className="text-foreground">{widget.headline}</span>
+          {widget.urgencyScore > 70 && (
+            <span className="ml-auto flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+            </span>
+          )}
+        </div>
+        
+        {/* Widget Content */}
+        {renderContent()}
+      </DashboardWidgetCard>
     </motion.div>
   );
 }
