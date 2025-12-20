@@ -3,6 +3,7 @@ import { ReactNode, useState, useCallback } from 'react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { useHapticFeedback } from '@/hooks/useHapticFeedback';
+import { useAccessibilityPreferences } from '@/hooks/useAccessibilityPreferences';
 import { cn } from '@/lib/utils';
 
 interface DashboardWidgetCardProps {
@@ -35,15 +36,19 @@ export function DashboardWidgetCard({
   const [isHovered, setIsHovered] = useState(false);
   const { playHoverSound, playClickSound, preferences: soundPrefs } = useSoundEffects();
   const { triggerHaptic } = useHapticFeedback();
+  const { hoverSoundsEnabled } = useAccessibilityPreferences();
+
+  // Check if sounds should be played (both global and accessibility setting)
+  const shouldPlaySounds = soundPrefs.enabled && hoverSoundsEnabled;
 
   // Handle hover enter with sound + haptic
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
-    if (soundPrefs.enabled) {
+    if (shouldPlaySounds) {
       playHoverSound();
+      triggerHaptic('light');
     }
-    triggerHaptic('light');
-  }, [playHoverSound, triggerHaptic, soundPrefs.enabled]);
+  }, [playHoverSound, triggerHaptic, shouldPlaySounds]);
 
   // Handle hover leave
   const handleMouseLeave = useCallback(() => {
@@ -53,13 +58,13 @@ export function DashboardWidgetCard({
   // Handle click with enhanced feedback
   const handleClick = useCallback(() => {
     if (onClick) {
-      if (soundPrefs.enabled) {
+      if (shouldPlaySounds) {
         playClickSound();
+        triggerHaptic('medium');
       }
-      triggerHaptic('medium');
       onClick();
     }
-  }, [onClick, playClickSound, triggerHaptic, soundPrefs.enabled]);
+  }, [onClick, playClickSound, triggerHaptic, shouldPlaySounds]);
 
   return (
     <motion.div

@@ -1,6 +1,8 @@
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { useMemo } from 'react';
+import { useAccessibilityPreferences } from '@/hooks/useAccessibilityPreferences';
+import { useMousePosition } from '@/hooks/useMousePosition';
+import { useMemo, useEffect } from 'react';
 
 // Floating orb configurations - organic shapes with varied sizes
 const FLOATING_ORBS = [
@@ -12,13 +14,35 @@ const FLOATING_ORBS = [
   { id: 6, size: 160, initialX: '45%', initialY: '35%', color: 'secondary', delay: 5.5 },
 ];
 
+// Max parallax offset in pixels
+const MAX_PARALLAX = 35;
+
 /**
  * DashboardBackground - "Living Horizon" Fluid Aurora Background
  * Creates a calm, breathing mesh gradient with noise texture overlay
- * and floating ambient orbs for enhanced atmosphere
+ * and floating ambient orbs with parallax effect
  */
 export function DashboardBackground() {
   const prefersReducedMotion = useReducedMotion();
+  const { floatingOrbsEnabled } = useAccessibilityPreferences();
+  const mousePosition = useMousePosition();
+
+  // Create smooth spring values for parallax
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
+
+  // Update motion values when mouse moves
+  useEffect(() => {
+    mouseX.set(mousePosition.x);
+    mouseY.set(mousePosition.y);
+  }, [mousePosition.x, mousePosition.y, mouseX, mouseY]);
+
+  // Apply spring physics for smooth movement
+  const smoothX = useSpring(mouseX, { damping: 50, stiffness: 100 });
+  const smoothY = useSpring(mouseY, { damping: 50, stiffness: 100 });
+
+  // Only show orbs if enabled AND reduced motion is not preferred
+  const showOrbs = floatingOrbsEnabled && !prefersReducedMotion;
 
   // Generate random organic paths for orbs
   const orbAnimations = useMemo(() => {
@@ -28,6 +52,8 @@ export function DashboardBackground() {
       yPath: [0, -25 - Math.random() * 15, 20 + Math.random() * 10, -10 - Math.random() * 10, 0],
       scalePath: [1, 1.05 + Math.random() * 0.05, 0.95 - Math.random() * 0.03, 1.02, 1],
       duration: 20 + Math.random() * 10,
+      // Parallax strength: smaller orbs move more (depth illusion)
+      parallaxStrength: 1 - (orb.size / 400),
     }));
   }, []);
 
@@ -36,35 +62,47 @@ export function DashboardBackground() {
       className="fixed inset-0 -z-10 overflow-hidden transition-colors duration-700"
       aria-hidden="true"
     >
-      {/* Floating Ambient Orbs */}
-      {!prefersReducedMotion && orbAnimations.map((orb) => (
-        <motion.div
-          key={orb.id}
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            width: orb.size,
-            height: orb.size,
-            left: orb.initialX,
-            top: orb.initialY,
-            background: `radial-gradient(circle, var(--aurora-orb-${orb.color}) 0%, transparent 70%)`,
-            filter: 'blur(50px)',
-            willChange: 'transform',
-          }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{
-            opacity: [0.3, 0.5, 0.35, 0.45, 0.3],
-            x: orb.xPath,
-            y: orb.yPath,
-            scale: orb.scalePath,
-          }}
-          transition={{
-            duration: orb.duration,
-            delay: orb.delay,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-      ))}
+      {/* Floating Ambient Orbs with Parallax */}
+      {showOrbs && orbAnimations.map((orb) => {
+        // Calculate parallax offset based on orb size
+        const parallaxX = useTransform(smoothX, [0, 1], [
+          -MAX_PARALLAX * orb.parallaxStrength,
+          MAX_PARALLAX * orb.parallaxStrength,
+        ]);
+        const parallaxY = useTransform(smoothY, [0, 1], [
+          -MAX_PARALLAX * orb.parallaxStrength,
+          MAX_PARALLAX * orb.parallaxStrength,
+        ]);
+
+        return (
+          <motion.div
+            key={orb.id}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: orb.size,
+              height: orb.size,
+              left: orb.initialX,
+              top: orb.initialY,
+              background: `radial-gradient(circle, var(--aurora-orb-${orb.color}) 0%, transparent 70%)`,
+              filter: 'blur(50px)',
+              willChange: 'transform',
+              x: parallaxX,
+              y: parallaxY,
+            }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{
+              opacity: [0.3, 0.5, 0.35, 0.45, 0.3],
+              scale: orb.scalePath,
+            }}
+            transition={{
+              duration: orb.duration,
+              delay: orb.delay,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        );
+      })}
 
       {/* Fluid Aurora Mesh Gradient - Primary Layer - Theme-Aware */}
       <motion.div

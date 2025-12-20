@@ -31,6 +31,8 @@ interface AccessibilityPreferences {
   announcementVerbosity: 'minimal' | 'normal' | 'verbose';
   keyboardHints: boolean;
   autoReadAlerts: boolean;
+  floatingOrbsEnabled: boolean;
+  hoverSoundsEnabled: boolean;
 }
 
 const defaultPreferences: AccessibilityPreferences = {
@@ -43,6 +45,8 @@ const defaultPreferences: AccessibilityPreferences = {
   announcementVerbosity: 'normal',
   keyboardHints: false,
   autoReadAlerts: true,
+  floatingOrbsEnabled: true,
+  hoverSoundsEnabled: true,
 };
 
 /**
@@ -95,6 +99,8 @@ export function AccessibilitySettings() {
   const savePreferences = () => {
     localStorage.setItem('accessibility-preferences', JSON.stringify(preferences));
     setHasChanges(false);
+    // Dispatch custom event for same-tab sync
+    window.dispatchEvent(new Event('accessibility-preferences-updated'));
     toast.success('Accessibility preferences saved');
   };
 
@@ -230,6 +236,40 @@ export function AccessibilitySettings() {
               id="disable-animations"
               checked={preferences.animationsDisabled}
               onCheckedChange={(v) => updatePreference('animationsDisabled', v)}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Floating Ambient Effects */}
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="floating-orbs">Floating Ambient Effects</Label>
+              <p className="text-xs text-muted-foreground">
+                Show subtle floating orbs in background
+              </p>
+            </div>
+            <Switch
+              id="floating-orbs"
+              checked={preferences.floatingOrbsEnabled}
+              onCheckedChange={(v) => updatePreference('floatingOrbsEnabled', v)}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Hover Sound Effects */}
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="hover-sounds">Hover Sound Effects</Label>
+              <p className="text-xs text-muted-foreground">
+                Play sounds on hover and click interactions
+              </p>
+            </div>
+            <Switch
+              id="hover-sounds"
+              checked={preferences.hoverSoundsEnabled}
+              onCheckedChange={(v) => updatePreference('hoverSoundsEnabled', v)}
             />
           </div>
         </CardContent>
