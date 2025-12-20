@@ -590,17 +590,26 @@ export function ImportExportIcon({ className, size = 48 }: AnimatedIconProps) {
       viewBox="0 0 48 48"
       width={size}
       height={size}
-      className={cn("text-primary", className)}
+      className={cn("text-primary overflow-visible", className)}
       variants={iconVariants}
       whileHover="hover"
       whileTap="tap"
+      aria-hidden="true"
     >
+      {/* Up arrow */}
       <motion.g
         animate={{ y: [0, -3, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 0.5 }}
       >
         <path
-          d="M16 34V14l-6 6"
+          d="M16 36V12"
+          fill="none"
+          stroke="hsl(var(--primary))"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <path
+          d="M10 18l6-6 6 6"
           fill="none"
           stroke="hsl(var(--primary))"
           strokeWidth="3"
@@ -608,12 +617,20 @@ export function ImportExportIcon({ className, size = 48 }: AnimatedIconProps) {
           strokeLinejoin="round"
         />
       </motion.g>
+      {/* Down arrow */}
       <motion.g
         animate={{ y: [0, 3, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 0.5, delay: 0.3 }}
       >
         <path
-          d="M32 14v20l6-6"
+          d="M32 12v24"
+          fill="none"
+          stroke="hsl(var(--accent))"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <path
+          d="M26 30l6 6 6-6"
           fill="none"
           stroke="hsl(var(--accent))"
           strokeWidth="3"
