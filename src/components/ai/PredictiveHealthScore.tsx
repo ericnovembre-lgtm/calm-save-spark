@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, Target, Lightbulb } from "lucide-react";
+import { TrendingUp, TrendingDown, Target, Lightbulb, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,8 @@ import { Progress } from "@/components/ui/progress";
 export function PredictiveHealthScore() {
   const { 
     prediction, 
-    isLoading, 
+    isLoading,
+    error,
     refetch,
     getScoreColor,
     getScoreLabel,
@@ -23,6 +24,19 @@ export function PredictiveHealthScore() {
           <div className="h-24 bg-muted rounded-2xl" />
           <div className="h-48 bg-muted rounded-2xl" />
         </div>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="p-8 text-center">
+        <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+        <h3 className="text-lg font-semibold mb-2">Unable to load forecast</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Please try again.
+        </p>
+        <Button onClick={() => refetch()}>Retry</Button>
       </Card>
     );
   }
