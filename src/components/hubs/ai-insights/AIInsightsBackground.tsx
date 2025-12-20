@@ -47,15 +47,15 @@ export const AIInsightsBackground = () => {
     },
   ];
 
-  // Generate floating particles - calm, slow drift
+  // Generate floating particles - enhanced for visual parity with Lifestyle Hub
   const particles = useMemo(() => 
     Array.from({ length: 25 }, (_, i) => ({
       id: i,
-      size: Math.random() * 2.5 + 1,
+      size: Math.random() * 3 + 2,           // Increased: 2-5px (was 1-3.5px)
       x: Math.random() * 100,
       duration: Math.random() * 20 + 40,
       delay: Math.random() * 15,
-      opacity: Math.random() * 0.25 + 0.1,
+      opacity: Math.random() * 0.3 + 0.15,   // Boosted: 0.15-0.45 (was 0.1-0.35)
     })),
     []
   );
@@ -102,7 +102,7 @@ export const AIInsightsBackground = () => {
             left: `${particle.x}%`,
             bottom: '-5%',
             background: `radial-gradient(circle, hsl(var(--primary) / ${particle.opacity}), hsl(var(--accent) / ${particle.opacity * 0.5}))`,
-            boxShadow: `0 0 ${particle.size * 2}px hsl(var(--primary) / ${particle.opacity * 0.5})`,
+            boxShadow: `0 0 ${particle.size * 5}px hsl(var(--primary) / ${particle.opacity * 0.6})`,
           }}
           animate={{
             y: [0, -window.innerHeight * 1.2],

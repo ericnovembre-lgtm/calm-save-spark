@@ -71,8 +71,8 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.2,
+      staggerChildren: 0.06,
+      delayChildren: 0.15,
     }
   }
 };
@@ -107,15 +107,45 @@ export default function AIInsightsHub() {
           ))}
         </motion.div>
 
-        {/* Keyboard hint for power users */}
-        <motion.div 
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 text-muted-foreground/50 text-xs pointer-events-none"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5, duration: 0.5 }}
+        {/* Keyboard navigation hint with attention animation */}
+        <motion.div
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 1.5, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="px-1.5 py-0.5 rounded border border-muted-foreground/20 bg-muted/30 font-mono">Tab</span>
-          <span>to navigate</span>
+          <motion.div 
+            className="relative px-4 py-2 rounded-full bg-card/60 backdrop-blur-lg border border-white/10 text-muted-foreground text-xs flex items-center gap-2 pointer-events-none"
+            animate={prefersReducedMotion ? {} : {
+              boxShadow: [
+                '0 0 0px hsl(var(--primary) / 0)',
+                '0 0 20px hsl(var(--primary) / 0.3)',
+                '0 0 0px hsl(var(--primary) / 0)',
+              ],
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: 3,
+              delay: 2,
+              ease: 'easeInOut',
+            }}
+          >
+            <motion.span 
+              className="px-1.5 py-0.5 rounded bg-muted/50 font-mono text-[10px]"
+              animate={prefersReducedMotion ? {} : {
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: 3,
+                delay: 2.2,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              Tab
+            </motion.span>
+            <span>to navigate</span>
+          </motion.div>
         </motion.div>
 
         {/* Bottom gradient fade */}
