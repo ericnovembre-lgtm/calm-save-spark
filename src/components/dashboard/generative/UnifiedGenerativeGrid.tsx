@@ -83,7 +83,39 @@ const itemVariants = {
 };
 
 const WidgetSkeleton = () => (
-  <div className="h-48 rounded-xl bg-muted/50 animate-pulse" />
+  <div className="relative h-48 rounded-2xl overflow-hidden">
+    {/* Frosted glass base */}
+    <div className="absolute inset-0 bg-card/60 backdrop-blur-xl border border-white/10 rounded-2xl" />
+    {/* Aurora glow accent */}
+    <div 
+      className="absolute inset-0 opacity-30 pointer-events-none"
+      style={{
+        background: 'radial-gradient(ellipse 80% 50% at 50% 0%, hsla(var(--accent), 0.2) 0%, transparent 50%)',
+      }}
+    />
+    {/* Shimmer animation */}
+    <motion.div 
+      className="absolute inset-0 pointer-events-none"
+      style={{ 
+        background: 'linear-gradient(90deg, transparent 0%, hsla(var(--accent), 0.15) 25%, hsla(255, 255, 255, 0.1) 50%, hsla(var(--accent), 0.15) 75%, transparent 100%)',
+        backgroundSize: '200% 100%',
+      }}
+      animate={{ 
+        backgroundPosition: ['-200% 0%', '200% 0%'],
+      }}
+      transition={{ 
+        duration: 1.5, 
+        repeat: Infinity, 
+        ease: 'linear',
+      }}
+    />
+    {/* Subtle inner content placeholders */}
+    <div className="relative z-10 p-4 space-y-3">
+      <div className="h-4 w-1/3 rounded bg-muted/40" />
+      <div className="h-3 w-2/3 rounded bg-muted/30" />
+      <div className="h-20 w-full rounded-lg bg-muted/20 mt-4" />
+    </div>
+  </div>
 );
 
 // Map AI widget IDs to real React components

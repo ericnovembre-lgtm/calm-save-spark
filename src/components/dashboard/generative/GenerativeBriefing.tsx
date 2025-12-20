@@ -92,17 +92,18 @@ export function GenerativeBriefing({
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         />
 
-        {/* Crystal Shimmer on Hover */}
+        {/* Crystal Shimmer on Hover - matches DashboardWidgetCard */}
         {!prefersReducedMotion && (
           <motion.div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl"
             style={{
-              background: 'linear-gradient(90deg, transparent 0%, hsla(var(--accent), 0.12) 50%, transparent 100%)',
-              transform: 'translateX(-100%)',
+              background: 'linear-gradient(90deg, transparent 0%, hsla(var(--accent), 0.15) 25%, hsla(255, 255, 255, 0.1) 50%, hsla(var(--accent), 0.15) 75%, transparent 100%)',
+              backgroundSize: '200% 100%',
             }}
-            animate={isHovered ? {
-              transform: ['translateX(-100%)', 'translateX(100%)'],
-            } : undefined}
+            animate={isHovered ? { 
+              opacity: [0, 0.8, 0], 
+              backgroundPosition: ['-100% 0%', '200% 0%'],
+            } : { opacity: 0 }}
             transition={{
               duration: 1.2,
               ease: 'easeInOut',

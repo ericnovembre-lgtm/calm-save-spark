@@ -6,6 +6,7 @@ import { SyncIndicator } from '@/components/ui/sync-indicator';
 import { cn } from '@/lib/utils';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { formatDistanceToNow } from 'date-fns';
+import { haptics } from '@/lib/haptics';
 
 type SyncStatus = 'synced' | 'syncing' | 'error' | 'offline';
 
@@ -211,16 +212,19 @@ export function DashboardHeader({
                       )}
                     </motion.span>
                   </AnimatePresence>
-                  {/* Subtle glow effect on transition */}
+                  {/* Aurora pulse effect on greeting transition */}
                   {isTransitioning && !prefersReducedMotion && (
-                    <motion.span
-                      className="absolute inset-0 pointer-events-none"
+                    <motion.div
+                      className="absolute -inset-4 rounded-xl pointer-events-none"
                       initial={{ opacity: 0 }}
                       animate={{ 
-                        opacity: [0, 0.6, 0],
-                        textShadow: ['0 0 0px transparent', '0 0 16px hsl(var(--primary) / 0.5)', '0 0 0px transparent']
+                        opacity: [0, 0.3, 0],
+                        scale: [0.95, 1.02, 1],
                       }}
-                      transition={{ duration: 1, ease: 'easeOut' }}
+                      style={{
+                        background: 'radial-gradient(ellipse, hsla(var(--accent), 0.25), transparent 70%)',
+                      }}
+                      transition={{ duration: 1.2 }}
                     />
                   )}
                   {/* Animated wave emoji with bounce on transition */}
@@ -313,7 +317,10 @@ export function DashboardHeader({
             <Button
               variant="outline"
               size="sm"
-              onClick={onRefresh}
+              onClick={() => {
+                haptics.buttonPress();
+                onRefresh();
+              }}
               disabled={isGenerating}
               className="border-border/40 bg-background/50 hover:bg-primary/8 hover:border-primary/20 hover:text-primary transition-all duration-300 shadow-sm"
             >
