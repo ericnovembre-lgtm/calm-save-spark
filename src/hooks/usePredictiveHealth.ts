@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface HealthPrediction {
   current_score: number;
@@ -20,15 +21,24 @@ export interface HealthPrediction {
 }
 
 export function usePredictiveHealth() {
-  const { data: prediction, isLoading, refetch } = useQuery({
-    queryKey: ['predictive-health'],
+  const { user, session } = useAuth();
+
+  const { data: prediction, isLoading, refetch, error } = useQuery({
+    queryKey: ['predictive-health', user?.id],
     queryFn: async () => {
+      // Ensure we have a valid session before calling
+      if (!session?.access_token) {
+        throw new Error('No active session');
+      }
+
       const { data, error } = await supabase.functions.invoke('predict-health-score');
 
       if (error) throw error;
       return data as HealthPrediction;
     },
+    enabled: !!user && !!session, // Only run when user is authenticated
     staleTime: 1000 * 60 * 30, // 30 minutes
+    retry: 1, // Only retry once on failure
   });
 
   const getScoreColor = (score: number) => {
@@ -54,6 +64,7 @@ export function usePredictiveHealth() {
   return {
     prediction,
     isLoading,
+    error,
     refetch,
     getScoreColor,
     getScoreLabel,
