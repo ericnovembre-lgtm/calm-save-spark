@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { ParallaxPreview } from './ParallaxPreview';
 
 interface AccessibilityPreferences {
   highContrast: boolean;
@@ -242,18 +243,21 @@ export function AccessibilitySettings() {
           <Separator />
 
           {/* Floating Ambient Effects */}
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="floating-orbs">Floating Ambient Effects</Label>
-              <p className="text-xs text-muted-foreground">
-                Show subtle floating orbs in background
-              </p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="floating-orbs">Floating Ambient Effects</Label>
+                <p className="text-xs text-muted-foreground">
+                  Show subtle floating orbs in background
+                </p>
+              </div>
+              <Switch
+                id="floating-orbs"
+                checked={preferences.floatingOrbsEnabled}
+                onCheckedChange={(v) => updatePreference('floatingOrbsEnabled', v)}
+              />
             </div>
-            <Switch
-              id="floating-orbs"
-              checked={preferences.floatingOrbsEnabled}
-              onCheckedChange={(v) => updatePreference('floatingOrbsEnabled', v)}
-            />
+            <ParallaxPreview disabled={!preferences.floatingOrbsEnabled} />
           </div>
 
           <Separator />
