@@ -1,7 +1,8 @@
-import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
+import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { ReactNode, MouseEvent } from 'react';
+import { ReactNode, MouseEvent, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { soundEffects } from '@/lib/sound-effects';
 
 interface BentoCardProps {
   title: string;
@@ -21,13 +22,59 @@ export const BentoCard = ({
   index 
 }: BentoCardProps) => {
   const prefersReducedMotion = useReducedMotion();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [hasPlayedHover, setHasPlayedHover] = useState(false);
+  
+  // Mouse position for spotlight
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  
+  // Normalized mouse position for 3D tilt (-0.5 to 0.5)
+  const normalizedX = useMotionValue(0);
+  const normalizedY = useMotionValue(0);
+  
+  // Spring-based rotations for smooth 3D tilt
+  const rotateX = useSpring(
+    useTransform(normalizedY, [-0.5, 0.5], [8, -8]),
+    { stiffness: 300, damping: 30 }
+  );
+  const rotateY = useSpring(
+    useTransform(normalizedX, [-0.5, 0.5], [-8, 8]),
+    { stiffness: 300, damping: 30 }
+  );
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
+    
+    // For spotlight effect
     mouseX.set(e.clientX - rect.left);
     mouseY.set(e.clientY - rect.top);
+    
+    // For 3D tilt effect
+    if (!prefersReducedMotion) {
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      normalizedX.set(x);
+      normalizedY.set(y);
+    }
+  };
+
+  const handleMouseEnter = () => {
+    if (!hasPlayedHover) {
+      soundEffects.hover();
+      setHasPlayedHover(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHasPlayedHover(false);
+    // Reset 3D tilt
+    normalizedX.set(0);
+    normalizedY.set(0);
+  };
+
+  const handleClick = () => {
+    soundEffects.click();
   };
 
   const spotlight = useMotionTemplate`radial-gradient(350px circle at ${mouseX}px ${mouseY}px, hsl(var(--primary) / 0.15), transparent 80%)`;
@@ -65,16 +112,23 @@ export const BentoCard = ({
       variants={itemVariants}
       initial="hidden"
       animate="visible"
+      style={{ perspective: 1000 }}
     >
-      <Link to={path} className="block h-full">
+      <Link to={path} className="block h-full" onClick={handleClick}>
         <motion.div
+          ref={cardRef}
           className="relative h-full p-6 rounded-3xl overflow-hidden cursor-pointer"
           style={{
             background: 'hsl(var(--card) / 0.4)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
+            transformStyle: 'preserve-3d',
+            rotateX: prefersReducedMotion ? 0 : rotateX,
+            rotateY: prefersReducedMotion ? 0 : rotateY,
           }}
           onMouseMove={handleMouseMove}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
           whileHover={prefersReducedMotion ? {} : { 
             scale: 1.02, 
             y: -4,
@@ -110,7 +164,7 @@ export const BentoCard = ({
           </div>
 
           {/* Content */}
-          <div className="relative z-10 h-full flex flex-col">
+          <div className="relative z-10 h-full flex flex-col" style={{ transform: 'translateZ(20px)' }}>
             <div className="mb-4">
               {icon}
             </div>
