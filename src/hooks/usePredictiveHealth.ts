@@ -27,13 +27,21 @@ export function usePredictiveHealth() {
     queryKey: ['predictive-health', user?.id],
     queryFn: async () => {
       // Ensure we have a valid session before calling
-      if (!session?.access_token) {
+      const token = session?.access_token;
+      if (!token) {
         throw new Error('No active session');
       }
 
+      // Non-sensitive debug signal (helps diagnose 401s)
+      console.debug('[PredictiveHealth] invoking predict-health-score', {
+        hasToken: true,
+        tokenLength: token.length,
+        userId: user?.id,
+      });
+
       const { data, error } = await supabase.functions.invoke('predict-health-score', {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 

@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,6 +30,8 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('authorization') ?? req.headers.get('Authorization');
+    console.log('predict-health-score: has_auth_header', !!authHeader);
+
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -42,8 +44,11 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ??
       '';
 
+    console.log('predict-health-score: has_anon_key', !!Deno.env.get('SUPABASE_ANON_KEY'));
+    console.log('predict-health-score: has_publishable_key', !!Deno.env.get('SUPABASE_PUBLISHABLE_KEY'));
+
     if (!anonKey) {
-      console.error('Missing backend publishable key in function environment');
+      console.error('predict-health-score: missing_backend_key');
       return new Response(JSON.stringify({ error: 'Server misconfiguration' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -52,7 +57,10 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', anonKey, {
       global: {
-        headers: { Authorization: authHeader },
+        headers: {
+          Authorization: authHeader,
+          authorization: authHeader,
+        },
       },
     });
 
@@ -62,7 +70,7 @@ Deno.serve(async (req) => {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      console.error('Unauthorized: supabase.auth.getUser failed');
+      console.error('predict-health-score: getUser_failed', userError?.message ?? 'no_user');
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
