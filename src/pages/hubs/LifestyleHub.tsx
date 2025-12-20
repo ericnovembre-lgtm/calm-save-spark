@@ -1,5 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { motion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { LifestyleBackground } from "@/components/hubs/lifestyle/LifestyleBackground";
 import { LifestyleBentoCard } from "@/components/hubs/lifestyle/LifestyleBentoCard";
 import { LifestyleGradientHeader } from "@/components/hubs/lifestyle/LifestyleGradientHeader";
@@ -119,19 +120,21 @@ const features = [
   },
 ];
 
-// Container variants for staggered entrance
+// Container variants for staggered entrance - refined timing
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.2,
+      staggerChildren: 0.06,  // Faster cascade
+      delayChildren: 0.15,    // Quicker start
     },
   },
 };
 
 export default function LifestyleHub() {
+  const prefersReducedMotion = useReducedMotion();
+  
   return (
     <AppLayout>
       {/* Atmospheric background */}
@@ -161,17 +164,45 @@ export default function LifestyleHub() {
           ))}
         </motion.div>
 
-        {/* Keyboard navigation hint */}
+        {/* Keyboard navigation hint with attention animation */}
         <motion.div
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5, duration: 0.5 }}
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 1.5, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="px-4 py-2 rounded-full bg-card/60 backdrop-blur-lg border border-white/10 text-muted-foreground text-xs flex items-center gap-2">
-            <kbd className="px-1.5 py-0.5 rounded bg-muted/50 font-mono text-[10px]">Tab</kbd>
+          <motion.div 
+            className="relative px-4 py-2 rounded-full bg-card/60 backdrop-blur-lg border border-border/20 text-muted-foreground text-xs flex items-center gap-2"
+            animate={prefersReducedMotion ? {} : {
+              boxShadow: [
+                '0 0 0px hsl(var(--accent) / 0)',
+                '0 0 20px hsl(var(--accent) / 0.3)',
+                '0 0 0px hsl(var(--accent) / 0)',
+              ],
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: 3,
+              delay: 2,
+              ease: 'easeInOut',
+            }}
+          >
+            <motion.kbd 
+              className="px-1.5 py-0.5 rounded bg-muted/50 font-mono text-[10px]"
+              animate={prefersReducedMotion ? {} : {
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: 3,
+                delay: 2.2,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              Tab
+            </motion.kbd>
             <span>to navigate</span>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </AppLayout>

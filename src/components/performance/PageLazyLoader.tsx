@@ -41,10 +41,11 @@ export function PageLazyLoader({
  */
 export function createPageLoader<T extends ComponentType<any>>(
   importFunc: () => Promise<{ default: T }>,
-  category: PageCategory = 'medium'
+  category: PageCategory = 'medium',
+  CustomSkeleton?: ComponentType
 ) {
   const LazyComponent = lazy(importFunc);
-  const SkeletonComponent = skeletonMap[category];
+  const SkeletonComponent = CustomSkeleton || skeletonMap[category];
   
   return function PageWithLoader(props: any) {
     return (

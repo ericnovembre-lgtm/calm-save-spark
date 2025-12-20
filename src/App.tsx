@@ -136,7 +136,8 @@ const WidgetBuilder = createPageLoader(() => import("./pages/WidgetBuilder"), 'm
 const ManageMoneyHub = createPageLoader(() => import("./pages/hubs/ManageMoneyHub"), 'medium');
 const GrowWealthHub = createPageLoader(() => import("./pages/hubs/GrowWealthHub"), 'medium');
 const AIInsightsHub = createPageLoader(() => import("./pages/hubs/AIInsightsHub"), 'medium');
-const LifestyleHub = createPageLoader(() => import("./pages/hubs/LifestyleHub"), 'medium');
+import { LifestyleHubSkeleton } from "@/components/hubs/lifestyle/LifestyleHubSkeleton";
+const LifestyleHub = createPageLoader(() => import("./pages/hubs/LifestyleHub"), 'medium', LifestyleHubSkeleton);
 const PremiumHub = createPageLoader(() => import("./pages/hubs/PremiumHub"), 'medium');
 const FeaturesHub = createPageLoader(() => import("./pages/FeaturesHub"), 'medium');
 // AgentHub.tsx merged into AIAgents.tsx
