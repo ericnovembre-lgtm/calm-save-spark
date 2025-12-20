@@ -1,21 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Star, Zap, TrendingUp } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-interface Feature {
-  icon: any;
+interface BaseFeature {
   title: string;
   description: string;
   path: string;
-  color: string;
 }
 
-interface Props {
-  features: Feature[];
-  onReorder: (features: Feature[]) => void;
+interface Props<T extends BaseFeature> {
+  features: T[];
+  onReorder: (features: T[]) => void;
 }
 
-export function SmartFeatureRecommender({ features, onReorder }: Props) {
+export function SmartFeatureRecommender<T extends BaseFeature>({ features, onReorder }: Props<T>) {
   const [recommendations, setRecommendations] = useState<number[]>([]);
 
   useEffect(() => {
