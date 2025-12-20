@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useMemo } from 'react';
 
 export const AIInsightsBackground = () => {
   const prefersReducedMotion = useReducedMotion();
@@ -35,6 +36,19 @@ export const AIInsightsBackground = () => {
     },
   ];
 
+  // Generate floating particles
+  const particles = useMemo(() => 
+    Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      size: Math.random() * 3 + 1,
+      x: Math.random() * 100,
+      duration: Math.random() * 20 + 25,
+      delay: Math.random() * 10,
+      opacity: Math.random() * 0.4 + 0.2,
+    })),
+    []
+  );
+
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
       {/* Dark base layer */}
@@ -62,6 +76,33 @@ export const AIInsightsBackground = () => {
             repeat: Infinity,
             ease: 'easeInOut',
             delay: orb.delay,
+          }}
+        />
+      ))}
+
+      {/* Floating particles layer */}
+      {!prefersReducedMotion && particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute rounded-full"
+          style={{
+            width: particle.size,
+            height: particle.size,
+            left: `${particle.x}%`,
+            bottom: '-5%',
+            background: `radial-gradient(circle, hsl(var(--primary) / ${particle.opacity}), hsl(var(--accent) / ${particle.opacity * 0.5}))`,
+            boxShadow: `0 0 ${particle.size * 2}px hsl(var(--primary) / ${particle.opacity * 0.5})`,
+          }}
+          animate={{
+            y: [0, -window.innerHeight * 1.2],
+            x: [0, Math.sin(particle.id) * 30, Math.cos(particle.id) * -20, 0],
+            opacity: [0, particle.opacity, particle.opacity, 0],
+          }}
+          transition={{
+            duration: particle.duration,
+            repeat: Infinity,
+            delay: particle.delay,
+            ease: 'linear',
           }}
         />
       ))}
