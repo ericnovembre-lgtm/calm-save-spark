@@ -1,93 +1,94 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card } from "@/components/ui/card";
-import { Activity, Bot, Brain, Lightbulb, Shield, Sparkles, Archive } from "lucide-react";
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AIInsightsBackground } from "@/components/hubs/ai-insights/AIInsightsBackground";
+import { BentoCard } from "@/components/hubs/ai-insights/BentoCard";
+import { GradientHeader } from "@/components/hubs/ai-insights/GradientHeader";
+import {
+  AnimatedBotIcon,
+  AnimatedBrainIcon,
+  AnimatedActivityIcon,
+  AnimatedSparklesIcon,
+  AnimatedLightbulbIcon,
+  AnimatedShieldIcon,
+  AnimatedArchiveIcon,
+} from "@/components/hubs/ai-insights/AnimatedIcons";
 
 const features = [
   {
-    icon: Bot,
+    icon: <AnimatedBotIcon size="lg" />,
     title: "AI Coach",
-    description: "Chat with your financial coach",
+    description: "Chat with your personal financial coach. Get tailored advice, answer questions, and build better money habits through conversation.",
     path: "/coach",
-    color: "text-blue-500"
+    size: "lg" as const,
   },
   {
-    icon: Brain,
+    icon: <AnimatedBrainIcon />,
     title: "AI Agents",
-    description: "Autonomous financial assistants",
+    description: "Autonomous assistants that work for you",
     path: "/ai-agents",
-    color: "text-purple-500"
+    size: "sm" as const,
   },
   {
-    icon: Activity,
+    icon: <AnimatedActivityIcon />,
     title: "Social Sentiment",
-    description: "Real-time market sentiment by Grok",
+    description: "Real-time market sentiment powered by Grok",
     path: "/social-sentiment",
-    color: "text-orange-500"
+    size: "sm" as const,
   },
   {
-    icon: Sparkles,
+    icon: <AnimatedSparklesIcon />,
     title: "Digital Twin",
-    description: "Your financial simulation",
+    description: "Simulate your financial future",
     path: "/digital-twin",
-    color: "text-pink-500"
+    size: "sm" as const,
   },
   {
-    icon: Lightbulb,
+    icon: <AnimatedLightbulbIcon size="lg" />,
     title: "Analytics & Insights",
-    description: "Financial insights and forecasting",
+    description: "Deep dive into your financial patterns. Discover trends, forecast spending, and uncover hidden opportunities to save and grow.",
     path: "/analytics",
-    color: "text-yellow-500"
+    size: "lg" as const,
   },
   {
-    icon: Shield,
+    icon: <AnimatedShieldIcon />,
     title: "Guardian",
     description: "Behavioral spending protection",
     path: "/guardian",
-    color: "text-red-500"
+    size: "sm" as const,
   },
   {
-    icon: Archive,
+    icon: <AnimatedArchiveIcon />,
     title: "AI Insights Archive",
-    description: "Historical AI-generated insights and recommendations",
+    description: "Historical AI-generated insights and recommendations for reference",
     path: "/ai-insights-archive",
-    color: "text-emerald-500"
+    size: "wide" as const,
   },
 ];
 
 export default function AIInsightsHub() {
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-            <Brain className="w-10 h-10 text-primary" />
-            AI & Insights
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Powered by AI to help you make smarter financial decisions
-          </p>
-        </div>
+      <AIInsightsBackground />
+      
+      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+        <GradientHeader />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]">
           {features.map((feature, index) => (
-            <motion.div
+            <BentoCard
               key={feature.path}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Link to={feature.path}>
-                <Card className="p-6 hover:shadow-lg transition-all hover:scale-105 cursor-pointer h-full border-2 hover:border-primary">
-                  <feature.icon className={`w-12 h-12 mb-4 ${feature.color}`} />
-                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </Card>
-              </Link>
-            </motion.div>
+              title={feature.title}
+              description={feature.description}
+              icon={feature.icon}
+              path={feature.path}
+              size={feature.size}
+              index={index}
+            />
           ))}
         </div>
+
+        {/* Bottom gradient fade */}
+        <div className="fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none z-0" />
       </div>
     </AppLayout>
   );
