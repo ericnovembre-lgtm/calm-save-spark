@@ -4,6 +4,7 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 /**
  * GrowWealthHubSkeleton - Bento grid skeleton for loading state
  * Mirrors the premium vault layout with staggered card animations
+ * Enhanced with gradient shimmer sweep animation
  */
 export const GrowWealthHubSkeleton = () => {
   const prefersReducedMotion = useReducedMotion();
@@ -47,6 +48,17 @@ export const GrowWealthHubSkeleton = () => {
     wide: 'md:col-span-2 lg:col-span-3',
   };
 
+  // Shimmer animation component
+  const ShimmerOverlay = () => (
+    !prefersReducedMotion ? (
+      <motion.div 
+        className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-accent/10 to-transparent"
+        animate={{ x: ['0%', '200%'] }}
+        transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 0.5, ease: 'linear' }}
+      />
+    ) : null
+  );
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header skeleton */}
@@ -57,10 +69,16 @@ export const GrowWealthHubSkeleton = () => {
         animate="visible"
       >
         <div className="flex items-start gap-4 mb-3">
-          <div className="w-12 h-12 rounded-xl bg-accent/10 animate-pulse" />
+          <div className="w-12 h-12 rounded-xl bg-accent/10 relative overflow-hidden">
+            <ShimmerOverlay />
+          </div>
           <div className="flex-1">
-            <div className="h-10 w-48 bg-accent/10 rounded-lg animate-pulse mb-2" />
-            <div className="h-5 w-72 bg-muted/20 rounded animate-pulse" />
+            <div className="h-10 w-48 bg-accent/10 rounded-lg mb-2 relative overflow-hidden">
+              <ShimmerOverlay />
+            </div>
+            <div className="h-5 w-72 bg-muted/20 rounded relative overflow-hidden">
+              <ShimmerOverlay />
+            </div>
           </div>
         </div>
       </motion.div>
@@ -76,8 +94,9 @@ export const GrowWealthHubSkeleton = () => {
           <motion.div
             key={i}
             variants={itemVariants}
-            className="p-4 rounded-2xl border border-accent/10 bg-card/30 backdrop-blur-sm animate-pulse"
+            className="p-4 rounded-2xl border border-accent/10 bg-card/30 backdrop-blur-sm relative overflow-hidden"
           >
+            <ShimmerOverlay />
             <div className="flex items-start justify-between mb-3">
               <div className="w-8 h-8 rounded-lg bg-accent/10" />
               <div className="w-5 h-5 rounded bg-muted/20" />
@@ -93,8 +112,9 @@ export const GrowWealthHubSkeleton = () => {
         variants={itemVariants}
         initial="hidden"
         animate="visible"
-        className="mb-8 p-6 rounded-3xl border border-accent/10 bg-card/30 backdrop-blur-sm animate-pulse"
+        className="mb-8 p-6 rounded-3xl border border-accent/10 bg-card/30 backdrop-blur-sm relative overflow-hidden"
       >
+        <ShimmerOverlay />
         <div className="h-6 w-40 bg-accent/10 rounded mb-4" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
@@ -105,6 +125,21 @@ export const GrowWealthHubSkeleton = () => {
           ))}
         </div>
       </motion.div>
+
+      {/* Additional widget skeletons */}
+      {[1, 2, 3].map((i) => (
+        <motion.div
+          key={`widget-${i}`}
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
+          className="mb-8 p-6 rounded-3xl border border-accent/10 bg-card/30 backdrop-blur-sm relative overflow-hidden"
+        >
+          <ShimmerOverlay />
+          <div className="h-6 w-48 bg-accent/10 rounded mb-4" />
+          <div className="h-40 bg-muted/10 rounded-xl" />
+        </motion.div>
+      ))}
 
       {/* Bento grid skeleton */}
       <motion.div
@@ -117,8 +152,10 @@ export const GrowWealthHubSkeleton = () => {
           <motion.div
             key={i}
             variants={itemVariants}
-            className={`relative p-6 rounded-3xl border border-white/15 bg-card/50 backdrop-blur-[28px] animate-pulse overflow-hidden ${sizeClasses[card.size]}`}
+            className={`relative p-6 rounded-3xl border border-white/15 bg-card/50 backdrop-blur-[28px] overflow-hidden ${sizeClasses[card.size]}`}
           >
+            <ShimmerOverlay />
+            
             {/* Sparkline background */}
             {card.hasSparkline && (
               <svg 

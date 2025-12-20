@@ -105,12 +105,12 @@ export function WealthProgressOverview({ overallProgress, nextMilestone, creditS
                 whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
               >
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  creditScore >= 750 ? 'bg-green-500/10' :
-                  creditScore >= 650 ? 'bg-yellow-500/10' : 'bg-red-500/10'
+                  creditScore >= 750 ? 'bg-accent/10' :
+                  creditScore >= 650 ? 'bg-muted/20' : 'bg-destructive/10'
                 }`}>
                   <TrendingUp className={`w-5 h-5 ${
-                    creditScore >= 750 ? 'text-green-500' :
-                    creditScore >= 650 ? 'text-yellow-500' : 'text-red-500'
+                    creditScore >= 750 ? 'text-accent' :
+                    creditScore >= 650 ? 'text-muted-foreground' : 'text-destructive'
                   }`} />
                 </div>
                 <div>

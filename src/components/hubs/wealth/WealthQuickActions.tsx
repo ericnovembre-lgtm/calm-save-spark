@@ -12,19 +12,19 @@ export function WealthQuickActions() {
       icon: Plus,
       label: 'Add to Goal',
       path: '/goals',
-      color: 'from-blue-500/20 to-cyan-500/20',
+      color: 'from-primary/20 to-primary/10',
     },
     {
       icon: RefreshCw,
       label: 'Check Score',
       path: '/credit',
-      color: 'from-purple-500/20 to-pink-500/20',
+      color: 'from-accent/20 to-accent/10',
     },
     {
       icon: PieChart,
       label: 'Portfolio',
       path: '/investments',
-      color: 'from-green-500/20 to-emerald-500/20',
+      color: 'from-muted/30 to-muted/10',
     },
   ];
 
