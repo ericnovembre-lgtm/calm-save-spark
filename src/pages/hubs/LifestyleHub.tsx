@@ -19,8 +19,9 @@ import {
   CommunityIcon,
 } from "@/components/hubs/lifestyle/LifestyleAnimatedIcons";
 
-// Features with strategic sizing for bento layout
+// Features with strategic sizing for bento layout - reordered for visual balance
 const features = [
+  // Row 1: Lead with Financial Health (large anchor)
   {
     icon: <HealthIcon size="lg" />,
     title: "Financial Health",
@@ -42,13 +43,7 @@ const features = [
     path: "/student",
     size: "sm" as const,
   },
-  {
-    icon: <CouplesIcon size="lg" />,
-    title: "Couples",
-    description: "Manage finances together with your partner seamlessly",
-    path: "/couples",
-    size: "lg" as const,
-  },
+  // Row 2: Small cards for visual breathing room
   {
     icon: <BusinessIcon />,
     title: "Business OS",
@@ -77,6 +72,14 @@ const features = [
     path: "/digital-twin",
     size: "sm" as const,
   },
+  // Row 3: Couples as second large anchor (offset position)
+  {
+    icon: <CouplesIcon size="lg" />,
+    title: "Couples",
+    description: "Manage finances together with your partner seamlessly",
+    path: "/couples",
+    size: "lg" as const,
+  },
   {
     icon: <WishlistIcon />,
     title: "Wishlist Tracker",
@@ -84,6 +87,7 @@ const features = [
     path: "/wishlist",
     size: "sm" as const,
   },
+  // Row 4: Remaining small cards
   {
     icon: <DiaryIcon />,
     title: "Financial Diary",
@@ -105,6 +109,7 @@ const features = [
     path: "/money-mindset",
     size: "sm" as const,
   },
+  // Row 5: Community Forum spanning width
   {
     icon: <CommunityIcon />,
     title: "Community Forum",
