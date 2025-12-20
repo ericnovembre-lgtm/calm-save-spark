@@ -16,8 +16,6 @@ import type { AnimatedIconName } from "@/components/hubs/money/ManageMoneyAnimat
 
 // Layer 3: Interactive Overlays
 const HubConversationAssistant = lazy(() => import("@/components/hubs/money/ai/HubConversationAssistant").then(m => ({ default: m.HubConversationAssistant })));
-const VoiceHubControl = lazy(() => import("@/components/hubs/money/voice/VoiceHubControl").then(m => ({ default: m.VoiceHubControl })));
-const HubPerformanceAI = lazy(() => import("@/components/hubs/money/performance/HubPerformanceAI").then(m => ({ default: m.HubPerformanceAI })));
 
 interface Feature {
   iconName: AnimatedIconName;
@@ -226,8 +224,6 @@ export default function ManageMoneyHub() {
       {!isMobile && (
         <Suspense fallback={null}>
           <HubConversationAssistant />
-          <VoiceHubControl />
-          <HubPerformanceAI />
         </Suspense>
       )}
     </AppLayout>
