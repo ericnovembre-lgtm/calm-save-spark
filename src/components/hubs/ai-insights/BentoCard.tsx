@@ -33,14 +33,14 @@ export const BentoCard = ({
   const normalizedX = useMotionValue(0);
   const normalizedY = useMotionValue(0);
   
-  // Spring-based rotations for smooth 3D tilt
+  // Spring-based rotations for smooth 3D tilt (±5° for calm, premium feel)
   const rotateX = useSpring(
-    useTransform(normalizedY, [-0.5, 0.5], [8, -8]),
-    { stiffness: 300, damping: 30 }
+    useTransform(normalizedY, [-0.5, 0.5], [5, -5]),
+    { stiffness: 200, damping: 25 }
   );
   const rotateY = useSpring(
-    useTransform(normalizedX, [-0.5, 0.5], [-8, 8]),
-    { stiffness: 300, damping: 30 }
+    useTransform(normalizedX, [-0.5, 0.5], [-5, 5]),
+    { stiffness: 200, damping: 25 }
   );
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {

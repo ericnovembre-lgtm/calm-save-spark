@@ -13,7 +13,7 @@ export const GradientHeader = () => {
         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
         <motion.span
-          className="inline-block bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent"
+          className="inline-block bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent"
           style={{
             backgroundSize: '200% auto',
           }}
@@ -21,7 +21,7 @@ export const GradientHeader = () => {
             backgroundPosition: ['0% center', '200% center'],
           }}
           transition={{
-            duration: 4,
+            duration: 6,
             repeat: Infinity,
             ease: 'linear',
           }}
