@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIconLucide, CreditCard, Trophy, ChevronUp, PiggyBank, Shield, Sparkles, Calculator, DollarSign, Flame, FileSpreadsheet } from "lucide-react";
-import { motion } from "framer-motion";
+import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIconLucide, CreditCard, Trophy, ChevronUp, PiggyBank, Shield, Sparkles, Calculator, DollarSign, Flame, FileSpreadsheet, X } from "lucide-react";
+import { motion, useInView } from "framer-motion";
 import { GrowWealthBackground } from "@/components/hubs/wealth/GrowWealthBackground";
 import { GrowWealthBentoCard } from "@/components/hubs/wealth/GrowWealthBentoCard";
 import { 
@@ -27,6 +27,25 @@ import { useWealthHubStats } from "@/hooks/useWealthHubStats";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import CountUp from "react-countup";
 import { Card, CardContent } from "@/components/ui/card";
+import { useRef, useState, useEffect, ReactNode } from "react";
+
+// Scroll-triggered reveal wrapper
+function ScrollReveal({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const prefersReducedMotion = useReducedMotion();
+  
+  return (
+    <motion.div
+      ref={ref}
+      initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 const features = [
   {
@@ -119,6 +138,20 @@ const features = [
 export default function GrowWealthHub() {
   const prefersReducedMotion = useReducedMotion();
   const stats = useWealthHubStats();
+  const [showTabHint, setShowTabHint] = useState(true);
+  
+  // Check localStorage for tab hint dismissal
+  useEffect(() => {
+    const dismissed = localStorage.getItem('grow-wealth-tab-hint-dismissed');
+    if (dismissed === 'true') {
+      setShowTabHint(false);
+    }
+  }, []);
+  
+  const dismissTabHint = () => {
+    setShowTabHint(false);
+    localStorage.setItem('grow-wealth-tab-hint-dismissed', 'true');
+  };
 
   if (stats.isLoading) {
     return (
@@ -221,27 +254,39 @@ export default function GrowWealthHub() {
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards with staggered scale animation */}
         <motion.div
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: prefersReducedMotion ? 0 : 0.08, delayChildren: 0.1 }
+            }
+          }}
         >
           {statCards.map((stat, index) => {
             const StatIcon = stat.icon;
             return (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.85, y: 20 },
+                  visible: { 
+                    opacity: 1, 
+                    scale: 1, 
+                    y: 0,
+                    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
+                  }
+                }}
                 whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -4 }}
               >
-                <Card className="border-2 border-accent/20 bg-card/50 backdrop-blur-sm hover:border-accent/40 transition-all hover:shadow-lg hover:shadow-accent/10">
+                <Card className="border-2 border-accent/20 bg-card/50 backdrop-blur-sm hover:border-accent/40 transition-all hover:shadow-lg hover:shadow-accent/10 group">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-2">
-                      <div className="p-2 rounded-lg bg-accent/10">
+                      <div className="p-2 rounded-lg bg-accent/10 group-hover:shadow-md group-hover:shadow-accent/20 transition-shadow">
                         <StatIcon className="w-4 h-4 text-accent" />
                       </div>
                       {stat.trend && (
@@ -278,39 +323,51 @@ export default function GrowWealthHub() {
           })}
         </motion.div>
 
-        {/* Wealth Dashboard Summary */}
-        <div className="mb-8">
-          <WealthDashboardSummary />
-        </div>
+        {/* Wealth Dashboard Summary - Scroll Reveal */}
+        <ScrollReveal delay={0}>
+          <div className="mb-8">
+            <WealthDashboardSummary />
+          </div>
+        </ScrollReveal>
 
-        {/* Financial Health Score Widget */}
-        <div className="mb-8">
-          <FinancialHealthWidget />
-        </div>
+        {/* Financial Health Score Widget - Scroll Reveal */}
+        <ScrollReveal delay={0.05}>
+          <div className="mb-8">
+            <FinancialHealthWidget />
+          </div>
+        </ScrollReveal>
 
-        {/* Net Worth Breakdown Chart */}
-        <div className="mb-8">
-          <NetWorthBreakdownChart />
-        </div>
+        {/* Net Worth Breakdown Chart - Scroll Reveal */}
+        <ScrollReveal delay={0.1}>
+          <div className="mb-8">
+            <NetWorthBreakdownChart />
+          </div>
+        </ScrollReveal>
 
-        {/* Monthly Financial Report */}
-        <div className="mb-8">
-          <MonthlyFinancialReport />
-        </div>
+        {/* Monthly Financial Report - Scroll Reveal */}
+        <ScrollReveal delay={0.15}>
+          <div className="mb-8">
+            <MonthlyFinancialReport />
+          </div>
+        </ScrollReveal>
 
-        {/* Wealth Progress Overview */}
-        <div className="mb-8">
-          <WealthProgressOverview
-            overallProgress={stats.overallProgress}
-            nextMilestone={stats.nextMilestone}
-            creditScore={stats.creditScore}
-          />
-        </div>
+        {/* Wealth Progress Overview - Scroll Reveal */}
+        <ScrollReveal delay={0.2}>
+          <div className="mb-8">
+            <WealthProgressOverview
+              overallProgress={stats.overallProgress}
+              nextMilestone={stats.nextMilestone}
+              creditScore={stats.creditScore}
+            />
+          </div>
+        </ScrollReveal>
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <WealthQuickActions />
-        </div>
+        {/* Quick Actions - Scroll Reveal */}
+        <ScrollReveal delay={0.25}>
+          <div className="mb-8">
+            <WealthQuickActions />
+          </div>
+        </ScrollReveal>
 
         {/* Feature Cards Header */}
         <div className="mb-4">
@@ -323,12 +380,13 @@ export default function GrowWealthHub() {
           </p>
         </div>
 
-        {/* Tab Navigation Hint */}
-        {!prefersReducedMotion && (
+        {/* Tab Navigation Hint - Dismissible */}
+        {!prefersReducedMotion && showTabHint && (
           <motion.div
             className="mb-6 flex justify-center"
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ delay: 0.8, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
           >
             <motion.div
@@ -340,16 +398,23 @@ export default function GrowWealthHub() {
                   '0 0 0 0 hsl(var(--accent) / 0)',
                 ],
               }}
-              transition={{ duration: 2, repeat: 3, delay: 1 }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
             >
               <motion.span
                 className="px-2 py-0.5 rounded bg-accent/15 text-accent font-medium text-xs"
                 animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: 3, delay: 1.2 }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
               >
                 Tab
               </motion.span>
               to navigate
+              <button
+                onClick={dismissTabHint}
+                className="ml-2 p-0.5 rounded-full hover:bg-accent/10 transition-colors"
+                aria-label="Dismiss hint"
+              >
+                <X className="w-3 h-3 text-muted-foreground" />
+              </button>
             </motion.div>
           </motion.div>
         )}
