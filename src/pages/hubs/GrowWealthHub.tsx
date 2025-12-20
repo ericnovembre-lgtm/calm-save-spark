@@ -1,114 +1,117 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIcon, CreditCard, Trophy, ArrowRight, ChevronUp, PiggyBank, Shield, Sparkles, Calculator, DollarSign, Flame, FileSpreadsheet } from "lucide-react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { LiquidCardMorph } from "@/components/hubs/money/effects/LiquidCardMorph";
-import { WealthGrowthBackground } from "@/components/hubs/wealth/WealthGrowthBackground";
-import { WealthParticles } from "@/components/hubs/wealth/WealthParticles";
-import { WealthProgressOverview } from "@/components/hubs/wealth/WealthProgressOverview";
-import { WealthQuickActions } from "@/components/hubs/wealth/WealthQuickActions";
-import { WealthHubSkeleton } from "@/components/hubs/wealth/WealthHubSkeleton";
+import { Target, TrendingUp, BadgeDollarSign, Wallet as WalletIconLucide, CreditCard, Trophy, ChevronUp, PiggyBank, Shield, Sparkles, Calculator, DollarSign, Flame, FileSpreadsheet } from "lucide-react";
+import { motion } from "framer-motion";
+import { GrowWealthBackground } from "@/components/hubs/wealth/GrowWealthBackground";
+import { GrowWealthBentoCard } from "@/components/hubs/wealth/GrowWealthBentoCard";
+import { 
+  GoalsIcon, 
+  IncomeIcon, 
+  NetWorthIcon, 
+  InvestmentIcon, 
+  RetirementIcon, 
+  CreditScoreIcon, 
+  WalletIcon, 
+  CardIcon, 
+  TrophyIcon, 
+  ChallengesIcon, 
+  TaxIcon 
+} from "@/components/hubs/wealth/GrowWealthAnimatedIcons";
 import { WealthDashboardSummary } from "@/components/hubs/wealth/WealthDashboardSummary";
 import { FinancialHealthWidget } from "@/components/hubs/wealth/FinancialHealthWidget";
 import { NetWorthBreakdownChart } from "@/components/hubs/wealth/NetWorthBreakdownChart";
 import { MonthlyFinancialReport } from "@/components/hubs/wealth/MonthlyFinancialReport";
+import { WealthProgressOverview } from "@/components/hubs/wealth/WealthProgressOverview";
+import { WealthQuickActions } from "@/components/hubs/wealth/WealthQuickActions";
+import { GrowWealthHubSkeleton } from "@/components/hubs/wealth/GrowWealthHubSkeleton";
 import { useWealthHubStats } from "@/hooks/useWealthHubStats";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import CountUp from "react-countup";
+import { Card, CardContent } from "@/components/ui/card";
 
 const features = [
   {
-    icon: Target,
     title: "Goals",
     description: "Set and track your savings goals",
     path: "/goals",
-    color: "text-blue-500",
-    gradient: "from-blue-500/20 to-cyan-500/20",
+    icon: <GoalsIcon />,
+    size: "lg" as const,
     badge: "Popular",
+    showSparkline: true,
   },
   {
-    icon: DollarSign,
     title: "Income Tracking",
     description: "Track all your income sources",
     path: "/income",
-    color: "text-emerald-500",
-    gradient: "from-emerald-500/20 to-green-500/20",
+    icon: <IncomeIcon />,
+    size: "sm" as const,
     badge: "New",
   },
   {
-    icon: TrendingUp,
     title: "Net Worth",
     description: "Track your total wealth over time",
     path: "/net-worth",
-    color: "text-amber-500",
-    gradient: "from-amber-500/20 to-yellow-500/20",
+    icon: <NetWorthIcon />,
+    size: "md" as const,
     badge: "New",
+    showSparkline: true,
   },
   {
-    icon: TrendingUp,
     title: "Investments",
     description: "Track your investment portfolio",
     path: "/investments",
-    color: "text-green-500",
-    gradient: "from-green-500/20 to-emerald-500/20",
+    icon: <InvestmentIcon />,
+    size: "sm" as const,
+    showSparkline: true,
   },
   {
-    icon: Calculator,
     title: "Retirement Planner",
     description: "Monte Carlo projections & Social Security optimization",
     path: "/retirement-planner",
-    color: "text-cyan-500",
-    gradient: "from-cyan-500/20 to-teal-500/20",
+    icon: <RetirementIcon />,
+    size: "sm" as const,
   },
   {
-    icon: BadgeDollarSign,
     title: "Credit Score",
     description: "Monitor your credit health",
     path: "/credit",
-    color: "text-purple-500",
-    gradient: "from-purple-500/20 to-pink-500/20",
+    icon: <CreditScoreIcon />,
+    size: "sm" as const,
   },
   {
-    icon: WalletIcon,
     title: "Wallet",
     description: "Manage your digital wallet",
     path: "/wallet",
-    color: "text-orange-500",
-    gradient: "from-orange-500/20 to-yellow-500/20",
+    icon: <WalletIcon />,
+    size: "sm" as const,
   },
   {
-    icon: CreditCard,
     title: "Card",
     description: "Your $ave+ secured credit card",
     path: "/card",
-    color: "text-indigo-500",
-    gradient: "from-indigo-500/20 to-violet-500/20",
+    icon: <CardIcon />,
+    size: "sm" as const,
   },
   {
-    icon: Trophy,
     title: "Achievements",
     description: "View your financial milestones",
     path: "/achievements",
-    color: "text-yellow-500",
-    gradient: "from-yellow-500/20 to-amber-500/20",
+    icon: <TrophyIcon />,
+    size: "sm" as const,
   },
   {
-    icon: Flame,
     title: "Savings Challenges",
     description: "Gamified savings with streaks",
     path: "/savings-challenges",
-    color: "text-orange-500",
-    gradient: "from-orange-500/20 to-red-500/20",
+    icon: <ChallengesIcon />,
+    size: "wide" as const,
     badge: "New",
   },
   {
-    icon: FileSpreadsheet,
     title: "Tax Lots",
     description: "Track cost basis and harvest losses",
     path: "/investment-tax-lots",
-    color: "text-teal-500",
-    gradient: "from-teal-500/20 to-cyan-500/20",
+    icon: <TaxIcon />,
+    size: "sm" as const,
     badge: "New",
   },
 ];
@@ -120,9 +123,7 @@ export default function GrowWealthHub() {
   if (stats.isLoading) {
     return (
       <AppLayout>
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <WealthHubSkeleton />
-        </div>
+        <GrowWealthHubSkeleton />
       </AppLayout>
     );
   }
@@ -134,7 +135,6 @@ export default function GrowWealthHub() {
       format: "currency",
       trend: stats.totalSaved > 0 ? "up" : null,
       icon: PiggyBank,
-      gradient: "from-blue-500/10 to-cyan-500/10",
     },
     {
       label: "Credit Score",
@@ -143,7 +143,6 @@ export default function GrowWealthHub() {
       change: stats.creditChange,
       trend: stats.creditChange > 0 ? "up" : stats.creditChange < 0 ? "down" : null,
       icon: Shield,
-      gradient: "from-purple-500/10 to-pink-500/10",
     },
     {
       label: "Active Goals",
@@ -151,7 +150,6 @@ export default function GrowWealthHub() {
       format: "number",
       trend: stats.activeGoals > 0 ? "up" : null,
       icon: Target,
-      gradient: "from-green-500/10 to-emerald-500/10",
     },
     {
       label: "Card Status",
@@ -159,17 +157,26 @@ export default function GrowWealthHub() {
       format: "text",
       trend: stats.cardStatus === "Active" ? "up" : null,
       icon: CreditCard,
-      gradient: "from-orange-500/10 to-yellow-500/10",
     },
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: prefersReducedMotion ? 0 : 0.06,
+        delayChildren: 0.15,
+      },
+    },
+  };
+
   return (
     <AppLayout>
-      <WealthGrowthBackground />
-      <WealthParticles />
+      <GrowWealthBackground />
 
       <div className="container mx-auto px-4 py-8 max-w-7xl relative">
-        {/* Header */}
+        {/* Header with Metallic Shimmer */}
         <motion.div
           className="mb-8"
           initial={{ opacity: 0, y: 20 }}
@@ -184,14 +191,25 @@ export default function GrowWealthHub() {
               }}
               transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
             >
-              <TrendingUp className="w-12 h-12 text-primary" />
+              <TrendingUp className="w-12 h-12 text-accent" />
             </motion.div>
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                  Grow Wealth
+                {/* Metallic Gradient Header */}
+                <h1 className="text-4xl md:text-5xl font-bold relative overflow-hidden">
+                  <span className="bg-gradient-to-r from-muted-foreground via-accent to-foreground bg-clip-text text-transparent">
+                    Grow Wealth
+                  </span>
+                  {/* Shimmer overlay */}
+                  {!prefersReducedMotion && (
+                    <motion.div 
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/20 to-transparent"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
+                    />
+                  )}
                 </h1>
-                <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center gap-1">
+                <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
                   AI-Powered
                 </span>
@@ -220,16 +238,16 @@ export default function GrowWealthHub() {
                 transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
                 whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -4 }}
               >
-                <Card className={`border-2 border-primary/20 bg-gradient-to-br ${stat.gradient} hover:border-primary/40 transition-all hover:shadow-lg hover:shadow-primary/10`}>
+                <Card className="border-2 border-accent/20 bg-card/50 backdrop-blur-sm hover:border-accent/40 transition-all hover:shadow-lg hover:shadow-accent/10">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-2">
-                      <div className="p-2 rounded-lg bg-background/50">
-                        <StatIcon className="w-4 h-4 text-primary" />
+                      <div className="p-2 rounded-lg bg-accent/10">
+                        <StatIcon className="w-4 h-4 text-accent" />
                       </div>
                       {stat.trend && (
                         <ChevronUp
                           className={`w-5 h-5 ${
-                            stat.trend === "up" ? "text-green-500" : "text-red-500 rotate-180"
+                            stat.trend === "up" ? "text-accent" : "text-destructive rotate-180"
                           }`}
                         />
                       )}
@@ -241,7 +259,7 @@ export default function GrowWealthHub() {
                         <CountUp
                           end={stat.value as number}
                           duration={1.5}
-                          decimals={stat.format === "currency" ? 0 : 0}
+                          decimals={0}
                           separator=","
                         />
                       ) : (
@@ -249,7 +267,7 @@ export default function GrowWealthHub() {
                       )}
                     </p>
                     {stat.change !== undefined && stat.change !== 0 && (
-                      <p className={`text-xs mt-1 ${stat.change > 0 ? "text-green-500" : "text-red-500"}`}>
+                      <p className={`text-xs mt-1 ${stat.change > 0 ? "text-accent" : "text-destructive"}`}>
                         {stat.change > 0 ? "+" : ""}{stat.change}
                       </p>
                     )}
@@ -294,106 +312,78 @@ export default function GrowWealthHub() {
           <WealthQuickActions />
         </div>
 
-        {/* Feature Cards */}
+        {/* Feature Cards Header */}
         <div className="mb-4">
           <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-primary" />
+            <Sparkles className="w-6 h-6 text-accent" />
             Explore Features
           </h2>
           <p className="text-muted-foreground text-sm">
             Discover all the tools to grow your wealth
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <AnimatePresence mode="wait">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              
-              return (
-                <motion.div
-                  key={feature.path}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + index * 0.05, duration: 0.3 }}
-                >
-                  <LiquidCardMorph delay={0.5 + index * 0.05}>
-                    <Link to={feature.path}>
-                      <Card className={`p-6 hover:shadow-xl hover:shadow-primary/20 transition-all cursor-pointer h-full border-2 hover:border-primary bg-gradient-to-br ${feature.gradient} group relative overflow-hidden`}>
-                        {/* Badge */}
-                        {feature.badge && (
-                          <div className="absolute top-3 right-3 z-20">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              feature.badge === "Popular" 
-                                ? "bg-primary/20 text-primary" 
-                                : "bg-accent/20 text-accent"
-                            }`}>
-                              {feature.badge}
-                            </span>
-                          </div>
-                        )}
-                        
-                        {/* Glow effect on hover */}
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0"
-                          initial={{ x: "-100%" }}
-                          whileHover={prefersReducedMotion ? {} : { x: "100%" }}
-                          transition={{ duration: 0.6 }}
-                        />
-                        
-                        <div className="relative z-10">
-                          <div className="flex items-start justify-between mb-4">
-                            <motion.div 
-                              className={`p-3 rounded-xl bg-gradient-to-br ${feature.gradient} border border-primary/10 ${feature.color}`}
-                              whileHover={prefersReducedMotion ? {} : { scale: 1.1, rotate: 5 }}
-                            >
-                              <Icon className="w-8 h-8" />
-                            </motion.div>
-                            <motion.div
-                              animate={prefersReducedMotion ? {} : { x: [0, 5, 0] }}
-                              transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-                            >
-                              <ArrowRight className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </motion.div>
-                          </div>
-                          
-                          <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                            {feature.title}
-                          </h3>
-                          <p className="text-muted-foreground text-sm">
-                            {feature.description}
-                          </p>
 
-                          {/* Dynamic stats based on feature */}
-                          {feature.title === "Goals" && stats.activeGoals > 0 && (
-                            <div className="mt-3 pt-3 border-t border-primary/10">
-                              <p className="text-xs text-primary font-medium">
-                                {stats.activeGoals} active • {Math.round(stats.overallProgress)}% complete
-                              </p>
-                            </div>
-                          )}
-                          {feature.title === "Credit Score" && stats.creditScore && (
-                            <div className="mt-3 pt-3 border-t border-primary/10">
-                              <p className="text-xs text-primary font-medium">
-                                {stats.creditScore} pts {stats.creditChange > 0 && `↑ +${stats.creditChange}`}
-                              </p>
-                            </div>
-                          )}
-                          {feature.title === "Investments" && stats.investmentValue > 0 && (
-                            <div className="mt-3 pt-3 border-t border-primary/10">
-                              <p className="text-xs text-primary font-medium">
-                                ${stats.investmentValue.toFixed(0)} • +{stats.investmentChange}%
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </Card>
-                    </Link>
-                  </LiquidCardMorph>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
+        {/* Tab Navigation Hint */}
+        {!prefersReducedMotion && (
+          <motion.div
+            className="mb-6 flex justify-center"
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.8, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
+          >
+            <motion.div
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent/5 border border-accent/10 text-sm text-muted-foreground"
+              animate={{
+                boxShadow: [
+                  '0 0 0 0 hsl(var(--accent) / 0)',
+                  '0 0 20px 4px hsl(var(--accent) / 0.15)',
+                  '0 0 0 0 hsl(var(--accent) / 0)',
+                ],
+              }}
+              transition={{ duration: 2, repeat: 3, delay: 1 }}
+            >
+              <motion.span
+                className="px-2 py-0.5 rounded bg-accent/15 text-accent font-medium text-xs"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: 3, delay: 1.2 }}
+              >
+                Tab
+              </motion.span>
+              to navigate
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Bento Grid Feature Cards */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {features.map((feature, index) => (
+            <GrowWealthBentoCard
+              key={feature.path}
+              title={feature.title}
+              description={feature.description}
+              icon={feature.icon}
+              path={feature.path}
+              size={feature.size}
+              index={index}
+              badge={feature.badge}
+              showSparkline={feature.showSparkline}
+              stat={
+                feature.title === "Goals" && stats.activeGoals > 0
+                  ? `${stats.activeGoals} active • ${Math.round(stats.overallProgress)}% complete`
+                  : feature.title === "Credit Score" && stats.creditScore
+                  ? `${stats.creditScore} pts${stats.creditChange > 0 ? ` ↑ +${stats.creditChange}` : ''}`
+                  : feature.title === "Investments" && stats.investmentValue > 0
+                  ? `$${stats.investmentValue.toFixed(0)} • +${stats.investmentChange}%`
+                  : undefined
+              }
+            />
+          ))}
+        </motion.div>
       </div>
     </AppLayout>
   );
