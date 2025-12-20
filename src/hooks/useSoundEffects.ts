@@ -117,6 +117,35 @@ export const useSoundEffects = () => {
   }, [preferences]);
 
   /**
+   * Play subtle hover sound for card interactions
+   */
+  const playHoverSound = useCallback(() => {
+    if (!preferences.enabled) return;
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const audioContext = audioContextRef.current;
+    const now = audioContext.currentTime;
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 600;
+    oscillator.type = 'sine';
+
+    // Very subtle - 0.08 volume for a gentle hover feedback
+    gainNode.gain.setValueAtTime(preferences.volume * 0.08, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+
+    oscillator.start(now);
+    oscillator.stop(now + 0.04);
+  }, [preferences]);
+
+  /**
    * Play subtle interaction sound
    */
   const playClickSound = useCallback(() => {
@@ -239,6 +268,7 @@ export const useSoundEffects = () => {
     playCoinSound,
     playAchievementSound,
     playClickSound,
+    playHoverSound,
     playGoalCompleteSound,
     startAmbientMusic,
   };

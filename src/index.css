@@ -45,6 +45,18 @@ All colors MUST be HSL.
     --accent: 38 45% 68%; /* Warmer gold-beige for emphasis */
     --accent-foreground: 0 0% 0%;
 
+    /* Living Horizon Aurora Colors - Light Mode (Warm Gold/Beige) */
+    --aurora-primary: hsla(38, 45%, 68%, 0.45);
+    --aurora-accent: hsla(40, 35%, 85%, 0.50);
+    --aurora-secondary: hsla(42, 30%, 80%, 0.55);
+    --aurora-glow: hsla(38, 45%, 68%, 0.30);
+    --aurora-center: hsla(40, 40%, 75%, 0.35);
+    
+    /* Floating Orb Colors - Light Mode */
+    --aurora-orb-accent: hsla(38, 50%, 70%, 0.25);
+    --aurora-orb-primary: hsla(45, 35%, 75%, 0.20);
+    --aurora-orb-secondary: hsla(40, 30%, 80%, 0.22);
+
     --destructive: 0 72% 51%;
     --destructive-foreground: 40 25% 96%;
 
@@ -327,6 +339,18 @@ All colors MUST be HSL.
 
     --accent: 40 40% 65%; /* Brighter gold for dark mode emphasis */
     --accent-foreground: 0 0% 0%;
+
+    /* Living Horizon Aurora Colors - Dark Mode (Cool Blue/Purple/Cyan) */
+    --aurora-primary: hsla(220, 60%, 50%, 0.35);
+    --aurora-accent: hsla(260, 50%, 55%, 0.40);
+    --aurora-secondary: hsla(190, 70%, 45%, 0.30);
+    --aurora-glow: hsla(220, 60%, 50%, 0.25);
+    --aurora-center: hsla(250, 55%, 60%, 0.28);
+    
+    /* Floating Orb Colors - Dark Mode */
+    --aurora-orb-accent: hsla(260, 55%, 55%, 0.20);
+    --aurora-orb-primary: hsla(220, 60%, 50%, 0.18);
+    --aurora-orb-secondary: hsla(190, 70%, 45%, 0.16);
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 40 25% 96%;
