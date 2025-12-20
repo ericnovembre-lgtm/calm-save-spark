@@ -10,41 +10,41 @@ export const AIInsightsBackground = () => {
       color: 'hsl(var(--primary) / 0.15)', 
       size: 600, 
       position: { top: '-10%', left: '-5%' },
-      duration: 15,
+      duration: 18,
       delay: 0
     },
     { 
-      color: 'hsl(270 80% 60% / 0.12)', 
+      color: 'hsl(var(--accent) / 0.12)', 
       size: 500, 
       position: { top: '40%', right: '-10%' },
-      duration: 18,
+      duration: 22,
       delay: 2
     },
     { 
-      color: 'hsl(200 80% 50% / 0.1)', 
+      color: 'hsl(var(--primary) / 0.08)', 
       size: 450, 
       position: { bottom: '-15%', left: '30%' },
-      duration: 20,
+      duration: 25,
       delay: 4
     },
     { 
-      color: 'hsl(330 70% 50% / 0.08)', 
+      color: 'hsl(var(--muted) / 0.1)', 
       size: 350, 
       position: { top: '20%', left: '50%' },
-      duration: 12,
+      duration: 15,
       delay: 1
     },
   ];
 
-  // Generate floating particles
+  // Generate floating particles - calm, slow drift
   const particles = useMemo(() => 
-    Array.from({ length: 30 }, (_, i) => ({
+    Array.from({ length: 25 }, (_, i) => ({
       id: i,
-      size: Math.random() * 3 + 1,
+      size: Math.random() * 2.5 + 1,
       x: Math.random() * 100,
-      duration: Math.random() * 20 + 25,
-      delay: Math.random() * 10,
-      opacity: Math.random() * 0.4 + 0.2,
+      duration: Math.random() * 20 + 40,
+      delay: Math.random() * 15,
+      opacity: Math.random() * 0.25 + 0.1,
     })),
     []
   );
