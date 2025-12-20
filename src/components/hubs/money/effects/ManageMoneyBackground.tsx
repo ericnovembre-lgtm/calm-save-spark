@@ -93,13 +93,13 @@ export function ManageMoneyBackground() {
       const pulseX = pulseProgress * (width + 200) - 100;
       
       if (pulseProgress > 0 && pulseProgress < 1) {
-        const gradient = ctx.createLinearGradient(pulseX - 50, 0, pulseX + 50, 0);
+        const gradient = ctx.createLinearGradient(pulseX - 80, 0, pulseX + 80, 0);
         gradient.addColorStop(0, 'transparent');
-        gradient.addColorStop(0.5, primaryColor.replace('0.08', '0.15'));
+        gradient.addColorStop(0.5, primaryColor.replace('0.04', '0.08'));
         gradient.addColorStop(1, 'transparent');
         
         ctx.fillStyle = gradient;
-        ctx.fillRect(pulseX - 50, 0, 100, height);
+        ctx.fillRect(pulseX - 80, 0, 160, height);
       }
 
       // Draw subtle vertical grid lines
