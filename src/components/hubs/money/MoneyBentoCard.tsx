@@ -168,14 +168,14 @@ export function MoneyBentoCard({
             "relative overflow-hidden h-full",
             "p-5 md:p-6 lg:p-7",
             "rounded-3xl",
-            // Frosted acrylic texture
-            "backdrop-blur-2xl bg-card/30",
+            // Frosted acrylic texture - enhanced depth
+            "backdrop-blur-3xl bg-card/40",
             // Highly reflective border
-            "border border-white/20",
-            // Inner glow
-            "shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)]",
+            "border border-white/25",
+            // Enhanced inner glow for glass depth
+            "shadow-[inset_0_1px_2px_0_rgba(255,255,255,0.15),inset_0_-1px_2px_0_rgba(0,0,0,0.05)]",
             // Outer shadow on hover
-            "hover:shadow-xl hover:shadow-primary/10",
+            "hover:shadow-xl hover:shadow-primary/15",
             // Smooth transitions
             "transition-all duration-300",
             // Active state

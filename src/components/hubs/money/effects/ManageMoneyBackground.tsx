@@ -12,17 +12,17 @@ export function ManageMoneyBackground() {
   const animationRef = useRef<number>(0);
   const prefersReducedMotion = useReducedMotion();
 
-  // Get CSS variable color
+  // Get CSS variable color - reduced opacity for subtlety
   const primaryColor = useMemo(() => {
-    if (typeof window === 'undefined') return 'rgba(100, 100, 100, 0.1)';
+    if (typeof window === 'undefined') return 'rgba(100, 100, 100, 0.04)';
     const root = document.documentElement;
     const computedStyle = getComputedStyle(root);
     const primaryHsl = computedStyle.getPropertyValue('--primary').trim();
     if (primaryHsl) {
       // Parse HSL and return with low opacity
-      return `hsl(${primaryHsl} / 0.08)`;
+      return `hsl(${primaryHsl} / 0.04)`;
     }
-    return 'rgba(100, 100, 100, 0.1)';
+    return 'rgba(100, 100, 100, 0.04)';
   }, []);
 
   useEffect(() => {
@@ -104,7 +104,7 @@ export function ManageMoneyBackground() {
 
       // Draw subtle vertical grid lines
       const verticalLineCount = Math.ceil(width / 80);
-      ctx.strokeStyle = primaryColor.replace('0.08', '0.03');
+      ctx.strokeStyle = primaryColor.replace('0.04', '0.02');
       ctx.lineWidth = 0.5;
 
       for (let i = 0; i <= verticalLineCount; i++) {
@@ -173,7 +173,7 @@ function drawStaticGrid(
 
   // Vertical lines
   const verticalLineCount = Math.ceil(width / 80);
-  ctx.strokeStyle = color.replace('0.08', '0.03');
+  ctx.strokeStyle = color.replace('0.04', '0.02');
   ctx.lineWidth = 0.5;
 
   for (let i = 0; i <= verticalLineCount; i++) {
