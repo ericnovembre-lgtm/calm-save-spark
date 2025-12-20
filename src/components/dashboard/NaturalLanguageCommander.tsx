@@ -277,6 +277,22 @@ export function NaturalLanguageCommander({ onQuery, isProcessing }: NaturalLangu
                 }}
               />
             )}
+            {/* Attention pulse ring */}
+            {!prefersReducedMotion && (
+              <motion.div
+                className="absolute -inset-1 rounded-full border-2 border-primary/20 pointer-events-none"
+                animate={{ 
+                  scale: [1, 1.15, 1],
+                  opacity: [0.5, 0, 0.5],
+                }}
+                transition={{ 
+                  duration: 3, 
+                  repeat: Infinity, 
+                  repeatDelay: 2,
+                  ease: 'easeInOut',
+                }}
+              />
+            )}
             {/* Subtle breathing effect */}
             {!prefersReducedMotion && (
               <motion.div

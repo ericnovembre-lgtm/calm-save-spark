@@ -68,10 +68,25 @@ export function DashboardContent({
     <main 
       id="main-content" 
       className={cn(
-        "container mx-auto px-4 py-6 transition-all duration-300",
+        "relative container mx-auto px-4 py-6 transition-all duration-300",
         isChatOpen && !isMobile && "mr-96"
       )}
     >
+      {/* Top fade mask for scroll effect */}
+      <div 
+        className="pointer-events-none fixed top-[73px] left-0 right-0 h-8 z-10"
+        style={{
+          background: 'linear-gradient(to bottom, hsl(var(--background)) 0%, transparent 100%)',
+        }}
+      />
+      
+      {/* Bottom fade mask for scroll effect */}
+      <div 
+        className="pointer-events-none fixed bottom-0 left-0 right-0 h-12 z-10"
+        style={{
+          background: 'linear-gradient(to top, hsl(var(--background)) 0%, transparent 100%)',
+        }}
+      />
       {/* Error State */}
       {generationError && (
         <Alert variant="destructive" className="mb-6">

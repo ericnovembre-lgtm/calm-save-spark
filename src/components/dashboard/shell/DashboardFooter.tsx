@@ -12,7 +12,35 @@ export function DashboardFooter({ generatedAt, processingTimeMs }: DashboardFoot
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <footer className="border-t border-border/20 py-4 mt-10">
+    <footer className="relative py-4 mt-10">
+      {/* Gradient horizon line - matches DashboardBackground aesthetic */}
+      <motion.div 
+        className="absolute top-0 left-0 right-0 h-px overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
+      >
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, hsla(var(--border), 0.4) 25%, hsla(var(--primary), 0.3) 50%, hsla(var(--border), 0.4) 75%, transparent 100%)',
+          }}
+        />
+        {/* Breathing glow effect */}
+        {!prefersReducedMotion && (
+          <motion.div 
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(90deg, transparent 30%, hsla(var(--primary), 0.5) 50%, transparent 70%)',
+            }}
+            animate={{
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        )}
+      </motion.div>
+
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center gap-6 text-[11px] text-muted-foreground/60">
           {/* Sparkle with subtle animation */}
