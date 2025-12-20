@@ -48,15 +48,15 @@ export const LifestyleBackground = () => {
     },
   ];
 
-  // Generate floating particles - calm, slow upward drift
+  // Generate floating particles - enhanced with more opacity and glow
   const particles = useMemo(() => 
-    Array.from({ length: 20 }, (_, i) => ({
+    Array.from({ length: 25 }, (_, i) => ({
       id: i,
-      size: Math.random() * 2.5 + 1.5,
+      size: Math.random() * 3 + 2,  // Increased: 2-5px
       x: Math.random() * 100,
-      duration: Math.random() * 25 + 45,  // Slower than AI hub
+      duration: Math.random() * 25 + 45,
       delay: Math.random() * 20,
-      opacity: Math.random() * 0.2 + 0.08,
+      opacity: Math.random() * 0.3 + 0.15,  // Increased: 0.15-0.45
     })),
     []
   );
@@ -105,7 +105,7 @@ export const LifestyleBackground = () => {
             left: `${particle.x}%`,
             bottom: '-5%',
             background: `radial-gradient(circle, hsl(var(--accent) / ${particle.opacity}), hsl(var(--primary) / ${particle.opacity * 0.5}))`,
-            boxShadow: `0 0 ${particle.size * 3}px hsl(var(--accent) / ${particle.opacity * 0.4})`,
+            boxShadow: `0 0 ${particle.size * 5}px hsl(var(--accent) / ${particle.opacity * 0.6})`,  // Enhanced glow
           }}
           animate={{
             y: [0, -window.innerHeight * 1.3],
