@@ -24,15 +24,43 @@ export const LifestyleGradientHeader = () => {
         }}
       />
       
-      {/* Icon */}
+      {/* Icon with heartbeat animation */}
       <motion.div 
         className="flex justify-center mb-4"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent/20 to-primary/10 border border-accent/20 flex items-center justify-center">
-          <Heart className="w-7 h-7 text-foreground" strokeWidth={1.8} />
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent/20 to-primary/10 border border-accent/20 flex items-center justify-center relative">
+          {/* Pulsing glow behind icon */}
+          <motion.div
+            className="absolute inset-0 rounded-2xl"
+            style={{
+              background: 'radial-gradient(circle, hsl(var(--accent) / 0.3), transparent 70%)',
+            }}
+            animate={prefersReducedMotion ? {} : {
+              opacity: [0.2, 0.4, 0.2, 0.35, 0.2],
+              scale: [1, 1.1, 1, 1.05, 1],
+            }}
+            transition={{
+              duration: 1.8,
+              repeat: Infinity,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          />
+          {/* Heart icon with heartbeat scale */}
+          <motion.div
+            animate={prefersReducedMotion ? {} : {
+              scale: [1, 1.15, 1, 1.1, 1],
+            }}
+            transition={{
+              duration: 1.8,
+              repeat: Infinity,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <Heart className="w-7 h-7 text-foreground relative z-10" strokeWidth={1.8} />
+          </motion.div>
         </div>
       </motion.div>
 
