@@ -184,20 +184,21 @@ export function MoneyBentoCard({
         >
           {/* Gradient overlay on hover */}
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"
+            className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/8"
             initial={{ opacity: 0 }}
             animate={{ opacity: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           />
 
           {/* Edge glow effect */}
           <motion.div
             className="absolute inset-0 rounded-3xl"
             style={{
-              boxShadow: 'inset 0 0 40px rgba(255,255,255,0.05)',
+              boxShadow: 'inset 0 0 60px rgba(255,255,255,0.08)',
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.4 }}
           />
 
           {/* Background effect based on card type */}
@@ -207,23 +208,23 @@ export function MoneyBentoCard({
           <div className="relative z-10">
             {/* Animated Icon */}
             <motion.div
-              className="mb-4 md:mb-5"
-              whileHover={{ scale: 1.05, y: -2 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              className="mb-4 md:mb-5 will-change-transform"
+              whileHover={{ scale: 1.08, y: -3 }}
+              transition={{ type: "spring", stiffness: 300, damping: 12 }}
             >
               {IconComponent && (
                 <IconComponent 
-                  size={48} 
-                  className="drop-shadow-[0_4px_12px_hsl(var(--primary)/0.2)]"
+                  size={44} 
+                  className="drop-shadow-[0_6px_16px_hsl(var(--primary)/0.25)] transition-all duration-300 group-hover:drop-shadow-[0_8px_24px_hsl(var(--primary)/0.35)]"
                 />
               )}
             </motion.div>
 
             {/* Title */}
             <h3 className={cn(
-              "font-semibold mb-2",
-              "text-base md:text-lg lg:text-xl",
-              "group-hover:text-primary transition-colors duration-300"
+              "font-semibold mb-1.5",
+              "text-base md:text-lg",
+              "text-foreground group-hover:text-primary transition-colors duration-300"
             )}>
               {title}
             </h3>
