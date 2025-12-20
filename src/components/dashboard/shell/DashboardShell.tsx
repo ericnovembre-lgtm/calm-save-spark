@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { AuroraMeshBackground } from '@/components/dashboard/AuroraMeshBackground';
+import { DashboardBackground } from '@/components/dashboard/effects/DashboardBackground';
 import { SkipLinks } from '@/components/accessibility/SkipLinks';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardFooter } from './DashboardFooter';
@@ -37,8 +37,8 @@ export function DashboardShell({
 }: DashboardShellProps) {
   return (
     <div className="min-h-screen relative">
-      {/* Aurora Background with net worth sentiment */}
-      <AuroraMeshBackground netWorthChangePercent={netWorthChangePercent} />
+      {/* Living Horizon Background */}
+      <DashboardBackground />
       
       {/* Skip Links for Accessibility */}
       <SkipLinks />
