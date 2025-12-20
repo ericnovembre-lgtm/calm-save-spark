@@ -1,9 +1,16 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useMemo } from 'react';
 
 export const AIInsightsBackground = () => {
   const prefersReducedMotion = useReducedMotion();
+  const { scrollY } = useScroll();
+  
+  // Parallax transforms for orbs
+  const orbY1 = useTransform(scrollY, [0, 500], [0, -30]);
+  const orbY2 = useTransform(scrollY, [0, 500], [0, -50]);
+  const orbY3 = useTransform(scrollY, [0, 500], [0, -20]);
+  const orbY4 = useTransform(scrollY, [0, 500], [0, -40]);
 
   const orbs = [
     { 
@@ -11,28 +18,32 @@ export const AIInsightsBackground = () => {
       size: 600, 
       position: { top: '-10%', left: '-5%' },
       duration: 18,
-      delay: 0
+      delay: 0,
+      parallaxY: orbY1,
     },
     { 
       color: 'hsl(var(--accent) / 0.12)', 
       size: 500, 
       position: { top: '40%', right: '-10%' },
       duration: 22,
-      delay: 2
+      delay: 2,
+      parallaxY: orbY2,
     },
     { 
       color: 'hsl(var(--primary) / 0.08)', 
       size: 450, 
       position: { bottom: '-15%', left: '30%' },
       duration: 25,
-      delay: 4
+      delay: 4,
+      parallaxY: orbY3,
     },
     { 
       color: 'hsl(var(--muted) / 0.1)', 
       size: 350, 
       position: { top: '20%', left: '50%' },
       duration: 15,
-      delay: 1
+      delay: 1,
+      parallaxY: orbY4,
     },
   ];
 
@@ -54,7 +65,7 @@ export const AIInsightsBackground = () => {
       {/* Dark base layer */}
       <div className="absolute inset-0 bg-background" />
       
-      {/* Animated gradient orbs */}
+      {/* Animated gradient orbs with parallax */}
       {orbs.map((orb, index) => (
         <motion.div
           key={index}
@@ -65,10 +76,10 @@ export const AIInsightsBackground = () => {
             background: `radial-gradient(circle, ${orb.color}, transparent 70%)`,
             ...orb.position,
             filter: 'blur(60px)',
+            y: prefersReducedMotion ? 0 : orb.parallaxY,
           }}
           animate={prefersReducedMotion ? {} : {
             x: [0, 50, -30, 0],
-            y: [0, -40, 60, 0],
             scale: [1, 1.1, 0.95, 1],
           }}
           transition={{

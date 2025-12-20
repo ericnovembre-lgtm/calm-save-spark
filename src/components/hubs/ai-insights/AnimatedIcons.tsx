@@ -12,7 +12,7 @@ const iconContainerClass = (size: 'sm' | 'lg') =>
 const iconClass = (size: 'sm' | 'lg') => 
   size === 'lg' ? 'w-10 h-10' : 'w-7 h-7';
 
-// AI Coach - Bobbing robot with pulse ring
+// AI Coach - Bobbing robot with pulse ring (Primary - strongest emphasis)
 export const AnimatedBotIcon = ({ size = 'sm' }: AnimatedIconProps) => {
   const prefersReducedMotion = useReducedMotion();
   
@@ -20,71 +20,71 @@ export const AnimatedBotIcon = ({ size = 'sm' }: AnimatedIconProps) => {
     <div className={iconContainerClass(size)}>
       {/* Pulse ring */}
       <motion.div
-        className="absolute inset-0 rounded-2xl bg-blue-500/20"
+        className="absolute inset-0 rounded-2xl bg-primary/20"
         animate={prefersReducedMotion ? {} : {
           scale: [1, 1.2, 1],
           opacity: [0.5, 0, 0.5],
         }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
       />
       
       {/* Icon container */}
       <motion.div
-        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-400/20"
+        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 group-hover:scale-110 transition-transform duration-300"
         animate={prefersReducedMotion ? {} : { y: [0, -3, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <Bot className={`${iconClass(size)} text-blue-400`} />
+        <Bot className={`${iconClass(size)} text-foreground`} />
       </motion.div>
     </div>
   );
 };
 
-// AI Agents - Pulsing brain with glow
+// AI Agents - Pulsing brain with glow (Accent - warm emphasis)
 export const AnimatedBrainIcon = ({ size = 'sm' }: AnimatedIconProps) => {
   const prefersReducedMotion = useReducedMotion();
   
   return (
     <div className={iconContainerClass(size)}>
       <motion.div
-        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-400/20"
+        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-accent/25 to-accent/10 border border-accent/25 group-hover:scale-110 transition-transform duration-300"
         animate={prefersReducedMotion ? {} : { 
           scale: [1, 1.05, 1],
           boxShadow: [
-            '0 0 20px hsl(270 80% 60% / 0)',
-            '0 0 30px hsl(270 80% 60% / 0.3)',
-            '0 0 20px hsl(270 80% 60% / 0)',
+            '0 0 20px hsl(var(--accent) / 0)',
+            '0 0 30px hsl(var(--accent) / 0.3)',
+            '0 0 20px hsl(var(--accent) / 0)',
           ]
         }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <Brain className={`${iconClass(size)} text-purple-400`} />
+        <Brain className={`${iconClass(size)} text-foreground`} />
       </motion.div>
     </div>
   );
 };
 
-// Social Sentiment - Line drawing animation
+// Social Sentiment - Line drawing animation (Muted - subtle)
 export const AnimatedActivityIcon = ({ size = 'sm' }: AnimatedIconProps) => {
   const prefersReducedMotion = useReducedMotion();
   
   return (
     <div className={iconContainerClass(size)}>
-      <div className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-400/20">
+      <div className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-muted/40 to-muted/20 border border-muted-foreground/15 group-hover:scale-110 transition-transform duration-300">
         <motion.div
           animate={prefersReducedMotion ? {} : { 
             opacity: [0.6, 1, 0.6],
           }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <Activity className={`${iconClass(size)} text-orange-400`} />
+          <Activity className={`${iconClass(size)} text-muted-foreground`} />
         </motion.div>
       </div>
     </div>
   );
 };
 
-// Digital Twin - Rotating sparkles
+// Digital Twin - Rotating sparkles (Primary - medium emphasis)
 export const AnimatedSparklesIcon = ({ size = 'sm' }: AnimatedIconProps) => {
   const prefersReducedMotion = useReducedMotion();
   
@@ -92,11 +92,11 @@ export const AnimatedSparklesIcon = ({ size = 'sm' }: AnimatedIconProps) => {
     <div className={iconContainerClass(size)}>
       {/* Orbiting particle */}
       <motion.div
-        className="absolute w-1.5 h-1.5 rounded-full bg-pink-400"
+        className="absolute w-1.5 h-1.5 rounded-full bg-accent/60"
         animate={prefersReducedMotion ? {} : {
           rotate: 360,
         }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
         style={{ 
           transformOrigin: '24px 24px',
           x: -16,
@@ -105,72 +105,72 @@ export const AnimatedSparklesIcon = ({ size = 'sm' }: AnimatedIconProps) => {
       />
       
       <motion.div
-        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-pink-500/20 to-pink-600/10 border border-pink-400/20"
+        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/15 group-hover:scale-110 transition-transform duration-300"
         animate={prefersReducedMotion ? {} : { rotate: [0, 5, -5, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <Sparkles className={`${iconClass(size)} text-pink-400`} />
+        <Sparkles className={`${iconClass(size)} text-foreground`} />
       </motion.div>
     </div>
   );
 };
 
-// Analytics - Flickering lightbulb
+// Analytics - Flickering lightbulb (Accent - warm glow)
 export const AnimatedLightbulbIcon = ({ size = 'sm' }: AnimatedIconProps) => {
   const prefersReducedMotion = useReducedMotion();
   
   return (
     <div className={iconContainerClass(size)}>
       <motion.div
-        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border border-yellow-400/20"
+        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-accent/25 to-accent/10 border border-accent/20 group-hover:scale-110 transition-transform duration-300"
         animate={prefersReducedMotion ? {} : {
           boxShadow: [
-            '0 0 15px hsl(45 100% 50% / 0.2)',
-            '0 0 25px hsl(45 100% 50% / 0.4)',
-            '0 0 15px hsl(45 100% 50% / 0.2)',
+            '0 0 15px hsl(var(--accent) / 0.2)',
+            '0 0 25px hsl(var(--accent) / 0.4)',
+            '0 0 15px hsl(var(--accent) / 0.2)',
           ]
         }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <Lightbulb className={`${iconClass(size)} text-yellow-400`} />
+        <Lightbulb className={`${iconClass(size)} text-foreground`} />
       </motion.div>
     </div>
   );
 };
 
-// Guardian - Shimmering shield
+// Guardian - Shimmering shield (Primary - protective emphasis)
 export const AnimatedShieldIcon = ({ size = 'sm' }: AnimatedIconProps) => {
   const prefersReducedMotion = useReducedMotion();
   
   return (
     <div className={iconContainerClass(size)}>
       <motion.div
-        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-400/20 overflow-hidden"
+        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/8 border border-primary/15 overflow-hidden group-hover:scale-110 transition-transform duration-300"
       >
         {/* Shimmer effect */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/10 to-transparent"
           animate={prefersReducedMotion ? {} : { x: ['-100%', '100%'] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.5 }}
         />
-        <Shield className={`relative z-10 ${iconClass(size)} text-red-400`} />
+        <Shield className={`relative z-10 ${iconClass(size)} text-foreground`} />
       </motion.div>
     </div>
   );
 };
 
-// Archive - Floating documents
+// Archive - Floating documents (Muted - subtle float)
 export const AnimatedArchiveIcon = ({ size = 'sm' }: AnimatedIconProps) => {
   const prefersReducedMotion = useReducedMotion();
   
   return (
     <div className={iconContainerClass(size)}>
       <motion.div
-        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border border-emerald-400/20"
+        className="relative z-10 p-2.5 rounded-2xl bg-gradient-to-br from-muted/35 to-muted/15 border border-muted-foreground/15 group-hover:scale-110 transition-transform duration-300"
         animate={prefersReducedMotion ? {} : { y: [0, -2, 0] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <Archive className={`${iconClass(size)} text-emerald-400`} />
+        <Archive className={`${iconClass(size)} text-muted-foreground`} />
       </motion.div>
     </div>
   );
