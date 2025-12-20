@@ -1,136 +1,173 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card } from "@/components/ui/card";
-import { UsersRound, GraduationCap, BookOpen, Leaf, Heart, Briefcase, MapPin, Gift, HeartHandshake, BookMarked } from "lucide-react";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { LifestyleBackground } from "@/components/hubs/lifestyle/LifestyleBackground";
+import { LifestyleBentoCard } from "@/components/hubs/lifestyle/LifestyleBentoCard";
+import { LifestyleGradientHeader } from "@/components/hubs/lifestyle/LifestyleGradientHeader";
+import {
+  FamilyIcon,
+  StudentIcon,
+  BusinessIcon,
+  LiteracyIcon,
+  SustainabilityIcon,
+  HealthIcon,
+  DigitalTwinIcon,
+  WishlistIcon,
+  CouplesIcon,
+  DiaryIcon,
+  MilestonesIcon,
+  MindsetIcon,
+  CommunityIcon,
+} from "@/components/hubs/lifestyle/LifestyleAnimatedIcons";
 
+// Features with strategic sizing for bento layout
 const features = [
   {
-    icon: UsersRound,
+    icon: <HealthIcon size="lg" />,
+    title: "Financial Health",
+    description: "Overall financial wellness score and personalized insights",
+    path: "/financial-health",
+    size: "lg" as const,
+  },
+  {
+    icon: <FamilyIcon />,
     title: "Family",
     description: "Family savings and allowances",
     path: "/family",
-    color: "text-blue-500"
+    size: "sm" as const,
   },
   {
-    icon: GraduationCap,
+    icon: <StudentIcon />,
     title: "Student",
     description: "Student budgeting and loans",
     path: "/student",
-    color: "text-purple-500"
+    size: "sm" as const,
   },
   {
-    icon: Briefcase,
+    icon: <CouplesIcon size="lg" />,
+    title: "Couples",
+    description: "Manage finances together with your partner seamlessly",
+    path: "/couples",
+    size: "lg" as const,
+  },
+  {
+    icon: <BusinessIcon />,
     title: "Business OS",
     description: "Freelancer financial management",
     path: "/business-os",
-    color: "text-indigo-500"
+    size: "sm" as const,
   },
   {
-    icon: BookOpen,
+    icon: <LiteracyIcon />,
     title: "Financial Literacy",
     description: "Learn about personal finance",
     path: "/literacy",
-    color: "text-orange-500"
+    size: "sm" as const,
   },
   {
-    icon: Leaf,
+    icon: <SustainabilityIcon />,
     title: "Sustainability",
     description: "Track carbon footprint",
     path: "/sustainability",
-    color: "text-green-600"
+    size: "sm" as const,
   },
   {
-    icon: Heart,
-    title: "Financial Health",
-    description: "Overall financial wellness score",
-    path: "/financial-health",
-    color: "text-red-500"
-  },
-  {
-    icon: MapPin,
+    icon: <DigitalTwinIcon />,
     title: "Digital Twin",
     description: "Plan and simulate major life events",
     path: "/digital-twin",
-    color: "text-pink-500"
+    size: "sm" as const,
   },
   {
-    icon: Gift,
+    icon: <WishlistIcon />,
     title: "Wishlist Tracker",
     description: "Save for items you want",
     path: "/wishlist",
-    color: "text-amber-500"
+    size: "sm" as const,
   },
   {
-    icon: HeartHandshake,
-    title: "Couples",
-    description: "Manage finances together with your partner",
-    path: "/couples",
-    color: "text-pink-500"
-  },
-  {
-    icon: BookMarked,
+    icon: <DiaryIcon />,
     title: "Financial Diary",
     description: "Journal your financial thoughts and moods",
     path: "/financial-diary",
-    color: "text-cyan-500"
+    size: "sm" as const,
   },
-  // Phase 5: New lifestyle features
   {
-    icon: MapPin,
+    icon: <MilestonesIcon />,
     title: "Milestones Timeline",
     description: "View your financial journey achievements",
     path: "/milestones-timeline",
-    color: "text-amber-500"
+    size: "sm" as const,
   },
   {
-    icon: Heart,
+    icon: <MindsetIcon />,
     title: "Money Mindset",
     description: "Track your relationship with money",
     path: "/money-mindset",
-    color: "text-rose-500"
+    size: "sm" as const,
   },
   {
-    icon: UsersRound,
+    icon: <CommunityIcon />,
     title: "Community Forum",
     description: "Connect with others on their financial journey",
     path: "/community-forum",
-    color: "text-violet-500"
+    size: "wide" as const,
   },
 ];
+
+// Container variants for staggered entrance
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.2,
+    },
+  },
+};
 
 export default function LifestyleHub() {
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-            <Heart className="w-10 h-10 text-primary" />
-            Lifestyle
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Financial tools tailored to your life stage and goals
-          </p>
-        </div>
+      {/* Atmospheric background */}
+      <LifestyleBackground />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
+        {/* Gradient header */}
+        <LifestyleGradientHeader />
+
+        {/* Bento grid with staggered entrance */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {features.map((feature, index) => (
-            <motion.div
+            <LifestyleBentoCard
               key={feature.path}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Link to={feature.path}>
-                <Card className="p-6 hover:shadow-lg transition-all hover:scale-105 cursor-pointer h-full border-2 hover:border-primary">
-                  <feature.icon className={`w-12 h-12 mb-4 ${feature.color}`} />
-                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </Card>
-              </Link>
-            </motion.div>
+              title={feature.title}
+              description={feature.description}
+              icon={feature.icon}
+              path={feature.path}
+              size={feature.size}
+              index={index}
+            />
           ))}
-        </div>
+        </motion.div>
+
+        {/* Keyboard navigation hint */}
+        <motion.div
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5, duration: 0.5 }}
+        >
+          <div className="px-4 py-2 rounded-full bg-card/60 backdrop-blur-lg border border-white/10 text-muted-foreground text-xs flex items-center gap-2">
+            <kbd className="px-1.5 py-0.5 rounded bg-muted/50 font-mono text-[10px]">Tab</kbd>
+            <span>to navigate</span>
+          </div>
+        </motion.div>
       </div>
     </AppLayout>
   );
