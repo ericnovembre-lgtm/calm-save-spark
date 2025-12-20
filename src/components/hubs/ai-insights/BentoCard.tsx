@@ -114,10 +114,10 @@ export const BentoCard = ({
       animate="visible"
       style={{ perspective: 1000 }}
     >
-      <Link to={path} className="block h-full" onClick={handleClick}>
+      <Link to={path} className="block h-full focus:outline-none" onClick={handleClick}>
         <motion.div
           ref={cardRef}
-          className="relative h-full p-6 rounded-3xl overflow-hidden cursor-pointer"
+          className="relative h-full p-6 rounded-3xl overflow-hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           style={{
             background: 'hsl(var(--card) / 0.4)',
             backdropFilter: 'blur(24px)',
