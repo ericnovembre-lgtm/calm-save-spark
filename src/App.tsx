@@ -134,9 +134,10 @@ const WidgetBuilder = createPageLoader(() => import("./pages/WidgetBuilder"), 'm
 
 // Hub pages (Medium complexity)
 const ManageMoneyHub = createPageLoader(() => import("./pages/hubs/ManageMoneyHub"), 'medium');
-const GrowWealthHub = createPageLoader(() => import("./pages/hubs/GrowWealthHub"), 'medium');
 import { LifestyleHubSkeleton } from "@/components/hubs/lifestyle/LifestyleHubSkeleton";
 import { AIInsightsHubSkeleton } from "@/components/hubs/ai-insights/AIInsightsHubSkeleton";
+import { GrowWealthHubSkeleton } from "@/components/hubs/wealth/GrowWealthHubSkeleton";
+const GrowWealthHub = createPageLoader(() => import("./pages/hubs/GrowWealthHub"), 'medium', GrowWealthHubSkeleton);
 const AIInsightsHub = createPageLoader(() => import("./pages/hubs/AIInsightsHub"), 'medium', AIInsightsHubSkeleton);
 const LifestyleHub = createPageLoader(() => import("./pages/hubs/LifestyleHub"), 'medium', LifestyleHubSkeleton);
 const PremiumHub = createPageLoader(() => import("./pages/hubs/PremiumHub"), 'medium');
