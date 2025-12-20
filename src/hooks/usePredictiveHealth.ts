@@ -31,12 +31,16 @@ export function usePredictiveHealth() {
         throw new Error('No active session');
       }
 
-      const { data, error } = await supabase.functions.invoke('predict-health-score');
+      const { data, error } = await supabase.functions.invoke('predict-health-score', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
       if (error) throw error;
       return data as HealthPrediction;
     },
-    enabled: !!user && !!session, // Only run when user is authenticated
+    enabled: !!user && !!session?.access_token, // Only run when user is authenticated
     staleTime: 1000 * 60 * 30, // 30 minutes
     retry: 1, // Only retry once on failure
   });
