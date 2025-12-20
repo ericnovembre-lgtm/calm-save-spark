@@ -137,10 +137,11 @@ const ManageMoneyHub = createPageLoader(() => import("./pages/hubs/ManageMoneyHu
 import { LifestyleHubSkeleton } from "@/components/hubs/lifestyle/LifestyleHubSkeleton";
 import { AIInsightsHubSkeleton } from "@/components/hubs/ai-insights/AIInsightsHubSkeleton";
 import { GrowWealthHubSkeleton } from "@/components/hubs/wealth/GrowWealthHubSkeleton";
+import { PremiumHubSkeleton } from "@/components/hubs/premium/PremiumHubSkeleton";
 const GrowWealthHub = createPageLoader(() => import("./pages/hubs/GrowWealthHub"), 'medium', GrowWealthHubSkeleton);
 const AIInsightsHub = createPageLoader(() => import("./pages/hubs/AIInsightsHub"), 'medium', AIInsightsHubSkeleton);
 const LifestyleHub = createPageLoader(() => import("./pages/hubs/LifestyleHub"), 'medium', LifestyleHubSkeleton);
-const PremiumHub = createPageLoader(() => import("./pages/hubs/PremiumHub"), 'medium');
+const PremiumHub = createPageLoader(() => import("./pages/hubs/PremiumHub"), 'medium', PremiumHubSkeleton);
 const FeaturesHub = createPageLoader(() => import("./pages/FeaturesHub"), 'medium');
 // AgentHub.tsx merged into AIAgents.tsx
 const RefinancingHub = createPageLoader(() => import("./pages/RefinancingHub"), 'medium');

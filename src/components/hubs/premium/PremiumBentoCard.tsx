@@ -1,6 +1,6 @@
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { ReactNode, MouseEvent, useRef, useState, useEffect, useCallback } from 'react';
+import { ReactNode, MouseEvent, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { soundEffects } from '@/lib/sound-effects';
 
@@ -14,7 +14,7 @@ interface Particle {
   delay: number;
 }
 
-interface GrowWealthBentoCardProps {
+interface PremiumBentoCardProps {
   title: string;
   description: string;
   icon: ReactNode;
@@ -22,23 +22,20 @@ interface GrowWealthBentoCardProps {
   size?: 'sm' | 'md' | 'lg' | 'wide';
   index: number;
   badge?: string;
-  stat?: string;
-  showSparkline?: boolean;
+  isPremium?: boolean;
 }
 
 /**
- * GrowWealthBentoCard - "Crystal" Glass Card
+ * PremiumBentoCard - "Velvet Glass" Card
  * 
- * Premium features:
- * - More opaque background (0.5 vs 0.4)
- * - Increased border opacity (white/15)
- * - Sharper backdrop blur (28px)
- * - Faster shine animation (1.5s)
- * - Warm accent spotlight
- * - Optional background sparkline
+ * Premium characteristics:
+ * - Slightly translucent background (0.45)
+ * - Primary color border (not accent)
+ * - Gradient border shimmer on hover
+ * - Diamond star-burst glow on icons
  * - Particle burst on hover
  */
-export const GrowWealthBentoCard = ({ 
+export const PremiumBentoCard = ({ 
   title, 
   description, 
   icon, 
@@ -46,13 +43,11 @@ export const GrowWealthBentoCard = ({
   size = 'sm',
   index,
   badge,
-  stat,
-  showSparkline = false,
-}: GrowWealthBentoCardProps) => {
+  isPremium = false,
+}: PremiumBentoCardProps) => {
   const prefersReducedMotion = useReducedMotion();
   const cardRef = useRef<HTMLDivElement>(null);
   const [hasPlayedHover, setHasPlayedHover] = useState(false);
-  const [sparklineDrawn, setSparklineDrawn] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [isHovered, setIsHovered] = useState(false);
   
@@ -64,23 +59,34 @@ export const GrowWealthBentoCard = ({
   const normalizedX = useMotionValue(0);
   const normalizedY = useMotionValue(0);
   
-  // Spring-based rotations for smooth 3D tilt (±5°)
+  // Spring-based rotations for smooth 3D tilt (±4°)
   const rotateX = useSpring(
-    useTransform(normalizedY, [-0.5, 0.5], [5, -5]),
+    useTransform(normalizedY, [-0.5, 0.5], [4, -4]),
     { stiffness: 200, damping: 25 }
   );
   const rotateY = useSpring(
-    useTransform(normalizedX, [-0.5, 0.5], [-5, 5]),
+    useTransform(normalizedX, [-0.5, 0.5], [-4, 4]),
     { stiffness: 200, damping: 25 }
   );
 
-  // Trigger sparkline draw on mount
-  useEffect(() => {
-    if (showSparkline) {
-      const timer = setTimeout(() => setSparklineDrawn(true), 300 + index * 100);
-      return () => clearTimeout(timer);
-    }
-  }, [showSparkline, index]);
+  // Generate particle burst
+  const spawnParticles = useCallback((centerX: number, centerY: number) => {
+    if (prefersReducedMotion) return;
+    
+    const particleCount = 8;
+    const newParticles: Particle[] = Array.from({ length: particleCount }, (_, i) => ({
+      id: Date.now() + i,
+      x: centerX,
+      y: centerY,
+      angle: (360 / particleCount) * i + (Math.random() * 30 - 15),
+      distance: 50 + Math.random() * 40,
+      size: 3 + Math.random() * 3,
+      delay: Math.random() * 0.1,
+    }));
+    
+    setParticles(newParticles);
+    setTimeout(() => setParticles([]), 700);
+  }, [prefersReducedMotion]);
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -95,25 +101,6 @@ export const GrowWealthBentoCard = ({
       normalizedY.set(y);
     }
   };
-
-  // Generate particle burst
-  const spawnParticles = useCallback((centerX: number, centerY: number) => {
-    if (prefersReducedMotion) return;
-    
-    const particleCount = 10;
-    const newParticles: Particle[] = Array.from({ length: particleCount }, (_, i) => ({
-      id: Date.now() + i,
-      x: centerX,
-      y: centerY,
-      angle: (360 / particleCount) * i + (Math.random() * 20 - 10),
-      distance: 40 + Math.random() * 50,
-      size: 4 + Math.random() * 4,
-      delay: Math.random() * 0.08,
-    }));
-    
-    setParticles(newParticles);
-    setTimeout(() => setParticles([]), 800);
-  }, [prefersReducedMotion]);
 
   const handleMouseEnter = (e: MouseEvent<HTMLDivElement>) => {
     setIsHovered(true);
@@ -141,8 +128,8 @@ export const GrowWealthBentoCard = ({
     soundEffects.click();
   };
 
-  // Warm accent spotlight (wealth tone)
-  const spotlight = useMotionTemplate`radial-gradient(400px circle at ${mouseX}px ${mouseY}px, hsl(var(--accent) / 0.15), transparent 80%)`;
+  // Primary color spotlight (premium tone)
+  const spotlight = useMotionTemplate`radial-gradient(350px circle at ${mouseX}px ${mouseY}px, hsl(var(--primary) / 0.12), transparent 80%)`;
 
   const sizeClasses = {
     sm: '',
@@ -171,9 +158,6 @@ export const GrowWealthBentoCard = ({
     }
   };
 
-  // Generate sparkline path data (upward trend)
-  const sparklinePath = "M0,45 Q20,40 40,35 T80,28 Q100,25 120,22 T160,15 Q180,12 200,10";
-
   return (
     <motion.div
       className={`relative group ${sizeClasses[size]}`}
@@ -185,14 +169,18 @@ export const GrowWealthBentoCard = ({
       <Link to={path} className="block h-full focus:outline-none" onClick={handleClick}>
         <motion.div
           ref={cardRef}
-          className="relative h-full p-6 rounded-3xl overflow-hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:scale-[1.02] transition-transform"
+          className="relative h-full p-6 rounded-3xl overflow-hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:scale-[1.02] transition-transform"
           style={{
-            background: 'hsl(var(--card) / 0.5)',  // More opaque (0.5 vs 0.4)
-            backdropFilter: 'blur(28px)',  // Sharper blur
-            WebkitBackdropFilter: 'blur(28px)',
+            background: 'hsl(var(--card) / 0.45)',
+            backdropFilter: 'blur(26px)',
+            WebkitBackdropFilter: 'blur(26px)',
             transformStyle: 'preserve-3d',
             rotateX: prefersReducedMotion ? 0 : rotateX,
             rotateY: prefersReducedMotion ? 0 : rotateY,
+            boxShadow: isHovered 
+              ? '0 0 50px hsl(var(--primary) / 0.15), 0 25px 50px -12px hsl(var(--background) / 0.5)'
+              : '0 10px 40px -10px hsl(var(--background) / 0.3)',
+            transition: 'box-shadow 0.3s ease',
           }}
           onMouseMove={handleMouseMove}
           onMouseEnter={handleMouseEnter}
@@ -203,41 +191,73 @@ export const GrowWealthBentoCard = ({
             transition: { duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }
           }}
         >
-          {/* Crystal border - increased opacity */}
-          <div className="absolute inset-0 rounded-3xl border border-white/15 pointer-events-none" />
+          {/* Gradient border with shimmer */}
+          <div 
+            className="absolute inset-0 rounded-3xl pointer-events-none transition-opacity duration-300"
+            style={{
+              padding: '1px',
+              background: isHovered
+                ? 'linear-gradient(135deg, hsl(var(--primary) / 0.4), hsl(var(--accent) / 0.2), hsl(var(--primary) / 0.4))'
+                : 'linear-gradient(135deg, hsl(var(--primary) / 0.15), transparent, hsl(var(--primary) / 0.15))',
+              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+            }}
+          />
           
-          {/* Inner glow on edges + enhanced outer glow */}
+          {/* Inner glow on edges */}
           <div 
             className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
             style={{
-              boxShadow: isHovered 
-                ? 'inset 0 0 70px hsl(var(--accent) / 0.12), 0 0 40px hsl(var(--accent) / 0.2)'
-                : 'inset 0 0 70px hsl(var(--accent) / 0.12)'
+              boxShadow: 'inset 0 0 60px hsl(var(--primary) / 0.1)'
             }}
           />
+
+          {/* Cursor spotlight effect (primary) */}
+          <motion.div
+            className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+            style={{ background: spotlight }}
+          />
+
+          {/* Diamond shine effect on hover */}
+          <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+            <div 
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background: 'linear-gradient(105deg, transparent 30%, hsl(var(--primary) / 0.12) 50%, transparent 70%)',
+                transform: 'translateX(-100%)',
+                animation: 'premiumShine 2s ease-in-out infinite',
+              }}
+            />
+          </div>
 
           {/* Particle burst container */}
           <AnimatePresence>
             {particles.map((particle) => (
               <motion.div
                 key={particle.id}
-                className="absolute pointer-events-none z-30"
+                className="absolute pointer-events-none"
                 style={{
                   left: particle.x,
                   top: particle.y,
                   width: particle.size,
                   height: particle.size,
                 }}
-                initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
+                initial={{ 
+                  scale: 0,
+                  x: 0,
+                  y: 0,
+                  opacity: 1,
+                }}
                 animate={{ 
-                  scale: [0, 1.3, 0.9],
+                  scale: [0, 1.2, 0.8],
                   x: Math.cos(particle.angle * Math.PI / 180) * particle.distance,
                   y: Math.sin(particle.angle * Math.PI / 180) * particle.distance,
-                  opacity: [1, 0.9, 0],
+                  opacity: [1, 0.8, 0],
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
-                  duration: 0.7,
+                  duration: 0.6,
                   delay: particle.delay,
                   ease: [0.22, 1, 0.36, 1],
                 }}
@@ -245,68 +265,36 @@ export const GrowWealthBentoCard = ({
                 <svg viewBox="0 0 10 10" className="w-full h-full">
                   <path
                     d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z"
-                    fill="hsl(var(--accent))"
-                    style={{ filter: 'drop-shadow(0 0 4px hsl(var(--accent) / 0.7))' }}
+                    fill="hsl(var(--primary))"
+                    style={{ filter: 'drop-shadow(0 0 3px hsl(var(--primary) / 0.6))' }}
                   />
                 </svg>
               </motion.div>
             ))}
           </AnimatePresence>
 
-          {/* Background sparkline (for key cards) */}
-          {showSparkline && (
-            <svg
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              viewBox="0 0 200 60"
-              preserveAspectRatio="none"
-            >
-              <motion.path
-                d={sparklinePath}
-                fill="none"
-                stroke="hsl(var(--accent) / 0.08)"
-                strokeWidth="2"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: sparklineDrawn ? 1 : 0 }}
-                transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-              />
-            </svg>
-          )}
-
-          {/* Cursor spotlight effect (warm accent) */}
-          <motion.div
-            className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-            style={{ background: spotlight }}
-          />
-
-          {/* Sharp shine effect on hover - faster animation */}
-          <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
-            <div 
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{
-                background: 'linear-gradient(105deg, transparent 30%, hsl(var(--accent) / 0.15) 50%, transparent 70%)',
-                transform: 'translateX(-100%)',
-                animation: 'crystalShine 1.5s ease-in-out infinite',
-              }}
-            />
-          </div>
-
-          {/* Badge */}
-          {badge && (
+          {/* Premium badge */}
+          {(badge || isPremium) && (
             <div className="absolute top-4 right-4 z-20">
-              <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                badge === "Popular" 
-                  ? "bg-primary/20 text-primary" 
-                  : "bg-accent/20 text-accent"
-              }`}>
-                {badge}
+              <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/20">
+                {badge || "Premium"}
               </span>
             </div>
           )}
 
           {/* Content */}
           <div className="relative z-10 h-full flex flex-col" style={{ transform: 'translateZ(20px)' }}>
-            <div className="mb-4">
-              {icon}
+            <div className="mb-4 relative">
+              {/* Icon with star-burst glow */}
+              <div 
+                className="relative"
+                style={{
+                  filter: isHovered ? 'drop-shadow(0 0 12px hsl(var(--primary) / 0.4))' : 'none',
+                  transition: 'filter 0.3s ease',
+                }}
+              >
+                {icon}
+              </div>
             </div>
             
             <h3 className={`font-display font-bold text-foreground mb-2 ${size === 'lg' ? 'text-2xl' : 'text-xl'}`}>
@@ -317,15 +305,8 @@ export const GrowWealthBentoCard = ({
               {description}
             </p>
 
-            {/* Stat display */}
-            {stat && (
-              <div className="mt-3 pt-3 border-t border-accent/10">
-                <p className="text-xs text-accent font-medium">{stat}</p>
-              </div>
-            )}
-
             {/* Subtle arrow indicator */}
-            <div className="mt-4 flex items-center gap-2 text-accent/60 group-hover:text-accent transition-colors duration-300">
+            <div className="mt-4 flex items-center gap-2 text-primary/60 group-hover:text-primary transition-colors duration-300">
               <span className="text-xs font-medium">Explore</span>
               <motion.svg 
                 width="16" 
@@ -348,7 +329,7 @@ export const GrowWealthBentoCard = ({
       </Link>
 
       <style>{`
-        @keyframes crystalShine {
+        @keyframes premiumShine {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }

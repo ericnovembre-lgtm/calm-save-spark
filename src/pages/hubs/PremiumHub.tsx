@@ -1,121 +1,127 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card } from "@/components/ui/card";
-import { Sparkles, Building2, Users, TrendingUp, Gamepad2, CalendarClock, RefreshCw, Coins, FileText, Gift } from "lucide-react";
-import { Link } from "react-router-dom";
+import { PremiumBackground } from "@/components/hubs/premium/PremiumBackground";
+import { PremiumBentoCard } from "@/components/hubs/premium/PremiumBentoCard";
+import { 
+  AlternativesIcon, FamilyOfficeIcon, CorporateWellnessIcon, 
+  InvestmentIcon, LifeSimIcon, DigitalTwinIcon,
+  RefinancingIcon, DeFiIcon, TaxDocumentsIcon, ReferralIcon 
+} from "@/components/hubs/premium/PremiumAnimatedIcons";
 import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
+import { Sparkles } from "lucide-react";
 
 const features = [
   {
-    icon: Sparkles,
-    title: "Alternatives Portal",
-    description: "Alternative investments access",
-    path: "/alternatives-portal",
-    color: "text-purple-500",
-    premium: true
-  },
-  {
-    icon: Building2,
+    icon: <FamilyOfficeIcon className="w-12 h-12" />,
     title: "Family Office",
-    description: "High-net-worth financial management",
+    description: "Comprehensive wealth management for high-net-worth families with multi-generational planning",
     path: "/family-office",
-    color: "text-blue-500",
-    premium: true
+    size: "lg" as const,
+    isPremium: true
   },
   {
-    icon: Users,
+    icon: <AlternativesIcon className="w-10 h-10" />,
+    title: "Alternatives Portal",
+    description: "Access exclusive alternative investments including private equity and real assets",
+    path: "/alternatives-portal",
+    size: "md" as const,
+    isPremium: true
+  },
+  {
+    icon: <LifeSimIcon className="w-10 h-10" />,
+    title: "LifeSim",
+    description: "Simulate life decisions and see their long-term financial impact",
+    path: "/lifesim",
+    size: "md" as const,
+  },
+  {
+    icon: <CorporateWellnessIcon className="w-10 h-10" />,
     title: "Corporate Wellness",
     description: "Employee financial wellness programs",
     path: "/corporate-wellness",
-    color: "text-green-500",
-    premium: true
+    size: "sm" as const,
+    isPremium: true
   },
   {
-    icon: TrendingUp,
+    icon: <InvestmentIcon className="w-10 h-10" />,
     title: "Investment Manager",
-    description: "Advanced portfolio management",
+    description: "Advanced portfolio management tools",
     path: "/investments?tab=tax-optimization",
-    color: "text-indigo-500"
+    size: "sm" as const,
   },
   {
-    icon: Gamepad2,
-    title: "LifeSim",
-    description: "Simulate future financial scenarios",
-    path: "/lifesim",
-    color: "text-pink-500"
-  },
-  {
-    icon: CalendarClock,
+    icon: <DigitalTwinIcon className="w-10 h-10" />,
     title: "Digital Twin",
-    description: "Long-term financial planning",
+    description: "Your AI financial mirror for long-term planning and scenario modeling",
     path: "/digital-twin",
-    color: "text-orange-500"
+    size: "wide" as const,
   },
   {
-    icon: RefreshCw,
+    icon: <RefinancingIcon className="w-10 h-10" />,
     title: "Refinancing Hub",
-    description: "Debt refinancing opportunities",
+    description: "Find better rates for your debts",
     path: "/refinancing-hub",
-    color: "text-teal-500"
+    size: "sm" as const,
   },
   {
-    icon: Coins,
+    icon: <DeFiIcon className="w-10 h-10" />,
     title: "DeFi Manager",
     description: "Decentralized finance management",
     path: "/defi-manager",
-    color: "text-yellow-500"
+    size: "sm" as const,
   },
   {
-    icon: FileText,
+    icon: <TaxDocumentsIcon className="w-10 h-10" />,
     title: "Tax Documents",
-    description: "Tax preparation and filing",
+    description: "Tax preparation and filing assistance",
     path: "/tax-documents",
-    color: "text-red-500"
+    size: "sm" as const,
   },
   {
-    icon: Gift,
+    icon: <ReferralIcon className="w-10 h-10" />,
     title: "Referral Center",
-    description: "Refer friends and earn rewards",
+    description: "Invite friends and earn rewards",
     path: "/referral-center",
-    color: "text-amber-500"
+    size: "sm" as const,
   },
 ];
 
 export default function PremiumHub() {
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+      <PremiumBackground />
+      
+      <div className="container mx-auto px-4 py-8 max-w-7xl relative">
+        {/* Header */}
+        <motion.div 
+          className="mb-10 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="flex items-center justify-center gap-3 mb-3">
             <Sparkles className="w-10 h-10 text-primary" />
-            Premium Features
-          </h1>
-          <p className="text-muted-foreground text-lg">
+            <h1 className="text-4xl md:text-5xl font-display font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              Premium Features
+            </h1>
+          </div>
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Advanced tools and solutions for sophisticated financial needs
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[180px]">
           {features.map((feature, index) => (
-            <motion.div
+            <PremiumBentoCard
               key={feature.path}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Link to={feature.path}>
-                <Card className="p-6 hover:shadow-lg transition-all hover:scale-105 cursor-pointer h-full border-2 hover:border-primary relative">
-                  {feature.premium && (
-                    <Badge className="absolute top-2 right-2 bg-gradient-to-r from-purple-500 to-pink-500">
-                      Premium
-                    </Badge>
-                  )}
-                  <feature.icon className={`w-12 h-12 mb-4 ${feature.color}`} />
-                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </Card>
-              </Link>
-            </motion.div>
+              title={feature.title}
+              description={feature.description}
+              icon={feature.icon}
+              path={feature.path}
+              size={feature.size}
+              index={index}
+              isPremium={feature.isPremium}
+            />
           ))}
         </div>
       </div>
