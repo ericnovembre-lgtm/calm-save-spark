@@ -1,27 +1,80 @@
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useMemo } from 'react';
+
+// Floating orb configurations - organic shapes with varied sizes
+const FLOATING_ORBS = [
+  { id: 1, size: 220, initialX: '15%', initialY: '20%', color: 'accent', delay: 0 },
+  { id: 2, size: 180, initialX: '75%', initialY: '15%', color: 'primary', delay: 1.5 },
+  { id: 3, size: 280, initialX: '55%', initialY: '65%', color: 'secondary', delay: 3 },
+  { id: 4, size: 150, initialX: '85%', initialY: '70%', color: 'accent', delay: 4.5 },
+  { id: 5, size: 200, initialX: '25%', initialY: '80%', color: 'primary', delay: 2 },
+  { id: 6, size: 160, initialX: '45%', initialY: '35%', color: 'secondary', delay: 5.5 },
+];
 
 /**
  * DashboardBackground - "Living Horizon" Fluid Aurora Background
  * Creates a calm, breathing mesh gradient with noise texture overlay
+ * and floating ambient orbs for enhanced atmosphere
  */
 export function DashboardBackground() {
   const prefersReducedMotion = useReducedMotion();
 
+  // Generate random organic paths for orbs
+  const orbAnimations = useMemo(() => {
+    return FLOATING_ORBS.map((orb) => ({
+      ...orb,
+      xPath: [0, 30 + Math.random() * 20, -20 - Math.random() * 15, 15 + Math.random() * 10, 0],
+      yPath: [0, -25 - Math.random() * 15, 20 + Math.random() * 10, -10 - Math.random() * 10, 0],
+      scalePath: [1, 1.05 + Math.random() * 0.05, 0.95 - Math.random() * 0.03, 1.02, 1],
+      duration: 20 + Math.random() * 10,
+    }));
+  }, []);
+
   return (
     <div 
-      className="fixed inset-0 -z-10 overflow-hidden"
+      className="fixed inset-0 -z-10 overflow-hidden transition-colors duration-700"
       aria-hidden="true"
     >
-      {/* Fluid Aurora Mesh Gradient - Primary Layer - MAXIMUM VISIBILITY */}
+      {/* Floating Ambient Orbs */}
+      {!prefersReducedMotion && orbAnimations.map((orb) => (
+        <motion.div
+          key={orb.id}
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            width: orb.size,
+            height: orb.size,
+            left: orb.initialX,
+            top: orb.initialY,
+            background: `radial-gradient(circle, var(--aurora-orb-${orb.color}) 0%, transparent 70%)`,
+            filter: 'blur(50px)',
+            willChange: 'transform',
+          }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{
+            opacity: [0.3, 0.5, 0.35, 0.45, 0.3],
+            x: orb.xPath,
+            y: orb.yPath,
+            scale: orb.scalePath,
+          }}
+          transition={{
+            duration: orb.duration,
+            delay: orb.delay,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
+
+      {/* Fluid Aurora Mesh Gradient - Primary Layer - Theme-Aware */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 transition-[background] duration-700"
         style={{
           background: `
-            radial-gradient(ellipse 100% 80% at 20% 20%, hsla(var(--primary), 0.45) 0%, transparent 60%),
-            radial-gradient(ellipse 80% 60% at 80% 15%, hsla(var(--accent), 0.50) 0%, transparent 55%),
-            radial-gradient(ellipse 90% 80% at 50% 90%, hsla(var(--secondary), 0.55) 0%, transparent 60%),
-            radial-gradient(ellipse 60% 50% at 70% 50%, hsla(var(--primary), 0.30) 0%, transparent 50%),
+            radial-gradient(ellipse 100% 80% at 20% 20%, var(--aurora-primary) 0%, transparent 60%),
+            radial-gradient(ellipse 80% 60% at 80% 15%, var(--aurora-accent) 0%, transparent 55%),
+            radial-gradient(ellipse 90% 80% at 50% 90%, var(--aurora-secondary) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 50% at 70% 50%, var(--aurora-glow) 0%, transparent 50%),
             hsl(var(--background))
           `,
           willChange: prefersReducedMotion ? 'auto' : 'transform',
@@ -37,13 +90,13 @@ export function DashboardBackground() {
         }}
       />
 
-      {/* Secondary Aurora Layer - Morphing Colors - MAXIMUM VISIBILITY */}
+      {/* Secondary Aurora Layer - Morphing Colors - Theme-Aware */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 transition-[background] duration-700"
         style={{
           background: `
-            radial-gradient(ellipse 100% 80% at 25% 75%, hsla(var(--accent), 0.40) 0%, transparent 65%),
-            radial-gradient(ellipse 60% 70% at 85% 35%, hsla(var(--primary), 0.28) 0%, transparent 50%)
+            radial-gradient(ellipse 100% 80% at 25% 75%, var(--aurora-accent) 0%, transparent 65%),
+            radial-gradient(ellipse 60% 70% at 85% 35%, var(--aurora-glow) 0%, transparent 50%)
           `,
           willChange: prefersReducedMotion ? 'auto' : 'transform',
         }}
@@ -59,12 +112,12 @@ export function DashboardBackground() {
         }}
       />
 
-      {/* Central Breathing Glow Pulse - MAXIMUM VISIBILITY */}
+      {/* Central Breathing Glow Pulse - Theme-Aware */}
       <motion.div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none transition-[background] duration-700"
         style={{
           background: `
-            radial-gradient(circle at 50% 50%, hsla(var(--accent), 0.30) 0%, transparent 60%)
+            radial-gradient(circle at 50% 50%, var(--aurora-center) 0%, transparent 60%)
           `,
         }}
         animate={!prefersReducedMotion ? {
@@ -78,13 +131,13 @@ export function DashboardBackground() {
         }}
       />
 
-      {/* Tertiary Color Wave - MAXIMUM VISIBILITY */}
+      {/* Tertiary Color Wave - Theme-Aware */}
       <motion.div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none transition-[background] duration-700"
         style={{
           background: `
-            radial-gradient(ellipse 120% 60% at 10% 50%, hsla(var(--secondary), 0.35) 0%, transparent 50%),
-            radial-gradient(ellipse 80% 50% at 90% 60%, hsla(var(--accent), 0.30) 0%, transparent 45%)
+            radial-gradient(ellipse 120% 60% at 10% 50%, var(--aurora-secondary) 0%, transparent 50%),
+            radial-gradient(ellipse 80% 50% at 90% 60%, var(--aurora-accent) 0%, transparent 45%)
           `,
         }}
         animate={!prefersReducedMotion ? {

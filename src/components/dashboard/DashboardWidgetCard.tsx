@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useCallback } from 'react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { cn } from '@/lib/utils';
 
 interface DashboardWidgetCardProps {
@@ -13,11 +15,13 @@ interface DashboardWidgetCardProps {
 }
 
 /**
- * DashboardWidgetCard - "Sentient Bento Card" with dynamic borders and content reveal
+ * DashboardWidgetCard - "Sentient Bento Card" with dynamic borders, content reveal,
+ * and micro-interactions (sound + haptics)
  * Features:
  * - Dynamic pulsing border on hover
  * - Secondary content slides up and fades in on hover
  * - Ultra-clean default state
+ * - Subtle hover sounds and haptic feedback
  */
 export function DashboardWidgetCard({
   children,
@@ -29,6 +33,33 @@ export function DashboardWidgetCard({
 }: DashboardWidgetCardProps) {
   const prefersReducedMotion = useReducedMotion();
   const [isHovered, setIsHovered] = useState(false);
+  const { playHoverSound, playClickSound, preferences: soundPrefs } = useSoundEffects();
+  const { triggerHaptic } = useHapticFeedback();
+
+  // Handle hover enter with sound + haptic
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+    if (soundPrefs.enabled) {
+      playHoverSound();
+    }
+    triggerHaptic('light');
+  }, [playHoverSound, triggerHaptic, soundPrefs.enabled]);
+
+  // Handle hover leave
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+  }, []);
+
+  // Handle click with enhanced feedback
+  const handleClick = useCallback(() => {
+    if (onClick) {
+      if (soundPrefs.enabled) {
+        playClickSound();
+      }
+      triggerHaptic('medium');
+      onClick();
+    }
+  }, [onClick, playClickSound, triggerHaptic, soundPrefs.enabled]);
 
   return (
     <motion.div
@@ -46,9 +77,9 @@ export function DashboardWidgetCard({
         boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.1), 0 8px 32px -8px hsla(var(--primary), 0.08)',
       }}
       data-tour={dataTour}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
       whileHover={!prefersReducedMotion ? {
         y: -4,
         boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), 0 0 0 1px hsla(var(--primary), 0.25), 0 16px 48px -12px hsla(var(--primary), 0.2)',
