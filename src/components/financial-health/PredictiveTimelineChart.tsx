@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useSpring, animate } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { format, addMonths } from 'date-fns';
@@ -18,6 +18,14 @@ interface PredictiveTimelineChartProps {
   currentScore: number;
 }
 
+// Score-based color helper
+const getScoreColor = (score: number): { hsl: string; class: string } => {
+  if (score >= 81) return { hsl: '142, 71%, 45%', class: 'text-green-500' };
+  if (score >= 61) return { hsl: '217, 91%, 60%', class: 'text-blue-500' };
+  if (score >= 41) return { hsl: '45, 93%, 47%', class: 'text-yellow-500' };
+  return { hsl: '0, 72%, 51%', class: 'text-red-500' };
+};
+
 /**
  * EKG-style Pulse Stream Chart with liquid flow animation
  */
@@ -26,6 +34,7 @@ export const PredictiveTimelineChart = ({
   currentScore,
 }: PredictiveTimelineChartProps) => {
   const prefersReducedMotion = useReducedMotion();
+  const scoreColor = getScoreColor(currentScore);
   const [animationPhase, setAnimationPhase] = useState<'draw' | 'pulse' | 'stable'>('draw');
 
   const chartData = useMemo(() => {
@@ -178,34 +187,33 @@ export const PredictiveTimelineChart = ({
       <div className="relative w-full overflow-x-auto">
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full" style={{ minWidth: '600px' }}>
           <defs>
-            {/* Liquid gradient fill */}
+            {/* Score-based liquid gradient fill */}
             <linearGradient id="liquidGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.4" />
-              <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="0.15" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+              <stop offset="0%" stopColor={`hsl(${scoreColor.hsl})`} stopOpacity="0.5" />
+              <stop offset="40%" stopColor={`hsl(${scoreColor.hsl})`} stopOpacity="0.25" />
+              <stop offset="100%" stopColor={`hsl(${scoreColor.hsl})`} stopOpacity="0.02" />
             </linearGradient>
 
-            {/* Glow filter */}
+            {/* Animated wave overlay gradient */}
+            <linearGradient id="waveGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={`hsl(${scoreColor.hsl})`} stopOpacity="0" />
+              <stop offset="50%" stopColor={`hsl(${scoreColor.hsl})`} stopOpacity="0.3" />
+              <stop offset="100%" stopColor={`hsl(${scoreColor.hsl})`} stopOpacity="0" />
+            </linearGradient>
+
+            {/* Glow filter with score color */}
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+              <feGaussianBlur stdDeviation="4" result="coloredBlur" />
               <feMerge>
                 <feMergeNode in="coloredBlur" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
 
-            {/* Animated wave pattern */}
-            <pattern id="wavePattern" x="0" y="0" width="60" height="10" patternUnits="userSpaceOnUse">
-              <motion.path
-                d="M 0 5 Q 15 0, 30 5 T 60 5"
-                fill="none"
-                stroke="hsl(var(--primary))"
-                strokeWidth="0.5"
-                strokeOpacity="0.3"
-                animate={{ x: [0, -60] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-              />
-            </pattern>
+            {/* Clip path for wave area */}
+            <clipPath id="areaClip">
+              <path d={areaPath} />
+            </clipPath>
           </defs>
 
           {/* Grid lines */}
@@ -244,6 +252,46 @@ export const PredictiveTimelineChart = ({
             style={{ transformOrigin: 'bottom' }}
           />
 
+          {/* Animated wave patterns inside the liquid */}
+          <g clipPath="url(#areaClip)">
+            {/* Wave 1 - fast, subtle */}
+            <motion.rect
+              x={padding}
+              y={0}
+              width={chartWidth * 0.4}
+              height={height}
+              fill="url(#waveGradient)"
+              initial={{ x: padding }}
+              animate={prefersReducedMotion ? {} : { x: [padding - chartWidth * 0.4, width] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+              opacity={0.4}
+            />
+            {/* Wave 2 - slower, offset */}
+            <motion.rect
+              x={padding}
+              y={0}
+              width={chartWidth * 0.3}
+              height={height}
+              fill="url(#waveGradient)"
+              initial={{ x: padding + chartWidth * 0.5 }}
+              animate={prefersReducedMotion ? {} : { x: [padding - chartWidth * 0.3, width] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'linear', delay: 1 }}
+              opacity={0.25}
+            />
+            {/* Wave 3 - slowest, wide */}
+            <motion.rect
+              x={padding}
+              y={0}
+              width={chartWidth * 0.5}
+              height={height}
+              fill="url(#waveGradient)"
+              initial={{ x: padding + chartWidth * 0.2 }}
+              animate={prefersReducedMotion ? {} : { x: [padding - chartWidth * 0.5, width] }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'linear', delay: 2 }}
+              opacity={0.15}
+            />
+          </g>
+
           {/* Confidence area (projected) */}
           {projectionStartIndex > 0 && chartData.slice(projectionStartIndex).length > 0 && (
             <motion.path
@@ -268,11 +316,11 @@ export const PredictiveTimelineChart = ({
             />
           )}
 
-          {/* Historical line - Main EKG pulse */}
+          {/* Historical line - Main EKG pulse with score color */}
           <motion.path
             d={historicalPath}
             fill="none"
-            stroke="hsl(var(--primary))"
+            stroke={`hsl(${scoreColor.hsl})`}
             strokeWidth={animationPhase === 'pulse' ? 4 : 3}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -289,12 +337,12 @@ export const PredictiveTimelineChart = ({
             }}
           />
 
-          {/* Projected line (dashed) */}
+          {/* Projected line (dashed) with score color */}
           {projectionStartIndex > 0 && projectedPath && (
             <motion.path
               d={projectedPath}
               fill="none"
-              stroke="hsl(var(--primary))"
+              stroke={`hsl(${scoreColor.hsl})`}
               strokeWidth="2.5"
               strokeDasharray="10 6"
               strokeLinecap="round"
@@ -305,7 +353,7 @@ export const PredictiveTimelineChart = ({
             />
           )}
 
-          {/* Data points with pulse effect */}
+          {/* Data points with pulse effect and score color */}
           {chartData.map((d, i) => (
             <motion.g
               key={i}
@@ -325,7 +373,7 @@ export const PredictiveTimelineChart = ({
                   cy={yScale(d.score)}
                   r={12}
                   fill="none"
-                  stroke="hsl(var(--primary))"
+                  stroke={`hsl(${scoreColor.hsl})`}
                   strokeWidth="1.5"
                   strokeOpacity="0.2"
                   animate={animationPhase === 'pulse' ? { 
@@ -336,12 +384,12 @@ export const PredictiveTimelineChart = ({
                 />
               )}
               
-              {/* Core point */}
+              {/* Core point with score color */}
               <circle
                 cx={xScale(i)}
                 cy={yScale(d.score)}
                 r={d.isProjected ? 4 : 6}
-                fill={d.isProjected ? 'hsl(var(--primary))' : 'hsl(var(--primary))'}
+                fill={`hsl(${scoreColor.hsl})`}
                 opacity={d.isProjected ? 0.5 : 1}
               />
               
