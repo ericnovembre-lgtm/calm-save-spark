@@ -40,15 +40,15 @@ export const ActionTimeline = ({ items }: ActionTimelineProps) => {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "bill":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200 border-red-200/50";
+        return "bg-[hsl(var(--health-poor)/0.1)] text-[hsl(var(--health-poor))] border-[hsl(var(--health-poor)/0.2)]";
       case "transfer":
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200 border-green-200/50";
+        return "bg-[hsl(var(--health-excellent)/0.1)] text-[hsl(var(--health-excellent))] border-[hsl(var(--health-excellent)/0.2)]";
       case "goal":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 border-blue-200/50";
+        return "bg-[hsl(var(--health-good)/0.1)] text-[hsl(var(--health-good))] border-[hsl(var(--health-good)/0.2)]";
       case "subscription":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200 border-purple-200/50";
+        return "bg-accent/20 text-accent-foreground border-accent/30";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-200 border-gray-200/50";
+        return "bg-muted text-muted-foreground border-border";
     }
   };
 
@@ -116,7 +116,7 @@ export const ActionTimeline = ({ items }: ActionTimelineProps) => {
                 {item.amount !== undefined && (
                   <div className="text-right">
                     <p className="text-sm text-muted-foreground mb-1">Amount</p>
-                    <p className={`text-2xl font-bold ${item.amount > 0 ? 'text-green-600' : 'text-foreground'}`}>
+                    <p className={`text-2xl font-bold ${item.amount > 0 ? 'text-[hsl(var(--health-excellent))]' : 'text-foreground'}`}>
                       ${Math.abs(item.amount).toFixed(2)}
                     </p>
                   </div>

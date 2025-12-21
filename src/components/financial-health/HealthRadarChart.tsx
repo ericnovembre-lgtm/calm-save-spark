@@ -51,9 +51,9 @@ export const HealthRadarChart = ({ metrics }: HealthRadarChartProps) => {
   const targetPathD = targetPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`).join(' ') + ' Z';
 
   return (
-    <Card className="p-6">
-      <div className="mb-4">
-        <h3 className="text-xl font-semibold text-foreground mb-2">Health Metrics Overview</h3>
+    <Card className="p-8 border-2 border-border/50 shadow-xl backdrop-blur-sm bg-gradient-to-br from-card via-card to-accent/5">
+      <div className="mb-6">
+        <h3 className="text-2xl font-semibold text-foreground mb-2">Health Metrics Overview</h3>
         <p className="text-sm text-muted-foreground">360° view of your financial wellness</p>
       </div>
 
@@ -156,9 +156,8 @@ export const HealthRadarChart = ({ metrics }: HealthRadarChartProps) => {
                   cy={point.y}
                   r={12}
                   fill="none"
-                  stroke="currentColor"
+                  stroke="hsl(var(--health-poor))"
                   strokeWidth="2"
-                  className="text-red-500"
                   animate={{
                     scale: [1, 1.5, 1],
                     opacity: [0.5, 0, 0.5],
@@ -177,7 +176,8 @@ export const HealthRadarChart = ({ metrics }: HealthRadarChartProps) => {
                 y={labelY}
                 fontSize="12"
                 fontWeight="600"
-                className={`fill-foreground ${isWeak ? 'fill-red-600' : ''}`}
+                className="fill-foreground"
+                style={isWeak ? { fill: 'hsl(var(--health-poor))' } : undefined}
                 textAnchor={
                   Math.abs(point.angle) < Math.PI / 4 || Math.abs(point.angle) > (3 * Math.PI) / 4
                     ? 'middle'

@@ -8,10 +8,10 @@ interface HealthScoreGaugeProps {
 
 export const HealthScoreGauge = ({ score, trend }: HealthScoreGaugeProps) => {
   const getScoreRating = (score: number) => {
-    if (score >= 81) return { label: "Excellent", color: "text-green-600 dark:text-green-400" };
-    if (score >= 61) return { label: "Good", color: "text-blue-600 dark:text-blue-400" };
-    if (score >= 41) return { label: "Fair", color: "text-yellow-600 dark:text-yellow-400" };
-    return { label: "Poor", color: "text-red-600 dark:text-red-400" };
+    if (score >= 81) return { label: "Excellent", color: "text-[hsl(var(--health-excellent))]" };
+    if (score >= 61) return { label: "Good", color: "text-[hsl(var(--health-good))]" };
+    if (score >= 41) return { label: "Fair", color: "text-[hsl(var(--health-fair))]" };
+    return { label: "Poor", color: "text-[hsl(var(--health-poor))]" };
   };
 
   const rating = getScoreRating(score);
@@ -70,13 +70,13 @@ export const HealthScoreGauge = ({ score, trend }: HealthScoreGaugeProps) => {
           <div className="flex items-center justify-center gap-1 mt-2">
             {trend > 0 ? (
               <>
-                <TrendingUp className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-green-600">+{trend} this month</span>
+                <TrendingUp className="w-4 h-4 text-[hsl(var(--health-excellent))]" />
+                <span className="text-sm text-[hsl(var(--health-excellent))]">+{trend} this month</span>
               </>
             ) : trend < 0 ? (
               <>
-                <TrendingDown className="w-4 h-4 text-red-600" />
-                <span className="text-sm text-red-600">{trend} this month</span>
+                <TrendingDown className="w-4 h-4 text-[hsl(var(--health-poor))]" />
+                <span className="text-sm text-[hsl(var(--health-poor))]">{trend} this month</span>
               </>
             ) : (
               <>

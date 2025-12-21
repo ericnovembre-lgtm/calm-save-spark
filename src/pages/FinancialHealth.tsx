@@ -107,7 +107,7 @@ export default function FinancialHealth() {
       {/* Neural Mesh Background */}
       <FinancialHealthBackground score={healthData?.overallScore || 50} />
       
-      <div className="container mx-auto px-4 py-12 space-y-16 max-w-7xl relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-12 md:space-y-16 max-w-7xl relative z-10">
         {/* Celebration Effect */}
         {showCelebration && (
           <CelebrationEffect
@@ -128,12 +128,12 @@ export default function FinancialHealth() {
 
         {/* Header with gradient background */}
         <ScrollSection>
-          <div className="text-center relative">
-            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent blur-3xl -z-10" />
-            <h1 className="text-6xl md:text-7xl font-display font-bold mb-4 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent animate-subtle-glow">
+          <div className="text-center relative py-8">
+            <div className="absolute inset-0 bg-gradient-to-b from-accent/10 via-transparent to-transparent blur-3xl -z-10" />
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-6 text-foreground tracking-tight">
               Financial Health
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Your comprehensive, AI-powered financial wellness dashboard
             </p>
           </div>
@@ -141,7 +141,7 @@ export default function FinancialHealth() {
 
         {/* Hero Section - 3D Holographic Globe */}
         <ScrollSection>
-          <Card className="overflow-hidden border-2 border-primary/10 shadow-2xl bg-gradient-to-br from-card via-card to-accent/5 backdrop-blur-xl">
+          <Card className="overflow-hidden border-2 border-accent/20 shadow-2xl bg-gradient-to-br from-card via-card to-accent/5 backdrop-blur-xl rounded-3xl">
             <HolographicHealthGlobe 
               score={healthData?.overallScore || 0} 
               trend={trend || 0}
@@ -183,7 +183,7 @@ export default function FinancialHealth() {
             subtitle="Detailed analysis of each financial dimension"
             icon={<BarChart3 className="w-6 h-6" />}
           />
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <HealthDiagnosticCard
               title="Credit Health"
               subtitle="FICO Score Impact"
@@ -312,7 +312,7 @@ export default function FinancialHealth() {
             subtitle="Stay on top of your financial calendar"
             icon={<Bell className="w-6 h-6" />}
           />
-          <Card className="p-8 border-2 border-border/50 shadow-xl backdrop-blur-sm bg-gradient-to-br from-card via-card to-accent/5">
+          <Card className="p-6 sm:p-8 border-2 border-border/50 shadow-xl backdrop-blur-sm bg-gradient-to-br from-card via-card to-accent/5 rounded-2xl">
             <ActionTimeline items={upcomingActions} />
           </Card>
         </ScrollSection>
