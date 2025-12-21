@@ -10,45 +10,74 @@ interface HolographicHealthGlobeProps {
   trend?: number;
 }
 
-// Electron ring component
+// Glowing shield ring component - wider bands with glow effect
 function ElectronRing({ 
   score, 
   color, 
   radius, 
   tilt, 
-  speedMultiplier 
+  speedMultiplier,
+  bandWidth = 0.15,
 }: { 
   score: number; 
   color: THREE.Color;
   radius: number;
   tilt: number;
   speedMultiplier: number;
+  bandWidth?: number;
 }) {
-  const ringRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Group>(null);
+  const glowMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
 
   // Rotation speed based on score (higher score = slower = more stable)
   const baseSpeed = score > 70 ? 0.003 : score > 50 ? 0.006 : 0.01;
   const speed = baseSpeed * speedMultiplier;
 
-  useFrame(() => {
+  useFrame((state) => {
     if (ringRef.current) {
       ringRef.current.rotation.z += speed;
+    }
+    if (glowMaterialRef.current) {
+      // Breathing glow for the shield
+      const pulse = Math.sin(state.clock.elapsedTime * 2 + tilt) * 0.15 + 0.85;
+      glowMaterialRef.current.opacity = 0.12 * pulse;
     }
   });
 
   return (
     <group rotation={[tilt, 0, 0]}>
-      <Ring
-        ref={ringRef}
-        args={[radius - 0.05, radius + 0.05, 64]}
-      >
-        <meshBasicMaterial
-          color={color}
-          transparent
-          opacity={0.4}
-          side={THREE.DoubleSide}
-        />
-      </Ring>
+      <group ref={ringRef}>
+        {/* Outer glow layer */}
+        <Ring args={[radius - bandWidth * 1.5, radius + bandWidth * 1.5, 128]}>
+          <meshBasicMaterial
+            ref={glowMaterialRef}
+            color={color}
+            transparent
+            opacity={0.12}
+            side={THREE.DoubleSide}
+          />
+        </Ring>
+        
+        {/* Main shield band */}
+        <Ring args={[radius - bandWidth, radius + bandWidth, 128]}>
+          <meshBasicMaterial
+            color={color}
+            transparent
+            opacity={0.35}
+            side={THREE.DoubleSide}
+          />
+        </Ring>
+        
+        {/* Inner bright edge */}
+        <Ring args={[radius - bandWidth * 0.3, radius + bandWidth * 0.3, 128]}>
+          <meshBasicMaterial
+            color={color}
+            transparent
+            opacity={0.6}
+            side={THREE.DoubleSide}
+          />
+        </Ring>
+      </group>
     </group>
   );
 }
@@ -132,31 +161,34 @@ function RotatingGlobe({ score }: { score: number }) {
         />
       </Sphere>
 
-      {/* Electron Ring 1 - Equatorial, slow */}
+      {/* Electron Shield 1 - Equatorial, slow, wide */}
       <ElectronRing
         score={score}
         color={color}
         radius={2.5}
         tilt={Math.PI / 2}
         speedMultiplier={1}
+        bandWidth={0.18}
       />
 
-      {/* Electron Ring 2 - Tilted, faster */}
+      {/* Electron Shield 2 - Tilted, faster */}
       <ElectronRing
         score={score}
         color={color}
-        radius={2.7}
+        radius={2.8}
         tilt={Math.PI / 3}
         speedMultiplier={1.5}
+        bandWidth={0.14}
       />
 
-      {/* Electron Ring 3 - Opposite tilt */}
+      {/* Electron Shield 3 - Opposite tilt */}
       <ElectronRing
         score={score}
         color={color}
-        radius={2.6}
+        radius={2.65}
         tilt={-Math.PI / 4}
         speedMultiplier={0.8}
+        bandWidth={0.12}
       />
 
       {/* Orbit particles */}
