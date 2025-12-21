@@ -35,7 +35,8 @@ const validRoutes = [
   { path: '/credit', label: 'Credit Score', description: 'Monitor your credit score', keywords: ['credit', 'score', 'rating', 'report'] },
   { path: '/wallet', label: 'Wallet', description: 'Manage your digital wallet', keywords: ['wallet', 'digital', 'money', 'balance'] },
   { path: '/card', label: 'Card', description: 'Your $ave+ secured credit card', keywords: ['card', 'credit', 'debit', 'secured'] },
-  { path: '/achievements', label: 'Achievements', description: 'View your achievements and badges', keywords: ['achievement', 'badge', 'reward', 'trophy'] },
+  { path: '/achievements', label: 'Achievements', description: 'View your achievements and badges', keywords: ['achievement', 'badge', 'trophy', 'milestone'] },
+  { path: '/rewards', label: 'Rewards', description: 'Earn, track, and redeem rewards', keywords: ['reward', 'points', 'redeem', 'earn', 'cashback'] },
   
   // AI & Insights
   { path: '/coach', label: 'AI Coach', description: 'Chat with your financial coach', keywords: ['coach', 'chat', 'ai', 'assistant', 'help'] },

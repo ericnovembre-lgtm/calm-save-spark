@@ -111,9 +111,9 @@ const features = [
     size: "sm" as const,
   },
   {
-    title: "Achievements",
-    description: "View your financial milestones",
-    path: "/achievements",
+    title: "Rewards",
+    description: "Earn, track, and redeem rewards",
+    path: "/rewards",
     icon: <TrophyIcon />,
     size: "sm" as const,
   },

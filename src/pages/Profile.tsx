@@ -23,7 +23,7 @@ const ProfilePage = () => {
   const quickLinks = [
     { icon: Settings, label: "Settings", path: "/settings" },
     { icon: Shield, label: "Security", path: "/security-settings" },
-    { icon: Award, label: "Achievements", path: "/achievements" },
+    { icon: Award, label: "Rewards", path: "/rewards" },
   ];
 
   if (isLoading) {
