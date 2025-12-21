@@ -88,7 +88,7 @@ const sections: Section[] = [
         description: "Earn points for consistent saving habits",
         details: "Build streaks, complete challenges, and unlock exclusive rewards as you develop better financial habits.",
         status: "available",
-        route: "/achievements"
+        route: "/rewards"
       }
     ]
   },

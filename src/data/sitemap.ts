@@ -142,7 +142,7 @@ export const SITEMAP_REDIRECTS: Array<{ from: string; to: string; reason: string
   { from: '/investment-manager', to: '/investments?tab=tax-optimization', reason: 'Merged into Investments' },
   { from: '/business', to: '/business-os', reason: 'Consolidated into Business OS' },
   { from: '/features', to: '/features-hub', reason: 'Route normalization' },
-  { from: '/rewards', to: '/achievements', reason: 'Renamed to Achievements' },
+  
   { from: '/gamification', to: '/achievements', reason: 'Consolidated gamification features' },
   { from: '/life-events', to: '/digital-twin?tab=playbooks', reason: 'Merged into Digital Twin' },
   { from: '/advanced-analytics', to: '/analytics', reason: 'Consolidated analytics pages' },
