@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, TrendingUp, Crown } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import CountUp from "react-countup";
@@ -12,13 +12,17 @@ interface RewardsHeroCardProps {
   tierProgress: number;
   pointsToNextTier: number;
   nextTier: string;
+  monthlyPoints?: number;
+  multiplier?: number;
+  streakDays?: number;
 }
 
 const tierConfig: Record<string, { color: string; bgColor: string; icon: string }> = {
-  starter: { color: "text-muted-foreground", bgColor: "bg-muted", icon: "🌱" },
+  basic: { color: "text-muted-foreground", bgColor: "bg-muted", icon: "🌱" },
   growth: { color: "text-accent", bgColor: "bg-accent/20", icon: "🌿" },
   prestige: { color: "text-primary", bgColor: "bg-primary/20", icon: "⭐" },
   elite: { color: "text-amber-500", bgColor: "bg-amber-500/20", icon: "👑" },
+  "elite legacy": { color: "text-amber-500", bgColor: "bg-amber-500/20", icon: "👑" },
   legend: { color: "text-purple-500", bgColor: "bg-purple-500/20", icon: "💎" },
 };
 
@@ -28,9 +32,12 @@ export function RewardsHeroCard({
   tierProgress,
   pointsToNextTier,
   nextTier,
+  monthlyPoints = 0,
+  multiplier = 1.0,
+  streakDays = 0,
 }: RewardsHeroCardProps) {
   const prefersReducedMotion = useReducedMotion();
-  const config = tierConfig[tier.toLowerCase()] || tierConfig.starter;
+  const config = tierConfig[tier.toLowerCase()] || tierConfig.basic;
 
   return (
     <motion.div
@@ -90,7 +97,7 @@ export function RewardsHeroCard({
                 className="h-3 bg-muted/50"
               />
               {/* Animated glow on progress bar */}
-              {!prefersReducedMotion && (
+              {!prefersReducedMotion && tierProgress > 0 && (
                 <motion.div
                   className="absolute top-0 left-0 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full"
                   style={{ width: `${tierProgress}%` }}
@@ -117,19 +124,19 @@ export function RewardsHeroCard({
           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border/50">
             <div className="text-center">
               <p className="text-2xl font-bold text-foreground">
-                <CountUp end={847} duration={1.2} preserveValue />
+                <CountUp end={monthlyPoints} duration={1.2} preserveValue />
               </p>
               <p className="text-xs text-muted-foreground">This Month</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-accent">
-                1.5x
+                {multiplier}x
               </p>
               <p className="text-xs text-muted-foreground">Multiplier</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-foreground">
-                <CountUp end={12} duration={1} preserveValue />
+                <CountUp end={streakDays} duration={1} preserveValue />
               </p>
               <p className="text-xs text-muted-foreground">Day Streak</p>
             </div>

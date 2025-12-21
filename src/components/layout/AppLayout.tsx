@@ -54,7 +54,7 @@ const bottomNavLinks = [
   { name: "Dashboard", path: "/dashboard", icon: Home },
   { name: "Money", path: "/hubs/manage-money", icon: Wallet },
   { name: "Wealth", path: "/hubs/grow-wealth", icon: TrendingUp },
-  { name: "AI", path: "/hubs/ai-insights", icon: Brain },
+  { name: "Rewards", path: "/rewards", icon: Gift },
   { name: "More", path: "/features-hub", icon: Sparkles },
 ];
 
