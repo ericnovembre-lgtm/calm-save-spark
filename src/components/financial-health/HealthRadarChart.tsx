@@ -210,31 +210,24 @@ export const HealthRadarChart = ({ metrics }: HealthRadarChartProps) => {
           );
         })}
 
-        {/* Center score */}
-        <motion.text
-          x={center}
-          y={center}
-          fontSize="24"
-          fontWeight="bold"
-          className="fill-primary"
-          textAnchor="middle"
-          dominantBaseline="middle"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1, type: 'spring' }}
-        >
-          {Math.round(metrics.reduce((sum, m) => sum + m.value, 0) / metrics.length)}
-        </motion.text>
-        <text
-          x={center}
-          y={center + 20}
-          fontSize="10"
-          className="fill-muted-foreground"
-          textAnchor="middle"
-        >
-          Average
-        </text>
       </svg>
+
+      {/* Score Badge - Below Chart */}
+      <motion.div 
+        className="flex items-center justify-center mt-4 mb-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: prefersReducedMotion ? 0 : 1, type: 'spring', stiffness: 200 }}
+      >
+        <div className="flex flex-col items-center px-6 py-3 rounded-2xl bg-accent/10 border border-accent/20">
+          <span className="text-3xl font-bold text-primary">
+            {Math.round(metrics.reduce((sum, m) => sum + m.value, 0) / metrics.length)}
+          </span>
+          <span className="text-xs text-muted-foreground uppercase tracking-wide">
+            Average Score
+          </span>
+        </div>
+      </motion.div>
 
       {/* Legend */}
       <div className="flex items-center justify-center gap-6 mt-4 text-sm">
