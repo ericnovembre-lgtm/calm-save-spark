@@ -11,17 +11,43 @@ import { RewardsHistoryList } from "@/components/rewards/RewardsHistoryList";
 import { Gift, Sparkles, BookOpen, History } from "lucide-react";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useCardTierStatus } from "@/hooks/useCardTierStatus";
+import { useCardPoints } from "@/hooks/useCardPoints";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Rewards() {
   const prefersReducedMotion = useReducedMotion();
+  const { tierStatus, currentTier, isLoading: tierLoading } = useCardTierStatus();
+  const { totalPoints, pointsByType, recentPoints, isLoading: pointsLoading } = useCardPoints();
 
-  // Mock data - in production, this would come from a hook
-  const rewardsData = {
-    totalPoints: 12450,
-    tier: "Prestige",
-    tierProgress: 70,
-    pointsToNextTier: 7550,
-    nextTier: "Elite",
+  const isLoading = tierLoading || pointsLoading;
+
+  // Calculate tier progress
+  const tierOrder = ['basic', 'growth', 'prestige', 'elite_legacy'];
+  const currentTierIndex = tierOrder.indexOf(currentTier);
+  const nextTier = currentTierIndex < tierOrder.length - 1 
+    ? tierOrder[currentTierIndex + 1] 
+    : currentTier;
+  
+  const pointsToNextTier = tierStatus?.points_to_next_tier || 0;
+  const lifetimePoints = tierStatus?.lifetime_points || 0;
+  
+  // Calculate progress percentage (simplified)
+  const tierThresholds: Record<string, number> = {
+    basic: 0,
+    growth: 1000,
+    prestige: 5000,
+    elite_legacy: 15000,
+  };
+  const currentThreshold = tierThresholds[currentTier] || 0;
+  const nextThreshold = tierThresholds[nextTier] || currentThreshold + 1000;
+  const tierProgress = nextTier === currentTier 
+    ? 100 
+    : Math.min(100, ((lifetimePoints - currentThreshold) / (nextThreshold - currentThreshold)) * 100);
+
+  // Format tier name for display
+  const formatTierName = (tier: string) => {
+    return tier.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
   return (
@@ -44,16 +70,26 @@ export default function Rewards() {
           </motion.div>
 
           {/* Hero Card */}
-          <RewardsHeroCard
-            totalPoints={rewardsData.totalPoints}
-            tier={rewardsData.tier}
-            tierProgress={rewardsData.tierProgress}
-            pointsToNextTier={rewardsData.pointsToNextTier}
-            nextTier={rewardsData.nextTier}
-          />
+          {isLoading ? (
+            <Skeleton className="h-64 w-full rounded-3xl" />
+          ) : (
+            <RewardsHeroCard
+              totalPoints={tierStatus?.total_points || 0}
+              tier={formatTierName(currentTier)}
+              tierProgress={tierProgress}
+              pointsToNextTier={pointsToNextTier}
+              nextTier={formatTierName(nextTier)}
+              monthlyPoints={recentPoints.reduce((sum, p) => sum + p.points_amount, 0)}
+              multiplier={currentTier === 'elite_legacy' ? 2.0 : currentTier === 'prestige' ? 1.5 : currentTier === 'growth' ? 1.25 : 1.0}
+            />
+          )}
 
           {/* Points Breakdown */}
-          <RewardsPointsBreakdown />
+          {isLoading ? (
+            <Skeleton className="h-40 w-full rounded-2xl" />
+          ) : (
+            <RewardsPointsBreakdown pointsByType={pointsByType} />
+          )}
 
           {/* Tabbed Content */}
           <Tabs defaultValue="redeem" className="space-y-6">
@@ -89,7 +125,7 @@ export default function Rewards() {
             </TabsList>
 
             <TabsContent value="redeem" className="space-y-6 mt-6">
-              <RewardsRedemptionGrid availablePoints={rewardsData.totalPoints} />
+              <RewardsRedemptionGrid availablePoints={tierStatus?.total_points || 0} />
             </TabsContent>
 
             <TabsContent value="earn" className="space-y-8 mt-6">

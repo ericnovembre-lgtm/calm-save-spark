@@ -1,39 +1,66 @@
 import { Card } from "@/components/ui/card";
-import { Target, Sparkles, Flame, CreditCard, Gift, Users } from "lucide-react";
+import { Target, Sparkles, Flame, CreditCard, Gift, Users, Zap, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { LucideIcon } from "lucide-react";
 
-interface PointsCategory {
+interface PointsCategoryConfig {
   label: string;
-  points: number;
   icon: LucideIcon;
   color: string;
 }
 
-const pointsCategories: PointsCategory[] = [
-  { label: "Base Savings", points: 4200, icon: Target, color: "text-primary" },
-  { label: "Achievements", points: 3150, icon: Sparkles, color: "text-accent" },
-  { label: "Streak Bonus", points: 2400, icon: Flame, color: "text-orange-500" },
-  { label: "Card Rewards", points: 1800, icon: CreditCard, color: "text-blue-500" },
-  { label: "Referrals", points: 600, icon: Users, color: "text-green-500" },
-  { label: "Special Events", points: 300, icon: Gift, color: "text-pink-500" },
-];
+const categoryConfig: Record<string, PointsCategoryConfig> = {
+  base: { label: "Base Savings", icon: Target, color: "text-primary" },
+  achievement: { label: "Achievements", icon: Sparkles, color: "text-accent" },
+  streak: { label: "Streak Bonus", icon: Flame, color: "text-orange-500" },
+  category_bonus: { label: "Category Bonus", icon: Zap, color: "text-yellow-500" },
+  card: { label: "Card Rewards", icon: CreditCard, color: "text-blue-500" },
+  referral: { label: "Referrals", icon: Users, color: "text-green-500" },
+  bonus: { label: "Special Events", icon: Gift, color: "text-pink-500" },
+  tier_bonus: { label: "Tier Bonus", icon: Award, color: "text-purple-500" },
+  signup_bonus: { label: "Signup Bonus", icon: Gift, color: "text-emerald-500" },
+};
 
-export function RewardsPointsBreakdown() {
+interface RewardsPointsBreakdownProps {
+  pointsByType: Record<string, number>;
+}
+
+export function RewardsPointsBreakdown({ pointsByType }: RewardsPointsBreakdownProps) {
   const prefersReducedMotion = useReducedMotion();
+
+  // Convert pointsByType to display categories
+  const categories = Object.entries(pointsByType)
+    .filter(([_, points]) => points > 0)
+    .map(([type, points]) => {
+      const config = categoryConfig[type] || { 
+        label: type.charAt(0).toUpperCase() + type.slice(1).replace(/_/g, ' '), 
+        icon: Gift, 
+        color: "text-muted-foreground" 
+      };
+      return { type, points, ...config };
+    })
+    .sort((a, b) => b.points - a.points);
+
+  // If no points yet, show placeholder categories
+  const displayCategories = categories.length > 0 ? categories : [
+    { type: 'base', points: 0, ...categoryConfig.base },
+    { type: 'achievement', points: 0, ...categoryConfig.achievement },
+    { type: 'streak', points: 0, ...categoryConfig.streak },
+    { type: 'referral', points: 0, ...categoryConfig.referral },
+  ];
 
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-foreground">Points Breakdown</h3>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {pointsCategories.map((category, index) => {
+        {displayCategories.slice(0, 6).map((category, index) => {
           const Icon = category.icon;
           
           return (
             <motion.div
-              key={category.label}
+              key={category.type}
               initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.95 }}
               animate={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05, duration: 0.2 }}
