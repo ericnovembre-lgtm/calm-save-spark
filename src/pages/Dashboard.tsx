@@ -11,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 // Consolidated sub-components
 import { DashboardShell } from "@/components/dashboard/shell/DashboardShell";
+import { DashboardContent } from "@/components/dashboard/content/DashboardContent";
 import { DashboardBanners } from "@/components/dashboard/banners/DashboardBanners";
 import { DashboardStories } from "@/components/dashboard/stories/DashboardStories";
 import { DashboardModals } from "@/components/dashboard/modals/DashboardModals";
@@ -20,9 +21,6 @@ import { FloatingControls } from "@/components/dashboard/floating/FloatingContro
 import { AIGenerationOverlay } from "@/components/dashboard/ai/AIGenerationOverlay";
 import { MobileDashboard } from "@/components/mobile/MobileDashboard";
 import { MobileOnboardingFlow } from "@/components/onboarding/MobileOnboardingFlow";
-
-// New Premium Bento Dashboard
-import { BentoDashboard } from "@/components/dashboard/bento/BentoDashboard";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -146,9 +144,30 @@ export default function Dashboard() {
               onNavigateTransactions={() => navigate("/transactions")}
               onDismissAlerts={data.alerts.markAllAsRead}
             />
-            {/* Premium Bento Dashboard Layout */}
             <div data-copilot-id="dashboard-content">
-              <BentoDashboard />
+              <DashboardContent
+                isGenerating={data.generative.isLoading}
+                isStreaming={data.streaming.isStreaming}
+                generationError={data.generative.error}
+                layout={data.generative.layout}
+                widgets={data.generative.widgets}
+                theme={data.generative.theme}
+                briefing={data.generative.briefing}
+                reasoning={data.generative.reasoning}
+                meta={data.generative.meta}
+                streamingText={data.generative.streamingText}
+                isChatOpen={data.chat.isOpen}
+                isMobile={isMobile}
+                onModalOpen={actions.setActiveModal}
+                nlqQuery={state.nlq.query}
+                nlqIsProcessing={state.nlq.isProcessing}
+                nlqShowChart={state.nlq.showChart}
+                nlqChartData={state.nlq.chartData}
+                nlqInsight={state.nlq.insight}
+                nlqResponse={state.nlq.response}
+                onNLQuery={handlers.handleNLQuery}
+                onCloseChart={() => actions.setNlqShowChart(false)}
+              />
             </div>
             <FloatingControls />
             <DashboardCelebrations
