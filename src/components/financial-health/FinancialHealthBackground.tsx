@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { haptics } from '@/lib/haptics';
 
 interface Node {
   x: number;
@@ -21,7 +22,8 @@ interface FinancialHealthBackgroundProps {
  * Neural Health Mesh Background
  * Creates a living, breathing network of nodes that pulse like neurons
  * with a respiratory rhythm for calm, focused energy
- * Nodes glow brighter when the mouse hovers near them (responsive organism effect)
+ * Nodes glow brighter when the mouse/touch hovers near them (responsive organism effect)
+ * Includes haptic feedback on mobile for tactile 'neural pulse' sensation
  */
 export const FinancialHealthBackground = ({ score = 50 }: FinancialHealthBackgroundProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -29,6 +31,11 @@ export const FinancialHealthBackground = ({ score = 50 }: FinancialHealthBackgro
   const animationRef = useRef<number>(0);
   const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
   const prefersReducedMotion = useReducedMotion();
+  
+  // Haptic feedback debouncing refs
+  const lastHapticTimeRef = useRef<number>(0);
+  const lastHapticNodeRef = useRef<number | null>(null);
+  const hapticProximityRef = useRef<number>(0);
 
   // Get node color based on health score
   const getNodeColor = useCallback((score: number): string => {
@@ -62,32 +69,96 @@ export const FinancialHealthBackground = ({ score = 50 }: FinancialHealthBackgro
     return nodes;
   }, []);
 
-  // Handle mouse move for proximity effects
+  // Trigger haptic feedback for neural pulse sensation
+  const triggerNeuralHaptic = useCallback((proximity: number, nodeIndex: number) => {
+    if (prefersReducedMotion) return;
+    
+    const now = Date.now();
+    const isNewNode = lastHapticNodeRef.current !== nodeIndex;
+    const timeSinceLastHaptic = now - lastHapticTimeRef.current;
+    
+    // Debounce based on proximity strength
+    const minDebounce = proximity > 0.8 ? 200 : 150;
+    
+    if (timeSinceLastHaptic < minDebounce) return;
+    
+    // Strong proximity (center of node) = medium pulse
+    if (proximity > 0.75 && isNewNode) {
+      haptics.vibrate('medium');
+      lastHapticTimeRef.current = now;
+      lastHapticNodeRef.current = nodeIndex;
+    } 
+    // Moderate proximity with new node = light pulse
+    else if (proximity > 0.5 && isNewNode) {
+      haptics.vibrate('light');
+      lastHapticTimeRef.current = now;
+      lastHapticNodeRef.current = nodeIndex;
+    }
+    // Very strong proximity = custom neural pulse pattern
+    else if (proximity > 0.9 && timeSinceLastHaptic > 400) {
+      // Subtle "synapse firing" pattern: short-pause-shorter
+      haptics.custom([8, 30, 5]);
+      lastHapticTimeRef.current = now;
+    }
+  }, [prefersReducedMotion]);
+
+  // Handle mouse/touch events for proximity effects
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const updatePointerPosition = (clientX: number, clientY: number) => {
       const rect = canvas.getBoundingClientRect();
       mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        x: clientX - rect.left,
+        y: clientY - rect.top,
         active: true,
       };
     };
 
-    const handleMouseLeave = () => {
-      mouseRef.current.active = false;
+    const handleMouseMove = (e: MouseEvent) => {
+      updatePointerPosition(e.clientX, e.clientY);
     };
 
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        updatePointerPosition(touch.clientX, touch.clientY);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        updatePointerPosition(touch.clientX, touch.clientY);
+      }
+    };
+
+    const handlePointerLeave = () => {
+      mouseRef.current.active = false;
+      lastHapticNodeRef.current = null;
+      hapticProximityRef.current = 0;
+    };
+
+    // Mouse events
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('mouseleave', handlePointerLeave);
+    
+    // Touch events
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: true });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: true });
+    canvas.addEventListener('touchend', handlePointerLeave);
+    canvas.addEventListener('touchcancel', handlePointerLeave);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('mouseleave', handlePointerLeave);
+      canvas.removeEventListener('touchstart', handleTouchStart);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('touchend', handlePointerLeave);
+      canvas.removeEventListener('touchcancel', handlePointerLeave);
     };
   }, [prefersReducedMotion]);
 
@@ -246,6 +317,31 @@ export const FinancialHealthBackground = ({ score = 50 }: FinancialHealthBackgro
         }
       });
 
+      // Find closest node to pointer for haptic feedback
+      let closestNodeIndex: number | null = null;
+      let closestProximity = 0;
+
+      if (mouse.active) {
+        nodesRef.current.forEach((node, index) => {
+          const dx = node.x - mouse.x;
+          const dy = node.y - mouse.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const proximity = Math.max(0, 1 - distance / influenceRadius);
+          
+          if (proximity > closestProximity) {
+            closestProximity = proximity;
+            closestNodeIndex = index;
+          }
+        });
+
+        // Trigger haptic for closest node only (prevents excessive feedback)
+        if (closestProximity > 0.4 && closestNodeIndex !== null) {
+          triggerNeuralHaptic(closestProximity, closestNodeIndex);
+        }
+        
+        hapticProximityRef.current = closestProximity;
+      }
+
       // Draw nodes with pulse effect and proximity glow
       nodesRef.current.forEach((node) => {
         // Calculate proximity to mouse for glow amplification
@@ -297,7 +393,7 @@ export const FinancialHealthBackground = ({ score = 50 }: FinancialHealthBackgro
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationRef.current);
     };
-  }, [score, prefersReducedMotion, getNodeColor, initNodes]);
+  }, [score, prefersReducedMotion, getNodeColor, initNodes, triggerNeuralHaptic]);
 
   return (
     <motion.div
