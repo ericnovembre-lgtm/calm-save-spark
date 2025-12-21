@@ -87,11 +87,20 @@ function RotatingGlobe({ score }: { score: number }) {
   const particlesRef = useRef<THREE.Points>(null);
   const glowRef = useRef<THREE.Mesh>(null);
 
+  // Read CSS health variables and convert to hex for Three.js
   const getColorFromScore = (score: number): THREE.Color => {
-    if (score >= 81) return new THREE.Color('#10b981'); // green
-    if (score >= 61) return new THREE.Color('#3b82f6'); // blue
-    if (score >= 41) return new THREE.Color('#eab308'); // yellow
-    return new THREE.Color('#ef4444'); // red
+    const root = document.documentElement;
+    const getHSLColor = (varName: string): string => {
+      const hsl = getComputedStyle(root).getPropertyValue(varName).trim();
+      // Convert HSL "h s% l%" to hex
+      const [h, s, l] = hsl.split(' ').map((v, i) => i === 0 ? parseFloat(v) : parseFloat(v));
+      return `hsl(${h}, ${s}%, ${l}%)`;
+    };
+    
+    if (score >= 81) return new THREE.Color(getHSLColor('--health-excellent'));
+    if (score >= 61) return new THREE.Color(getHSLColor('--health-good'));
+    if (score >= 41) return new THREE.Color(getHSLColor('--health-fair'));
+    return new THREE.Color(getHSLColor('--health-poor'));
   };
 
   const color = useMemo(() => getColorFromScore(score), [score]);
@@ -277,10 +286,10 @@ export const HolographicHealthGlobe = ({ score, trend = 0 }: HolographicHealthGl
   const prefersReducedMotion = useReducedMotion();
 
   const getScoreRating = (score: number) => {
-    if (score >= 81) return { label: "Excellent", color: "text-green-500" };
-    if (score >= 61) return { label: "Good", color: "text-blue-500" };
-    if (score >= 41) return { label: "Fair", color: "text-yellow-500" };
-    return { label: "Poor", color: "text-red-500" };
+    if (score >= 81) return { label: "Excellent", color: "text-[hsl(var(--health-excellent))]" };
+    if (score >= 61) return { label: "Good", color: "text-[hsl(var(--health-good))]" };
+    if (score >= 41) return { label: "Fair", color: "text-[hsl(var(--health-fair))]" };
+    return { label: "Poor", color: "text-[hsl(var(--health-poor))]" };
   };
 
   const rating = getScoreRating(score);
@@ -344,8 +353,8 @@ export const HolographicHealthGlobe = ({ score, trend = 0 }: HolographicHealthGl
           >
             <span className={`text-sm font-medium px-3 py-1 rounded-full ${
               trend > 0 
-                ? 'text-green-600 bg-green-500/10' 
-                : 'text-red-600 bg-red-500/10'
+                ? 'text-[hsl(var(--health-excellent))] bg-[hsl(var(--health-excellent)/0.1)]' 
+                : 'text-[hsl(var(--health-poor))] bg-[hsl(var(--health-poor)/0.1)]'
             }`}>
               {trend > 0 ? '↑' : '↓'} {Math.abs(trend).toFixed(1)} points this month
             </span>
