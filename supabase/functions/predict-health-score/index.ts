@@ -55,11 +55,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', anonKey, {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? `https://${Deno.env.get('SUPABASE_PROJECT_REF')}.supabase.co`;
+    console.log('predict-health-score: supabase_url_defined', !!supabaseUrl && supabaseUrl.startsWith('https://'));
+
+    const supabase = createClient(supabaseUrl, anonKey, {
       global: {
         headers: {
           Authorization: authHeader,
-          authorization: authHeader,
         },
       },
     });
