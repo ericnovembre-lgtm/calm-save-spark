@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
@@ -42,6 +43,43 @@ export function usePointsRedemption() {
     },
   });
 
+  // Real-time subscription for redemption history changes
+  useEffect(() => {
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const channel = supabase
+        .channel('redemptions-realtime')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'points_redemptions',
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            // Invalidate and refetch when redemptions change
+            queryClient.invalidateQueries({ queryKey: ['redemption-history'] });
+            queryClient.invalidateQueries({ queryKey: ['card-tier-status'] });
+            queryClient.invalidateQueries({ queryKey: ['card-points'] });
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    };
+
+    const cleanup = setupRealtimeSubscription();
+    
+    return () => {
+      cleanup.then(fn => fn?.());
+    };
+  }, [queryClient]);
+
   // Redeem points mutation
   const redeemMutation = useMutation({
     mutationFn: async (catalogItemId: string) => {
@@ -61,12 +99,12 @@ export function usePointsRedemption() {
       queryClient.invalidateQueries({ queryKey: ['card-tier-status'] });
       queryClient.invalidateQueries({ queryKey: ['card-points'] });
       
-      toast.success('🎉 Redemption successful!', {
+      toast.success('Redemption successful!', {
         description: `You have ${data.remaining_points} points remaining`,
         duration: 5000,
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Redemption error:', error);
       toast.error('Redemption failed', {
         description: error.message || 'Please try again later',

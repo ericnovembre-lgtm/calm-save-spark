@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -66,6 +67,8 @@ const TIER_BENEFITS = {
 };
 
 export function useCardTierStatus() {
+  const queryClient = useQueryClient();
+
   const { data: tierStatus, isLoading, error } = useQuery({
     queryKey: ['card-tier-status'],
     queryFn: async () => {
@@ -102,8 +105,43 @@ export function useCardTierStatus() {
     },
   });
 
+  // Real-time subscription for tier status changes
+  useEffect(() => {
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const channel = supabase
+        .channel('card-tier-realtime')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'card_tier_status',
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            // Invalidate and refetch when tier status changes
+            queryClient.invalidateQueries({ queryKey: ['card-tier-status'] });
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    };
+
+    const cleanup = setupRealtimeSubscription();
+    
+    return () => {
+      cleanup.then(fn => fn?.());
+    };
+  }, [queryClient]);
+
   const currentTier = tierStatus?.current_tier || 'basic';
-  const tierInfo = TIER_BENEFITS[currentTier];
+  const tierInfo = TIER_BENEFITS[currentTier as keyof typeof TIER_BENEFITS];
 
   return {
     tierStatus,
