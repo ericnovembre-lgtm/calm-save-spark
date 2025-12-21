@@ -77,6 +77,7 @@ const Automations = createPageLoader(() => import("./pages/Automations"), 'mediu
 const Settings = createPageLoader(() => import("./pages/Settings"), 'medium');
 const Profile = createPageLoader(() => import("./pages/Profile"), 'medium');
 const Achievements = createPageLoader(() => import("./pages/Achievements"), 'medium');
+const Rewards = createPageLoader(() => import("./pages/Rewards"), 'medium');
 const BillNegotiation = createPageLoader(() => import("./pages/BillNegotiation"), 'medium');
 const Family = createPageLoader(() => import("./pages/Family"), 'medium');
 const Student = createPageLoader(() => import("./pages/Student"), 'medium');
@@ -335,7 +336,7 @@ function AnimatedRoutes() {
         <Route path="/goals" element={<ProtectedRoute><PageTransition><Goals /></PageTransition></ProtectedRoute>} />
         <Route path="/pots" element={<ProtectedRoute><PageTransition><Pots /></PageTransition></ProtectedRoute>} />
         <Route path="/automations" element={<ProtectedRoute><PageTransition><Automations /></PageTransition></ProtectedRoute>} />
-        <Route path="/rewards" element={<Navigate to="/achievements" replace />} />
+        <Route path="/rewards" element={<ProtectedRoute><PageTransition><Rewards /></PageTransition></ProtectedRoute>} />
         <Route path="/card" element={<ProtectedRoute><PageTransition><Card /></PageTransition></ProtectedRoute>} />
         <Route path="/card/apply" element={<ProtectedRoute><PageTransition><CardApply /></PageTransition></ProtectedRoute>} />
         <Route path="/coach" element={<ProtectedRoute><PageTransition><Coach /></PageTransition></ProtectedRoute>} />
