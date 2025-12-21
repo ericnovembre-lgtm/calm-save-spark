@@ -3,7 +3,8 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useFinancialHealth } from "@/hooks/useFinancialHealth";
 import { useFinancialHealthHistory, useFinancialHealthTrend } from "@/hooks/useFinancialHealthHistory";
 import { HolographicHealthGlobe } from "@/components/financial-health/HolographicHealthGlobe";
-import { LiquidMetricCard } from "@/components/financial-health/LiquidMetricCard";
+import { FinancialHealthBackground } from "@/components/financial-health/FinancialHealthBackground";
+import { HealthDiagnosticCard } from "@/components/financial-health/HealthDiagnosticCard";
 import { ContextualAIAdvisor } from "@/components/financial-health/ContextualAIAdvisor";
 import { PredictiveTimelineChart } from "@/components/financial-health/PredictiveTimelineChart";
 import { HealthRadarChart } from "@/components/financial-health/HealthRadarChart";
@@ -103,7 +104,10 @@ export default function FinancialHealth() {
 
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-12 space-y-16 max-w-7xl">
+      {/* Neural Mesh Background */}
+      <FinancialHealthBackground score={healthData?.overallScore || 50} />
+      
+      <div className="container mx-auto px-4 py-12 space-y-16 max-w-7xl relative z-10">
         {/* Celebration Effect */}
         {showCelebration && (
           <CelebrationEffect
@@ -180,18 +184,17 @@ export default function FinancialHealth() {
             icon={<BarChart3 className="w-6 h-6" />}
           />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <LiquidMetricCard
+            <HealthDiagnosticCard
               title="Credit Health"
               subtitle="FICO Score Impact"
               value={`${Math.round((healthData?.components?.credit || 50) * 8.5)} / 850`}
-              numericValue={Math.round((healthData?.components?.credit || 50) * 8.5)}
               score={healthData?.components?.credit || 50}
               icon={CreditCard}
               actionLabel="View Credit Report"
               actionLink="/credit"
             />
             
-            <LiquidMetricCard
+            <HealthDiagnosticCard
               title="Debt Management"
               subtitle="Total Debt Level"
               value="Low Risk"
@@ -201,29 +204,27 @@ export default function FinancialHealth() {
               actionLink="/debts"
             />
             
-            <LiquidMetricCard
+            <HealthDiagnosticCard
               title="Savings Progress"
               subtitle="Goal Achievement"
               value={`${healthData?.components?.savings || 50}%`}
-              numericValue={healthData?.components?.savings || 50}
               score={healthData?.components?.savings || 50}
               icon={PiggyBank}
               actionLabel="Review Goals"
               actionLink="/goals"
             />
             
-            <LiquidMetricCard
+            <HealthDiagnosticCard
               title="Goal Tracking"
               subtitle="Goals on Track"
               value={`${healthData?.components?.goals || 50}%`}
-              numericValue={healthData?.components?.goals || 50}
               score={healthData?.components?.goals || 50}
               icon={Target}
               actionLabel="Manage Goals"
               actionLink="/goals"
             />
             
-            <LiquidMetricCard
+            <HealthDiagnosticCard
               title="Investment Health"
               subtitle="Portfolio Diversity"
               value="Good"
@@ -233,11 +234,10 @@ export default function FinancialHealth() {
               actionLink="/investments"
             />
             
-            <LiquidMetricCard
+            <HealthDiagnosticCard
               title="Emergency Fund"
               subtitle="Months of Coverage"
               value={`${((healthData?.components?.emergency_fund || 50) / 20).toFixed(1)} months`}
-              numericValue={((healthData?.components?.emergency_fund || 50) / 20)}
               score={healthData?.components?.emergency_fund || 50}
               icon={Shield}
               actionLabel="Build Fund"
