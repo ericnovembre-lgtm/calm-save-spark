@@ -1,4 +1,4 @@
-import { Home, TrendingUp, Target, Settings, PieChart, Trophy } from "lucide-react";
+import { Home, TrendingUp, Settings, PieChart, Gift } from "lucide-react";
 import { BottomNavItem } from "./BottomNavItem";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
@@ -10,7 +10,7 @@ const navItems = [
   { name: "Home", path: "/dashboard", icon: Home },
   { name: "Money", path: "/hubs/manage-money", icon: PieChart },
   { name: "Wealth", path: "/hubs/grow-wealth", icon: TrendingUp },
-  { name: "AI", path: "/hubs/ai-insights", icon: Target },
+  { name: "Rewards", path: "/rewards", icon: Gift },
   { name: "More", path: "/features-hub", icon: Settings },
 ];
 
