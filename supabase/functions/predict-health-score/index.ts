@@ -181,7 +181,7 @@ async function calculateCurrentHealthScore(supabase: any, userId: string): Promi
     .eq('user_id', userId);
 
   if (budgets && budgets.length > 0) {
-    const overBudgetCount = budgets.filter((b: any) => b.spent > b.amount).length;
+    const overBudgetCount = budgets.filter((b: any) => b.spent > b.total_limit).length;
     const complianceRate = 1 - overBudgetCount / budgets.length;
     score += complianceRate * 15;
   }
@@ -257,7 +257,7 @@ async function getBudgetCompliance(supabase: any, userId: string) {
     return { impact: 0, direction: 'stable', description: 'No budgets set' };
   }
 
-  const overBudgetCount = budgets.filter((b: any) => b.spent > b.amount).length;
+  const overBudgetCount = budgets.filter((b: any) => b.spent > b.total_limit).length;
   const complianceRate = 1 - overBudgetCount / budgets.length;
 
   return {

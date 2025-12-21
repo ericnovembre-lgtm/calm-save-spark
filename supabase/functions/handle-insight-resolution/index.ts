@@ -131,7 +131,7 @@ async function handleCreateBudget(supabase: any, userId: string, data: any) {
     .insert({
       user_id: userId,
       category,
-      amount,
+      total_limit: amount,
       period: 'monthly'
     })
     .select()
@@ -177,7 +177,7 @@ async function handleAdjustBudget(supabase: any, userId: string, data: any) {
   
   const { data: budget, error } = await supabase
     .from('user_budgets')
-    .update({ amount: suggested_limit })
+    .update({ total_limit: suggested_limit })
     .eq('id', budget_id)
     .eq('user_id', userId)
     .select()

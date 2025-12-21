@@ -111,7 +111,7 @@ export async function observerAgentHandler(params: HandlerParams): Promise<Insig
 
   for (const budget of budgets || []) {
     const spent = budget.budget_spending?.[0]?.spent_amount || 0;
-    const limit = parseFloat(budget.amount);
+    const limit = parseFloat(budget.total_limit);
     const percentage = (spent / limit) * 100;
 
     if (percentage > 90 && percentage < 100) {
