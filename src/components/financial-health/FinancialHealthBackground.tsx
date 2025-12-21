@@ -37,12 +37,15 @@ export const FinancialHealthBackground = ({ score = 50 }: FinancialHealthBackgro
   const lastHapticNodeRef = useRef<number | null>(null);
   const hapticProximityRef = useRef<number>(0);
 
-  // Get node color based on health score
+  // Get node color based on health score - using brand-aligned warm gold/beige
+  // Modulates brightness based on score for visual hierarchy
   const getNodeColor = useCallback((score: number): string => {
-    if (score >= 81) return '142, 71%, 45%'; // green
-    if (score >= 61) return '217, 91%, 60%'; // blue
-    if (score >= 41) return '45, 93%, 47%'; // yellow/amber
-    return '0, 72%, 51%'; // red
+    // Brand accent: 38 45% 68% (warm gold/beige)
+    // Higher scores = brighter, more saturated gold
+    if (score >= 81) return '38, 55%, 72%'; // bright gold
+    if (score >= 61) return '38, 45%, 68%'; // standard accent
+    if (score >= 41) return '38, 35%, 58%'; // muted beige
+    return '38, 25%, 48%'; // dim beige
   }, []);
 
   // Initialize nodes

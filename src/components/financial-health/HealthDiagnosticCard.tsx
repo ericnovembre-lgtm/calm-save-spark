@@ -62,26 +62,26 @@ export const HealthDiagnosticCard = ({
     setIsHovered(false);
   };
 
-  // Score-based color - consistent thresholds (81/61/41)
+  // Score-based color - using CSS health variables for semantic colors
   const getScoreColor = (score: number) => {
-    if (score >= 81) return 'text-green-500';
-    if (score >= 61) return 'text-blue-500';
-    if (score >= 41) return 'text-yellow-500';
-    return 'text-red-500';
+    if (score >= 81) return 'text-[hsl(var(--health-excellent))]';
+    if (score >= 61) return 'text-[hsl(var(--health-good))]';
+    if (score >= 41) return 'text-[hsl(var(--health-fair))]';
+    return 'text-[hsl(var(--health-poor))]';
   };
 
   const getScoreGradient = (score: number) => {
-    if (score >= 81) return 'from-green-500/20 to-green-500/5';
-    if (score >= 61) return 'from-blue-500/20 to-blue-500/5';
-    if (score >= 41) return 'from-yellow-500/20 to-yellow-500/5';
-    return 'from-red-500/20 to-red-500/5';
+    if (score >= 81) return 'from-[hsl(var(--health-excellent)/0.2)] to-[hsl(var(--health-excellent)/0.05)]';
+    if (score >= 61) return 'from-[hsl(var(--health-good)/0.2)] to-[hsl(var(--health-good)/0.05)]';
+    if (score >= 41) return 'from-[hsl(var(--health-fair)/0.2)] to-[hsl(var(--health-fair)/0.05)]';
+    return 'from-[hsl(var(--health-poor)/0.2)] to-[hsl(var(--health-poor)/0.05)]';
   };
 
   const getProgressColor = (score: number) => {
-    if (score >= 81) return 'bg-green-500';
-    if (score >= 61) return 'bg-blue-500';
-    if (score >= 41) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (score >= 81) return 'bg-[hsl(var(--health-excellent))]';
+    if (score >= 61) return 'bg-[hsl(var(--health-good))]';
+    if (score >= 41) return 'bg-[hsl(var(--health-fair))]';
+    return 'bg-[hsl(var(--health-poor))]';
   };
 
   return (

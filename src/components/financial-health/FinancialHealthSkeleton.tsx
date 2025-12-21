@@ -51,31 +51,31 @@ const NeuralSkeletonBackground = () => {
         node.phase += 0.02;
         const pulse = 0.3 + Math.sin(node.phase) * 0.2;
 
-        // Draw connection lines to nearby nodes
+        // Draw connection lines to nearby nodes - brand accent (warm gold)
         nodes.forEach(other => {
           const dist = Math.sqrt(Math.pow(node.x - other.x, 2) + Math.pow(node.y - other.y, 2));
           if (dist < 150 && dist > 0) {
             ctx.beginPath();
-            ctx.strokeStyle = `hsla(217, 91%, 60%, ${(1 - dist / 150) * 0.08})`;
+            ctx.strokeStyle = `hsla(38, 45%, 68%, ${(1 - dist / 150) * 0.08})`;
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(other.x, other.y);
             ctx.stroke();
           }
         });
 
-        // Draw node glow
+        // Draw node glow - brand accent
         const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, 12);
-        gradient.addColorStop(0, `hsla(217, 91%, 60%, ${pulse * 0.3})`);
-        gradient.addColorStop(1, 'hsla(217, 91%, 60%, 0)');
+        gradient.addColorStop(0, `hsla(38, 45%, 68%, ${pulse * 0.3})`);
+        gradient.addColorStop(1, 'hsla(38, 45%, 68%, 0)');
         ctx.beginPath();
         ctx.arc(node.x, node.y, 12, 0, Math.PI * 2);
         ctx.fillStyle = gradient;
         ctx.fill();
 
-        // Draw node core
+        // Draw node core - brand accent
         ctx.beginPath();
         ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(217, 91%, 60%, ${pulse + 0.2})`;
+        ctx.fillStyle = `hsla(38, 45%, 68%, ${pulse + 0.2})`;
         ctx.fill();
       });
 
@@ -110,7 +110,7 @@ const NucleusSkeleton = () => {
               key={i}
               className="absolute inset-0 rounded-full border-2 border-dashed"
               style={{
-                borderColor: `hsla(217, 91%, 60%, ${0.2 - i * 0.05})`,
+                borderColor: `hsla(38, 45%, 68%, ${0.2 - i * 0.05})`,
                 transform: `rotateX(${60 + i * 20}deg) rotateY(${i * 30}deg)`,
               }}
               animate={prefersReducedMotion ? {} : { rotate: 360 }}
@@ -126,7 +126,7 @@ const NucleusSkeleton = () => {
           <motion.div
             className="absolute inset-0 m-auto w-24 h-24 rounded-full"
             style={{
-              background: 'radial-gradient(circle, hsla(217, 91%, 60%, 0.3) 0%, hsla(217, 91%, 60%, 0) 70%)',
+              background: 'radial-gradient(circle, hsla(38, 45%, 68%, 0.3) 0%, hsla(38, 45%, 68%, 0) 70%)',
             }}
             animate={prefersReducedMotion ? {} : { scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
             transition={{
@@ -167,13 +167,13 @@ const PulseStreamSkeleton = () => {
         <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
           <defs>
             <linearGradient id="ekgGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="hsla(217, 91%, 60%, 0)" />
-              <stop offset="50%" stopColor="hsla(217, 91%, 60%, 0.6)" />
-              <stop offset="100%" stopColor="hsla(217, 91%, 60%, 0)" />
+              <stop offset="0%" stopColor="hsla(38, 45%, 68%, 0)" />
+              <stop offset="50%" stopColor="hsla(38, 45%, 68%, 0.6)" />
+              <stop offset="100%" stopColor="hsla(38, 45%, 68%, 0)" />
             </linearGradient>
             <linearGradient id="liquidFill" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="hsla(217, 91%, 60%, 0.15)" />
-              <stop offset="100%" stopColor="hsla(217, 91%, 60%, 0)" />
+              <stop offset="0%" stopColor="hsla(38, 45%, 68%, 0.15)" />
+              <stop offset="100%" stopColor="hsla(38, 45%, 68%, 0)" />
             </linearGradient>
           </defs>
 
@@ -262,7 +262,7 @@ const DiagnosticCardSkeleton = ({ index }: { index: number }) => {
           <motion.div
             className="absolute inset-0 w-full"
             style={{
-              background: 'linear-gradient(90deg, transparent 0%, hsla(217, 91%, 60%, 0.1) 50%, transparent 100%)',
+              background: 'linear-gradient(90deg, transparent 0%, hsla(38, 45%, 68%, 0.1) 50%, transparent 100%)',
             }}
             animate={{ x: ['-100%', '200%'] }}
             transition={{
@@ -278,7 +278,7 @@ const DiagnosticCardSkeleton = ({ index }: { index: number }) => {
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full">
             <pattern id={`nodePattern-${index}`} x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-              <circle cx="20" cy="20" r="1.5" fill="hsla(217, 91%, 60%, 0.5)" />
+              <circle cx="20" cy="20" r="1.5" fill="hsla(38, 45%, 68%, 0.5)" />
             </pattern>
             <rect width="100%" height="100%" fill={`url(#nodePattern-${index})`} />
           </svg>
@@ -318,14 +318,14 @@ const DiagnosticCardSkeleton = ({ index }: { index: number }) => {
           <motion.div
             className="h-2 w-full rounded-full bg-muted/20 overflow-hidden"
           >
-            <motion.div
-              className="h-full rounded-full"
-              style={{
-                background: 'linear-gradient(90deg, hsla(217, 91%, 60%, 0.3), hsla(217, 91%, 60%, 0.5))',
-              }}
-              animate={prefersReducedMotion ? { width: '60%' } : { width: ['0%', '70%', '60%'] }}
-              transition={{ duration: 1.5, delay: index * 0.2 + 0.5 }}
-            />
+          <motion.div
+            className="h-full rounded-full"
+            style={{
+              background: 'linear-gradient(90deg, hsla(38, 45%, 68%, 0.3), hsla(38, 45%, 68%, 0.5))',
+            }}
+            animate={prefersReducedMotion ? { width: '60%' } : { width: ['0%', '70%', '60%'] }}
+            transition={{ duration: 1.5, delay: index * 0.2 + 0.5 }}
+          />
           </motion.div>
         </div>
 
@@ -347,7 +347,7 @@ const HeaderSkeleton = () => {
       <motion.div
         className="h-12 w-3/4 mx-auto rounded-lg"
         style={{
-          background: 'linear-gradient(90deg, hsla(217, 91%, 60%, 0.1), hsla(217, 91%, 60%, 0.2), hsla(217, 91%, 60%, 0.1))',
+          background: 'linear-gradient(90deg, hsla(38, 45%, 68%, 0.1), hsla(38, 45%, 68%, 0.2), hsla(38, 45%, 68%, 0.1))',
         }}
         animate={prefersReducedMotion ? {} : { opacity: [0.5, 0.8, 0.5] }}
         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
