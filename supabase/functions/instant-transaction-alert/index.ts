@@ -264,11 +264,11 @@ serve(async (req) => {
     
     const { data: budgets } = await supabase
       .from('user_budgets')
-      .select('amount')
+      .select('total_limit')
       .eq('user_id', userId)
       .eq('is_active', true);
     
-    const monthlyBudget = budgets?.reduce((sum, b) => sum + (b.amount || 0), 0) || 2000;
+    const monthlyBudget = budgets?.reduce((sum, b) => sum + (b.total_limit || 0), 0) || 2000;
 
     const userContext = {
       averageSpend: Math.round(averageSpend * 100) / 100,

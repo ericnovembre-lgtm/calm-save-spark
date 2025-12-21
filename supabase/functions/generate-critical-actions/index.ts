@@ -110,7 +110,7 @@ serve(async (req) => {
       .from("detected_subscriptions")
       .select("*")
       .eq("user_id", user.id)
-      .eq("is_active", true);
+      .eq("status", "active");
 
     const unusedSubs = subscriptions?.filter(sub => {
       const lastCharge = new Date(sub.last_charge_date || 0);

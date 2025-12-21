@@ -79,7 +79,7 @@ async function fetchUserFinancialContext(supabase: any, userId: string): Promise
   // Fetch budget status
   const { data: budgets } = await supabase
     .from('user_budgets')
-    .select('category, amount')
+    .select('id, category, total_limit')
     .eq('user_id', userId)
     .eq('is_active', true);
 
@@ -90,7 +90,7 @@ async function fetchUserFinancialContext(supabase: any, userId: string): Promise
 
   const budgetStatus = budgets?.map((b: any) => {
     const spent = spending?.find((s: any) => s.budget_id === b.id)?.spent_amount || 0;
-    return { category: b.category, spent, limit: b.amount };
+    return { category: b.category, spent, limit: b.total_limit };
   }) || [];
 
   // Fetch streak

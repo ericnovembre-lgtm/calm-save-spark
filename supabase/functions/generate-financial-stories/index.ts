@@ -93,7 +93,7 @@ serve(async (req) => {
         .from('detected_subscriptions')
         .select('merchant, amount, last_charge_date')
         .eq('user_id', user.id)
-        .eq('is_active', true),
+        .eq('status', 'active'),
       supabaseClient
         .from('profiles')
         .select('current_streak, last_activity_date')
