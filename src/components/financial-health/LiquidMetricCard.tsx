@@ -38,32 +38,32 @@ export const LiquidMetricCard = ({
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return {
-      bg: 'from-green-500/20 to-green-600/10',
-      border: 'border-green-500/30',
-      text: 'text-green-600 dark:text-green-400',
-      glow: 'shadow-green-500/20',
-      liquid: 'fill-green-500/30'
+      bg: 'from-[hsl(var(--health-excellent)/0.2)] to-[hsl(var(--health-excellent)/0.1)]',
+      border: 'border-[hsl(var(--health-excellent)/0.3)]',
+      text: 'text-[hsl(var(--health-excellent))]',
+      glow: 'shadow-[hsl(var(--health-excellent)/0.2)]',
+      liquid: 'fill-[hsl(var(--health-excellent)/0.3)]'
     };
     if (score >= 60) return {
-      bg: 'from-blue-500/20 to-blue-600/10',
-      border: 'border-blue-500/30',
-      text: 'text-blue-600 dark:text-blue-400',
-      glow: 'shadow-blue-500/20',
-      liquid: 'fill-blue-500/30'
+      bg: 'from-[hsl(var(--health-good)/0.2)] to-[hsl(var(--health-good)/0.1)]',
+      border: 'border-[hsl(var(--health-good)/0.3)]',
+      text: 'text-[hsl(var(--health-good))]',
+      glow: 'shadow-[hsl(var(--health-good)/0.2)]',
+      liquid: 'fill-[hsl(var(--health-good)/0.3)]'
     };
     if (score >= 40) return {
-      bg: 'from-yellow-500/20 to-yellow-600/10',
-      border: 'border-yellow-500/30',
-      text: 'text-yellow-600 dark:text-yellow-400',
-      glow: 'shadow-yellow-500/20',
-      liquid: 'fill-yellow-500/30'
+      bg: 'from-[hsl(var(--health-fair)/0.2)] to-[hsl(var(--health-fair)/0.1)]',
+      border: 'border-[hsl(var(--health-fair)/0.3)]',
+      text: 'text-[hsl(var(--health-fair))]',
+      glow: 'shadow-[hsl(var(--health-fair)/0.2)]',
+      liquid: 'fill-[hsl(var(--health-fair)/0.3)]'
     };
     return {
-      bg: 'from-red-500/20 to-red-600/10',
-      border: 'border-red-500/30',
-      text: 'text-red-600 dark:text-red-400',
-      glow: 'shadow-red-500/20',
-      liquid: 'fill-red-500/30'
+      bg: 'from-[hsl(var(--health-poor)/0.2)] to-[hsl(var(--health-poor)/0.1)]',
+      border: 'border-[hsl(var(--health-poor)/0.3)]',
+      text: 'text-[hsl(var(--health-poor))]',
+      glow: 'shadow-[hsl(var(--health-poor)/0.2)]',
+      liquid: 'fill-[hsl(var(--health-poor)/0.3)]'
     };
   };
 
@@ -175,7 +175,7 @@ export const LiquidMetricCard = ({
 
             {trend !== undefined && (
               <motion.div
-                className={`flex items-center gap-2 text-sm font-medium ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                className={`flex items-center gap-2 text-sm font-medium ${trend >= 0 ? 'text-[hsl(var(--health-excellent))]' : 'text-[hsl(var(--health-poor))]'}`}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 }}
